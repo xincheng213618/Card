@@ -1562,7 +1562,7 @@ public sealed class SkillProgramExecutor
                     effect.Op is (SkillProgramEffectOp.ResolveOrdinaryCaiFuRenXianzhou or SkillProgramEffectOp.ResolveOrdinaryCaiFuRenQieting) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveWuyouContributionAndNamedReturn && state.CanContinueAfterOwnerDeath(frame) ||
-                    effect.Op is (SkillProgramEffectOp.ResolveMouYuJinXiayuan or SkillProgramEffectOp.ResolveMouYuJinJieyue or SkillProgramEffectOp.ResolveMouLiuChengCompletion or SkillProgramEffectOp.ResolveMouXuHuangDuanliang or SkillProgramEffectOp.ResolveMouXuHuangShipo) && state.CanContinueAfterOwnerDeath(frame) ||
+                    effect.Op is (SkillProgramEffectOp.ResolveMouYuJinXiayuan or SkillProgramEffectOp.ResolveMouYuJinJieyue or SkillProgramEffectOp.ResolveMouLiuChengCompletion or SkillProgramEffectOp.ResolveMouXuHuangDuanliang or SkillProgramEffectOp.ResolveMouXuHuangShipo or SkillProgramEffectOp.ResolveMouChenGongMingceGift or SkillProgramEffectOp.ResolveMouChenGongMingceRelease) && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveWeiwanQinDiscardAndSuitObtain && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveOlMoRumoRoundPenalty && state.CanContinueAfterOwnerDeath(frame) ||
                     effect.Op == SkillProgramEffectOp.ResolveZixiUniqueTargetJudgmentEffects && state.CanContinueAfterOwnerDeath(frame) ||

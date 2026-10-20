@@ -65,12 +65,29 @@ internal static class DamageNaturePreventionChecks
             !Facts<DamageAppliedEvent>(chain).Any(e => e.TargetSeat == seat)),
             "A successful physical Fire Slash still propagates, but each chained Shixin target prevents its own actual attempt.");
         Cold(chain, chainRegistry);
+
+        var (unconditional, unconditionalRegistry) = Start(unconditional: true);
+        var protectedSeats = unconditional.State.Players.Where(p => p.Seat != 0 &&
+            p.Skills?.Any(skill => skill.ContentId == "fixture:nature-unconditional") == true).Select(p => p.Seat).ToArray();
+        var unprotected = unconditional.State.Players.Single(p => p.Seat != 0 && !protectedSeats.Contains(p.Seat)).Seat;
+        foreach (var seat in protectedSeats.Append(unprotected)) Driver(unconditional, "chain", seat);
+        var protectedHp = protectedSeats.ToDictionary(seat => seat, seat => unconditional.State.Players[seat].Hp);
+        var unprotectedHp = unconditional.State.Players[unprotected].Hp;
+        var ordinaryAttempt = unconditional.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.Slash && a.TargetSeats.SequenceEqual([unprotected]));
+        Accept(unconditional, new PlayCardCommand(0, ordinaryAttempt.CardId!.Value, ordinaryAttempt.TargetSeats, unconditional.Revision, Pending(unconditional)!.PromptId));
+        Play(unconditional);
+        Require(protectedSeats.Length == 2 && unconditional.State.Players[unprotected].Hp == unprotectedHp - 1 && protectedSeats.All(seat =>
+            unconditional.State.Players[seat].Hp == protectedHp[seat] &&
+            Facts<ProgramDamagePreventedEvent>(unconditional).Count(e => e.TargetSeat == seat && e.SkillId == "fixture:nature-unconditional") == 1 &&
+            !Facts<DamageAppliedEvent>(unconditional).Any(e => e.TargetSeat == seat)),
+            "Generic unconditional native prevention re-enters for each actual propagated chain target without requiring an unrelated nature condition.");
+        Cold(unconditional, unconditionalRegistry);
     }
 
-    private static (GameEngine, ContentRegistry) Start(bool preparation = false, bool stopAtPreparation = false)
+    private static (GameEngine, ContentRegistry) Start(bool preparation = false, bool stopAtPreparation = false, bool unconditional = false)
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(preparation));
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(preparation, unconditional));
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode,
@@ -129,7 +146,7 @@ internal static class DamageNaturePreventionChecks
     }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
-    private sealed class Fixture(bool preparation) : IGameContentPackage
+    private sealed class Fixture(bool preparation, bool unconditional) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-damage-nature", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -155,10 +172,21 @@ internal static class DamageNaturePreventionChecks
             "effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]}]}]}]}
             """, """{"schemaVersion":3,"skills":{"fixture:nature-pause":{"name":"冻结","description":"冻结真实伤害属性","optionLabels":{"continue":"继续"}}}}""");
             builder.AddSkill(new(PauseSkill, "冻结", "冻结真实伤害属性") { Program = pause.Programs[PauseSkill], ProgramPresentation = pause.Presentations[PauseSkill] });
+            const string unconditionalSkill = "fixture:nature-unconditional";
+            if (unconditional)
+            {
+                var prevention = SkillProgramCatalog.Load($$"""
+                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:nature-unconditional","revision":1,
+                "triggers":[{"id":"prevent","window":"beforeDamageApplied","subject":"damageTarget","optional":false,
+                "effects":[{"op":"preventCurrentDamage","target":"owner"}]}]}]}
+                """, """{"schemaVersion":3,"skills":{"fixture:nature-unconditional":{"name":"防伤","description":"无条件原生防伤"}}}""");
+                builder.AddSkill(new(unconditionalSkill, "防伤", "无条件原生防伤") { Program = prevention.Programs[unconditionalSkill] });
+            }
+            var immunity = unconditional ? unconditionalSkill : "mobile:shixin";
             builder.AddGeneral(new("fixture:nature-owner", "机制来源", "supporter", DriverSkill, "wu", 8,
-                preparation ? ["mobile:yingjian", "mobile:shixin"] : ["mobile:shixin", PauseSkill], GeneralGender.Female));
+                preparation ? ["mobile:yingjian", immunity] : [immunity, PauseSkill], GeneralGender.Female));
             for (var i = 1; i < 4; i++)
-                builder.AddGeneral(new($"fixture:nature-{i}", "机制目标", "supporter", i == 3 ? "standard:none" : "mobile:shixin", "qun", 8));
+                builder.AddGeneral(new($"fixture:nature-{i}", "机制目标", "supporter", i == 3 ? "standard:none" : immunity, "qun", 8));
             builder.AddDeck(new("fixture:nature-deck", "火杀实体牌堆", 4, 2, [])
             {
                 PhysicalCards = Enumerable.Range(0, 64).Select(i => new ContentDeckPhysicalCard("standard:fire_slash", (Suit)(i % 4), i % 13 + 1)).ToArray()

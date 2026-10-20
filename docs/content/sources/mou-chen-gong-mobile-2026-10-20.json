@@ -1,0 +1,232 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-20",
+  "name": "谋陈宫·移动版",
+  "generalId": "mou:chen-gong-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "officialIdentity": {
+    "generalId": "mou:chen-gong-mobile",
+    "characterId": "character:chen-gong",
+    "variantId": "mou-mobile",
+    "rulesetId": "sanguosha-mobile",
+    "officialName": "谋·陈宫",
+    "heroPageId": 512,
+    "internalGeneralId": 624,
+    "faction": "qun",
+    "gender": "Male",
+    "hp": 3
+  },
+  "sources": {
+    "hero": {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-512.html",
+      "httpStatus": 200,
+      "bytes": 19535,
+      "sha256": "f112ca1dd55ca8fb592b07dea59e8ed32bd7b6e839566112a55d0b59ce6335c6",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    "api": {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "bytes": 1820041,
+      "sha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27"
+    },
+    "formalLaunch": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1554.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1554.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 43498,
+      "sha256": "CFCE8AE6F30406772EB4162E48D71D794DBDBEAF1FD34923314E88AB152FED13",
+      "fetchedAtUtc": "2026-10-20T08:11:06.451608+00:00",
+      "publishedAt": "2023-06-30 17:30:00",
+      "effectiveFrom": "2023-07-01"
+    }
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:mingce",
+      "name": "明策",
+      "text": "出牌阶段限一次，你可以将一张牌交给一名其他角色，然后其选择一项：1. 其流失1点体力，你摸两张牌并获得一个“策”标记；2.其摸一张牌。出牌阶段开始时，若你拥有“策”标记，你可以选择一名其他角色，对其造成X点伤害并移除所有“策”标记（X为你拥有的“策”标记数量）。",
+      "source": "https://www.sanguosha.cn/pc/hero-detail-512.html",
+      "sha256": "da5128400a0fd2ca22933a31d6814dfc221dad0f9619142d2d124496928e2a7d",
+      "initiallyOwned": true
+    },
+    {
+      "id": "mou-mobile:zhichi",
+      "name": "智迟",
+      "text": "锁定技，当你受到伤害后，本回合接下来你受到伤害时，防止之。",
+      "source": "https://www.sanguosha.cn/pc/hero-detail-512.html",
+      "sha256": "bfc0e8371c78259f0ae1e025ac10cde17760d0fdb85b1160ed368b64f2c85c6e",
+      "initiallyOwned": true
+    }
+  ],
+  "derivedGrantedSkills": [],
+  "firstPermanentAvailability": {
+    "date": "2023-07-01",
+    "source": "https://www.sanguosha.cn/pc/news-detail-1554.html",
+    "finding": "Mainland official notice announces Mou Chen Gong as the 2023 S7-S9 Master rank reward effective July 1. Historical reward conditions are not claimed current."
+  },
+  "currentVersusFormal": {
+    "completeHeroAndLiveApiExactMatch": true,
+    "mainlandLaunchConfirmsRelease": true,
+    "revisionSearch": {
+      "boundedQueries": [
+        {
+          "query": "site:www.sanguosha.cn/pc/news-detail \"谋陈宫上线\"",
+          "result": "Found official mainland launch news1554 dated2023-06-30 17:30, effective July1 and S7-S9 master reward."
+        },
+        {
+          "query": "site:www.sanguosha.cn/pc/news-detail \"明策\" \"智迟\"",
+          "result": "Current hero512 complete text; unrelated classic ChenGong hero103 and 2019 mode news689 explicitly excluded."
+        },
+        {
+          "query": "site:www.sanguosha.cn/pc/news-detail \"陈宫\" \"调整后\"",
+          "result": "No applicable formal MouChenGong skill revision located in bounded search; do not infer none ever existed."
+        },
+        {
+          "query": "site:www.sanguosha.cn/pc/news-detail \"陈宫\" \"谋攻\"",
+          "result": "No conflicting applicable formal revision located; current official hero+live API agree for both complete skills."
+        }
+      ],
+      "noApplicableConflictingFormalRevisionFound": true,
+      "absenceIsNotExhaustiveProof": true,
+      "officialFaqConfirmed": false,
+      "communityMaterialsUsedAsAuthority": false
+    }
+  },
+  "artwork": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/62400.jpg",
+    "finalUrl": "https://www.sanguosha.cn/storage/uploads/images/62400.jpg",
+    "httpStatus": 200,
+    "contentType": "image/jpeg",
+    "bytes": 290587,
+    "fetchedAtUtc": "2026-10-20T08:11:06.323347+00:00",
+    "sha256": "328bde7d54054e9ccf1260e029b3b077b9916a6fc84c1e99f53e556a6889bee7",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-chen-gong-mobile.jpg",
+    "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-512.html",
+    "unmodifiedOfficialBytes": true,
+    "visualSubjectVerified": true,
+    "wpfRenderingVerified": true,
+    "inspection": "Root viewed the exact original portrait: a crowned, mustached strategist in black and purple robes, wearing a sword beside a snow-covered tower railing, with snowflakes and tiled buildings behind him. Full original framing preserved; no image edit."
+  },
+  "engineeringDecisions": [
+    {
+      "id": "owned-gift-and-choice",
+      "selection": "Give exactly one standard owned Hand or Equipment entity to one living other. Resume the recipient choice after the complete paid native movement subtree, preserving actual destination including native OutsideGame normalization rather than pretending a card entered Hand.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete current official wording and existing native settlement boundaries; not an official FAQ or user-selected ruling."
+    },
+    {
+      "id": "accepted-branch-lifetime",
+      "selection": "Recipient option1 performs genuine LoseHp1 and all dying/rescue descendants, then the living original owner draws2 and gains Ce1. A nonterminal recipient death does not cancel the accepted owner reward; source loss does not cancel accepted obligations. Option2 performs one genuine recipient Draw1. Native winner cutoff and dead-beneficiary draw limits apply. A selected branch has no extra requirement that actual HP loss equal1 or actual draw gains equal the requested count; keep native prevented/replaced/short attempts truthful. After a paid gift, a living recipient can still resolve Draw1 despite nonterminal owner death; dead owners receive neither Draw2 nor Ce.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete current official wording and existing native settlement boundaries; not an official FAQ or user-selected ruling."
+    },
+    {
+      "id": "actual-play-and-quota",
+      "selection": "The gift is once per exact actual own Play keyed to owner and named skill, including source loss/regrant; public remaining usage uses the same facts. The separate optional release belongs to the actual own Play-start boundary, including extra Play phases, and does not spend the gift quota.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete current official wording and existing native settlement boundaries; not an official FAQ or user-selected ruling."
+    },
+    {
+      "id": "release-damage-then-clear",
+      "selection": "Freeze X from current Ce when the release target is accepted. Perform genuine normal DamageX with all native Armor/prevention/dying/descendants first, then remove all Ce held at the clearing step. This is not an up-front payment; declined release preserves Ce. Already accepted damage continues once after source loss or nonterminal owner death.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete current official wording and existing native settlement boundaries; not an official FAQ or user-selected ruling."
+    },
+    {
+      "id": "zhichi-received-damage-and-turn",
+      "selection": "Arm from a real native afterDamageApplied occurrence while the skill was held; never retroactively count damage before skill acquisition. The original damage is not prevented. Use the existing native damage-occurrence semantics, including its Armor-only rule, rather than inventing HP damage. Prevented damage and LoseHp do not arm. Source qualification is frozen at the native afterDamageApplied window, following the existing HP/grant updates. A skill legitimately acquired before that window can participate in that current occurrence; an independent later acquisition cannot arm from an already completed older damage. No pre-damage source snapshot is invented.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete current official wording and existing native settlement boundaries; not an official FAQ or user-selected ruling."
+    },
+    {
+      "id": "zhichi-issued-protection-lifetime",
+      "selection": "The already issued protection prevents every later genuine damage type, source-less damage and chain propagation for the remainder of the same actual turn, including own/foreign/extra turns. It survives source loss until that actual turn ends, without a finite charge count. Later reacquisition cannot protect against a previous unqualified occurrence.",
+      "status": "accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "userSelectedRuling": false,
+      "sourceLevel": "Root engineering choice from complete current official wording and existing native settlement boundaries; not an official FAQ or user-selected ruling."
+    }
+  ],
+  "engineeringInterpretations": [
+    "Give exactly one standard owned Hand or Equipment entity to one living other. Resume the recipient choice after the complete paid native movement subtree, preserving actual destination including native OutsideGame normalization rather than pretending a card entered Hand.",
+    "Recipient option1 performs genuine LoseHp1 and all dying/rescue descendants, then the living original owner draws2 and gains Ce1. A nonterminal recipient death does not cancel the accepted owner reward; source loss does not cancel accepted obligations. Option2 performs one genuine recipient Draw1. Native winner cutoff and dead-beneficiary draw limits apply. A selected branch has no extra requirement that actual HP loss equal1 or actual draw gains equal the requested count; keep native prevented/replaced/short attempts truthful. After a paid gift, a living recipient can still resolve Draw1 despite nonterminal owner death; dead owners receive neither Draw2 nor Ce.",
+    "The gift is once per exact actual own Play keyed to owner and named skill, including source loss/regrant; public remaining usage uses the same facts. The separate optional release belongs to the actual own Play-start boundary, including extra Play phases, and does not spend the gift quota.",
+    "Freeze X from current Ce when the release target is accepted. Perform genuine normal DamageX with all native Armor/prevention/dying/descendants first, then remove all Ce held at the clearing step. This is not an up-front payment; declined release preserves Ce. Already accepted damage continues once after source loss or nonterminal owner death.",
+    "Arm from a real native afterDamageApplied occurrence while the skill was held; never retroactively count damage before skill acquisition. The original damage is not prevented. Use the existing native damage-occurrence semantics, including its Armor-only rule, rather than inventing HP damage. Prevented damage and LoseHp do not arm. Source qualification is frozen at the native afterDamageApplied window, following the existing HP/grant updates. A skill legitimately acquired before that window can participate in that current occurrence; an independent later acquisition cannot arm from an already completed older damage. No pre-damage source snapshot is invented.",
+    "The already issued protection prevents every later genuine damage type, source-less damage and chain propagation for the remainder of the same actual turn, including own/foreign/extra turns. It survives source loss until that actual turn ends, without a finite charge count. Later reacquisition cannot protect against a previous unqualified occurrence."
+  ],
+  "verificationLimits": [
+    "Both complete current official hero/API skills and formal mainland launch were reviewed. Original official portrait was hashed, dimension-checked and actually inspected. No authenticated mobile client or character-specific official FAQ was used.",
+    "Focused behavior, relevant shared mechanisms, actual WPF gallery rendering and bounded routine checks passed. No manual Full run or complete foreground match. Root engineering interpretations are separate from official wording and user rulings."
+  ],
+  "validation": {
+    "status": "passed",
+    "sourceReview": "passed-with-explicit-engineering-boundaries",
+    "officialPortraitHashAndDimensions": "passed",
+    "officialPortraitVisualInspection": "passed",
+    "wpfRendering": "passed",
+    "focused": {
+      "corePassed": 27,
+      "wpfPassed": 1,
+      "durationMs": 26387
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 63716
+    },
+    "manualFullRun": false,
+    "focusedCheckNames": [
+      "Wenhe activity: real eight seats private draft and cold restore",
+      "Shanhe Armor: real Iron Chain full damage HP loss and maximum replacement cold",
+      "Shanhe team draw aura: source death loss before issue and frozen paid request cold",
+      "actual phase end: six actual phases typed cold returns skip and restoration",
+      "Native recast invocation: paid loss death and zero draw cold",
+      "Mou Huang Gai: real PlayStart gifts per point Loss Armor privacy cold",
+      "Mou Huang Gai: paid gift source loss dying rescue frozen Use cold",
+      "Le Cai Yong: initial Xian actual loss binary protection Armor expiry cold",
+      "Mou Yu Jin Mobile: exact damage invoice Armor only unbounded historical restore cold",
+      "Mou Yu Jin Mobile: paid discard source loss self rescue death native return cold",
+      "Mou Yu Jin Mobile: Jieyue actual Ending Armor first recipient optional Hand Equipment gift cold",
+      "Mou Xu Huang Mobile: actual Ending frozen full Shipo roster Hand or native damage cold",
+      "Mou Xu Huang Mobile: exact obtained subset one recipient paid source loss death cold",
+      "Mou Chen Gong Mobile: real HE gift choices exact Play quota paid children cold",
+      "Mou Chen Gong Mobile: actual Play start Ce damage then clear source lifetime cold",
+      "Mou Chen Gong Mobile: Zhichi native damage natures chain Armor Loss boundaries cold",
+      "Mou Chen Gong Mobile: Zhichi acquisition source lifetime actual turn expiry cold",
+      "character manifests preserve ordered registration and package isolation",
+      "Lv Qian: ActualWeiluRepeatedSourceNextPlayAndExactRestoreCold",
+      "Damage nature: fire chain normal thunder HP loss and cold replay",
+      "HP paid shield source death full damage prevention and once payment",
+      "committed event collections reject observer mutation",
+      "character manifests preserve program bindings and reject invalid input",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically"
+    ]
+  },
+  "rootIndependentReview": {
+    "baselineHead": "141f27adb57140113002aff19d1892c66aeaada5",
+    "officialHeroAndMainlandLaunchReopenedViaWeb": true,
+    "originalPortraitActuallyViewed": true,
+    "completeTwoSkillScopeConfirmed": true,
+    "fullApiAndHiddenHeroParagraphsMatch": true,
+    "identityApiSha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+    "rawHeroSha256": "f112ca1dd55ca8fb592b07dea59e8ed32bd7b6e839566112a55d0b59ce6335c6"
+  }
+}

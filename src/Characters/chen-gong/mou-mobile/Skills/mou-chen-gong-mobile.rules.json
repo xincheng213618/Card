@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:mingce",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "gift-and-plan",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouChenGongMingceGift",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "release-plan",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouChenGongMingceRelease",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:zhichi",
+      "revision": 1,
+      "states": [
+        {
+          "id": "zhichi-issued-this-turn",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "turn",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "arm-protection",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "zhichi-issued-this-turn",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "prevent-later-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "preventCurrentDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

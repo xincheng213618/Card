@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:mingce": {
+      "name": "明策",
+      "description": "出牌阶段限一次，你可以将一张牌交给一名其他角色，然后其选择一项：1. 其流失1点体力，你摸两张牌并获得一个“策”标记；2.其摸一张牌。出牌阶段开始时，若你拥有“策”标记，你可以选择一名其他角色，对其造成X点伤害并移除所有“策”标记（X为你拥有的“策”标记数量）。"
+    },
+    "mou-mobile:zhichi": {
+      "name": "智迟",
+      "description": "锁定技，当你受到伤害后，本回合接下来你受到伤害时，防止之。",
+      "booleanStates": {
+        "zhichi-issued-this-turn": {
+          "trueText": "本回合已发动智迟",
+          "falseText": "本回合尚未发动智迟"
+        }
+      }
+    }
+  }
+}
