@@ -348,6 +348,7 @@ public static partial class GeneralArt
             ["mou-hua-xiong-mobile"] = "official-mou-hua-xiong-mobile.jpg",
             ["mou-lu-meng-mobile"] = "official-mou-lu-meng-mobile.jpg",
             ["mou-yu-jin-mobile"] = "official-mou-yu-jin-mobile.jpg",
+            ["mou-liu-cheng-mobile"] = "official-mou-liu-cheng-mobile.jpg",
             // Official artwork URL and hash: docs/content/sources/mou-lu-meng-c22-2026-09-21.json.
             ["mou-lu-meng"] = "official-mou-lu-meng.png",
             // Official artwork URL and hash: docs/content/sources/cao-zhang-a54-2026-09-21.json.

@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-liu-cheng-mobile",
+      "characterName": "谋刘赪·移动版",
+      "defaultSkinId": "60900",
+      "skins": [
+        {
+          "id": "60900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-440.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/60900.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-liu-cheng-mobile.jpg",
+          "sha256": "be0ed5b85083cc238adfe6eee3e8a5a1e5f7d562aac230f57f8fd1a7b9a4c4b1",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
       "key": "mou-yu-jin-mobile",
       "characterName": "谋于禁·移动版",
       "defaultSkinId": "64100",
