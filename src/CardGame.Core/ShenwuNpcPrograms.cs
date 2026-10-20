@@ -135,10 +135,10 @@ public sealed partial class GameEngine
         switch (effect.Op)
         {
             case SkillProgramEffectOp.DrawShenwuWuzangReplacement:
-                DrawProgramCards(frame.Id, owner.Seat, Math.Max(5, owner.Hp / 2), null, null, SkillProgramCardSetVisibility.Private, reason);
+                DrawProgramCards(frame.Id, owner.Seat, Math.Max(5, owner.Hp / 2) + ShenwuReplacementDrawBonus(owner.Seat), null, null, SkillProgramCardSetVisibility.Private, reason);
                 break;
             case SkillProgramEffectOp.DrawShenwuCangmuReplacement:
-                DrawProgramCards(frame.Id, owner.Seat, _players.Count(p => p.IsAlive), null, null, SkillProgramCardSetVisibility.Private, reason);
+                DrawProgramCards(frame.Id, owner.Seat, _players.Count(p => p.IsAlive) + ShenwuReplacementDrawBonus(owner.Seat), null, null, SkillProgramCardSetVisibility.Private, reason);
                 break;
             case SkillProgramEffectOp.ResolveShenwuYinzei:
             {
@@ -192,7 +192,8 @@ public sealed partial class GameEngine
                     _resolutionStack.ElementAtOrDefault(_resolutionStack.Count - 2) is not BeforeDamageProgramWindowFrame damage ||
                     damage.Id != frame.WindowContext.ParentFrameId || damage.TargetSeat != owner.Seat)
                     throw new InvalidOperationException("Nitai requires its native before-damage window.");
-                if (ShenwuOwnActualTurn(owner.Seat) && !damage.Prevented) PreventProgramCurrentDamage(frame);
+                if ((frame.SkillId == "shenwu:zhaohuo" ? GetDamageNature(CurrentDamageAttempt!) == DamageNature.Fire : ShenwuOwnActualTurn(owner.Seat)) && !damage.Prevented)
+                    PreventProgramCurrentDamage(frame);
                 break;
             case SkillProgramEffectOp.LoseShenwuTanyuHp:
                 if (_players.Where(p => p.IsAlive).All(p => GetHand(p).Count <= GetHand(owner).Count))

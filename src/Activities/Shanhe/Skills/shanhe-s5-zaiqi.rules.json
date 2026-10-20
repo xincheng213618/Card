@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-zaiqi-887",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "replace-draw-with-lost-hp-plus-one-reveal",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 90,
+          "drawPhaseMode": "replacement",
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHp" },
+            "operator": "lessThan",
+            "right": { "kind": "currentMaxHp" }
+          },
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "numberExpression": "ownerLostHpPlusOne",
+              "resultBind": "revealed",
+              "visibility": "public"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "resultBind": "hearts",
+              "suits": ["heart"]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "numberExpression": "boundCardCount",
+              "sourceBind": "hearts"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "hearts",
+              "destination": "discardPile"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "exceptBind": "hearts",
+              "destination": "ownerHand"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

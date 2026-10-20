@@ -38,8 +38,14 @@ public sealed partial class GameEngine
         .Where(c => !IsSelfHandCategoryDiscardForbidden(owner.Seat, c, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).ToArray();
     private IReadOnlyList<Card> GetSelfDiscardableOwnedHand(CharacterState owner) => GetHand(owner)
         .Where(c => !IsSelfHandCategoryDiscardForbidden(owner.Seat, c, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).ToArray();
-    private int RequiredSelfHandLimitDiscard(CharacterState owner) => Math.Min(
-        Math.Max(0, GetDiscardEligibleHand(owner).Count - GetHandLimit(owner)), GetSelfDiscardableHand(owner).Count);
+    private int RequiredSelfHandLimitDiscard(CharacterState owner)
+    {
+        var excess = Math.Max(0, GetDiscardEligibleHand(owner).Count - GetHandLimit(owner));
+        if (excess == 0) return 0;
+        // Counted cards and self-discardable cards remain different sets. Only
+        // the amount owed changes, then the actual legal payment caps it.
+        return (int)Math.Min((long)excess * GetDiscardQuotaMultiplier(owner), GetSelfDiscardableHand(owner).Count);
+    }
     private IReadOnlyList<TurnHandCategoryRestriction>? GetTurnHandCategoryRestrictionSnapshot(int seat)
     {
         var policies = _turnCardUseEffects.HandCategoryRestrictions.Where(p => p.TurnNumber == _turnNumber && p.TurnSeat == _currentSeat && p.AffectedSeat == seat).ToArray();

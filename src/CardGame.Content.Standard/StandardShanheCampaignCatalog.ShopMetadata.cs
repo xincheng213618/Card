@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CardGame.Core;
+using CardGame.Core.Campaigns;
 
 namespace CardGame.Content.Standard;
 
@@ -12,11 +13,26 @@ public static partial class StandardShanheCampaignCatalog
     /// <summary>Exact public catalogue rows, keyed by runtime reward id. No quality-to-price inference.</summary>
     public static IReadOnlyDictionary<string, ShanheShopMetadata> ShopMetadataByRewardId => CodexShopMetadataCache.Values;
 
-    /// <summary>Ordinary equipment stock available without a skill-tree unlock in a new codex expedition.</summary>
+    /// <summary>Common default stock shared by the historical codex editions.</summary>
     public static IReadOnlyList<string> DefaultCodexUnlockedRewardIds { get; } = Array.AsReadOnly(new[]
     {
         "codex-card-4004", "codex-card-4008"
     });
+
+    /// <summary>Local default availability for a new expedition under this exact definition.</summary>
+    public static IReadOnlyList<string> GetDefaultCodexUnlockedRewardIds(ShanheCampaignDefinition definition)
+    {
+        var available = definition.Rewards.Select(reward => reward.Id).ToHashSet(StringComparer.Ordinal);
+        // These source tactics have no fixed tree node. This is local stock
+        // availability, not a grant, an initial loadout or a frozen-run migration.
+        return Array.AsReadOnly(DefaultCodexUnlockedRewardIds
+            .Concat([CurrentDuoduoYishanRewardId, CurrentDuoduoYishan2RewardId,
+                CurrentYaoliRewardId, CurrentYaoli2RewardId, CurrentYaoli3RewardId,
+                CurrentYaoli5RewardId, CurrentYaoli6RewardId,
+                CurrentDangtouRewardId, CurrentDangtou2RewardId, CurrentCommonDangtouRewardId,
+                CurrentLeihuoRewardId, CurrentLianjiRewardId, CurrentErlianjiRewardId])
+            .Where(available.Contains).ToArray());
+    }
 
     private static class CodexShopMetadataCache
     {
@@ -43,6 +59,31 @@ public static partial class StandardShanheCampaignCatalog
                 ["codex-19"] = new(4009, 200, 2, "装备", CardKind.GudingBlade, Suit.Spade, 1),
                 ["codex-21"] = new(4006, 200, 2, "装备", CardKind.ZhangbaSerpentSpear, Suit.Spade, 12),
                 ["codex-52"] = new(4010, 200, 2, "装备", CardKind.ZhuqueFan, Suit.Diamond, 1),
+                [S5KanpoRewardId] = new(3018, 300, 2, "技能"),
+                [CurrentJinnangJiRewardId] = new(2011, 300, 2, "战法"),
+                [CurrentDuoduoYishanRewardId] = new(2082, 200, 1, "战法"),
+                [CurrentDuoduoYishan2RewardId] = new(2083, 300, 2, "战法"),
+                [CurrentDuoduoYishan3RewardId] = new(2084, 700, 4, "战法"),
+                [CurrentYaoliRewardId] = new(2319, 200, 1, "战法"),
+                [CurrentYaoli2RewardId] = new(2320, 300, 2, "战法"),
+                [CurrentYaoli3RewardId] = new(2321, 500, 3, "战法"),
+                [CurrentYaoli4RewardId] = new(2322, 700, 4, "战法"),
+                [CurrentYaoli5RewardId] = new(2191, 500, 3, "战法"),
+                [CurrentYaoli6RewardId] = new(2192, 700, 4, "战法"),
+                [CurrentDangtouRewardId] = new(2036, 500, 3, "战法"),
+                [CurrentDangtou2RewardId] = new(2037, 700, 4, "战法"),
+                [CurrentCommonDangtouRewardId] = new(2038, 200, 1, "战法"),
+                [CurrentLeihuoRewardId] = new(2100, 300, 2, "战法"),
+                [CurrentLeihuo2RewardId] = new(2101, 700, 4, "战法"),
+                [CurrentLianjiRewardId] = new(2051, 300, 2, "战法"),
+                [CurrentLianji2RewardId] = new(2052, 700, 4, "战法"),
+                [CurrentErlianjiRewardId] = new(2053, 200, 1, "战法"),
+                [S5ShuangxiongRewardId] = new(3006, 1000, 4, "技能"),
+                ["codex-67"] = new(3112, 600, 3, "技能"),
+                ["codex-81"] = new(3010, 600, 3, "技能"),
+                ["codex-97"] = new(3048, 1000, 4, "技能"),
+                ["codex-112"] = new(3019, 600, 3, "技能"),
+                [S5ZaiqiRewardId] = new(3051, 300, 2, "技能"),
                 ["codex-54"] = new(4033, 200, 2, "装备", CardKind.CrimsonSoulZither, Suit.Diamond, 1),
                 ["codex-57"] = new(4029, 200, 2, "装备", CardKind.LionBelt, Suit.Spade, 2),
                 ["codex-66"] = new(4015, 400, 3, "装备", CardKind.RenwangShield, Suit.Club, 2),
@@ -65,6 +106,8 @@ public static partial class StandardShanheCampaignCatalog
                 ["tactic-mouming"] = new(2301, 300, 2, "战法"),
                 ["tactic-xiaoming"] = new(2300, 500, 3, "战法"),
                 ["tactic-duichu-2026"] = new(2202, 200, 1, "战法"),
+                ["tactic-duisha-2026"] = new(2329, 200, 1, "战法"),
+                [CurrentFarStrikeRewardId] = new(2129, 200, 1, "战法"),
                 ["tactic-jiban-2026"] = new(2204, 300, 2, "战法"),
                 ["original-qiangxi"] = new(3011, 600, 3, "技能"),
                 ["original-shizhan"] = new(3057, 100, 1, "技能"),

@@ -23,7 +23,7 @@ public sealed partial class MainViewModel
         var prompt = _snapshot.PendingDecision;
         _skillTargetChoices = prompt is { SkillPrompt: not null } && prompt.PlayerSeat == _snapshot.HumanSeat &&
             !IsHandResponsePrompt(_snapshot)
-            ? prompt.Choices.Where(choice => choice.Cards.Count == 0 && choice.ContentIds.Count == 0 &&
+            ? prompt.Choices.Where(choice => choice.Cards.Count == 0 && !HasOpaqueRegionSlot(choice) && choice.ContentIds.Count == 0 &&
                   choice.Targets.Count > 0 && choice.Targets.Distinct().Count() == choice.Targets.Count &&
                   choice.Targets.All(seat => _snapshot.Players.Any(player => player.Seat == seat)))
                 .GroupBy(choice => string.Join(",", choice.Targets))

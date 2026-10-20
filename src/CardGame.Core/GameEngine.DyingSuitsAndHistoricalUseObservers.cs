@@ -225,7 +225,7 @@ public sealed partial class GameEngine
             if(child is ProgramCardTriggerWindowFrame cards)return cards.ParentFrameId==use.Id && cards.Action.ActionId==use.Action!.ActionId &&
                 (cards.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement
                     ? IsExactFinalizedDelayedPlacementWindow(cards)
-                    : cards.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.CompletedCard or ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.FinalizedTrick or ProgramCardContinuation.CommittedSlash or ProgramCardContinuation.Slash or ProgramCardContinuation.CompletedSlash);
+                    : cards.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.BeforeSimpleTargetEffects or ProgramCardContinuation.CompletedCard or ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.FinalizedTrick or ProgramCardContinuation.CommittedSlash or ProgramCardContinuation.Slash or ProgramCardContinuation.CompletedSlash);
             if(child is RecoveryReplacementFrame recovery)return RecoveryReplacementFrameRidesOn(recovery,use);
         }
         return DyingSuitsStructuralEdge(parent,child) || HalfHandPaidDamageObserverEdge(index) || PaidTargetObserverEdge(index);

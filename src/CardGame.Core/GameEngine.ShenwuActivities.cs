@@ -84,7 +84,7 @@ public sealed partial class GameEngine
     {
         if (_modeDefinition.ShenwuActivity is not { } activity) return choice;
         var god = activity.GodPoolIds.Contains(general.Id, StringComparer.Ordinal);
-        var healthBonus = (activity.PlayerTier >= 2 ? 1 : 0) + (activity.PlayerTier >= 5 ? 1 : 0);
+        var healthBonus = ShenwuPlayerHealthBonus(activity);
         return choice with
         {
             Parameters = new Dictionary<string, string>(choice.Parameters, StringComparer.Ordinal)
@@ -97,15 +97,22 @@ public sealed partial class GameEngine
         };
     }
 
-    private GeneralDefinition ShenwuActivityGeneral(CharacterState player, GeneralDefinition general) =>
-        _modeDefinition.ShenwuActivity is { } activity && IsShenwuPlayerSlot(player.Seat)
-            ? general with { Skills = general.Skills.Concat(activity.PlayerSkillIds.Select(id =>
-                ToRuntimeSkillDefinition(_contentRegistry.GetSkill(id)))).ToArray() } : general;
+    private GeneralDefinition ShenwuActivityGeneral(CharacterState player, GeneralDefinition general)
+    {
+        if (_modeDefinition.ShenwuActivity is not { } activity) return general;
+        var extras = IsShenwuPlayerSlot(player.Seat) ? activity.PlayerSkillIds :
+            activity.Edition != 0 ? new[] { "shenwu:enemy-tier" }.Concat(activity.EnemyTier == 5 ? new[] { "shenwu:kunshou" } : []) : [];
+        return general with { Skills = general.Skills.Concat(extras.Select(id => ToRuntimeSkillDefinition(_contentRegistry.GetSkill(id)))).ToArray() };
+    }
+
+    private static int ShenwuPlayerHealthBonus(ShenwuActivityDefinition activity) =>
+        (activity.PlayerTier >= (activity.Edition == 0 ? 2 : 3) ? 1 : 0) + (activity.PlayerTier >= 5 ? 1 : 0);
 
     private void InitializeShenwuHealth(CharacterState player)
     {
-        var tier = _modeDefinition.ShenwuActivity!.PlayerTier;
-        var bonus = IsShenwuPlayerSlot(player.Seat) ? (tier >= 2 ? 1 : 0) + (tier >= 5 ? 1 : 0) : 0;
+        var activity = _modeDefinition.ShenwuActivity!;
+        var bonus = IsShenwuPlayerSlot(player.Seat) ? ShenwuPlayerHealthBonus(activity) :
+            activity.Edition == 2020 ? activity.EnemyTier switch { >= 4 => 2, >= 2 => 1, _ => 0 } : 0;
         player.MaxHp = checked(player.General.BaseHp + bonus);
         player.Hp = checked((player.General.InitialHp ?? player.General.BaseHp) + bonus);
     }
@@ -113,7 +120,20 @@ public sealed partial class GameEngine
     private IEnumerable<RuleQueryContribution> ShenwuActivityRuleContributions(CharacterState player, SkillRuleQuery query)
     {
         if (_modeDefinition.ShenwuActivity is not { } activity) yield break;
-        var tier = activity.PlayerTier;
+        var allied = IsShenwuPlayerSlot(player.Seat);
+        var tier = allied ? activity.PlayerTier : activity.EnemyTier;
+        if (activity.Edition != 0)
+        {
+            var extra = query switch
+            {
+                SkillRuleQuery.InitialHandSize => (tier >= 4 ? 2 : tier >= 2 ? 1 : 0) + (!allied && player.Seat == ShenwuLeaderSeat ? 8 - _initialHandSize : 0),
+                SkillRuleQuery.DrawCount => tier >= 4 ? 1 : 0,
+                SkillRuleQuery.SlashLimit => tier >= 3 ? 1 : 0,
+                _ => 0
+            };
+            if (extra != 0) yield return new FiniteRuleQueryContribution($"activity:shenwu:{activity.Edition}:tier-{query}", SkillRuleOperation.Add, extra);
+            yield break;
+        }
         var amount = IsShenwuPlayerSlot(player.Seat) ? query switch
         {
             SkillRuleQuery.InitialHandSize => tier >= 3 ? 1 : 0,

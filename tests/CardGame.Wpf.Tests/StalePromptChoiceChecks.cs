@@ -423,11 +423,26 @@ internal static class StalePromptChoiceChecks
 
     private static void PublicTargetChoice(string output)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new PublicTargetFixture());
+        var (game, registry) = CreatePublicTargetFixture();
+        var weapon = game.CreateSnapshot(0).Players[1].Equipment.Single(card => card.Kind == CardKind.Crossbow);
+        Program.Assert(game.CardMovements.Any(move => move.CardId == weapon.Id && move.To == CardLocation.Equipment(1)),
+            "The public target must be an actual equipped physical weapon, not a fabricated snapshot.");
+        var action = game.GetHumanLegalActions().First(candidate => candidate.Kind == LegalActionKind.Dismantlement &&
+            candidate.TargetSeat == 1 && candidate.TargetCardId == weapon.Id);
+        PublicTargetChoiceControls(output, game, registry, weapon, action);
+    }
+
+    internal static (GameEngine Game, ContentRegistry Registry) CreatePublicTargetFixture(
+        string effectCardId = "standard:dismantlement", string equipmentCardId = "standard:crossbow",
+        bool useClassicRules = false, params IGameContentPackage[] additionalPackages)
+    {
+        var modeId = useClassicRules ? "identity:classic-published-play-choice" : PublicTargetFixture.Mode;
+        var registry = ContentRegistry.Build([new StandardContentPackage(), .. additionalPackages,
+            new PublicTargetFixture(effectCardId, equipmentCardId, modeId)]);
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
-            ModeId = PublicTargetFixture.Mode, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false
+            ModeId = modeId, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false
         }, registry);
         void Accept(GameCommand command)
         {
@@ -446,11 +461,12 @@ internal static class StalePromptChoiceChecks
         ReachPlay();
         Accept(new UseProgramSkillCommand(0, PublicTargetFixture.Driver, "equip", [], [1], game.Revision, game.PendingDecision!.PromptId));
         ReachPlay();
-        var weapon = game.CreateSnapshot(0).Players[1].Equipment.Single(card => card.Kind == CardKind.Crossbow);
-        Program.Assert(game.CardMovements.Any(move => move.CardId == weapon.Id && move.To == CardLocation.Equipment(1)),
-            "The public target must be an actual equipped physical weapon, not a fabricated snapshot.");
-        var action = game.GetHumanLegalActions().First(candidate => candidate.Kind == LegalActionKind.Dismantlement &&
-            candidate.TargetSeat == 1 && candidate.TargetCardId == weapon.Id);
+        return (game, registry);
+    }
+
+    private static void PublicTargetChoiceControls(string output, GameEngine game, ContentRegistry registry,
+        CardSnapshot weapon, LegalAction action)
+    {
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
         using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry) { IsMotionEnabled = false };
@@ -532,7 +548,7 @@ internal static class StalePromptChoiceChecks
         VerifyOpaqueSlotFocus(game.CreateCheckpoint(), registry);
     }
 
-    private sealed class PublicTargetFixture : IGameContentPackage
+    private sealed class PublicTargetFixture(string effectCardId, string equipmentCardId, string modeId) : IGameContentPackage
     {
         internal const string Mode = "fixture:published-play-choice";
         internal const string Owner = "fixture:published-play-choice-owner";
@@ -544,7 +560,11 @@ internal static class StalePromptChoiceChecks
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
                     {"id":"{{Driver}}","revision":1,"activations":[{"id":"equip","usesPerTurn":1,"minCards":0,"maxCards":0,
                         "minTargets":1,"maxTargets":1,"targetKind":"anyLiving","effects":[
-                            {"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]}]}]}
+                            {"op":"useRandomDeckEquipment","target":"owner","resultBind":"gear"}]},
+                        {"id":"strip","usesPerTurn":null,"minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","effects":[
+                            {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["hand","equipment","judgment"],"count":1,"destination":"discardPile"}]},
+                        {"id":"take","usesPerTurn":null,"minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","effects":[
+                            {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["hand","equipment","judgment"],"count":1,"destination":"ownerHand"}]}]}]}
                 """, JsonSerializer.Serialize(new
                 {
                     schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
@@ -557,9 +577,9 @@ internal static class StalePromptChoiceChecks
             builder.AddDeck(new("fixture:published-play-choice-deck", "公开装备目标", 4, 0, [])
             {
                 PhysicalCards = Enumerable.Range(0, 56).Select(index => new ContentDeckPhysicalCard(
-                    index < 20 ? "standard:dismantlement" : "standard:crossbow", Suit.Spade, index % 13 + 1)).ToArray()
+                    index < 20 ? effectCardId : equipmentCardId, Suit.Spade, index % 13 + 1)).ToArray()
             });
-            builder.AddMode(new(Mode, "公开装备目标", 4, 4,
+            builder.AddMode(new(modeId, "公开装备目标", 4, 4,
                 new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },
                 "fixture:published-play-choice-deck", GeneralCandidateCount: 4, GeneralPoolIds: [Owner, .. peers]));
         }

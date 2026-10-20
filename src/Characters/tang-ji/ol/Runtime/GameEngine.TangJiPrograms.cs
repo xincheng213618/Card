@@ -356,7 +356,7 @@ public sealed partial class GameEngine
             {
                 HpLost = true,
                 HpBeforePayment = owner.Hp,
-                PaidHpLost = Math.Min(owner.Hp, frame.WindowContext.Amount)
+                PaidHpLost = frame.WindowContext.Amount
             };
             // The paid instruction re-enters only after its native HP/dying
             // children return. Its receipt keeps the original cost paid once.
@@ -453,7 +453,7 @@ public sealed partial class GameEngine
                 ParentFrameId: var parent, SourceSeat: { } source, TargetSeat: { } target, Amount: > 0 } context ||
             parent != window.Id || target != frame.OwnerSeat || source != window.SourceSeat ||
             target != window.TargetSeat || context.Amount != window.Amount || frame.InstructionIndex < 1 ||
-            paid.HpBeforePayment < 1 || paid.PaidHpLost != Math.Min(paid.HpBeforePayment, window.Amount) ||
+            paid.HpBeforePayment < 1 || paid.PaidHpLost != window.Amount ||
             paid.Suit is not (Suit.Spade or Suit.Heart or Suit.Club or Suit.Diamond) ||
             !IsValidPlayerSeat(paid.MarkedSeat) || paid.MarkedSeat == frame.OwnerSeat ||
             _contentRegistry.GetSkill(frame.SkillId).Program is not { } program || program.GameplayHash != frame.GameplayHash ||
@@ -461,7 +461,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.JieliePreventAndGift ||
             CompleteProgramEventHistory().OfType<ProgramSkillHpLostEvent>().Count(fact =>
                 fact.FrameId == frame.Id && fact.SkillId == frame.SkillId && fact.TargetSeat == frame.OwnerSeat &&
-                fact.Amount == paid.PaidHpLost && fact.RemainingHp == Math.Max(0, paid.HpBeforePayment - window.Amount)) != 1)
+                fact.Amount == paid.PaidHpLost && (long)fact.RemainingHp == (long)paid.HpBeforePayment - window.Amount) != 1)
             return null;
         return frame;
     }

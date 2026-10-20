@@ -18,6 +18,7 @@ public sealed partial class GameEngine
             if (isCampaignMode) throw new ArgumentException("A Shanhe encounter requires its campaign opening recipe.");
             return;
         }
+        GodFactionSelectionRules.ValidateDefault(setup.DefaultGodFactionId);
         var playerCount = 1 + setup.EnemyRoster.Count + setup.AllyRoster.Count;
         if (!isCampaignMode || mode.ModeKind != ContentModeKind.Team || options.Seed != setup.BattleSeed ||
             options.PlayerCount != playerCount || options.HumanSeat is not (0 or -1) || options.UseInteractiveSetup ||
@@ -67,6 +68,7 @@ public sealed partial class GameEngine
                 (member.ExtraSkillIds ?? []).Any(id => !registry.Skills.TryGetValue(id, out var skill) ||
                     skill.ImplementationStatus != SkillImplementationStatus.Complete))
                 throw new ArgumentException("A Shanhe combatant has invalid general, health, bonuses or skills.");
+            ValidateShanhePrintedLordQualifications(member, general, registry);
             if (member.StartingHand is { } hand && (hand.Count > 24 || hand.Any(card => card is null ||
                     !Enum.IsDefined(card.Kind) || !Enum.IsDefined(card.Suit) || card.Suit == Suit.None ||
                     card.Rank is < 1 or > 13 || !registry.Cards.Values.Any(c => c.LegacyKind == card.Kind))))

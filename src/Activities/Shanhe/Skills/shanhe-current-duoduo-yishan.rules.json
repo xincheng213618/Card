@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:current-duoduo-yishan-2082",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "fifth-actual-draw",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "condition": { "kind": "nativeDrawActualTurnOrdinalIs", "value": 5 },
+          "effects": [{ "op": "draw", "target": "owner", "amount": 1 }]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:current-duoduo-yishan-2083",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "third-actual-draw",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "condition": { "kind": "nativeDrawActualTurnOrdinalIs", "value": 3 },
+          "effects": [{ "op": "draw", "target": "owner", "amount": 1 }]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:current-duoduo-yishan-2084",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-actual-draw",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "condition": { "kind": "nativeDrawActualTurnOrdinalIs", "value": 1 },
+          "effects": [{ "op": "draw", "target": "owner", "amount": 2 }]
+        }
+      ]
+    }
+  ]
+}

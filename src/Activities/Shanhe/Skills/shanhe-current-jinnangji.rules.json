@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:current-jinnangji-2011",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "draw-phase-hand-capacity",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "currentTurnDrawPhaseDrawCountHalfFloor",
+          "priority": 0
+        }
+      ]
+    }
+  ]
+}

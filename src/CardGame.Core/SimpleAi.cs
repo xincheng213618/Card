@@ -1794,8 +1794,8 @@ public sealed partial class SimpleAiBrain
                         : $"将{peach.DisplayName}当桃救援 {victim.Name}"),
                 Math.Round(useScore + _random.NextDouble() * 0.001d, 3),
                 peach.Kind == CardKind.Peach
-                    ? "消耗一张自己的桃，使濒死角色回到 1 点体力。"
-                    : $"将自己的一张{peach.DisplayName}当桃使用，使濒死角色回到 1 点体力。"))
+                    ? "消耗一张自己的桃，使濒死角色回复 1 点体力。"
+                    : $"将自己的一张{peach.DisplayName}当桃使用，使濒死角色回复 1 点体力。"))
             .ToList();
         var legalAlcohols = self.Seat == victimSeat || allowCrossSeatAlcoholRescue
             ? alcohols
@@ -1810,8 +1810,8 @@ public sealed partial class SimpleAiBrain
                     : $"使用酒救援 {victim.Name}"),
             Math.Round(useScore + (_policyVersion >= 2 ? 5d : -1d) + _random.NextDouble() * 0.001d, 3),
             self.Seat == victimSeat
-                ? "消耗一张自己的酒，使自己回到 1 点体力。"
-                : "消耗一张自己的酒，使公开濒死角色回到 1 点体力。")));
+                ? "消耗一张自己的酒，使自己回复 1 点体力。"
+                : "消耗一张自己的酒，使公开濒死角色回复 1 点体力。")));
         candidates.Add(new AiCandidateScore(
             new LegalAction(
                 LegalActionKind.EndPlay,
@@ -2164,7 +2164,7 @@ public sealed partial class SimpleAiBrain
         var support = -hostility;
         var recovery = Math.Min(Math.Max(0, target.MaxHp - target.Hp), Math.Max(0, hint.TargetRecovery));
         var benefit = Math.Max(0, hint.TargetDraw) * 7d + recovery * 17d + hint.TargetValueAdjustment;
-        var payment = hint.PredictTarget(target.Hp, target.MaxHp, target.Armor);
+        var payment = hint.PredictTarget(target.Hp, target.MaxHp, target.Armor, target.IncomingDamageCap);
         var harm = Math.Max(0, payment.HpLossAmount) * 24d + Math.Max(0, payment.ArmorAbsorbed) * 8d +
                    (payment.IsLethal && (payment.HpLossAmount > 0 || payment.MaximumHpLossAmount > 0) ? 32d : 0d);
         var give = hint.GivesSelected ? 6d : 0d;

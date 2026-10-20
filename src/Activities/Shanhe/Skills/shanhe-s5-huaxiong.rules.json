@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-yaowu-14135",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "incoming-card-color-health",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            { "op": "resolveDamageCardColorHealth", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:s5-shizhan-14136",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "round-limited-owner-duel",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhaseExpression": "currentRound",
+          "effects": [
+            { "op": "useSelectedActorDuel", "target": "owner", "participantMode": "ownerToSelectedTarget" }
+          ]
+        }
+      ]
+    }
+  ]
+}

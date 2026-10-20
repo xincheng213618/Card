@@ -1,9 +1,10 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    // Opt-in only to 2500's exact paid receipt and its actual first movement batch.
+    // Only an exact paid single-card or whole-region receipt may own this subtree.
     private ProgramSkillFrame? PaidDamageTargetObtainObserverRoot(long windowId)
     {
+        if (PaidDamageTargetRegionObtainObserverRoot(windowId) is { } region) return region;
         for(var i=1;i+1<_resolutionStack.Count;i++)
         {
             if(_resolutionStack[i] is not ProgramSkillFrame f || f.DamageTargetObtain is not {ObtainMovementSequence:{ } sequence} d ||

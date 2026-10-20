@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:current-dungong-3387", "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "incoming-fixed-cap", "cardKinds": [], "amount": 3,
+          "condition": "always", "sourceScope": "damageParticipant", "capsToAmount": true
+        }
+      ]
+    }
+  ]
+}

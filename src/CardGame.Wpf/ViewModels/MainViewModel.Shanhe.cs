@@ -78,7 +78,19 @@ public sealed partial class MainViewModel
     public Brush SelectedShanhePortrait => SelectedShanheGeneral?.Portrait ?? Brushes.Transparent;
     public string SelectedShanheGeneralDescription => SelectedShanheGeneral?.Description ?? "选择一名武将，查看技能与出征信息。";
     public string SelectedShanheSkillText => SelectedShanheGeneral?.SkillSummary ?? string.Empty;
-    public string SelectedShanheGeneralMeta => SelectedShanheGeneral is { } general ? $"{general.Kingdom} · {general.EditionText}" : string.Empty;
+    public string SelectedShanheGeneralMeta
+    {
+        get
+        {
+            if (SelectedShanheGeneral is not { } general) return string.Empty;
+            var text = $"{general.Kingdom} · {general.EditionText}";
+            var defaultFaction = IsShanheRunInProgress && _shanheSession is { } session ? session.Definition.DefaultGodFactionId :
+                StandardShanheCampaignCatalog.Editions.Single(edition => edition.Id == SelectedShanheScenario.Id).DefaultGodFactionId;
+            return defaultFaction is not null &&
+                StandardShanheCampaignCatalog.PlayerRosterRegistry.Generals[general.Id].FactionId == "god"
+                ? text + $" · 出征默认{FactionName(defaultFaction)}" : text;
+        }
+    }
     public string SelectedShanheScenarioDescription => StandardShanheCampaignCatalog.Editions
         .Single(edition => edition.Id == SelectedShanheScenario.Id).Description;
     public bool HasShanheSession => _shanheSession is not null;
@@ -459,7 +471,7 @@ public sealed partial class MainViewModel
         foreach (var property in new[] { nameof(ShanheCampaignTitle), nameof(ShanheRouteSummary), nameof(ShanheVitalText),
             nameof(ShanheGoldText), nameof(ShanheTacticsText), nameof(ShanheSkillsText), nameof(ShanheContextTitle),
             nameof(ShanheContextDescription), nameof(IsShanheBattleActive), nameof(IsShanheBattleSession),
-            nameof(ShanheBuildTabTitle), nameof(ShanheTacticEmptyText), nameof(ShanheStartingLoadoutText), nameof(ShanheEditionNotice), nameof(HasShanheSession) }) RaisePropertyChanged(property);
+            nameof(ShanheBuildTabTitle), nameof(ShanheTacticEmptyText), nameof(ShanheStartingLoadoutText), nameof(ShanheEditionNotice), nameof(SelectedShanheGeneralMeta), nameof(HasShanheSession) }) RaisePropertyChanged(property);
         foreach (var command in new[] { StartShanheCommand, ContinueShanheCommand, ResumeShanheBattleCommand })
             (command as RelayCommand)?.NotifyCanExecuteChanged();
     }

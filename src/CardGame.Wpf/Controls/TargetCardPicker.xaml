@@ -1,0 +1,54 @@
+<UserControl x:Class="CardGame.Wpf.Controls.TargetCardPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CardGame.Wpf.Controls"
+             Visibility="{Binding HasTargetCardRegions, Converter={StaticResource BoolToVisibility}}">
+    <UserControl.Resources>
+        <controls:TargetRegionCardChoiceConverter x:Key="TargetRegionCardChoiceConverter" />
+        <DataTemplate x:Key="RegionCardTemplate">
+            <Button Command="{Binding DataContext.Command, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                    CommandParameter="{Binding}" Style="{StaticResource BareButton}" Margin="3,4" Padding="2"
+                    ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Description}">
+                <Border BorderThickness="1" CornerRadius="3" Padding="1">
+                    <Border.Style><Style TargetType="Border"><Setter Property="BorderBrush" Value="#847555" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True"><Setter Property="BorderBrush" Value="#FFE09A" /></DataTrigger>
+                            <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=Button}}" Value="True"><Setter Property="BorderBrush" Value="#FFE09A" /></DataTrigger>
+                        </Style.Triggers>
+                    </Style></Border.Style>
+                    <Viewbox Width="72" Height="100" Stretch="Uniform">
+                    <ContentControl ContentTemplate="{DynamicResource PromptCardChoiceContentTemplate}">
+                        <ContentControl.Content>
+                            <MultiBinding Converter="{StaticResource TargetRegionCardChoiceConverter}">
+                                <Binding /><Binding Path="DataContext.ChoiceSnapshot" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                <Binding Path="DataContext.IsPublicPlay" RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                            </MultiBinding>
+                        </ContentControl.Content>
+                    </ContentControl>
+                    </Viewbox>
+                </Border>
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+    <ItemsControl x:Name="TargetRegions" ItemsSource="{Binding TargetCardRegions}">
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Border BorderBrush="#5F81735E" BorderThickness="0,0,0,1" Padding="0,5,0,7">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Label}" Foreground="#BCAE88" FontFamily="KaiTi" FontSize="15" Width="18" TextWrapping="Wrap" VerticalAlignment="Center" Margin="3,8,14,8" TextAlignment="Center" />
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="{Binding OwnerName}" Foreground="#D5C297" FontSize="12" Margin="5,0,0,2">
+                                <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding OwnerName}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                            <ItemsControl ItemsSource="{Binding Choices}" ItemTemplate="{StaticResource RegionCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding Hint}" Foreground="#BCAE88" FontSize="11" Margin="5,0,0,0">
+                                <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding Hint}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

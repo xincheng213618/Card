@@ -6,14 +6,22 @@ public sealed record ProgramDamageTargetObtain(int InstructionIndex, int OwnerSe
     long DamageWindowId, long DamageFrameId, long OuterCardUseFrameId, long OuterActionId,
     string SkillId, string BindingId, string SkillInstanceId, string GameplayHash,
     ProgramDamageTargetObtainStage Stage = ProgramDamageTargetObtainStage.SelectingCard,
-    ProgramDamageTargetObtainReceipt? Receipt = null, long? ObtainMovementSequence = null);
+    ProgramDamageTargetObtainReceipt? Receipt = null, long? ObtainMovementSequence = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDamageTargetRegionObtainReceipt? RegionObtain { get; init; }
+}
 public sealed record ProgramDamageTargetObtainReceipt(long MovementSequence, int CardId, CardKind PrintedKind,
     CardLocation From, CardLocation To, string Reason, bool IsEquipment);
 public sealed record ProgramDamageTargetDuelOrigin(long ParentProgramFrameId, int InstructionIndex,
     long ReceiptSequence, long OuterCardUseFrameId, long DamageWindowId, long DamageFrameId, long OuterActionId,
     int InitialActorSeat, int VictimChooserSeat, int InitialTargetSeat,
     string SkillId, string BindingId, string SkillInstanceId, string GameplayHash, int TurnNumber,
-    bool AttackStarted = false);
+    bool AttackStarted = false)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? BaseDamage { get; init; }
+}
 internal interface IDamageTargetObtainProgramHost
 {
     SkillProgramStepOutcome ObtainDamageTargetCardAndResolveCategory(ProgramSkillFrame frame);
@@ -28,10 +36,15 @@ internal sealed class ObtainDamageTargetCardAndResolveCategoryDescriptor : Progr
         static (_, c) => c.DamageTargetObtainValue());
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "condition");
+        r.AllowOnly("op", "target", "condition", "obtainMode", "duelDamageExpression");
         if (r.RequiredEnum<SkillProgramEffectTarget>("target") != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException("Damage-target obtain is owner-only.");
-        var e = new SkillProgramEffect(Op, SkillProgramEffectTarget.Owner, 0, r.Condition());
+        var obtainMode = r.Has("obtainMode") ? r.RequiredEnum<DamageTargetObtainMode>("obtainMode") : (DamageTargetObtainMode?)null;
+        var duelDamage = r.Has("duelDamageExpression") ? r.RequiredEnum<DamageTargetDuelDamageExpression>("duelDamageExpression") : (DamageTargetDuelDamageExpression?)null;
+        if ((obtainMode is null) != (duelDamage is null))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: obtainMode and duelDamageExpression must be paired.");
+        var e = new SkillProgramEffect(Op, SkillProgramEffectTarget.Owner, 0, r.Condition())
+            { ObtainMode = obtainMode, DuelDamageExpression = duelDamage };
         RequireAlways(e, r.Path); return e;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>

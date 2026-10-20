@@ -128,7 +128,7 @@ public sealed partial class GameEngine
         if (_winner == Winner.None && TryBeginDamageTriggerWindow(attack, damage.Id,
                 SkillProgramTriggerWindow.AfterDamageApplied)) return;
         AdvanceEventRulesAndQueueFact(new AfterDamageEvent(damage.Id, damage.SourceSeat, damage.TargetSeat,
-            damage.Amount, Math.Max(0, target.Hp), damage.Nature) { SourceLess = receipt.SourceLess });
+            damage.Amount, target.Hp, damage.Nature) { SourceLess = receipt.SourceLess });
         PopResolutionFrame(damage.Id, ResolutionFrameKind.Damage);
         CompleteDamageAttack(attack);
     }

@@ -10,7 +10,7 @@ public sealed partial class GameEngine
         if (active != frame || active.InstructionIndex <= 0 || active.PendingMovementContinuation is not null ||
             active.SelectedCardPayment is not null && active.SelectedCardPaymentResult is null ||
             !IsValidPlayerSeat(targetSeat) ||
-            expiry is not null && expiry != SkillProgramTurnSkillExpiry.ActualTurnEnd)
+            expiry is not null && !Enum.IsDefined(expiry.Value))
             throw new InvalidOperationException("A participant turn grant lost its exact active instruction or recipient.");
 
         var effect = ProgramInstructionResolver.Default.Resolve(active,
@@ -46,6 +46,16 @@ public sealed partial class GameEngine
             $"{active.SkillInstanceId}:{bindingId}:frame:{active.Id}:effect:{active.InstructionIndex - 1}";
         var turnExpiry = expiry == SkillProgramTurnSkillExpiry.ActualTurnEnd
             ? new SkillGrantTurnExpiry(_turnNumber, _currentSeat) : null;
+        var nextStartExpiry = expiry == SkillProgramTurnSkillExpiry.RecipientNextActualTurnStart
+            ? new SkillGrantNextActualTurnStartExpiry(_turnNumber, _currentSeat, recipient.Seat) : null;
+        if (nextStartExpiry is not null)
+        {
+            var history = CompleteProgramEventHistory();
+            if (history.OfType<TurnStartedEvent>().Count(started =>
+                    started.TurnNumber == _turnNumber && started.ActorSeat == _currentSeat) != 1 ||
+                history.OfType<ProgramTurnSkillsGrantedEvent>().Any(issued => issued.GrantSourceId == sourceId))
+                throw new InvalidOperationException("A next actual-turn-start skill grant requires its real creation turn and once-issued instruction.");
+        }
         foreach (var skillId in granted)
         {
             // Sources own separate grants, while one effective skill keeps one runtime
@@ -56,11 +66,12 @@ public sealed partial class GameEngine
             var instanceId = existing?.SkillInstanceId ?? $"turn-shared:{recipient.Seat}:{skillId}";
             var grantId = $"{sourceId}:{skillId}";
             recipient.SkillGrants.Grant(new SkillGrant(grantId, skillId, instanceId, sourceId,
-                TurnExpiry: turnExpiry));
+                TurnExpiry: turnExpiry) { NextActualTurnStartExpiry = nextStartExpiry });
         }
         AdvanceEventRulesAndQueueFact(new ProgramTurnSkillsGrantedEvent(active.Id, active.SkillId,
             bindingId, active.OwnerSeat, Array.AsReadOnly(granted))
-        { RecipientSeat = recipient.Seat, GrantSourceId = sourceId, TurnExpiry = turnExpiry });
+        { RecipientSeat = recipient.Seat, GrantSourceId = sourceId, TurnExpiry = turnExpiry,
+            NextActualTurnStartExpiry = nextStartExpiry });
     }
 
     private void ValidateTurnSkillGrantActor(ProgramSkillFrame frame, int targetSeat)

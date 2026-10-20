@@ -365,6 +365,7 @@ public sealed partial class GameEngine
         resolvingProgram |= IsExactOwnedDamagePointJudgmentFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactChouceFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactDamageJudgmentSuitPaymentFinalizedSubtree(frame, judgmentFrame, frameIndex);
+        resolvingProgram |= IsExactJudgmentOutcomeFinalizedSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactBinghuoFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactNingwuFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         if (pending is null || (frame.ZhenyiBeforeResult == true ? pending.ZhenyiBeforeResultCompleted == true || pending.Succeeded is not null : pending.Succeeded is null) ||

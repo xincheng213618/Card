@@ -25,6 +25,10 @@ public sealed record ProgramSignedDamagePaymentReceipt(int InstructionIndex, lon
 public sealed record RecipientScopedDamageState(int FirstTargetSeat, int CurrentTargetSeat, int PropagationBaseAmount)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LateFixedTargetDamageCapScopeReceipt? LateFixedTargetDamageCap { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool FixedTargetDamageCap { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ProgramUseInstructionIndex { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool PublicEnemyObserver { get; init; }
@@ -42,6 +46,10 @@ public sealed record ProgramSignedDamageAdjustedEvent(long ProgramFrameId, long 
     int Delta, bool Cancelled) : IGameEvent;
 public sealed record RecipientScopedDamageBaseEvent(long AttackFrameId, int FirstTargetSeat, int Amount) : IGameEvent
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public LateFixedTargetDamageCapScopeReceipt? LateFixedTargetDamageCap { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool FixedTargetDamageCap { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ProgramUseInstructionIndex { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

@@ -101,7 +101,7 @@ public sealed partial class GameEngine
             window.Action.ActorSeat == action.ActorSeat && window.Action.ProviderSeat == action.ProviderSeat &&
             window.Action.EffectiveKind == action.EffectiveKind && window.Action.PhysicalCards.SequenceEqual(action.PhysicalCards) &&
             window.Action.ConversionChain.SequenceEqual(action.ConversionChain) && window.CompletedResponseReturn is null &&
-            (window.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard
+            (window.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.BeforeSimpleTargetEffects
                 ? window.SimpleContinuation is { Effect: SimpleCardUseEffect.Recovery } simple && simple.CardId == rescue.CardId
                 : window.Continuation == ProgramCardContinuation.CompletedCard && window.SimpleContinuation is null);
         if (child is ProgramCardTriggerWindowFrame window)
@@ -115,6 +115,7 @@ public sealed partial class GameEngine
         var expectedWindow = owner.Continuation switch
         { ProgramCardContinuation.CommittedSimpleCard => SkillProgramTriggerWindow.CardUseCommitted,
           ProgramCardContinuation.FinalizedSimpleCard => SkillProgramTriggerWindow.CardUseTargetsFinalized,
+          ProgramCardContinuation.BeforeSimpleTargetEffects => SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
           _ => SkillProgramTriggerWindow.CardUseCompleted };
         return context.Window == expectedWindow && candidate.OwnerSeat == program.OwnerSeat && candidate.SkillId == program.SkillId &&
             candidate.TriggerId == program.TriggerId && candidate.SkillInstanceId == program.SkillInstanceId && candidate.GameplayHash == program.GameplayHash;

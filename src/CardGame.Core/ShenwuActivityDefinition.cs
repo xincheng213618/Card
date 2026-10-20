@@ -13,7 +13,14 @@ public sealed record ShenwuActivityDefinition(
     IReadOnlyList<string> PlayerSkillIds,
     IReadOnlyDictionary<string, string> HalfHpSkillIds,
     string PlayerTeamId = "team:allies",
-    string EnemyTeamId = "team:beasts");
+    string EnemyTeamId = "team:beasts")
+{
+    // Omitted defaults preserve the existing 2017 recipe and its fingerprint.
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int Edition { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int EnemyTier { get; init; }
+}
 
 public sealed record ShenwuSharedGodCandidatesEvent(IReadOnlyList<string> GeneralIds) : IGameEvent;
 public sealed record ShenwuLeaderChosenEvent(int LeaderSeat, string GeneralId) : IGameEvent;

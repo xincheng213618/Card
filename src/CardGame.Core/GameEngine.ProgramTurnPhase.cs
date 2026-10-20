@@ -57,8 +57,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Virtual card use requires one current selected Slash target.");
         var source = _players[active.OwnerSeat];
         var target = _players[targetSeat];
+        var activeUse = active.TriggerId is null && instruction.Op == SkillProgramEffectOp.UseVirtualCard;
         var phaseControlParticipant = HasPhaseStartCardUseParticipant(source.Seat);
-        if (phaseControlParticipant && IsCardUseForbidden(source.Seat, cardKind, CardActionType.Use))
+        if ((phaseControlParticipant || activeUse) && (IsCardUseForbidden(source.Seat, cardKind, CardActionType.Use) ||
+            HasTurnCardTargetRestriction(source.Seat, SkillProgramCardTargetRestriction.SelfOnly)))
             return SkillProgramStepOutcome.Continue;
         if (active.WindowContext is { Window: SkillProgramTriggerWindow.RoundStarting } round &&
             (!instruction.UseCardActionWindows || round.Facts?.RoundTurnSeatCount != 1 || _roundTurnSeats.Count != 1 ||
@@ -91,7 +93,7 @@ public sealed partial class GameEngine
         else RecordPredictionNativeCardUse(resolutionId, source.Seat, cardKind);
         if ((instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash ||
              instruction.TargetRestriction == SkillProgramCardTargetRestriction.NormalSlashTarget ||
-             HasCommittedSlashFireCapability(source) || phaseControlParticipant) && action is not null)
+             HasCommittedSlashFireCapability(source) || phaseControlParticipant || activeUse) && action is not null)
         {
             RecordYingboCardUse(resolutionId, source.Seat, cardKind);
             RecordProgramUsedBasicCard(source.Seat, cardKind);
@@ -104,6 +106,7 @@ public sealed partial class GameEngine
         var attack = new CardAttackHandle(this, resolutionId, source.Seat, targetSeat, card: null,
             damageAmount: nativeWindows ? 1 + source.AlcoholDamageBonus : 1,
             playedCardKind: cardKind, ignoresArmor: nativeWindows && HasCardArmorBypass(source, target, cardKind),
+            conversionSource: action?.ConversionChain.Single(),
             programSkillCardUseFrameId: frame.Id);
         if (nativeWindows && action is not null)
         {

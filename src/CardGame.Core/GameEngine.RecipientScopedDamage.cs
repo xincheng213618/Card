@@ -7,27 +7,36 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.ShenwuArmedSourceDamageBonus);
     private bool NeedsRecipientScopedDamageBase => HasSignedDamagePayments || HasShenwuRecipientDamageModifiers || IsGuanduActivity;
     private bool SupportsIssuedRecipientDamageScope(RecipientScopedDamageState scope) =>
-        NeedsRecipientScopedDamageBase || scope.PublicEnemyObserver && HasPublicEnemyParticipantDamageModifiers;
+        NeedsRecipientScopedDamageBase || scope.PublicEnemyObserver && HasPublicEnemyParticipantDamageModifiers ||
+        scope.FixedTargetDamageCap && _contentRegistry.ProgramDependencies.HasFixedTargetDamageCaps;
     private bool HasPublicEnemyRecipientDamageScope(IDamageAttempt attack) =>
         (attack is ProgramAttackHandle ? GetProgramAttackState(attack.ResolutionId).RecipientDamageScope :
             GetCardAttackState(attack.ResolutionId).RecipientDamageScope)?.PublicEnemyObserver == true;
+    private bool HasFixedTargetRecipientDamageScope(IDamageAttempt attack) =>
+        (attack is ProgramAttackHandle ? GetProgramAttackState(attack.ResolutionId).RecipientDamageScope :
+            GetCardAttackState(attack.ResolutionId).RecipientDamageScope)?.FixedTargetDamageCap == true;
     private void CaptureRecipientScopedDamageBase(IDamageAttempt attack, IReadOnlyList<int> targets)
     {
         if (targets.Count == 0) return;
-        // Only an observer eligible for this source and at least one possible
-        // recipient needs a new base. Its first eligible recipient may be later
-        // in the chain; subsequent death or suppression cannot revoke issuance.
+        // A relevant observer or an active fixed cap at an actual possible
+        // recipient may need this base before that recipient is visited.
+        // Subsequent death or suppression cannot revoke its issued scope.
         var publicEnemyObserver = HasEligiblePublicEnemyDamageObserver(attack, targets);
-        if (!NeedsRecipientScopedDamageBase && !publicEnemyObserver) return;
+        var fixedTargetDamageCap = _contentRegistry.ProgramDependencies.HasFixedTargetDamageCaps &&
+            targets.Prepend(attack.TargetSeat).Any(seat => IsValidPlayerSeat(seat) &&
+                GetIncomingFixedDamageCap(_players[seat]) is not null);
+        if (!NeedsRecipientScopedDamageBase && !publicEnemyObserver && !fixedTargetDamageCap) return;
         if (!SameAttackOwner(attack, CurrentDamageAttempt) || !attack.DamageAmountFinalized || attack.IsChainPropagation || attack.DamageAmount <= 0)
             throw new InvalidOperationException("Recipient damage base must originate from the finalized first elemental recipient.");
         var scope = new RecipientScopedDamageState(attack.TargetSeat, attack.TargetSeat, attack.DamageAmount)
-            { PublicEnemyObserver = publicEnemyObserver, ProgramUseInstructionIndex = DamageProgramUseInstructionIndex(attack) };
+            { PublicEnemyObserver = publicEnemyObserver, FixedTargetDamageCap = fixedTargetDamageCap,
+                ProgramUseInstructionIndex = DamageProgramUseInstructionIndex(attack) };
         if (attack is ProgramAttackHandle)
             UpdateProgramAttackState(attack.ResolutionId, state => state with { RecipientDamageScope = scope });
         else UpdateCardAttackState(attack.ResolutionId, state => state! with { RecipientDamageScope = scope });
         AdvanceEventRulesAndQueueFact(new RecipientScopedDamageBaseEvent(attack.ResolutionId, attack.TargetSeat, attack.DamageAmount)
-            { PublicEnemyObserver = publicEnemyObserver, ProgramUseInstructionIndex = scope.ProgramUseInstructionIndex });
+            { PublicEnemyObserver = publicEnemyObserver, FixedTargetDamageCap = fixedTargetDamageCap,
+                ProgramUseInstructionIndex = scope.ProgramUseInstructionIndex });
     }
     private void RestoreRecipientScopedDamageBase(IDamageAttempt attack, int fromSeat)
     {
@@ -37,7 +46,11 @@ public sealed partial class GameEngine
             !attack.IsChainPropagation || scope.CurrentTargetSeat != fromSeat || scope.PropagationBaseAmount <= 0 ||
             CompleteProgramEventHistory().OfType<RecipientScopedDamageBaseEvent>().Count(e => e.AttackFrameId == attack.ResolutionId &&
                 e.FirstTargetSeat == scope.FirstTargetSeat && e.Amount == scope.PropagationBaseAmount &&
-                e.PublicEnemyObserver == scope.PublicEnemyObserver && e.ProgramUseInstructionIndex == scope.ProgramUseInstructionIndex) != 1)
+                e.PublicEnemyObserver == scope.PublicEnemyObserver && e.FixedTargetDamageCap == scope.FixedTargetDamageCap &&
+                e.LateFixedTargetDamageCap == scope.LateFixedTargetDamageCap &&
+                e.ProgramUseInstructionIndex == scope.ProgramUseInstructionIndex) != 1 ||
+            !IsValidLateFixedTargetDamageCapScope(scope, attack.ResolutionId, FixedDamageCapChain(attack).Targets) ||
+            scope.LateFixedTargetDamageCap is { } late && FixedDamageCapChain(attack).Index <= late.NextTargetIndex)
             throw new InvalidOperationException("Recipient damage propagation lost its exact frozen base.");
         if (attack is ProgramAttackHandle)
             UpdateProgramAttackState(attack.ResolutionId, state => state with
@@ -80,13 +93,24 @@ public sealed partial class GameEngine
             var target = frame is ProgramSkillFrame { AttackAttempt: { } attempt } ? attempt.TargetSeat : GetCardAttackState(frame.Id).TargetSeat;
             var chain = frame is ProgramSkillFrame { AttackAttempt: { } attempt2 } ? attempt2.IsChainPropagation : GetCardAttackState(frame.Id).IsChainPropagation;
             var instructionIndex = frame is ProgramSkillFrame { AttackAttempt: not null } ? null : FrozenProgramDuelInstructionIndex(frame.Id);
+            var targets = frame is ProgramSkillFrame { AttackAttempt: { } programAttack }
+                ? programAttack.ChainedTargetSeats ?? [] : GetCardAttackState(frame.Id).ChainedTargetSeats;
+            var cursor = frame is ProgramSkillFrame { AttackAttempt: { } programCursor }
+                ? programCursor.ChainedTargetIndex : GetCardAttackState(frame.Id).ChainedTargetIndex;
             if (!SupportsIssuedRecipientDamageScope(scope) || scope.ProgramUseInstructionIndex != instructionIndex ||
                 scope.CurrentTargetSeat != target || scope.PropagationBaseAmount <= 0 ||
+                !IsValidLateFixedTargetDamageCapScope(scope, frame.Id, targets) ||
+                scope.LateFixedTargetDamageCap is { } lateCursor &&
+                    !(cursor == lateCursor.ChainTargetIndex && target == lateCursor.PaidTargetSeat) &&
+                    (cursor <= lateCursor.NextTargetIndex || cursor > targets.Count) ||
                 CompleteProgramEventHistory().OfType<RecipientScopedDamageBaseEvent>().Count(e => e.AttackFrameId == frame.Id &&
                     e.FirstTargetSeat == scope.FirstTargetSeat && e.Amount == scope.PropagationBaseAmount &&
-                    e.PublicEnemyObserver == scope.PublicEnemyObserver && e.ProgramUseInstructionIndex == scope.ProgramUseInstructionIndex) != 1 ||
+                    e.PublicEnemyObserver == scope.PublicEnemyObserver && e.FixedTargetDamageCap == scope.FixedTargetDamageCap &&
+                    e.LateFixedTargetDamageCap == scope.LateFixedTargetDamageCap &&
+                    e.ProgramUseInstructionIndex == scope.ProgramUseInstructionIndex) != 1 ||
                 chain && !CompleteProgramEventHistory().OfType<RecipientScopedDamageAdvancedEvent>().Any(e => e.AttackFrameId == frame.Id && e.TargetSeat == target && e.Amount == scope.PropagationBaseAmount &&
                     e.ProgramUseInstructionIndex == scope.ProgramUseInstructionIndex) &&
+                    !(scope.LateFixedTargetDamageCap is { } late && late.PaidTargetSeat == target && late.ChainTargetIndex == cursor) &&
                     !CompleteProgramEventHistory().OfType<ProgramDamageTransferredEvent>().Any(e => e.ResolutionId == frame.Id && e.TargetSeat == target))
                 throw new InvalidOperationException("Recipient scoped damage state lost its issued base or actual propagation target.");
         }

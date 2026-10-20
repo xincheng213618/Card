@@ -51,12 +51,15 @@ public sealed partial class GameEngine
         if (d.TargetPayment is { } targetPayment && !ValidPrepDiscardPayment(f, targetPayment, false) ||
             d.OwnerPayment is { } ownerPayment && (!ValidPrepDiscardPayment(f, ownerPayment, true) ||
                 d.TargetPayment is null || ownerPayment.ActualCount != d.TargetPayment.NonEquipmentCount || d.Deferred != false)) return false;
-        if ((d.Stage is PrepDiscardStage.TargetChildren or PrepDiscardStage.ChoosingBenefit or PrepDiscardStage.SelectingOwnerCards or PrepDiscardStage.OwnerChildren) &&
+        if ((d.Stage is PrepDiscardStage.TargetChildren or PrepDiscardStage.ChoosingBenefit or PrepDiscardStage.SelectingOwnerCards or PrepDiscardStage.OwnerChildren or
+                PrepDiscardStage.ImmediateDrawAttempt or PrepDiscardStage.ImmediateDrawChildren) &&
             d.TargetPayment is null || d.Stage == PrepDiscardStage.OwnerChildren && d.OwnerPayment is null ||
             d.Stage != PrepDiscardStage.Complete && !f.ReexecuteParticipantInstruction) return false;
+        if (!ValidPrepDiscardImmediateDraw(f)) return false;
         var payment = d.Stage == PrepDiscardStage.TargetChildren ? d.TargetPayment : d.Stage == PrepDiscardStage.OwnerChildren ? d.OwnerPayment : null;
-        return f.PendingMovementContinuation is not { } pending || payment is not null &&
-            pending.SubjectSeat == payment.PayerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null;
+        return f.PendingMovementContinuation is not { } pending || pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
+            (payment is not null && pending.SubjectSeat == payment.PayerSeat ||
+             d.Stage == PrepDiscardStage.ImmediateDrawChildren && d.ImmediateDraw?.TargetSeat == pending.SubjectSeat);
     }
     private void AssertPrepDiscardReceipts(ProgramSkillFrame f)
     {
@@ -65,8 +68,9 @@ public sealed partial class GameEngine
     }
     private bool IsPrepDiscardMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>
         pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
-        (effect?.Op == SkillProgramEffectOp.ResolvePrepDiscardOrEnding && f.PrepDiscard is { } d &&
+        (effect?.Op is (SkillProgramEffectOp.ResolvePrepDiscardOrEnding or SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw) && f.PrepDiscard is { } d &&
             (d.Stage == PrepDiscardStage.TargetChildren && d.TargetPayment?.PayerSeat == pending.SubjectSeat ||
-             d.Stage == PrepDiscardStage.OwnerChildren && d.OwnerPayment?.PayerSeat == pending.SubjectSeat) ||
+             d.Stage == PrepDiscardStage.OwnerChildren && d.OwnerPayment?.PayerSeat == pending.SubjectSeat ||
+             d.Stage == PrepDiscardStage.ImmediateDrawChildren && d.ImmediateDraw?.TargetSeat == pending.SubjectSeat) ||
          effect?.Op == SkillProgramEffectOp.DrawPrepDiscardEnding && f.PrepDiscardEndingDraw?.Promise.TargetSeat == pending.SubjectSeat);
 }

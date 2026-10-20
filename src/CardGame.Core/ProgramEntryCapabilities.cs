@@ -27,6 +27,7 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.WuLuKangPindian or
         SkillProgramTriggerWindow.NativeDrawStarting or
         SkillProgramTriggerWindow.WuLuKangPindian or
         SkillProgramTriggerWindow.ActualPhaseEnded or
@@ -89,7 +90,7 @@ internal static class ProgramEntryCapabilities
     internal static ProgramContextCapability For(SkillProgramTriggerWindow? window)
     {
         var supplied = ExistingCapabilities(window);
-        return supplied.HasFlag(ProgramContextCapability.PhaseSubstitution) || window == SkillProgramTriggerWindow.RoundStarting
+        return supplied.HasFlag(ProgramContextCapability.PhaseSubstitution) || window is null or SkillProgramTriggerWindow.RoundStarting
             ? supplied | ProgramContextCapability.VirtualSlashUse : supplied;
     }
 

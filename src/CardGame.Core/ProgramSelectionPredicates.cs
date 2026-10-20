@@ -49,6 +49,7 @@ internal interface IProgramSelectionTargetState : IProgramSelectionQuery
 
 internal interface IProgramSelectionPhaseLimitState : IProgramSelectionQuery
 {
+    int RoundNumber { get; }
     int TurnNumber { get; }
     string SkillInstanceId(int ownerSeat, string skillId);
     IEnumerable<ProgramHandComparisonResolvedEvent> HandComparisonResults { get; }

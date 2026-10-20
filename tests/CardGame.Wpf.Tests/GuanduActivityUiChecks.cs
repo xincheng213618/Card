@@ -63,6 +63,7 @@ internal static class GuanduActivityUiChecks
             Until(vm, () => vm.IsGeneralSelectionPending);
             Program.Assert(vm.GeneralChoices is [{ GeneralId: var commander }] && commander == activity.Commanders["team:cao"],
                 "Choosing commander must expose only the fixed army commander, with no ordinary substitute.");
+            AssertFixedDraft();
             Click(root, (Button)window.FindName("ConfirmGeneralChoiceButton"));
             Until(vm, () => Program.Engine(vm).Events.Any(entry => entry.Payload is SetupCompletedEvent));
             var game = Program.Engine(vm); var snapshot = View(game); var state = snapshot.GuanduActivity!;
@@ -110,6 +111,7 @@ internal static class GuanduActivityUiChecks
                     choice.GeneralId != activity.Commanders["team:yuan"]) &&
                 vm.GeneralSelectionSubtitle.Contains("三名AI队友") && vm.GeneralChoices.All(choice => choice.HealthText.Contains("五阶体力上限")),
                 "A real Yuan general opening must expose its private faction pool rather than offer either fixed commander.");
+            AssertFixedDraft();
             vm.SaveGameCommand.Execute(null); saved = SnapshotJson.Serialize(View(game));
             vm.LoadManualGameCommand.Execute(null);
             Program.Assert(!vm.HasSaveError && vm.IsGeneralSelectionPending && vm.SelectedGuanduRole.Role == GuanduSeatRole.General &&
@@ -118,6 +120,20 @@ internal static class GuanduActivityUiChecks
             Program.AssertNoBindingErrors();
         }
         finally { window.Content = null; window.DataContext = null; window.Close(); }
+
+        void AssertFixedDraft()
+        {
+            Layout(root);
+            var engine = Program.Engine(vm);
+            var before = SnapshotJson.Serialize(View(engine));
+            var commands = engine.AcceptedCommands.Count;
+            Program.Assert(!vm.CanExpandGeneralRoster && !vm.ToggleGeneralRosterCommand.CanExecute(null) &&
+                ((Button)window.FindName("ToggleGeneralRosterButton")).Visibility == Visibility.Collapsed,
+                "Both fixed commanders and six-candidate generals must hide and disable the expanded-roster action.");
+            vm.ToggleGeneralRosterCommand.Execute(null);
+            Program.Assert(engine.AcceptedCommands.Count == commands && SnapshotJson.Serialize(View(engine)) == before,
+                "Invoking the unavailable action must preserve the exact fixed draft and its prompt.");
+        }
     }
 
     public static void PhysicalCardsSelectBoundedRecipientsWholeArmyAndRecast(string output)

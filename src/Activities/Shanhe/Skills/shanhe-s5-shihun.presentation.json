@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-shihun-14071": {
+      "name": "噬魂",
+      "description": "当你使用【杀】造成伤害后，你随机获得目标一个非锁定技能；"
+    }
+  }
+}

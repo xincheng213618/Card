@@ -41,16 +41,43 @@ public static partial class StandardShanheCampaignCatalog
         CodexEquipment(115, "国风玉袍", CardKind.NationalStyleRobe, "锁定技，你不能成为其他角色使用普通锦囊牌的目标。")
     });
 
+    private static readonly IReadOnlyList<CodexRewardBinding> Codex2026RewardBindings = Array.AsReadOnly(new[]
+    {
+        CodexSkill(48, "看破", S5KanpoSkillId,
+            "你可以将一张黑色手牌或装备牌当【无懈可击】使用；你使用的【无懈可击】不能被响应，包括原生无懈。"),
+        CodexSkill(55, "再起", S5ZaiqiSkillId,
+            "摸牌阶段，若你已受伤，可以改亮已损失体力值+1张牌，按红桃数回复体力并获得其余牌。采用S5山河册明确对应的摸牌替代版本。"),
+        CodexSkill(67, "洛神", "boundary:luoshen",
+            "准备阶段，可判定并获得黑色判定牌，之后可重复；以此法获得的牌本回合不计入手牌上限。"),
+        CodexSkill(81, "制衡", "boundary:zhiheng",
+            "出牌阶段限一次，可弃置任意张牌并摸等量牌；若弃置了所有手牌，额外摸一张。"),
+        CodexSkill(97, "狂骨", "boundary:kuanggu",
+            "对距离1以内的角色每造成1点伤害后，可回复1点体力或摸一张牌。"),
+        CodexSkill(112, "激昂", "boundary:jiang-current",
+            "使用决斗或红色杀指定目标后，或成为此类牌的目标后，可摸一张牌；每回合首次此类牌因弃置进入弃牌堆后，可失去1点体力获得之。"),
+        CodexSkill(114, "双雄", S5ShuangxiongSkillId,
+            "摸牌阶段结束时，可弃置一张牌，本回合可将与之颜色不同的牌当决斗使用；结束阶段，获得本回合对你造成过伤害的牌。")
+    });
+
     /// <summary>Verified source-tree node ids and their acquirable runtime reward ids.</summary>
     public static IReadOnlyDictionary<int, string> CodexRewardIdsByNodeId { get; } =
-        new ReadOnlyDictionary<int, string>(CodexRewardBindings.Select(binding => new KeyValuePair<int, string>(binding.NodeId, binding.Reward.Id))
-            .Append(new(2, OpeningInheritanceRewardId)).ToDictionary(pair => pair.Key, pair => pair.Value));
+        new ReadOnlyDictionary<int, string>(CodexRewardBindings.Concat(Codex2026RewardBindings).Select(binding => new KeyValuePair<int, string>(binding.NodeId, binding.Reward.Id))
+            .Append(new(2, OpeningInheritanceRewardId))
+            // Availability still requires this reward in the selected edition.
+            .Append(new(42, CurrentJinnangJiRewardId))
+            .Append(new(118, CurrentDuoduoYishan3RewardId))
+            .Append(new(117, CurrentYaoli4RewardId))
+            .Append(new(116, CurrentLianji2RewardId))
+            .Append(new(132, CurrentLeihuo2RewardId))
+            .Append(new(35, CurrentFarStrikeRewardId)).ToDictionary(pair => pair.Key, pair => pair.Value));
 
     /// <summary>Adds the opt-in codex pool without altering the historical default campaign definition.</summary>
     public static ShanheCampaignDefinition CreateCodexDefinition(int difficulty, string editionId)
     {
         var original = CreateDefinition(difficulty, editionId);
-        var additionalRewards = CodexRewardBindings.Select(binding => binding.Reward).Concat(new[]
+        var bindings = editionId == Returning2026EditionId
+            ? CodexRewardBindings.Concat(Codex2026RewardBindings) : CodexRewardBindings;
+        var additionalRewards = bindings.Select(binding => binding.Reward).Concat(new[]
         {
             CodexBasicCard(4004), CodexBasicCard(4008), CodexBasicCard(4076), CodexBasicCard(4092), CodexBasicCard(4107)
         }).ToArray();

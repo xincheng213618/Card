@@ -19,6 +19,8 @@ public sealed record CurrentTurnCardUseKindsRecordedEvent(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ProgramInstructionIndex { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardKind? EffectiveCardKind { get; init; }
 }
 
 public sealed partial class GameEngine
@@ -122,7 +124,8 @@ public sealed partial class GameEngine
             TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal ? action?.ProviderSeat ?? actorSeat : null,
             TracksWholeActualTurnUseOrdinal && HasOngoingWholeActualUseTurn
                 ? checked(WholeActualTurnUseHistory().Length + 1) : null)
-            { ProgramInstructionIndex = programInstructionIndex });
+            { ProgramInstructionIndex = programInstructionIndex,
+              EffectiveCardKind = _contentRegistry.ProgramDependencies.TracksSlashDamageUseOrdinals ? effectiveKind : null });
     }
 
     private int? CapturedActualTurnActorUseOrdinal(CardActionContext action)

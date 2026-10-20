@@ -78,6 +78,7 @@ internal static class Program
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
             Check("recorded general selection saves load without replacing their source", RecordedSelectionSaveChecks.LoadHistoricalFingerprintWithoutReplacingSource);
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
+            Check("custom general roster categories search within eligible series and reset across modes", () => GeneralRosterCategoryChecks.SeriesSearchAndModeBoundaries(output));
             Check("filtered presentation batches log and guide results without losing entries", FilteredPresentationChecks.BatchFiltersPreserveEntries);
             Check("general gallery realizes visible rows and opens with bounded portrait cost", () => GeneralGalleryPerformanceChecks.VisibleRowsAndPortraitCost(output));
             Check("Wumiao Flood UI: ordered portraits undo aim and native commit", () => WumiaoFloodUiChecks.OrderedPortraitTargetsUndoAimAndCommit(output));
@@ -105,6 +106,7 @@ internal static class Program
             Check("Shanhe campaign UI: shop purchase states and codex navigation", () => ShanheModulesUiChecks.ShopPurchaseAndCodexNavigation(output));
             Check("Shanhe codex UI: unlock equip persist and market", () => ShanheCodexUiChecks.UnlockEquipPersistAndMarket(output));
             Check("Shanhe codex UI: failed profile write preserves progress", ShanheCodexUiChecks.FailedProfileWritePreservesProgress);
+            Check("Shanhe Dong Ji UI: dynamic exact card confirmation and locked gift", () => ShanheDongJiUiChecks.DynamicRecipientCountConfirmsExactCardsAndExcludesLockedGift(output));
             Check("Shanhe codex settlement: actual victory one-time books and rejected outcomes", () => ShanheCodexSettlementChecks.ActualCompletedVictoryCreditsOnceAndRejectsOtherOutcomes(output));
             Check("Shanhe reward UI: real victory cards confirmation skip skill and replacement", () => ShanheRewardUiChecks.RealVictoryRewardCardsConfirmSkipSkillAndReplacement(output));
             Check("Shanhe reward UI: boss bundles advance through three chapters", () => ShanheRewardUiChecks.BossBundlesRequireEachGroupThenAdvanceThreeChapters(output));
@@ -112,6 +114,7 @@ internal static class Program
             Check("Boss activity UI: real coalition setup stage and cross-mode restore", () => BossActivityUiChecks.RealSetupAndCrossModeRestore(output));
             Check("Hulao activity UI: forms shuffle counters and cross-mode restore", () => HulaoActivityUiChecks.SetupFormCounterAndCrossModeRestore(output));
             Check("Shenwu activity UI: shared god draft six seats and restore", () => ShenwuActivityUiChecks.SharedGodDraftSixSeatsAndRestore(output));
+            Check("Shenwu expanded UI: versions five enemy tiers artwork and restore", () => ShenwuActivityUiChecks.ExpandedVersionsTiersAndRestore(output));
             Check("Nian activity UI: four seats clock and cross-configuration restore", () => NianActivityUiChecks.SetupFourSeatsFormPortraitsAndCrossConfigurationRestore(output));
             Check("Hell activity UI: five tiers real five seats dormant auxiliary and restore", () => HellActivityUiChecks.FiveTierLobbyRealFiveSeatsDormantAuxiliaryAndRestore(output));
             Check("Wenhe activity UI: private goal eight seats and cross-configuration restore", () => WenheActivityUiChecks.SurvivalLobbyPrivateGoalEightSeatsAndCrossConfigurationRestore(output));
@@ -220,7 +223,7 @@ internal static class Program
         var window = new MainWindow(vm);
         window.ApplyTemplate();
         var root = (FrameworkElement)window.Content;
-        Assert(vm.VisibleTableModes.Count == 20 && vm.SelectedModeCategory.Id == "all" &&
+        Assert(vm.VisibleTableModes.Count == vm.TableModes.Count && vm.SelectedModeCategory.Id == "all" &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:shenwu-2017") &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:nian-2016") &&
                vm.VisibleTableModes.Any(mode => mode.ModeId == "activity:dragon-boat-2018") &&
@@ -252,11 +255,15 @@ internal static class Program
         }
         vm.OpenLobbyCategoryCommand.Execute("all");
         Render(root, 1120, 740, Path.Combine(output, "134-mode-lobby.png"));
+        var groups = (ItemsControl)window.FindName("ModeGroupChoices");
         var lobby = (ListBox)window.FindName("TableModeChoices");
-        Assert(lobby.ActualHeight > 0 && lobby.Items.Count == 20 &&
+        Assert(groups.ActualHeight > 0 && groups.Items.Count == vm.VisibleModeGroups.Count &&
+               vm.VisibleModeGroups.Sum(group => group.Variants.Count) == vm.VisibleTableModes.Count &&
+               vm.VisibleModeGroups.SelectMany(group => group.Variants).ToHashSet().SetEquals(vm.VisibleTableModes) &&
                (ListBox)window.FindName("ModeCategoryChoices") is { Items.Count: 5 },
             "Mode cards or category controls are inaccessible.");
         ModeSelectionChecks.RefreshBoundSelection(vm, lobby);
+        ModeSelectionChecks.TwoStepSetup(vm, window, root, output);
 
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "national");
         root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);

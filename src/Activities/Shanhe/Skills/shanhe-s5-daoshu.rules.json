@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-daoshu-952",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "daoshu-guess",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "daoshuGuessAndTake", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

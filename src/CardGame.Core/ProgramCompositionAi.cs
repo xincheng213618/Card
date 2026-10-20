@@ -40,7 +40,10 @@ internal sealed record ProgramAiPublicContext(
     Func<string, bool?>? PindianOutcome = null,
     double PairedColorDispositionScore = 0d,
     int? ActualTurnDeathBenefits = null, double TargetedTrickHandHpScore = 0d, double EndRefillNextTurnScore = 0d,
-    int LivingPlayerCount = 0);
+    int LivingPlayerCount = 0,
+    double? WholeCardUseNullificationScore = null,
+    Func<int, int, int>? SourceOccurrenceDamageBonus = null,
+    Func<int, PublicDamagePrediction>? VirtualSlashDamagePrediction = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -59,8 +62,22 @@ internal static class ProgramCompositionAi
         var instructions = effects.ToArray();
         var choices = new Dictionary<string, string>(StringComparer.Ordinal);
         var supplied = publicContext ?? new ProgramAiPublicContext(0);
+        var handReturn = PindianHandReturnContract.Matches(instructions);
+        if (handReturn && supplied.PindianOutcome is null && supplied.PindianWon is null)
+        {
+            // Opponent faces and deck order are private; retain an even contest
+            // prior, and simulate the two coherent branches rather than half moves.
+            var won = Estimate(instructions, player, faceDown, supplied with { PindianWon = _ => true, PindianOutcome = _ => true });
+            var lost = Estimate(instructions, player, faceDown, supplied with { PindianWon = _ => false, PindianOutcome = _ => false });
+            var hint = new SkillProgramAiHint((int)Math.Round((won.Hint.OwnerDraw + lost.Hint.OwnerDraw) / 2d), 0, 0,
+                (int)Math.Round((won.Hint.TargetDraw + lost.Hint.TargetDraw) / 2d), 0, 0, false, false)
+            { ValueAdjustment = (won.Hint.ValueAdjustment + lost.Hint.ValueAdjustment) / 2d,
+              TargetValueAdjustment = (won.Hint.TargetValueAdjustment + lost.Hint.TargetValueAdjustment) / 2d };
+            return new(hint, (won.Score + lost.Score) / 2d, false, "公开手牌数量与未知拼点胜负各半；赠回在完整获牌后按半手估计。");
+        }
         var facts = supplied with { ChoiceResult = name => choices.GetValueOrDefault(name) ?? supplied.ChoiceResult?.Invoke(name) };
         var context = new ProgramAiEstimateContext(player, faceDown, facts);
+        if (handReturn) context.PricePindianHandReturnInputs();
         // Only the new category-dependent current-use capability prices unknown
         // discarded categories. The estimate uses a public half-basic prior.
         foreach (var payment in instructions.Where(effect => effect is
@@ -180,6 +197,7 @@ internal sealed partial class ProgramAiEstimateContext
     private bool _discardsSelected;
     private bool _canUseSlashOnOther;
     private int? _estimatedSelectedTargetCount;
+    private int _estimatedNormalDrawAdjustment;
 
     internal ProgramAiEstimateContext(
         PlayerSkillContext player,
@@ -263,7 +281,7 @@ internal sealed partial class ProgramAiEstimateContext
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => _publicContext.CurrentTurnUsedCardCategoryCount ?? 0,
             SkillProgramNumberExpression.ActualTurnDeathBenefits => _publicContext.ActualTurnDeathBenefits ?? 0,
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
-              SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, _player.MaxHp - Math.Max(0, _player.Hp) - _estimatedHandCount),
+            SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, _player.MaxHp - _player.Hp - _estimatedHandCount),
             SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
             SkillProgramNumberExpression.LivingPlayersMinHp => _publicContext.LivingPlayersMinHp ?? _player.Hp,
             SkillProgramNumberExpression.TargetMaxHpMinusHandCount =>
@@ -378,7 +396,7 @@ internal sealed partial class ProgramAiEstimateContext
             : effect.Amount;
         if (TargetsOwner(effect))
         {
-            var actual = Math.Min(amount, Math.Max(0, _player.MaxHp - _estimatedHp));
+            var actual = Math.Min(amount, Math.Max(0, _estimatedMaxHp - _estimatedHp));
             _ownerRecovery += actual;
             ApplyOwnerHealth(new(PublicHealthEffectKind.Recover, Rounded(amount)));
         }
@@ -412,9 +430,12 @@ internal sealed partial class ProgramAiEstimateContext
 
     internal void Reveal(SkillProgramEffect effect)
     {
-        var amount = effect.NumberExpression == SkillProgramNumberExpression.OwnerLostHp
-            ? Math.Max(0, _player.MaxHp - _player.Hp)
-            : effect.Amount;
+        var amount = effect.NumberExpression switch
+        {
+            SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
+            SkillProgramNumberExpression.OwnerLostHpPlusOne => checked(Math.Max(0, _player.MaxHp - _player.Hp) + 1),
+            _ => effect.Amount
+        };
         _bindings[effect.ResultBind!] = UnknownCards(amount, ownerHeld: false);
     }
 
@@ -466,6 +487,12 @@ internal sealed partial class ProgramAiEstimateContext
         {
             _otherAdjustment += count * 4d;
             _estimatedHandCount = Math.Max(0d, _estimatedHandCount - count);
+        }
+        else if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand && source.OwnerHeld)
+        {
+            _ownerDraw -= count;
+            _estimatedHandCount = Math.Max(0d, _estimatedHandCount - count);
+            _targetDraw += count;
         }
         if (source.TargetHeld && effect.Destination is SkillProgramCardDestination.DiscardPile or
                 SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DrawPileTop)
@@ -521,7 +548,8 @@ internal sealed partial class ProgramAiEstimateContext
         var expressionLimit = effect.NumberExpression switch
         {
             SkillProgramNumberExpression.EventMovedCardCount => Math.Max(0, _publicContext.EventMovedCardCount ?? 0),
-            SkillProgramNumberExpression.PlannedNormalDrawCount => Math.Max(0, _publicContext.NormalDrawCount),
+            SkillProgramNumberExpression.PlannedNormalDrawCount => Math.Max(0,
+                checked(_publicContext.NormalDrawCount + _estimatedNormalDrawAdjustment)),
             SkillProgramNumberExpression.CurrentHandCount => Math.Max(0, (int)Math.Floor(_estimatedHandCount)),
             _ => effect.MaximumTargets
         };
@@ -558,6 +586,7 @@ internal sealed partial class ProgramAiEstimateContext
             : (_publicContext.SelectedTarget?.HandCount ?? 1) + _targetDraw;
         var available = (effect.Zones.Contains(CardZoneKind.Hand) ? Math.Max(0, knownHand) : 0) +
             effect.Zones.Count(zone => zone is CardZoneKind.Equipment or CardZoneKind.Judgment);
+        if (effect.NumberExpression == SkillProgramNumberExpression.AllOwnedZoneCards) count = available;
         var selected = effect.RequireExactCount == true && available < count ? 0 : Math.Min(count, available);
         _bindings[effect.ResultBind!] = UnknownCards(selected, ownedByActor) with { TargetHeld = !ownedByActor };
     }
@@ -626,10 +655,19 @@ internal sealed partial class ProgramAiEstimateContext
         }
     }
 
-    internal void AdjustNormalDraw(SkillProgramEffect effect) =>
-        _ownerDraw += effect.NumberExpression == SkillProgramNumberExpression.SelectedTargetCount
-            ? -(_estimatedSelectedTargetCount ?? 1) : effect.NumberExpression == SkillProgramNumberExpression.LivingFactionCount
-                ? _publicContext.LivingFactionCount : effect.Amount;
+    internal void AdjustNormalDraw(SkillProgramEffect effect)
+    {
+        var amount = effect.NumberExpression switch
+        {
+            SkillProgramNumberExpression.SelectedTargetCount => -(_estimatedSelectedTargetCount ?? 1),
+            SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
+            SkillProgramNumberExpression.PlannedNormalDrawCount => Math.Max(0,
+                checked(_publicContext.NormalDrawCount + _estimatedNormalDrawAdjustment)),
+            _ => effect.Amount
+        };
+        _estimatedNormalDrawAdjustment = checked(_estimatedNormalDrawAdjustment + amount);
+        _ownerDraw += amount;
+    }
 
     internal void GrantTurnCardDamageModifier(SkillProgramEffect effect) =>
         _otherAdjustment += effect.Amount *
@@ -664,6 +702,18 @@ internal sealed partial class ProgramAiEstimateContext
 
     internal void NullifySelectedCardEffects() =>
         _otherAdjustment += _publicContext.CardEffectInterventionScore;
+
+    internal void NullifyCurrentCardUse() =>
+        _otherAdjustment += _publicContext.WholeCardUseNullificationScore ?? 0d;
+
+    internal void RepeatIncomingEffectAndDraw(SkillProgramEffect effect)
+    {
+        Draw(new(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner,
+            Math.Min(effect.Amount, Math.Max(0, _publicContext.AttackRange)), effect.Condition));
+        // The intervention score prices removing this public effect; repeating
+        // it has the opposite effect. No opponent hand or unrevealed skill is read.
+        _otherAdjustment -= _publicContext.WholeCardUseNullificationScore ?? 0d;
+    }
 
     internal void ProhibitCurrentResponse() => _otherAdjustment += 20d;
     internal void IssuePlayUsePolicy()
@@ -705,7 +755,7 @@ internal sealed partial class ProgramAiEstimateContext
     internal void PaidHpLossEstimate(int stage)
     {
         var n = Math.Min(2, Math.Max(1, _player.Hp - 1));
-        if (stage == 0) { _ownerHpLoss += n; _estimatedHp -= n; }
+        if (stage == 0) ApplyOwnerHealth(new(PublicHealthEffectKind.HpLoss, n));
         else if (stage == 1) _ownerDraw += n;
         else _otherAdjustment += n * (stage == 2 ? 6d : 12d);
     }
@@ -933,6 +983,12 @@ internal sealed partial class ProgramAiEstimateContext
         _otherAdjustment -= (1d - ownerWin) * 12d;
         _targetAdjustment -= ownerWin * 20d;
     }
+    internal void OrderedSelectedActorDuel()
+    {
+        // Either publicly selected participant may lose the exchange. Price a
+        // half-damage prior for each; the original skill owner is not a fighter.
+        _targetAdjustment -= 12d;
+    }
     internal void DamageAppearanceDraw() { /* The mandatory actual receipt chooses its recipient, not a speculative AI reward. */ }
     internal void Damage(SkillProgramEffect effect)
     {
@@ -940,7 +996,7 @@ internal sealed partial class ProgramAiEstimateContext
             ? Rounded(effect.Amount * 0.75d) : effect.Amount;
         // Program Damage is not a card-use damage occurrence. Only the existing
         // unconditional HP replacement applies here, never a first-card quota.
-        var source = effect.ActorReference?.Kind switch
+        var source = effect.Op == SkillProgramEffectOp.ReceiveOwnerDamage ? null : effect.ActorReference?.Kind switch
         {
             null or ProgramParticipantRef.Owner => _player,
             ProgramParticipantRef.SelectedTarget => _publicContext.SelectedTarget,
@@ -950,10 +1006,18 @@ internal sealed partial class ProgramAiEstimateContext
         var bypass = source?.DamageBecomesHpLoss == true ||
             source is not null && (recipient is null || source.Seat != recipient.Seat) &&
                 (source.OtherParticipantDamageBecomesHpLoss || recipient?.OtherParticipantDamageBecomesHpLoss == true);
+        // Additional damage belongs to real Damage only. HP replacement keeps
+        // the original program amount, just as the native payment pipeline does.
+        if (!bypass && source is not null && recipient is not null && _publicContext.SourceOccurrenceDamageBonus is { } bonus)
+            amount = Math.Max(0, checked(amount + bonus(source.Seat, recipient.Seat)));
+        if (!bypass && recipient?.IncomingDamageCap is { } cap) amount = Math.Min(amount, cap);
         var predicted = new PublicHealthEffect(bypass ? PublicHealthEffectKind.HpLoss : PublicHealthEffectKind.Damage, amount);
         if (TargetsOwner(effect)) ApplyOwnerHealth(predicted);
         else ApplyTargetHealth(predicted);
     }
+    internal void PricePindianHandReturnInputs()
+    { _estimatedHandCount = Math.Max(0d, _estimatedHandCount - 1d); _targetDraw -= 1d; }
+
     internal void Pindian(SkillProgramEffect effect) => _otherAdjustment += 4d;
     internal void CategoryAlternativeDiscard(SkillProgramEffect effect) =>
         // The chooser's concealed categories are unknown. Price the configured
@@ -983,6 +1047,25 @@ internal sealed partial class ProgramAiEstimateContext
             CardKind.ArrowBarrage => Math.Max(1d, _publicContext.EligibleTargetCount ?? 2),
             _ => 0d
         };
+
+    internal void VirtualSlash(SkillProgramEffect effect)
+    {
+        if (_publicContext.SelectedTarget is not { } target ||
+            _publicContext.VirtualSlashDamagePrediction is not { } predict)
+        {
+            Damage(new(SkillProgramEffectOp.Damage, SkillProgramEffectTarget.SelectedTarget, 1, effect.Condition));
+            return;
+        }
+        // A real virtual use has no material card. The public native estimate
+        // includes the current Wine/first-use bonuses and health replacements;
+        // it neither issues an attack nor reads the target's concealed hand.
+        var payment = predict(target.Seat);
+        ApplyTargetHealth(payment.MaximumHpLossAmount > 0
+            ? new(PublicHealthEffectKind.MaximumHpLoss, payment.MaximumHpLossAmount)
+            : payment.DirectHpLossAmount > 0
+                ? new(PublicHealthEffectKind.HpLoss, payment.DirectHpLossAmount)
+                : new(PublicHealthEffectKind.Damage, payment.DamageAmount));
+    }
 
     internal void UseVirtualOrdinaryTrick(SkillProgramEffect effect, double probability = 1d)
     {
@@ -1047,7 +1130,7 @@ internal sealed partial class ProgramAiEstimateContext
     private void ApplyOwnerHealth(PublicHealthEffect effect)
     {
         _hasOwnerHealthPrediction = true;
-        var prediction = PublicDamageSequencePrediction.Calculate(Math.Max(0, Rounded(_estimatedHp)),
+        var prediction = PublicDamageSequencePrediction.Calculate(Rounded(_estimatedHp),
             Math.Max(0, _estimatedMaxHp), _estimatedArmor, [effect]);
         _estimatedHp = prediction.HpAfter; _estimatedMaxHp = prediction.MaxHpAfter;
         _estimatedArmor = prediction.ArmorAfter;

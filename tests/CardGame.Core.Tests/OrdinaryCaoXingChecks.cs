@@ -12,28 +12,10 @@ internal static class OrdinaryCaoXingChecks
     public static void LiushiDamagesAndZhanwanDrains()
     {
         var (g, r) = Start();
-        if (Environment.GetEnvironmentVariable("CX_PROBE") is not null)
-        {
-            Skip(g);
-            Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
-            Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
-            for (var i = 0; i < 40; i++)
-            {
-                Accept(g, new AdvanceOneStepCommand(g.Revision));
-                Console.WriteLine("PROBE " + i + ": pending=" + P(g)?.PlayerSeat + ":" + P(g)?.Kind +
-                    " turns=" + g.Events.Select(e => e.Payload).OfType<CardGame.Core.TurnStartedEvent>().Count() +
-                    " phases=" + string.Join(",", g.Events.Select(e => e.Payload).OfType<CardGame.Core.PhaseChangedEvent>().Select(p => p.ActorSeat + ":" + p.Phase).ToArray().TakeLast(3)));
-                if (P(g) is { } probe && probe.PlayerSeat != 0) break;
-            }
-            throw new InvalidOperationException("PROBE-STOP");
-        }
         var cost = g.CreateSnapshot(0).Players[0].Hand.First(card => card.Suit == Suit.Heart).Id;
         var victimHandBefore = HandCount(g, 1);
         var victimHpBefore = g.CreateSnapshot(0).Players[1].Hp;
-        Activate(g);
-        SelectTarget(g, 1);
-        Reach(g, p => p.SkillPrompt?.SkillId == Liushi && p.Choices.Any(c => c.Cards.Count == 1));
-        Answer(g, c => c.Cards.SequenceEqual([cost]));
+        Accept(g, new UseProgramSkillCommand(0, Liushi, "topdeck-heart-slash", [cost], [1], g.Revision, P(g)!.PromptId));
         AwaitSettledDamage(g, 1, victimHpBefore - 1);
         AwaitProgramMarker(g);
         Require(!g.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == cost) &&
@@ -62,14 +44,6 @@ internal static class OrdinaryCaoXingChecks
             "A cleared marker neither drains again nor restores twice. limit=" + HandLimit(g, 1) +
             " secondDraws=" + secondDraws + " secondDrain=" + secondDrain);
         Replay(g, r);
-    }
-
-    private static void SelectTarget(GameEngine g, int seat)
-    {
-        Reach(g, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "select-target" &&
-            c.Targets.SequenceEqual([seat])));
-        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "select-target" &&
-            c.Targets.SequenceEqual([seat]));
     }
 
     private static void SettleSkippingLiushi(GameEngine g)
@@ -178,8 +152,7 @@ internal static class OrdinaryCaoXingChecks
         Accept(g, new StartGameCommand());
         Reach(g, p => p.Kind == DecisionKind.SelectGeneral);
         Accept(g, new SelectGeneralCommand(0, "fixture:cx", g.Revision, P(g)!.PromptId));
-        Reach(g, p => p.SkillPrompt?.SkillId == Liushi &&
-            p.Choices.Any(c => c.Parameters.GetValueOrDefault("program-action") == "activate"));
+        Reach(g, p => p.Kind == DecisionKind.PlayCard && p.PlayerSeat == 0);
         return (g, r);
     }
 }

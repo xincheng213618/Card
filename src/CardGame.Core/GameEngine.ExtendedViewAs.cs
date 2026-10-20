@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool IsArmorIneffectiveForTurn(CharacterState target) => _turnCardUseEffects.TargetRestrictions.Any(restriction =>
+    private bool IsArmorIneffectiveForTurn(CharacterState target) => ShenwuZhaohuoDisablesArmor(target.Seat) || _turnCardUseEffects.TargetRestrictions.Any(restriction =>
         restriction.TurnNumber == _turnNumber && restriction.Restriction == SkillProgramCardTargetRestriction.ArmorIneffectiveForTurn && restriction.TargetSeat == target.Seat);
     private bool TryResolveExtendedAiResponse(CharacterState owner, Card card, CardKind kind)
     {

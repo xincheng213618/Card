@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-lianzhu-14212": {
+      "name": "连诛",
+      "description": "出牌阶段限一次，你可以展示并交给一名其他角色一张手牌或装备牌，若此牌为黑色，其选择一项：1.你摸X张牌；2.弃置X张牌。（X为赠牌引发的效果结算后，其当前体力值。）",
+      "activationLabels": { "reveal-owned-gift": "展示并赠牌" }
+    }
+  }
+}

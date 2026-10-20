@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:current-cuanchao-14069": {
+      "name": "篡朝",
+      "description": "转换技，阳：当你成为基本牌的目标时，你可令其无效；阴：当你成为锦囊牌的目标时，你可令其无效。本地初始为阳，接受发动后转换；按原文解释为该次用牌的牌效果整体无效，此次仍算使用牌，其他到达时机的技能照常发动。",
+      "triggerChoices": {
+        "yang-basic-use-ineffective": "篡朝·阳：令此次基本牌的牌效果整体无效，并转为阴",
+        "yin-trick-use-ineffective": "篡朝·阴：令此次锦囊牌的牌效果整体无效，并转为阳"
+      }
+    }
+  }
+}

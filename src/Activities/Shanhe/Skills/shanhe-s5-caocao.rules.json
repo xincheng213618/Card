@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-guixin-14138",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "random-regions-then-turn-over",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "effects": [
+            { "op": "obtainRandomAreaFromEachOtherThenTurnOver", "target": "owner", "zones": ["hand", "equipment", "judgment"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -17,14 +17,20 @@ internal static class ProgramCompositionValidator
         SkillProgramTurnOwnerScope? turnOwnerScope = null,
         SkillProgramTargetKind? activationTargetKind = null,
         IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null,
-        IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null)
+        IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null, bool pindianHandReturn = false)
     {
+        if (pindianHandReturn && (window is not null || !PindianHandReturnContract.Matches(effects)))
+            throw Error(path, "Pindian hand return requires its exact five native instructions.");
         NianRevivalComposition.Validate(path, effects, window, initialSelectedTarget, selectedCardCount,
             initialTargetSetMaximum, activationTargetKind);
         ZhangYiComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
-        if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel) &&
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel && !OrderedSelectedActorDuelContract.IsOptIn(e)) &&
             (window is not null || selectedCardCount != 0 || !initialSelectedTarget || initialTargetSetMaximum != 0 || effects.Count != 1))
             throw Error(path, "Selected actor Duel is a single zero-card one-selected-target activation.");
+        if (effects.Any(OrderedSelectedActorDuelContract.IsOptIn) &&
+            (window is not null || selectedCardCount != 1 || initialTargetSetCount != 2 || initialTargetSetMaximum != 2 ||
+             effects is not [{ Op: SkillProgramEffectOp.DiscardSelected }, var orderedDuel] || !OrderedSelectedActorDuelContract.IsOptIn(orderedDuel)))
+            throw Error(path, "Ordered actor Duel follows one selected-card discard and an exact initial ordered target pair.");
         TurnDrawDebtComposition.Validate(path, effects, window, drawMode: drawPhaseMode, turnOwnerScope: turnOwnerScope);
         SequentialDiscardComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget,
             initialTargetSetMaximum, activationSourceZones, activationCardCategories);
@@ -56,6 +62,7 @@ internal static class ProgramCompositionValidator
             throw Error(path, "Declared deck criterion requires one standalone zero-input activation.");
         expandedCardDomain |= RequiresExpandedCardDomain(effects);
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
+        var judgmentOutcomes = new HashSet<string>(StringComparer.Ordinal);
         var choiceGuardedBindings = new Dictionary<string, SkillProgramCondition>(StringComparer.Ordinal);
         var roots = new List<Root>();
         var topPayments = new HashSet<string>(StringComparer.Ordinal);
@@ -107,6 +114,9 @@ internal static class ProgramCompositionValidator
             foreach (var condition in Conditions(effect.Condition)
                          .Concat(effect.Options.SelectMany(option => Conditions(option.Condition))))
             {
+                if (condition.Kind == SkillProgramConditionKind.JudgmentOutcomeMatchesSuits &&
+                    !judgmentOutcomes.Contains(condition.SourceBind!))
+                    Fail($"unknown judgment outcome binding '{condition.SourceBind}'");
                 if (condition.Kind is (SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.PindianNotWon) &&
                     !pindianResults.Contains(condition.SourceBind!))
                     Fail($"unknown Pindian result binding '{condition.SourceBind}'");
@@ -180,6 +190,11 @@ internal static class ProgramCompositionValidator
                     Fail("A frozen HP pair cannot cross an independent inserted phase.");
                 switch (resource)
                 {
+                    case CreateJudgmentOutcome outcome:
+                        if (!judgmentOutcomes.Add(outcome.Name) || bindings.ContainsKey(outcome.Name) ||
+                            choiceResults.ContainsKey(outcome.Name) || pindianResults.Contains(outcome.Name) || coverageResults.Contains(outcome.Name))
+                            Fail($"duplicate judgment outcome binding '{outcome.Name}'");
+                        break;
                     case CreateCardSet create:
                     {
                         var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup,
@@ -312,8 +327,11 @@ internal static class ProgramCompositionValidator
                         var source = Get(owned.Name);
                         var producer = effects.Take(index).SingleOrDefault(prior => prior.ResultBind == owned.Name &&
                             prior.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectOwnedHandRankSum);
+                        var exactPindianHalfReturn = pindianHandReturn && index == 4 &&
+                            PindianHandReturnContract.Matches(effects) && ReferenceEquals(producer, effects[3]) &&
+                            owned.Name == effects[3].ResultBind;
                         if (producer is null || producer.Target != owned.Owner || producer.TargetReference is not null ||
-                            producer.Condition.Kind != SkillProgramConditionKind.Always || producer.NumberExpression is not null ||
+                            !exactPindianHalfReturn && (producer.Condition.Kind != SkillProgramConditionKind.Always || producer.NumberExpression is not null) ||
                             source.CardOwner != owned.Owner || owned.MaximumCount is { } cap && source.MaximumCount > cap ||
                             producer.Zones.Count == 0 || producer.Zones.Any(zone => !owned.Zones.Contains(zone)) ||
                             source.Root.AlreadyMoved || source.Atoms.Overlaps(source.Root.Consumed) || source.Atoms.Overlaps(source.Root.PossiblyGifted))
@@ -455,6 +473,7 @@ internal static class ProgramCompositionValidator
                             Fail("owned hand rank sum requires the first instruction of a zero-card one-other-living-target activation");
                         break;
                     case RequireBoundParticipantGiftEntry gift:
+                        if (pindianHandReturn && index == 4 && PindianHandReturnContract.Matches(effects)) break;
                         if (window is SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.CardUseBeforeTargetEffects) break;
                         if (window is not null || selectedCardCount != 0 || !initialSelectedTarget ||
                             initialTargetSetMaximum != 0 || activationTargetKind != SkillProgramTargetKind.OtherLiving || index != 1 ||
@@ -490,7 +509,7 @@ internal static class ProgramCompositionValidator
                         if (roots.Any(root => root.NeedsCleanup && !root.Consumed.SetEquals(root.Atoms.Keys)))
                             Fail("pindian cannot start while an earlier revealed card binding still needs cleanup");
                         if (!pindianResults.Add(result.Name) || bindings.ContainsKey(result.Name) ||
-                            choiceResults.ContainsKey(result.Name) || coverageResults.Contains(result.Name))
+                            choiceResults.ContainsKey(result.Name) || coverageResults.Contains(result.Name) || judgmentOutcomes.Contains(result.Name))
                             Fail($"duplicate result binding '{result.Name}'");
                         break;
                     case ReadPindianResult result:
@@ -508,7 +527,7 @@ internal static class ProgramCompositionValidator
                     case CreateChoiceResult choice:
                         if (!choiceResults.TryAdd(choice.Name, choice.Options) ||
                             bindings.ContainsKey(choice.Name) || pindianResults.Contains(choice.Name) ||
-                            coverageResults.Contains(choice.Name))
+                            coverageResults.Contains(choice.Name) || judgmentOutcomes.Contains(choice.Name))
                             Fail($"duplicate result binding '{choice.Name}'");
                         if (effect is { Op: SkillProgramEffectOp.ChooseOption, Target: SkillProgramEffectTarget.Owner,
                                 Condition.Kind: SkillProgramConditionKind.Always } &&
@@ -518,7 +537,7 @@ internal static class ProgramCompositionValidator
                         break;
                     case CreateCoverageResult coverage:
                         if (!coverageResults.Add(coverage.Name) || bindings.ContainsKey(coverage.Name) ||
-                            choiceResults.ContainsKey(coverage.Name) || pindianResults.Contains(coverage.Name))
+                            choiceResults.ContainsKey(coverage.Name) || pindianResults.Contains(coverage.Name) || judgmentOutcomes.Contains(coverage.Name))
                             Fail($"duplicate result binding '{coverage.Name}'");
                         break;
                     case RequireSelectedTargetKind requiredTarget:
@@ -690,7 +709,7 @@ internal static class ProgramCompositionValidator
             void Add(string name, Binding value)
             {
                 if (!bindings.TryAdd(name, value) || choiceResults.ContainsKey(name) ||
-                    pindianResults.Contains(name) || coverageResults.Contains(name))
+                    pindianResults.Contains(name) || coverageResults.Contains(name) || judgmentOutcomes.Contains(name))
                     Fail($"duplicate card binding '{name}'");
             }
             void Fail(string message) => throw Error(nodePath, message);

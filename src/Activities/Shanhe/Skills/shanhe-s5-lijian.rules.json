@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-lijian-68",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "discard-and-issue-ordered-duel",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 2,
+          "maxTargets": 2,
+          "targetKind": "otherLivingMale",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            {
+              "op": "useSelectedActorDuel", "target": "owner",
+              "participantMode": "orderedSelectedPair", "prohibitNullification": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

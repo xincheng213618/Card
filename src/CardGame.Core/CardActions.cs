@@ -15,7 +15,8 @@ public enum ProgramCardContinuation
 {
     Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, FactionDefenseDodge, FactionSlashDuelSlash, FactionSlashGroupResponse, DelayedCard, CompletedSlash, NullificationResponse, SlashTargetRedirecting, SlashBeforeResponse, SlashFullyDodged,
     CommittedTrick, CommittedSimpleCard, CompletedCard, FinalizedTrick = 824, FinalizedSimpleCard = 900,
-    FinalizedDelayedPlacement = 20480
+    FinalizedDelayedPlacement = 20480,
+    BeforeSimpleTargetEffects = 27630
 }
 
 public enum ProgramCompletedResponseKind { Dodge, Nullification }

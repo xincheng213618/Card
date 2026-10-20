@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-guixin-14138": {
+      "name": "归心",
+      "description": "当你受到1点伤害后，你可以获得每名其他角色随机一个区域里的所有牌，然后翻面。"
+    }
+  }
+}

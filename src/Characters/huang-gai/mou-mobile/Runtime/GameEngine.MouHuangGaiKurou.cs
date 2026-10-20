@@ -167,7 +167,7 @@ public sealed partial class GameEngine
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != id ||
             frame.MouHuangGaiKurou is not { Stage: MouHuangGaiKurouStage.LossRequested, Gift: { } gift } receipt) return;
         if (!ValidMouKurou(frame) || change.TargetSeat != frame.OwnerSeat || change.SourceSeat is not null ||
-            change.HpBefore - change.HpAfter != change.Amount || change.Amount != Math.Min(change.HpBefore, gift.RequestedHpLoss))
+            (long)change.HpBefore - change.HpAfter != change.Amount || change.Amount != gift.RequestedHpLoss)
             throw new InvalidOperationException("KuRou HP loss must be its exact once-issued native owner deduction.");
         var loss = new MouHuangGaiKurouLoss(change.Id, change.HpBefore, change.HpAfter, gift.RequestedHpLoss, change.Amount);
         ReplaceRuntimeTop(frame with { MouHuangGaiKurou = receipt with { Stage = MouHuangGaiKurouStage.LossChildren, Loss = loss } });
@@ -216,12 +216,12 @@ public sealed partial class GameEngine
         if (receipt.Loss is not { } loss || losses is not [var lossPaid] ||
             lossPaid != new MouHuangGaiKurouHpLossPaidEvent(frame.Id, receipt.Source, receipt.GameplayHash, loss) ||
             loss.RequestedHpLoss != gift.RequestedHpLoss || loss.ActualLost < 0 || loss.ActualLost > loss.RequestedHpLoss ||
-            loss.HpAfter < 0 || loss.HpBefore - loss.HpAfter != loss.ActualLost) return false;
+            (long)loss.HpBefore - loss.HpAfter != loss.ActualLost) return false;
         return loss.IdentityPrevented ? loss.HpChangeId == 0 && loss.ActualLost == 0 &&
             ProgramEventHistory<IdentityGeneralAppearedEvent>().Any(fact => fact.Receipt.ParentFrameId == frame.Id &&
                 fact.Receipt.Entry == IdentityAppearanceEntry.ProgramHpLoss && fact.Receipt.OwnerSeat == frame.OwnerSeat &&
                 fact.Receipt.RequestedDeduction == gift.RequestedHpLoss) :
-            loss.HpChangeId > 0 && loss.ActualLost == Math.Min(loss.HpBefore, gift.RequestedHpLoss) && loss.ActualLost > 0 &&
+            loss.HpChangeId > 0 && loss.ActualLost == gift.RequestedHpLoss && loss.ActualLost > 0 &&
             (ProgramEventHistory<ProgramSkillHpLostEvent>().Any(fact => fact.FrameId == frame.Id && fact.SkillId == frame.SkillId &&
                 fact.TargetSeat == frame.OwnerSeat && fact.Amount == loss.ActualLost && fact.RemainingHp == loss.HpAfter) ||
              _pendingHpChanges.Any(change => change.Id == loss.HpChangeId && change.ParentFrameId == frame.Id && change.Kind == HpChangeKind.Loss &&
@@ -262,7 +262,7 @@ public sealed partial class GameEngine
     private bool MouKurouFirstChild(ProgramSkillFrame frame, ResolutionFrame child)
     {
         if (frame.MouHuangGaiKurou is not { Gift: { } gift } receipt || !ValidMouKurou(frame)) return false;
-        if (child is DyingFrame dying) return receipt.Stage == MouHuangGaiKurouStage.LossChildren && receipt.Loss is { ActualLost: > 0, HpAfter: 0 } &&
+        if (child is DyingFrame dying) return receipt.Stage == MouHuangGaiKurouStage.LossChildren && receipt.Loss is { ActualLost: > 0, HpAfter: <= 0 } &&
             dying.ParentFrameId == frame.Id && dying.VictimSeat == frame.OwnerSeat && dying.KillerSeat is null && dying.Continuation == DyingContinuationKind.ProgramSkill;
         if (child is IdentityAppearanceFrame identity) return receipt.Stage == MouHuangGaiKurouStage.LossRequested &&
             identity.Receipt.Entry == IdentityAppearanceEntry.ProgramHpLoss && identity.Receipt.ParentFrameId == frame.Id &&
@@ -390,9 +390,8 @@ public sealed partial class GameEngine
             var recover = UsesFormalSilverLion && card.Kind == CardKind.SilverLion &&
                 from == CardLocation.Equipment(owner.Seat) && owner.HasHpValue && owner.Hp < owner.MaxHp &&
                 !IsArmorIneffectiveForTurn(owner) && recoveryCertain ? 1 : 0;
-            var payableLoss = Math.Min(Math.Max(0, owner.Hp + recover), loss);
             var health = PublicDamageSequencePrediction.Calculate(owner.Hp, owner.MaxHp, owner.Armor,
-                [new(PublicHealthEffectKind.Recover, recover), new(PublicHealthEffectKind.HpLoss, payableLoss)]);
+                [new(PublicHealthEffectKind.Recover, recover), new(PublicHealthEffectKind.HpLoss, loss)]);
             var lethal = owner.HasHpValue && health.IsLethal;
             var armor = !lethal && owner.HasHpValue
                 ? checked(health.DirectHpLossAmount * 2) : 0;

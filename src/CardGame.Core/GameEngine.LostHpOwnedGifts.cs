@@ -23,7 +23,7 @@ public sealed partial class GameEngine
         if (!MatchesLostHpOwnedGiftEnding(frame)) throw new InvalidOperationException("Lost-HP gifting requires its exact actual Ending item.");
         if (frame.LostHpOwnedGift is null)
         {
-            var x = Math.Max(0, _players[frame.OwnerSeat].MaxHp - Math.Max(0, _players[frame.OwnerSeat].Hp));
+            var x = Math.Max(0, _players[frame.OwnerSeat].MaxHp - _players[frame.OwnerSeat].Hp);
             var before = PaidTargetMovementSequence;
             DrawProgramCards(frame.Id, frame.OwnerSeat, x, null, null, SkillProgramCardSetVisibility.Private, new(LostHpGiftDrawReason));
             var after = PaidTargetMovementSequence;

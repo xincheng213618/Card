@@ -273,7 +273,7 @@ public sealed partial class GameEngine
             r.Stage is SuitPreventionBenefitStage.LosingHp or SuitPreventionBenefitStage.Gifting &&
                 (r.HpBefore <= 0 || CompleteProgramEventHistory().OfType<ProgramSkillHpLostEvent>().Count(e =>
                     e.FrameId == f.Id && e.SkillId == f.SkillId && e.TargetSeat == r.RecipientSeat &&
-                    e.Amount == Math.Min(r.HpBefore, SuitBenefitEffect(f).Amount) && e.RemainingHp == Math.Max(0, r.HpBefore - SuitBenefitEffect(f).Amount)) != 1) ||
+                    e.Amount == SuitBenefitEffect(f).Amount && (long)e.RemainingHp == (long)r.HpBefore - SuitBenefitEffect(f).Amount) != 1) ||
             r.Stage == SuitPreventionBenefitStage.Drawing && (CompleteProgramEventHistory().OfType<ProgramSuitPreventionDrawEvent>().Count(e =>
                     e.ProgramFrameId == f.Id && e.RecipientSeat == r.RecipientSeat && e.Requested == r.RequestedDrawCount && e.Actual == r.ActualDrawCount &&
                     e.FirstMovementSequence == r.MovementSequenceBefore && e.LastMovementSequence == r.MovementSequenceAfter) != 1 || r.RequestedDrawCount < 0 || r.RequestedDrawCount > SuitBenefitEffect(f).MaximumCards ||

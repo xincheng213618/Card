@@ -57,6 +57,7 @@ public sealed partial class MainViewModel
     public string ShanheEncounterDescription => _shanhePreviewNode is { } preview
         ? _shanheSession?.Definition.Nodes.SingleOrDefault(node => node.Id == preview.Id)?.StoryText ?? preview.Description : string.Empty;
     public string ShanheEncounterEnemyName => _shanheEncounterEnemyName;
+    public string ShanheEncounterEnemyPortraitName { get; private set; } = string.Empty;
     public Brush ShanheEncounterEnemyPortrait => _shanheEncounterEnemyPortrait;
     public string ShanheEncounterEnemyDetail => _shanheEncounterEnemyDetail;
     public string ShanheEncounterRewardText => _shanheEncounterRewardText;
@@ -99,6 +100,7 @@ public sealed partial class MainViewModel
         var registry = StandardShanheCampaignCatalog.CreateBattleRegistry(probe);
         _shanhePreviewNode = node;
         _shanheEncounterEnemyName = string.Join(" · ", enemies.Select(enemy => registry.Generals[enemy.GeneralId].Name));
+        ShanheEncounterEnemyPortraitName = registry.Generals[enemies[0].GeneralId].Name;
         _shanheEncounterEnemyPortrait = GeneralArt.GetPortrait(enemies[0].GeneralId, decodeWidth: 360);
         _shanheEncounterEnemyDetail = (encounters.Count > 1 ? "可能出现的敌军：\n" : string.Empty) +
             string.Join("\n\n", enemies.Select(enemy =>
@@ -106,7 +108,7 @@ public sealed partial class MainViewModel
                 var general = registry.Generals[enemy.GeneralId];
                 var maxHp = general.BaseHp + enemy.MaxHpBonus;
                 var skillIds = general.SkillIds.Concat(enemy.ExtraSkillIds ?? []).Distinct(StringComparer.Ordinal);
-                return $"{general.Name}  体力 {enemy.Hp ?? maxHp}/{maxHp}\n" + string.Join(" · ", skillIds.Select(id => registry.GetSkill(id).Name));
+                return $"{general.Name}  体力 {enemy.Hp ?? general.InitialHp ?? maxHp}/{maxHp}\n" + string.Join(" · ", skillIds.Select(id => registry.GetSkill(id).Name));
             }));
         var gold = encounters.Select(encounter => encounter.VictoryGold).Distinct().Order().ToArray();
         var goldText = gold.Length == 1 ? gold[0].ToString() : $"{gold[0]}–{gold[^1]}";
@@ -130,7 +132,7 @@ public sealed partial class MainViewModel
     private void NotifyShanheEncounterPreview()
     {
         foreach (var property in new[] { nameof(IsShanheEncounterPreviewOpen), nameof(ShanheEncounterTitle),
-            nameof(ShanheEncounterDescription), nameof(ShanheEncounterEnemyName), nameof(ShanheEncounterEnemyPortrait),
+            nameof(ShanheEncounterDescription), nameof(ShanheEncounterEnemyName), nameof(ShanheEncounterEnemyPortraitName), nameof(ShanheEncounterEnemyPortrait),
             nameof(ShanheEncounterEnemyDetail), nameof(ShanheEncounterRewardText) }) RaisePropertyChanged(property);
         (ChallengeShanheEncounterCommand as RelayCommand)?.NotifyCanExecuteChanged();
     }

@@ -157,7 +157,19 @@ internal sealed class SelectedActorDuelSelectionFilter : IProgramSelectionCandid
     public bool Apply(ProgramSelectionContext context, ProgramSelectionCandidates candidates, IProgramSelectionQueries queries)
     {
         var duel = queries.Get<IDuelSelectionQueries>();
-        candidates.Targets = candidates.Targets.Where(seat => duel.CanIssue(context.OwnerSeat, seat)).ToArray();
+        if (OrderedSelectedActorDuelContract.IsOptIn(context.Features.First(SkillProgramEffectOp.UseSelectedActorDuel)!))
+        {
+            // Publish complete directed pairs. A seat may be a legal actor but
+            // an illegal recipient (for example an empty-handed Kongcheng owner).
+            var pairs = candidates.Targets.SelectMany(actor => candidates.Targets
+                .Where(target => actor != target && actor != context.OwnerSeat && target != context.OwnerSeat && duel.CanIssue(target, actor))
+                .Select(target => (IReadOnlyList<int>)Array.AsReadOnly(new[] { actor, target }))).ToArray();
+            candidates.TargetSequences = Array.AsReadOnly(pairs);
+            candidates.Targets = candidates.Targets.Where(seat => pairs.Any(pair => pair.Contains(seat))).ToArray();
+            return pairs.Length > 0;
+        }
+        var forward = OrderedSelectedActorDuelContract.IsOwnerToSelected(context.Features.First(SkillProgramEffectOp.UseSelectedActorDuel)!);
+        candidates.Targets = candidates.Targets.Where(seat => forward ? duel.CanIssue(seat, context.OwnerSeat) : duel.CanIssue(context.OwnerSeat, seat)).ToArray();
         return true;
     }
 }

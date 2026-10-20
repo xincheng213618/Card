@@ -6,6 +6,10 @@
 
 武将模板提供默认属性和初始技能；本局角色由 `CharacterState` 保存当前体力、体力上限、身份、武将绑定和公开状态。技能持有关系由 `CharacterSkillSet` 的授予记录表达，包含 `SkillId`、`SkillInstanceId`、`SourceId` 和到期条件。相同技能可以有多个来源。
 
+有数值的体力可以为负。普通伤害先扣护甲，剩余伤害与直接失去体力均按完整数额扣减，实际体力变化、已损失体力操作数、公开预测与界面数字使用同一有符号值；未定义体力仍先走原生显现／防止边界。濒死时每张桃或酒继续走真实用牌，已付后仍不高于0则允许同一响应者继续救援，弃救或资源耗尽才轮到下一位。程序救援以所属帧的实际付款与完成用牌事实判断，已付后失源不撤回付款；不以回复后的净体力变化冒充是否出过牌。
+
+回复至某值按目标减去当前体力计算基础回复，再走原生回复修正与上限裁剪，不先把负体力置0。负体力沿原有状态与命令重放保留，不增加独立欠血字段或全局规则版本。[官方桃说明](https://guozhan.sanguosha.com/a/kapaiyilan/youxipai/jibenpai/2013/0130/149.html)的多桃例和[十周年杀绝正文](https://www.sanguosha.com/news/20240327_9515_2919)支持这一通用体力边界。
+
 规则与文案分开：`SkillProgram` 描述 `modifiers`、`viewAs`、`activations`、`triggers`、`contributions`、`cardIdentities`、`cardPolicies` 和 `states` 等当前加载器支持的字段；展示按相同技能 ID 提供名称、说明和提示。标签、执行形态和主动入口分别声明，中文描述不参与规则推导。
 
 `ProgramOperationCatalog` 发现并校验 Core 程序集中的操作 descriptor。descriptor 提供参数解析、handler、交互分类、上下文能力、资源关系、编译及 AI 策略。`ProgramCompositionValidator` 校验绑定的生产与读取、别名、消费、目标和临时材料；部分有专门前置条件的操作还具备自身的组合校验。枚举存在不等于任意入口均可执行。

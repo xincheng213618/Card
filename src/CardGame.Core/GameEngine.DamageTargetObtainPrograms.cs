@@ -9,8 +9,9 @@ public sealed partial class GameEngine
         c.TargetSeat is { } victim && victim != owner && IsValidPlayerSeat(victim) &&
         _players[owner].IsAlive && _players[victim].IsAlive && ActualDamageTargetMountUse(owner, c) is not null &&
         DamageTargetMountZones.Any(z => _cardZones.CardsAt(new(z, victim)).Count > 0);
-    private IReadOnlyList<PromptChoice> DamageTargetObtainChoices(ProgramSkillFrame f) =>
-        BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, f.DamageTargetObtain!.VictimSeat, DamageTargetMountZones, OwnedCardMoveIntent.Obtain)
+    private IReadOnlyList<PromptChoice> DamageTargetObtainChoices(ProgramSkillFrame f) => UsesDamageTargetRegionObtain(f)
+        ? DamageTargetRegionObtainChoices(f)
+        : BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, f.DamageTargetObtain!.VictimSeat, DamageTargetMountZones, OwnedCardMoveIntent.Obtain)
             .Select(c => c with { Parameters = new Dictionary<string,string>(c.Parameters) { ["program-action"] = "damage-target-obtain" } }).ToArray();
     private SkillProgramStepOutcome BeginDamageTargetObtain(ProgramSkillFrame input)
     {
@@ -24,7 +25,8 @@ public sealed partial class GameEngine
             f.SkillId, GetProgramBindingId(f), f.SkillInstanceId, f.GameplayHash) };
         ReplaceRuntimeTop(f);
         var choices = DamageTargetObtainChoices(f);
-        PublishDamageTargetObtainPrompt(f, f.OwnerSeat, "请选择伤害目标区域里的一张牌获得。", choices, true);
+        PublishDamageTargetObtainPrompt(f, f.OwnerSeat, UsesDamageTargetRegionObtain(f)
+            ? "请选择伤害目标的一个区域，获得其中全部牌。" : "请选择伤害目标区域里的一张牌获得。", choices, true);
         return SkillProgramStepOutcome.AwaitChoice;
     }
     private void PublishDamageTargetObtainPrompt(ProgramSkillFrame f, int chooser, string text, IReadOnlyList<PromptChoice> choices, bool privateCards)
@@ -36,7 +38,7 @@ public sealed partial class GameEngine
             SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description), Choices = Array.AsReadOnly(choices.ToArray()) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
-    [ProgramAnswer("damage-target-obtain", "damage-target-duel")]
+    [ProgramAnswer("damage-target-obtain", "damage-target-obtain-region", "damage-target-duel")]
     private void ResolveDamageTargetObtainChoice(PromptChoice selected)
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Obtain choice lost its parent.");
@@ -53,6 +55,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Obtain payment was already resolved.");
         if (!HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId) || !CanOfferDamageTargetObtain(f.OwnerSeat, f.WindowContext!))
         { CancelProgramBindingAndCleanup(f, "获得前技能来源或参与者已失效。"); return; }
+        if (UsesDamageTargetRegionObtain(f)) { IssueDamageTargetRegionObtain(f, selected); return; }
         var from = new CardLocation(Enum.Parse<CardZoneKind>(selected.Parameters["source-zone"]), d.VictimSeat);
         var card = _cardZones.CardsAt(from)[int.Parse(selected.Parameters["slot-index"], CultureInfo.InvariantCulture)];
         var to = card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.Hand(f.OwnerSeat);
@@ -77,6 +80,8 @@ public sealed partial class GameEngine
             _resolutionStack.OfType<DamageTriggerWindowFrame>().SingleOrDefault(w => w.Id == d.DamageWindowId) is not { } window || window.ParentFrameId != d.DamageFrameId || window.SourceSeat != d.OwnerSeat || window.TargetSeat != d.VictimSeat ||
             _resolutionStack.OfType<DamageFrame>().SingleOrDefault(x=>x.Id==d.DamageFrameId) is not { } damage || damage.ParentFrameId!=d.OuterCardUseFrameId || damage.SourceSeat!=d.OwnerSeat || damage.TargetSeat!=d.VictimSeat || damage.Amount<=0 ||
             LifecycleCardUse(d.OuterCardUseFrameId)?.Action is not {Type:CardActionType.Use} a || a.ActionId != d.OuterActionId || a.ActorSeat != d.OwnerSeat || !IsSlashCard(a.EffectiveKind)) return false;
+        if (UsesDamageTargetRegionObtain(f)) return IsValidDamageTargetRegionObtain(f, d);
+        if (d.RegionObtain is not null) return false;
         if (d.Stage == ProgramDamageTargetObtainStage.SelectingCard) return d.Receipt is null && d.ObtainMovementSequence is null;
         if (d.ObtainMovementSequence is not { } sequence || _cardMovements.SingleOrDefault(m=>m.Sequence==sequence) is not { } movement ||
             movement.From.OwnerSeat!=d.VictimSeat || !DamageTargetMountZones.Contains(movement.From.Zone) || movement.Reason.Value!=DamageTargetObtainReason) return false;
@@ -100,9 +105,9 @@ public sealed partial class GameEngine
             if (TryBeginCardsMovedProgramWindow()) return true;
             ReplaceRuntimeTop(f with { PendingMovementContinuation = null }); f = GetActiveProgramFrame(id);
         }
-        if (d.Stage == ProgramDamageTargetObtainStage.DrawChildren || d.Receipt is null || !_players[d.VictimSeat].IsAlive || _winner != Winner.None)
+        if (d.Stage == ProgramDamageTargetObtainStage.DrawChildren || DamageTargetObtainedCount(d) == 0 || !_players[d.VictimSeat].IsAlive || _winner != Winner.None)
         { FinishDamageTargetObtain(f); return true; }
-        if (!d.Receipt.IsEquipment)
+        if (!DamageTargetObtainedEquipment(d))
         {
             ReplaceRuntimeTop(f with { DamageTargetObtain = d with { Stage = ProgramDamageTargetObtainStage.DrawChildren }, PendingMovementContinuation = new(d.OwnerSeat,0,null) });
             DrawCards(_players[d.VictimSeat], 1, log:true, reason:new(DamageTargetBenefitReason));
@@ -137,13 +142,15 @@ public sealed partial class GameEngine
     private void IssueDamageTargetDuel(ProgramSkillFrame f,int target)
     {
         var d=f.DamageTargetObtain!;
-        if(d is not {Stage:ProgramDamageTargetObtainStage.SelectingDuelTarget,Receipt:{IsEquipment:true} r} || !IsValidDamageTargetObtain(f) || !CanIssueDamageTargetDuel(f,target))
+        if(d.Stage != ProgramDamageTargetObtainStage.SelectingDuelTarget || !DamageTargetObtainedEquipment(d) ||
+            !IsValidDamageTargetObtain(f) || !CanIssueDamageTargetDuel(f,target))
             throw new InvalidOperationException("Duel issuance lost its paid exact legal producer.");
         ReplaceRuntimeTop(f with { DamageTargetObtain=d with {Stage=ProgramDamageTargetObtainStage.DuelIssued} });
         // Suspend the actual outer attack on its own owner. No duplicate pending attack or use-ID sidecar.
         UpdateCardAttackState(d.OuterCardUseFrameId,s => s! with {Active=false});
-        var origin=new ProgramDamageTargetDuelOrigin(f.Id,f.InstructionIndex,r.MovementSequence,d.OuterCardUseFrameId,d.DamageWindowId,d.DamageFrameId,d.OuterActionId,
-            d.OwnerSeat,d.VictimSeat,target,f.SkillId,d.BindingId,f.SkillInstanceId,f.GameplayHash,_turnNumber);
+        var origin=new ProgramDamageTargetDuelOrigin(f.Id,f.InstructionIndex,DamageTargetObtainAnchor(d),d.OuterCardUseFrameId,d.DamageWindowId,d.DamageFrameId,d.OuterActionId,
+            d.OwnerSeat,d.VictimSeat,target,f.SkillId,d.BindingId,f.SkillInstanceId,f.GameplayHash,_turnNumber)
+            { BaseDamage = d.RegionObtain is not null ? DamageTargetObtainedCount(d) : null };
         var card=new Card(0,CardKind.Duel,Suit.None,0);
         var use=BeginCardUse(card,d.OwnerSeat,[target],CardKind.Duel,physicalCardIds:[],damageTargetDuelOrigin:origin);
         BeginJizhiOrNullificationWindow(use,card,d.OwnerSeat,[target],LegalActionKind.Duel,playedCardKind:CardKind.Duel);
@@ -155,8 +162,8 @@ public sealed partial class GameEngine
         var use=LifecycleCardUse(useId);
         if(use?.DamageTargetDuelOrigin is not { } o || !IsDamageTargetDuelUse(useId) ||
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f=>f.Id==o.ParentProgramFrameId) is not { } parent ||
-            !IsValidDamageTargetObtain(parent) || parent.DamageTargetObtain is not {Stage:ProgramDamageTargetObtainStage.DuelIssued,Receipt:{ } r} d ||
-            r.MovementSequence!=o.ReceiptSequence || d.OuterCardUseFrameId!=o.OuterCardUseFrameId ||
+            !IsValidDamageTargetObtain(parent) || parent.DamageTargetObtain is not {Stage:ProgramDamageTargetObtainStage.DuelIssued} d ||
+            DamageTargetObtainAnchor(d)!=o.ReceiptSequence || !DamageTargetDuelBaseMatches(d,o) || d.OuterCardUseFrameId!=o.OuterCardUseFrameId ||
             LifecycleCardUse(o.OuterCardUseFrameId) is not {CardAttack.Active:false} outer)
             throw new InvalidOperationException("Nested Duel processing lost its exact suspended outer Use.");
         return (outer.PhysicalCardIds ?? []).Where(id=>_cardZones.GetLocation(id)==CardLocation.Processing).ToArray();
@@ -170,8 +177,8 @@ public sealed partial class GameEngine
         CompleteDamageTargetDuelReturn(f);
     }
     private bool MatchesDamageTargetDuelParent(ProgramSkillFrame f,ProgramDamageTargetDuelOrigin o) =>
-        IsValidDamageTargetObtain(f) && f.DamageTargetObtain is {Stage:ProgramDamageTargetObtainStage.DuelIssued,Receipt:{IsEquipment:true} r} d &&
-        o.ParentProgramFrameId==f.Id && o.InstructionIndex==f.InstructionIndex && o.ReceiptSequence==r.MovementSequence &&
+        IsValidDamageTargetObtain(f) && f.DamageTargetObtain is {Stage:ProgramDamageTargetObtainStage.DuelIssued} d && DamageTargetObtainedEquipment(d) &&
+        o.ParentProgramFrameId==f.Id && o.InstructionIndex==f.InstructionIndex && o.ReceiptSequence==DamageTargetObtainAnchor(d) && DamageTargetDuelBaseMatches(d,o) &&
         o.OuterCardUseFrameId==d.OuterCardUseFrameId && o.OuterActionId==d.OuterActionId && o.DamageWindowId==d.DamageWindowId && o.DamageFrameId==d.DamageFrameId &&
         o.InitialActorSeat==d.OwnerSeat && o.VictimChooserSeat==d.VictimSeat && IsValidPlayerSeat(o.InitialTargetSeat) && o.InitialTargetSeat!=d.OwnerSeat && o.InitialTargetSeat!=d.VictimSeat &&
         o.SkillId==f.SkillId && o.BindingId==d.BindingId && o.SkillInstanceId==f.SkillInstanceId && o.GameplayHash==f.GameplayHash && o.TurnNumber==_turnNumber;
@@ -208,8 +215,8 @@ public sealed partial class GameEngine
         foreach(var use in _resolutionStack.OfType<CardUseFrame>().Where(u=>u.DamageTargetDuelOrigin is not null))
         {
             var o=use.DamageTargetDuelOrigin!;var index=_resolutionStack.FindIndex(x=>x.Id==use.Id);
-            if(index<1 || _resolutionStack[index-1] is not ProgramSkillFrame f || !IsValidDamageTargetObtain(f) || f.DamageTargetObtain is not {Stage:ProgramDamageTargetObtainStage.DuelIssued,Receipt:{IsEquipment:true} r} d ||
-                o.ParentProgramFrameId!=f.Id || o.InstructionIndex!=f.InstructionIndex || o.ReceiptSequence!=r.MovementSequence || o.OuterCardUseFrameId!=d.OuterCardUseFrameId ||
+            if(index<1 || _resolutionStack[index-1] is not ProgramSkillFrame f || !IsValidDamageTargetObtain(f) || f.DamageTargetObtain is not {Stage:ProgramDamageTargetObtainStage.DuelIssued} d || !DamageTargetObtainedEquipment(d) ||
+                o.ParentProgramFrameId!=f.Id || o.InstructionIndex!=f.InstructionIndex || o.ReceiptSequence!=DamageTargetObtainAnchor(d) || !DamageTargetDuelBaseMatches(d,o) || o.OuterCardUseFrameId!=d.OuterCardUseFrameId ||
                 o.DamageWindowId!=d.DamageWindowId || o.DamageFrameId!=d.DamageFrameId || o.OuterActionId!=d.OuterActionId ||
                 o.InitialActorSeat!=d.OwnerSeat || o.VictimChooserSeat!=d.VictimSeat || o.InitialTargetSeat==d.OwnerSeat || o.InitialTargetSeat==d.VictimSeat || !IsValidPlayerSeat(o.InitialTargetSeat) ||
                 o.SkillId!=f.SkillId || o.BindingId!=d.BindingId || o.SkillInstanceId!=f.SkillInstanceId || o.GameplayHash!=f.GameplayHash || o.TurnNumber!=_turnNumber ||
@@ -222,15 +229,22 @@ public sealed partial class GameEngine
     [ProgramAiChoice(SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory)]
     private PromptChoice SelectAiDamageTargetObtain(PendingDecision decision, ProgramSkillFrame f)
     {
-        if(f.DamageTargetObtain?.Stage!=ProgramDamageTargetObtainStage.SelectingDuelTarget)return SelectAiProgramOtherOwnedCardDiscard(decision,f);
+        if(f.DamageTargetObtain?.Stage!=ProgramDamageTargetObtainStage.SelectingDuelTarget)
+            return UsesDamageTargetRegionObtain(f) ? SelectAiDamageTargetRegion(decision,f) : SelectAiProgramOtherOwnedCardDiscard(decision,f);
         // The victim is choosing a harmful target; use that chooser's filtered public relationship model.
-        var view=CreateSnapshot(decision.PlayerSeat);var hint=new SkillProgramAiHint(0,0,0,0,0,1,false,false);
+        var draft=f.DamageTargetObtain!;
+        var view=CreateSnapshot(decision.PlayerSeat);var hint=new SkillProgramAiHint(0,0,0,0,0,
+            draft.RegionObtain?.ActualObtainedCount ?? 1,false,false);
+        if(draft.RegionObtain is { } region)
+            hint=hint with { TargetDamage=region.ActualObtainedCount,
+                TargetHealthEffects=[new(PublicHealthEffectKind.Damage,region.ActualObtainedCount)] };
         return decision.Choices.OrderByDescending(c=>_aiBrains[decision.PlayerSeat].ScoreProgramTarget(view,c.Targets.Single(),hint)).ThenBy(c=>c.Targets.Single()).First();
     }
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 660)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 810)]
-    private bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame f)=>f.DamageTargetObtain is {Receipt:not null} && IsValidDamageTargetObtain(f) &&
-        (_players[f.OwnerSeat].IsAlive || f.DamageTargetObtain is {Receipt.IsEquipment:false,Stage:ProgramDamageTargetObtainStage.DrawChildren or ProgramDamageTargetObtainStage.Complete});
+    private bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame f)=>IsValidDamageTargetObtain(f) &&
+        (f.DamageTargetObtain is {RegionObtain.Paid:true} || f.DamageTargetObtain is {Receipt:not null} &&
+        (_players[f.OwnerSeat].IsAlive || f.DamageTargetObtain is {Receipt.IsEquipment:false,Stage:ProgramDamageTargetObtainStage.DrawChildren or ProgramDamageTargetObtainStage.Complete}));
 
     [ProgramCapability]
     private sealed class DamageTargetObtainProgramCapability(GameEngine engine) : IDamageTargetObtainProgramHost

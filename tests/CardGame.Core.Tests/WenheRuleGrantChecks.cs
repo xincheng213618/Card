@@ -64,14 +64,24 @@ internal static class WenheRuleGrantChecks
             ModeSkills.All(id => suppressed.Skills!.Any(s => s.ContentId == id)),
             "A genuine issued nonlocked suppression removes ordinary bindings while locked rules, the nonlocked private mark and limited Nirvana remain effective.");
         Cold(game, registry);
+        var opponent = V(game, 2);
+        Need(opponent is { Hp: 5, MaxHp: 6 },
+            "The tier-five opponent has lost one HP to the actual opening Chaos before its first lethal hit. " +
+            JsonSerializer.Serialize(new { Opponent = new { opponent.GeneralId, opponent.Hp, opponent.MaxHp }, Tier = registry.Modes[Mode].WenheActivity!.PlayerTier,
+                Rule = game.CreateSnapshot(0).WenheRule }));
         Use(game, "defeat", 2); Play(game);
         Need(V(game, 2) is { IsAlive: true, Hp: 3 } && E<ProgramBindingResolvedEvent>(game).Count(e =>
-                e.OwnerSeat == 2 && e.SkillId == "wenhe:niepan" && e.Activated && e.Completed) == 1,
+                e.OwnerSeat == 2 && e.SkillId == "wenhe:niepan" && e.Activated && e.Completed) == 1 &&
+            E<DamageAppliedEvent>(game).Where(e => e.SourceSeat == 0 && e.TargetSeat == 2).ToArray() is
+                [{ Amount: 5, RemainingHp: 0 }],
             "The quiet opponent must consume its actual tier-five native Nirvana on the first real lethal hit before a later true death.");
         var before = V(game, 0); Use(game, "defeat", 2); Play(game);
         var lost = E<CharacterSkillsLostEvent>(game).Single(e => e.Seat == 0 && e.SourceSeat == 2);
         var after = V(game, 0);
         Need(!V(game, 2).IsAlive && lost.SkillIds.Contains(Driver) && lost.SkillIds.Contains(Plain) &&
+            E<DamageAppliedEvent>(game).Where(e => e.SourceSeat == 0 && e.TargetSeat == 2).ToArray() is
+                [{ Amount: 5, RemainingHp: 0 }, { Amount: 5, RemainingHp: -2 }] &&
+            E<ProgramBindingResolvedEvent>(game).Count(e => e.OwnerSeat == 2 && e.SkillId == "wenhe:niepan" && e.Activated) == 1 &&
             lost.SkillIds.Contains("wenhe:champion-mark") && !lost.SkillIds.Contains("wenhe:rules") &&
             !lost.SkillIds.Contains("wenhe:chaos-resolution") && !lost.SkillIds.Contains("wenhe:niepan") &&
             after.Skills!.All(s => s.ContentId != Driver && s.ContentId != Plain) && ModeSkills.All(id => after.Skills!.Any(s => s.ContentId == id)) &&
@@ -128,7 +138,7 @@ internal static class WenheRuleGrantChecks
               {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[
                 {"id":"{{{Driver}}}","revision":1,"activations":[
                   {"id":"suppress","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"issueCurrentTurnNonLockedSkillSuppression","target":"selectedTarget"}]},
-                  {"id":"defeat","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":20}]}
+                  {"id":"defeat","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":5}]}
                 ]},
                 {"id":"{{{Quiet}}}","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
                 {"id":"{{{Curse}}}","revision":1,"triggers":[{"id":"curse","window":"ownerDied","subject":"owner","optional":false,"effects":[{"op":"loseDeathSourceSkills","target":"owner"}]}]}

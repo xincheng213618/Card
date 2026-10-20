@@ -11,6 +11,10 @@ internal static class JiangeActivityChecks
         foreach (var difficulty in new[] { "normal", "advanced", "difficult" })
         {
             var mode = registry.Modes[$"activity:jiange-{difficulty}"];
+            Require(new[] { "classic:xu-huang", "classic:xun-yu", "classic:man-chong", "classic:yan-yan",
+                    "classic:guo-huanghou", "ol:xiahou-ba" }
+                .All(id => !mode.TeamActivity!.PlayerPools.Values.Any(pool => pool.Contains(id))),
+                "Family bans must also exclude legacy editions without CharacterId and existing family spelling aliases.");
             var game = GameEngine.CreateStandard(new GameOptions
             {
                 Seed = 17, PlayerCount = 8, HumanSeat = 3, HumanRole = null, HumanTeamId = team, ModeId = mode.Id,
@@ -61,8 +65,9 @@ internal static class JiangeActivityChecks
         Require(!draft.Submit(new SelectGeneralCommand(3, "jiange:jia-ren-zi-dan", draft.Revision, prompt.PromptId)).Accepted &&
             before == JsonSerializer.Serialize(draft.CreateSnapshot(3)), "Forged NPC selections must be rejected atomically.");
         Accept(draft, new RequestGeneralRosterCommand(3, true, draft.Revision, prompt.PromptId));
-        Require(draft.PendingDecision!.ValidContentIds.All(id => registry.Generals[id].FactionId == "shu" && !id.StartsWith("jiange:")),
-            "The expanded roster must retain faction and seat-type restrictions.");
+        Require(draft.PendingDecision!.ValidContentIds.ToHashSet(StringComparer.Ordinal)
+                .SetEquals(registry.Modes["activity:jiange-normal"].TeamActivity!.PlayerPools["team:shu"]),
+            "The expanded roster must contain every eligible same-faction player edition and retain the family bans.");
         Cold(draft, registry);
     }
 

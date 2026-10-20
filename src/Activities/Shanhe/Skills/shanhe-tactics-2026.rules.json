@@ -21,6 +21,15 @@
       ]
     },
     {
+      "id": "shanhe:duisha-2026", "revision": 1,
+      "modifiers": [
+        {
+          "id": "other-allied-play-slash", "query": "slashLimit", "operation": "add",
+          "value": 1, "priority": 0, "recipientScope": "otherPublicTeamAllies"
+        }
+      ]
+    },
+    {
       "id": "shanhe:duijia-2026", "revision": 1,
       "triggers": [
         {

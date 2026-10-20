@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-zhenjun-238",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation-discard-or-immediate-draw",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            { "op": "resolvePrepDiscardOrImmediateDraw", "target": "owner", "zones": ["hand", "equipment"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

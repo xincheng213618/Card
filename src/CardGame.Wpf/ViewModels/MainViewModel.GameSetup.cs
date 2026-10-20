@@ -8,6 +8,8 @@ public sealed partial class MainViewModel
 {
     private bool _isNewGameSetupOpen;
     private bool _isLobbyConfigurationOpen;
+    private bool _isModeConfigurationOpen;
+    private TableModeGroupOption? _selectedModeGroup;
     private bool _isIdentityRevealOpen;
     private bool _manualDiscardEnabled = true;
     private StartingRoleOption _selectedStartingRole = new("随机身份", null, "开局随机分配身份");
@@ -25,6 +27,23 @@ public sealed partial class MainViewModel
         new("activity", "活动场", "剑阁决战 · 驱鬼逐邪 · 虎牢关 · 神武再世 · 挑战年兽 · 十殿阎罗 · 文和乱武 · 龙舟争渡 · 官渡之战")
     ];
     public ObservableCollection<TableModeOption> VisibleTableModes { get; } = [];
+    public ObservableCollection<TableModeGroupOption> VisibleModeGroups { get; } = [];
+    public IReadOnlyList<TableModeOption> VisibleModeVariants => SelectedModeGroup?.Variants ?? [];
+    private IReadOnlyList<TableModeGroupOption> ModeGroups { get; set; } = [];
+    public TableModeGroupOption? SelectedModeGroup => _selectedModeGroup;
+    public bool IsModeConfigurationOpen
+    {
+        get => _isModeConfigurationOpen;
+        private set
+        {
+            if (!SetProperty(ref _isModeConfigurationOpen, value)) return;
+            RaisePropertyChanged(nameof(IsModeSelectionOpen));
+            RaisePropertyChanged(nameof(LobbySetupBackText));
+        }
+    }
+    public bool IsModeSelectionOpen => !IsModeConfigurationOpen;
+    public string LobbySetupBackText => IsModeConfigurationOpen ? "返回模式选择" : "返回大厅";
+    public bool HasModeVariantChoices => VisibleModeVariants.Count > 1;
     public ModeCategoryOption SelectedModeCategory
     {
         get => _selectedModeCategory;
@@ -32,11 +51,12 @@ public sealed partial class MainViewModel
         {
             if (value is null || !TableModes.Any(mode => MatchesModeCategory(mode, value.Id))) return;
             if (!SetProperty(ref _selectedModeCategory, value)) return;
+            IsModeConfigurationOpen = false;
             RefreshVisibleTableModes();
             RaisePropertyChanged(nameof(ModeLobbySummary));
         }
     }
-    public string ModeLobbySummary => $"{SelectedModeCategory.Description} · {VisibleTableModes.Count} 个入口";
+    public string ModeLobbySummary => $"{VisibleModeGroups.Count} 个模式 · 先选模式，再选难度与开局设置";
 
     private static readonly IReadOnlyList<StartingTeamOption> StandardStartingTeams =
     [new("青队", "team:blue", "与青队同伴并肩作战"), new("赤队", "team:red", "与赤队同伴并肩作战")];
@@ -84,6 +104,7 @@ public sealed partial class MainViewModel
             // Keep a valid setup mode until the replacement list is ready.
             if (value is null) return;
             if (!SetProperty(ref _selectedTableMode, value)) return;
+            RefreshSelectedModeGroup();
             RaisePropertyChanged(nameof(StartingTeams));
             if (!StartingTeams.Contains(SelectedStartingTeam)) SelectedStartingTeam = StartingTeams[0];
             RaisePropertyChanged(nameof(IsActivityModeSelection));
@@ -137,10 +158,16 @@ public sealed partial class MainViewModel
     public bool IsLobbyConfigurationOpen
     {
         get => _isLobbyConfigurationOpen;
-        private set => SetProperty(ref _isLobbyConfigurationOpen, value);
+        private set
+        {
+            if (!SetProperty(ref _isLobbyConfigurationOpen, value)) return;
+            IsModeConfigurationOpen = false;
+        }
     }
     public ICommand OpenLobbyCategoryCommand { get; private set; } = null!;
     public ICommand BackToLobbyCommand { get; private set; } = null!;
+    public ICommand OpenModeConfigurationCommand { get; private set; } = null!;
+    public ICommand BackInLobbySetupCommand { get; private set; } = null!;
     public bool IsIdentityRevealOpen { get => _isIdentityRevealOpen; private set => SetProperty(ref _isIdentityRevealOpen, value); }
     public string IdentityRevealTitle => IsShanheBattleSession ? "义 军 出 征" : IsWenheActivitySnapshot ? "各 自 求 生" : IsNationalSnapshot ? "势 力 揭 示" : IsTeamSnapshot ? "阵 营 揭 示" : "身 份 揭 示";
     public string IdentityRevealRole => HumanPlayer?.RoleLabel ?? "未知";
@@ -287,6 +314,8 @@ public sealed partial class MainViewModel
 
     private void InitializeGameSetup()
     {
+        ModeGroups = TableModes.GroupBy(mode => mode.GroupId, StringComparer.Ordinal)
+            .Select(group => new TableModeGroupOption(group.Key, group.ToArray())).ToArray();
         RevealNationalGeneralCommand = new RelayCommand<NationalRevealChoice>(RevealNationalGeneral);
         SelectedModeCategory = ModeCategories[0];
         SelectedStartingTeam = StartingTeams[0];
@@ -308,6 +337,17 @@ public sealed partial class MainViewModel
         }, categoryId => !IsTutorialActive && TableModes.Any(mode => categoryId == "all" ||
             mode.ModeId.StartsWith(categoryId + ":", StringComparison.Ordinal)));
         BackToLobbyCommand = new RelayCommand(() => IsLobbyConfigurationOpen = false);
+        OpenModeConfigurationCommand = new RelayCommand<TableModeGroupOption>(group =>
+        {
+            if (group is null || !VisibleModeGroups.Contains(group)) return;
+            if (!group.Variants.Contains(SelectedTableMode)) SelectedTableMode = group.Variants[0];
+            IsModeConfigurationOpen = true;
+        });
+        BackInLobbySetupCommand = new RelayCommand(() =>
+        {
+            if (IsModeConfigurationOpen) IsModeConfigurationOpen = false;
+            else IsLobbyConfigurationOpen = false;
+        });
     }
 
     private void StartConfiguredGame(bool showOpeningDeal)
@@ -328,10 +368,25 @@ public sealed partial class MainViewModel
         var selection = modes.Contains(SelectedTableMode) ? SelectedTableMode : modes.First();
         VisibleTableModes.Clear();
         foreach (var mode in modes) VisibleTableModes.Add(mode);
+        VisibleModeGroups.Clear();
+        foreach (var group in ModeGroups.Where(group => modes.Contains(group.Variants[0]))) VisibleModeGroups.Add(group);
         SelectedTableMode = selection;
         // Reapply the selection even when the retained mode did not change.
         RaisePropertyChanged(nameof(SelectedTableMode));
         RaisePropertyChanged(nameof(ModeLobbySummary));
+    }
+
+    private void RefreshSelectedModeGroup()
+    {
+        var group = ModeGroups.FirstOrDefault(item => item.Variants.Contains(SelectedTableMode));
+        if (group is null || ReferenceEquals(group, _selectedModeGroup)) return;
+        _selectedModeGroup = group;
+        RaisePropertyChanged(nameof(SelectedModeGroup));
+        RaisePropertyChanged(nameof(VisibleModeVariants));
+        RaisePropertyChanged(nameof(HasModeVariantChoices));
+        // The old group's ItemsSource could not select this mode when SetProperty
+        // first announced it. Reapply after the new difficulty cards exist.
+        RaisePropertyChanged(nameof(SelectedTableMode));
     }
 
     private static bool MatchesModeCategory(TableModeOption mode, string categoryId) =>
@@ -361,6 +416,10 @@ public sealed record StartingRoleOption(string Name, Role? Role, string Descript
 public sealed record StartingTeamOption(string Name, string TeamId, string Description);
 public sealed record TableModeOption(int PlayerCount, string Name, string Description, string ModeId)
 {
+    // Group presentation entries by activity name while keeping every real mode ID
+    // intact for setup, rules and saves, including newly registered editions.
+    public string GroupId => ModeId.StartsWith("activity:", StringComparison.Ordinal) ? $"activity:{Name.Split('·')[0]}" : ModeId;
+    public string DifficultyName => Name[(Name.IndexOf('·') + 1)..];
     public string PlayerCountText => $"{PlayerCount} 人";
     public string ModeBadge => ModeId == "activity:guandu-2023" ? "五阶军争"
         : ModeId == "activity:wenhe-2019" ? "五阶生存"
@@ -372,6 +431,15 @@ public sealed record TableModeOption(int PlayerCount, string Name, string Descri
         : ModeId.Contains("composed-skills", StringComparison.Ordinal) ? "配置组合"
         : ModeId.Contains("active-skills", StringComparison.Ordinal) ? "机制演示"
         : "经典身份";
+}
+
+public sealed record TableModeGroupOption(string Id, IReadOnlyList<TableModeOption> Variants)
+{
+    public string Name => Id.StartsWith("activity:", StringComparison.Ordinal) ? Variants[0].Name.Split('·')[0] : Variants[0].Name;
+    public string Description => Name == "十殿阎罗" ? "玩家固定五阶 · 两名人机队友\n四殿与孟婆 · 隐藏地藏王" : Variants[0].Description;
+    public string PlayerCountText => Variants[0].PlayerCountText;
+    public string ModeBadge => Variants[0].ModeBadge;
+    public string SelectionHint => Variants.Count > 1 ? $"{Variants.Count} 项难度 / 版本 · 点击选择 ›" : "选择版本与开局设置 ›";
 }
 
 public sealed record ModeCategoryOption(string Id, string Name, string Description);

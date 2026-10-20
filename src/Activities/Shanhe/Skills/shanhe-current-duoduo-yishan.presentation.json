@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:current-duoduo-yishan-2082": {
+      "name": "多多益善",
+      "description": "每个回合，你第5次实际摸牌后摸1张牌。一次摸多张只算一次；起手和获得牌不计入。"
+    },
+    "shanhe:current-duoduo-yishan-2083": {
+      "name": "多多益善Ⅱ",
+      "description": "每个回合，你第3次实际摸牌后摸1张牌。一次摸多张只算一次；起手和获得牌不计入。"
+    },
+    "shanhe:current-duoduo-yishan-2084": {
+      "name": "多多益善Ⅲ",
+      "description": "每个回合，你第1次实际摸牌后摸2张牌。一次摸多张只算一次；起手和获得牌不计入。"
+    }
+  }
+}

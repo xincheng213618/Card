@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-huangkong-14052", "revision": 1,
+      "modifiers": [
+        { "id": "double-discard-quota", "query": "discardQuotaMultiplier", "operation": "set", "value": 2, "priority": 0 }
+      ],
+      "triggers": [
+        {
+          "id": "double-current-normal-draw-plan", "window": "drawPhaseStarting", "subject": "owner",
+          "optional": false, "priority": -50, "drawPhaseMode": "additive",
+          "effects": [
+            { "op": "adjustNormalDraw", "target": "owner", "numberExpression": "plannedNormalDrawCount" }
+          ]
+        }
+      ]
+    }
+  ]
+}

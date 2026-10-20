@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-shihun-14071",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "copy-direct-slash-target-skill",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            { "op": "acquireRandomDamageTargetSkill", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

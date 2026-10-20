@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:current-dangtou-2036", "revision": 1,
+      "damageModifiers": [{ "id": "first-round-slash", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "amount": 1, "condition": "ownerRoundSlashUseOrdinalWithinLimit", "sourceScope": "ownerUsed", "maximumUseOrdinal": 1, "damageLayer": "cardDamage" }]
+    },
+    {
+      "id": "shanhe:current-dangtou-2037", "revision": 1,
+      "damageModifiers": [{ "id": "first-round-slash", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "amount": 2, "condition": "ownerRoundSlashUseOrdinalWithinLimit", "sourceScope": "ownerUsed", "maximumUseOrdinal": 1, "damageLayer": "cardDamage" }]
+    },
+    {
+      "id": "shanhe:current-dangtou-2038", "revision": 1,
+      "damageModifiers": [{ "id": "first-round-slash", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "amount": 1, "condition": "ownerRoundSlashUseOrdinalWithinLimit", "sourceScope": "ownerUsed", "maximumUseOrdinal": 1, "damageLayer": "cardDamage" }]
+    },
+    {
+      "id": "shanhe:current-leihuo-2100", "revision": 1,
+      "damageModifiers": [{ "id": "first-turn-elemental-slash", "cardKinds": ["fireSlash", "thunderSlash"], "amount": 1, "condition": "ownerActualTurnElementalSlashUseOrdinalWithinLimit", "sourceScope": "ownerUsed", "maximumUseOrdinal": 1, "damageLayer": "cardDamage" }]
+    },
+    {
+      "id": "shanhe:current-leihuo-2101", "revision": 1,
+      "damageModifiers": [{ "id": "first-turn-elemental-slash", "cardKinds": ["fireSlash", "thunderSlash"], "amount": 2, "condition": "ownerActualTurnElementalSlashUseOrdinalWithinLimit", "sourceScope": "ownerUsed", "maximumUseOrdinal": 1, "damageLayer": "cardDamage" }]
+    },
+    {
+      "id": "shanhe:current-lianji-2051", "revision": 1,
+      "modifiers": [{ "id": "extra-play-slashes", "query": "slashLimit", "operation": "add", "value": 1, "priority": 0, "condition": { "kind": "ownTurn" } }]
+    },
+    {
+      "id": "shanhe:current-lianji-2052", "revision": 1,
+      "modifiers": [{ "id": "extra-play-slashes", "query": "slashLimit", "operation": "add", "value": 3, "priority": 0, "condition": { "kind": "ownTurn" } }]
+    },
+    {
+      "id": "shanhe:current-lianji-2053", "revision": 1,
+      "modifiers": [{ "id": "extra-play-slashes", "query": "slashLimit", "operation": "add", "value": 1, "priority": 0, "condition": { "kind": "ownTurn" } }]
+    }
+  ]
+}

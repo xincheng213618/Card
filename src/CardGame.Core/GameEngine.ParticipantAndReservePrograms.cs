@@ -308,7 +308,7 @@ public sealed partial class GameEngine
                 frame.SlashTargetBenefitDraft is { Settlement: false } && SlashBenefitProgramParentMatches(frame),
             SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit =>
                 frame.SlashTargetBenefitDraft is { Settlement: true } && SlashBenefitProgramParentMatches(frame),
-            SkillProgramEffectOp.ResolvePrepDiscardOrEnding =>
+            SkillProgramEffectOp.ResolvePrepDiscardOrEnding or SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw =>
                 frame.PrepDiscard is not null && ValidPrepDiscard(frame),
             SkillProgramEffectOp.DrawPrepDiscardEnding =>
                 frame.PrepDiscardEndingDraw is not null && ValidPrepDiscardEndingDraw(frame),

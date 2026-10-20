@@ -35,7 +35,7 @@ public sealed partial record ProgramSkillFrame
 public sealed partial class GameEngine
 {
     private bool TracksNativeLogicalDiscards =>
-        HasWuLuKangCapability ||
+        HasMouXiahouShiCapability || HasWuLuKangCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouYuJinXiayuan) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMouLuMengKeji) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoDrawAndArmTargetPindian) ||

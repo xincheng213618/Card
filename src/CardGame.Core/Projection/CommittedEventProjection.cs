@@ -26,6 +26,12 @@ internal static class CommittedEventProjection
 
     private static RoundGainedUseQualification FreezeRoundQualification(RoundGainedUseQualification value) =>
         value with { MaterialGains = FreezeList(value.MaterialGains) };
+    private static RandomAreaAcquisitionStepReceipt FreezeRandomAreaStep(RandomAreaAcquisitionStepReceipt value) =>
+        value with { EligibleZones = FreezeList(value.EligibleZones), Materials = FreezeList(value.Materials),
+            Movements = FreezeList(value.Movements) };
+    private static ProgramRandomAreaAcquisitionReceipt FreezeRandomAreaReceipt(ProgramRandomAreaAcquisitionReceipt value) =>
+        value with { OtherSeats = FreezeList(value.OtherSeats),
+            Steps = Array.AsReadOnly(value.Steps.Select(FreezeRandomAreaStep).ToArray()) };
     private static GameStartingNativeMovementOrigin FreezeGameStartingMovement(GameStartingNativeMovementOrigin value) =>
         value with { Materials = FreezeList(value.Materials) };
     private static RicePileReceipt FreezeRiceReceipt(RicePileReceipt value) => value with
@@ -50,6 +56,16 @@ internal static class CommittedEventProjection
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        RandomAreaAcquisitionStartedEvent value => value with { Receipt = FreezeRandomAreaReceipt(value.Receipt) },
+        RandomAreaAcquisitionRegionPaidEvent value => value with { Step = FreezeRandomAreaStep(value.Step) },
+        SequentialDeckKindGrowthStepPaidEvent value => value with
+        { Step = value.Step with { Movements = FreezeList(value.Step.Movements) } },
+        ProgramPindianHandAcquiredEvent value => value with { Receipt = value.Receipt with { Materials = FreezeList(value.Receipt.Materials) } },
+        RecoveryAmountBonusAppliedEvent value => value with { Receipt = value.Receipt with { Sources = FreezeList(value.Receipt.Sources) } },
+        DamageTargetRegionObtainPaidEvent value => value with
+        {
+            Receipt = value.Receipt with { Materials = value.Receipt.Materials.ToArray(), Movements = value.Receipt.Movements.ToArray() }
+        },
         WuZishengMovementQualifiedEvent value => value with
         { Qualification = value.Qualification with { Materials = FreezeList(value.Qualification.Materials) } },
         WuHaoxianShuffledEvent value => value with
@@ -58,6 +74,7 @@ internal static class CommittedEventProjection
         NativeDrawInvocationRecordedEvent { GameStartingMovementOrigin: { } origin } value => value with
             { GameStartingMovementOrigin = origin with { MovementRoot = FreezeGameStartingMovement(origin.MovementRoot) } },
         ShenwuSharedGodCandidatesEvent value => value with { GeneralIds = FreezeList(value.GeneralIds) },
+        ShenwuExpandedRandomEvent value => value with { Damage = FreezeList(value.Damage) },
         NianFormCycleStartedEvent value => value with { GeneralIds = FreezeList(value.GeneralIds) },
         // CardActionContext detaches all nested collections at construction;
         // the other embedded native payment records contain scalars only.
@@ -301,6 +318,17 @@ internal static class CommittedEventProjection
         { CardIds = FreezeList(value.CardIds) },
         ProgramOwnerSkillsReplacedEvent value => value with
         { LostSkillIds = FreezeList(value.LostSkillIds) },
+        ProgramRandomDamageTargetSkillAcquiredEvent value => value with
+        { Receipt = value.Receipt with { Candidates = FreezeList(value.Receipt.Candidates) } },
+        ProgramAlcoholSlashSkillsReplacedEvent value => value with
+        {
+            Receipt = value.Receipt with
+            {
+                LostSkillIds = FreezeList(value.Receipt.LostSkillIds),
+                RemovedGrants = FreezeList(value.Receipt.RemovedGrants),
+                RevokedGrants = FreezeList(value.Receipt.RevokedGrants)
+            }
+        },
         ProgramHoldCardsPlacedEvent value => value with
         { CardIds = FreezeList(value.CardIds) },
         PojunHoldReturnedEvent value => value with

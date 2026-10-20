@@ -5,7 +5,8 @@ public sealed record ActualDiscardRecoveryPhaseClearedEvent(int TurnNumber) : IG
 public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
-        HasWuLuKangCapability || HasMouChenGongCapability || HasMouXuHuangCapability || HasMouLiuChengCapability || HasMouYuJinCapability || HasMouLuMengCapability || HasWuLuXunRuxianCapability || HasMouZuifengCapability ||
+        _contentRegistry.ProgramDependencies.UsesDrawPhaseDrawCountHandLimit ||
+        HasMouXiahouShiCapability || HasWuLuKangCapability || HasMouChenGongCapability || HasMouXuHuangCapability || HasMouLiuChengCapability || HasMouYuJinCapability || HasMouLuMengCapability || HasWuLuXunRuxianCapability || HasMouZuifengCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingLixian) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) ||
         IsGuanduActivity ||

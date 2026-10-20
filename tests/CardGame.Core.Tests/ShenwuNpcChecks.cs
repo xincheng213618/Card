@@ -2,9 +2,10 @@ using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
-internal static class ShenwuNpcChecks
+internal static partial class ShenwuNpcChecks
 {
     private const string Driver = "fixture:shenwu-npc-driver", Quiet = "fixture:shenwu-npc-quiet", Mode = "fixture:shenwu-npc-mode";
+    private const string NonLockedReward = "fixture:shenwu-npc-nonlocked-reward";
 
     public static void NativeDamagePoliciesReplacementDrawAndTurnover()
     {
@@ -200,10 +201,13 @@ internal static class ShenwuNpcChecks
         }
     }
 
-    private static (GameEngine, ContentRegistry) Start(string[] ownerSkills, string[] peerSkills, string card = "standard:slash", bool beginPlay = true, bool godPeers = false, bool minionPeer = false)
+    private static (GameEngine, ContentRegistry) Start(string[] ownerSkills, string[] peerSkills, string card = "standard:slash", bool beginPlay = true, bool godPeers = false, bool minionPeer = false, bool expanded = false, Suit suit = Suit.Heart)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
-            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new StandardShenwuActivityPackage(), new Fixture(ownerSkills, peerSkills, card, godPeers, minionPeer));
+        var packages = new List<IGameContentPackage> { new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new StandardShenwuActivityPackage() };
+        if (expanded) packages.Add(new StandardShenwu2020ActivityPackage());
+        packages.Add(new Fixture(ownerSkills, peerSkills, card, godPeers, minionPeer, suit));
+        var registry = ContentRegistry.Build(packages.ToArray());
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 17, PlayerCount = 4, HumanSeat = 0, HumanRole = null, HumanTeamId = "team:blue", ModeId = Mode,
             UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 12 }, registry);
         Accept(g, new StartGameCommand()); Until(g, () => P(g)?.Kind == DecisionKind.SelectGeneral);
@@ -242,7 +246,7 @@ internal static class ShenwuNpcChecks
     private static void Accept(GameEngine g, GameCommand command) { var result = g.Submit(command); Require(result.Accepted, result.Error?.Message ?? "NPC command rejected."); }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
-    private sealed class Fixture(string[] ownerSkills, string[] peerSkills, string card, bool godPeers, bool minionPeer) : IGameContentPackage
+    private sealed class Fixture(string[] ownerSkills, string[] peerSkills, string card, bool godPeers, bool minionPeer, Suit suit) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("shenwu-npc-fixture", new Version(1, 0, 0));
         public void Register(IContentRegistryBuilder b)
@@ -263,15 +267,16 @@ internal static class ShenwuNpcChecks
                 {"id":"turn-over","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"turnOver","target":"selectedTarget"}]},
                 {"id":"discard","minCards":1,"maxCards":1,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1}]},
                 {"id":"equip","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"equipment"}]}]},
-              {"id":"{{{Quiet}}}","revision":1,"triggers":[{"id":"skip-play","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}{{{woundedPrelude}}}]}]}
+              {"id":"{{{Quiet}}}","revision":1,"triggers":[{"id":"skip-play","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}{{{woundedPrelude}}}]},
+              {"id":"{{{NonLockedReward}}}","revision":1,"triggers":[{"id":"after-damage-draw","window":"afterDamageApplied","subject":"owner","optional":false,"damageOccurrence":"perDamage","effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
             """;
             var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-                skills = new[] { Driver, Quiet }.ToDictionary(id => id, id => new { name = id, description = "Native Shenwu NPC rule fixture." }) }));
+                skills = new[] { Driver, Quiet, NonLockedReward }.ToDictionary(id => id, id => new { name = id, description = "Native Shenwu NPC rule fixture." }) }));
             foreach (var (id, p) in catalog.Programs) b.AddSkill(new(id, id, "Native Shenwu NPC rule fixture.") { Program = p, ProgramPresentation = catalog.Presentations[id] });
             b.AddGeneral(new("fixture:shenwu-npc-actor", "NPC rule actor", "", Driver, AdditionalSkillIds: ownerSkills));
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:shenwu-npc-peer-{i}", $"NPC rule peer {i}", "", Quiet, FactionId: godPeers ? "god" : "qun", AdditionalSkillIds: peerSkills));
             b.AddDeck(new("fixture:shenwu-npc-deck", "Real uniform cards and weapon", 4, 2, [])
-            { PhysicalCards = Enumerable.Range(0, 180).Select(i => new ContentDeckPhysicalCard(i < 160 ? card : "standard:qinggang_sword", Suit.Heart, 7)).ToArray() });
+            { PhysicalCards = Enumerable.Range(0, 180).Select(i => new ContentDeckPhysicalCard(i < 160 ? card : "standard:qinggang_sword", suit, 7)).ToArray() });
             b.AddMode(new(Mode, "Native NPC rule fixture", 4, 4, new Dictionary<string, int>(), "fixture:shenwu-npc-deck", 4,
                 ["fixture:shenwu-npc-actor", minionPeer ? "shenwu:zhuyin-left" : "fixture:shenwu-npc-peer-1", "fixture:shenwu-npc-peer-2", "fixture:shenwu-npc-peer-3"], ContentModeKind.Team,
                 new Dictionary<string, int> { ["team:blue"] = minionPeer ? 1 : 2, ["team:red"] = minionPeer ? 3 : 2 }));

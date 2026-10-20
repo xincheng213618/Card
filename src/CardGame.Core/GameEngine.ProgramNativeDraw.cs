@@ -27,7 +27,7 @@ public sealed partial class GameEngine
             _ => throw new InvalidOperationException("Draw has an unsupported amount instruction.")
         };
         if (requested is null) return SkillProgramStepOutcome.Continue;
-        if (!HasNativeDrawAttemptCapability && !IsExactGameStartingDrawProgram(frame) && !IsExactGameStartingGainDrawProgram(frame))
+        if (!HasNativeDrawAttemptCapability && !IsExactGameStartingDrawProgram(frame) && !IsExactGameStartingGainDrawProgram(frame) && !IsLiushiClearDraw(frame))
         {
             if (selected) DrawProgramSelectedTargets(frame.Id, requested.Value, reason);
             else DrawProgramCards(frame.Id, targetSeat, requested.Value, null,
@@ -89,11 +89,18 @@ public sealed partial class GameEngine
             if (!paid.RecipientApplied)
             {
                 if (!paid.AttemptReturned && TryBeginNativeDrawAttempt(frame)) return true;
+                if (IsLiushiClearDraw(frame) && (!_players[frame.OwnerSeat].IsAlive ||
+                    !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId)))
+                {
+                    ReplaceRuntimeTop(frame with { NativeDraw = null });
+                    CancelProgramBindingAndCleanup(GetActiveProgramFrame(id), "摸牌付款前斩腕来源已失效。");
+                    return true;
+                }
                 // Ordinary DrawCards still returns only actual DrawPile materials.
                 // A replacement's obtained entities are intentionally excluded.
                 var before = frame.FixedRecipient is null ? 0 : PairBenefitSequence;
                 var materialBefore = OutsidePhaseMovementSequence;
-                var drawn = paid.Replacement is null && _players[seat].IsAlive && _winner == Winner.None
+                var drawn = paid.Replacement is null && _players[seat].IsAlive && _winner == Winner.None && CanApplyPrepDiscardImmediateDraw(frame)
                     ? DrawCards(_players[seat], paid.RequestedCount, true, paid.Reason)
                     : Array.AsReadOnly(Array.Empty<int>());
                 if (paid.ReturnKind == NativeDrawAttemptReturnKind.ProgramOperation)
@@ -104,6 +111,8 @@ public sealed partial class GameEngine
                     ProgramNativeDrawReturns.Value[paid.Operation!.Value](this, frame, outcome);
                     return true;
                 }
+                CaptureLiushiClearDrawPayment(frame, paid.RequestedCount, materialBefore, OutsidePhaseMovementSequence,
+                    drawn.Count, paid.ActiveAttemptId, paid.Replacement is not null);
                 CompleteProgramDrawCards(id, seat, paid.ResultBind, paid.Visibility, paid.Reason, before, drawn);
                 frame = GetActiveProgramFrame(id);
                 ReplaceRuntimeTop(frame = frame with { NativeDraw = paid = paid with { RecipientApplied = true } });
@@ -136,7 +145,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A Draw instruction lost its exact paid cursor or result binding.");
         if (paid.ReturnKind == NativeDrawAttemptReturnKind.ProgramInstruction)
         {
-            if ((!HasNativeDrawAttemptCapability && !IsExactGameStartingDrawProgram(frame) && !IsExactGameStartingGainDrawProgram(frame)) || paid.Operation is not null ||
+            if ((!HasNativeDrawAttemptCapability && !IsExactGameStartingDrawProgram(frame) && !IsExactGameStartingGainDrawProgram(frame) && !IsLiushiClearDraw(frame)) || paid.Operation is not null ||
                 plan.Instructions[paid.InstructionIndex - 1].CompiledInstruction is not DrawProgramInstruction instruction ||
                 paid.ResultBind != (instruction.Target == SkillProgramEffectTarget.SelectedTargets ? null : instruction.ResultBind) ||
                 paid.Visibility != instruction.Visibility ||

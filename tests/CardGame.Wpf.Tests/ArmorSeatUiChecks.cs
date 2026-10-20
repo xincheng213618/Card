@@ -77,11 +77,45 @@ internal static class ArmorSeatUiChecks
             Program.Assert(!model.HasSaveError && new[] { 0, 1 }.All(seat => Badge(seat).Visibility == Visibility.Collapsed) &&
                 model.Seats.Where(seat => seat.Seat is 2 or 3).All(seat => seat.Armor == 6),
                 "Cold desktop restoration retains exact paid Armor and does not display or reissue a completed opening grant.");
+            game = Program.Engine(model);
+            Program.Assert(model.HumanPlayer is { Hp: 5, MaxHp: 5, ShowNumericHealth: false } positive &&
+                positive.HealthImages.Count() == 5,
+                "Ordinary positive HP with a small maximum retains the original five-pip presentation.");
+            Accept(game, new UseProgramSkillCommand(0, Driver, "lose-seven", [], [0], game.Revision, game.PendingDecision!.PromptId));
+            for (var step = 0; step < 40 && game.CreateSnapshot(0).Players.Single(player => player.Seat == 0).Hp >= 0; step++)
+            {
+                Program.Assert(game.PendingDecision is null && game.State.Winner == Winner.None,
+                    "The real HP-loss activation must reach its dying boundary without another invented input.");
+                Accept(game, new AdvanceOneStepCommand(game.Revision));
+            }
+            Program.Assert(game.CreateSnapshot(0).Players.Single(player => player.Seat == 0) is { Hp: -2, IsAlive: true } &&
+                game.ResolutionStack.OfType<DyingFrame>().Single().VictimSeat == 0,
+                "A real seven-point HP loss from five HP must expose the genuine negative dying state before rescue or death is advanced.");
+            typeof(MainViewModel).GetMethod("Refresh", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(model, [game.CreateSnapshot(0)]);
+            AssertNegativeHealth();
+            model.SaveGameCommand.Execute(null); model.LoadManualGameCommand.Execute(null);
+            game = Program.Engine(model);
+            Program.Assert(!model.HasSaveError && game.CreateSnapshot(0).Players.Single(player => player.Seat == 0).Hp == -2,
+                "Cold desktop restoration preserves the same real negative HP instead of raising it to zero.");
+            AssertNegativeHealth();
         }
         finally { window.Content = null; window.Close(); }
 
         Border Badge(int seat) => Program.Find<Border>(root).Single(border => border.Name == "SeatArmorBadge" && border.DataContext is SeatViewModel value && value.Seat == seat);
         Button SeatButton(int seat) => Program.Find<Button>(root).Single(button => button.Name == "SeatButton" && button.DataContext is SeatViewModel value && value.Seat == seat);
+        void AssertNegativeHealth()
+        {
+            Program.Render(root, 1440, 880, null);
+            var seat = model.HumanPlayer!;
+            var rail = Program.Find<Border>(root).Single(border => border.Name == "SeatHealthRail" && border.DataContext is SeatViewModel value && value.Seat == 0);
+            var number = Program.Find<Viewbox>(rail).Single(box => box.Name == "SeatNumericHealth");
+            Program.Assert(seat is { Hp: -2, MaxHp: 5, ShowNumericHealth: true, HealthValue: "-2/5", NumericHealthText: "-2\n/\n5" } &&
+                seat.HpText == "体力 -2/5" && seat.HealthPips.Length == 0 && seat.EmptyHealthPips == new string('○', 5) &&
+                seat.HealthImages.Count() == 1 && seat.HealthImages.All(image => image.EndsWith("gallery-hp-empty.png", StringComparison.Ordinal)) &&
+                number.Visibility == Visibility.Visible && Program.Find<TextBlock>(number).Single().Text == "-2\n/\n5" &&
+                AutomationProperties.GetName(rail) == "-2/5",
+                "The real small-maximum negative state must show signed digits and the same accessible value while keeping only empty, nonnegative health pips, before and after cold load.");
+        }
         void Hit(int seat, string activation)
         {
             Accept(game, new UseProgramSkillCommand(0, Driver, activation, [], [seat], game.Revision, game.PendingDecision!.PromptId));
@@ -110,11 +144,11 @@ internal static class ArmorSeatUiChecks
         {
             var skills = new List<object>
             {
-                new { id = Driver, revision = 1, activations = new[] { ("hit-two", 2), ("hit-four", 4) }.Select(pair => new
+                new { id = Driver, revision = 1, activations = new[] { ("hit-two", 2), ("hit-four", 4), ("lose-seven", 7) }.Select(pair => new
                 {
                     id = pair.Item1, minCards = 0, maxCards = 0, minTargets = 1, maxTargets = 1,
                     targetKind = "anyLiving", usesPerTurn = (int?)null,
-                    effects = new[] { new { op = "damage", target = "selectedTarget", amount = pair.Item2 } }
+                    effects = new[] { new { op = pair.Item1 == "lose-seven" ? "loseHp" : "damage", target = "selectedTarget", amount = pair.Item2 } }
                 }).ToArray() }
             };
             skills.AddRange(new[] { OpeningOne, OpeningTwo }.Select(id => (object)new

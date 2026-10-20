@@ -10,10 +10,18 @@ public sealed partial class GameEngine
         PrepareDuFuRenChainAdvance(attack);
         PrepareYintianChainAdvance(attack);
         PrepareZhangYiChainAdvance(attack);
+        // A zero segment cannot issue zero damage to the next recipient.
+        // An already issued positive recipient base can still restore there.
+        if (attack.DamageAmountFinalized && attack.DamageAmount <= 0 &&
+            FixedDamageCapChain(attack).Scope?.PropagationBaseAmount is not > 0)
+        {
+            fromSeat = attack.TargetSeat;
+            return false;
+        }
         if (!attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
                 UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers || IsGuanduActivity ||
-                HasPublicEnemyRecipientDamageScope(attack) ||
-                HasPerOccurrenceSourceDamageModifiers(attack.SourceSeat), out fromSeat)) return false;
+                HasPublicEnemyRecipientDamageScope(attack) || HasFixedTargetRecipientDamageScope(attack) ||
+                HasPerOccurrenceSourceDamageModifiers(attack.SourceSeat) || HasNextRecipientPassiveDamageCap(attack), out fromSeat)) return false;
         ApplyZhangYiChainedDamageBonus(attack);
         ApplyDuFuRenChainedDamageBonus(attack);
         ApplyYintianChainedDamageBonus(attack);
@@ -104,7 +112,7 @@ public sealed partial class GameEngine
         {
             if (state.DamageAmountFinalized)
                 throw new InvalidOperationException("The attack damage amount is already final.");
-            var amount = checked(state.DamageAmount + bonus);
+            var amount = Math.Max(0, checked(state.DamageAmount + bonus));
             return state with
             {
                 DamageAmount = maximum is { } cap ? Math.Min(amount, cap) : amount,

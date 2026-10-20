@@ -197,10 +197,18 @@ internal sealed class ForeignSlashSelectionValidator : IProgramSelectionValidato
 [ProgramSelectionValidator(ProgramSelectionValidationStage.BeforeDistinctSuits, 80, SkillProgramEffectOp.UseSelectedActorDuel)]
 internal sealed class SelectedActorDuelSelectionValidator : IProgramSelectionValidator
 {
-    public CommandError? Validate(ProgramSelectionValidationRequest request, IProgramSelectionQueries queries) =>
-        request.Cards.Count != 0 || request.Targets.Count != 1 ||
-        !queries.Get<ISelectedActorDuelSelectionQuery>().CanSelect(request.Context.OwnerSeat, request.Targets[0])
-            ? new(CommandErrorCode.InvalidTarget, "The selected actor cannot actually use Duel on the owner.") : null;
+    public CommandError? Validate(ProgramSelectionValidationRequest request, IProgramSelectionQueries queries)
+    {
+        var duel = queries.Get<ISelectedActorDuelSelectionQuery>();
+        if (OrderedSelectedActorDuelContract.IsOptIn(request.Context.Features.First(SkillProgramEffectOp.UseSelectedActorDuel)!))
+            return request.Cards.Count != 1 || request.Targets is not [var actor, var target] || actor == target ||
+                actor == request.Context.OwnerSeat || target == request.Context.OwnerSeat || !duel.CanSelect(target, actor)
+                ? new(CommandErrorCode.InvalidTarget, "The first selected actor cannot actually use Duel on the second selected target.") : null;
+        var forward = OrderedSelectedActorDuelContract.IsOwnerToSelected(request.Context.Features.First(SkillProgramEffectOp.UseSelectedActorDuel)!);
+        return request.Cards.Count != 0 || request.Targets.Count != 1 ||
+            !(forward ? duel.CanSelect(request.Targets[0], request.Context.OwnerSeat) : duel.CanSelect(request.Context.OwnerSeat, request.Targets[0]))
+                ? new(CommandErrorCode.InvalidTarget, "The selected actor cannot actually use Duel on the owner.") : null;
+    }
 }
 
 [ProgramSelectionValidator(ProgramSelectionValidationStage.BeforeDistinctSuits, 90, SkillProgramEffectOp.PlaceSelectedEquipment)]

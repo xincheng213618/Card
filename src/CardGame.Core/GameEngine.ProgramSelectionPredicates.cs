@@ -56,6 +56,7 @@ public sealed partial class GameEngine
             engine.CanUseProvidedSlashTarget(engine._players[ownerSeat], engine._players[targetSeat]);
 
         public int TurnNumber => engine._turnNumber;
+        public int RoundNumber => engine._roundNumber;
         public int TurnOwnerSeat => engine._currentSeat;
         public string SkillInstanceId(int ownerSeat, string skillId) =>
             engine.GetRuntimeSkillInstanceId(engine._players[ownerSeat], skillId);

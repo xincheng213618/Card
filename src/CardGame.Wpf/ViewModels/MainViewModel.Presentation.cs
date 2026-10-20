@@ -523,6 +523,7 @@ public sealed partial class MainViewModel
         HasPublicRevealedCards || HasPrivatelyViewedCards || HasDeferredPublicPiles || HasDeclaredCards ||
         ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
     public bool HasPinnedPublicModuleChoices =>
+        !HasTargetCardPicker &&
         !IsHandResponsePending &&
         HasPublicRevealedCards &&
         _snapshot.PendingDecision is { SkillPrompt: not null } prompt &&
@@ -728,6 +729,7 @@ public sealed partial class MainViewModel
             : IsHandResponsePending ? HandResponseHint
             : IsActiveSkillSelectionPending ? GetActiveSkillSelectionHint()
             : SelectedHellReturnSoulAction() is { } soul ? $"回魂 · 将恢复 {soul.TargetSeats.Count} 名角色因忘魂失去的技能 · 点击「确定」使用"
+            : HasPublicTargetChoices ? "在中央选择目标的手牌、装备或判定牌；点击对应选项后使用"
             : IsPlayConversionSelectionPending ? _playConversionSelection!.Mode is null
                 ? $"{PlayConversionSkillName} · 先选择要转换的牌型 · 再选择材料牌和目标"
                 : IsMultiTargetCardSelected ? $"{PlayConversionSkillName} · {MultiTargetSelectionHint}"
@@ -787,6 +789,7 @@ public sealed partial class MainViewModel
         ((RelayCommand)ConfirmSelectedCommand).NotifyCanExecuteChanged();
         ((RelayCommand)UseActiveSkillCommand).NotifyCanExecuteChanged();
         RaisePropertyChanged(nameof(HasSelection));
+        RefreshTargetCardPicker();
         RaisePropertyChanged(nameof(HasCenterChoices));
         RaisePropertyChanged(nameof(IsTableIdle));
         RaisePropertyChanged(nameof(AreTablePlaysVisible));

@@ -15,7 +15,7 @@ public sealed partial class MainViewModel
     public bool IsDragonBoatActivityModeSelection => SelectedModeDefinition?.DragonBoatActivity is not null;
     private bool IsDragonBoatActivitySnapshot => CurrentModeDefinition?.DragonBoatActivity is not null;
     public bool IsDragonBoatActivityTable => IsDragonBoatActivitySnapshot;
-    public bool CanExpandGeneralRoster => !IsDragonBoatActivitySnapshot;
+    public bool CanExpandGeneralRoster => !IsDragonBoatActivitySnapshot && !IsGuanduActivitySnapshot;
     public bool IsDragonBoatGuide => IsNewGameSetupOpen ? IsDragonBoatActivityModeSelection : IsDragonBoatActivitySnapshot;
     public string DragonBoatBasicsText => "魏、蜀、吴、群各两人组成四条船。你与一名AI队友合作，其他六人是对手。对敌伤害积累至宝，上限12枚；在第二个实际轮次结束时争取船队第一名。所有人每次濒死都受艾叶守护回复至1，牌局以竞分排名结束。";
     public string DragonBoatCardsOverview => "粽：为自己或队友回复1点体力。雄黄酒：本回合下一张杀伤害+1。同舟共济：本队各摸牌，至宝最多时加成。力争上游：你按本队至宝摸牌（至多5），其他角色各摸1。逆水行舟：对敌造成1点伤害，再按本队至宝排名弃牌或摸牌。连弩允许额外使用三张杀。";

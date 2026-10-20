@@ -216,11 +216,27 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainViewModel { IsLobbyConfigurationOpen: true })
         {
-            if (TableModeChoices.SelectedItem is { } selected &&
+            if (DataContext is MainViewModel { IsModeConfigurationOpen: false } viewModel)
+            {
+                if (ModeGroupChoices.ItemContainerGenerator.ContainerFromItem(viewModel.SelectedModeGroup) is UIElement group)
+                    group.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+                else ModeGroupChoices.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+            }
+            else if (TableModeChoices.IsVisible && TableModeChoices.SelectedItem is { } selected &&
                 TableModeChoices.ItemContainerGenerator.ContainerFromItem(selected) is UIElement choice) choice.Focus();
-            else TableModeChoices.Focus();
+            else ModeConfigurationPanel.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
         }
         else LobbyHome.FocusPrimary();
+    }
+
+    private void LobbySetupStep_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsLoaded || e.NewValue is not true) return;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, () =>
+        {
+            ModeSetupScroll.ScrollToTop();
+            FocusLobby();
+        });
     }
 
     private void PlayerGuideOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -550,7 +566,7 @@ public partial class MainWindow : Window
         if (key == Key.Escape)
         {
             if (viewModel.IsHelpOpen) viewModel.IsHelpOpen = false;
-            else if (viewModel.IsNewGameSetupOpen && viewModel.IsLobbyConfigurationOpen) viewModel.BackToLobbyCommand.Execute(null);
+            else if (viewModel.IsNewGameSetupOpen && viewModel.IsLobbyConfigurationOpen) viewModel.BackInLobbySetupCommand.Execute(null);
             else if (viewModel.IsNewGameSetupOpen) viewModel.IsNewGameSetupOpen = false;
             else if (viewModel.IsLogOpen) viewModel.IsLogOpen = false;
             else viewModel.ClearSelectionCommand.Execute(null);

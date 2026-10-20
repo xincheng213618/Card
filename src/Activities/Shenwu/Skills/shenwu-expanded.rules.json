@@ -1,0 +1,515 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shenwu:yaoshou",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "demon-distance",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "value": -2,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "shenwu:duqu",
+      "revision": 1,
+      "cardIdentities": [
+        {
+          "id": "peach-as-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [
+            "peach"
+          ],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "damage-source-poison",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "addShenwuDamagePoison",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shenwu:echou",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "continuous-rule",
+          "kind": "shenwuPoisonOnPeachWine",
+          "cardKinds": []
+        }
+      ]
+    },
+    {
+      "id": "shenwu:poison",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "pay-poison-at-real-start",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenwuPoison",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shenwu:jiushou",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "nine-hand-limit",
+          "query": "handLimit",
+          "operation": "set",
+          "value": 9,
+          "priority": 277
+        }
+      ],
+      "triggers": [
+        {
+          "id": "skip-draw",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "draw"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "play-refill",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawToHandCount",
+              "target": "owner",
+              "amount": 9
+            }
+          ]
+        },
+        {
+          "id": "end-refill",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawToHandCount",
+              "target": "owner",
+              "amount": 9
+            }
+          ],
+          "turnOwnerScope": "own"
+        }
+      ]
+    },
+    {
+      "id": "shenwu:bingxian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "punish-no-slash-in-actual-turn",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindShenwuEndedTurnOwner",
+              "target": "owner"
+            },
+            {
+              "op": "useVirtualSlash",
+              "target": "selectedTarget"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        }
+      ]
+    },
+    {
+      "id": "shenwu:juyuan",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "continuous-rule",
+          "kind": "shenwuPreviousEndHealthSlashTarget",
+          "cardKinds": []
+        }
+      ]
+    },
+    {
+      "id": "shenwu:xushi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "play-ending-face-down",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "turnOver",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "face-up-random-damage",
+          "window": "characterTurnedFaceUp",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenwuXushi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shenwu:zhaohuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prevent-fire",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "preventShenwuNitaiOwnTurnDamage",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shenwu:honglian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "red-deck-gain-and-random-fire",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenwuHonglian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shenwu:fengdong",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "continuous-rule",
+          "kind": "shenwuOwnTurnFreezeNonLocked",
+          "cardKinds": []
+        }
+      ]
+    },
+    {
+      "id": "shenwu:sipu",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "continuous-rule",
+          "kind": "shenwuFirstTwoPlayCardsProhibitOthers",
+          "cardKinds": []
+        }
+      ]
+    },
+    {
+      "id": "shenwu:xunyou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-start-random-region-card",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenwuXunyou",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        }
+      ]
+    },
+    {
+      "id": "shenwu:kunshou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "once-dying-awakening",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recoverTo",
+              "target": "owner",
+              "numberExpression": "integerConstant",
+              "minimumValue": 5,
+              "clampToMaxHp": true
+            },
+            {
+              "op": "drawToHandCount",
+              "target": "owner",
+              "amount": 5
+            },
+            {
+              "op": "setFaceState",
+              "target": "owner",
+              "faceDown": false
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:benghuai"
+              ]
+            }
+          ],
+          "usageScope": "game",
+          "usageLimit": 1
+        }
+      ]
+    },
+    {
+      "id": "shenwu:enemy-tier",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "arrival-equipment",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useRandomDeckEquipment",
+              "target": "owner",
+              "targetRef": {
+                "kind": "owner"
+              },
+              "resultBind": "arrival-equipment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shenwu:player-tier-2020",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "arrival-equipment",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useRandomDeckEquipment",
+              "target": "owner",
+              "targetRef": {
+                "kind": "owner"
+              },
+              "resultBind": "arrival-equipment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shenwu:chongsheng-2020",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "limited-rebirth",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "discardOwnedZoneCards",
+              "target": "owner",
+              "zones": [
+                "judgment"
+              ]
+            },
+            {
+              "op": "setChainedState",
+              "target": "owner",
+              "chained": false
+            },
+            {
+              "op": "setFaceState",
+              "target": "owner",
+              "faceDown": false
+            },
+            {
+              "op": "recoverShenwu2020Rebirth",
+              "target": "owner"
+            }
+          ],
+          "usageScope": "game",
+          "usageLimit": 1
+        }
+      ]
+    },
+    {
+      "id": "shenwu:yanyu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-turn-red-judgments",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "bindShenwuTurnOwner",
+              "target": "owner"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "shenwu.yanyu",
+              "resultBind": "judgment-0",
+              "outcomeBind": "outcome-0",
+              "visibility": "public"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "condition": {
+                "kind": "judgmentOutcomeMatchesSuits",
+                "sourceBind": "outcome-0",
+                "suits": [
+                  "heart",
+                  "diamond"
+                ]
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "judgment-0",
+              "destination": "discardPile"
+            },
+            {
+              "op": "gateShenwuYanyu",
+              "target": "owner"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "shenwu.yanyu",
+              "resultBind": "judgment-1",
+              "outcomeBind": "outcome-1",
+              "visibility": "public"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "condition": {
+                "kind": "judgmentOutcomeMatchesSuits",
+                "sourceBind": "outcome-1",
+                "suits": [
+                  "heart",
+                  "diamond"
+                ]
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "judgment-1",
+              "destination": "discardPile"
+            },
+            {
+              "op": "gateShenwuYanyu",
+              "target": "owner"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "shenwu.yanyu",
+              "resultBind": "judgment-2",
+              "outcomeBind": "outcome-2",
+              "visibility": "public"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "condition": {
+                "kind": "judgmentOutcomeMatchesSuits",
+                "sourceBind": "outcome-2",
+                "suits": [
+                  "heart",
+                  "diamond"
+                ]
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "judgment-2",
+              "destination": "discardPile"
+            },
+            {
+              "op": "gateShenwuYanyu",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        }
+      ]
+    }
+  ]
+}

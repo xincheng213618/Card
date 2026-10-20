@@ -89,8 +89,18 @@ public sealed partial class ShanheCampaignSession
         var firstEncounter = firstNode.Encounters![0];
         var bonuses = Definition.StartingBonuses!;
         var probe = ShanheBattleSetup.Freeze(new(options.Seed, 1, firstNode.Id, options.PlayerGeneralId,
-            1, bonuses.MaxHp, bonuses.InitialHand, bonuses.Draw, bonuses.Slash, [], [], [],
-            firstEncounter.Enemies, firstEncounter.Allies ?? [], ContentHash));
+            1, bonuses.MaxHp, bonuses.InitialHand, bonuses.Draw, bonuses.Slash,
+            ShanheCampaignContent.Freeze(Definition.Rewards.Select(reward => reward.SkillId)
+                .OfType<string>().Distinct(StringComparer.Ordinal)), [], [],
+            firstEncounter.Enemies, firstEncounter.Allies ?? [], ContentHash)
+        {
+            DefaultGodFactionId = Definition.DefaultGodFactionId,
+            // This registry-only probe validates every reward, including skill
+            // programs imported only by recipes that reference them. No engine
+            // is created and no unearned skill is granted to a battle player.
+            TacticSkillIds = ShanheCampaignContent.Freeze(Definition.Rewards.Select(reward => reward.TacticSkillId)
+                .OfType<string>().Distinct(StringComparer.Ordinal))
+        });
         var registry = battleRegistryFactory(probe) ?? throw new ArgumentException("The battle registry factory returned null.", nameof(battleRegistryFactory));
         if (!registry.Generals.TryGetValue(options.PlayerGeneralId, out var general) || !registry.IsGeneralPlayable(options.PlayerGeneralId))
             throw new ArgumentException("The battle content does not contain the player's general.", nameof(options));
@@ -241,7 +251,8 @@ public sealed partial class ShanheCampaignSession
             state.Hp, bonuses.MaxHp, bonuses.InitialHand, bonuses.Draw, bonuses.Slash,
             state.ExtraSkillIds, state.StartingCards, state.StartingEquipment, encounter.Enemies, encounter.Allies ?? [], ContentHash)
         {
-            TacticSkillIds = ShanheCampaignContent.Freeze(state.TacticIds.Select(id => _rewards[id].TacticSkillId).OfType<string>())
+            TacticSkillIds = ShanheCampaignContent.Freeze(state.TacticIds.Select(id => _rewards[id].TacticSkillId).OfType<string>()),
+            DefaultGodFactionId = Definition.DefaultGodFactionId
         });
         return state with { Phase = ShanheCampaignPhase.Battle, EncounterOrdinal = ordinal, EncounterId = encounter.Id, BattleSetup = setup };
     }

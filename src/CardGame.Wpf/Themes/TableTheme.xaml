@@ -798,38 +798,34 @@
     </DataTemplate>
     <Style x:Key="GeneralRosterButton" TargetType="Button">
         <Setter Property="Background" Value="#29251F" /><Setter Property="BorderBrush" Value="#514735" />
-        <Setter Property="BorderThickness" Value="1" /><Setter Property="Padding" Value="8,5" />
+        <Setter Property="BorderThickness" Value="1" /><Setter Property="Padding" Value="2" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
-            <Border x:Name="RosterRowBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="3">
-                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+            <Border x:Name="RosterCardBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="3">
+                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
             </Border>
             <ControlTemplate.Triggers>
-                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="RosterRowBorder" Property="Background" Value="#383125" /><Setter TargetName="RosterRowBorder" Property="BorderBrush" Value="#B79B65" /></Trigger>
-                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="RosterRowBorder" Property="BorderBrush" Value="#FFE0A2" /></Trigger>
-                <Trigger Property="IsPressed" Value="True"><Setter TargetName="RosterRowBorder" Property="Opacity" Value="0.8" /></Trigger>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="RosterCardBorder" Property="Background" Value="#383125" /><Setter TargetName="RosterCardBorder" Property="BorderBrush" Value="#B79B65" /></Trigger>
+                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="RosterCardBorder" Property="BorderBrush" Value="#FFE0A2" /></Trigger>
+                <Trigger Property="IsPressed" Value="True"><Setter TargetName="RosterCardBorder" Property="Opacity" Value="0.8" /></Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate></Setter.Value></Setter>
         <Style.Triggers><DataTrigger Binding="{Binding IsPreviewSelected}" Value="True"><Setter Property="Background" Value="#4A3D28" /><Setter Property="BorderBrush" Value="#E2BE77" /></DataTrigger></Style.Triggers>
     </Style>
     <DataTemplate x:Key="GeneralRosterTemplate">
         <Button Style="{StaticResource GeneralRosterButton}" Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                CommandParameter="{Binding}" Margin="0,0,0,5" AutomationProperties.Name="{Binding Text}" ToolTip="{Binding SkillDescription}" ToolTipService.InitialShowDelay="650">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="58" /><ColumnDefinition Width="*" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions>
-                <Border Width="46" Height="62" HorizontalAlignment="Left" BorderBrush="#86734E" BorderThickness="1" Background="{Binding Portrait.ThumbnailBrush}" />
-                <Grid Grid.Column="1" Margin="2,3,10,3">
-                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Right" Text="{Binding EditionText}" Foreground="#B3A17D" FontSize="11" VerticalAlignment="Center" Margin="12,0,0,0" />
-                        <TextBlock Text="{Binding Name}" Foreground="#F2D59A" FontSize="17" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                    </DockPanel>
-                    <TextBlock Grid.Row="1" Text="{Binding SkillName}" Foreground="#CBBF9F" FontSize="12" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" />
-                </Grid>
-                <Border Grid.Column="2" Background="#201D18" BorderBrush="#64573E" BorderThickness="1" Padding="7,3" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Kingdom}" Foreground="#C9CEA1" FontFamily="KaiTi" FontSize="18" />
+                CommandParameter="{Binding}" Width="136" Height="194" Margin="6,5" AutomationProperties.Name="{Binding Text}" ToolTip="{Binding SkillDescription}" ToolTipService.InitialShowDelay="650">
+            <Grid Background="{Binding Portrait.ThumbnailBrush}" ClipToBounds="True">
+                <Rectangle Fill="{StaticResource PortraitShade}" IsHitTestVisible="False" />
+                <Border Background="#DD201D18" BorderBrush="#9B8355" BorderThickness="0,0,1,1" Padding="7,3" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <TextBlock Text="{Binding Kingdom}" Foreground="#E8DBAE" FontFamily="KaiTi" FontSize="17" />
                 </Border>
+                <StackPanel VerticalAlignment="Bottom" Background="#E8211C16" Margin="0" IsHitTestVisible="False">
+                    <TextBlock Text="{Binding Name}" Foreground="#FFE1A0" FontFamily="KaiTi" FontSize="18" FontWeight="SemiBold" TextAlignment="Center" Margin="3,4,3,2" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding SkillName}" Foreground="#C9BC9D" FontSize="10" TextAlignment="Center" Margin="4,0,4,5" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
             </Grid>
         </Button>
     </DataTemplate>

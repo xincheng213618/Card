@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-shi",
+  "skills": [
+    {
+      "registrationOrder": 2254,
+      "programBundle": "mou-xiahou-shi-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:yanyu",
+        "name": "燕语",
+        "description": "出牌阶段限两次，你可以弃置一张【杀】并摸一张牌。出牌阶段结束时，你可以令一名其他角色摸X张牌（X为你本回合以此法弃置的【杀】的数量的三倍）。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2255,
+      "programBundle": "mou-xiahou-shi-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:qiaoshi",
+        "name": "樵拾",
+        "description": "每回合限一次，你受到其他角色造成的伤害后，伤害来源可选择令你回复等同此次伤害值的体力，若如此做，其摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2256,
+      "pools": { "current": 520 },
+      "definition": {
+        "id": "mou:xiahou-shi-mobile",
+        "name": "谋夏侯氏·移动版",
+        "portraitKey": "mou-xiahou-shi-mobile",
+        "skillId": "mou-mobile:yanyu",
+        "additionalSkillIds": ["mou-mobile:qiaoshi"],
+        "factionId": "shu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:xiahou-shi",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

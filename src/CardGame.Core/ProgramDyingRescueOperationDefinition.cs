@@ -32,9 +32,8 @@ public sealed class UseBoundCardAsDyingAlcoholSkillProgramEffectHandler : ISkill
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        host.UseBoundCardAsDyingAlcohol(frame, effect.SourceBind!,
+        return host.UseBoundCardAsDyingAlcoholWithCompletion(frame, effect.SourceBind!,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
-        return SkillProgramStepOutcome.Continue;
     }
 }
 

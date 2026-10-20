@@ -597,8 +597,9 @@ internal sealed class RevealTopCardsProgramOperationDescriptor : ProgramOperatio
         if (target != SkillProgramEffectTarget.Owner) throw new InvalidOperationException($"Invalid skill program at {r.Path}: reveal requires owner.");
         var expression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
-        if (expression is not null && (r.Has("amount") || expression != SkillProgramNumberExpression.OwnerLostHp))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: reveal accepts a constant or ownerLostHp.");
+        if (expression is not null && (r.Has("amount") || expression is not
+                (SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.OwnerLostHpPlusOne)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: reveal accepts a constant, ownerLostHp or ownerLostHpPlusOne.");
         var effect = new SkillProgramEffect(Op, target, expression is null ? DrawProgramOperationDescriptor.Amount(r, 16) : 0, r.Condition(),
             numberExpression: expression,
             resultBind: r.RequiredIdentifier("resultBind"),
@@ -732,7 +733,7 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
               destination is SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.OwnerHand or
                 SkillProgramCardDestination.DrawPileTop) &&
             !(effect.Condition.Kind == SkillProgramConditionKind.PindianWon &&
-              destination == SkillProgramCardDestination.OwnerHand))
+              destination is SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.SelectedTargetHand))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: conditional card movement requires a named-choice discard or gain branch.");
         return effect;
     }

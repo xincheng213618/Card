@@ -3,8 +3,22 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public sealed record NativeDrawMaterial(int CardId, CardKind PrintedKind, long MovementSequence);
+public sealed record NativeDrawOrdinalEntitlement(CardConversionSource Source, string GameplayHash);
+public sealed record NativeDrawOrdinalEntitlementsCapturedEvent(long InvocationId, int OwnerSeat,
+    int ActualTurnNumber, int ActualTurnOwnerSeat, long SequenceBefore, int Count) : IGameEvent;
+public sealed record NativeDrawOrdinalSourceCapturedEvent(long InvocationId, int OwnerSeat,
+    long SequenceBefore, NativeDrawOrdinalEntitlement Entitlement) : IGameEvent;
 public sealed partial record NativeDrawInvocationProof
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ActualTurnDrawOrdinal { get; init; }
+    private readonly IReadOnlyList<NativeDrawOrdinalEntitlement>? _ordinalEntitlements;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<NativeDrawOrdinalEntitlement>? OrdinalEntitlements
+    {
+        get => _ordinalEntitlements;
+        init => _ordinalEntitlements = value is null ? null : Array.AsReadOnly(value.ToArray());
+    }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GameStartingDrawOrigin? GameStartingOrigin { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -32,6 +46,8 @@ public sealed record NativeDrawInvocationRecordedEvent(long InvocationId, int Ow
     ActualDiscardRecoveryPhaseKey? Phase, long? ParentFrameId, CardConversionSource? DirectProducer,
     CardMoveReason Reason, long SequenceBefore, long SequenceAfter, long LastBatchId) : IGameEvent
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ActualTurnDrawOrdinal { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GameStartingDrawOrigin? GameStartingOrigin { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

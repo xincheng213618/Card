@@ -51,7 +51,8 @@ public sealed record CardUsePaymentMovementReceipt(long OwnerFrameId, long Actio
             DestinationCounts = value.DestinationCounts is null ? null : Array.AsReadOnly(value.DestinationCounts.ToArray()),
             LiJueUseDiscard = value.LiJueUseDiscard is { } usedTrick
                 ? CommittedEventProjection.FreezeLiJueUseDiscard(usedTrick) : null,
-            NativeDrawInvocation = value.NativeDrawInvocation is { } draw ? draw with { Materials = draw.Materials } : null,
+            NativeDrawInvocation = value.NativeDrawInvocation is { } draw
+                ? draw with { Materials = draw.Materials, OrdinalEntitlements = draw.OrdinalEntitlements } : null,
             NativeBuZhiDiscardInvocation = value.NativeBuZhiDiscardInvocation is { } discard
                 ? discard with { Zones = discard.Zones, Materials = discard.Materials } : null
         };

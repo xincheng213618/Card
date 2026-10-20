@@ -146,7 +146,11 @@ public static class ComposedSkillContentRegistry
         if (includeActivities) packages.Add(new StandardJiangeActivityPackage());
         if (includeBossActivities) packages.Add(new StandardGhostActivityPackage());
         if (includeHulaoActivities) packages.Add(new StandardHulaoActivityPackage());
-        if (includeShenwuActivities) packages.Add(new StandardShenwuActivityPackage());
+        if (includeShenwuActivities)
+        {
+            packages.Add(new StandardShenwuActivityPackage());
+            packages.Add(new StandardShenwu2020ActivityPackage());
+        }
         if (includeNianActivities) packages.Add(new StandardNianActivityPackage());
         if (includeHellActivities) packages.Add(new StandardHellActivityPackage());
         if (includeWenheActivities) packages.Add(new StandardWenheActivityPackage());

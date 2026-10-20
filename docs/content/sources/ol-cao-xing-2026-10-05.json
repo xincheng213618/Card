@@ -28,9 +28,9 @@
       "text": "出牌阶段，你可以将一张红桃牌置于牌堆顶，视为对一名角色使用一张无距离和次数限制的【杀】，若此【杀】造成伤害，其手牌上限-1。",
       "programId": "ol:liu-shi",
       "notes": [
-        "Modeled as a compulsory-offer playPhaseStarting trigger: selectTarget otherLivingVirtualSlashTarget, one heart hand card via selectAndMoveOwnedCard suits:[heart] to drawPileTop, then useVirtualCard slash with useCardActionWindows and distanceUnlimitedAgainstTarget.",
-        "The damaging aftermath is a compulsory cardUseCompleted trigger (ownerRelation actor, cardKinds slash) guarded by cardUseCausedDamage plus cardUseConversionSkillIs; the program virtual use now records its own CardConversionSource so the conversion-skill condition can match.",
-        "Aftermath effects: changeParticipantMarker marker liuShi +1 and adjustPersistentHandLimit -1 against the eventTarget; both op families gained owner-placeholder targetRef (eventTarget) support."
+        "Current revision, verified with focused and routine checks: an unrestricted Play activation selects one Heart card from hand or equipment and one legal target. captureSelectedCards and moveBoundCards move the original payment to drawPileTop with awaitMovementTriggers before issuing an independent native virtual Slash.",
+        "The resulting Slash uses real card-action windows and distanceUnlimitedAgainstTarget; the top-decked payment is not its physical material. Equipment departure and all movement children must return before the use begins.",
+        "A mandatory afterDamageApplied trigger matches sourceSkillId ol:liu-shi and sourceViewAsId topdeck-heart-slash. applyLiushiEffect adds one liuShi layer to the actual non-chain card target; hand limit subtracts the total layers, which survive loss of the source skill."
       ]
     },
     {
@@ -38,15 +38,16 @@
       "text": "锁定技，当受到“流矢”效果影响的角色于弃牌阶段弃牌后，你摸等量张牌并移除其“流矢”效果。",
       "programId": "ol:zhan-wan",
       "notes": [
-        "Compulsory discardPhaseEnded trigger with turnOwnerScope otherLiving; condition compares eventTargetMarkerCount liuShi >= 1.",
-        "Draw amount uses the new numberExpression turnOwnerDiscardPhaseHandDiscardCount; then changeParticipantMarker -1 and adjustPersistentHandLimit +1 restore the limit.",
-        "DiscardPhaseEnded candidate collection overlays the phase owner's markers as eventTargetMarkerCounts so foreign-marker conditions evaluate; each discard-phase end removes one marker stack."
+        "Current revision, verified with focused and routine checks: a compulsory discardPhaseEnded trigger with turnOwnerScope otherLiving requires both a positive liuShi layer count and a positive turnOwnerDiscardPhaseHandDiscardCount. A zero-discard phase neither draws nor clears the effect.",
+        "A real native Draw uses the exact turnOwnerDiscardPhaseHandDiscardCount, then clearLiushiEffect removes all layers. Issued Draw and gain children drain before the already-paid clearing tail, including source loss during those children; cold return must not draw or clear twice.",
+        "Clearing all layers and ordering multiple sources or Zhanwan holders are explicit local execution contracts. The readable official text and ordinary OL guide do not provide a dedicated multi-Cao-Xing FAQ."
       ]
     }
   ],
   "observations": [
     "OL lists 曹性 as qun 4HP with labels 进攻/控制/过牌; quality 稀有.",
-    "The hand-limit reduction is implemented with the persistent hand-limit public state; the event now carries TargetSeat so the adjustment lands on the victim instead of the skill owner.",
-    "Marker stacks drain one per affected discard phase; the fixture deck of heart nullifications keeps the AI from playing around the slash."
+    "The official hero page and the 2021-03-16 OL notice https://sanguosha.com/news/20210315_1672_5915 contain the same two skill texts. The 2022-10-21 OL operator guide https://my.4399.com/yxxsgs/gonglue/34090/ explicitly permits Heart equipment, repeated Play activation, stacked hand-limit loss, and requires actual discard-phase discards.",
+    "Liushi layers are target state rather than a live source aura. Zhanwan's current local contract clears all layers after its real Draw returns; it does not drain one layer at every phase end. Focused native behavior and measured routine checks pass for this revision; this does not establish Full or foreground acceptance.",
+    "Current S5 data closes chapter 2 / boss 5028 / battle and group 2639 / general 476, with parallel new-player group 22639. Both base forms are 4/4, Draw 2, hand 4, Slash 1, Armor 0, and have no fixed cards or tactics. StandardShanheS5CaoxingPackage registers shanhe:s5-caoxing-duomu only when actually required; the 2026 guangcheng:caoxing-s5 encounter and its three-tier placement, 80-gold reward and heal 2 are local campaign choices, not verified original map or reward reconstruction."
   ]
 }

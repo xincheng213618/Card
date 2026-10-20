@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-biyue-14213",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "end-refill-or-next-own-turn-liuli",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": -100,
+          "effects": [
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": ["boundary:liuli"],
+              "expiry": "recipientNextActualTurnStart",
+              "condition": { "kind": "handCountAtLeast", "value": 1 }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "handLimitMinusHandCount",
+              "condition": { "kind": "not", "children": [{ "kind": "handCountAtLeast", "value": 1 }] }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

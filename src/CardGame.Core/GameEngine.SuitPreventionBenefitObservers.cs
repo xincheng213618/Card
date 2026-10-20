@@ -22,7 +22,8 @@ public sealed partial class GameEngine
             if (child is DyingFrame dying) return r.Stage == SuitPreventionBenefitStage.LosingHp && dying.ResumesProgramSkill &&
                 dying.ParentFrameId == root.Id && dying.VictimSeat == r.RecipientSeat && dying.KillerSeat is null &&
                 CompleteProgramEventHistory().OfType<ProgramSkillHpLostEvent>().Any(e => e.FrameId == root.Id && e.SkillId == root.SkillId &&
-                    e.TargetSeat == dying.VictimSeat && e.RemainingHp == 0 && e.Amount == Math.Min(r.HpBefore, SuitBenefitEffect(root).Amount));
+                    e.TargetSeat == dying.VictimSeat && e.RemainingHp <= 0 && e.Amount == SuitBenefitEffect(root).Amount &&
+                    (long)e.RemainingHp == (long)r.HpBefore - e.Amount);
             if (child is RecoveryReplacementFrame recovery)
                 return r.Stage == SuitPreventionBenefitStage.CostPaid && r.CostFrom == CardLocation.Equipment(root.OwnerSeat) &&
                     _cardMovements.Any(m => m.Sequence == r.CostMovementSequence && m.CardId == r.CostCardId && m.CardKind == CardKind.SilverLion) &&
@@ -37,7 +38,8 @@ public sealed partial class GameEngine
                      _cardMovements.Any(m => m.Sequence == r.CostMovementSequence && m.CardId == r.CostCardId && m.CardKind == CardKind.SilverLion) &&
                      hp.Change.Kind == HpChangeKind.Recovery && hp.Change.TargetSeat == root.OwnerSeat && hp.Change.Amount == 1 ||
                      r.Stage == SuitPreventionBenefitStage.LosingHp && hp.Change.Kind == HpChangeKind.Loss && hp.Change.TargetSeat == r.RecipientSeat &&
-                     hp.Change.HpBefore == r.HpBefore && hp.Change.HpAfter == Math.Max(0, r.HpBefore - SuitBenefitEffect(root).Amount));
+                     hp.Change.HpBefore == r.HpBefore && hp.Change.Amount == SuitBenefitEffect(root).Amount &&
+                     (long)hp.Change.HpAfter == (long)r.HpBefore - hp.Change.Amount);
             if (child is CardsMovedTriggerWindowFrame movement)
                 return SuitPlacementMovementRoot(root, movement) && movement.Batch.Movements.All(m =>
                     r.Stage == SuitPreventionBenefitStage.CostPaid ? m.Sequence == r.CostMovementSequence && m.CardId == r.CostCardId &&

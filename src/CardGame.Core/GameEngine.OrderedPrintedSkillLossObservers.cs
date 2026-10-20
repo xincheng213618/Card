@@ -109,6 +109,22 @@ public sealed partial class GameEngine
 
     private bool OrderedPrintedSkillLossFirstChild(ProgramSkillFrame root, ResolutionFrame child)
     {
+        if (root.DamageTargetSkillRoundDraw is { } round)
+        {
+            RequireDamageTargetSkillRoundDraw(root);
+            if (OrderedPrintedSkillLossSkillsChangedEdge(root, child) || NativeDrawAttemptRidesOn(child, root)) return true;
+            return round.Stage == DamageTargetSkillRoundDrawStage.DrawChildren && round.DrawOutcome is { } paid &&
+                child is CardsMovedTriggerWindowFrame roundMoved && ProgramMovementReturnMatches(root, roundMoved) && roundMoved.Batch.OriginOwnerSeat == root.OwnerSeat &&
+                roundMoved.Batch.OriginSkillId == root.SkillId && roundMoved.Batch.OriginSkillInstanceId == root.SkillInstanceId &&
+                roundMoved.Batch.Movements.Count > 0 && roundMoved.Batch.Movements.All(m => _cardMovements.Contains(m) &&
+                    m.Sequence > paid.SequenceBefore && m.Sequence <= paid.SequenceAfter &&
+                    (m.Reason == DamageTargetSkillRoundDrawReason && m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(root.OwnerSeat) ||
+                     m.Reason == CardMoveReasons.Reshuffle && m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile));
+        }
+        if (root.RandomDamageTargetSkill is not null)
+            return ValidRandomDamageTargetSkillReceipt(root) && OrderedPrintedSkillLossSkillsChangedEdge(root, child);
+        if (root.AlcoholSlashSkillReplacement is not null)
+            return ValidAlcoholSlashSkillReplacementReceipt(root) && OrderedPrintedSkillLossSkillsChangedEdge(root, child);
         if (root.OrderedPrintedSkillLoss is not { } r || !ValidOrderedPrintedSkillLossReceipt(root)) return false;
         if (OrderedPrintedSkillLossSkillsChangedEdge(root, child)) return true;
         return r.Stage == OrderedPrintedSkillLossStage.DrawChildren && child is CardsMovedTriggerWindowFrame moved &&
@@ -120,8 +136,12 @@ public sealed partial class GameEngine
     }
 
     private bool OrderedPrintedSkillLossStructuralEdge(ResolutionFrame parent, ResolutionFrame child) =>
-        parent is ProgramSkillFrame root && root.OrderedPrintedSkillLoss is not null && OrderedPrintedSkillLossFirstChild(root, child) ||
-        child is ProgramSkillFrame { OrderedPrintedSkillLoss: not null } observer && observer.WindowContext?.ParentFrameId == parent.Id && ValidOrderedPrintedSkillLossReceipt(observer);
+        parent is ProgramSkillFrame root && (root.OrderedPrintedSkillLoss is not null || root.AlcoholSlashSkillReplacement is not null || root.RandomDamageTargetSkill is not null || root.DamageTargetSkillRoundDraw is not null) && OrderedPrintedSkillLossFirstChild(root, child) ||
+        child is ProgramSkillFrame observer && observer.WindowContext?.ParentFrameId == parent.Id &&
+            (observer.OrderedPrintedSkillLoss is not null && ValidOrderedPrintedSkillLossReceipt(observer) ||
+             observer.AlcoholSlashSkillReplacement is not null && ValidAlcoholSlashSkillReplacementReceipt(observer) ||
+             observer.RandomDamageTargetSkill is not null && ValidRandomDamageTargetSkillReceipt(observer) ||
+             observer.DamageTargetSkillRoundDraw is not null && ValidDamageTargetSkillRoundDraw(observer));
 
     private ProgramSkillFrame? OrderedPrintedSkillLossObserverRoot(long? ownerRootId = null) => FindProgramObserverRoot(
         static (engine, root, child) => engine.OrderedPrintedSkillLossFirstChild(root, child),
@@ -133,7 +153,7 @@ public sealed partial class GameEngine
     {
         var parent = _resolutionStack[child - 1];
         var current = _resolutionStack[child];
-        return OrderedPrintedSkillLossSkillsChangedEdge(parent, current) || DyingSuitsStructuralEdge(parent, current) ||
+        return NativeDrawAttemptRidesOn(current, parent) || OrderedPrintedSkillLossSkillsChangedEdge(parent, current) || DyingSuitsStructuralEdge(parent, current) ||
             MatchingRecastStructuralEdge(parent, current) || OverflowTargetCancellationStructuralEdge(parent, current) ||
             HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child);
     }
@@ -187,7 +207,7 @@ public sealed partial class GameEngine
     }
     private void AssertOrderedPrintedSkillLossObservers()
     {
-        foreach (var root in _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OrderedPrintedSkillLoss is not null))
+        foreach (var root in _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.OrderedPrintedSkillLoss is not null || f.AlcoholSlashSkillReplacement is not null || f.RandomDamageTargetSkill is not null || f.DamageTargetSkillRoundDraw is not null))
         {
             var index = _resolutionStack.FindIndex(f => f.Id == root.Id);
             if (index + 1 < _resolutionStack.Count && OrderedPrintedSkillLossObserverRoot(root.Id) is null)

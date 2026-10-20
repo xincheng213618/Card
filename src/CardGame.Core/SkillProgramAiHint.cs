@@ -41,9 +41,9 @@ public sealed record SkillProgramAiHint(
             effect ?? throw new ArgumentException("A public health estimate cannot contain a null effect.", nameof(value))).ToArray());
     }
 
-    public PublicDamageSequencePrediction PredictTarget(int hp, int maxHp, int armor) =>
+    public PublicDamageSequencePrediction PredictTarget(int hp, int maxHp, int armor, int? incomingDamageCap = null) =>
         PublicDamageSequencePrediction.Calculate(hp, maxHp, armor, TargetHealthEffects ??
-            (TargetHpLoss > 0 ? [new PublicHealthEffect(PublicHealthEffectKind.HpLoss, TargetHpLoss)] : []));
+            (TargetHpLoss > 0 ? [new PublicHealthEffect(PublicHealthEffectKind.HpLoss, TargetHpLoss)] : []), incomingDamageCap);
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool PreferPindianInputOrder { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]

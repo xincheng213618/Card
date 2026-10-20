@@ -140,7 +140,8 @@ public enum DamageNature
 /// </summary>
 public enum PlayerMarkerKind
 {
-    Nightmare,
+    ShenwuPoison = 27720,
+    Nightmare = 0,
     Ren,
     Rage = 400,
     Gale,
@@ -240,6 +241,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.ShenJiao => "省身",
         PlayerMarkerKind.Ren => "忍",
         PlayerMarkerKind.Rage => "暴怒",
+        PlayerMarkerKind.ShenwuPoison => "蛇毒",
         PlayerMarkerKind.Gale => "狂风",
         PlayerMarkerKind.Mist => "大雾",
         PlayerMarkerKind.Junlue => "军略",
@@ -652,6 +654,9 @@ public sealed partial record PlayerSnapshot
     public bool HpUndefined { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? HandLimit { get; init; }
+    /// <summary>Current unconditional damage cap from enabled skills visible to this viewer.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? IncomingDamageCap { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? AlcoholDamageBonus { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

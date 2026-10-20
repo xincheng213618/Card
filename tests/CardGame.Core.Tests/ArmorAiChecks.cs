@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -8,7 +9,7 @@ internal static class ArmorAiChecks
     private const string Driver = "fixture:armor-ai-driver", Owner = "fixture:armor-ai-owner";
     private const string Ally = "fixture:armor-ai-ally", FirstEnemy = "fixture:armor-ai-first-enemy";
     private const string SecondEnemy = "fixture:armor-ai-second-enemy", Deck = "fixture:armor-ai-deck";
-    private const string Jueqing = "classic:jueqing", Xiaoming = "shanhe:xiaoming";
+    private const string Jueqing = "classic:jueqing", Xiaoming = "shanhe:xiaoming", Gangzhi = "ol:gangzhi";
     private static readonly Lazy<ContentRegistry> Production = new(() => StandardShanheCampaignCatalog.CreateBattleRegistry(
         new(83, 1, "fixture-armor-ai-production", "classic:guan-yu", 4, 0, 0, 0, 0, [], [], [],
             [new("standard:cao-cao")], [], new string('b', 64))));
@@ -46,6 +47,52 @@ internal static class ArmorAiChecks
             s.G.AcceptedCommands.OfType<UseProgramSkillCommand>().Last().TargetSeats.SequenceEqual([3]),
             "The actual AI-selected native program command must kill only its unarmored target and leave the armored decoy untouched.");
         s.Cold();
+        PolicyProjectionDoesNotReadUnpublishedRecipientSkills();
+    }
+
+    private static void PolicyProjectionDoesNotReadUnpublishedRecipientSkills()
+    {
+        var scene = Scene.Start("visibility");
+        scene.Use("armor-other", [2]);
+        CheckProjection(); scene.Cold(); CheckProjection();
+        scene.Use("hit-two", [2]);
+        Need(scene.V(2) is { Hp: 4, Armor: 3 } && scene.Events<DamageAppliedEvent>().Length == 0 &&
+            scene.Events<DamageReplacedWithHpLossEvent>() is [{ TargetSeat: 2, Amount: 2 }],
+            "Limiting an AI projection must not disable the recipient's real acquired replacement policy or spend Armor in the actual command.");
+        scene.Cold();
+
+        void CheckProjection()
+        {
+            var before = scene.Boundary();
+            var actors = ((IEnumerable<CharacterState>)typeof(GameEngine)
+                .GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(scene.G)!).ToArray();
+            Need(new[] { Jueqing, Gangzhi }.All(id => actors[2].SkillGrants.Grants.Any(grant =>
+                    grant.IsEnabled && grant.SourceId == "campaign:shanhe" && grant.SkillId == id)),
+                "Both policies must be genuine enabled encounter grants, rather than imaginary skill flags.");
+            var complete = scene.G.CreateSnapshot(0);
+            // Exercise the projection boundary with reduced visibility; this is
+            // not an assertion that the visible team fixture is an identity-concealment mode.
+            var limited = complete with { Players = Array.AsReadOnly(complete.Players.Select(player =>
+                player.Seat == 2 ? player with { Skills = [], SecondarySkills = [] } : player).ToArray()) };
+            var method = typeof(GameEngine).GetMethod("CreateAiSkillContext", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var visible = (PlayerSkillContext)method.Invoke(scene.G, [actors[2], 0, complete])!;
+            var unavailable = (PlayerSkillContext)method.Invoke(scene.G, [actors[2], 0, limited])!;
+            var own = (PlayerSkillContext)method.Invoke(scene.G, [actors[2], 2, limited])!;
+            Need(visible.DamageBecomesHpLoss && visible.OtherParticipantDamageBecomesHpLoss &&
+                !unavailable.DamageBecomesHpLoss && !unavailable.OtherParticipantDamageBecomesHpLoss &&
+                own.DamageBecomesHpLoss && own.OtherParticipantDamageBecomesHpLoss,
+                "Complete foreign projection and actual owner know both policies; a foreign projection omitting both skill columns cannot reveal either policy.");
+            var owner = scene.V();
+            var effects = scene.Registry.GetSkill(Driver).Program!.Activations.Single(a => a.Id == "hit-two").Effects;
+            var context = new PlayerSkillContext(0, owner.Hp, owner.MaxHp, owner.HandCount, TurnPhase.Play, IsOwnTurn: true);
+            var known = ProgramCompositionAi.Estimate(effects, context, publicContext: new(1, SelectedTarget: visible)).Hint;
+            var unknown = ProgramCompositionAi.Estimate(effects, context, publicContext: new(1, SelectedTarget: unavailable)).Hint;
+            Need(known is { TargetDamage: 0, TargetDirectHpLoss: 2 } &&
+                known.PredictTarget(6, 8, 3) is { HpAfter: 4, ArmorAfter: 3 } &&
+                unknown is { TargetDamage: 2, TargetDirectHpLoss: 0 } &&
+                unknown.PredictTarget(6, 8, 3) is { HpAfter: 6, ArmorAfter: 1 } && scene.Boundary() == before,
+                "Real registered program estimates must consume only the supplied public policy context, leave the actual game unchanged and remain stable after cold restoration.");
+        }
     }
 
     public static void ProgramHealthEstimatesRespectRemainingArmorAndInstructionOrder()
@@ -99,6 +146,11 @@ internal static class ArmorAiChecks
         var zeroMaximum = PublicDamagePrediction.Calculate(1, 3, 1, PublicDamagePaymentKind.MaximumHpLoss, 1);
         var bareDamage = PublicDamagePrediction.Calculate(2, 0, 2, maxHp: 8);
         var bareLoss = PublicDamagePrediction.Calculate(2, 0, 2, PublicDamagePaymentKind.HpLoss, 8);
+        Need(PublicDamagePrediction.Calculate(1, 1, 4, maxHp: 8) is
+                { HpBefore: 1, HpAfter: -2, HpLossAmount: 3, ActualHpLost: 3, ArmorAbsorbed: 1, ArmorAfter: 0 } &&
+            new SkillProgramTriggerValue(SkillProgramTriggerValueKind.OwnerLostHp, 0)
+                .Resolve(new(0, -2, false, CurrentMaxHp: 8)) == 10,
+            "Armor subtracts only the absorbed damage; both public payment and frozen lost-HP operands retain the full negative-HP debt.");
         Need(full is { DamageAmount: 2, ArmorAbsorbed: 2, HpLossAmount: 0, HpAfter: 1, ArmorAfter: 1, IsLethal: false } &&
             partial is { DamageAmount: 2, ArmorAbsorbed: 1, HpLossAmount: 1, HpAfter: 2, ArmorAfter: 0 },
             "Public prediction preserves full damage and actual Armor pressure even when no HP is lost; partial payment separates the two resources.");
@@ -139,6 +191,39 @@ internal static class ArmorAiChecks
             x.Events<CardDamageReplacedWithMaximumHpLossEvent>() is [{ Receipt.TargetSeat: 3, Receipt.Amount: 1 }],
             "The formal first-Slash Xiaoming witness must reduce maximum HP before Armor payment, rather than spend Armor on a fictional damage segment.");
         x.Cold();
+
+        var nativeLoss = Scene.Start("targets");
+        var predictedNativeLoss = nativeLoss.Action("lose-two").ProgramAiHint!.PredictTarget(1, 8, 0);
+        nativeLoss.UseUntilDying("lose-two", 2);
+        Need(predictedNativeLoss is { HpAfter: -1, HpLossAmount: 2, DirectHpLossAmount: 2 } &&
+            nativeLoss.V(2) is { IsAlive: true, Hp: -1 } &&
+            nativeLoss.Events<ProgramSkillHpLostEvent>() is [{ TargetSeat: 2, Amount: 2, RemainingHp: -1 }],
+            "The real generic loseHp operation preserves the full rescue debt, and its public hint must match the signed payment.");
+        nativeLoss.Cold();
+        var dying = Scene.Start("negative");
+        dying.Use("armor-other", [2]);
+        var negativeLoss = dying.Action("hit-two").ProgramAiHint!.PredictTarget(1, 8, 3);
+        dying.UseUntilDying("hit-two", 2);
+        Need(negativeLoss is { HpAfter: -1, HpLossAmount: 2, ArmorAfter: 3 } &&
+            dying.V(2) is { IsAlive: true, Hp: -1, Armor: 3 } &&
+            dying.Events<DamageReplacedWithHpLossEvent>() is [{ TargetSeat: 2, Amount: 2, RemainingHp: -1 }],
+            "A genuine Jueqing replacement must preserve its signed rescue debt and bypass Armor, consistently with native HP loss.");
+        unchanged = dying.Boundary();
+        var support = new SkillProgramAiHint(0, 0, 0, 0, 1, 0, false, false);
+        Need(double.IsFinite(new SimpleAiBrain(0, 83, AiDecisionPolicy.CurrentVersion)
+            .ScoreProgramTarget(dying.G.CreateSnapshot(0), 2, support)),
+            "Public support scoring must accept the genuine negative-HP dying recipient without throwing.");
+        var selfRecovery = dying.Registry.GetSkill(Driver).Program!.Activations.Single(a => a.Id == "self-recover").Effects;
+        var rescueEstimate = ProgramCompositionAi.Estimate(selfRecovery,
+            new PlayerSkillContext(0, -1, 8, 0, TurnPhase.Play, IsOwnTurn: true));
+        Need(rescueEstimate.Hint.OwnerRecovery == 3 && !rescueEstimate.IsSelfLethal &&
+            rescueEstimate.Hint.OwnerWouldEnterDying == false &&
+            PublicDamageSequencePrediction.Calculate(-1, 8, 3, [new(PublicHealthEffectKind.Recover, 1)]) is
+                { HpAfter: 0, ArmorAfter: 3, IsLethal: false } &&
+            PublicDamageSequencePrediction.Calculate(-1, 8, 3, [new(PublicHealthEffectKind.Recover, 2)]) is
+                { HpAfter: 1, ArmorAfter: 3, IsLethal: false } && dying.Boundary() == unchanged,
+            "Recovery must pay the signed rescue debt exactly, remain a pure query and not mislabel an existing dying state as self-inflicted lethality.");
+        dying.Cold();
     }
 
     private static ProgramAiEstimate Estimate(Scene scene, string activationId)
@@ -165,6 +250,17 @@ internal static class ArmorAiChecks
         {
             Accept(new UseProgramSkillCommand(0, Driver, id, [], targets ?? [], G.Revision, G.PendingDecision!.PromptId));
             Play();
+        }
+        public void UseUntilDying(string id, int target)
+        {
+            Accept(new UseProgramSkillCommand(0, Driver, id, [], [target], G.Revision, G.PendingDecision!.PromptId));
+            for (var step = 0; step < 120; step++)
+            {
+                if (V(target).Hp <= 0 && G.ResolutionStack.OfType<DyingFrame>().Any(frame => frame.VictimSeat == target)) return;
+                Need(V(target).IsAlive, "The direct-loss witness must pause before the native dying response resolves.");
+                Accept(new AdvanceOneStepCommand(G.Revision));
+            }
+            throw new InvalidOperationException("Missing bounded native dying child.");
         }
         public void PlayCard(CardKind kind, int target)
         {
@@ -209,12 +305,13 @@ internal static class ArmorAiChecks
         public static Scene Start(string scene)
         {
             var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());
-            var extras = scene == "jueqing" ? new[] { Jueqing } : Array.Empty<string>();
+            var extras = scene is "jueqing" or "negative" ? new[] { Jueqing } : Array.Empty<string>();
             ShanheStartingCard[] cards = scene is "jueqing" or "maximum"
                 ? [new(CardKind.Slash, Suit.Spade, 6)] : [];
             var setup = new ShanheBattleSetup(83, 1, "fixture-armor-ai-" + scene, Owner,
                 scene == "sequences" ? 2 : 8, 0, 0, 0, 0, extras, cards, [],
-                [new(FirstEnemy, Hp: scene == "targets" ? 1 : 6), new(SecondEnemy, Hp: scene == "targets" ? 2 : 6)],
+                [new(FirstEnemy, Hp: scene is "targets" or "negative" ? 1 : 6,
+                    ExtraSkillIds: scene == "visibility" ? [Jueqing, Gangzhi] : []), new(SecondEnemy, Hp: scene == "targets" ? 2 : 6)],
                 [new(Ally)], new string('e', 64))
             { TacticSkillIds = scene == "maximum" ? [Xiaoming] : [] };
             var game = GameEngine.CreateStandard(new()
@@ -234,7 +331,7 @@ internal static class ArmorAiChecks
         public PackageManifest Manifest { get; } = new("fixture-armor-ai", new(1, 0, 0));
         public void Register(IContentRegistryBuilder builder)
         {
-            foreach (var id in new[] { Jueqing, Xiaoming }) builder.AddSkill(Production.Value.GetSkill(id));
+            foreach (var id in new[] { Jueqing, Xiaoming, Gangzhi }) builder.AddSkill(Production.Value.GetSkill(id));
             var rules = $$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{Driver}}","revision":1,"activations":[
                   {"id":"armor-self","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"grantArmor","target":"owner","amount":3}]},
@@ -244,7 +341,8 @@ internal static class ArmorAiChecks
                   {"id":"self-double","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"owner","amount":2},{"op":"damage","target":"owner","amount":2}]},
                   {"id":"grant-first","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"grantArmor","target":"owner","amount":3},{"op":"damage","target":"owner","amount":2},{"op":"damage","target":"owner","amount":2}]},
                   {"id":"damage-first","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"owner","amount":2},{"op":"grantArmor","target":"owner","amount":3},{"op":"damage","target":"owner","amount":2}]},
-                  {"id":"self-loss","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":2}]}]}]}
+                  {"id":"self-loss","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"owner","amount":2}]},
+                  {"id":"self-recover","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"recover","target":"owner","amount":3}]}]}]}
                 """;
             var presentation = JsonSerializer.Serialize(new
             {

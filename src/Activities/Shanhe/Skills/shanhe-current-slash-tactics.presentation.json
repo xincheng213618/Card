@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:current-dangtou-2036": { "name": "当头一棒", "description": "每轮，你使用的首张【杀】伤害+1。首张杀被闪避仍占用序号；同一张杀的多个目标共用资格。" },
+    "shanhe:current-dangtou-2037": { "name": "当头一棒Ⅱ", "description": "每轮，你使用的首张【杀】伤害+2。首张杀被闪避仍占用序号；同一张杀的多个目标共用资格。" },
+    "shanhe:current-dangtou-2038": { "name": "当头一棒", "description": "每轮，你使用的首张【杀】伤害+1。首张杀被闪避仍占用序号；同一张杀的多个目标共用资格。" },
+    "shanhe:current-leihuo-2100": { "name": "雷火势Ⅰ", "description": "每回合限一次，你使用的第一张属性【杀】伤害+1。普通杀不占属性杀的序号；响应打出的杀不算使用。" },
+    "shanhe:current-leihuo-2101": { "name": "雷火势Ⅱ", "description": "每回合限一次，你使用的第一张属性【杀】伤害+2。普通杀不占属性杀的序号；响应打出的杀不算使用。" },
+    "shanhe:current-lianji-2051": { "name": "连击Ⅰ", "description": "你的出牌阶段，出杀次数+1。普通杀、属性杀与转化杀共用次数。" },
+    "shanhe:current-lianji-2052": { "name": "连击Ⅱ", "description": "你的出牌阶段，出杀次数+3。普通杀、属性杀与转化杀共用次数。" },
+    "shanhe:current-lianji-2053": { "name": "二连击", "description": "你的出牌阶段，出杀次数+1。普通杀、属性杀与转化杀共用次数。" }
+  }
+}

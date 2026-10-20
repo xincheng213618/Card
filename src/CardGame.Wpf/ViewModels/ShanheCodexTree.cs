@@ -16,6 +16,18 @@ public static class ShanheCodexTree
         return Array.AsReadOnly(entries);
     }
     public static string Key(int id) => "shanhe-codex:5:" + id;
+    // Researched route nodes may acquire a runtime implementation in a later
+    // content batch. Derive that paid entitlement without rewriting the account
+    // or the options of an expedition that has already started.
+    public static IReadOnlyList<string> ResolveUnlockedRewardIds(IReadOnlyCollection<string> unlocked,
+        IEnumerable<string> availableRewardIds)
+    {
+        var researched = unlocked.ToHashSet(StringComparer.Ordinal);
+        var available = availableRewardIds.ToHashSet(StringComparer.Ordinal);
+        return Array.AsReadOnly(unlocked.Concat(Entries.Where(entry => researched.Contains(Key(entry.Id)))
+                .Select(entry => RuntimeRewardId(entry.Id)).OfType<string>())
+            .Where(available.Contains).Distinct(StringComparer.Ordinal).ToArray());
+    }
     public static IReadOnlyList<ShanheCodexEntry> RequiredPath(int id, IReadOnlyCollection<string> unlocked)
     {
         var result = new List<ShanheCodexEntry>();

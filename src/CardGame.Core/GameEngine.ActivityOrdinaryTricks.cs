@@ -151,7 +151,7 @@ public sealed partial class GameEngine
             IgnoreOwnSkillMovements = t.IgnoreOwnSkillMovements, MovementDiscardOnly = t.MovementDiscardOnly,
             DiscardOwnerScope = t.DiscardOwnerScope, HpChangeOccurrence = t.HpChangeOccurrence, DynamicUsageLimit = t.DynamicUsageLimit,
             NamedUsageGroup = t.NamedUsageGroup, GainPhaseQualification = t.GainPhaseQualification, RequireDamageSource = t.RequireDamageSource,
-            RequireNoCardConversion = t.RequireNoCardConversion, OrderGroup = t.OrderGroup, AllowNoEventTarget = t.AllowNoEventTarget,
+            RequireNoCardConversion = t.RequireNoCardConversion, RequiredPolarity = t.RequiredPolarity, OrderGroup = t.OrderGroup, AllowNoEventTarget = t.AllowNoEventTarget,
             IncludeResponseUses = t.IncludeResponseUses, SingleActionInstance = t.SingleActionInstance, NoDyingAtActivation = t.NoDyingAtActivation,
             DeferredTurnEndOnly = t.DeferredTurnEndOnly, OnlyDesignatedCardTargets = t.OnlyDesignatedCardTargets,
             AllowOwnDiscardPhaseEnded = t.AllowOwnDiscardPhaseEnded, EvaluateConditionAtResolution = t.EvaluateConditionAtResolution,

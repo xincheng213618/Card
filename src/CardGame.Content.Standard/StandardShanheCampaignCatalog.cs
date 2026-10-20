@@ -184,17 +184,99 @@ public static partial class StandardShanheCampaignCatalog
         var ids = new[] { setup.PlayerGeneralId }.Concat(setup.AllyRoster.Select(m => m.GeneralId))
             .Concat(setup.EnemyRoster.Select(m => m.GeneralId)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal);
         var codexEquipment = RequiresCodexEquipmentRegistry(setup);
-        var key = $"{setup.AllyRoster.Count}/{setup.EnemyRoster.Count}/" + string.Join("|", ids) + (codexEquipment ? "/codex-equipment" : "");
+        var currentFarStrike = RequiresCurrentFarStrikeRegistry(setup);
+        var currentJinnangJi = RequiresCurrentJinnangJiRegistry(setup);
+        var currentDuoduoYishan = RequiresCurrentDuoduoYishanRegistry(setup);
+        var currentYaoli = RequiresCurrentYaoliRegistry(setup);
+        var currentSlashTactics = RequiresCurrentSlashTacticsRegistry(setup);
+        var s5Chengxiong = RequiresChengxiongBossRegistry(setup);
+        var s5CaoxingHigh = RequiresCaoxingHighRegistry(setup);
+        var s5Shidu = RequiresShiduBossRegistry(setup) || s5CaoxingHigh;
+        var s5Huaxiong = RequiresHuaxiongBossRegistry(setup);
+        var s5Taishici = RequiresTaishiciBossRegistry(setup);
+        var s5Caocao = RequiresCaocaoBossRegistry(setup);
+        var s5Yujin = RequiresYujinBossRegistry(setup);
+        var s5Yudu = RequiresYuduBossRegistry(setup);
+        var s5Zaiqi = RequiresS5ZaiqiRegistry(setup);
+        var key = $"{setup.AllyRoster.Count}/{setup.EnemyRoster.Count}/" + string.Join("|", ids) +
+            (codexEquipment ? "/codex-equipment" : "") + (currentFarStrike ? "/current-yuanji-2129" : "") +
+            (currentJinnangJi ? "/current-jinnangji-2011" : "") +
+            (currentDuoduoYishan ? "/current-duoduo-yishan" : "") +
+            (currentYaoli ? "/current-yaoli" : "") +
+            (currentSlashTactics ? "/current-slash-tactics" : "") +
+            (s5Chengxiong ? "/s5-chengxiong-14055" : "") +
+            (s5Shidu ? "/s5-shidu-7003" : "") +
+            (s5CaoxingHigh ? "/s5-shihun-14071" : "") +
+            (s5Huaxiong ? "/s5-huaxiong-22647" : "") +
+            (s5Taishici ? "/s5-taishici-2632" : "") +
+            (s5Caocao ? "/s5-caocao-2649" : "") +
+            (s5Yujin ? "/s5-yujin-2648" : "") +
+            (s5Yudu ? "/s5-yudu-2633" : "") +
+            (s5Zaiqi ? "/s5-zaiqi-887" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
         {
             var packages = new List<IGameContentPackage> { new StandardShanheBossPackage() };
-            if (ids.Contains(StandardShanheS5BossPackage.ZhangliaoBaseId, StringComparer.Ordinal))
+            if (ids.Any(id => id == StandardShanheS5BossPackage.ZhangliaoBaseId ||
+                id == StandardShanheS5BossPackage.ZhangliaoLingdongId || id == StandardShanheS5BossPackage.ZhangliaoHuangkongId ||
+                id == StandardShanheS5BossPackage.DongZhuoLuoyangId || id == StandardShanheS5BossPackage.DongMinBaseId ||
+                id == StandardShanheS5BossPackage.DongMinCuanchaoId || id == StandardShanheS5BossPackage.LvbuBajiId ||
+                id == StandardShanheS5BossPackage.DiaoChanBiyueId || id == StandardShanheS5BossPackage.DongZhuoFengyiId ||
+                id == StandardShanheS5GaichaoPackage.DongZhuoGaichaoId ||
+                id == StandardShanheS5DongshiPackage.DongZhuoBaxinId || id == StandardShanheS5DongshiPackage.DongJiQiaoxiaoId))
                 packages.Add(new StandardShanheS5BossPackage());
+            if (RequiresFengyiBossRegistry(setup)) packages.Add(new StandardShanheS5FengyiPackage());
+            if (RequiresGaichaoBossRegistry(setup)) packages.Add(new StandardShanheS5GaichaoPackage());
+            if (RequiresDongshiBossRegistry(setup)) packages.Add(new StandardShanheS5DongshiPackage());
+            if (RequiresGaoshunBossRegistry(setup)) packages.Add(new StandardShanheS5GaoshunPackage());
+            if (RequiresCaoxingBossRegistry(setup)) packages.Add(new StandardShanheS5CaoxingPackage());
+            if (s5Shidu) packages.Add(new StandardShanheS5ShiduPackage());
+            if (s5CaoxingHigh) packages.Add(new StandardShanheS5CaoxingHighPackage());
+            if (s5Huaxiong) packages.Add(new StandardShanheS5HuaxiongPackage());
+            if (s5Taishici) packages.Add(new StandardShanheS5TaishiciPackage());
+            if (s5Caocao) packages.Add(new StandardShanheS5CaocaoPackage());
+            if (s5Yujin) packages.Add(new StandardShanheS5YujinPackage());
+            if (s5Yudu) packages.Add(new StandardShanheS5YuduPackage());
+            if (s5Chengxiong) packages.Add(new StandardShanheS5ChengxiongPackage());
             packages.Add(new ShanheEncounterPackage(setup));
             if (codexEquipment) packages.Add(new ShanheCodexEquipmentPackage());
             return ComposedSkillContentRegistry.CreateShowcase(additionalPackages: packages);
         })).Value;
     }
+
+    private static bool RequiresCurrentFarStrikeRegistry(ShanheBattleSetup setup) =>
+        setup.TacticSkillIds.Concat(setup.ExtraSkillIds)
+            .Concat(setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.ExtraSkillIds ?? []))
+            .Contains(CurrentFarStrikeSkillId, StringComparer.Ordinal);
+
+    private static bool RequiresS5ZaiqiRegistry(ShanheBattleSetup setup) =>
+        RequiresFengyiBossRegistry(setup) || setup.TacticSkillIds.Concat(setup.ExtraSkillIds)
+            .Concat(setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.ExtraSkillIds ?? []))
+            .Contains(S5ZaiqiSkillId, StringComparer.Ordinal);
+
+    private static bool RequiresCurrentJinnangJiRegistry(ShanheBattleSetup setup) =>
+        setup.TacticSkillIds.Concat(setup.ExtraSkillIds)
+            .Concat(setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.ExtraSkillIds ?? []))
+            .Contains(CurrentJinnangJiSkillId, StringComparer.Ordinal);
+
+    private static bool RequiresCurrentDuoduoYishanRegistry(ShanheBattleSetup setup) =>
+        setup.TacticSkillIds.Concat(setup.ExtraSkillIds)
+            .Concat(setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.ExtraSkillIds ?? []))
+            .Any(id => id is CurrentDuoduoYishanSkillId or CurrentDuoduoYishan2SkillId or CurrentDuoduoYishan3SkillId);
+
+    private static bool RequiresCurrentYaoliRegistry(ShanheBattleSetup setup) =>
+        setup.TacticSkillIds.Concat(setup.ExtraSkillIds)
+            .Concat(setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.ExtraSkillIds ?? []))
+            .Any(id => id is CurrentYaoliSkillId or CurrentYaoli2SkillId or CurrentYaoli3SkillId or
+                CurrentYaoli4SkillId or CurrentYaoli5SkillId or CurrentYaoli6SkillId);
+
+    private static bool RequiresFengyiBossRegistry(ShanheBattleSetup setup) =>
+        setup.PlayerGeneralId == StandardShanheS5BossPackage.DongZhuoFengyiId ||
+        setup.AllyRoster.Concat(setup.EnemyRoster).Any(member => member.GeneralId == StandardShanheS5BossPackage.DongZhuoFengyiId) ||
+        RequiresGaichaoBossRegistry(setup) || RequiresDongshiBossRegistry(setup);
+
+    private static bool RequiresGaichaoBossRegistry(ShanheBattleSetup setup) =>
+        setup.PlayerGeneralId == StandardShanheS5GaichaoPackage.DongZhuoGaichaoId ||
+        setup.AllyRoster.Concat(setup.EnemyRoster).Any(member => member.GeneralId == StandardShanheS5GaichaoPackage.DongZhuoGaichaoId);
 
     public static GameEngine CreateBattle(ShanheBattleSetup setup) => GameEngine.CreateStandard(new GameOptions
     {
@@ -215,12 +297,49 @@ public static partial class StandardShanheCampaignCatalog
             EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-passives", skill => skill with { Tags = SkillTag.Locked });
             EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-reactions", skill => skill with { Tags = SkillTag.Locked });
             EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-replacements", skill => skill with { Tags = SkillTag.Locked });
+            // Import current source content only when this exact recipe owns it;
+            // historical expeditions without this tactic retain their registry.
+            if (RequiresCurrentFarStrikeRegistry(setup))
+                EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-current-yuanji", skill => skill with
+                {
+                    Tags = SkillTag.Locked,
+                    CampaignTacticAcquisition = new(skill.Id, Repeatable: false)
+                });
+            if (RequiresS5ZaiqiRegistry(setup) && !RequiresFengyiBossRegistry(setup))
+                EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-s5-zaiqi");
+            if (RequiresCurrentJinnangJiRegistry(setup))
+                EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-current-jinnangji", skill => skill with
+                {
+                    Tags = SkillTag.Locked,
+                    CampaignTacticAcquisition = new(skill.Id, Repeatable: false)
+                });
+            if (RequiresCurrentDuoduoYishanRegistry(setup))
+                EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-current-duoduo-yishan", skill => skill with
+                {
+                    Tags = SkillTag.Locked,
+                    CampaignTacticAcquisition = new(skill.Id, Repeatable: false)
+                });
+            if (RequiresCurrentYaoliRegistry(setup))
+                EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-current-yaoli", skill => skill with
+                {
+                    Tags = SkillTag.Locked,
+                    CampaignTacticAcquisition = new(skill.Id, Repeatable: false)
+                });
+            if (RequiresCurrentSlashTacticsRegistry(setup))
+                EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-current-slash-tactics", skill => skill with
+                {
+                    Tags = SkillTag.Locked,
+                    CampaignTacticAcquisition = new(skill.Id, Repeatable: false)
+                });
             EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-team-2026", skill => skill with { Tags = SkillTag.Locked });
             EmbeddedSkillProgramCatalog.RegisterBundle(builder, "shanhe-tactics-2026", skill => skill with
             {
                 Tags = SkillTag.Locked,
                 CampaignTacticAcquisition = skill.Id is "shanhe:jingyu-moulue-2-2026" or "shanhe:duipai-2026" or "shanhe:duijia-2026"
-                    ? new(skill.Id, Repeatable: true) : null
+                    ? new(skill.Id, Repeatable: true)
+                    // The source confirms the rule, but not repeated acquisition.
+                    // The one-copy expedition limit is an explicit local choice.
+                    : skill.Id == "shanhe:duisha-2026" ? new(skill.Id, Repeatable: false) : null
             });
             var ids = new[] { setup.PlayerGeneralId }.Concat(setup.AllyRoster.Select(m => m.GeneralId))
                 .Concat(setup.EnemyRoster.Select(m => m.GeneralId)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();

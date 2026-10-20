@@ -14,16 +14,22 @@ public sealed partial class GameEngine
     {
         var f=GetActiveProgramFrame(input.Id);
         var plan=ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!);
+        if(IsOrderedSelectedActorDuelProgram(f))return BeginOrderedSelectedActorDuel(f);
+        var forward=plan.Instructions.Count==1 && OrderedSelectedActorDuelContract.IsOwnerToSelected(plan.Instructions[0]);
         if(f.TriggerId is not null || f.WindowContext is not null || f.InstructionIndex!=1 || f.SelectedCardIds.Count!=0 ||
             f.SelectedTargetSeats is not [var actor] || plan.Instructions.Count!=1 || plan.Instructions[0].Op!=SkillProgramEffectOp.UseSelectedActorDuel ||
-            plan.Activation is not {MinCards:0,MaxCards:0,MinTargets:1,MaxTargets:1,UsesPerPhase:2,UsesPerTurn:null} ||
+            plan.Activation is not {MinCards:0,MaxCards:0,MinTargets:1,MaxTargets:1,UsesPerTurn:null} activation ||
+            (forward ? activation.UsesPerPhaseExpression!=SkillProgramPhaseUsageExpression.CurrentRound || activation.UsesPerPhase is not null || _roundNumber<1 : activation.UsesPerPhase!=2) ||
             _phase!=TurnPhase.Play || _currentSeat!=f.OwnerSeat || ActiveCardAttack is not null || ActiveDuel is not null)
             throw new InvalidOperationException("Selected actor Duel lost its exact owning zero-card Play activation.");
-        if(!CanIssueSelectedActorDuel(f.OwnerSeat,actor))return SkillProgramStepOutcome.Continue;
-        var origin=new ProgramSelectedActorDuelOrigin(f.Id,f.InstructionIndex,f.OwnerSeat,actor,f.SkillId,f.ActivationId,f.SkillInstanceId,f.GameplayHash,_turnNumber);
+        var target=forward?actor:f.OwnerSeat;
+        if(forward)actor=f.OwnerSeat;
+        if(!CanIssueSelectedActorDuel(target,actor))return SkillProgramStepOutcome.Continue;
+        var origin=new ProgramSelectedActorDuelOrigin(f.Id,f.InstructionIndex,f.OwnerSeat,actor,f.SkillId,f.ActivationId,f.SkillInstanceId,f.GameplayHash,_turnNumber)
+            { ParticipantMode=forward?SelectedActorDuelParticipantMode.OwnerToSelectedTarget:null, InitialTargetSeat=forward?target:null };
         var card=new Card(0,CardKind.Duel,Suit.None,0);
-        var id=BeginCardUse(card,actor,[f.OwnerSeat],CardKind.Duel,physicalCardIds:[],selectedActorDuelOrigin:origin);
-        BeginJizhiOrNullificationWindow(id,card,actor,[f.OwnerSeat],LegalActionKind.Duel,playedCardKind:CardKind.Duel);
+        var id=BeginCardUse(card,actor,[target],CardKind.Duel,physicalCardIds:[],selectedActorDuelOrigin:origin);
+        BeginJizhiOrNullificationWindow(id,card,actor,[target],LegalActionKind.Duel,playedCardKind:CardKind.Duel);
         return SkillProgramStepOutcome.AwaitChild;
     }
 
@@ -62,6 +68,12 @@ public sealed partial class GameEngine
     private void ReturnSelectedActorDuel(CardUseFrame use)
     {
         if(use.SelectedActorDuelOrigin is not {AttackStarted:false} origin)return;
+        if(origin.OrderedPairPayment is not null)
+        {
+            if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame orderedParent)
+                throw new InvalidOperationException("Ordered Duel lost its original paid parent.");
+            CompleteOrderedSelectedActorDuel(orderedParent,origin,use.Id);return;
+        }
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id!=origin.ParentProgramFrameId ||
             f.InstructionIndex!=origin.InstructionIndex || f.OwnerSeat!=origin.OwnerSeat || f.SkillId!=origin.SkillId ||
             f.ActivationId!=origin.ActivationId || f.SkillInstanceId!=origin.SkillInstanceId || f.GameplayHash!=origin.GameplayHash)
@@ -75,11 +87,21 @@ public sealed partial class GameEngine
         {
             var o=use.SelectedActorDuelOrigin!;
             var index=_resolutionStack.FindIndex(x=>x.Id==use.Id);
+            if(o.OrderedPairPayment is not null)
+            {
+                if(index<1 || _resolutionStack[index-1] is not ProgramSkillFrame orderedParent)
+                    throw new InvalidOperationException("Ordered Duel lost its direct owning program edge.");
+                AssertOrderedSelectedActorDuelUse(use,orderedParent,o);continue;
+            }
             if(index<1 || _resolutionStack[index-1] is not ProgramSkillFrame f || f.Id!=o.ParentProgramFrameId ||
                 f.OwnerSeat!=o.OwnerSeat || f.SkillId!=o.SkillId || f.ActivationId!=o.ActivationId || f.SkillInstanceId!=o.SkillInstanceId ||
                 f.GameplayHash!=o.GameplayHash || f.InstructionIndex!=o.InstructionIndex || o.InstructionIndex!=1 ||
-                f.SelectedCardIds.Count!=0 || f.SelectedTargetSeats is not [var initialActor] || initialActor!=o.InitialActorSeat ||
-                o.OwnerSeat==o.InitialActorSeat || !IsValidPlayerSeat(o.InitialActorSeat) || o.TurnNumber!=_turnNumber ||
+                f.SelectedCardIds.Count!=0 || f.SelectedTargetSeats is not [var selectedParticipant] ||
+                (o.ParticipantMode==SelectedActorDuelParticipantMode.OwnerToSelectedTarget
+                    ? o.InitialActorSeat!=f.OwnerSeat || o.InitialTargetSeat!=selectedParticipant || selectedParticipant==f.OwnerSeat ||
+                      !OrderedSelectedActorDuelContract.IsOwnerToSelected(ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).Instructions[0])
+                    : o.ParticipantMode is not null || o.InitialTargetSeat is not null || selectedParticipant!=o.InitialActorSeat || o.OwnerSeat==o.InitialActorSeat) ||
+                !IsValidPlayerSeat(o.InitialActorSeat) || o.TurnNumber!=_turnNumber ||
                 use.CardId!=0 || use.CardKind!=CardKind.Duel || use.PhysicalCardIds?.Count!=0 ||
                 use.Action is not {Type:CardActionType.Use,EffectiveKind:CardKind.Duel,PhysicalCards.Count:0,ConversionChain.Count:0,EffectiveSuit:Suit.None,EffectiveIsRed:false} ||
                 ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).Instructions is not [{Op:SkillProgramEffectOp.UseSelectedActorDuel}])

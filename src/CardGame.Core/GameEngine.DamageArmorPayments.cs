@@ -34,7 +34,7 @@ public sealed partial class GameEngine
         var unclamped = checked(target.Hp - hpLoss);
         var receipt = new DamageArmorPaymentReceipt(damage.Id, damage.ParentFrameId,
             damage.SourceSeat, damage.TargetSeat, damage.Amount, damage.Nature, attack.IsSourceLess,
-            target.Armor, absorbed, target.Armor - absorbed, target.Hp, hpLoss, unclamped, Math.Max(0, unclamped));
+            target.Armor, absorbed, target.Armor - absorbed, target.Hp, hpLoss, unclamped, unclamped);
         ReplaceRuntimeTop(damage with { ArmorPayment = receipt });
         return receipt;
     }
@@ -74,7 +74,7 @@ public sealed partial class GameEngine
             payment.ArmorAfter != payment.ArmorBefore - payment.ArmorAbsorbed ||
             payment.HpLossAmount != payment.DamageAmount - payment.ArmorAbsorbed ||
             (long)payment.UnclampedHpAfter != (long)payment.HpBefore - payment.HpLossAmount ||
-            payment.HpAfter != Math.Max(0, payment.UnclampedHpAfter) ||
+            payment.HpAfter != payment.UnclampedHpAfter ||
             attack.SourceSeat != payment.SourceSeat || attack.TargetSeat != payment.TargetSeat ||
             attack.DamageAmount != payment.DamageAmount || !attack.DamageAmountFinalized || attack.IsSourceLess != payment.SourceLess ||
             requireApplied && !attack.DamageWasApplied)

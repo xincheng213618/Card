@@ -55,6 +55,8 @@ public sealed partial class GameEngine
                     "A selected-pair hand difference requires two resolved program targets."),
             _ => throw new InvalidOperationException("Unsupported owned-card selection amount.")
         };
+        FreezePindianHalfReturn(active, requested);
+        active = GetActiveProgramFrame(frame.Id);
         var exact = GetOwnedSelectionEffect(active).RequireExactCount == true;
         if (exact && requested > candidates.Length)
         {
@@ -172,7 +174,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The owned-card choice does not match its suspended instruction.");
         ClearPendingDecision();
         if (!_players[frame.OwnerSeat].IsAlive || !_players[draft.CardOwnerSeat].IsAlive ||
-            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) ||
+            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !HasPaidPindianHandReturn(frame) ||
             draft.CandidateCardIds.Where((id, index) => _cardZones.GetLocation(id) != draft.CandidateLocations[index]).Any())
         {
             CancelProgramBindingAndCleanup(frame, "选牌参与者、技能实例或冻结来源已失效，未移动任何所选牌。");

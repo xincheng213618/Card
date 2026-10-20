@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-shidu-7003", "revision": 1,
+      "activations": [
+        {
+          "id": "contest-take-return", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"],
+          "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingWithHand",
+          "usesPerTurn": null, "usesPerPhase": 1, "pindianHandReturn": true,
+          "effects": [
+            { "op": "pindian", "target": "selectedTarget", "amount": 1 },
+            { "op": "selectOwnedCards", "target": "selectedTarget", "numberExpression": "allOwnedZoneCards", "zones": ["hand"], "resultBind": "taken", "condition": { "kind": "pindianWon" } },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "taken", "destination": "ownerHand", "awaitMovementTriggers": true, "condition": { "kind": "pindianWon" } },
+            { "op": "selectOwnedCards", "target": "owner", "numberExpression": "handHalfFloor", "zones": ["hand"], "resultBind": "returned", "condition": { "kind": "pindianWon" } },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "returned", "destination": "selectedTargetHand", "awaitMovementTriggers": true, "condition": { "kind": "pindianWon" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

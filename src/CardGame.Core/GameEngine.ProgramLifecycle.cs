@@ -689,13 +689,16 @@ public sealed partial class GameEngine
         SkillProgramCardSetVisibility visibility)
     {
         var frame = GetActiveProgramFrame(frameId);
-        if (numberExpression == SkillProgramNumberExpression.OwnerLostHp && !_players[ownerSeat].HasHpValue)
+        if (numberExpression is (SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.OwnerLostHpPlusOne) &&
+            !_players[ownerSeat].HasHpValue)
         { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算此效果。"); return; }
         var revealCount = numberExpression switch
         {
             null => amount,
             SkillProgramNumberExpression.OwnerLostHp =>
                 Math.Max(0, _players[ownerSeat].MaxHp - _players[ownerSeat].Hp),
+            SkillProgramNumberExpression.OwnerLostHpPlusOne =>
+                checked(Math.Max(0, _players[ownerSeat].MaxHp - _players[ownerSeat].Hp) + 1),
             _ => throw new InvalidOperationException(
                 $"Unsupported reveal number expression '{numberExpression}'.")
         };
@@ -791,7 +794,7 @@ public sealed partial class GameEngine
             SkillProgramNumberExpression.CategoryTargetTurnUsage => GetProgramCategoryTargetTurnUsage(frame),
             SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord => CountSelectedTargetsHandGreaterThanLord(frame),
             SkillProgramNumberExpression.OwnerLostHp => GetProgramOwnerLostHp(frame),
-            SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, target.MaxHp - Math.Max(0, target.Hp) - GetHand(target).Count),
+            SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, target.MaxHp - target.Hp - GetHand(target).Count),
             SkillProgramNumberExpression.LivingFactionCount => GetLivingFactionCount(),
             SkillProgramNumberExpression.LivingPlayersMinHp => GetLivingPlayersMinHp(),
             SkillProgramNumberExpression.TargetMaxHpMinusHandCount =>
@@ -1221,15 +1224,17 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
-    private int GetProgramPlannedNormalDrawCount(ProgramSkillFrame frame)
+    private int GetProgramPlannedNormalDrawCount(ProgramSkillFrame frame, bool allowReplacedNoOp = false)
     {
         if (frame.WindowContext is not
             { Window: SkillProgramTriggerWindow.DrawPhaseStarting, ParentFrameId: var parentId } ||
             _resolutionStack.Count < 2 ||
             _resolutionStack[^2] is not ProgramLifecycleTriggerWindowFrame parent ||
-            parent.Id != parentId || parent.NormalDrawReplaced)
+            parent.Id != parentId || parent.Continuation != ProgramLifecycleContinuation.CompleteDrawPhase ||
+            parent.NormalDrawReplaced && !allowReplacedNoOp)
             throw new InvalidOperationException(
                 "A planned normal-draw target limit requires its active draw-phase parent.");
+        if (parent.NormalDrawReplaced) return 0;
         var baseDrawCount = parent.FrozenBaseDrawCount ?? FreezeAndCaptureCaoXiNativeDrawBase(_players[frame.OwnerSeat]);
         if (parent.FrozenBaseDrawCount is null)
             ReplaceRuntimeFrame(_resolutionStack[^2].Id, parent with { FrozenBaseDrawCount = baseDrawCount });
@@ -1822,7 +1827,12 @@ public sealed partial class GameEngine
             selected = selected.Where(item => !IsForeignEquipmentDiscardPrevented(source.SelectionActorSeat ?? ownerSeat,
                 _cardZones.CardsAt(item.Location).Single(card => card.Id == item.CardId),
                 item.Location, OwnedCardMoveIntent.Discard)).ToArray();
-        if (selected.Length == 0) return SkillProgramStepOutcome.Continue;
+        var pindianAcquisitionBefore = BeginPindianWholeHandAcquisition(frame, sourceBind, destination);
+        if (selected.Length == 0)
+        {
+            if (pindianAcquisitionBefore is { } emptyBefore) CommitPindianWholeHandAcquisition(frameId, sourceBind, emptyBefore);
+            return SkillProgramStepOutcome.Continue;
+        }
         if (!PreparePhaseAlcoholPayment(frame, sourceBind, reason)) return SkillProgramStepOutcome.Continue;
         if (destination == SkillProgramCardDestination.DiscardPile)
             FreezeLiejieDiscardColors(frame, sourceBind, selected.Select(item => item.CardId).ToArray(),
@@ -1934,6 +1944,7 @@ public sealed partial class GameEngine
             }
         }
         CompleteNativeLogicalDiscardInvocation(logicalDiscard);
+        if (pindianAcquisitionBefore is { } acquisitionBefore) CommitPindianWholeHandAcquisition(frameId, sourceBind, acquisitionBefore);
         CommitLostHpChainedPayment(frameId);
         CommitPhaseAlcoholPayment(frameId);
         return SkillProgramStepOutcome.Continue;
@@ -2164,6 +2175,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (!CanMouXiahouShiCandidate(candidate, context)) return false;
         if (IsIssuedMouGuquCandidate(candidate, context) || IsIssuedDiouCandidate(candidate, context)) return true;
         if (IsIssuedMouChenGongZhichiCandidate(candidate, context)) return true;
         if (IsIssuedOlMoRumoCandidate(candidate, context)) return true;
@@ -2221,6 +2233,8 @@ public sealed partial class GameEngine
         var trigger = ProgramInstructionResolver.Default.FindTrigger(program, candidate.BindingId);
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
+        if (trigger.RequiredPolarity is { } polarity &&
+            GetProgramConversionPolarity(owner.Seat, candidate.SkillId) != polarity) return false;
         if (context.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
             trigger.OwnerRelation == SkillProgramCardActionOwnerRelation.Target && context.CardUse is { } designatedUse &&
             LifecycleCardUse(designatedUse.ParentCardUseFrameId) is { Action: { } designatedAction } currentUse &&
@@ -3558,7 +3572,7 @@ public sealed partial class GameEngine
             TargetSeat: frame.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: frame.Window==SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
-                frame.Window==SkillProgramTriggerWindow.DiscardPhaseEnded && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
+                frame.Window==SkillProgramTriggerWindow.DiscardPhaseEnded && HasAttributedEventOperations() && !LiushiEffectContract.Clears(GetProgramTrigger(candidate)) ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
                 frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
         if (IsIssuedDiciChainTrigger(GetProgramTrigger(candidate))) context = CreateIssuedDiciChainContext(frame, candidate, context);
         if (frame.Window == SkillProgramTriggerWindow.IdentityGeneralAppeared) context = CreateIdentityAppearanceContext(frame, candidate);
@@ -4462,12 +4476,15 @@ public sealed partial class GameEngine
             _resolutionStack.LastOrDefault() is FirstSlashDuelLegacyWindowFrame legacyBenefit &&
             LifecycleCardUse(legacyBenefit.ParentFrameId) is { } legacyUse)
             return CreateAttributedPaymentAiContext(owner, trigger) with
-            { Actor = CreateSkillContext(owner), CardActionActorIsOwner = true, CardUseEffectiveKind = legacyUse.CardKind };
+            { Actor = CreateAiSkillContext(owner, ownerSeat), CardActionActorIsOwner = true, CardUseEffectiveKind = legacyUse.CardKind };
         if (trigger.Window == SkillProgramTriggerWindow.TurnEnding &&
             trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal))
+        {
+            var turnContext = CreateAiSkillContext(_players[_currentSeat], ownerSeat);
             return CreateAttributedPaymentAiContext(owner, trigger) with
-            { Actor = CreateSkillContext(_players[_currentSeat]), SelectedTarget = CreateSkillContext(_players[_currentSeat]),
+            { Actor = turnContext, SelectedTarget = turnContext,
               CardActionActorIsOwner = _currentSeat == ownerSeat };
+        }
         if (trigger.Window == SkillProgramTriggerWindow.OtherActualUseTargeted &&
             _resolutionStack.OfType<ActualUseTargetWindowFrame>().LastOrDefault() is { } actualTargets &&
             actualTargets.Contexts[actualTargets.CandidateIndex].ActualUseTarget is { } actualUse)
@@ -4491,12 +4508,17 @@ public sealed partial class GameEngine
                 var location = _cardZones.GetLocation(cost.CardId);
                 return _cardZones.CardsAt(location).Single(card => card.Id == cost.CardId).Suit;
             }).ToArray();
+            var actionSnapshot = parent.Action.ActorSeat == ownerSeat ? null : CreateSnapshot(ownerSeat);
             return CreateAttributedPaymentAiContext(owner,trigger) with
             {
                 CardUseIsRed = suits.Length == 0 ? null : suits.All(suit => suit is Suit.Heart or Suit.Diamond),
-                Actor = CreateSkillContext(_players[parent.Action.ActorSeat]),
+                Actor = CreateAiSkillContext(_players[parent.Action.ActorSeat], ownerSeat, actionSnapshot),
                 CardActionActorIsOwner = parent.Action.ActorSeat == ownerSeat,
                 CardUseEffectiveKind = parent.Action.EffectiveKind,
+                WholeCardUseNullificationScore = ProgramInstructionResolver.Default.Features(trigger)
+                    .HasOperation(SkillProgramEffectOp.NullifyCurrentCardUse) || ProgramInstructionResolver.Default.Features(trigger)
+                    .HasOperation(SkillProgramEffectOp.RepeatIncomingSoleCardEffectAndDrawByRange)
+                    ? GetWholeCardUseNullificationAiScore(ownerSeat, parent) : null,
                 CardEffectInterventionScore = parent.Action.Type == CardActionType.Use &&
                     (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.NullifySelectedCardEffects) ||
                      ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget))
@@ -4506,7 +4528,7 @@ public sealed partial class GameEngine
                                 .Single(item => item.Id == parent.ParentFrameId)
                                 .IneffectiveTargetSeats?.Contains(seat) != true)
                         .Select(seat => Math.Max(0d, _aiBrains[ownerSeat].ScoreCardEffectIntervention(
-                            CreateSnapshot(ownerSeat), parent.Action.EffectiveKind, seat)))
+                            actionSnapshot ??= CreateSnapshot(ownerSeat), parent.Action.EffectiveKind, seat)))
                         .Aggregate(0d, (total, score) => ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.RemoveSelectedCurrentArrowBarrageTarget) ? Math.Max(total, score) : total + score)
                     : 0d,
                 PairedColorDispositionScore = GetPairedColorDispositionAiScore(trigger, ownerSeat, parent),
@@ -4523,8 +4545,9 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A draw-phase estimate lost its lifecycle parent.");
         return CreateAttributedPaymentAiContext(owner,trigger) with
         {
-            NormalDrawCount = checked((drawPhase.FrozenBaseDrawCount ?? GetTurnDrawCount(_players[drawPhase.OwnerSeat])) +
-                drawPhase.NormalDrawAdjustment),
+            NormalDrawCount = drawPhase.NormalDrawReplaced ? 0 : Math.Max(0,
+                checked((drawPhase.FrozenBaseDrawCount ?? GetTurnDrawCount(_players[drawPhase.OwnerSeat])) +
+                    drawPhase.NormalDrawAdjustment)),
             EligibleTargetCount = ProgramInstructionResolver.Default.Features(trigger)
                 .First(SkillProgramEffectOp.SelectTargets)?.TargetKind is { } targetKind
                 ? GetProgramTargetSeats(ownerSeat, targetKind).Count : 0,
@@ -4546,7 +4569,10 @@ public sealed partial class GameEngine
             CurrentTurnUsedCardCategoryCount: TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
             PublicLivingFactionCount: TracksTurnDrawDebt ? GetPublicLivingFactionCount() : null,
             EquipmentCardCount: GetEquipment(owner).Count,
-            LivingPlayerCount: _players.Count(player => player.IsAlive));
+            LivingPlayerCount: _players.Count(player => player.IsAlive),
+            SourceOccurrenceDamageBonus: CreatePublicSourceOccurrenceDamageBonus(owner.Seat),
+            VirtualSlashDamagePrediction: target => PredictPublicActionDamage(owner.Seat,
+                new LegalAction(LegalActionKind.Slash, null, target, "", CardKind.Slash), target));
 
     private ProgramAiPublicContext WithProgramConditionFacts(ProgramAiPublicContext context,
         CharacterState owner, string skillId, string skillInstanceId)
@@ -4625,9 +4651,12 @@ public sealed partial class GameEngine
             publishedTargets = [obtainTarget];
         if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount) && windowContext?.TargetSeat is { } mountTarget)
             publishedTargets = [mountTarget];
+        GameSnapshot? targetSnapshot = null;
         if (HasFinalTargetSlashEffects(effects) && windowContext is { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, Facts: { } finalFacts, TargetSeat: { } finalSeat })
             {
-                publicContext = publicContext with { FinalTargetFacts = finalFacts, SelectedTarget = CreateSkillContext(_players[finalSeat]) };
+                targetSnapshot = CreateSnapshot(owner.Seat);
+                publicContext = publicContext with { FinalTargetFacts = finalFacts,
+                    SelectedTarget = CreateAiSkillContext(_players[finalSeat], owner.Seat, targetSnapshot) };
                 publishedTargets = [finalSeat];
             }
         var selection = effects.FirstOrDefault(effect => effect.Op == SkillProgramEffectOp.SelectTarget);
@@ -4636,13 +4665,13 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(owner);
         if (targets.Count == 0)
             return (ProgramCompositionAi.Estimate(effects, context, owner.IsFaceDown, publicContext), null);
-        var snapshot = CreateSnapshot(owner.Seat);
+        var snapshot = targetSnapshot ?? CreateSnapshot(owner.Seat);
         return targets.Select(targetSeat =>
             {
                 var estimate = ProgramCompositionAi.Estimate(effects, context, owner.IsFaceDown,
                     publicContext with
                     {
-                        SelectedTarget = CreateSkillContext(_players[targetSeat]),
+                        SelectedTarget = CreateAiSkillContext(_players[targetSeat], owner.Seat, snapshot),
                         HasOwnedCardCategory = (zones, categories, kinds) =>
                             zones.Contains(CardZoneKind.Equipment) &&
                             GetEquipment(_players[targetSeat]).Any(card =>
@@ -4791,10 +4820,11 @@ public sealed partial class GameEngine
             CompleteDying(dying, survived: true);
             return;
         }
-        dying = UpdateDyingFrame(dying.Id, current => current with
-        {
-            ResponderIndex = current.ResponderIndex + 1
-        });
+        if (!_players[frame.OwnerSeat].IsAlive || !ProgramPaidDyingRescue(frame, dying))
+            dying = UpdateDyingFrame(dying.Id, current => current with
+            {
+                ResponderIndex = current.ResponderIndex + 1
+            });
         if (dying.ResponderIndex >= dying.ResponderSeats.Count)
             CompleteDying(dying, survived: false);
         else

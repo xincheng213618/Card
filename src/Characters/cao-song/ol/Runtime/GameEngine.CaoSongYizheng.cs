@@ -173,7 +173,7 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private int SupportedRecoveryAmount(RecoveryReplacementFrame recovery, int baseAmount)
+    private int SupportedCaoSongRecoveryAmount(RecoveryReplacementFrame recovery, int baseAmount)
     {
         if (recovery.CaoSongRecoverySupport is not { } receipt) return baseAmount;
         if (receipt.OriginalAmount <= 0 || receipt.NextGrantIndex < 0 || receipt.NextGrantIndex > receipt.Grants.Count ||
@@ -200,5 +200,6 @@ public sealed partial class GameEngine
     }
 
     private int SupportedRecoveryHpBefore(RecoveryReplacementFrame recovery, int fallback) =>
+        recovery.AmountBonus is { } bonus ? bonus.HpBefore :
         recovery.CaoSongRecoverySupport is { Complete: true, HpBeforeApplication: { } hp } ? hp : fallback;
 }

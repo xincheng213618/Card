@@ -92,11 +92,29 @@ internal static class WenhePoisonChecks
         Cold(g, registry);
         var rescue = P(g)!.Choices.First(c => c.Parameters.GetValueOrDefault("conversion-binding-id") == "converted-peach");
         var rescueMaterial = rescue.Cards.Single();
-        Accept(g, new AnswerPromptCommand(0, P(g)!.PromptId, rescue.Id, g.Revision)); Play(g);
-        Need(V(g, 0).IsAlive && V(g, 0).Hp == 1 && E<WenhePoisonLossAppliedEvent>(g).Count(e => e.CardId == dyingMaterial) == 1 &&
+        var recoveryCount = E<RecoveryAppliedEvent>(g).Count(e => e.TargetSeat == 0);
+        Accept(g, new AnswerPromptCommand(0, P(g)!.PromptId, rescue.Id, g.Revision));
+        Until(g, () => P(g) is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 } &&
+            E<RecoveryAppliedEvent>(g).Count(e => e.TargetSeat == 0) == recoveryCount + 1);
+        var stillDying = g.ResolutionStack.OfType<DyingFrame>().Single();
+        Need(V(g, 0).IsAlive && V(g, 0).Hp == 0 && stillDying.Id == dying.Id && stillDying.ResponderSeat == 0 &&
+            E<WenhePoisonLossAppliedEvent>(g).Single(e => e.CardId == rescueMaterial) is { HpBefore: 0, HpAfter: -1 } &&
+            E<RecoveryAppliedEvent>(g).Last(e => e.TargetSeat == 0) is { Amount: 1, RemainingHp: 0 } &&
+            !E<DyingResolvedEvent>(g).Any(e => e.ResolutionId == dying.Id),
+            "The physical Poison's real payment deepens HP from zero to minus one before its converted Peach really recovers one; HP zero retains the same native dying frame and offers this responder another rescue.");
+        Cold(g, registry);
+        var decline = P(g)!.Choices.Single(c => c.Parameters.GetValueOrDefault("response") == "let-die");
+        Accept(g, new AnswerPromptCommand(0, P(g)!.PromptId, decline.Id, g.Revision));
+        Until(g, () => !V(g, 0).IsAlive && E<DyingResolvedEvent>(g).Any(e => e.ResolutionId == dying.Id));
+        Need(E<WenhePoisonLossAppliedEvent>(g).Count(e => e.CardId == dyingMaterial) == 1 &&
             E<WenhePoisonLossAppliedEvent>(g).Count(e => e.CardId == rescueMaterial) == 1 &&
-            E<DyingResolvedEvent>(g).Any(e => e.ResolutionId == dying.Id && e.Survived),
-            "A correctly declared skill Peach still genuinely rescues its holder and both distinct public materials retain once-paid Poison receipts.");
+            E<DyingResolvedEvent>(g).Count(e => e.ResolutionId == dying.Id) == 1 &&
+            E<DyingResolvedEvent>(g).Count(e => e.ResolutionId == dying.Id && !e.Survived) == 1 &&
+            E<RecoveryAppliedEvent>(g).Count(e => e.TargetSeat == 0) == recoveryCount + 1 &&
+            g.CardMovements.Count(m => m.CardId == dyingMaterial && m.To == CardLocation.DiscardPile) == 1 &&
+            g.CardMovements.Count(m => m.CardId == rescueMaterial && m.To == CardLocation.DiscardPile) == 1 &&
+            !g.ResolutionStack.OfType<DyingFrame>().Any(f => f.Id == dying.Id),
+            "Declining further real rescue lets the original native dying resolve as death once; both distinct Poison materials and the completed Peach recovery remain paid once without a fictitious rescue or duplicate departure.");
         Cold(g, registry);
     }
 

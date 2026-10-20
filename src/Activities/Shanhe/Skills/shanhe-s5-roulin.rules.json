@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-roulin-14211",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "other-target-needs-two-dodges",
+          "kind": "minimumResponseCount",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "requiredCardKinds": ["dodge"],
+          "value": 2
+        },
+        {
+          "id": "other-source-slash-needs-two-dodges",
+          "kind": "minimumResponseCountAsTarget",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "requiredCardKinds": ["dodge"],
+          "value": 2
+        }
+      ]
+    }
+  ]
+}

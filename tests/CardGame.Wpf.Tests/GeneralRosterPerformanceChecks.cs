@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
 
@@ -38,8 +39,14 @@ internal static class GeneralRosterPerformanceChecks
             var hiddenCards = Program.Find<Button>(candidates).Count();
             var total = model.CustomGeneralChoices.Count;
             Console.WriteLine($"Custom roster: command {commandMs:F1} ms, open/render {openMs:F1} ms, {rows}/{model.CustomGeneralChoices.Count} rows, {hiddenCards} hidden cards, {bytes:N0} bytes.");
-            Program.Assert(total > 300 && rows is > 0 and <= 24 && hiddenCards == 0 && bytes < 12_000_000,
-                "A full roster must realize only its visible rows and must not generate the hidden candidate cards.");
+            Program.Assert(total > 300 && rows is > 0 and <= 64 && hiddenCards == 0 && bytes < 12_000_000,
+                "A tiled roster must realize only nearby cards and must not generate hidden candidates or the whole roster.");
+            var tiles = Program.Find<ListBoxItem>(roster).Take(2).ToArray();
+            var firstPosition = tiles[0].TransformToAncestor(roster).Transform(new Point());
+            var secondPosition = tiles[1].TransformToAncestor(roster).Transform(new Point());
+            Program.Assert(Program.Find<VirtualizingTilePanel>(roster).Count() == 1 &&
+                Math.Abs(firstPosition.Y - secondPosition.Y) < 1 && secondPosition.X > firstPosition.X + 100,
+                "The actual roster must place portrait cards beside one another in a virtualized tile panel.");
             Program.Render(root, 1440, 900, Path.Combine(output, "custom-general-roster.png"));
 
             var target = model.CustomGeneralChoices.First();
@@ -77,13 +84,25 @@ internal static class GeneralRosterPerformanceChecks
                 Rect Bounds(FrameworkElement control) => control.TransformToAncestor(panel).TransformBounds(new Rect(control.RenderSize));
                 Program.Assert(roster.ActualWidth > 350 && skills.ActualWidth > 265 && skills.ActualHeight > 50 &&
                     new Rect(panel.RenderSize).Contains(Bounds(preview)) && new Rect(panel.RenderSize).Contains(Bounds(confirm)) &&
-                    Program.Find<ListBoxItem>(roster).Count() is > 0 and <= 24,
+                    Program.Find<ListBoxItem>(roster).Count() is > 0 and <= 64,
                     "The real compact and wide layouts must retain usable skills, portrait and confirmation without expanding the full roster.");
             }
             roster.ScrollIntoView(model.CustomGeneralChoices.Last());
             Program.Render(root, 1440, 900, null);
+            var tilePanel = Program.Find<VirtualizingTilePanel>(roster).Single();
+            Console.WriteLine($"Tile tail: offset={tilePanel.VerticalOffset:F1}, extent={tilePanel.ExtentHeight:F1}, viewport={tilePanel.ViewportHeight:F1}, realized={Program.Find<ListBoxItem>(roster).Count()}, last={roster.ItemContainerGenerator.ContainerFromItem(model.CustomGeneralChoices.Last()) is not null}.");
             Program.Assert(Program.Find<ListBoxItem>(roster).Any(row => ReferenceEquals(row.DataContext, model.CustomGeneralChoices.Last())) &&
-                Program.Find<ListBoxItem>(roster).Count() <= 24, "The final general must remain reachable through virtualized scrolling.");
+                Program.Find<ListBoxItem>(roster).Count() <= 64, "The final general must remain reachable through virtualized scrolling.");
+            var lastTile = (ListBoxItem)roster.ItemContainerGenerator.ContainerFromItem(model.CustomGeneralChoices.Last());
+            var lastBounds = lastTile.TransformToAncestor(roster).TransformBounds(new Rect(lastTile.RenderSize));
+            Program.Assert(lastBounds.Top >= -1 && lastBounds.Bottom <= roster.ActualHeight + 1,
+                "Scrolling to the final tile must bring the entire card into the viewport after responsive reflow.");
+            roster.ScrollIntoView(model.CustomGeneralChoices.First());
+            Program.Render(root, 1440, 900, null);
+            Program.Assert(Program.Find<ListBoxItem>(roster).Any(tile => ReferenceEquals(tile.DataContext, model.CustomGeneralChoices.First())) &&
+                Program.Find<Button>(roster).Where(button => ReferenceEquals(button.Command, model.PreviewGeneralChoiceCommand))
+                    .All(button => ReferenceEquals(button.DataContext, button.CommandParameter)),
+                "Scrolling back must reattach recycled tiles and bind their preview commands to the current general.");
             var retired = model.CustomGeneralChoices.First();
             model.ToggleGeneralRosterCommand.Execute(null);
             Program.Render(root, 1440, 900, null);

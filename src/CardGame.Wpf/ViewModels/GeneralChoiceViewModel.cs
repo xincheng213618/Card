@@ -15,7 +15,10 @@ public sealed class GeneralChoiceViewModel : ObservableObject
     public string Name { get; init; } = string.Empty;
     public string VerticalName => string.Join("\n", Name.ToCharArray());
     public string Kingdom { get; init; } = string.Empty;
-    public string EditionText => GeneralId.StartsWith("national:", StringComparison.Ordinal) ? "国战" :
+    private string? _rosterCategoryId;
+    public string RosterCategoryId => _rosterCategoryId ??= Presentation.GeneralRosterCatalog.Classify(GeneralId);
+    public string EditionText => RosterCategoryId == "magic" ? "魔系列" :
+        GeneralId.StartsWith("national:", StringComparison.Ordinal) ? "国战" :
         (GeneralId.StartsWith("ol:", StringComparison.Ordinal) ? "OL · " :
          GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ? "移动版 · " : string.Empty) +
         Presentation.GeneralGalleryCatalog.Classify(GeneralId).Title;
@@ -67,6 +70,11 @@ public sealed class GeneralGalleryEntryViewModel
 }
 
 public sealed record GeneralGalleryFactionOption(string Id, string Name);
+
+public sealed record GeneralRosterCategoryOption(string Id, string Name, int Count)
+{
+    public string Label => $"{Name} {Count}";
+}
 
 public sealed record GeneralGalleryGroupViewModel(string Id, string Title,
     IReadOnlyList<GeneralGalleryEntryViewModel> Entries, string EmptyMessage)

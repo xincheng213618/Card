@@ -1,6 +1,6 @@
 # Project-native geometric emblems, not official character illustrations.
 [CmdletBinding()]
-param([switch]$Overwrite)
+param([switch]$Overwrite, [string[]]$Keys)
 
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
@@ -10,8 +10,16 @@ $beasts = @(
     @{ Key = 'qiongqi'; Name = '穷奇'; Accent = '#A65F43' },
     @{ Key = 'taowu'; Name = '梼杌'; Accent = '#578C97' },
     @{ Key = 'taotie'; Name = '饕餮'; Accent = '#608C73' },
-    @{ Key = 'zhuyin'; Name = '烛阴'; Accent = '#AE4D45' }
+    @{ Key = 'zhuyin'; Name = '烛阴'; Accent = '#AE4D45' },
+    @{ Key = 'xiangliu'; Name = '相柳'; Accent = '#69A388' },
+    @{ Key = 'zhuyan'; Name = '朱厌'; Accent = '#B4765E' },
+    @{ Key = 'bifang'; Name = '毕方'; Accent = '#D19242' },
+    @{ Key = 'yingzhao'; Name = '英招'; Accent = '#6A9BAA' }
 )
+if ($Keys.Count -gt 0) {
+    foreach ($key in $Keys) { if ($beasts.Key -notcontains $key) { throw "Unknown beast key: $key" } }
+    $beasts = @($beasts | Where-Object Key -In $Keys)
+}
 foreach ($beast in $beasts) {
     $path = Join-Path $assetRoot "project-shenwu-$($beast.Key).png"
     if ((Test-Path -LiteralPath $path) -and -not $Overwrite) { throw "Artwork exists; inspect before -Overwrite: $path" }
@@ -60,6 +68,33 @@ try {
             $graphics.DrawEllipse((Stroke '#413F32' 1), 42, 65, 216, 216)
             $accent = $beast.Accent
             switch ($beast.Key) {
+                'xiangliu' {
+                    foreach ($x in @(75, 100, 125, 150, 175, 200, 225)) {
+                        $graphics.DrawBezier((Stroke $accent 11), $x, 100, ($x - 65), 150, ($x + 50), 210, 150, 243)
+                        Polygon $graphics $accent @($x, 82, ($x - 12), 103, $x, 116, ($x + 12), 103)
+                    }
+                    foreach ($x in @(112, 188)) { $graphics.DrawBezier((Stroke $accent 9), $x, 65, 230, 130, 62, 180, 150, 243) }
+                }
+                'zhuyan' {
+                    Polygon $graphics $accent @(68, 145, 85, 95, 125, 105, 150, 88, 175, 105, 215, 95, 232, 145, 214, 217, 150, 251, 86, 217)
+                    Polygon $graphics '#E5D9BD' @(105, 143, 150, 117, 195, 143, 187, 207, 150, 232, 113, 207)
+                    $graphics.DrawLine((Stroke '#6F3E30' 6), 116, 162, 137, 169)
+                    $graphics.DrawLine((Stroke '#6F3E30' 6), 184, 162, 163, 169)
+                    $graphics.DrawArc((Stroke '#6F3E30' 5), 127, 178, 46, 29, 0, 180)
+                }
+                'bifang' {
+                    Polygon $graphics $accent @(150, 162, 52, 83, 72, 161, 122, 189, 150, 171, 178, 189, 228, 161, 248, 83)
+                    Polygon $graphics '#D8B868' @(150, 86, 127, 118, 145, 166, 136, 210, 150, 224, 164, 210, 155, 166, 173, 118)
+                    Polygon $graphics '#B64F37' @(140, 106, 159, 107, 186, 122, 154, 126)
+                    $graphics.DrawLine((Stroke '#D8B868' 6), 150, 219, 150, 256)
+                }
+                'yingzhao' {
+                    Polygon $graphics $accent @(146, 160, 58, 86, 63, 149, 113, 191, 150, 176, 187, 191, 237, 149, 242, 86)
+                    Polygon $graphics '#A8C1B9' @(125, 115, 133, 85, 150, 71, 169, 92, 176, 125, 166, 147, 185, 203, 168, 239, 131, 239, 116, 202, 135, 147)
+                    $graphics.DrawLine((Stroke '#263D46' 4), 137, 111, 146, 114)
+                    $graphics.DrawLine((Stroke '#263D46' 4), 164, 111, 155, 114)
+                    $graphics.DrawArc((Stroke '#6A9BAA' 3), 137, 116, 27, 15, 0, 180)
+                }
                 'hundun' {
                     foreach ($offset in @(-36, 0, 36)) {
                         Polygon $graphics $accent @(130, (134 + $offset), 61, (86 + $offset), 31, (103 + $offset), 103, (163 + $offset))

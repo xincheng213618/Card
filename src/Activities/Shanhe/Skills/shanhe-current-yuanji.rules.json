@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:current-yuanji-2129", "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "far-source-damage", "cardKinds": [], "amount": 1,
+          "sourceScope": "damageSource", "condition": "sourceToTargetDistanceGreaterThan", "distanceThreshold": 1,
+          "damageLayer": "additionalDamage"
+        }
+      ]
+    }
+  ]
+}

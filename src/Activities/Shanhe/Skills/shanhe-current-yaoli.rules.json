@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:current-yaoli-2319",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "own-recovery-bonus",
+          "kind": "ownRecoveryAmountBonus",
+          "cardKinds": [],
+          "value": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "maximumRecoveryOrdinal": 1
+        }
+      ]
+    },
+    {
+      "id": "shanhe:current-yaoli-2320",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "own-recovery-bonus",
+          "kind": "ownRecoveryAmountBonus",
+          "cardKinds": [],
+          "value": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "maximumRecoveryOrdinal": 3
+        }
+      ]
+    },
+    {
+      "id": "shanhe:current-yaoli-2321",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "own-recovery-bonus",
+          "kind": "ownRecoveryAmountBonus",
+          "cardKinds": [],
+          "value": 2,
+          "condition": {
+            "kind": "always"
+          },
+          "maximumRecoveryOrdinal": 1
+        }
+      ]
+    },
+    {
+      "id": "shanhe:current-yaoli-2322",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "own-recovery-bonus",
+          "kind": "ownRecoveryAmountBonus",
+          "cardKinds": [],
+          "value": 2,
+          "condition": {
+            "kind": "always"
+          },
+          "maximumRecoveryOrdinal": 2
+        }
+      ]
+    },
+    {
+      "id": "shanhe:current-yaoli-2191",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "own-recovery-bonus",
+          "kind": "ownRecoveryAmountBonus",
+          "cardKinds": [],
+          "value": 1,
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shanhe:current-yaoli-2192",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "own-recovery-bonus",
+          "kind": "ownRecoveryAmountBonus",
+          "cardKinds": [],
+          "value": 2,
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    }
+  ]
+}

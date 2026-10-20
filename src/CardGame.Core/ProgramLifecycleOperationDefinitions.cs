@@ -357,12 +357,12 @@ internal sealed class AdjustNormalDrawProgramOperationDescriptor : ProgramOperat
         r.AllowOnly("op", "target", "amount", "numberExpression", "condition");
         var expression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
-        if (expression is not null and not SkillProgramNumberExpression.SelectedTargetCount and not SkillProgramNumberExpression.LivingFactionCount)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.numberExpression: only selectedTargetCount is supported.");
+        if (expression is not null and not SkillProgramNumberExpression.SelectedTargetCount and not SkillProgramNumberExpression.LivingFactionCount and not SkillProgramNumberExpression.PlannedNormalDrawCount)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.numberExpression: expected selectedTargetCount, livingFactionCount or plannedNormalDrawCount.");
         var amount = r.Has("amount") ? r.RequiredInt("amount") : 0;
         if (expression is null && amount is < -20 or > 20 || expression is null && amount == 0 ||
             expression is not null && (r.Has("amount") || amount != 0))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: specify a non-zero fixed amount or selectedTargetCount without amount.");
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: specify a non-zero fixed amount or a supported numberExpression without amount.");
         return new(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), amount, r.Condition(),
             numberExpression: expression);
     }
@@ -454,7 +454,14 @@ internal sealed class PreventCurrentDamageProgramOperationDescriptor : ProgramOp
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.Damage;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.PreventCurrentDamage,
         static (effect, context) => context.PreventCurrentDamage(effect));
-    public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "condition");
+        var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0, r.Condition());
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.JudgmentOutcomeMatchesSuits))
+            RequireAlways(effect, r.Path);
+        return effect;
+    }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }
 
@@ -550,7 +557,7 @@ internal sealed class StartJudgmentProgramOperationDescriptor : ProgramOperation
         static (effect, context) => context.StartJudgment(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "judgmentReason", "resultBind", "visibility", "sourceRef", "condition");
+        r.AllowOnly("op", "target", "judgmentReason", "resultBind", "outcomeBind", "visibility", "sourceRef", "condition");
         var visibility = r.RequiredEnum<SkillProgramCardSetVisibility>("visibility");
         if (visibility != SkillProgramCardSetVisibility.Public)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.visibility: judgment results must remain public.");
@@ -565,7 +572,10 @@ internal sealed class StartJudgmentProgramOperationDescriptor : ProgramOperation
                 $"Invalid skill program at {r.Path}.sourceRef: judgment source must be eventSource or eventTarget.");
         var effect = new SkillProgramEffect(Op, target, 0,
             r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), visibility: visibility,
-            judgmentReason: r.RequiredIdentifier("judgmentReason"), sourceRef: sourceRef);
+            judgmentReason: r.RequiredIdentifier("judgmentReason"), sourceRef: sourceRef)
+        { OutcomeBind = r.OptionalIdentifier("outcomeBind") };
+        if (effect.OutcomeBind is { } outcome && (outcome == effect.ResultBind || effect.Condition.Kind != SkillProgramConditionKind.Always))
+            throw new InvalidOperationException("A judgment outcome requires a distinct name and an unconditional producer.");
         // A named-choice branch may gate the judgment itself (Baonve: the damage
         // source chooses whether to judge); resource cleanup of the conditional
         // binding is validated at the composition level.
@@ -576,7 +586,8 @@ internal sealed class StartJudgmentProgramOperationDescriptor : ProgramOperation
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         Array.AsReadOnly((effect.Target == SkillProgramEffectTarget.SelectedTarget
             ? new ProgramResourceOperation[] { new ReadSelectedTarget(), new CreateCardSet(effect.ResultBind!, 1, true) }
-            : [new CreateCardSet(effect.ResultBind!, 1, true)]));
+            : [new CreateCardSet(effect.ResultBind!, 1, true)])
+            .Concat(effect.OutcomeBind is { } outcome ? [new CreateJudgmentOutcome(outcome)] : Array.Empty<ProgramResourceOperation>()).ToArray());
 }
 
 internal sealed class GrantTurnCardConversionProgramOperationDescriptor : TurnEffectProgramOperationDescriptorBase

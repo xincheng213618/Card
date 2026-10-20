@@ -167,6 +167,7 @@ public sealed partial class GameEngine
                 (attempt.Return.Kind switch
                 {
                     NativeDrawAttemptReturnKind.DrawPhase => parent is not DrawPhaseObligationFrame { Stage: DrawPhaseObligationStage.RequestingDraw },
+                    NativeDrawAttemptReturnKind.SoleIncomingRange => parent is not CardUseFrame { SoleIncomingRangeDraw.Stage: SoleIncomingRangeDrawStage.Requesting },
                     NativeDrawAttemptReturnKind.CardUseDrawTwo => parent is not CardUseFrame { NativeCardEffectDraw.Stage: NativeCardEffectDrawStage.Requesting },
                     NativeDrawAttemptReturnKind.GuanduCardEffect => parent is not CardUseFrame { GuanduCardEffect.Stage: GuanduCardEffectStage.Drawing },
                     NativeDrawAttemptReturnKind.WumiaoFlood => parent is not CardUseFrame { WumiaoFlood.Stage: WumiaoFloodStage.Drawing },

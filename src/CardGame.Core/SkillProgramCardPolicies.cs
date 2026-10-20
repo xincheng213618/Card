@@ -3,6 +3,7 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    OwnRecoveryAmountBonus = 27920,
     OwnTurnFirstLostHpUses = 29050,
     OutgoingDistanceOne = 43000,
     ReverseDelayedJudgment = 43001,
@@ -10,6 +11,10 @@ public enum SkillProgramCardPolicyKind
     BattleSlashCountMinimumResponses = 43003,
     HellUnarmoredRemen = 40000, HellSlashIgnoreArmor = 40001, HellShiyouIntercept = 40050,
     ShenwuArmedSourceDamageBonus = 27700,
+    ShenwuPoisonOnPeachWine = 27720,
+    ShenwuPreviousEndHealthSlashTarget = 27721,
+    ShenwuOwnTurnFreezeNonLocked = 27722,
+    ShenwuFirstTwoPlayCardsProhibitOthers = 27723,
     OtherParticipantDamageBecomesHpLoss = 20560,
     RoundGainedOtherSourceUse = 9085,
     BypassSlashLimitAgainstOutsideAttackRange = 7308,
@@ -96,4 +101,6 @@ public sealed record SkillProgramCardPolicy(
 {
     public int DiscardCost { get; init; }
     public int ProviderDrawCount { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? MaximumRecoveryOrdinal { get; init; }
 }

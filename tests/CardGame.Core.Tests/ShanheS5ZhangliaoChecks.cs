@@ -14,8 +14,9 @@ internal static class ShanheS5ZhangliaoChecks
             .SelectMany(node => node.Encounters ?? []).SelectMany(item => item.Enemies)
             .All(member => member.GeneralId != StandardShanheS5BossPackage.ZhangliaoBaseId),
             "The current-configuration base form is an actual 2026 encounter, isolated from the 2024 local entry and advanced-difficulty claims.");
-        var opponents = Enumerable.Range(1, 4).Select(seat => new ShanheCombatantDefinition("standard:cao-cao")
-            { StartingHand = [new(CardKind.Dodge, Suit.Club, seat + 1)] }).ToArray();
+        var opponents = new[] { "classic:guan-yu", "classic:zhang-fei", "classic:ma-chao", "standard:cao-cao" }
+            .Select((id, index) => new ShanheCombatantDefinition(id)
+                { StartingHand = [new(CardKind.Dodge, Suit.Club, index + 2)] }).ToArray();
         var setup = new ShanheBattleSetup(83, 1, "fixture-s5-zhangliao", StandardShanheS5BossPackage.ZhangliaoBaseId,
             4, 0, 0, 2, 0, [],
             [new(CardKind.Slash, Suit.Spade, 7), new(CardKind.Slash, Suit.Heart, 8),
@@ -28,7 +29,7 @@ internal static class ShanheS5ZhangliaoChecks
             "Only a recipe using this form registers its separate package; the exact 3389 Pojun program accompanies its 722 Tuxi.");
         var g = GameEngine.CreateStandard(new()
         {
-            Seed = 83, PlayerCount = 5, HumanSeat = 0, HumanRole = null,
+            Seed = setup.BattleSeed, PlayerCount = 5, HumanSeat = 0, HumanRole = null,
             HumanTeamId = ShanheBattleSetup.PlayerTeamId, ModeId = ShanheBattleSetup.BattleModeId, ShanheBattle = setup,
             UseInteractiveSetup = false, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false,
             MaxTurns = 3, AiPolicyVersion = AiDecisionPolicy.CurrentVersion
@@ -44,12 +45,18 @@ internal static class ShanheS5ZhangliaoChecks
             P()!.Choices.All(c => c.Targets.Count <= 4),
             "The real planned four-card budget admits three smaller-hand opponents, without the normal boundary Tuxi's hand-count gate or the old two-target parser cap.");
         Cold(); Answer(c => c.Targets.SequenceEqual([1, 2, 3])); Play();
-        var transfers = g.CardMovements.Where(move => move.To == CardLocation.Hand(0) &&
-            move.From is { Zone: CardZoneKind.Hand, OwnerSeat: >= 1 and <= 3 }).ToArray();
+        var takeReason = new CardMoveReason($"skill-program.{StandardShanheS5BossPackage.TuxiId}.{SkillProgramEffectOp.TakeRandomHandCardFromSelectedTargets}");
+        var departures = g.CardMovements.Where(move => move.To == CardLocation.Processing &&
+            move.From is { Zone: CardZoneKind.Hand, OwnerSeat: >= 1 and <= 3 } && move.Reason == takeReason).ToArray();
+        var transfers = g.CardMovements.Where(move => move.From == CardLocation.Processing &&
+            move.To == CardLocation.Hand(0) && move.Reason == takeReason).ToArray();
         var draws = g.CardMovements.Where(move => move.From == CardLocation.DrawPile &&
             move.To == CardLocation.Hand(0) && move.Reason == CardMoveReasons.Draw).ToArray();
-        Need(transfers.Length == 3 && transfers.Select(move => move.From.OwnerSeat).SequenceEqual([1, 2, 3]) &&
+        Need(departures.Length == 3 && departures.Select(move => move.From.OwnerSeat).SequenceEqual([1, 2, 3]) &&
+            transfers.Length == 3 && departures.Select(move => move.CardId).SequenceEqual(transfers.Select(move => move.CardId)) &&
+            departures.Zip(transfers).All(pair => pair.First.Sequence < pair.Second.Sequence) &&
             transfers.Select(move => move.CardId).Distinct().Count() == 3 && draws.Length == 1 &&
+            transfers.All(move => move.CardId != draws[0].CardId) &&
             V(0).HandCount == handBefore + 4 && Enumerable.Range(1, 3).All(seat => V(seat).HandCount == 0),
             "Three actual hand transfers replace exactly three planned draws; one normal draw remains, and transferred cards are not fabricated draws.");
         Cold();

@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     {
         // Only bindings are cached. Public relationships and life state belong
         // to this query, before the native producer freezes its requested count.
-        if (query != SkillRuleQuery.DrawCount || !recipient.IsAlive ||
+        if (query is not (SkillRuleQuery.DrawCount or SkillRuleQuery.SlashLimit) || !recipient.IsAlive ||
             !recipient.TeamRevealed || recipient.TeamId is null)
             return Array.Empty<RuleQueryContribution>();
 

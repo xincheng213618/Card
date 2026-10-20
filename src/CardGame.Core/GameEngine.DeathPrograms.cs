@@ -515,6 +515,10 @@ public sealed partial class GameEngine
         {
             var attributed = player.MarkerSourceCounts
                 .Where(item => item.Key.SkillOwnerSeat == owner.Seat && item.Key.Marker is not (PlayerMarkerKind.Kui or PlayerMarkerKind.DragonSeal or PlayerMarkerKind.PhoenixSeal))
+                // Issued Liushi hand-limit effects belong to the affected role;
+                // their original source's death does not withdraw them.
+                .Where(item => item.Key.Marker != PlayerMarkerKind.LiuShi ||
+                    !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ApplyLiushiEffect))
                 .ToArray();
             foreach (var item in attributed)
             {

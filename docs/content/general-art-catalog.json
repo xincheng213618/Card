@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-xiahou-shi-mobile",
+      "characterName": "谋夏侯氏·移动版",
+      "defaultSkinId": "71200",
+      "skins": [
+        {
+          "id": "71200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-497.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/71200.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-xiahou-shi-mobile.jpg",
+          "sha256": "b876769179d685f235b60b6581cbd0d360e99bd14a7018d44777d211f20f3630",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
       "key": "wumiao-lu-kang",
       "characterName": "武陆抗",
       "defaultSkinId": "123401",
@@ -15961,6 +15978,78 @@
           "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
           "localPath": "src/CardGame.Wpf/Assets/Generals/project-hell-dizang.png",
           "sha256": "54d126d3b8672c0911a37b2eefb9feabb7d65e884cddbe929346a97f249ddd3d",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-xiangliu",
+      "characterName": "相柳",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "1b78795dd33a0e7e2efe2f971c9b002ded6396b18ad036235dbcea06d8d11dd9",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-xiangliu.png",
+          "sha256": "fa8827fe3e38cef2c1a414667fc61afae1f6a157fae5be2db9fb572148a8ecc1",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-zhuyan",
+      "characterName": "朱厌",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "1b78795dd33a0e7e2efe2f971c9b002ded6396b18ad036235dbcea06d8d11dd9",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-zhuyan.png",
+          "sha256": "abf9f4ea77e95b18c378351253ffff5c381a9ebd2a30885f81a72024cdb70818",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-bifang",
+      "characterName": "毕方",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "1b78795dd33a0e7e2efe2f971c9b002ded6396b18ad036235dbcea06d8d11dd9",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-bifang.png",
+          "sha256": "323e803b909bdcbd430a02eb4f49ca75da2e14c0c3b51b77ab445d795a77c115",
+          "pixelWidth": 300,
+          "pixelHeight": 400
+        }
+      ]
+    },
+    {
+      "key": "shenwu-yingzhao",
+      "characterName": "英招",
+      "defaultSkinId": "project-emblem",
+      "skins": [
+        {
+          "id": "project-emblem",
+          "name": "本地兽符",
+          "sourceKind": "projectGenerated",
+          "generator": "tools/Build-ShenwuBeastArtwork.ps1",
+          "generatorSha256": "1b78795dd33a0e7e2efe2f971c9b002ded6396b18ad036235dbcea06d8d11dd9",
+          "localPath": "src/CardGame.Wpf/Assets/Generals/project-shenwu-yingzhao.png",
+          "sha256": "df4ee5c78017ace4fdb2e325a25e43a937eda0fcdc66d8b5c61f102cf9ea5bae",
           "pixelWidth": 300,
           "pixelHeight": 400
         }

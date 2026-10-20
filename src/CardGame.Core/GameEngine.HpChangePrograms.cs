@@ -174,6 +174,8 @@ public sealed partial class GameEngine
             case PostEventContinuation.CounterspellPayment:
                 ContinuePolicyCounterspellPayment(frame.ResumeFrameId!.Value);
                 break;
+            case PostEventContinuation.SoleIncomingRangeDraw:
+                ContinueSoleIncomingRangeDraw(frame.ResumeFrameId!.Value); break;
             case PostEventContinuation.NativeCardEffectDraw:
                 ContinueNativeDrawTwo(frame.ResumeFrameId!.Value); break;
             case PostEventContinuation.WenheCardEffect:
@@ -267,6 +269,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.GuoSiCardUse => parent is CardUseFrame { GuoSiNative: not null, GuoSiCostDrained: false } guoSi && guoSi.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == guoSi.Id,
                 PostEventContinuation.HistoricalEndingCardUse => parent is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == history.Id,
                 PostEventContinuation.CounterspellPayment => parent is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == counter.Id,
+                PostEventContinuation.SoleIncomingRangeDraw => parent is CardUseFrame { SoleIncomingRangeDraw.Stage: SoleIncomingRangeDrawStage.Children } incoming && incoming.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == incoming.Id,
                 PostEventContinuation.NativeCardEffectDraw => parent is CardUseFrame { NativeCardEffectDraw.Stage: NativeCardEffectDrawStage.DrawingChildren } nativeDraw && nativeDraw.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == nativeDraw.Id,
                 PostEventContinuation.WenheCardEffect => parent is CardUseFrame wenhe && IsWenheCardEffectHpReturn(wenhe, hp),
                 PostEventContinuation.GuanduCardEffect => parent is CardUseFrame guandu && IsGuanduCardEffectHpReturn(guandu, hp),

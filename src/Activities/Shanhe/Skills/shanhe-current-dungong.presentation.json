@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:current-dungong-3387": {
+      "name": "盾弓",
+      "description": "锁定技，防止对你造成的超过3点以上部分的伤害。剩余伤害再支付护甲，伤害后技能按实际伤害点数结算。"
+    }
+  }
+}

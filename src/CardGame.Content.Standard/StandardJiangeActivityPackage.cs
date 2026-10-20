@@ -34,12 +34,13 @@ public sealed class StandardJiangeActivityPackage : IGameContentPackage
         var bannedFamilies = new HashSet<string>(StringComparer.Ordinal)
         {
             "character:cai-wen-ji", "character:xu-huang", "character:huang-hao", "character:cheng-yu",
-            "character:guo-huang-hou", "character:xun-yu", "character:fa-zheng", "character:man-chong",
-            "character:han-hao-shi-huan", "character:xia-hou-ba", "character:kuai-yue-kuai-liang",
-            "character:yan-yan", "character:si-ma-shi"
+            "character:guo-huang-hou", "character:guo-huanghou", "character:xun-yu", "character:fa-zheng", "character:man-chong",
+            "character:han-hao-shi-huan", "character:xiahou-ba", "character:kuai-yue-kuai-liang",
+            "character:yan-yan", "character:sima-shi"
         };
         var roster = CharacterContentCatalog.Default.GetPoolGenerals("standard-classic-generals", "current")
-            .Where(g => g.FactionId is "wei" or "shu" && !bannedFamilies.Contains(g.CharacterId ?? "") &&
+            .Where(g => g.FactionId is "wei" or "shu" &&
+                !bannedFamilies.Contains(g.CharacterId ?? $"character:{g.Id[(g.Id.IndexOf(':') + 1)..]}") &&
                 g.Id is not ("sp:guan-yu" or "ol:ma-yun-lu")).ToArray();
         var players = Pools(roster.Where(g => g.FactionId == "wei").Select(g => g.Id).ToArray(),
             roster.Where(g => g.FactionId == "shu").Select(g => g.Id).ToArray());

@@ -93,6 +93,13 @@ public sealed partial class GameEngine
                 var recovered = Math.Min(1, owner.MaxHp - owner.Hp);
                 if (recovered > 0)
                 {
+                    if (TracksRecoveryAmountBonuses && TryQueueRecoveryReplacement(active.Id, active.OwnerSeat, active.OwnerSeat, recovered,
+                        new(RecoveryAttemptProducer.Program, active.InstructionIndex)))
+                    {
+                        if (!TryBeginQueuedRecoveryReplacement(active.Id, PostEventContinuation.Program))
+                            throw new InvalidOperationException("The paid red-discard recovery lost its exact queued recovery child.");
+                        return;
+                    }
                     var recoveryId = BeginRecovery(active.Id, active.OwnerSeat, active.OwnerSeat, recovered);
                     owner.Hp += recovered;
                     AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(active.OwnerSeat, active.OwnerSeat, recovered, owner.Hp));

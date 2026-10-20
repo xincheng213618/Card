@@ -74,19 +74,27 @@ public sealed partial class MainViewModel
     {
         if (!UnlockCodexNodeCommand.CanExecute(null) || SelectedCodexNode is not { } node) return;
         var path = ShanheCodexTree.RequiredPath(node.TreeId, _shanheCodexProfile.UnlockedRewardIds);
-        var runtime = path.Select(entry => ShanheCodexTree.RuntimeRewardId(entry.Id)).OfType<string>();
+        var researched = _shanheCodexProfile.UnlockedRewardIds.Concat(path.Select(entry => ShanheCodexTree.Key(entry.Id)))
+            .Distinct(StringComparer.Ordinal).ToArray();
+        var definition = StandardShanheCampaignCatalog.CreateCodexDefinition(SelectedShanheDifficulty.Value, SelectedShanheScenario.Id);
+        var runtime = ShanheCodexTree.ResolveUnlockedRewardIds(researched, definition.Rewards.Select(reward => reward.Id));
         SaveCodexProfile(_shanheCodexProfile with
         {
             Books = checked(_shanheCodexProfile.Books - path.Sum(entry => entry.Cost)),
-            UnlockedRewardIds = _shanheCodexProfile.UnlockedRewardIds.Concat(path.Select(entry => ShanheCodexTree.Key(entry.Id)))
-                .Concat(runtime).Distinct(StringComparer.Ordinal).ToArray()
+            UnlockedRewardIds = researched.Concat(runtime).Distinct(StringComparer.Ordinal).ToArray()
         }, $"已研习{node.Name}及前置路线，消耗{node.PathCost}册。" + (node.IsTactic ? "可装备为初始战法。" : "下次征程可在商店或奖励中遇见。"));
     }
     private void EquipSelectedCodexTactic()
     {
         if (!EquipCodexTacticCommand.CanExecute(null) || SelectedCodexNode is not { } node) return;
         var slots = _shanheCodexProfile.EquippedTacticIds.ToArray(); slots[_selectedCodexSlot] = node.RuntimeRewardId;
-        if (SaveCodexProfile(_shanheCodexProfile with { EquippedTacticIds = slots }, $"{node.Name}已装入第{_selectedCodexSlot + 1}位，下次出征生效。")) IsShanheCodexPickerOpen = false;
+        var definition = StandardShanheCampaignCatalog.CreateCodexDefinition(SelectedShanheDifficulty.Value, SelectedShanheScenario.Id);
+        var runtime = ShanheCodexTree.ResolveUnlockedRewardIds(_shanheCodexProfile.UnlockedRewardIds, definition.Rewards.Select(reward => reward.Id));
+        if (SaveCodexProfile(_shanheCodexProfile with
+        {
+            EquippedTacticIds = slots,
+            UnlockedRewardIds = _shanheCodexProfile.UnlockedRewardIds.Concat(runtime).Distinct(StringComparer.Ordinal).ToArray()
+        }, $"{node.Name}已装入第{_selectedCodexSlot + 1}位，下次出征生效。")) IsShanheCodexPickerOpen = false;
     }
     private bool SaveCodexProfile(ShanheCodexProfile next, string message)
     {
@@ -106,7 +114,8 @@ public sealed partial class MainViewModel
         {
             ExpeditionId = Guid.NewGuid().ToString("N"),
             UseCodexRewardPool = true,
-            UnlockedRewardIds = _shanheCodexProfile.UnlockedRewardIds.Concat(StandardShanheCampaignCatalog.DefaultCodexUnlockedRewardIds).Where(known.Contains).Distinct(StringComparer.Ordinal).ToArray(),
+            UnlockedRewardIds = ShanheCodexTree.ResolveUnlockedRewardIds(
+                _shanheCodexProfile.UnlockedRewardIds.Concat(StandardShanheCampaignCatalog.GetDefaultCodexUnlockedRewardIds(definition)).ToArray(), known),
             EquippedTacticIds = _shanheCodexProfile.EquippedTacticIds.OfType<string>().Where(known.Contains).ToArray()
         };
     }

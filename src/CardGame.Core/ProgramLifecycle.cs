@@ -301,7 +301,7 @@ public sealed record ProgramDamagePreventedEvent(
     string SkillId,
     string BindingId,
     int OwnerSeat,
-    int SourceSeat,
+    int? SourceSeat,
     int TargetSeat,
     int Amount) : IGameEvent;
 
@@ -515,6 +515,8 @@ public sealed record ProgramTurnSkillsGrantedEvent(
     public string? GrantSourceId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public SkillGrantTurnExpiry? TurnExpiry { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SkillGrantNextActualTurnStartExpiry? NextActualTurnStartExpiry { get; init; }
 }
 
 public sealed record ProgramTurnSkillGrantExpiredEvent(int RecipientSeat, string GrantId, string SkillId,

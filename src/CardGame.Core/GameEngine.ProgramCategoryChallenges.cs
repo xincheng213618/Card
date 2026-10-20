@@ -81,6 +81,12 @@ public sealed partial class GameEngine
         string sourceBind,
         IReadOnlyList<Suit> suits)
     {
+        if (frame.JudgmentOutcomeBindings?.SingleOrDefault(outcome => outcome.Name == sourceBind) is { } outcome)
+        {
+            if (!IsValidProgramJudgmentOutcome(frame, outcome))
+                throw new InvalidOperationException("A judgment condition requires its exact issued final value.");
+            return outcome.Suit is { } resultSuit && suits.Contains(resultSuit);
+        }
         var binding = GetProgramCardSet(frame, sourceBind);
         if (binding.Visibility == SkillProgramCardSetVisibility.Public &&
             binding.FrozenSelectedSuits is { } selectedSuits)

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-jiuchi-14210",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "black-hand-as-alcohol",
+          "sourceZones": ["hand"],
+          "inputKinds": [],
+          "inputSuits": ["spade", "club"],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true
+        }
+      ],
+      "cardPolicies": [
+        { "id": "unlimited-alcohol-use", "kind": "unlimitedAlcoholUse", "cardKinds": ["alcohol"] }
+      ],
+      "triggers": [
+        {
+          "id": "alcohol-slash-permanent-decay-to-zaiqi",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "priority": 100,
+          "damageOccurrence": "perDamage",
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "replaceOwnSkillsAfterAlcoholSlashDamage",
+              "target": "owner",
+              "skillIds": ["boundary:benghuai-current"],
+              "sourceBind": "shanhe:s5-zaiqi-887"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

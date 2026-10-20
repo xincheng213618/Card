@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-liyu-14128",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "obtain-one-whole-region-and-resolve-actual-gain",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "obtainDamageTargetCardAndResolveCategory",
+              "target": "owner",
+              "obtainMode": "entireSelectedZone",
+              "duelDamageExpression": "obtainedCardCount"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

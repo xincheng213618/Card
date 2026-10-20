@@ -381,6 +381,10 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            // Freeze the applicable branch before any same-window skill can
+            // commit the opposite polarity. Acceptance checks it again.
+            if (trigger.RequiredPolarity is { } polarity &&
+                GetProgramConversionPolarity(owner.Seat, binding.SkillId) != polarity) continue;
             if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan)) continue;
             if (trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.CollectJiyunCompletedUseEntities or SkillProgramEffectOp.ResolveLeiluanLastHandUseBenefit or SkillProgramEffectOp.ResolveChenglieRedHolderOutcome or SkillProgramEffectOp.ResolveXieweiTwoHandBaitBasicUse)) continue;
             if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack) ||
@@ -568,7 +572,7 @@ public sealed partial class GameEngine
                 ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.CommittedSimpleCard
             ? SkillProgramTriggerWindow.CardUseCommitted
             : frame.Continuation is ProgramCardContinuation.BeforeTargetEffects or
-                ProgramCardContinuation.BeforeTrickTargetEffects
+                ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.BeforeSimpleTargetEffects
                 ? SkillProgramTriggerWindow.CardUseBeforeTargetEffects
                 : frame.Action.Type == CardActionType.Use
                     ? SkillProgramTriggerWindow.CardUseTargetsFinalized
@@ -610,7 +614,7 @@ public sealed partial class GameEngine
             ContinueCardSupplyAfterCompletion(attack ?? throw new InvalidOperationException("A supplied card lost its native Slash."), frame);
         else if (frame.ResponseCompletion is not null)
             ContinueCardResponseAfterCompletion(attack, frame);
-        else if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard)
+        else if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.BeforeSimpleTargetEffects)
             ContinueSimpleCardUse(frame.ParentFrameId, frame.SimpleContinuation ??
                 throw new InvalidOperationException("The simple card use lost its continuation."));
         else if (frame.Continuation == ProgramCardContinuation.CommittedTrick)
@@ -835,6 +839,7 @@ public sealed partial class GameEngine
     }
     private void AssertProgramCardWindowState()
     {
+        foreach (var use in _resolutionStack.OfType<CardUseFrame>()) AssertProgramUseNullification(use);
         var frames = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().ToArray();
         if (frames.Length == 0)
         {
@@ -878,7 +883,7 @@ public sealed partial class GameEngine
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or ProgramCardContinuation.FinalizedDelayedPlacement or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
-                        ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.CompletedCard ||
+                        ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.BeforeSimpleTargetEffects or ProgramCardContinuation.CompletedCard ||
                         frame.CompletedResponseReturn?.Kind == ProgramCompletedResponseKind.Nullification
                     ? frame.AttackOwnerFrameId is null
                     : ProgramCardAttack is not null && SameAttackOwner(ProgramCardAttack, ActiveCardAttack));
@@ -921,6 +926,7 @@ public sealed partial class GameEngine
                   IsCompletedResponseParentConsistent(frame)
                 : frame.Continuation is not null;
             if (frame.SoleTargetRedirectReturn is not null && !IsExactSoleTargetRedirectReturn(frame) || !attackMatches ||
+                frame.Continuation == ProgramCardContinuation.BeforeSimpleTargetEffects && !IsExactSimpleBeforeTargetWindow(frame) ||
                 frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
                 !trickContinuationMatches || !completedResponseMatches ||
                 !candidateCursorValid ||

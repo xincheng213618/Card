@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shenwu:yaoshou": {
+      "name": "妖兽",
+      "description": "锁定技，你计算与其他角色的距离-2。"
+    },
+    "shenwu:duqu": {
+      "name": "毒躯",
+      "description": "锁定技，你受到伤害时，伤害来源获得1枚蛇毒；你不会拥有蛇毒；你的桃均视为杀。"
+    },
+    "shenwu:echou": {
+      "name": "恶臭",
+      "description": "锁定技，其他角色使用桃或酒时，获得1枚蛇毒。"
+    },
+    "shenwu:poison": {
+      "name": "蛇毒",
+      "description": "锁定技，回合开始时，你选择弃置X张牌或失去X点体力，然后移去1枚蛇毒（X为蛇毒数）。"
+    },
+    "shenwu:jiushou": {
+      "name": "九首",
+      "description": "锁定技，手牌上限为9；出牌阶段开始时及回合结束时，将手牌补至9；跳过摸牌阶段。"
+    },
+    "shenwu:bingxian": {
+      "name": "兵燹",
+      "description": "锁定技，其他角色的实际回合结束时，若其于该回合未使用杀，你视为对其使用一张杀。"
+    },
+    "shenwu:juyuan": {
+      "name": "巨猿",
+      "description": "锁定技，体力上限+5；你的出牌阶段内，若体力少于上次自己的回合结束时，杀可额外指定1个目标。"
+    },
+    "shenwu:xushi": {
+      "name": "蓄势",
+      "description": "锁定技，出牌阶段结束时，你翻面；从背面翻回正面时，对所有其他角色各造成随机1至2点伤害。"
+    },
+    "shenwu:zhaohuo": {
+      "name": "兆火",
+      "description": "锁定技，你造成的伤害均为火属性；你的回合内其他角色的防具无效；你免疫火属性伤害。"
+    },
+    "shenwu:honglian": {
+      "name": "红莲",
+      "description": "锁定技，红色牌不计入手牌上限；回合开始时，随机获得牌堆中0至3张红色牌，然后随机对3至0名其他角色各造成1点火属性伤害。"
+    },
+    "shenwu:fengdong": {
+      "name": "封冻",
+      "description": "锁定技，你的回合内，其他角色的非锁定技无效。"
+    },
+    "shenwu:sipu": {
+      "name": "司圃",
+      "description": "锁定技，你的出牌阶段内，使用前两张牌时，其他角色无法使用或打出牌。"
+    },
+    "shenwu:xunyou": {
+      "name": "巡游",
+      "description": "锁定技，其他角色回合开始时，你随机获得场上除你外一名角色区域内的一张牌；若为装备牌，你使用之。"
+    },
+    "shenwu:yanyu": {
+      "name": "炎狱",
+      "description": "锁定技，其他角色回合开始时进行判定；若为红色，受到1点火属性伤害并重复，每回合至多3次。"
+    },
+    "shenwu:kunshou": {
+      "name": "困兽",
+      "description": "觉醒技，你陷入濒死时立即回复至5点体力，将手牌补至5，翻回正面，并获得崩坏。"
+    },
+    "shenwu:enemy-tier": {
+      "name": "敌方等阶",
+      "description": "锁定技，二阶及以上登场随机使用一张装备牌；其他特权按本版等阶表计算。"
+    },
+    "shenwu:player-tier-2020": {
+      "name": "武将等阶",
+      "description": "锁定技，二阶及以上开局随机使用一张装备牌；其他特权按OL 2020表计算。"
+    },
+    "shenwu:chongsheng-2020": {
+      "name": "重生",
+      "description": "限定技，濒死时，弃判定区牌，复原武将牌，手牌补至体力上限且至多5张，回复满体力。"
+    }
+  }
+}

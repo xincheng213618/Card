@@ -32,7 +32,7 @@ internal sealed class UseVirtualCardProgramOperationDescriptor : ProgramOperatio
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Automatic;
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.VirtualSlashUse;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.UseSelectedCardsAs,
-        static (_, _) => { });
+        static (effect, context) => context.VirtualSlash(effect));
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
     {

@@ -283,8 +283,10 @@
          </Grid>
         </Border>
         <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-         <Border Width="182" Background="{Binding ShanheEncounterEnemyPortrait}" BorderBrush="#B49962" BorderThickness="3" Margin="0,0,0,9"><Border VerticalAlignment="Bottom" Background="#D9231A13" Padding="6,8"><TextBlock Text="{Binding ShanheEncounterEnemyName}" Foreground="#F2D7A0" FontFamily="KaiTi" FontSize="25" TextWrapping="Wrap" TextAlignment="Center"/></Border></Border>
-         <TextBlock Grid.Row="1" Text="{Binding ShanheEncounterEnemyDetail}" Style="{StaticResource Caption}" TextAlignment="Center" MaxHeight="74" Margin="0,3,0,0"/>
+         <Border Width="182" Background="{Binding ShanheEncounterEnemyPortrait}" BorderBrush="#B49962" BorderThickness="3" Margin="0,0,0,9"><Border VerticalAlignment="Bottom" Background="#D9231A13" Padding="6,8"><TextBlock Text="{Binding ShanheEncounterEnemyPortraitName}" ToolTip="{Binding ShanheEncounterEnemyName}" Foreground="#F2D7A0" FontFamily="KaiTi" FontSize="25" TextWrapping="Wrap" TextAlignment="Center"/></Border></Border>
+         <ScrollViewer x:Name="ShanheEncounterEnemyDetailScroll" Grid.Row="1" MaxHeight="140" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,3,0,0">
+          <TextBlock Text="{Binding ShanheEncounterEnemyDetail}" Style="{StaticResource Caption}" TextAlignment="Center"/>
+         </ScrollViewer>
         </Grid>
         <TextBlock Grid.Row="1" Text="击败敌人，领取奖励后继续征程。" Foreground="#A68E66" VerticalAlignment="Center" FontSize="12"/>
         <Button x:Name="ShanheChallengeButton" Grid.Row="1" Grid.Column="2" Content="挑 战" Command="{Binding ChallengeShanheEncounterCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="170" AutomationProperties.Name="确认挑战当前遭遇"/>

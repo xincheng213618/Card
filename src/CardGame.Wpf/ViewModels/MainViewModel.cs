@@ -119,8 +119,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             .OrderBy(mode => mode.TeamActivity is not null ? 0 : mode.BossActivity is not null ? 1 : 2)
             .ThenBy(mode => mode.TeamActivity?.MachineTier ?? 0)
             .ThenBy(mode => mode.HellActivity?.BossTier ?? 0)
+            .ThenBy(mode => mode.ShenwuActivity?.Edition ?? 0)
+            .ThenBy(mode => mode.ShenwuActivity?.EnemyTier ?? 0)
             .Select(mode => new TableModeOption(mode.MaxPlayers, mode.Name,
-                mode.GuanduActivity is not null ? GuanduLobbyDescription : mode.DragonBoatActivity is not null ? DragonBoatActivityLobbyDescription : mode.WenheActivity is not null ? WenheActivityLobbyDescription : mode.HellActivity is not null ? HellActivityLobbyDescription(mode) : mode.NianActivity is not null ? NianActivityLobbyDescription : mode.ShenwuActivity is not null ? ShenwuActivityLobbyDescription : mode.BossActivity is not null
+                mode.GuanduActivity is not null ? GuanduLobbyDescription : mode.DragonBoatActivity is not null ? DragonBoatActivityLobbyDescription : mode.WenheActivity is not null ? WenheActivityLobbyDescription : mode.HellActivity is not null ? HellActivityLobbyDescription(mode) : mode.NianActivity is not null ? NianActivityLobbyDescription : mode.ShenwuActivity is not null ? ShenwuActivityLobbyDescription(mode) : mode.BossActivity is not null
                     ? BossActivityLobbyDescription(mode)
                     : "五阶出征 · 人机队友\n万夫莫开 · 击败敌方英灵", mode.Id))).ToArray();
         DeckOptions =
@@ -1454,12 +1456,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedCardId is not { } selectedCardId ||
             choice.Cards.Count != 1 ||
             choice.Cards[0] != selectedCardId ||
-            choice.Targets.Count == 0 ||
-            !choice.Parameters.TryGetValue("target-card-id", out var targetCardIdText) ||
-            !int.TryParse(targetCardIdText, out var targetCardId))
+            choice.Targets.Count == 0)
         {
             return;
         }
+
+        int? targetCardId = null;
+        if (choice.Parameters.TryGetValue("target-card-id", out var targetCardIdText))
+        {
+            if (!int.TryParse(targetCardIdText, out var parsedTargetCardId)) return;
+            targetCardId = parsedTargetCardId;
+        }
+        else if (choice.Parameters.GetValueOrDefault("action") is not ("dismantlement" or "snatch")) return;
 
         var action = GetViewLegalActions().SingleOrDefault(candidate =>
             candidate.CardId == selectedCardId &&
@@ -1519,15 +1527,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        foreach (var choice in pending.Choices.Where(choice =>
+        var candidates = pending.Choices.Where(choice =>
                      choice.Cards.Count == 1 &&
                      choice.Cards[0] == selectedCardId &&
                      (IsMultiTargetCardSelected
                          ? _selectedCardTargetSeats.Count > 0 && choice.Targets.SequenceEqual(SelectedPlayTargets())
-                         : choice.Targets.Count == 1 && (!_selectedTargetSeat.HasValue || choice.Targets[0] == _selectedTargetSeat)) &&
+                         : choice.Targets.Count == 1 && _selectedTargetSeat.HasValue && choice.Targets[0] == _selectedTargetSeat) &&
                      ConversionSourceMatchesChoice(_selectedConversionSource, choice.Parameters) &&
-                     MatchesSelectedPlayChoice(choice) &&
-                     choice.Parameters.ContainsKey("target-card-id")))
+                     MatchesSelectedPlayChoice(choice)).ToArray();
+        var publicChoices = candidates.Where(choice => choice.Parameters.ContainsKey("target-card-id")).ToArray();
+        foreach (var choice in candidates.Where(choice =>
+                     choice.Parameters.ContainsKey("target-card-id") ||
+                     choice.Parameters.GetValueOrDefault("action") is "dismantlement" or "snatch" &&
+                     publicChoices.Any(publicChoice => publicChoice.Targets.SequenceEqual(choice.Targets))))
         {
             PublicTargetChoices.Add(choice);
         }
@@ -1610,12 +1622,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         var human = _snapshot.Players.FirstOrDefault(player => player.IsHuman);
         var physicalCard = human is null ? null : PlayMaterials(human).FirstOrDefault(card => card.Id == _selectedCardId);
-        CanPlaySelected = selectedActions.Any(action => action.TargetSeats.SequenceEqual(selectedTargets)
+        var requiresRegionChoice = PublicTargetChoices.Any(choice => choice.Targets.SequenceEqual(selectedTargets));
+        CanPlaySelected = !requiresRegionChoice && selectedActions.Any(action => action.TargetSeats.SequenceEqual(selectedTargets)
             && action.TargetCardId is null && (action.PlayedCardKind is null || action.PlayedCardKind == physicalCard?.Kind));
         var conversionActions = selectedActions.Where(action =>
             action.TargetSeats.SequenceEqual(selectedTargets) && action.TargetCardId is null &&
             action.PlayedCardKind is { } effectiveKind && effectiveKind != physicalCard?.Kind).ToArray();
-        CanPlaySelectedAsSlash = conversionActions.Length == 1;
+        CanPlaySelectedAsSlash = !requiresRegionChoice && conversionActions.Length == 1;
         RefreshSelectionHint();
     }
 
@@ -1629,6 +1642,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var human = _snapshot.Players.Single(player => player.IsHuman);
         var physicalKind = PlayMaterials(human).Single(card => card.Id == cardId).Kind;
         var targets = SelectedPlayTargets();
+        if (PublicTargetChoices.Any(choice => choice.Targets.SequenceEqual(targets))) return;
         var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), cardId, targets, physicalKind,
             asSlash, _selectedConversionSource);
         if (action is null) return;

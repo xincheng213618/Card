@@ -209,7 +209,7 @@ public sealed partial class GameEngine
         ValidateBoundParticipantGiftWindow(frame);
         var source = GetProgramCardSet(frame, bind);
         if (_winner != Winner.None || !_players[frame.OwnerSeat].IsAlive || target.OwnerSeat is not { } recipient ||
-            !_players[recipient].IsAlive || !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) ||
+            !_players[recipient].IsAlive || !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !HasPaidPindianHandReturn(frame) ||
             !ids.All(id => source.CardIds.Contains(id)) || ids.Any(id =>
                 _cardZones.GetLocation(id) != source.SourceLocations[source.CardIds.ToList().IndexOf(id)]))
         { CancelProgramBindingAndCleanup(frame, "赠牌参与者或冻结来源已失效，未交出牌且不继续请求杀。"); return SkillProgramStepOutcome.AwaitChild; }
@@ -217,7 +217,7 @@ public sealed partial class GameEngine
             ids.Any(id => _cardZones.GetLocation(id).OwnerSeat != frame.OwnerSeat || _cardZones.GetLocation(id).Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
             throw new InvalidOperationException("An awaited bound gift lost its unpaid owned HE cost.");
         var gift = new ProgramBoundParticipantGiftReceipt(frame.InstructionIndex, bind, target.OwnerSeat!.Value);
-        if (frame.WindowContext is null && frame.TriggerId is null)
+        if (frame.WindowContext is null && frame.TriggerId is null && !IsPindianHandReturn(frame))
             gift = gift with { RankSum = CaptureOwnedHandRankSumGift(frame, ids, reason) };
         ReplaceRuntimeTop(frame with { BoundParticipantGift = gift });
         if (gift.RankSum is null) MoveProgramCardsFromMultipleSources(ids, target, reason);
@@ -227,6 +227,14 @@ public sealed partial class GameEngine
 
     private void ValidateBoundParticipantGiftWindow(ProgramSkillFrame frame)
     {
+        if (HasPaidPindianHandReturn(frame))
+        {
+            var paid = frame.PindianHandReturn!;
+            if (frame.InstructionIndex != 5 || paid.ReturnCount is not { } count ||
+                GetProgramCardSet(frame, ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).Instructions[4].SourceBind!).CardIds.Count != count)
+                throw new InvalidOperationException("Pindian return gift lost its frozen half-hand obligation.");
+            return;
+        }
         if (frame.WindowContext is null && frame.TriggerId is null)
         {
             ValidateOwnedHandRankSumGiftActivation(frame);

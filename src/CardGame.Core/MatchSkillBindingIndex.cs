@@ -12,7 +12,7 @@ internal readonly record struct SkillBindingIndexStamp(
     bool HasSecondary,
     bool SecondarySelected,
     bool SecondaryRevealed, long ProjectionRevision = 0, Role? OwnerRole = null,
-    long DerivedProjectionRevision = 0, bool OwnerAlive = true);
+    long DerivedProjectionRevision = 0, bool OwnerAlive = true, string? PrimaryGeneralId = null);
 
 internal sealed record IndexedSkillProgramInstance(
     string SkillId,
@@ -220,6 +220,7 @@ internal sealed class MatchSkillBindingIndex
     private readonly bool _allowsSecondaryGeneral;
     private readonly Func<CharacterState, bool>? _hasHpSensitiveSuppression;
     private readonly Func<CharacterState, SkillGrant, bool>? _grantQualification;
+    private readonly Func<CharacterState, SkillGrant, bool>? _additionalPrintedLordQualification;
     private readonly Func<CharacterState,IReadOnlySet<string>>? _suppressionInputs;
     private readonly Func<long>? _projectionStamp;
     private readonly Func<CharacterState, long>? _derivedProjectionStamp;
@@ -230,7 +231,8 @@ internal sealed class MatchSkillBindingIndex
         bool isNationalWarMode,
         Func<CharacterState, bool>? hasHpSensitiveSuppression = null,
         Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null, Func<CharacterState,IReadOnlySet<string>>? suppressionInputs = null,
-        Func<CharacterState, long>? derivedProjectionStamp = null, bool dualGenerals = false)
+        Func<CharacterState, long>? derivedProjectionStamp = null, bool dualGenerals = false,
+        Func<CharacterState, SkillGrant, bool>? additionalPrintedLordQualification = null)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
@@ -239,6 +241,7 @@ internal sealed class MatchSkillBindingIndex
         _hasHpSensitiveSuppression = hasHpSensitiveSuppression;
         _grantQualification = grantQualification; _projectionStamp = projectionStamp; _suppressionInputs = suppressionInputs;
         _derivedProjectionStamp = derivedProjectionStamp;
+        _additionalPrintedLordQualification = additionalPrintedLordQualification;
     }
 
     internal int CachedSeatCount => _shards.Count;
@@ -255,7 +258,8 @@ internal sealed class MatchSkillBindingIndex
             ProjectionRevision = _projectionStamp?.Invoke() ?? 0,
             DerivedProjectionRevision = _derivedProjectionStamp?.Invoke(player) ?? 0,
             OwnerRole = player.Role,
-            OwnerAlive = player.IsAlive
+            OwnerAlive = player.IsAlive,
+            PrimaryGeneralId = _additionalPrintedLordQualification is null ? null : player.General.Id
         };
         if (_shards.TryGetValue(player.Seat, out var existing) && existing.Shard.Stamp == stamp)
             return existing.Shard;
@@ -290,7 +294,8 @@ internal sealed class MatchSkillBindingIndex
             var isTemplate = grant.SourceId is CharacterState.PrimarySkillSource or
                 CharacterState.SecondarySkillSource;
             if (isTemplate && definition.Tags.HasFlag(SkillTag.Lord) &&
-                player.Role != Role.Lord && !PrintedLordSkillQualifications.Matches(player, grant))
+                player.Role != Role.Lord && !PrintedLordSkillQualifications.Matches(player, grant) &&
+                _additionalPrintedLordQualification?.Invoke(player, grant) != true)
                 continue;
             activeGrants.Add(grant);
             definitions.TryAdd(grant.SkillId, definition);

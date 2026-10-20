@@ -113,6 +113,7 @@ public sealed partial class GameEngine
     {
         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
         if (TryBeginCaoChunSimpleDebt(frameId, continuation)) return;
+        if (TryBeginSimpleBeforeTargetPrograms(frameId, continuation)) return;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         if (ContinueGuanduIntoxicationUse(frameId, continuation)) return;
         if (ContinueDyingSuitsPeach(frameId, continuation)) return;
@@ -129,7 +130,7 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(_cardZones.GetLocation(continuation.CardId)).Single(item => item.Id == continuation.CardId);
         var source = _players[frame.SourceSeat];
         SetCardUseStep(frameId, ResolutionFrameStep.ResolvingEffect);
-        if (!source.IsAlive && frame.ExtraCardEffect is null && !IsZixiExtraEffectRound(frameId))
+        if (!source.IsAlive && frame.ExtraCardEffect is null && !IsZixiExtraEffectRound(frameId) && !IsSoleIncomingExtraRound(frameId))
         {
             FinishCardUse(frameId, card, frame.CardKind);
             return;

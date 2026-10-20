@@ -27,7 +27,7 @@ public sealed partial class GameEngine
             !(m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle))) return false;
         return _events.Select(item => item.Payload).Concat(_pendingEvents).OfType<ProgramDamagePreventedEvent>().Any(fact =>
             fact.FrameId == parent.Id && fact.SkillId == root.SkillId && fact.BindingId == root.TriggerId &&
-            fact.OwnerSeat == root.OwnerSeat && fact.SourceSeat == parent.SourceSeat && fact.TargetSeat == parent.TargetSeat && fact.Amount == parent.Amount);
+            fact.OwnerSeat == root.OwnerSeat && fact.SourceSeat == context.SourceSeat && fact.TargetSeat == parent.TargetSeat && fact.Amount == parent.Amount);
     }
 
     private ProgramSkillFrame? PreventionDrawObserverRoot(long beforeDamageId)

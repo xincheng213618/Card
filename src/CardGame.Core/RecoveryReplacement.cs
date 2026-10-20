@@ -211,10 +211,10 @@ public sealed partial class GameEngine
     {
         if (amount <= 0 || !_players[targetSeat].IsAlive || !_players[targetSeat].HasHpValue ||
             _players[targetSeat].Hp >= _players[targetSeat].MaxHp) return false;
-        if (!HasRecoveryReplacementCapability && !HasRecoveryAmountSupport(targetSeat)) return false;
+        if (!HasRecoveryReplacementCapability && !HasRecoveryAmountSupport(targetSeat) && !HasOwnRecoveryAmountSupport(targetSeat)) return false;
         var parent = parentFrameId > 0 ? _resolutionStack.Single(f => f.Id == parentFrameId) : null;
         var candidates = RecoveryReplacementCandidates(targetSeat);
-        if (candidates.Count == 0 && !HasRecoveryAmountSupport(targetSeat) &&
+        if (candidates.Count == 0 && !HasRecoveryAmountSupport(targetSeat) && !HasOwnRecoveryAmountSupport(targetSeat) &&
             parent?.PendingRecoveryAttempts is not { Count: > 0 }) return false;
         var request = new RecoveryAttempt(++_resolutionSequence, sourceSeat, targetSeat, amount,
             _players[targetSeat].Hp, _turnNumber, _currentSeat, candidates, completion with
@@ -348,17 +348,29 @@ public sealed partial class GameEngine
         var candidate = candidateIndex is { } index ? attempt.Candidates[index] : null;
         var recipient = _players[application.TargetSeat];
         var source = application.SourceSeat;
+        // No child or cost is opened between the live passive decision and this
+        // single HP payment. Existing paid Cao Song support has already returned.
+        var bonus = PrepareOwnRecoveryAmountBonus(application);
+        var requested = bonus?.ModifiedRequestedAmount ?? application.RequestedAmount;
         var amount = recipient.IsAlive && recipient.HasHpValue && _winner == Winner.None
-            ? Math.Min(application.RequestedAmount, Math.Max(0, recipient.MaxHp - recipient.Hp)) : 0;
+            ? Math.Min(requested, Math.Max(0, recipient.MaxHp - recipient.Hp)) : 0;
         ReplaceRuntimeTop(frame with { CandidateIndex = candidateIndex, Stage = RecoveryReplacementStage.RecoveryApplied,
-            OriginalRecovered = candidate is null ? amount : 0, PendingApplication = null, Step = ResolutionFrameStep.ResolvingEffect });
+            OriginalRecovered = candidate is null ? amount : 0, PendingApplication = null, AmountBonus = bonus, Step = ResolutionFrameStep.ResolvingEffect });
         if (candidate is not null)
             AdvanceEventRulesAndQueueFact(new RecoveryReplacementChosenEvent(frame.Id, attempt.TargetSeat, candidate.OwnerSeat,
                 candidate.SkillId, candidate.SkillInstanceId, candidate.PolicyId, attempt.Amount, candidate.RecoveryAmount));
         if (amount > 0)
         {
             var child = BeginRecovery(frame.Id, source, recipient.Seat, amount);
+            if (bonus is not null)
+            {
+                bonus = bonus with { AppliedRecoveryFrameId = child };
+                var owning = (RecoveryReplacementFrame)_resolutionStack.Single(f => f.Id == frame.Id);
+                ReplaceRuntimeFrame(frame.Id, owning with { AmountBonus = bonus });
+            }
             recipient.Hp += amount;
+            if (bonus is not null)
+                AdvanceEventRulesAndQueueFact(new RecoveryAmountBonusAppliedEvent(frame.Id, bonus));
             AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(source, recipient.Seat, amount, recipient.Hp));
             PopResolutionFrame(child, ResolutionFrameKind.Recovery);
         }
@@ -446,6 +458,7 @@ public sealed partial class GameEngine
                 AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.RecoveryPaidCardUse: ContinueRecoveryPaidCardUse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.CounterspellPayment: ContinuePolicyCounterspellPayment(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.SoleIncomingRangeDraw: ContinueSoleIncomingRangeDraw(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.NativeCardEffectDraw: ContinueNativeDrawTwo(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.WenheCardEffect: ContinueWenheCardEffect(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.GuanduCardEffect: ContinueGuanduCardEffect(continuation.ResumeFrameId!.Value); break;
@@ -469,21 +482,30 @@ public sealed partial class GameEngine
         { if (!TryBeginHpChangedProgramWindow()) TryBeginCardsMovedProgramWindow(); return; }
         if (c.Producer is not (RecoveryAttemptProducer.DyingBoundAlcohol or RecoveryAttemptProducer.DyingVirtualAlcohol))
             throw new InvalidOperationException("A root recovery attempt lost its producer.");
-        AdvanceEventRulesAndQueueFact(new ProgramDyingRescueEvent(c.DyingFrameId!.Value, c.SkillId!, c.SkillOwnerSeat!.Value,
-            attempt.TargetSeat, c.CardId ?? 0, recovered, _players[attempt.TargetSeat].Hp));
         if (c.Producer == RecoveryAttemptProducer.DyingBoundAlcohol)
         {
+            var use = LifecycleCardUse(parentId) ?? throw new InvalidOperationException("Bound Alcohol recovery lost its native use.");
+            if (use.BoundDyingAlcoholUse is not { } token || token.ProgramFrameId != c.ProgramFrameId ||
+                token.DyingFrameId != c.DyingFrameId || token.Source.SkillId != c.SkillId || token.Source.OwnerSeat != c.SkillOwnerSeat ||
+                token.CardId != c.CardId || token.VictimSeat != attempt.TargetSeat || c.CardKind != CardKind.Alcohol || c.MoveReason != token.Reason ||
+                attempt.SourceSeat != token.VictimSeat)
+                throw new InvalidOperationException("Bound Alcohol recovery returned outside its exact typed source/use.");
+            RecordBoundDyingAlcoholPayment(parentId, recovered, attempt.Id);
             var card = _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == c.CardId);
             MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, c.MoveReason!.Value);
             FinishCardUse(parentId, card, CardKind.Alcohol);
+            return; // The owning use returns the paused program after all completion children.
         }
-        else if (FinishActualTurnLegacyDyingAlcohol(parentId, c.ProgramFrameId!.Value)) return;
+        AdvanceEventRulesAndQueueFact(new ProgramDyingRescueEvent(c.DyingFrameId!.Value, c.SkillId!, c.SkillOwnerSeat!.Value,
+            attempt.TargetSeat, c.CardId ?? 0, recovered, _players[attempt.TargetSeat].Hp));
+        if (FinishActualTurnLegacyDyingAlcohol(parentId, c.ProgramFrameId!.Value)) return;
         else PopFinishedCardUse(parentId);
         AdvanceRuntimeProgram(c.ProgramFrameId!.Value);
     }
 
     private void AssertRecoveryReplacementInvariants()
     {
+        AssertRecoveryAmountBonusReceipts();
         AssertPaidFactionRequestCostRecoveries();
         foreach (var movement in _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().Where(frame => frame.ResumePaidCardUseFrameId is not null))
             if (_resolutionStack.SingleOrDefault(frame => frame.Id == movement.ResumePaidCardUseFrameId) is not CardUseFrame owner ||

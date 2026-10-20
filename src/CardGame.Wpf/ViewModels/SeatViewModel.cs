@@ -96,9 +96,9 @@ public sealed partial class SeatViewModel : ObservableObject
     public bool HpUndefined { get; set; }
     public string HealthPips => HpUndefined ? string.Empty : new('●', Math.Max(0, Hp));
     public string EmptyHealthPips => HpUndefined ? string.Empty : new('○', Math.Max(0, MaxHp - Math.Max(0, Hp)));
-    public string HealthValue => HpUndefined ? "体力未定义" : $"{Math.Max(0, Hp)}/{MaxHp}";
-    public bool ShowNumericHealth => !HpUndefined && MaxHp > 5;
-    public string NumericHealthText => $"{Math.Max(0, Hp)}\n/\n{MaxHp}";
+    public string HealthValue => HpUndefined ? "体力未定义" : $"{Hp}/{MaxHp}";
+    public bool ShowNumericHealth => !HpUndefined && (MaxHp > 5 || Hp < 0);
+    public string NumericHealthText => $"{Hp}\n/\n{MaxHp}";
     private static readonly Brush HealthyHealthBrush = FrozenHealthBrush("#6FBD48");
     private static readonly Brush WarningHealthBrush = FrozenHealthBrush("#EFC64E");
     private static readonly Brush CriticalHealthBrush = FrozenHealthBrush("#EF7264");

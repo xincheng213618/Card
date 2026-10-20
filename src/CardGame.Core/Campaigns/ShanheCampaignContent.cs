@@ -11,6 +11,7 @@ public static partial class ShanheCampaignContent
         ArgumentNullException.ThrowIfNull(definition);
         RequireText(definition.Id, "campaign id");
         RequireText(definition.Name, "campaign name");
+        GodFactionSelectionRules.ValidateDefault(definition.DefaultGodFactionId);
         Require(definition.Nodes is { Count: > 0 and <= 256 } && definition.Rewards is { Count: <= 512 }, "A campaign requires a bounded node and reward catalogue.");
         Require(definition.PlayerGeneralIds is { Count: > 0 and <= 2048 } && definition.StartingNodeIds is { Count: > 0 }, "A campaign requires player generals and entry nodes.");
         UniqueIds(definition.PlayerGeneralIds, "player general");
@@ -101,6 +102,8 @@ public static partial class ShanheCampaignContent
     internal static ShanheCombatantDefinition FreezeCombatant(ShanheCombatantDefinition value) => value with
     {
         ExtraSkillIds = Freeze(value.ExtraSkillIds ?? []),
+        QualifiedPrintedLordSkillIds = value.QualifiedPrintedLordSkillIds is null ? null :
+            Freeze(value.QualifiedPrintedLordSkillIds.Order(StringComparer.Ordinal)),
         StartingHand = value.StartingHand is null ? null : Freeze(value.StartingHand)
     };
     internal static ShanheRewardDefinition FreezeReward(ShanheRewardDefinition value) => value with
@@ -134,6 +137,7 @@ public static partial class ShanheCampaignContent
             "Invalid combatant health or bonuses.");
         Require((npc.ExtraSkillIds?.Count ?? 0) <= 8, "Too many combatant skills.");
         UniqueIds(npc.ExtraSkillIds ?? [], "combatant skill");
+        UniqueIds(npc.QualifiedPrintedLordSkillIds ?? [], "qualified printed Lord skill");
         ValidateCards(npc.StartingHand, equipmentOnly: false);
     }
     private static void ValidateCards(IReadOnlyList<ShanheStartingCard>? cards, bool equipmentOnly)

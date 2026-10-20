@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-yaowu-14135": {
+      "name": "耀武",
+      "description": "锁定技，当你受到伤害时，若造成伤害的牌：\n•为红色，你增加等量体力上限；\n•不为红色，你回复等量体力。"
+    },
+    "shanhe:s5-shizhan-14136": {
+      "name": "势斩",
+      "description": "出牌阶段限X次，你可以视为对一名其他角色使用一张【决斗】。（X为当前轮数）"
+    }
+  }
+}

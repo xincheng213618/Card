@@ -322,7 +322,8 @@ public sealed class ContentRegistry
                 activation.MinTargets == 1 && activation.MaxTargets == 1, activation.MaxCards,
                 initialTargetSetCount: activation.MaxTargets > 1 ? activation.MinTargets : 0,
                 initialTargetSetMaximum: activation.MaxTargets > 1 ? activation.MaxTargets : 0,
-                expandedCardDomain: true, activationTargetKind: activation.TargetKind, activationSourceZones: activation.SourceZones, activationMinimumCards: activation.MinCards, activationCardCategories: activation.CardCategories);
+                expandedCardDomain: true, activationTargetKind: activation.TargetKind, activationSourceZones: activation.SourceZones, activationMinimumCards: activation.MinCards, activationCardCategories: activation.CardCategories,
+                pindianHandReturn: activation.PindianHandReturn == true);
         foreach (var trigger in program.Triggers)
             ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].triggers[{trigger.Id}]", trigger.Effects,
                 initialSelectedTarget: trigger.DeferredTurnEndOnly, window: trigger.Window, drawPhaseMode: trigger.DrawPhaseMode, expandedCardDomain: true, cardActionRelation: trigger.OwnerRelation, cardKinds: trigger.CardKinds, turnOwnerScope: trigger.TurnOwnerScope);
@@ -719,6 +720,11 @@ public sealed class ContentRegistry
                     if (!_skills.ContainsKey(offeredSkill))
                         throw new InvalidOperationException($"Skill '{skill.Id}' offers unknown skill '{offeredSkill}'.");
                 CaoYingContract.ValidateReferences(skill, _skills);
+                foreach (var given in skill.Program!.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.GrantDamageTargetSkillAndDrawByRound).SelectMany(e => e.SkillIds))
+                    if (!_skills.TryGetValue(given, out var poison) || poison.ImplementationStatus != SkillImplementationStatus.Complete ||
+                        poison.Program is null || !poison.Program.Triggers.Any(ResolvePrepPoisonOutcomeByRoundDescriptor.IsTrigger))
+                        throw new InvalidOperationException($"Skill '{skill.Id}' grants an unavailable preparation-poison program '{given}'.");
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
                              .Where(effect => effect.Op is SkillProgramEffectOp.DyingRecipientChooseReplaceOrGrantThenRecover or SkillProgramEffectOp.DrawAfterOtherDeathThenChooseMissingSkill or SkillProgramEffectOp.DeathRecipientChooseSkill or SkillProgramEffectOp.GrantOtherPlayUseRestriction or SkillProgramEffectOp.AwakenAfterGameActivations or SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantPlayPhaseSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
@@ -742,6 +748,16 @@ public sealed class ContentRegistry
                     .Where(e => e.Op == SkillProgramEffectOp.SuppressOwnSkillAfterAlcoholSlashDamage).SelectMany(e => e.SkillIds))
                     if (!_skills.ContainsKey(suppressedSkillId))
                         throw new InvalidOperationException($"Skill '{skill.Id}' suppresses unknown skill '{suppressedSkillId}'.");
+                foreach (var exchange in skill.Program.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.ReplaceOwnSkillsAfterAlcoholSlashDamage))
+                {
+                    foreach (var lost in exchange.SkillIds)
+                        if (!_skills.ContainsKey(lost))
+                            throw new InvalidOperationException($"Skill '{skill.Id}' permanently loses unknown skill '{lost}'.");
+                    if (!_skills.TryGetValue(exchange.SourceBind!, out var acquired) || acquired.Program is null ||
+                        acquired.ImplementationStatus != SkillImplementationStatus.Complete)
+                        throw new InvalidOperationException($"Skill '{skill.Id}' permanently grants an unavailable complete program '{exchange.SourceBind}'.");
+                }
                 foreach (var countSource in skill.Program.Triggers.SelectMany(t => t.Effects)
                     .Where(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount).SelectMany(e => e.SkillIds))
                     if (_skills[countSource].Program?.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw)) != true)
@@ -1127,8 +1143,8 @@ public sealed class ContentRegistry
         private static ContentGeneralDefinition NormalizeGeneral(ContentGeneralDefinition definition)
         {
             ArgumentNullException.ThrowIfNull(definition);
-            if (definition.BaseHp is < 1 or > 20)
-                throw new ArgumentOutOfRangeException(nameof(definition), "General base HP must be between 1 and 20.");
+            if (definition.BaseHp is < 1 or > 30)
+                throw new ArgumentOutOfRangeException(nameof(definition), "General base HP must be between 1 and 30.");
             if (definition.InitialHp is { } initialHp && (initialHp < 1 || initialHp > definition.BaseHp))
                 throw new ArgumentOutOfRangeException(nameof(definition), "Initial HP must be between 1 and base maximum HP.");
             var additionalSkillIds = definition.AdditionalSkillIds?.ToArray() ?? [];
@@ -1298,7 +1314,9 @@ public sealed class ContentRegistry
                 mode.ModeKind != ContentModeKind.Team || mode.MinPlayers != 6 || mode.MaxPlayers != 6 ||
                 mode.TeamCounts is not { Count: 2 } teams || teams.GetValueOrDefault(activity.PlayerTeamId) != 3 ||
                 teams.GetValueOrDefault(activity.EnemyTeamId) != 3 || activity.PlayerTeamId == activity.EnemyTeamId ||
-                activity.PlayerTier is < 1 or > 5 || activity.PlayerSeatOffsets.Count != 3 ||
+                activity.PlayerTier is < 1 or > 5 ||
+                (activity.Edition == 0 ? activity.EnemyTier != 0 : activity.Edition != 2020 || activity.EnemyTier is < 1 or > 5) ||
+                activity.PlayerSeatOffsets.Count != 3 ||
                 activity.PlayerSeatOffsets[0] != 0 || activity.MinionSeatOffsets.Count != 2 ||
                 !activity.PlayerSeatOffsets.Concat(activity.MinionSeatOffsets).Append(activity.LeaderSeatOffset)
                     .Order().SequenceEqual(Enumerable.Range(0, 6)) || activity.PlayerPoolIds.Count < 15 ||

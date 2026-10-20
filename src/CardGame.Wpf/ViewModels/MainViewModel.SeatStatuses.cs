@@ -23,6 +23,7 @@ public sealed partial class MainViewModel
             var label = marker.Kind switch
             {
                 PlayerMarkerKind.Rage => "怒",
+                PlayerMarkerKind.ShenwuPoison => "蛇毒",
                 PlayerMarkerKind.QihuiBasic => "诲基",
                 PlayerMarkerKind.QihuiTrick => "诲锦",
                 PlayerMarkerKind.QihuiEquipment => "诲装",
@@ -31,6 +32,7 @@ public sealed partial class MainViewModel
             var detail = marker.Kind switch
             {
                 PlayerMarkerKind.Lie => "\n武烈：受到伤害时，移除一枚“烈”并防止此次伤害。",
+                PlayerMarkerKind.ShenwuPoison => "\n回合开始时弃置等量牌或失去等量体力，然后移去一枚蛇毒。",
                 PlayerMarkerKind.Zi => "\n截辎：摸牌阶段结束时移除“辎”，然后执行一个额外的摸牌阶段。",
                 _ => string.Empty
             };

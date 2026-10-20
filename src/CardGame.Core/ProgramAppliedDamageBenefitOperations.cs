@@ -19,8 +19,8 @@ internal sealed class ReceiveOwnerDamageDescriptor : ProgramOperationDescriptorB
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ReceiveOwnerDamage;
     public override ISkillProgramEffectHandler Handler { get; } = new AppliedDamageBenefitHandler(SkillProgramEffectOp.ReceiveOwnerDamage);
-    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.LoseHp,
-        static (effect, context) => context.LoseHp(effect));
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Damage,
+        static (effect, context) => context.Damage(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "condition");

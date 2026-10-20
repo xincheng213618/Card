@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-lingdong-14045", "revision": 1,
+      "triggers": [
+        {
+          "id": "judge-red-prevents-this-damage", "window": "beforeDamageApplied", "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "startJudgment", "target": "owner", "judgmentReason": "shanhe.s5.lingdong",
+              "resultBind": "lingdong-cleanup", "outcomeBind": "lingdong-outcome", "visibility": "public"
+            },
+            {
+              "op": "preventCurrentDamage", "target": "owner",
+              "condition": { "kind": "judgmentOutcomeMatchesSuits", "sourceBind": "lingdong-outcome", "suits": ["heart", "diamond"] }
+            },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "lingdong-cleanup", "destination": "discardPile" }
+          ]
+        }
+      ]
+    }
+  ]
+}

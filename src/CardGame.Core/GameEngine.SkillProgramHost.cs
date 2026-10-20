@@ -138,7 +138,8 @@ public sealed partial class GameEngine
             var recovered = Math.Min(requested, target.MaxHp - target.Hp);
             if (recovered <= 0) return;
             if (engine.GetActiveProgramFrame(frameId).FixedRecipient is not null) engine.CaptureFixedRecipientRecovery(frameId, ownerSeat, targetSeat, recovered);
-            if (engine.TryQueueRecoveryReplacement(frameId, ownerSeat, targetSeat, recovered,
+            if (engine.TryQueueRecoveryReplacement(frameId, ownerSeat, targetSeat,
+                engine.TracksRecoveryAmountBonuses ? requested : recovered,
                 new(RecoveryAttemptProducer.Program, engine.GetActiveProgramFrame(frameId).InstructionIndex))) return;
             var recovery = engine.BeginRecovery(frameId, ownerSeat, targetSeat, recovered);
             target.Hp += recovered;
@@ -165,19 +166,8 @@ public sealed partial class GameEngine
                     Recover(frameId, ownerSeat, seat, amount, null, null);
         }
 
-        public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount)
-        {
-            if (engine.TryBeginIdentityAppearanceForProgramHpLoss(frameId, skillId, targetSeat, amount)) return SkillProgramStepOutcome.AwaitChild;
-            var target = engine._players[targetSeat];
-            var before = target.Hp;
-            var lost = Math.Min(target.Hp, amount);
-            target.Hp = Math.Max(0, target.Hp - amount);
-            engine.RecordHpChange(frameId, null, targetSeat, before, target.Hp, HpChangeKind.Loss);
-            engine.AdvanceEventRulesAndQueueFact(new ProgramSkillHpLostEvent(frameId, skillId, targetSeat, lost, target.Hp));
-            if (target.Hp != 0) return SkillProgramStepOutcome.Continue;
-            engine.BeginProgramSkillDying(frameId, target);
-            return SkillProgramStepOutcome.AwaitChild;
-        }
+        public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount) =>
+            engine.ApplyProgramHpLoss(frameId, skillId, targetSeat, amount);
 
         public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
             ProgramParticipantReference? sourceReference = null, DamageNature? nature = null) =>
@@ -262,7 +252,8 @@ public sealed partial class GameEngine
             var destination = toDiscard ? CardLocation.DiscardPile : CardLocation.Hand(targetSeat);
             var discardInvocation = toDiscard ? engine.CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,
                 frame.OwnerSeat, cardIds, reason, frame.Id) : null;
-            if (toDiscard && engine.HasHellShiyouCapability)
+            if (toDiscard && engine.TryPayOrderedSelectedActorDuel(engine.GetActiveProgramFrame(frame.Id), cardIds, reason)) { }
+            else if (toDiscard && engine.HasHellShiyouCapability)
                 engine.MoveProgramCardsFromMultipleSources(cardIds, destination, reason,
                     disclosure: CardMovementDisclosure.FaceUp);
             else foreach (var group in selected.GroupBy(item => item.Location))
@@ -332,6 +323,11 @@ public sealed partial class GameEngine
 
         public void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
             engine.UseProgramBoundCardAsDyingAlcohol(frame, sourceBind, reason);
+        public SkillProgramStepOutcome UseBoundCardAsDyingAlcoholWithCompletion(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason)
+        {
+            engine.UseProgramBoundCardAsDyingAlcohol(frame, sourceBind, reason);
+            return SkillProgramStepOutcome.AwaitChild;
+        }
 
         public void UseVirtualDyingAlcohol(ProgramSkillFrame frame) =>
             engine.UseProgramVirtualDyingAlcohol(frame);
@@ -554,6 +550,7 @@ public sealed partial class GameEngine
                 frameId, ownerSeat, zones, reason);
 
         public void AdjustNormalDrawByLivingFactionCount(ProgramSkillFrame frame) => engine.AdjustProgramNormalDraw(frame, engine.GetLivingFactionCount());
+        public void AdjustNormalDrawByPlannedCount(ProgramSkillFrame frame) => engine.AdjustProgramNormalDrawByPlannedCount(frame);
 
         public void AdjustNormalDraw(ProgramSkillFrame frame, int amount) =>
             engine.AdjustProgramNormalDraw(frame, amount);

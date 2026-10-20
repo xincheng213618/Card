@@ -9,8 +9,11 @@ public sealed partial class GameEngine
     private const string PrepDiscardDrawReason = "program.preparation-discard.ending-draw";
     private long PrepDiscardSequence => _cardMovements.Count == 0 ? 0 : _cardMovements[^1].Sequence;
     private CardConversionSource PrepDiscardSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
+    private bool IsImmediatePrepDiscard(ProgramSkillFrame f) =>
+        GetProgramTrigger(f).Effects is [{ Op: SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw }];
     private bool PrepDiscardCanContinue(ProgramSkillFrame f) => _winner == Winner.None && _players[f.OwnerSeat].IsAlive &&
-        HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId);
+        (HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId) ||
+         IsImmediatePrepDiscard(f) && f.PrepDiscard?.TargetPayment is { } paid && ValidPrepDiscardPayment(f, paid, false));
     private IReadOnlyList<PromptChoice> PrepDiscardCards(ProgramSkillFrame f, int payer, IReadOnlyList<int>? selected = null) =>
         BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, payer, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard,
             canSelect: (_, c) => !c.IsGeneralWeapon && !(selected ?? []).Contains(c.Id));
@@ -22,13 +25,14 @@ public sealed partial class GameEngine
                 { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, Continuation: ProgramLifecycleContinuation.NormalTurnStart } window ||
             window.OwnerSeat != f.OwnerSeat || window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count ||
             !MountObserverCandidateMatches(f, window.Candidates[window.CandidateIndex])) return false;
-        return GetProgramTrigger(f).Effects is [{ Op: SkillProgramEffectOp.ResolvePrepDiscardOrEnding }];
+        return GetProgramTrigger(f).Effects is [{ Op: SkillProgramEffectOp.ResolvePrepDiscardOrEnding or SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw }];
     }
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 720)]
     private bool CanRunPrepDiscard(ProgramTriggerCandidate c, SkillProgramTrigger trigger, ProgramSkillWindowContext context) =>
-        !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolvePrepDiscardOrEnding) ||
+        !trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.ResolvePrepDiscardOrEnding or SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw) ||
         c.OwnerSeat == _currentSeat && context.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
         _players[c.OwnerSeat].IsAlive && _players.Any(p => p.IsAlive &&
+            (trigger.Effects[0].Op != SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw || p.HasHpValue) &&
             new[] { CardZoneKind.Hand, CardZoneKind.Equipment }.Any(z => _cardZones.CardsAt(new(z, p.Seat)).Any(card =>
                 !card.IsGeneralWeapon && !IsForeignEquipmentDiscardPrevented(c.OwnerSeat, card, new(z, p.Seat), OwnedCardMoveIntent.Discard) &&
                 !(z == CardZoneKind.Equipment && p.Seat == c.OwnerSeat && IsActiveProgramSourceEquipmentCard(p.Seat, c.SkillId, c.SkillInstanceId, card)))));
@@ -44,6 +48,8 @@ public sealed partial class GameEngine
         else ReplaceRuntimeTop(f = f with { ReexecuteParticipantInstruction = true });
         if (!ValidPrepDiscard(f)) throw new InvalidOperationException("Preparation discard lost its original turn, target or paid ledger.");
         var d = f.PrepDiscard!;
+        if (d.Stage is PrepDiscardStage.ImmediateDrawAttempt or PrepDiscardStage.ImmediateDrawChildren)
+            return ContinuePrepDiscardImmediateDraw(f);
         if (d.Stage is PrepDiscardStage.TargetChildren or PrepDiscardStage.OwnerChildren)
         {
             if (f.PendingMovementContinuation is not null) throw new InvalidOperationException("Preparation discard returned before its paid children.");
@@ -66,14 +72,16 @@ public sealed partial class GameEngine
     {
         var d = f.PrepDiscard!;
         if (d.Stage == PrepDiscardStage.ChoosingTarget)
-            return Array.AsReadOnly(_players.Where(p => p.IsAlive && PrepDiscardCards(f, p.Seat).Count > 0).Select(p =>
+            return Array.AsReadOnly(_players.Where(p => p.IsAlive && (!IsImmediatePrepDiscard(f) || p.HasHpValue) && PrepDiscardCards(f, p.Seat).Count > 0).Select(p =>
                 new PromptChoice(new($"prep-discard.{f.Id}.target-{p.Seat}"), $"弃置 {p.Name} 的牌", [], [p.Seat], PrepDiscardParameters(f, "target"))).ToArray());
         if (d.Stage == PrepDiscardStage.ChoosingBenefit)
         {
             var choices = new List<PromptChoice>(); var n = d.TargetPayment!.NonEquipmentCount;
             if (PrepDiscardCards(f, f.OwnerSeat).Count >= n)
                 choices.Add(new(new($"prep-discard.{f.Id}.pay"), $"本人弃置 {n} 张牌", [], [], PrepDiscardParameters(f, "pay")));
-            choices.Add(new(new($"prep-discard.{f.Id}.ending"), $"本回合结束阶段原目标摸 {n} 张牌", [], [], PrepDiscardParameters(f, "ending")));
+            var immediate = IsImmediatePrepDiscard(f);
+            choices.Add(new(new($"prep-discard.{f.Id}.{(immediate ? "draw" : "ending")}"),
+                immediate ? $"原目标立即摸 {n} 张牌" : $"本回合结束阶段原目标摸 {n} 张牌", [], [], PrepDiscardParameters(f, immediate ? "draw" : "ending")));
             return Array.AsReadOnly(choices.ToArray());
         }
         if (d.Stage is not (PrepDiscardStage.SelectingTargetCards or PrepDiscardStage.SelectingOwnerCards)) return [];
@@ -108,7 +116,7 @@ public sealed partial class GameEngine
         { ClearPendingDecision(); FinishPrepDiscard(f, false); AdvanceRuntimeProgram(f.Id); return; }
         if (step == "target" && d.Stage == PrepDiscardStage.ChoosingTarget)
         {
-            if (choice.Targets is not [var target] || !_players[target].IsAlive || PrepDiscardCards(f, target).Count == 0)
+            if (choice.Targets is not [var target] || !_players[target].IsAlive || IsImmediatePrepDiscard(f) && !_players[target].HasHpValue || PrepDiscardCards(f, target).Count == 0)
                 throw new InvalidOperationException("The original discard target is unavailable.");
             var hand = GetHand(_players[target]).Count; var hp = _players[target].Hp;
             var requested = Math.Max(1, hand - hp); var required = Math.Min(requested, PrepDiscardCards(f, target).Count);
@@ -118,12 +126,19 @@ public sealed partial class GameEngine
                 d.ActualTurnOwnerSeat, d.PrepWindowId, target, hand, hp, requested, required));
             PublishPrepDiscard(f); return;
         }
-        if (d.Stage == PrepDiscardStage.ChoosingBenefit && step is "pay" or "ending")
+        if (d.Stage == PrepDiscardStage.ChoosingBenefit && (step == "pay" || step == (IsImmediatePrepDiscard(f) ? "draw" : "ending")))
         {
             var n = d.TargetPayment!.NonEquipmentCount;
             if (step == "pay" && PrepDiscardCards(f, f.OwnerSeat).Count < n) throw new InvalidOperationException("The owner cannot pay the frozen true cost.");
-            ClearPendingDecision(); ReplaceRuntimeTop(f = f with { PrepDiscard = d with { Deferred = step == "ending" } });
-            AdvanceEventRulesAndQueueFact(new PrepDiscardBenefitChosenEvent(f.Id, step == "ending", d.TargetSeat!.Value, n));
+            ClearPendingDecision(); ReplaceRuntimeTop(f = f with { PrepDiscard = d with { Deferred = step == "draw" ? null : step == "ending" } });
+            if (IsImmediatePrepDiscard(f))
+                AdvanceEventRulesAndQueueFact(new PrepDiscardImmediateBenefitChosenEvent(f.Id, step == "draw", d.TargetSeat!.Value, n));
+            else AdvanceEventRulesAndQueueFact(new PrepDiscardBenefitChosenEvent(f.Id, step == "ending", d.TargetSeat!.Value, n));
+            if (step == "draw")
+            {
+                if (n == 0) { FinishPrepDiscard(f, true); AdvanceRuntimeProgram(f.Id); return; }
+                IssuePrepDiscardImmediateDraw(f); return;
+            }
             if (step == "ending")
             {
                 IssuePrepDiscardEnding(f, GetProgramTrigger(f).Effects[0].StateId!);
@@ -192,11 +207,11 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.MovementTail, 40)]
     private bool TryReturnPrepDiscardMovement(ProgramSkillFrame f)
     {
-        if (f.PrepDiscard is not { Stage: PrepDiscardStage.TargetChildren or PrepDiscardStage.OwnerChildren } && f.PrepDiscardEndingDraw is null) return false;
+        if (f.PrepDiscard is not { Stage: PrepDiscardStage.TargetChildren or PrepDiscardStage.OwnerChildren or PrepDiscardStage.ImmediateDrawChildren } && f.PrepDiscardEndingDraw is null) return false;
         if (f.PendingMovementContinuation is null) throw new InvalidOperationException("A preparation payment lost its exact movement return.");
         ReplaceRuntimeTop(f with { PendingMovementContinuation = null }); AdvanceRuntimeProgram(f.Id); return true;
     }
-    [ProgramAiChoice(SkillProgramEffectOp.ResolvePrepDiscardOrEnding)]
+    [ProgramAiChoice(SkillProgramEffectOp.ResolvePrepDiscardOrEnding, SkillProgramEffectOp.ResolvePrepDiscardOrImmediateDraw)]
     private PromptChoice SelectAiPrepDiscard(PendingDecision decision, ProgramSkillFrame f)
     {
         var d = f.PrepDiscard!; var snapshot = CreateSnapshot(decision.PlayerSeat);
@@ -209,7 +224,7 @@ public sealed partial class GameEngine
             var pay = decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("prep-discard-step") == "pay");
             var benefit = _aiBrains[f.OwnerSeat].ScoreProgramTarget(snapshot, d.TargetSeat!.Value, new(0,0,0,1,0,0,false,false));
             return pay is not null && d.TargetPayment!.NonEquipmentCount > 0 && benefit < 0 ? pay :
-                decision.Choices.Single(c => c.Parameters.GetValueOrDefault("prep-discard-step") == "ending");
+                decision.Choices.Single(c => c.Parameters.GetValueOrDefault("prep-discard-step") == (IsImmediatePrepDiscard(f) ? "draw" : "ending"));
         }
         // Only own exposed identities are scored. Opponent opaque hand slots
         // receive a fixed public prior, without hidden lookup or RNG use.
@@ -220,6 +235,7 @@ public sealed partial class GameEngine
     private sealed class PrepDiscardEndingProgramCapability(GameEngine engine) : IPrepDiscardEndingProgramHost
     {
         public SkillProgramStepOutcome ResolvePrepDiscardOrEnding(ProgramSkillFrame f, string binding) => engine.ResolvePrepDiscardOrEnding(f, binding);
+        public SkillProgramStepOutcome ResolvePrepDiscardOrImmediateDraw(ProgramSkillFrame f) => engine.ResolvePrepDiscardOrEnding(f, "");
         public SkillProgramStepOutcome DrawPrepDiscardEnding(ProgramSkillFrame f) => engine.DrawPrepDiscardEnding(f);
     }
 }

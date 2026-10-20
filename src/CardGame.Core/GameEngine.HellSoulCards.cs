@@ -127,11 +127,13 @@ public sealed partial class GameEngine
         var decisions = losses.Select(loss =>
         {
             var existing = target.SkillGrants.Grants.SingleOrDefault(g => g.GrantId == loss.Grant.GrantId);
-            var outcome = !target.IsAlive ? "owner-dead" : target.General.Id != loss.GeneralId ||
+            var outcome = WasGrantPermanentlyRevokedAfterLoss(target.Seat, loss.Grant, loss) ? "permanently-lost" :
+                !target.IsAlive ? "owner-dead" : target.General.Id != loss.GeneralId ||
                 target.SecondaryGeneral?.Id != loss.SecondaryGeneralId ? "template-changed" :
                 loss.Grant.TurnExpiry is { } turn && ProgramEventHistory<TurnEndedEvent>().Any(e =>
                     e.TurnNumber == turn.TurnNumber && e.ActorSeat == turn.TurnOwnerSeat) ? "grant-expired" :
-                loss.Grant.PhaseExpiry is not null ? "grant-expired" : existing is null ? "restored" :
+                loss.Grant.PhaseExpiry is not null || HasNextActualTurnStartSkillGrantExpired(loss.Grant)
+                    ? "grant-expired" : existing is null ? "restored" :
                 existing == loss.Grant ? "already-present" : "source-changed";
             return (Loss: loss, Outcome: outcome);
         }).ToArray();

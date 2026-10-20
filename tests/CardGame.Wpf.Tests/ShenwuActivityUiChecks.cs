@@ -6,7 +6,7 @@ using CardGame.Wpf;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
 
-internal static class ShenwuActivityUiChecks
+internal static partial class ShenwuActivityUiChecks
 {
     public static void SharedGodDraftSixSeatsAndRestore(string output)
     {

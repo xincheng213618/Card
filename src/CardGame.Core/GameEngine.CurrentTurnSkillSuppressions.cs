@@ -39,7 +39,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsCurrentTurnSkillGrantQualified(CharacterState owner, SkillGrant grant) =>
-        MouCaoPiSkillsQualified(owner, grant) &&
+        ShenwuFengdongQualifiesGrant(owner, grant) && MouCaoPiSkillsQualified(owner, grant) &&
         IsCurrentTurnOwnSkillGrantQualified(owner, grant) &&
         (!_currentTurnSkillSuppressions.Any(s => s.TurnNumber == _turnNumber &&
             s.TurnOwnerSeat == _currentSeat && s.TargetSeat == owner.Seat) ||
@@ -50,7 +50,7 @@ public sealed partial class GameEngine
     {
         // Upstream owners affect derived grants only. Their separate shard stamp
         // avoids scanning the whole table for every ordinary policy lookup.
-        const long projection = 0;
+        var projection = CaptureShenwuFengdongStamp();
         if (_currentTurnSkillSuppressionRevision == 0) return CaptureYunzhengQualificationStamp(CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(projection)))));
         var current = (projection, _currentTurnSkillSuppressionRevision);
         if (current != _currentTurnQualificationDependencies)

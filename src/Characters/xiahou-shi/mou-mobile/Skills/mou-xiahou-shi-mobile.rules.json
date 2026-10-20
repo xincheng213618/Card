@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:yanyu",
+      "revision": 1,
+      "activations": [{
+        "id": "discard-slash",
+        "minCards": 1,
+        "maxCards": 1,
+        "sourceZones": ["hand", "equipment"],
+        "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+        "minTargets": 0,
+        "maxTargets": 0,
+        "targetKind": "anyLiving",
+        "usesPerTurn": null,
+        "usesPerPhase": 2,
+        "effects": [{ "op": "resolveMouXiahouShiYanyuDiscard", "target": "owner" }]
+      }],
+      "triggers": [{
+        "id": "support-at-play-ending",
+        "window": "playEnding",
+        "subject": "owner",
+        "turnOwnerScope": "own",
+        "optional": true,
+        "effects": [{ "op": "resolveMouXiahouShiYanyuSupport", "target": "owner" }]
+      }]
+    },
+    {
+      "id": "mou-mobile:qiaoshi",
+      "revision": 1,
+      "triggers": [{
+        "id": "foreign-damage-source-choice",
+        "window": "afterDamageApplied",
+        "subject": "owner",
+        "damageOccurrence": "perDamage",
+        "requireDamageSource": true,
+        "optional": false,
+        "effects": [{ "op": "resolveMouXiahouShiQiaoshi", "target": "owner" }]
+      }]
+    }
+  ]
+}

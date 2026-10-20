@@ -1,0 +1,217 @@
+{
+  "status": "source-and-engineering-verified-runtime-pending",
+  "checkedOn": "2026-10-20",
+  "name": "谋夏侯氏·移动版",
+  "generalId": "mou:xiahou-shi-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "officialIdentity": {
+    "generalId": "mou:xiahou-shi-mobile",
+    "characterId": "character:xiahou-shi",
+    "variantId": "mou-mobile",
+    "rulesetId": "sanguosha-mobile",
+    "officialName": "谋·夏侯氏",
+    "heroPageId": 497,
+    "internalGeneralId": 712,
+    "faction": "shu",
+    "gender": "Female",
+    "hp": 3,
+    "apiSex": 2
+  },
+  "sources": {
+    "hero": {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-497.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/hero-detail-497.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 19180,
+      "sha256": "97598EFB84856015096F77D4BB5CFC8B4DBDEBFDCF066BFD04F4EBEB78172824",
+      "fetchedAtUtc": "2026-10-20T10:59:18.332657+00:00"
+    },
+    "api": {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "finalUrl": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "bytes": 1820041,
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "fetchedAtUtc": "2026-10-20T10:59:18.530974+00:00"
+    },
+    "formalLaunch": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1422.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1422.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 23479,
+      "sha256": "4272EE39349644BFBBE2527777307FFDDC31DCD9CBB3CA35CEAE647484D4ED15",
+      "fetchedAtUtc": "2026-10-20T10:59:18.306448+00:00",
+      "publishedAt": "2023-01-20 17:30:00",
+      "effectiveFrom": "2023-01-21",
+      "finding": "Official 1月21日春节活动 explicitly announces 谋夏侯氏上线，兔年大吉获得. This is the dated first permanent obtainable general release; API created_at2023-01-31 is database time, not release date."
+    },
+    "laterPermanentAcquisition": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2285.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2285.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 87941,
+      "sha256": "4C671E73FEF509F7630CC9DBB5EE461FBA63B1E7B1FB62F5AA4D9263C883C253",
+      "fetchedAtUtc": "2026-10-20T10:59:18.449262+00:00",
+      "publishedAt": "2026-04-03 17:30:00",
+      "effectiveFrom": "2026-04-03 18:00",
+      "finding": "Official金票商城新增169999金票兑换谋·夏侯氏，可兑换1次. Historical dated acquisition evidence, not a claim about present prices."
+    },
+    "latestLocatedFormalDescriptionCorrection": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 15640,
+      "sha256": "F11A43F0A1C30425E72C08EA593C6BAAC715741593EDCE0E5E64139D25AB00AC",
+      "fetchedAtUtc": "2026-10-20T10:59:18.472453+00:00"
+    }
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:yanyu",
+      "name": "燕语",
+      "text": "出牌阶段限两次，你可以弃置一张【杀】并摸一张牌。出牌阶段结束时，你可以令一名其他角色摸X张牌（X为你本回合以此法弃置的【杀】的数量的三倍）。",
+      "sha256": "B2C62DC5DBE547143F15BA4DFD67B0E62AC06D74679D7EBE0CAE1ADD4D6230EE",
+      "initiallyOwned": true,
+      "source": "https://www.sanguosha.cn/pc/hero-detail-497.html"
+    },
+    {
+      "id": "mou-mobile:qiaoshi",
+      "name": "樵拾",
+      "text": "每回合限一次，你受到其他角色造成的伤害后，伤害来源可选择令你回复等同此次伤害值的体力，若如此做，其摸两张牌。",
+      "sha256": "D7BA644CA7ADB7B48376D587DCB31055889F5BFA11E693EC1CD8692E5A473206",
+      "initiallyOwned": true,
+      "source": "https://www.sanguosha.cn/pc/hero-detail-497.html"
+    }
+  ],
+  "derivedGrantedSkills": [],
+  "firstPermanentAvailability": {
+    "date": "2023-01-21",
+    "source": "https://www.sanguosha.cn/pc/news-detail-1422.html",
+    "finding": "Published2023-01-20 17:30: official announces 谋夏侯氏上线，兔年大吉获得. API database created_at is not substituted for release date."
+  },
+  "currentVersusFormal": {
+    "completeHeroAndLiveApiExactMatch": true,
+    "formalLaunchConfirmsPermanentRelease": true,
+    "boundedRevisionSearch": {
+      "queries": [
+        {
+          "query": "site:www.sanguosha.cn/pc/news-detail \"谋夏侯氏\" \"上线\"",
+          "result": "Official1422: published2023-01-20, first obtainable2023-01-21."
+        },
+        {
+          "query": "site:www.sanguosha.cn/pc/news-detail \"燕语\" \"樵拾\"",
+          "result": "Current official hero497 located. No applicable formal full-skill revision located."
+        },
+        {
+          "query": "site:www.sanguosha.cn/pc/news-detail \"谋夏侯氏\" \"调整\"",
+          "result": "No applicable conflicting formal revision located in this bounded search."
+        },
+        {
+          "query": "site:www.sanguosha.cn \"谋夏侯氏\" \"弃置\" \"装备\"",
+          "result": "No character-specific primary FAQ resolving Hand versus Equipment cost scope located."
+        },
+        {
+          "query": "site:www.sanguosha.cn \"谋夏侯氏\" \"樵拾\" \"拒绝\"",
+          "result": "No primary ruling on whether declining the source choice spends once-per-turn usage located."
+        },
+        {
+          "query": "site:www.sanguosha.cn \"樵拾\" \"回复\" \"两张\" \"FAQ\"",
+          "result": "No primary ruling on replacement/prevention/zero actual recovery and subsequent requested Draw2 located."
+        }
+      ],
+      "noApplicableConflictingFormalRevisionFound": true,
+      "absenceIsNotExhaustiveProof": true,
+      "officialFaqConfirmed": false,
+      "communityMaterialsUsedAsAuthority": false
+    },
+    "latestLocatedDescriptionTable": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "publishedAt": "2026-10-15 10:18:17",
+      "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "imageSha256": "411A068609351931E47F91FCFDE8F2B04B7451C9769C117B4D6D1C635ADDD16C",
+      "imageDimensions": [
+        1744,
+        1927
+      ],
+      "visuallyInspectedBySourceAuditor": true,
+      "finding": "No 燕语/樵拾 entry. Same-name classic 洛神/倾国 rows do not revise this general."
+    }
+  },
+  "artwork": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/71200.jpg",
+    "httpStatus": 200,
+    "contentType": "image/jpeg",
+    "bytes": 401368,
+    "sha256": "B876769179D685F235B60B6581CBD0D360E99BD14A7018D44777D211F20F3630",
+    "width": 530,
+    "height": 750,
+    "format": "JPEG",
+    "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-497.html",
+    "unmodifiedOfficialBytes": true,
+    "visualSubjectVerifiedBySourceAuditor": true,
+    "rootVisualInspectionPending": false,
+    "wpfRenderingVerified": false,
+    "inspection": "Root and source auditor viewed the exact original: a dark-haired woman in flowing red and white clothes stands in clear shallow blue water, holding a purple lotus above her head; petals, rocks and green shore flowers remain in the full original frame. Official bytes are unmodified; WPF verification is pending.",
+    "rootVisualInspectionPassed": true,
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-xiahou-shi-mobile.jpg"
+  },
+  "engineeringDecisions": [
+    {
+      "id": "yanyu-discard-zone-and-identity",
+      "officialKnown": "Current text says discard one Slash, does not explicitly name Hand or Equipment. This is discard, unlike classic/boundary recast.",
+      "notConfirmed": "No primary FAQ establishing a special Hand-only limitation, treatment of effective identities, or permission for view-as payment.",
+      "engineeringStatus": "accepted-project-contract-not-official-faq",
+      "engineeringInterpretation": "Pay one genuinely discardable owned Hand or Equipment physical Slash, FireSlash or ThunderSlash. A view-as declaration alone is not a physical payment. Use native discard movement and all descendant windows, never Recast or a synthetic loss."
+    },
+    {
+      "id": "yanyu-actual-phase-and-turn-ledger",
+      "officialKnown": "Activation is twice per Play; support amount is three times the number discarded by this method in this turn.",
+      "notConfirmed": "No dedicated official inserted-Play/source-loss FAQ located. Native actual-Play cap and whole actual-turn causal paid-discard ledger should be specified; do not hard-cap support at6 across multiple Plays.",
+      "engineeringStatus": "accepted-project-contract-not-official-faq",
+      "engineeringInterpretation": "Twice per exact actual Play phase. The same phase allowance does not reset by loss and reacquisition. At each actual own Play ending, a chosen living other draws three times all genuine paid YanYu Slashes in the same actual turn, including earlier inserted Plays and earlier skill sources; this total is not capped at six. Freeze the count at accepted support. A raw TurnEnded may still lead to a native inserted Play: retain the actual-turn ledger until the native ActualTurnCursorReturned boundary, then use a new ledger for the next actual turn."
+    },
+    {
+      "id": "qiaoshi-decline-quota",
+      "officialKnown": "Once each turn; after other-source damage, that damage source may choose the recovery and then receives Draw2.",
+      "notConfirmed": "The terse text alone does not settle whether an offered but declined source choice consumes the once-per-turn opportunity.",
+      "engineeringStatus": "accepted-project-contract-not-official-faq",
+      "engineeringInterpretation": "The actual living other damage source privately chooses recover-and-draw or decline; no separate owner approval. Decline does not spend the once-per-actual-turn opportunity. Accepting the recovery branch commits it across source loss/reacquisition and later damage. Source-less or self-inflicted damage does not offer the branch."
+    },
+    {
+      "id": "qiaoshi-recovery-attempt-versus-actual",
+      "officialKnown": "The requested recovery is the damage value; if so, the source draws2.",
+      "notConfirmed": "No primary FAQ found for full-HP/Armor-only damage, prevented/replaced/zero actual recovery and whether Draw2 follows the accepted request. Freeze the original native damage invoice rather than substituting HP loss; preserve exact native recovery return and truthful actual values.",
+      "engineeringStatus": "accepted-project-contract-not-official-faq",
+      "engineeringInterpretation": "Freeze the positive native damage invoice, including damage paid by Armor rather than substituting HP loss. On acceptance issue the genuine native recovery request with that amount and the damage source as recovery source. Retain native caps, replacements, prevention, undefined identity and all child returns. Then the surviving damage source receives native Draw2, independently of the actual recovered amount, which may be zero. HP loss is not damage."
+    },
+    {
+      "id": "paid-source-and-death",
+      "officialKnown": "Both complete skills remain in scope.",
+      "notConfirmed": "Source loss, nonterminal participant death, actual winner cutoff and recovery/draw child lifetime require the project native settlement contract; no dedicated official FAQ located.",
+      "engineeringStatus": "accepted-project-contract-not-official-faq",
+      "engineeringInterpretation": "Once a Yanyu discard or Qiaoshi recovery choice is accepted and paid, loss of the original grant does not cancel its native outstanding child or duplicate the payment on resume. Apply ordinary native death and terminal-winner cutoffs; draw only for the living actual beneficiary. Keep all progress and receipts on the owning ProgramSkillFrame with exact source, hash, actual turn/phase and native parent identity. Qiaoshi uses the same actual-turn cursor boundary, retaining its once-per-turn budget during legitimate children after raw TurnEnded."
+    }
+  ],
+  "verificationLimits": [
+    "All two current mainland official skills and API identity were checked in full. Formal launch and a later permanent acquisition notice were independently located.",
+    "No authenticated client replay or character-specific primary FAQ was used. The explicit boundary decisions above are project engineering contracts, not official or user-selected rulings.",
+    "Source audit only; no implementation behavior, focused checks, routine checks or application render has been verified for this batch."
+  ],
+  "validation": {
+    "status": "pending",
+    "sourceReview": "passed-with-explicit-project-engineering-contracts",
+    "officialPortraitHashAndDimensions": "passed",
+    "sourceAuditorPortraitVisualInspection": "passed",
+    "rootPortraitVisualInspection": "passed",
+    "wpfRendering": "pending",
+    "focused": "pending",
+    "routine": "pending",
+    "manualFullRun": false
+  }
+}

@@ -309,7 +309,7 @@ public sealed partial class GameEngine
             {
                 var owner = _players[departure.OwnerSeat];
                 var before = owner.Hp;
-                var after = owner.IsAlive ? Math.Max(0, before - 1) : before;
+                var after = owner.IsAlive ? checked(before - 1) : before;
                 ReplaceRuntimeTop(frame = frame with { WenhePoisonLoss = receipt with
                 { Stage = WenhePoisonLossStage.HealthChildren, HpBefore = before, HpAfter = after } });
                 owner.Hp = after;
@@ -387,7 +387,7 @@ public sealed partial class GameEngine
         if (applied.Length != receipt.Cursor + activeIssued || settled.Length != receipt.Cursor ||
             applied.Where((e, i) => e.BatchId != frame.Batch.Id || e.RoundNumber != departures[i].RoundNumber ||
                 e.MovementSequence != departures[i].MovementSequence || e.OwnerSeat != departures[i].OwnerSeat || e.CardId != departures[i].CardId ||
-                e.HpBefore < 0 || e.HpAfter < 0 || e.HpBefore - e.HpAfter is < 0 or > 1).Any() ||
+                (long)e.HpBefore - e.HpAfter is < 0 or > 1).Any() ||
             settled.Where((e, i) => e.BatchId != frame.Batch.Id || e.MovementSequence != departures[i].MovementSequence ||
                 e.OwnerSeat != departures[i].OwnerSeat || e.CardId != departures[i].CardId).Any() ||
             activeIssued != 0 && (applied[^1].HpBefore != receipt.HpBefore || applied[^1].HpAfter != receipt.HpAfter))

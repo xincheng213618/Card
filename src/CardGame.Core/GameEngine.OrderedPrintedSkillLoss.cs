@@ -141,8 +141,12 @@ public sealed partial class GameEngine
             var general = lease.TemplateSourceId == CharacterState.SecondarySkillSource ? owner.SecondaryGeneral : owner.General;
             foreach (var grant in lease.RemovedGrants)
             {
-                var outcome = !owner.IsAlive ? "owner-dead" : general?.Id != lease.GeneralId ? "template-changed" :
-                    grant.TurnExpiry is { } expiry && expiry.TurnNumber <= turnNumber ? "grant-expired" : "restored";
+                var lossFact = CompleteProgramEventHistory().OfType<OrderedPrintedSkillGrantRemovedEvent>()
+                    .Single(e => e.FrameId == lease.ProgramFrameId && e.Grant == grant);
+                var outcome = WasGrantPermanentlyRevokedAfterLoss(owner.Seat, grant, lossFact) ? "permanently-lost" :
+                    !owner.IsAlive ? "owner-dead" : general?.Id != lease.GeneralId ? "template-changed" :
+                    (grant.TurnExpiry is { } expiry && expiry.TurnNumber <= turnNumber ||
+                     HasNextActualTurnStartSkillGrantExpired(grant)) ? "grant-expired" : "restored";
                 if (outcome == "restored" && owner.SkillGrants.Grants.SingleOrDefault(g => g.GrantId == grant.GrantId) is { } existing)
                 {
                     if (existing != grant) throw new InvalidOperationException("A returning ordered printed grant conflicts with a newly issued identity.");

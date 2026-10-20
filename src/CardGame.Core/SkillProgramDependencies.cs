@@ -16,6 +16,7 @@ internal sealed class SkillProgramDependencies
     private readonly FrozenSet<SkillProgramTriggerWindow> _windows;
     private readonly FrozenSet<SkillProgramCardPolicyKind> _cardPolicyKinds;
     private readonly FrozenSet<(CardKind Kind, SkillProgramCardCategory Category)> _finalizedCards;
+    private readonly FrozenSet<(CardKind Kind, SkillProgramCardCategory Category)> _beforeTargetCards;
     private readonly int? _maximumCardPolicyKind;
 
     internal SkillProgramDependencies(IEnumerable<ContentSkillDefinition> skills)
@@ -40,6 +41,8 @@ internal sealed class SkillProgramDependencies
         UsesAnyLivingTurnStart = triggers.Any(trigger => trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
             trigger.TurnOwnerScope is SkillProgramTurnOwnerScope.AnyLiving or SkillProgramTurnOwnerScope.OtherLiving);
         UsesOwnerMarkerCount = programs.Any(program => program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.OwnerMarkerCount));
+        UsesDrawPhaseDrawCountHandLimit = programs.Any(program => program.Modifiers.Any(modifier =>
+            modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnDrawPhaseDrawCountHalfFloor));
         var resolver = ProgramInstructionResolver.Default;
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
         TracksActualTurnUseOrdinal = UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionActualTurnUseOrdinalIs) ||
@@ -47,14 +50,27 @@ internal sealed class SkillProgramDependencies
         UsesLeiluanBasicUse = programs.Any(program => program.ViewAs.Any(rule => rule.LeiluanBasicUse is not null));
         UsesEqualNameLengthUse = programs.Any(program => program.ViewAs.Any(rule => rule.EqualNameLengthUse));
         UsesRankTwoDamageUse = programs.Any(program => program.ViewAs.Any(rule => rule.RankTwoDamageUse));
-        TracksCurrentRoundActualUses = UsesLeiluanBasicUse || programs.Any(program => program.Modifiers.Any(modifier =>
+        HasRoundSlashUseDamageModifiers = programs.Any(program => program.DamageModifiers.Any(modifier =>
+            modifier.Condition == SkillProgramDamageModifierCondition.OwnerRoundSlashUseOrdinalWithinLimit));
+        HasActualTurnElementalSlashUseDamageModifiers = programs.Any(program => program.DamageModifiers.Any(modifier =>
+            modifier.Condition == SkillProgramDamageModifierCondition.OwnerActualTurnElementalSlashUseOrdinalWithinLimit));
+        TracksCurrentRoundActualUses = UsesLeiluanBasicUse || HasRoundSlashUseDamageModifiers || programs.Any(program => program.Modifiers.Any(modifier =>
             modifier.ValueExpression == SkillRuleValueExpression.NegatedCurrentRoundActualUseCount));
         HasWholeActualTurnTrickDamageModifiers = programs.Any(program => program.DamageModifiers.Any(modifier =>
             modifier.Condition == SkillProgramDamageModifierCondition.OwnerActualTurnTrickUseOrdinalWithinLimit));
         HasPublicEnemyParticipantDamageModifiers = programs.Any(program => program.DamageModifiers.Any(modifier =>
             modifier.SourceScope == SkillProgramDamageModifierSourceScope.AllLivingSkillOwners));
+        HasSourceDistanceDamageModifiers = programs.Any(program => program.DamageModifiers.Any(modifier =>
+            modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageSource &&
+            modifier.Condition == SkillProgramDamageModifierCondition.SourceToTargetDistanceGreaterThan));
+        HasSourceRoundDamageModifiers = programs.Any(program => program.DamageModifiers.Any(modifier =>
+            modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageSource &&
+            modifier.Condition is SkillProgramDamageModifierCondition.SourceRoundIsOdd or SkillProgramDamageModifierCondition.SourceRoundIsEven));
+        HasFixedTargetDamageCaps = programs.Any(program => program.DamageModifiers.Any(modifier =>
+            modifier.CapsToAmount && modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant &&
+            modifier.Condition == SkillProgramDamageModifierCondition.Always));
         TracksEffectiveUseNames = triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ResolveLeCaiYongFeibai));
-        TracksWholeActualTurnUseOrdinal = TracksEffectiveUseNames || programs.Any(program => program.CardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.OwnTurnFirstLostHpUses)) || HasWholeActualTurnTrickDamageModifiers || triggers.Any(trigger => trigger.Effects.Any(effect =>
+        TracksWholeActualTurnUseOrdinal = TracksEffectiveUseNames || programs.Any(program => program.CardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.OwnTurnFirstLostHpUses)) || HasWholeActualTurnTrickDamageModifiers || HasActualTurnElementalSlashUseDamageModifiers || triggers.Any(trigger => trigger.Effects.Any(effect =>
             effect.Op is SkillProgramEffectOp.ResolveBingzhongExtraTargets or SkillProgramEffectOp.ResolveMouHuangYueyingBingcai));
         TracksCurrentTurnUseKinds = UsesLeiluanBasicUse || TracksActualTurnUseOrdinal || TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal || programs.Any(program =>
             program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
@@ -86,12 +102,22 @@ internal sealed class SkillProgramDependencies
         UsesOwnPublicPileConversions = programs.Any(program => program.ViewAs.Any(rule => rule.SourcePileSkillId is not null));
         UsesRoundGainedRedHandOnly = programs.Any(program => program.ViewAs.Any(rule => rule.RoundGainedRedHandOnly == true));
         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
-        UsesRoundTracking = HasTriggerOperation(SkillProgramEffectOp.ResolveMouYuJinXiayuan) || HasTriggerOperation(SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw) || HasCardPolicy(SkillProgramCardPolicyKind.FirstRoundCardDamageBecomesMaximumHpLoss) || UsesLeiluanBasicUse || HasTriggerWindow(SkillProgramTriggerWindow.RoundStarting) || HasTriggerWindow(SkillProgramTriggerWindow.RoundEnding) || HasTriggerOperation(SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply) || HasTriggerOperation(SkillProgramEffectOp.ResolveFengweiRoundStartDraw) || HasTriggerOperation(SkillProgramEffectOp.ResolveZonghuRequiredUseRequest) || HasActivationOperation(SkillProgramEffectOp.ResolveZonghuRequiredUseRequest) || HasActivationOperation(SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse) || HasTriggerOperation(SkillProgramEffectOp.ResolveGongjieRoundFirstGifts) || HasTriggerOperation(SkillProgramEffectOp.ResolveQiejianLastHandLoss) || HasTriggerOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack) || HasTriggerOperation(SkillProgramEffectOp.ArmHanyongNativeGroupDamage) || TracksCurrentRoundActualUses || HasTriggerOperation(SkillProgramEffectOp.ResolveMiuyanCompletedUse) || HasTriggerOperation(SkillProgramEffectOp.ResolveXianyingDrawDiscard) || HasTriggerOperation(SkillProgramEffectOp.GiveCardSkipDrawForEnding) || HasTriggerOperation(SkillProgramEffectOp.DrawDyingExitRoundDistance) || HasTriggerOperation(SkillProgramEffectOp.TransferQuxiAtRoundOrDeath) || UsesTriggerValue(SkillProgramTriggerValueKind.RoundTurnSeatCount) || HasTriggerOperation(SkillProgramEffectOp.HoldRoundFocusCards) || HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) || HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) || UsesTieredRoundConversions || UsesRoundOnceCardlessBasics || HasTriggerWindow(SkillProgramTriggerWindow.TurnBeforeStart) || UsesRoundDistinctBasicUse || UsesRoundGainedRedHandOnly || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal) || HasTriggerOperation(SkillProgramEffectOp.ZecaiRoundSettlement) || HasTriggerOperation(SkillProgramEffectOp.FengjiRoundChoice) || HasTriggerOperation(SkillProgramEffectOp.KanggeHealVictim) || HasTriggerOperation(SkillProgramEffectOp.QualifyFirstRoundDamage) || HasTriggerOperation(SkillProgramEffectOp.ArmHongjiNextPhase);
+        UsesRoundTracking = HasTriggerOperation(SkillProgramEffectOp.ResolveMouYuJinXiayuan) || HasSourceRoundDamageModifiers || HasTriggerOperation(SkillProgramEffectOp.ResolveJiguDamageEquipmentDraw) || HasCardPolicy(SkillProgramCardPolicyKind.FirstRoundCardDamageBecomesMaximumHpLoss) || UsesLeiluanBasicUse || HasTriggerWindow(SkillProgramTriggerWindow.RoundStarting) || HasTriggerWindow(SkillProgramTriggerWindow.RoundEnding) || HasTriggerOperation(SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply) || HasTriggerOperation(SkillProgramEffectOp.ResolveFengweiRoundStartDraw) || HasTriggerOperation(SkillProgramEffectOp.ResolveZonghuRequiredUseRequest) || HasActivationOperation(SkillProgramEffectOp.ResolveZonghuRequiredUseRequest) || HasActivationOperation(SkillProgramEffectOp.ResolveHuanpeiHandAdjustmentAndBasicUse) || HasTriggerOperation(SkillProgramEffectOp.ResolveGongjieRoundFirstGifts) || HasTriggerOperation(SkillProgramEffectOp.ResolveQiejianLastHandLoss) || HasTriggerOperation(SkillProgramEffectOp.ResolveHuiyunCompletedFireAttack) || HasTriggerOperation(SkillProgramEffectOp.ArmHanyongNativeGroupDamage) || TracksCurrentRoundActualUses || HasTriggerOperation(SkillProgramEffectOp.ResolveMiuyanCompletedUse) || HasTriggerOperation(SkillProgramEffectOp.ResolveXianyingDrawDiscard) || HasTriggerOperation(SkillProgramEffectOp.GiveCardSkipDrawForEnding) || HasTriggerOperation(SkillProgramEffectOp.DrawDyingExitRoundDistance) || HasTriggerOperation(SkillProgramEffectOp.TransferQuxiAtRoundOrDeath) || UsesTriggerValue(SkillProgramTriggerValueKind.RoundTurnSeatCount) || HasTriggerOperation(SkillProgramEffectOp.HoldRoundFocusCards) || HasTriggerOperation(SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget) || HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) || UsesTieredRoundConversions || UsesRoundOnceCardlessBasics || HasTriggerWindow(SkillProgramTriggerWindow.TurnBeforeStart) || UsesRoundDistinctBasicUse || UsesRoundGainedRedHandOnly || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal) || HasTriggerOperation(SkillProgramEffectOp.ZecaiRoundSettlement) || HasTriggerOperation(SkillProgramEffectOp.FengjiRoundChoice) || HasTriggerOperation(SkillProgramEffectOp.KanggeHealVictim) || HasTriggerOperation(SkillProgramEffectOp.QualifyFirstRoundDamage) || HasTriggerOperation(SkillProgramEffectOp.ArmHongjiNextPhase);
+        UsesRoundTracking |= programs.Any(program => program.Activations.Any(a => a.UsesPerPhaseExpression is not null));
+        UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.GrantDamageTargetSkillAndDrawByRound) ||
+            HasTriggerOperation(SkillProgramEffectOp.ResolvePrepPoisonOutcomeByRound);
         _maximumCardPolicyKind = _cardPolicyKinds.Select(kind => (int?)kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
         _finalizedCards = (from kind in Enum.GetValues<CardKind>()
             from category in Enum.GetValues<SkillProgramCardCategory>()
             where finalized.Any(trigger =>
+                (trigger.CardKinds.Count == 0 || trigger.CardKinds.Contains(kind)) &&
+                (trigger.CardCategories.Count == 0 || trigger.CardCategories.Contains(category)))
+            select (kind, category)).ToFrozenSet();
+        var beforeTarget = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseBeforeTargetEffects).ToArray();
+        _beforeTargetCards = (from kind in Enum.GetValues<CardKind>()
+            from category in Enum.GetValues<SkillProgramCardCategory>()
+            where beforeTarget.Any(trigger =>
                 (trigger.CardKinds.Count == 0 || trigger.CardKinds.Contains(kind)) &&
                 (trigger.CardCategories.Count == 0 || trigger.CardCategories.Contains(category)))
             select (kind, category)).ToFrozenSet();
@@ -111,6 +137,7 @@ internal sealed class SkillProgramDependencies
     internal IReadOnlySet<string> EquipmentPresenceSkillIds { get; }
     internal IReadOnlySet<string> EquipmentSuitCapabilitySkillIds { get; }
     internal bool UsesOwnerMarkerCount { get; }
+    internal bool UsesDrawPhaseDrawCountHandLimit { get; }
     internal IReadOnlySet<string> HpSensitiveSkillIds { get; }
     internal IReadOnlySet<string> HpConditionalCapabilitySkillIds { get; }
     internal bool UsesLordSkillProjection { get; }
@@ -124,7 +151,13 @@ internal sealed class SkillProgramDependencies
     internal bool TracksWholeActualTurnUseOrdinal { get; }
     internal bool TracksEffectiveUseNames { get; }
     internal bool HasWholeActualTurnTrickDamageModifiers { get; }
+    internal bool HasRoundSlashUseDamageModifiers { get; }
+    internal bool HasActualTurnElementalSlashUseDamageModifiers { get; }
+    internal bool TracksSlashDamageUseOrdinals => HasRoundSlashUseDamageModifiers || HasActualTurnElementalSlashUseDamageModifiers;
     internal bool HasPublicEnemyParticipantDamageModifiers { get; }
+    internal bool HasSourceDistanceDamageModifiers { get; }
+    internal bool HasSourceRoundDamageModifiers { get; }
+    internal bool HasFixedTargetDamageCaps { get; }
     internal bool UsesDynamicRoundUsage { get; }
     internal bool UsesTieredRoundConversions { get; }
     internal bool UsesLeiluanBasicUse { get; }
@@ -146,5 +179,6 @@ internal sealed class SkillProgramDependencies
     internal bool HasTriggerWindow(SkillProgramTriggerWindow window) => _windows.Contains(window);
     internal bool HasCardPolicy(SkillProgramCardPolicyKind kind) => _cardPolicyKinds.Contains(kind);
     internal bool HasFinalizedCardTrigger(CardKind kind, SkillProgramCardCategory category) => _finalizedCards.Contains((kind, category));
+    internal bool HasBeforeTargetCardTrigger(CardKind kind, SkillProgramCardCategory category) => _beforeTargetCards.Contains((kind, category));
     internal bool HasCardPolicyKindAtOrAbove(int minimum) => _maximumCardPolicyKind >= minimum;
 }

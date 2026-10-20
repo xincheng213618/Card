@@ -64,6 +64,7 @@ public sealed partial class GameEngine
             active.OwnerSeat, active.SkillInstanceId);
         var resolutionId = BeginCardUse(
             card, victim.Seat, [victim.Seat], CardKind.Alcohol, conversionSource: source);
+        IssueBoundDyingAlcoholReturn(resolutionId, active, dying, card, location, reason);
         MoveCard(card, location, CardLocation.Processing, reason);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
         var recoveryAmount = ApplyIssuedCardRecoveryModifiers(resolutionId, victim.Seat, victim.Seat, 1);
@@ -82,14 +83,8 @@ public sealed partial class GameEngine
             PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
         }
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, reason);
+        RecordBoundDyingAlcoholPayment(resolutionId, recoveryAmount);
         FinishCardUse(resolutionId, card, CardKind.Alcohol);
-        AdvanceEventRulesAndQueueFact(new ProgramDyingRescueEvent(
-            dying.FrameId, active.SkillId, active.OwnerSeat, victim.Seat,
-            card.Id, recoveryAmount, victim.Hp));
-        var skill = _contentRegistry!.GetSkill(active.SkillId);
-        AddLog("SkillTriggered",
-            $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，令 {victim.Name} 视为使用【酒】并回复{recoveryAmount}点体力。",
-            active.OwnerSeat, victim.Seat);
     }
 
     private void UseProgramVirtualDyingAlcohol(ProgramSkillFrame frame)

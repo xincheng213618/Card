@@ -11,6 +11,7 @@ using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.Presentation;
 using CardGame.Wpf.ViewModels;
@@ -152,13 +153,14 @@ internal static class ProgramPaidChoiceUiChecks
                        Enumerable.Range(1, 3).All(seat => game.CreateSnapshot(seat).PendingDecision is null),
             "Other hand costs must use the shared choice surface with opaque slots and private chooser ownership.");
         Program.Render(root, 1120, 740, Path.Combine(output, "265-program-participant-private-cost.png"));
-        var choicePanel = (ItemsControl)window.FindName("ScrollingSkillChoices");
-        var buttons = Program.Find<Button>(choicePanel).Where(button =>
+        var picker = Program.Find<TargetCardPicker>(root).Single();
+        var buttons = Program.Find<Button>(picker).Where(button =>
             button.Command == model.SelectSkillChoiceCommand && button.Visibility == Visibility.Visible &&
             button.IsEnabled && button.ActualWidth > 0 && button.ActualHeight > 0).ToArray();
-        Program.Assert(!model.HasPinnedPublicModuleChoices && choicePanel.Items.Count == model.SkillChoices.Count &&
-                       choicePanel.ActualHeight > 0 && buttons.Length == model.SkillChoices.Count,
-            "Every published opaque payment slot must be a visible, enabled WPF choice.");
+        Program.Assert(!model.HasPinnedPublicModuleChoices && model.TargetCardRegions is [{ Zone: CardZoneKind.Hand } region] &&
+                       region.Choices.SequenceEqual(model.SkillChoices, ReferenceEqualityComparer.Instance) &&
+                       model.UngroupedCenterSkillChoices.Count == 0 && picker.ActualHeight > 0 && buttons.Length == model.SkillChoices.Count,
+            "Every opaque payment slot must be reachable in the hand region, without empty equipment or judgment rows.");
 
         model.SelectSkillChoiceCommand.Execute(model.SkillChoices.Last());
         Program.AdvanceToDecision(model);

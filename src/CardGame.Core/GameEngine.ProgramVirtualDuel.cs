@@ -72,7 +72,9 @@ public sealed partial class GameEngine
             var targetIndex = Array.IndexOf(targets.ToArray(), step.TargetSeat);
             if (step.SourceSeat != attack.SourceSeat || step.FromSeat != previousSeat || step.Nature != nature || step.Amount <= 0 ||
                 targetIndex <= previousIndex || targetIndex >= cursor ||
-                state.RecipientDamageScope is { } scope && step.Amount != scope.PropagationBaseAmount) return false;
+                state.RecipientDamageScope is { } scope &&
+                (scope.LateFixedTargetDamageCap is not { } late || targetIndex >= late.NextTargetIndex) &&
+                step.Amount != scope.PropagationBaseAmount) return false;
             previousSeat = step.TargetSeat; previousIndex = targetIndex;
         }
         return previousIndex == cursor - 1 && previousSeat == attack.TargetSeat;

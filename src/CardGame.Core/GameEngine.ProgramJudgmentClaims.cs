@@ -28,10 +28,12 @@ public sealed partial class GameEngine
         {
             PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
         });
+        var sequenceBefore = _movementSequence;
         MoveCard(card, from, CardLocation.Hand(frame.OwnerSeat),
             new CardMoveReason($"skill-program.{frame.SkillId}.claimJudgmentCard"));
         AdvanceEventRulesAndQueueFact(new ProgramJudgmentCardClaimedEvent(
             pending.Id, frame.SkillId, frame.OwnerSeat, card.Id, card.Kind));
+        CaptureProgramJudgmentOutcomeClaim(active, pending, card, sequenceBefore);
         if (!TryBeginCardsMovedProgramWindow())
             ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;

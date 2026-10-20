@@ -16,7 +16,7 @@
           "optional": false,
           "priority": 0,
           "effects": [
-            { "op": "draw", "target": "owner", "amount": 1 }
+            { "op": "adjustNormalDraw", "target": "owner", "amount": 1 }
           ]
         }
       ],
@@ -38,7 +38,7 @@
           "optional": true,
           "priority": 0,
           "effects": [
-            { "op": "draw", "target": "owner", "amount": 1 }
+            { "op": "adjustNormalDraw", "target": "owner", "amount": 1 }
           ]
         }
       ],

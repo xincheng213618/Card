@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-chengxiong-14055": {
+      "name": "逞凶",
+      "description": "锁定技，奇数轮时，你造成的伤害+1；偶数轮时，你造成的伤害-1。"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "status": "test-failed",
+  "mode": "targeted",
+  "repository": "C:\\Users\\17917\\Desktop\\Card",
+  "artifactsPath": "C:\\Users\\17917\\Desktop\\Card\\multi-target",
+  "coreFilters": [
+    "stale prompt choices"
+  ],
+  "wpfFilters": [
+    "opaque target-card slots"
+  ],
+  "startedAt": "2026-10-19T00:52:05.2556150+08:00",
+  "durationMs": 54270,
+  "message": "One or more selected checks failed.",
+  "results": [
+    {
+      "name": "Build selected scope",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 42000,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\multi-target\\logs\\build.log"
+    },
+    {
+      "name": "Core selected checks (1 filters, union)",
+      "status": "failed",
+      "exitCode": 2,
+      "durationMs": 259,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\multi-target\\logs\\core-selected.log",
+      "startedAt": "2026-10-19T00:52:47.4268566+08:00",
+      "endedAt": "2026-10-19T00:52:47.6856609+08:00",
+      "processId": 47564
+    },
+    {
+      "name": "WPF selected checks (1 filters, union)",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 11832,
+      "log": "C:\\Users\\17917\\Desktop\\Card\\multi-target\\logs\\wpf-selected.log",
+      "startedAt": "2026-10-19T00:52:47.4475351+08:00",
+      "endedAt": "2026-10-19T00:52:59.2799431+08:00",
+      "processId": 82064
+    }
+  ],
+  "cleanup": {
+    "status": "registration-failed",
+    "queued": [],
+    "database": "C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json",
+    "message": "Could not register outputs in 'C:\\Users\\17917\\Desktop\\Card\\tools\\cleanup_queue.json'. Retained 'C:\\Users\\17917\\Desktop\\Card\\multi-target'."
+  }
+}

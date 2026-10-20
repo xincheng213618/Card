@@ -12,10 +12,14 @@ public sealed partial class GameEngine
             _resolutionStack.Any(item => item is PindianFrame) || !_players[sourceSeat].IsAlive ||
             !HasWuLuKangPindianInput(_players[sourceSeat]) || opponentSeat is { } opponent && !CanBePindianTarget(sourceSeat, opponent))
             throw new InvalidOperationException("Pindian requires one suspended parent and a living source with hand cards.");
+        var selectedSourceTopChoice = sourceCardId is { } selectedSource && ownedPileSource is null &&
+            _resolutionStack[^1] is ProgramSkillFrame selectedParent && selectedParent.OwnerSeat == sourceSeat &&
+            selectedParent.SelectedCardIds.SequenceEqual([selectedSource]) && CanOfferPindianTopChoice(_players[sourceSeat]);
         var frame = new PindianFrame(++_resolutionSequence, parentId, presentation.SkillId, presentation,
             sourceSeat, opponentSeat, sourceCardId,
             opponentSeat is null ? PindianStep.ChooseParticipants :
-            sourceCardId is null ? PindianStep.ChooseSourceCard : PindianStep.ChooseOpponentCard,
+            sourceCardId is null || selectedSourceTopChoice
+                ? PindianStep.ChooseSourceCard : PindianStep.ChooseOpponentCard,
             ProgramResultBind: programResultBind,
             ProgramResultVisibility: programResultVisibility,
             ParentProcessingCardIds: Array.AsReadOnly(_cardZones.CardsAt(CardLocation.Processing)
@@ -32,6 +36,8 @@ public sealed partial class GameEngine
         var selectingSource = frame.PindianStep is PindianStep.ChooseParticipants or PindianStep.ChooseSourceCard;
         var chooser = _players[selectingSource ? frame.SourceSeat : frame.OpponentSeat!.Value];
         var hand = GetHand(chooser);
+        if (frame.PindianStep == PindianStep.ChooseSourceCard && frame.SourceCardId is { } originallySelected)
+            hand = hand.Where(card => card.Id == originallySelected).ToArray();
         var targets = frame.PindianStep == PindianStep.ChooseParticipants ? _players.Where(player => player.IsAlive &&
             player.Seat != chooser.Seat && HasWuLuKangPindianInput(player) && CanBePindianTarget(frame.SourceSeat, player.Seat)).Select(player => player.Seat).ToArray() : [];
         if (!chooser.IsAlive || !HasWuLuKangPindianInput(chooser) || frame.PindianStep == PindianStep.ChooseParticipants && targets.Length == 0 ||
@@ -185,6 +191,7 @@ public sealed partial class GameEngine
                         result.SourceRank, result.OpponentRank, result.SourceWon,
                         frame.ProgramResultVisibility) { ForeignTurnOrigin = foreignOrigin }).ToArray())
             });
+            RecordPindianHandContestReturn(GetActiveProgramFrame(program.Id), frame);
             AdvanceRuntimeProgram(program.Id);
         }
         else throw new InvalidOperationException("Pindian lost its parent continuation.");
@@ -263,6 +270,13 @@ public sealed partial class GameEngine
                 ? frame.SourceSeat : frame.OpponentSeat!.Value;
             if (decision.PlayerSeat != owner ||
                 decision.SkillPrompt.SkillId != frame.SkillId ||
+                frame.PindianStep == PindianStep.ChooseSourceCard && frame.SourceCardId is { } selectedSource &&
+                (frame.OwnedPileSource is not null || _resolutionStack[^2] is not ProgramSkillFrame sourceProgram ||
+                 !sourceProgram.SelectedCardIds.SequenceEqual([selectedSource]) ||
+                 !GetHand(_players[owner]).Any(card => card.Id == selectedSource) ||
+                 decision.ValidCardIds.Any(id => id != selectedSource) ||
+                 decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") != "pindian-top" &&
+                     !choice.Cards.SequenceEqual([selectedSource]))) ||
                 decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "pindian-maximum" ? choice.Cards.Count != 0 || !CanWuLuKangDiscardForPindian(_players[owner]) : choice.Parameters.GetValueOrDefault("action")=="pindian-top"
                     ? choice.Cards.Count!=0 || !CanOfferPindianTopChoice(_players[owner])
                     : choice.Cards.Count != 1 || !GetHand(_players[owner]).Any(card => card.Id == choice.Cards[0])) ||

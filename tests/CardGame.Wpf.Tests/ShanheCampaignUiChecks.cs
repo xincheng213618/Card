@@ -1,5 +1,6 @@
 using System.IO;
 using System.Reflection;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -8,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
+using CardGame.Core.Campaigns;
 using CardGame.Wpf;
 using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
@@ -245,10 +247,28 @@ internal static class ShanheCampaignUiChecks
             ClickNavigation((Button)panel.FindName("ShanhePrepareButton"), root);
             var selector = (ComboBox)panel.FindName("ShanheScenarioSelector");
             selector.SelectedItem = vm.ShanheScenarios.Single(option => option.Id == StandardShanheCampaignCatalog.Returning2026EditionId);
+            vm.SelectedShanheGeneral = vm.ShanheGenerals.Single(general => general.Id == "classic:shen-guan-yu");
             Layout(root);
             Program.Assert(vm.SelectedShanheScenario.Id == StandardShanheCampaignCatalog.Returning2026EditionId &&
-                vm.ShanheEditionNotice.Contains("2026") && vm.ShanheContextDescription.Contains("神鬼无前"),
+                vm.ShanheEditionNotice.Contains("2026") && vm.ShanheContextDescription.Contains("神鬼无前") &&
+                vm.ShanheEditionNotice.Contains("神武将出征默认按群") &&
+                Program.Find<TextBlock>(root).Any(text => text.Text == vm.SelectedShanheGeneralMeta && text.Text.Contains("出征默认群")),
                 "The actual edition selector must explain its verified exclusive form before starting a run.");
+            Program.Assert(vm.ShanheCodexNodes.Single(node => node.TreeId == 35) is
+                { IsAvailable: true, RuntimeRewardId: StandardShanheCampaignCatalog.CurrentFarStrikeRewardId },
+                "The actual S5 Far Strike node is usable only where its current rule has an expedition reward.");
+            selector.SelectedItem = vm.ShanheScenarios.Single(option => option.Id == StandardShanheCampaignCatalog.LocalEditionId);
+            Layout(root);
+            Program.Assert(!vm.SelectedShanheGeneralMeta.Contains("出征默认") && !vm.ShanheEditionNotice.Contains("神武将出征默认按群") &&
+                !Program.Find<TextBlock>(root).Any(text => text.Text.Contains("出征默认群")),
+                "Switching to the old edition updates the real selected-general binding and removes the new god-faction policy notice.");
+            Program.Assert(!vm.ShanheCodexNodes.Single(node => node.TreeId == 35).IsAvailable,
+                "The historical edition retains the source-tree preview without offering the current Far Strike variant.");
+            selector.SelectedItem = vm.ShanheScenarios.Single(option => option.Id == StandardShanheCampaignCatalog.Returning2026EditionId);
+            Layout(root);
+            Program.Assert(vm.SelectedShanheGeneralMeta.Contains("出征默认群") &&
+                Program.Find<TextBlock>(root).Any(text => text.Text == vm.SelectedShanheGeneralMeta),
+                "Switching back republishes the actual selected god general's default faction before expedition creation.");
             Click((Button)panel.FindName("ShanheStartButton"), root);
             var opening = vm.ShanheMapRows.SelectMany(row => row.Nodes).Single(node => node.IsAvailable);
             vm.SelectShanheNodeCommand.Execute(opening);
@@ -263,10 +283,17 @@ internal static class ShanheCampaignUiChecks
                 ? boss.Skills!.Select(skill => skill.Id).ToHashSet().SetEquals(["shanhe:shengui-wushuang", "shanhe:shengui-shenqu"]) &&
                     game.CreateSnapshot(0).Players.Single(player => player.GeneralId == StandardShanheBossPackage.FenghuangId)
                         .Skills!.Select(skill => skill.Id).ToHashSet().SetEquals(["ol:fudao", "ol:xiuhao"])
-                : bossId == StandardShanheS5BossPackage.ZhangliaoBaseId &&
-                    boss.Skills!.Select(skill => skill.Id).ToHashSet().SetEquals([StandardShanheS5BossPackage.TuxiId, "boundary:pojun"]);
+                : bossId == StandardShanheS5BossPackage.ZhangliaoBaseId
+                    ? boss.Skills!.Select(skill => skill.Id).ToHashSet().SetEquals([StandardShanheS5BossPackage.TuxiId, "boundary:pojun"])
+                    : bossId == StandardShanheS5BossPackage.ZhangliaoLingdongId
+                        ? boss.Skills!.Select(skill => skill.Id).ToHashSet().SetEquals([StandardShanheS5BossPackage.TuxiId, "boundary:pojun", StandardShanheS5BossPackage.LingdongId])
+                        : bossId == StandardShanheS5BossPackage.ZhangliaoHuangkongId &&
+                            boss.Skills!.Select(skill => skill.Id).ToHashSet().SetEquals([StandardShanheS5BossPackage.TuxiId, "boundary:pojun", StandardShanheS5BossPackage.LingdongId, StandardShanheS5BossPackage.HuangkongId]);
             Program.Assert(vm.IsShanheBattleSession && knownForm && GeneralArt.HasPortrait(bossId),
                 "The selected edition starts the actually drawn dedicated form, with its correct skills and portrait, rather than substituting an ordinary same-name general.");
+            Program.Assert(game.CreateCheckpoint().Options.ShanheBattle!.DefaultGodFactionId == "qun" &&
+                game.CreateSnapshot(0).Players[0].FactionId == "qun",
+                "The selected edition's visible god-faction notice reaches the actual battle recipe and public table faction.");
             vm.SaveGameCommand.Execute(null);
             Program.Assert(vm.FlushPendingSave(), "The real exclusive encounter must save successfully.");
             var original = ShanheCampaignJsonText(campaign);
@@ -277,6 +304,7 @@ internal static class ShanheCampaignUiChecks
                 "A fresh UI starts with the old edition selected so restoration must obtain the edition from its checkpoint.");
             cold.ContinueShanheCommand.Execute(null);
             Program.Assert(cold.IsShanheBattleSession && cold.SelectedShanheScenario.Id == StandardShanheCampaignCatalog.Returning2026EditionId &&
+                cold.SelectedShanheGeneralMeta.Contains("出征默认群") &&
                 SnapshotJson.Serialize(Program.Engine(cold).CreateSnapshot(0)) == expected && ShanheCampaignJsonText(campaign) == original,
                 "Cold restoration must recover the saved edition and exact exclusive boss state without rewriting the source save.");
             var mismatched = new MemoryShanheCampaignSaveStore();
@@ -291,6 +319,7 @@ internal static class ShanheCampaignUiChecks
                 "A mismatched edition/difficulty save must preserve its source and the live ordinary game.");
         }
         finally { window.Content = null; window.DataContext = null; window.Close(); }
+        VerifyFengyiPreviewAndFiveSeatTable(output);
     }
 
     public static void LauncherSelectionMapAndDetachedWindow(string output)
@@ -559,6 +588,121 @@ internal static class ShanheCampaignUiChecks
             if (FailWrites) throw new IOException("The campaign fixture disk is temporarily unavailable.");
             _inner.Write(save);
         }
+    }
+
+    private static void VerifyFengyiPreviewAndFiveSeatTable(string output)
+    {
+        var full = StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.Returning2026EditionId);
+        var luoyang = full.Nodes.Single(node => node.Id == "luoyang");
+        var encounter = luoyang.Encounters!.Single(candidate => candidate.Id == "luoyang:fengyi-s5");
+        // Preserve the published Luoyang node and every real candidate, while making
+        // it the fixture's first route; no earlier battle or victory is fabricated.
+        var definition = full with { StartingNodeIds = [luoyang.Id], Nodes = [luoyang] };
+        var session = ShanheCampaignSession.Create(definition, new(83, "classic:guan-yu"), StandardShanheCampaignCatalog.CreateBattleRegistry);
+        var store = new PreviewTrackingShanheStore();
+        using (var model = Create(new MemorySaveStore(), store))
+        {
+            model.SelectedShanheScenario = model.ShanheScenarios.Single(option => option.Id == StandardShanheCampaignCatalog.Returning2026EditionId);
+            typeof(MainViewModel).GetField("_shanheSession", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(model, session);
+            var window = new MainWindow(model); window.ApplyTemplate();
+            var root = (FrameworkElement)window.Content;
+            try
+            {
+                model.OpenShanheCommand.Execute(null); Layout(root);
+                var panel = Program.Find<ShanheCampaignPanel>(root).Single();
+                var node = model.ShanheMapRows.SelectMany(row => row.Nodes).Single(candidate => candidate.Id == luoyang.Id);
+                var ordinary = Program.Engine(model); var ordinaryCheckpoint = GameCheckpointJson.Serialize(ordinary.CreateCheckpoint());
+                var journal = ShanheCampaignJson.Serialize(session.CreateCheckpoint()); var state = JsonSerializer.Serialize(session.Snapshot);
+                var writes = store.WriteCount;
+                Click(Bound(panel, model.PreviewShanheNodeCommand, node), root);
+                var expected = "董卓·覆銮凶影  体力 10/15";
+                Program.Assert(model.IsShanheEncounterPreviewOpen && model.ShanheEncounterEnemyDetail.Contains(expected, StringComparison.Ordinal) &&
+                    !model.ShanheEncounterEnemyDetail.Contains("董卓·覆銮凶影  体力 15/15", StringComparison.Ordinal) &&
+                    Program.Find<TextBlock>(panel).Any(text => text.Text.Contains(expected, StringComparison.Ordinal)),
+                    "The real Luoyang preview binding uses General.InitialHp for the new partial-health boss instead of silently displaying full 15/15.");
+                var portraitCaption = Program.Find<TextBlock>(panel).Single(text =>
+                    BindingOperations.GetBinding(text, TextBlock.TextProperty)?.Path?.Path == nameof(MainViewModel.ShanheEncounterEnemyPortraitName));
+                Program.Assert(portraitCaption.Text == model.ShanheEncounterEnemyPortraitName &&
+                    portraitCaption.Text == "董卓·洛阳技能形态" &&
+                    portraitCaption.ToolTip is string names && names == model.ShanheEncounterEnemyName && names.Contains("覆銮凶影") &&
+                    portraitCaption.Parent is Border { Parent: Border portraitHost } captionHost &&
+                    captionHost.ActualHeight > 0 && captionHost.ActualHeight < portraitHost.ActualHeight,
+                    "The real portrait caption names its pictured form, fits inside the portrait and retains the complete candidate list in its tooltip and scrollable details.");
+                Program.Assert(session.PendingBattleSetup is null && session.Revision == 0 && session.Snapshot.EncounterOrdinal == 0 &&
+                    ShanheCampaignJson.Serialize(session.CreateCheckpoint()) == journal && JsonSerializer.Serialize(session.Snapshot) == state &&
+                    ReferenceEquals(Program.Engine(model), ordinary) && GameCheckpointJson.Serialize(ordinary.CreateCheckpoint()) == ordinaryCheckpoint &&
+                    store.WriteCount == writes && !store.Exists,
+                    "Opening the actual preview neither rolls or commits an encounter, changes either command journal, replaces the ordinary engine nor attempts a save.");
+                var scroll = (ScrollViewer)panel.FindName("ShanheEncounterEnemyDetailScroll");
+                Program.Assert(scroll is { ScrollableHeight: > 0, Content: TextBlock detail } &&
+                    detail.Text.Contains(expected, StringComparison.Ordinal) && detail.ActualHeight > scroll.ViewportHeight,
+                    "The genuine multi-candidate Luoyang details remain in a scrollable native text surface instead of clipping the final 10/15 source form.");
+                scroll.ScrollToBottom(); Layout(root);
+                Program.Assert(scroll.VerticalOffset > 0 && Math.Abs(scroll.VerticalOffset - scroll.ScrollableHeight) < 1,
+                    "The actual encounter detail control can reach the bottom of the complete source roster.");
+                Program.Render(root, 1440, 880, Path.Combine(output, "shanhe-fengyi-preview-scrolled.png"));
+                Click((Button)panel.FindName("ShanheEncounterCloseButton"), root);
+                Program.Assert(!model.IsShanheEncounterPreviewOpen && ShanheCampaignJson.Serialize(session.CreateCheckpoint()) == journal &&
+                    store.WriteCount == writes && !store.Exists,
+                    "Closing the read-only native preview preserves the same unissued encounter and save boundary.");
+            }
+            finally { window.Content = null; window.DataContext = null; window.Close(); }
+        }
+
+        var setup = new ShanheBattleSetup(83, 1, luoyang.Id, "classic:guan-yu", 4, 0, 0, 0, 0, [], [], [],
+            encounter.Enemies, encounter.Allies ?? [], ShanheCampaignContent.GetContentHash(full)) { DefaultGodFactionId = full.DefaultGodFactionId };
+        var battle = StandardShanheCampaignCatalog.CreateBattle(setup);
+        var accepted = battle.Submit(new StartGameCommand());
+        Program.Assert(accepted.Accepted && battle.PlayerCount == 5, "The full Fengyi layout uses a genuine five-seat native encounter.");
+        using var table = Create(new MemorySaveStore(), new MemoryShanheCampaignSaveStore());
+        typeof(MainViewModel).GetField("_shanheTableGame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(table, battle);
+        typeof(MainViewModel).GetField("_shanheTableSetup", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(table, setup);
+        typeof(MainViewModel).GetMethod("ReplaceEngine", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(table, [battle]);
+        table.IsNewGameSetupOpen = false;
+        var tableWindow = new MainWindow(table); tableWindow.ApplyTemplate();
+        try
+        {
+            var root = (FrameworkElement)tableWindow.Content;
+            Program.Render(root, 1440, 880, Path.Combine(output, "shanhe-fengyi-five-seat.png"));
+            AssertUniqueOpponentRings(tableWindow, table, 5);
+            Program.Assert(table.RightSeats.Count == 1 && table.TopSeats.Count == 2 && table.LeftSeats.Count == 1 &&
+                table.Seats.Where(seat => !seat.IsHuman).Select(seat => seat.GeneralId).ToHashSet().SetEquals(
+                    ["classic:sun-jian", StandardShanheS5BossPackage.DongZhuoFengyiId, StandardShanheS5BossPackage.LvbuBajiId, StandardShanheS5BossPackage.DiaoChanBiyueId]) &&
+                table.Seats.Count(seat => seat.IsTeammate) == 1 && table.Seats.Single(seat => seat.GeneralId == "classic:sun-jian").IsTeammate,
+                "The actual four non-human seats occupy disjoint 1/2/1 rings, including the real Sun Jian ally and all three distinct source enemies.");
+            foreach (var seat in table.Seats.Where(seat => !seat.IsHuman))
+                Program.Assert(Program.Find<TextBlock>(root).Any(text => ReferenceEquals(text.DataContext, seat) && text.Text == seat.VerticalName &&
+                    text.Visibility == Visibility.Visible && text.ActualWidth > 0 && text.ActualHeight > 0),
+                    "Every actual opponent/ally model has its own laid-out name in the real seat template: " + seat.GeneralId);
+            var dong = table.Seats.Single(seat => seat.GeneralId == StandardShanheS5BossPackage.DongZhuoFengyiId);
+            Program.Assert(dong.HealthValue == "10/15" && !dong.IsTeammate && dong.HasPortrait &&
+                GeneralArt.NormalizeKey(dong.Portrait.GeneralId) == GeneralArt.NormalizeKey(dong.GeneralId) &&
+                dong.Portrait.Image is System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0, PixelHeight: > 0 } &&
+                GeneralArt.GetSkin(dong.GeneralId)!.LocalPath == GeneralArt.GetSkin("classic:dong-zhuo")!.LocalPath,
+                "The new boss's real seat displays wounded 10/15 and the Dong Zhuo asset alias, with a decoded image rather than a transparent fallback.");
+            foreach (var (generalId, portraitId) in new[]
+                {
+                    (StandardShanheS5BossPackage.LvbuBajiId, "classic:lu-bu"),
+                    (StandardShanheS5BossPackage.DiaoChanBiyueId, "classic:diao-chan")
+                })
+            {
+                var seat = table.Seats.Single(item => item.GeneralId == generalId);
+                Program.Assert(seat.HasPortrait && GeneralArt.NormalizeKey(seat.Portrait.GeneralId) == GeneralArt.NormalizeKey(generalId) &&
+                    seat.Portrait.Image is System.Windows.Media.Imaging.BitmapSource { PixelWidth: > 0, PixelHeight: > 0 } &&
+                    GeneralArt.GetSkin(generalId)!.LocalPath == GeneralArt.GetSkin(portraitId)!.LocalPath,
+                    "Each companion's exact source form renders its own decoded character artwork through the existing shared-skin contract: " + generalId);
+            }
+        }
+        finally { tableWindow.Content = null; tableWindow.DataContext = null; tableWindow.Close(); }
+    }
+
+    private sealed class PreviewTrackingShanheStore : IShanheCampaignSaveStore
+    {
+        private readonly MemoryShanheCampaignSaveStore _inner = new();
+        public int WriteCount { get; private set; }
+        public bool Exists => _inner.Exists;
+        public ShanheCampaignSaveFile Read() => _inner.Read();
+        public void Write(ShanheCampaignSaveFile save) { WriteCount++; _inner.Write(save); }
     }
 
     private static void RenderThreeSeatRepresentative(string output, CardGame.Core.Campaigns.ShanheBattleSetup previousSetup)

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-chengxiong-14055",
+      "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "odd-round-outgoing-damage",
+          "cardKinds": [],
+          "amount": 1,
+          "sourceScope": "damageSource",
+          "condition": "sourceRoundIsOdd",
+          "damageLayer": "additionalDamage"
+        },
+        {
+          "id": "even-round-outgoing-damage",
+          "cardKinds": [],
+          "amount": -1,
+          "sourceScope": "damageSource",
+          "condition": "sourceRoundIsEven",
+          "damageLayer": "additionalDamage"
+        }
+      ]
+    }
+  ]
+}

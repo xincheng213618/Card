@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-lingdong-14045": {
+      "name": "灵动",
+      "description": "锁定技，当你受到伤害时，你进行判定。若最终有效花色为红色，防止此次伤害。被防止的伤害不扣除护甲。"
+    }
+  }
+}

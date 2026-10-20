@@ -3,33 +3,25 @@
   "skills": [
     {
       "id": "ol:liu-shi", "revision": 1,
-      "triggers": [
+      "activations": [
         {
-          "id": "topdeck-heart-slash", "window": "playPhaseStarting",
-          "subject": "owner", "optional": true, "priority": 0,
+          "id": "topdeck-heart-slash", "minCards": 1, "maxCards": 1,
+          "sourceZones": ["hand", "equipment"], "cardSuits": ["heart"],
+          "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingVirtualSlashTarget",
+          "usesPerTurn": null,
           "effects": [
-            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
-            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
-              "zones": ["hand"], "count": 1, "suits": ["heart"], "destination": "drawPileTop",
-              "resultBind": "top-cost", "awaitMovementTriggers": true },
+            { "op": "captureSelectedCards", "target": "owner", "resultBind": "top-cost" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "top-cost", "destination": "drawPileTop", "awaitMovementTriggers": true },
             { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "useCardActionWindows": true, "targetRestriction": "distanceUnlimitedAgainstTarget" }
           ]
-        },
+        }
+      ],
+      "triggers": [
         {
-          "id": "liu-shi-damage", "window": "cardUseCompleted",
-          "ownerRelation": "actor", "cardKinds": ["slash"],
-          "optional": false, "priority": 0,
-          "condition": {
-            "kind": "all",
-            "children": [
-              { "kind": "cardUseCausedDamage" },
-              { "kind": "cardUseConversionSkillIs", "conversionSkillId": "ol:liu-shi" }
-            ]
-          },
-          "effects": [
-            { "op": "changeParticipantMarker", "target": "owner", "targetRef": { "kind": "eventTarget" }, "marker": "liuShi", "amount": 1 },
-            { "op": "adjustPersistentHandLimit", "target": "owner", "targetRef": { "kind": "eventTarget" }, "amount": -1, "stateId": "liu-shi-limit" }
-          ]
+          "id": "liu-shi-damage", "window": "afterDamageApplied", "subject": "source",
+          "sourceSkillId": "ol:liu-shi", "sourceViewAsId": "topdeck-heart-slash",
+          "damageOccurrence": "perDamage", "optional": false, "priority": 0,
+          "effects": [{ "op": "applyLiushiEffect", "target": "owner" }]
         }
       ]
     },
@@ -41,15 +33,14 @@
           "turnOwnerScope": "otherLiving",
           "subject": "owner", "optional": false, "priority": 0,
           "condition": {
-            "kind": "compare",
-            "left": { "kind": "eventTargetMarkerCount", "marker": "liuShi" },
-            "operator": "greaterThanOrEqual",
-            "right": { "kind": "integerConstant", "value": 1 }
+            "kind": "all", "children": [
+              { "kind": "compare", "left": { "kind": "eventTargetMarkerCount", "marker": "liuShi" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 1 } },
+              { "kind": "compare", "left": { "kind": "turnOwnerDiscardPhaseHandDiscardCount" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 1 } }
+            ]
           },
           "effects": [
             { "op": "draw", "target": "owner", "numberExpression": "turnOwnerDiscardPhaseHandDiscardCount" },
-            { "op": "changeParticipantMarker", "target": "owner", "targetRef": { "kind": "eventTarget" }, "marker": "liuShi", "amount": -1 },
-            { "op": "adjustPersistentHandLimit", "target": "owner", "targetRef": { "kind": "eventTarget" }, "amount": 1, "stateId": "liu-shi-limit" }
+            { "op": "clearLiushiEffect", "target": "owner" }
           ]
         }
       ]

@@ -162,11 +162,11 @@ public sealed record ProgramCardDamageModifiedEvent(
     int BaseAmount,
     int ModifiedAmount) : IGameEvent;
 
-/// <summary>Public evidence that a passive program cap rewrote an attack's damage (公清 set-to-one).</summary>
+/// <summary>Public evidence that an enabled passive program capped one recipient's damage.</summary>
 public sealed record ProgramDamageCappedEvent(
     long ResolutionId,
     CardUseEffectSource Source,
-    int SourceSeat,
+    int? SourceSeat,
     int TargetSeat,
     CardKind? CardKind,
     int BaseAmount,

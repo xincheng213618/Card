@@ -72,7 +72,8 @@ internal static class BoundaryWangYiChecks
         var legacyPaid = E<PaidOwnTargetHpEvent>(legacy).Single();
         Require(legacyPaid.Receipt.Use is { ActionId: null, LegacyProducerProgramId: not null, ActorSeat: 1, ProviderSeat: 1, TargetSeat: 0, EffectiveKind: CardKind.Slash } &&
             legacy.State.Players[0].Hp == legacyHp - 1 && E<PaidOwnTargetAppliedEvent>(legacy).Single().ActionId is null,
-            "The registered legacy Shensu's real zero-entity Slash is protected using its exact original typed producer; it is not given a new Action or physical payment.");
+            "The registered legacy Shensu's real zero-entity Slash is protected using its exact original typed producer; it is not given a new Action or physical payment. " +
+            JsonSerializer.Serialize(new { legacyPaid.Receipt.Use, HpBefore = legacyHp, HpAfter = legacy.State.Players[0].Hp, Applied = E<PaidOwnTargetAppliedEvent>(legacy).ToArray() }));
         legacy = Restore(legacy, legacyRegistry);
         for (var i = 0; i < 40 && !E<ProgramBindingResolvedEvent>(legacy).Any(e => e.SkillId == Zhen && e.Completed); i++)
             Accept(legacy, new AdvanceOneStepCommand(legacy.Revision));
@@ -142,14 +143,27 @@ internal static class BoundaryWangYiChecks
     }
     private static (GameEngine, ContentRegistry) CreateLegacySource()
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(), new Fixture("standard:slash", false, false, false, true, false, legacySource: true));
+        var r = ContentRegistry.Build(new StandardContentPackage(), new LegacyTargetSkillSlice(),
+            new Fixture("standard:slash", false, false, false, true, false, legacySource: true));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, ModeId = Mode, HumanSeat = 1, HumanRole = Role.Lord,
             UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 6 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 1);
         Require(P(g)!.ValidContentIds.Contains("fixture:wy-other-1") && !E<GeneralSelectedEvent>(g).Any(),
             "The exact registered Shensu general is published to the human Lord before any AI consumes the shared candidate pool.");
         Accept(g, new SelectGeneralCommand(1, "fixture:wy-other-1", g.Revision, P(g)!.PromptId)); return (g, r);
+    }
+    private sealed class LegacyTargetSkillSlice : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture:wy-legacy-skills", new(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            // Keep the actionless producer covered independently of unrelated
+            // catalog capabilities that require virtual uses to capture Actions.
+            var source = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
+            foreach (var id in new[] { Zhen, Miji, "boundary:shensu" })
+                builder.AddSkill(source.GetSkill(id));
+        }
     }
     private sealed class Fixture(string card, bool observers, bool sourceLoss, bool gainDying, bool native, bool shortDeck, bool legacySource = false) : IGameContentPackage
     {

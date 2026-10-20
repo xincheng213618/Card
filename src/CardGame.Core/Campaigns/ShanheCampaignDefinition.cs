@@ -17,6 +17,14 @@ public sealed record ShanheCombatantDefinition(
     int DrawBonus = 0, int SlashBonus = 0, IReadOnlyList<string>? ExtraSkillIds = null)
 {
     private readonly IReadOnlyList<ShanheStartingCard>? _startingHand;
+    private readonly IReadOnlyList<string>? _qualifiedPrintedLordSkillIds;
+    /// <summary>Explicit scenario qualification for these original primary-general Lord skills only.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<string>? QualifiedPrintedLordSkillIds
+    {
+        get => _qualifiedPrintedLordSkillIds;
+        init => _qualifiedPrintedLordSkillIds = value is null ? null : Array.AsReadOnly(value.ToArray());
+    }
     /// <summary>Replaces the ordinary opening hand; null retains the deck's usual base. Bonuses add random cards.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<ShanheStartingCard>? StartingHand
@@ -39,6 +47,9 @@ public sealed record ShanheBattleSetup(
     public const string PlayerTeamId = "team:shanhe-player";
     public const string EnemyTeamId = "team:shanhe-enemy";
     public IReadOnlyList<string> TacticSkillIds { get; init; } = Array.Empty<string>();
+    /// <summary>Fallback for a printed God general with no chosen or native effective faction.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? DefaultGodFactionId { get; init; }
 
     public int BattleSeed => DeriveSeed(RunSeed, NodeId, EncounterOrdinal);
 
@@ -49,6 +60,7 @@ public sealed record ShanheBattleSetup(
     public static ShanheBattleSetup Freeze(ShanheBattleSetup setup)
     {
         ArgumentNullException.ThrowIfNull(setup);
+        GodFactionSelectionRules.ValidateDefault(setup.DefaultGodFactionId);
         ArgumentNullException.ThrowIfNull(setup.ExtraSkillIds);
         ArgumentNullException.ThrowIfNull(setup.StartingCards);
         ArgumentNullException.ThrowIfNull(setup.StartingEquipment);
@@ -138,4 +150,7 @@ public sealed record ShanheCampaignDefinition(
     public string VictoryText { get; init; } = "";
     public string DefeatText { get; init; } = "";
     public bool RandomStartingNode { get; init; }
+    /// <summary>Optional edition-specific default; explicit effective factions retain precedence.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? DefaultGodFactionId { get; init; }
 }

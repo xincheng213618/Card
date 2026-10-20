@@ -75,6 +75,7 @@ public sealed partial class GameEngine
                 Math.Max(0, assignedRange - baseTerms[0].Value)));
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:sequential-deck-shortfall:attack-range", SequentialDeckKindGrowthBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:attack-range", CaoXiGangshuBonus(player, SkillRuleQuery.AttackRange));
         AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:attack-range", GetOriginalHandAttackRangeBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
@@ -128,6 +129,7 @@ public sealed partial class GameEngine
                 GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.SlashLimit) ?? 1)
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:sequential-deck-shortfall:slash-limit", SequentialDeckKindGrowthBonus(player.Seat));
         if (HasMouZhaJiangPreUsePrivilege(player)) contributions.Add(new UnlimitedRuleQueryContribution("skill:mou-mobile:zhajiang:first-lost-hp-uses"));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:yang-feng:qujia:slash-limit", QujiaPermanentSlashBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:slash-limit", CaoXiGangshuBonus(player, SkillRuleQuery.SlashLimit));
@@ -181,6 +183,8 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"state:{player.Seat}:mou-mobile:keji:armor-hand-limit", MouLuMengArmorHandLimit(player));
         contributions.AddRange(ProgramDamageHandLimitContributions(player));
         contributions.AddRange(PersistentHandLimitContributions(player));
+        if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ApplyLiushiEffect))
+            AddFiniteContribution(contributions, $"state:{player.Seat}:liushi:hand-limit", -player.Markers.GetValueOrDefault(PlayerMarkerKind.LiuShi));
         contributions.AddRange(ActorHandLimitPenaltyContributions(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:xionghuo:hand-limit", -XuRongHandLimitPenalty(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:hand-limit",
@@ -212,6 +216,8 @@ public sealed partial class GameEngine
                     $"turn:{item.GrantSequence}:card-target-count", SkillRuleOperation.Add, item.Amount))).ToArray();
         if (NeifaSlashTargetBonus(player.Seat, effectiveCardKind) != 0)
             contributions = [.. contributions, new FiniteRuleQueryContribution($"turn:{player.Seat}:neifa:slash-target", SkillRuleOperation.Add, 1)];
+        if (ShenwuJuyuanExtraTarget(player, effectiveCardKind))
+            contributions = [.. contributions, new FiniteRuleQueryContribution($"turn:{player.Seat}:shenwu:juyuan", SkillRuleOperation.Add, 1)];
         return RuleQueryService.Evaluate(SkillRuleQuery.CardTargetCount, new RuleQueryBounds(1, int.MaxValue),
             [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-target-count", 1)], contributions);
     }
@@ -259,6 +265,8 @@ public sealed partial class GameEngine
                 ? _players.Count(p => p.IsAlive && p.Gender == GeneralGender.Female) : null,
             CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)
                 ? CurrentTurnUseKinds(player.Seat).HandSuits : null,
+            CurrentTurnDrawPhaseDrawCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnDrawPhaseDrawCountHalfFloor)
+                ? CurrentTurnDrawPhaseDrawCount(player.Seat) : null,
             CurrentRoundActualUseCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.NegatedCurrentRoundActualUseCount)
                 ? CurrentRoundActualUseCount(player.Seat) : null
         };

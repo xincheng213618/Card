@@ -51,11 +51,12 @@ public sealed partial class GameEngine
             var hasIdentityGodFaction = SupportsGodFactionSelection &&
                                         string.Equals(player.General.FactionId, "god", StringComparison.Ordinal) &&
                                         player.ChosenFactionId is not null;
+            var hasScenarioGodFaction = GetScenarioGodFaction(player) is not null;
             var hasActivityFaction = _modeDefinition.ShenwuActivity is not null || _modeDefinition.NianActivity is not null || IsDragonBoatActivity || IsGuanduActivity;
             var canSeeFaction = effectiveFactionId is not null &&
                                 (IsNationalWarMode
                                     ? revealAll || player.FactionRevealed || player.Seat == viewerSeat
-                                    : (hasIdentityGodFaction || hasActivityFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) &&
+                                    : (hasIdentityGodFaction || hasScenarioGodFaction || hasActivityFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) &&
                                       (revealAll || player.GeneralRevealed || player.Seat == viewerSeat));
             var primarySkills = canSeeGeneral
                 ? player.IdentityConcealed ? general.Skills.ToArray()
@@ -87,6 +88,9 @@ public sealed partial class GameEngine
             {
                 IdentityConcealed = player.IdentityConcealed,
                 Armor = player.Armor,
+                IncomingDamageCap = GetIncomingFixedDamageCap(player,
+                    (primarySkills ?? []).Concat(secondarySkills ?? []).Select(skill => skill.ContentId)
+                        .OfType<string>().ToHashSet(StringComparer.Ordinal)),
                 SurvivalRank = WenheSurvivalRank(player.Seat),
                 WenheChampionMarkUsed = IsSurvivalMode && WenheChampionMarkUsed(player.Seat) ? true : null,
                 HpUndefined = !player.HasHpValue,
@@ -175,7 +179,7 @@ public sealed partial class GameEngine
                 FactionId = canSeeFaction ? effectiveFactionId : null,
                 IsFactionRevealed = IsNationalWarMode
                     ? player.FactionRevealed
-                    : (hasIdentityGodFaction || hasActivityFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) && player.GeneralRevealed,
+                    : (hasIdentityGodFaction || hasScenarioGodFaction || hasActivityFaction || HasNativeEffectiveFactionDeclaration(player) || GetPrivateGeneralLibraryFaction(player) is not null) && player.GeneralRevealed,
                 SecondaryGeneralId = secondaryGeneral?.Id,
                 SecondaryGeneralName = secondaryGeneral?.Name,
                 SecondaryPortraitKey = secondaryGeneral?.PortraitKey,

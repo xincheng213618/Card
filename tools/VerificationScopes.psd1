@@ -39,6 +39,105 @@
         # Shared cross-owner numeric queries and separate Armor/HP damage payment.
         'Shanhe team draw aura: independent copies other public allies phase-only cold',
         'Shanhe Armor: full partial damage counter health delta and native Kuanggu cold',
+        'Armor AI: published program target real lethality and pure queries',
+        # Shared final judgment values, exact before-damage parents and no-result cleanup.
+        'Shanhe Lingdong: final native judgment Armor aftermath and typed outcomes cold',
+        # Shared normal-draw plans and actual hand-limit discard quantities.
+        'Shanhe Huangkong: planned draw Yingzi team aura real Tuxi and Hongde cold',
+        'Shanhe Huangkong: doubled discard quota actual payment and child return cold',
+        # Explicit scenario qualification still uses original Lord grants and native per-point judgments.
+        'Shanhe S5 Dong Zhuo: explicit printed Lord recipe frozen validation and cache',
+        'Shanhe S5 Dong Zhuo: two scenario owners per point Armor recovery and claim cold',
+        # Edition defaults flow through effective factions, native declarations and exact encounter recipes.
+        'Shanhe god faction: actual god general fallback public views native override and Baonue cold',
+        'Shanhe god faction: null input hash session propagation and tampered battle rejection',
+        # Other-team numeric Slash limits reuse exact per-Play debits and paid in-flight uses.
+        'Shanhe team Slash: independent allies shared native quota inserted Play and cold',
+        'Shanhe team Slash: paid use holder death loss and future quota recheck cold',
+        # Shared fixed damage caps, visible estimates and per-recipient frozen propagation.
+        'Shanhe Dong Min: fixed cap before Armor public prediction and replacements cold',
+        'Shanhe Dong Min: elemental recipients source-less and live caps cold',
+        # Native conversion guards and effect-only whole-use state retain real paid continuations.
+        'Shanhe Cuanchao: native polarity accepted and declined whole-use state cold',
+        'Shanhe Cuanchao: all recipients extra rounds and delayed placement cold',
+        'Shanhe Cuanchao: self uses live skill changes and native damage cap cold',
+        # Shared final directed distance, per-segment source damage and conditional recipe imports.
+        'Shanhe Far Strike: native program final distance armor public prediction and cold',
+        'Shanhe Far Strike: chained recipient distance source loss and cold',
+        # Shared actual whole-zone batch receipts and native Duel amount/return boundaries.
+        'Shanhe Liyu: whole regions actual gain receipts printed categories and cold',
+        'Shanhe Liyu: acquired count native Wushuang Armor and nullification cold',
+        'Shanhe Liyu: paid gain children source lifetimes and destroyed equipment cold',
+        # Shared next-recipient actual-turn lifetimes retain distinct grant sources.
+        'Shanhe Biyue: empty Hand live limit native gain children and cold',
+        'Shanhe Biyue: real Liuli payment range and next actual turn expiry cold',
+        'Shanhe Biyue: independent sources extra turns and source loss cold',
+        # Paid ordered-actor native uses preserve real cards and scoped response prohibitions.
+        'Shanhe Lijian: real ordered Duel use windows and physical receipts cold',
+        'Shanhe Lijian: paid source lifetimes and dead participant returns cold',
+        # Shared reveal quantities and conditionally imported skill-reward probes.
+        'Shanhe S5 Zaiqi: lost HP plus one real reveal recovery and gain children cold',
+        'Shanhe S5 Zaiqi: replacement eligibility codex purchase and conditional recipes cold',
+        # Shared dynamic hand limits consume native draw receipts and actual phase/turn boundaries.
+        'Shanhe Jinnang Ji: actual plans extra draws and late active sources cold',
+        'Shanhe Jinnang Ji: replacement gains versus real draw phase skill draws cold',
+        'Shanhe Jinnang Ji: multiple real phases turn end and scoped schema cold',
+        # Source-qualified native Draw ordinals remain distinct from gained-card batches.
+        'Shanhe Duoduo Yishan: native invocation ordinals three versions and real loadout cold',
+        'Shanhe Duoduo Yishan: captured eligibility late sources and paid children cold',
+        'Shanhe Duoduo Yishan: Jinnang Ji replacements and other actual turns cold',
+        # Recipient recovery modifiers share actual positive-recovery ordinals and paid typed returns.
+        'Shanhe Yaoli: six versions real Peach recovery ordinals and actual turns cold',
+        'Shanhe Yaoli: live sources paid children and zero recovery cold',
+        'Shanhe Yaoli: Zaiqi Kuanggu blood blade and recovery draw one payment cold',
+        'Shanhe Yaoli: redirected recovery and Yizheng final recipient once cold',
+        'Shanhe Dong Ji: black locks exact dynamic discard or draw cold',
+        'Shanhe Dong Ji: frozen HP equipment children and paid source invalidation cold',
+        'Shanhe Dong Ji: actual source pair encounter and edition isolation cold',
+        'Shanhe first Slash: declarations misses responses conversions and virtual uses cold',
+        'Shanhe first Slash: round and actor turn native boundaries cold',
+        'Shanhe first Slash: card layer replacements and chain propagation cold',
+        'Shanhe first Slash: eight production tactics and native Slash quota cold',
+        # Real activation costs, native damage recipients and persistent marker-backed hand limits.
+        'Shanhe Caoxing: continuous HE topdeck native Slash responses and damage markers cold',
+        'Shanhe Caoxing: stacked effects actual discard exact draw and all-layer clearing cold',
+        'Shanhe Caoxing: paid draw source loss tails and isolated actual recipes cold',
+        'Liushi effect contract: rejects unpaid foreign and wrong-window definitions',
+        # Native Pindian, whole-hand gain children and an exact half-hand return obligation.
+        'Shanhe Shidu: Liushi top Heart native Pindian live half and discard rewards cold',
+        'Shanhe Shidu: loss ties and emptied native contests cold',
+        'Shanhe Shidu: paid source loss target death and isolated actual recipes cold',
+        'Shanhe Shihun: direct native Slash current skill pool distinct grants and cold',
+        'Shanhe Shihun: chain prevention replacements source loss and persistent grants cold',
+        'Shanhe Jiaozi: Shidu live hand leadership damage Armor and half return cold',
+        'Shanhe Huaxiong: colored card health whole recovery before Armor cold',
+        'Shanhe Huaxiong: round limited native Duel responses and paid source loss cold',
+        'Shanhe Huaxiong: paired health Duel and actual isolated recipes cold',
+        'Shanhe Taishici: sole incoming repeats before live range draw cold',
+        'Shanhe Taishici: sequential preparation Duels persistent shortfall cold',
+        'Shanhe Taishici: Douchan range Dulie draw and isolated recipes cold',
+        'Shanhe Caocao Guixin: independent damage points random areas and turnover cold',
+        'Shanhe Caocao Guixin: sequential live zones paid source loss and children cold',
+        'Shanhe Caocao Guixin: paid owner death and isolated recipes cold',
+        'Shanhe Yujin: frozen preparation printed types and exact owner payment cold',
+        'Shanhe Yujin: immediate native draw gain children and paid source loss cold',
+        'Shanhe Yujin: legacy ending timing and isolated actual recipes cold',
+        'Shanhe Yudu: actual enemy damage single poison frozen round Armor and chain cold',
+        'Shanhe Yudu: final preparation judgment poison loss before native Niepan cold',
+        'Shanhe Yudu: paid poison sources and isolated actual recipes cold',
+        'Signed HP: real Slash Armor debt same last responder Peaches cold',
+        'Signed HP: native loss bypasses Armor and declined rescue advances cold',
+        'Signed HP: paid program Alcohol repeats same responder cold',
+        'Owned damage point judgment claimed gain bound Alcohol rescue and cold replay',
+        'Shanhe Chengxiong: real rounds extra turns zero damage and source lifetimes cold',
+        'Shanhe Chengxiong: native elemental propagation and live source loss cold',
+        'Shanhe Chengxiong: actual source form conditional recipes and replacements cold',
+        'Shanhe Fengyi: original three enemies initial health conditional package and cold',
+        # Source-owned permanent skill exchange follows paid native Wine Slash damage.
+        'Shanhe S5 Jiuchi: black hand unlimited Wine real Armor permanent exchange cold',
+        'Shanhe S5 Jiuchi: ordinary prevented and HP loss damage boundaries cold',
+        'Shanhe S5 Jiuchi: paid source lifetimes and temporary printed restoration cold',
+        'Permanent Alcohol exchange: strict parser and registry reference boundaries',
         'program rule observer registration rejects invalid metadata',
         'program legality registration preserves ordered capability gates',
         'program interaction registration preserves dispatch boundaries',
@@ -173,6 +272,7 @@
         'identity Rebel kill reward draws exactly three cards and replays once'
     )
     Wpf = @(
+        'mode lobby filters real identity, team and national entries without changing the match',
         'Armor seats: real opening stacks payments accessible digits and zero hiding',
         'Guandu activity UI: two armies roles event and cold restore',
         'Dragon boat activity UI: four teams private draft and cross configuration',
@@ -187,6 +287,7 @@
         'Edition general gallery: namespaced portraits and real details',
         'general gallery realizes visible rows and opens with bounded portrait cost',
         'custom general roster opens searches and previews with bounded presentation cost',
+        'custom general roster categories search within eligible series and reset across modes',
         'filtered presentation batches log and guide results without losing entries',
         'Named private pile UI: owner pairs public counts and clear',
         'active effect badges restore actual duration and clear consumed facts',
@@ -200,6 +301,7 @@
         'conversion skill rail chooses output before materials and retires old mode buttons',
         'composed skills share the generic WPF draft and submit their stable program identity',
         'Program paid choices preserve actor control and opaque slots',
+        'Shanhe Dong Ji UI: dynamic exact card confirmation and locked gift',
         'declaration and general library views protect private faces',
         'hand responses label actual decline and retain native press feedback',
         'opaque target-card slots render privately and commit through WPF commands',

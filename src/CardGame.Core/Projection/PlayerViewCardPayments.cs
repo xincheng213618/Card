@@ -11,6 +11,7 @@ public sealed partial class GameEngine
             .Parameters.GetValueOrDefault("program-action");
         int? remaining = action switch
         {
+            "lianzhu" when frame.LianZhu is { Stage: LianZhuStage.SelectingDiscard, CountPolicy: { } count } cost => count.Amount - cost.Selected.Count,
             "dynamic-discard-damage" when frame.DynamicDiscardDamage is { } cost => cost.FrozenTargetHp - cost.CardIds.Count,
             "game-hand-hp-discard" when frame.GameTargetHandHp is { } cost => cost.RequiredCount - cost.CardIds.Count,
             "draw-discard-category" when frame.DrawDiscardCategoryRefund is { } cost => cost.RequiredCount - cost.SelectedCardIds.Count,

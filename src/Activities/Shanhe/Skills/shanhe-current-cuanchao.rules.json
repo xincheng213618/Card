@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:current-cuanchao-14069", "revision": 1,
+      "triggers": [
+        {
+          "id": "yang-basic-use-ineffective", "window": "cardUseBeforeTargetEffects", "ownerRelation": "target",
+          "cardCategories": ["basic"], "optional": true, "requiredPolarity": "yang",
+          "effects": [
+            { "op": "commitConversionPolarity", "target": "owner" },
+            { "op": "nullifyCurrentCardUse", "target": "owner" }
+          ]
+        },
+        {
+          "id": "yin-trick-use-ineffective", "window": "cardUseBeforeTargetEffects", "ownerRelation": "target",
+          "cardCategories": ["trick"], "optional": true, "requiredPolarity": "yin",
+          "effects": [
+            { "op": "commitConversionPolarity", "target": "owner" },
+            { "op": "nullifyCurrentCardUse", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
