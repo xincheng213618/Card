@@ -1,0 +1,86 @@
+{
+  "generalId": "mou:deng-ai-ol",
+  "name": "谋邓艾·OL",
+  "edition": "三国杀OL谋攻篇",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "faction": "wei",
+    "gender": "Male",
+    "maximumHp": 5,
+    "initialHp": 4,
+    "explanation": "正式新品公告明确4/5；现行API的hp=5、initial_hp=0没有单列初始值，采用正式公告初始4、上限5。"
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/601",
+      "role": "当前官方武将页：完整两技",
+      "sha256": "E1EC27CCB730607FE1B15F165FE7CDB44ED6FA6C5ADEF81FBED5DDC3E1C82DC5"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=601",
+      "role": "官方实时身份及两技数据",
+      "sha256": "1130BD119A910ED0C0F3E7BEAA37B7781F20F2B783E8B25E5C7CB4B5CFABD526"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250917_5931_1913",
+      "title": "9.20-9.25 秋分祈福谋邓艾来袭 传说皮肤锦衣青云*邹氏上新",
+      "publishedAt": "2025-09-19 17:00:23",
+      "availableAt": "2025-09-20 00:15:00",
+      "role": "正式新品公告、初始4/上限5及完整两技",
+      "sha256": "E6B2217E5DE1DBB7D1E26EC90A3438CF0ACD5F806EC658538D3B73B06AFFE824"
+    }
+  ],
+  "skills": [
+    {
+      "id": "mou-ol:jigu",
+      "name": "积谷",
+      "text": "锁定技，一名角色于其出牌阶段外使用的牌置入弃牌堆后，若“谷”数量小于你的体力上限，将其中的非红桃牌置于你的武将牌上，称为“谷”。体力上限与你相同的角色的回合开始时，你用任意张手牌替换等量“谷”。"
+    },
+    {
+      "id": "mou-ol:jiewan",
+      "name": "解腕",
+      "text": "每个准备阶段，你可以减少1点体力上限或移除两张“谷”，将一张手牌当距离为X的【顺手牵羊】使用（X为你“谷”的数量且至少为1）。每个结束阶段，若你的“谷”与手牌数量相同且你的体力上限不为全场唯一最多，你增加1点体力上限。"
+    }
+  ],
+  "versionComparison": "当前官方武将页、官方API与正式新品公告完整两技一致；有限官方变更检索未发现反向修订或明确FAQ。独立产品欢乐三国杀不用于替换本OL版本。",
+  "engineeringDecisions": [
+    {
+      "basis": "project-interpretation-not-official-FAQ",
+      "decision": "按同一真实Use的原生入弃批次在领取前检查一次谷数量小于体力上限，领取批次中仍在弃牌堆的全部非红桃实体，允许这一批越过上限；不是逐张实时卡上限。"
+    },
+    {
+      "basis": "project-interpretation-not-official-FAQ",
+      "decision": "使用发生时按真实实际阶段判断是否为该使用者本人的Play；包含原生闪与无懈使用，排除单纯打出、弃置和重铸。非红桃按实际入弃实体的当前印刷花色判定。"
+    },
+    {
+      "basis": "project-interpretation-not-official-FAQ",
+      "decision": "谷为有技能来源归属的原生公开武将牌堆，不能混用经典权。等量手牌交换在确认前重验两侧真实实体，整次交换完成后才推进移牌子结算。"
+    },
+    {
+      "basis": "project-interpretation-not-official-FAQ",
+      "decision": "解腕覆盖全场每个实际准备和结束阶段。移除两张谷支付为原生移出游戏，不计作弃置；另一成本真实减少一点体力上限。"
+    },
+    {
+      "basis": "project-interpretation-not-official-FAQ",
+      "decision": "真实成本及全部子结算完成后冻结X=max(1,当前谷数)，只为本次有付款和来源证明的原生顺手牵羊提供距离X，其余用牌、目标、材料、无懈及完成限制继续沿用原生规则。"
+    },
+    {
+      "basis": "project-interpretation-not-official-FAQ",
+      "decision": "结束阶段增加上限不回复体力。已付成本子链以原frame/source/hash续算，失源不重新支付；未来新发动仍要求真实技能来源。"
+    }
+  ],
+  "portrait": {
+    "asset": "src/CardGame.Wpf/Assets/official-mou-deng-ai-ol.png",
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60100.png",
+    "sha256": "30AF983FC81081B3B554051FA5089ECAF4813A7AFF9190DBB1F5EBA5FC0FB0C0",
+    "width": 750,
+    "height": 950,
+    "bytes": 1229038,
+    "visualInspected": true
+  },
+  "behaviorCheck": {
+    "file": "tests/CardGame.Core.Tests/MouDengAiOlChecks.cs",
+    "filter": "Mou Deng Ai OL: native Gu exchange and Jiewan",
+    "scope": "单一真实小局：非红桃用牌收谷/本人Play材料排除、等上限他人回合交换、代表待决恢复、两种真实成本、支付后距离及原生顺手牵羊返回、本人及他人实际结束阶段加上限不回血。"
+  }
+}

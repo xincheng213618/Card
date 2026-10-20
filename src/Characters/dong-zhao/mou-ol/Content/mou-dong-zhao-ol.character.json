@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dong-zhao",
+  "skills": [
+    {
+      "registrationOrder": 2530,
+      "programBundle": "mou-dong-zhao-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:shunji",
+        "name": "顺机",
+        "description": "每轮每名角色限一次，当一名角色受到伤害后，你可摸至多两张牌，然后交给其等量牌。若你因此失去了一个牌名的所有牌（每个牌名限一次），你对其造成一点伤害。",
+        "executionForms": "Trigger",
+        "actionForms": "None"
+      }
+    },
+    {
+      "registrationOrder": 2531,
+      "programBundle": "mou-dong-zhao-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:yishi",
+        "name": "移势",
+        "description": "出牌阶段限一次，你可保留手牌中每个花色各一张并展示，将其余牌置入弃牌堆，然后移动场上一张牌。若你未因此失去手牌，直到你的下个回合开始，你不因使用而失去与移动牌花色相同的牌后，摸一张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2532,
+      "pools": {
+        "current": 557
+      },
+      "definition": {
+        "id": "mou:dong-zhao-ol",
+        "name": "谋董昭·OL",
+        "portraitKey": "mou-dong-zhao-ol",
+        "skillId": "mou-ol:shunji",
+        "additionalSkillIds": [
+          "mou-ol:yishi"
+        ],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:dong-zhao",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

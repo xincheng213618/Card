@@ -1,0 +1,112 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:dong-zhao-ol",
+  "characterId": "character:dong-zhao",
+  "displayName": "谋董昭·OL",
+  "edition": "mou-ol",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 3,
+    "officialHeroId": 735,
+    "apiInitialHpSentinel": 0,
+    "apiRole": "The current API supplies faction, HP and portrait; it contains no skill text or separate gender field. Male is confirmed by the first formal identity table. initial_hp=0 is a default sentinel, not a zero-HP start."
+  },
+  "skills": [
+    {
+      "id": "mou-ol:shunji",
+      "name": "顺机",
+      "officialText": "每轮每名角色限一次，当一名角色受到伤害后，你可摸至多两张牌，然后交给其等量牌。若你因此失去了一个牌名的所有牌（每个牌名限一次），你对其造成一点伤害。",
+      "firstFormalReleaseText": "每轮每名角色限一次，当一名角色受到伤害后，你可摸至多两张牌，然后交给其等量张牌。若你因此失去了一个牌名的所有牌（每个牌名限一次），你对其造成一点伤害。"
+    },
+    {
+      "id": "mou-ol:yishi",
+      "name": "移势",
+      "officialText": "出牌阶段限一次，你可保留手牌中每个花色各一张并展示，将其余牌置入弃牌堆，然后移动场上一张牌。若你未因此失去手牌，直到你的下个回合开始，你不因使用而失去与移动牌花色相同的牌后，摸一张牌。",
+      "firstFormalReleaseText": "出牌阶段限一次，你可保留手牌中每个花色各一张牌并展示，将其余牌置入弃牌堆，然后移动场上的一张牌。若你未因此失去手牌，直到你的下个回合开始，你失去与移动牌花色相同的牌后（不因使用），摸一张牌。"
+    }
+  ],
+  "derivedSkills": [],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/735",
+      "sha256": "D643D5EBB217A7DA38B04134102F141517848D0A8B37D14D11AF7F44708E33B4",
+      "bytes": 24228
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=735",
+      "sha256": "138C39903F8AB669E3ECBC044E14E4307F3773C44B5120C1DC9A7563E351635C",
+      "bytes": 1001
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20260310_6992_2516",
+      "sha256": "0386F3BDFC8433E8F3836634AB6337EA66AF45D304CDC02A7BD98BE42E2FE24E",
+      "bytes": 314362
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20260915_2455_0414",
+      "sha256": "A2D5FE50F01E2B3F3A7FFD2EA7296D7CAFF7C02E872A91E43DF519652D5CDB57",
+      "bytes": 392410
+    }
+  ],
+  "firstPermanentRelease": {
+    "url": "https://www.sanguosha.com/news/20260310_6992_2516",
+    "publishedAt": "2026-03-13 17:00:40",
+    "availableFrom": "2026-03-14 00:15:00",
+    "firstWindowEnd": "2026-03-21 24:00:00",
+    "method": "祈愿台活动或传世玉玺兑换",
+    "completeTwoSkillsAndIdentity": true
+  },
+  "revisionAudit": {
+    "currentHeroCompleteTwoSkills": true,
+    "formalReleaseContainsCompleteTwoSkills": true,
+    "currentAndReleaseSemanticsAgree": true,
+    "literalWordingDifferences": [
+      "顺机：等量张牌→等量牌",
+      "移势：各一张牌/场上的一张牌→各一张/场上一张牌",
+      "移势：失去...后（不因使用）→不因使用而失去...后"
+    ],
+    "noInventedRevisionDate": true,
+    "applicableConflictingRevisionLocated": false,
+    "characterSpecificOfficialFAQConfirmed": false,
+    "absenceIsNotExhaustiveProof": true,
+    "laterAvailabilityDoesNotConstituteBalanceRevision": {
+      "url": "https://www.sanguosha.com/news/20260915_2455_0414",
+      "publishedAt": "2026-09-18",
+      "availableFrom": "2026-09-19",
+      "availableThrough": "2026-09-24"
+    },
+    "boundedSearch": [
+      "site:sanguosha.com/news 谋董昭 调整",
+      "site:sanguosha.com/news 谋董昭 修改",
+      "site:sanguosha.com 顺机 移势 FAQ",
+      "site:sanguosha.com 顺机 每个牌名",
+      "site:sanguosha.com 移势 不因使用 调整"
+    ]
+  },
+  "portrait": {
+    "officialUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/73500.png",
+    "sourcePage": "https://www.sanguosha.com/hero/735",
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-dong-zhao-ol.png",
+    "sha256": "C24054B2D5DDBA17D1543AC0DFD67FDA4D3521140C6DE6B9F01D12D72AAA623A",
+    "width": 750,
+    "height": 950,
+    "bytes": 923546,
+    "rootReportedOriginalImageVisualInspection": true
+  },
+  "implementationContract": [
+    "Engineering interpretation, not an official FAQ or additional human ruling: Shunji may select zero, one or two native draws. The actual native Draw entities reaching Hand determine the equal owned Hand/Equipment gift, not the requested amount or replacement gains. Accepting zero still consumes this Round and victim opportunity; declining does not.",
+    "Shunji freezes actual owned Hand/Equipment name counts immediately before the gift. Newly emptied names are recorded for this named skill and owner for the remainder of the game, across source loss and regrant. All newly emptied names in one gift are consumed, but the gift creates only one native Damage1, even if two names are emptied together. Giving a Hand entity back to oneself does not fabricate a loss.",
+    "Yishi retains one actual Hand entity of each present suit and publicly shows those retained cards. The other actual Hand entities are placed in the native DiscardPile; this is placement, not a logical self-discard invoice. Its activation requires an initially legal native Equipment/Judgment move, including zero-Hand activation; Hand, held private piles, Processing and removed cards are not field cards.",
+    "After the keep/rest payment and its native children return, field choices are rebuilt from current legal native destinations. If no legal move remains, the accepted activation ends without a false movement or subsequent suit grant. Real equipment removal, recovery and other movement children complete on the owning frame.",
+    "No-Hand-loss tests actual Hand entities leaving during the keep/rest stage, not the final net Hand count after children. A successful field movement freezes the effective suit at payment; when this stage lost no Hand entity, its paid suit effect lasts until the next actual TurnStart belonging to that owner, including an extra turn. Source loss does not revoke the issued effect.",
+    "Engineering interpretation: each owner and suit retains the latest effective grant. Repeating the same suit does not stack that suit reward. Different suits and different owners remain independent; one physical loss batch containing several qualifying suits may draw once for each active matching suit.",
+    "Loss qualification freezes the original owned HE entity and effective suit before physical movement. Hand-to-Equipment and Equipment-to-Hand transfers within the same owner are not HE loss; leaving Hand for a private holding zone follows the native loss boundary. The reward is once per matching loss batch, not per card. True native Use payments are excluded, while a pure Played response remains a non-Use loss.",
+    "Pending draw outcomes, retained cards, native gift and field movement receipts remain on the owning ProgramSkillFrame. Original source, content hash, window, native batch and material sequence bind each paid continuation. Real death, terminal, recovery, Dying and source-change children retain native ordering and cannot repeat payment. Actual-Play use history prevents same-phase source regrant from resetting Yishi."
+  ],
+  "behaviorCheck": {
+    "file": "tests/CardGame.Core.Tests/MouDongZhaoOlChecks.cs",
+    "method": "RealDamageGiftAndNativeSuitLossObligationCold"
+  }
+}

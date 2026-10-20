@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:jigu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "collect-used",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "collectMouDengAiJigu",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "exchange-own",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "exchangeMouDengAiJigu",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "own",
+          "priority": 10
+        },
+        {
+          "id": "exchange-otherLiving",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "exchangeMouDengAiJigu",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "otherLiving",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:jiewan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "snatch-own",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useMouDengAiJiewan",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "own"
+        },
+        {
+          "id": "grow-own",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "growMouDengAiJiewan",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "own"
+        },
+        {
+          "id": "snatch-otherLiving",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "useMouDengAiJiewan",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        },
+        {
+          "id": "grow-otherLiving",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "growMouDengAiJiewan",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        }
+      ]
+    }
+  ]
+}

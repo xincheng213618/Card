@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-dong-zhao-ol",
+      "characterName": "谋董昭·OL",
+      "defaultSkinId": "73500",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/735",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/73500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-dong-zhao-ol.png",
+          "sha256": "c24054b2d5ddba17d1543ac0dfd67fda4d3521140c6de6b9f01d12d72aaa623a",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "73500",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-deng-ai-ol",
+      "characterName": "谋邓艾·OL",
+      "defaultSkinId": "60100",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/601",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-deng-ai-ol.png",
+          "sha256": "30af983fc81081b3b554051fa5089ecaf4813a7aff9190dbb1f5eba5fc0fb0c0",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "60100",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-hua-xiong-ol",
       "characterName": "谋华雄·OL",
       "defaultSkinId": "64400",

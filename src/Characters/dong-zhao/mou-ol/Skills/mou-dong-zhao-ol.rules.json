@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:shunji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage-draw-and-gift",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouDongZhaoShunji",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:yishi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "keep-suits-and-move",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouDongZhaoYishi",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "follow-suit-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "movementOccurrence": "perOwnerBatch",
+          "effects": [
+            {
+              "op": "drawMouDongZhaoYishiLoss",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
