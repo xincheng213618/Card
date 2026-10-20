@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-cheng",
+  "skills": [
+    {
+      "registrationOrder": 2241,
+      "programBundle": "mou-liu-cheng-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:lueying",
+        "name": "掠影",
+        "description": "出牌阶段内，你使用【杀】指定其他角色为目标后，你获得一个“椎”标记，出牌阶段限两次。你使用【杀】结算结束后，若你拥有至少两个“椎”标记，则你移除两个“椎”标记，然后摸一张牌，且可以选择一名角色视为对其使用一张【过河拆桥】。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2242,
+      "programBundle": "mou-liu-cheng-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:yingwu",
+        "name": "莺舞",
+        "description": "出牌阶段内，你使用非伤害类普通锦囊指定一名角色为目标后，若你拥有技能“掠影”，则你获得一个“椎”标记，出牌阶段限两次。你使用非伤害类普通锦囊结算结束后，若你拥有至少两个“椎”标记，则你移除两个“椎”标记，然后摸一张牌，且可以选择一名角色视为对其使用一张不受次数限制的普通【杀】。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2243,
+      "pools": {
+        "current": 516
+      },
+      "definition": {
+        "id": "mou:liu-cheng-mobile",
+        "name": "谋刘赪·移动版",
+        "portraitKey": "mou-liu-cheng-mobile",
+        "skillId": "mou-mobile:lueying",
+        "additionalSkillIds": [
+          "mou-mobile:yingwu"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:liu-cheng",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

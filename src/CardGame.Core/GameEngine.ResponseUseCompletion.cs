@@ -54,7 +54,10 @@ public sealed partial class GameEngine
     {
         if (window.CompletedResponseReturn?.Kind == ProgramCompletedResponseKind.Nullification)
         {
-            if (ActiveNullificationWindow is not { } pending || window.ParentFrameId != pending.Id ||
+            var pending = ActiveNullificationWindow;
+            if (_resolutionStack.SingleOrDefault(f => f.Id == window.ParentFrameId) is NullificationWindowFrame suspended &&
+                IsMouLiuChengSuspendedCounterspell(suspended)) pending = suspended;
+            if (pending is null || window.ParentFrameId != pending.Id ||
                 window.Action.OpponentSeat != pending.SourceSeat) return false;
             return HasNullificationEffectOwner(pending) && window.Action.ParentActionId == NullificationParentActionId(pending);
         }

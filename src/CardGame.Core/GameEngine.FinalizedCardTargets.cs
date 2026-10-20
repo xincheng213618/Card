@@ -11,6 +11,7 @@ public sealed partial class GameEngine
     private bool HasFinalizedTargetProgram(CardKind kind)
     {
         if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveBiguoTargetedPindianAndCategoryBan)) return true;
+        if (HasMouLiuChengCapability && (IsSlashCard(kind) || IsMouLiuChengNonDamageOrdinary(kind))) return true;
         if (HasZixiEffectsCapability && ZixiEffectsKind(kind)) return true;
         if (IsGuanduActivity) return true;
         if (HasActivityOrdinaryTrickProjection && (kind is CardKind.AllianceFeast or CardKind.SowBeans or CardKind.TransplantWood or CardKind.ReturnSoul || IsWenheCard(kind) || IsDragonBoatTrick(kind) || IsGuanduTrick(kind)) &&
@@ -48,7 +49,8 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<int> GetImplicitSelfCardUseTargets(CardKind kind, int sourceSeat,
-        IReadOnlyList<int> targets) => targets.Count == 0 && HasFinalizedTargetProgram(kind) &&
+        IReadOnlyList<int> targets) => HasMouLiuChengCapability && kind == CardKind.DrawTwo && targets.Count == 0
+            ? [sourceSeat] : targets.Count == 0 && HasFinalizedTargetProgram(kind) &&
         (kind == CardKind.Alcohol || CardCatalog.Get(kind).CategoryName == "装备牌")
             ? [sourceSeat] : targets;
 

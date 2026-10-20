@@ -372,6 +372,8 @@ public sealed partial class GameEngine
         CaptureWuZhangFeiUseQualification(action, window);
         CaptureLeCaiYongFeibaiQualification(action, window);
         CaptureLeCaoZhiWenlanQualification(action, window);
+        CaptureMouLiuChengCompletion(action, window);
+        CaptureMouLiuChengAccrual(action, window);
         var targets = eventTargets.Distinct().ToHashSet();
         var result = new List<ProgramCardTriggerCandidate>();
         var capturedOwnerFacts = new SkillProgramTriggerFacts?[_players.Count];
@@ -465,6 +467,8 @@ public sealed partial class GameEngine
                     if (window != SkillProgramTriggerWindow.CardUseCommitted || curse is null) continue;
                     context = context with { SourceCurseUse = new(curse, action.ActionId, action.ActorSeat, action.EffectiveIsRed) };
                 }
+                if (AttachMouLiuChengAccrual(action, binding.SkillId, binding.SkillInstanceId, context) is not { } liuChengContext) continue;
+                context = liuChengContext;
                 result.Add(new(owner.Seat, eventTarget, binding.SkillId, trigger.Id,
                     binding.Program.GameplayHash, binding.SkillInstanceId, trigger.Priority, context));
             }
@@ -581,6 +585,7 @@ public sealed partial class GameEngine
         frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
         if (TryBeginSoleTargetRedirect(frame)) return new(ProgramTriggerWindowFlow.Retry, frame);
         frame = AppendActorHandLimitTargetCandidates(frame);
+        frame = AppendMouLiuChengAccrual(frame);
         frame = DeferFirstSlashDuelCandidates(frame);
         return new(ProgramTriggerWindowFlow.Ready, frame);
     }
@@ -710,6 +715,7 @@ public sealed partial class GameEngine
                 !MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesTieredRoundZeroUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesMouZhijueUseAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
+                !MatchesMouLiuChengNativeAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
                 !MatchesChosenAssaultUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
             throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
         var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
@@ -862,7 +868,7 @@ public sealed partial class GameEngine
             var suspendedGuoSiParent = LifecycleCardUse(frame.ParentFrameId) is { } guoSiParent &&
                 IsSuspendedGuoSiCompletedParent(guoSiParent);
             var suspendedDiouParent = LifecycleCardUse(frame.ParentFrameId) is { } diouParent &&
-                IsDiouSuspendedCompletedAttack(diouParent, frame.Id);
+                (IsDiouSuspendedCompletedAttack(diouParent, frame.Id) || IsMouLiuChengSuspendedCompletedAttack(diouParent, frame.Id));
             var drawFundedQinglongFollowup = IsDrawFundedQinglongCompletedWindowRide(frame) || IsChainedStateQinglongCompletedWindowRide(frame);
             var attackMatches = (HasHuiyunCompletedUseObserver(frame.ParentFrameId) || HasChenglieCompletedUseObserver(frame.ParentFrameId)) || HasGoudeCompletedSlashChild(frame) || HasFulueCompletedCounterChild(frame) || HasWuJingCompletedUseObserver(frame) || HasWoLongFengChuUseObserver(frame.ParentFrameId) || HasLvKuangLvXiangCardObserver(frame.ParentFrameId) || HasXinPiCardObserver(frame.ParentFrameId) || HasHuaManCardObserver(frame.ParentFrameId) || IsHuaManSouyingEmptyTargetWindow(frame) || HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
                 CompletedUndamagedTargetRevealObserverRoot()?.CompletedUndamagedTargetReveal?.CardUseFrameId == frame.ParentFrameId ||
@@ -905,6 +911,7 @@ public sealed partial class GameEngine
                    MatchesVirtualOrdinaryTrickUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesTieredRoundZeroUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesMouZhijueUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
+                   MatchesMouLiuChengNativeAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesChosenAssaultUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
             var completedResponseMatches = frame.CardSupplyCompletion is not null ? ValidCardSupplyCompletionWindow(frame) : frame.ResponseCompletion is not null ? ValidResponseCompletionWindow(frame) : frame.CompletedResponseReturn is { } completedResponse

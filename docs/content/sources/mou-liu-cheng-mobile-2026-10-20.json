@@ -1,0 +1,299 @@
+{
+  "status": "implemented-and-verified",
+  "checkedOn": "2026-10-20",
+  "name": "谋刘赪·移动版",
+  "generalId": "mou:liu-cheng-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "sources": [
+    {
+      "kind": "currentHero",
+      "url": "https://www.sanguosha.cn/hero-detail-440.html",
+      "finalUrl": "https://www.sanguosha.cn/hero-detail-440.html",
+      "httpStatus": 200,
+      "bytes": 21213,
+      "sha256": "c02c8bff2abfcc8983ed7644faa84b608cc9ef2c6c71778f14c65f7cf3f18f2c",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:34:06.391932+00:00"
+    },
+    {
+      "kind": "currentIdentityApi",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "finalUrl": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "httpStatus": 200,
+      "bytes": 1820041,
+      "sha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+      "contentType": "application/json",
+      "fetchedAtUtc": "2026-10-20T05:34:06.596803+00:00"
+    },
+    {
+      "kind": "formalTimingAdjustment",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "httpStatus": 200,
+      "bytes": 24358,
+      "sha256": "a3bc7671bb10fabcdce9f5c34701b341a1bc27be37d68558496ea29b75e13c88",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:34:06.404825+00:00"
+    },
+    {
+      "kind": "formalPermanentLaunch",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+      "httpStatus": 200,
+      "bytes": 26011,
+      "sha256": "deb21831965f2fc9ff50b59d3de3bc08dd7b84b1a9995e01c737bc95044514f5",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:34:06.405194+00:00"
+    },
+    {
+      "kind": "laterPermanentAcquisition",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2123.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2123.html",
+      "httpStatus": 200,
+      "bytes": 60876,
+      "sha256": "a934e0656e47756529963a412563dba21ba0c31c411fce064f7472b7f01c0b0d",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:34:06.404120+00:00"
+    },
+    {
+      "kind": "latestLocatedWordingNotice",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "finalUrl": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "httpStatus": 200,
+      "bytes": 15640,
+      "sha256": "f11a43f0a1c30425e72c08ea593c6baac715741593edce0e5e64139d25ab00ac",
+      "contentType": "text/html; charset=UTF-8",
+      "fetchedAtUtc": "2026-10-20T05:34:06.377824+00:00"
+    }
+  ],
+  "firstObtainableAt": "2022-07-09",
+  "formalLaunch": {
+    "published": "2022-07-08 17:30:00",
+    "url": "https://www.sanguosha.cn/pc/news-detail-1257.html",
+    "meaning": "The formal 7月9日周年庆 announcement starts 群英绘壁 on 2022-07-09 and explicitly lists 谋刘赪、谋吕蒙、谋华雄、谋徐晃 as generals obtained permanently after required experience. The separate limited experience mode and trial cards are not substituted for permanent acquisition. This historic event is not a claim of current availability."
+  },
+  "laterPermanentAcquisition": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-2123.html",
+    "published": "2025-08-15 14:59:51",
+    "availableFrom": "2025-08-15 18:00",
+    "availableUntil": "2026-07-31 23:59",
+    "meaning": "The formal later 群英绘壁 season includes 谋刘赪 among six permanent general rewards. This historical window is expired as of review, so no present purchase, price or remaining availability is claimed."
+  },
+  "officialIdentity": {
+    "heroPageId": 440,
+    "generalId": 609,
+    "officialName": "谋·刘赪",
+    "faction": "qun",
+    "hp": 3,
+    "gender": "Female",
+    "nameReading": "刘赪 chēng"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:lueying",
+      "name": "掠影",
+      "text": "出牌阶段内，你使用【杀】指定其他角色为目标后，你获得一个“椎”标记，出牌阶段限两次。你使用【杀】结算结束后，若你拥有至少两个“椎”标记，则你移除两个“椎”标记，然后摸一张牌，且可以选择一名角色视为对其使用一张【过河拆桥】。",
+      "sha256": "a4a8d9ba1e2cbe1a1bd89eb8dcd4844f5f96048e017c7cca927886443f2b3270",
+      "source": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "initiallyOwned": true
+    },
+    {
+      "id": "mou-mobile:yingwu",
+      "name": "莺舞",
+      "text": "出牌阶段内，你使用非伤害类普通锦囊指定一名角色为目标后，若你拥有技能“掠影”，则你获得一个“椎”标记，出牌阶段限两次。你使用非伤害类普通锦囊结算结束后，若你拥有至少两个“椎”标记，则你移除两个“椎”标记，然后摸一张牌，且可以选择一名角色视为对其使用一张不受次数限制的普通【杀】。",
+      "sha256": "5a2e5bd5c4cb427da2603e2bb73822a70dbdb9230e943505add5e32debe40501",
+      "source": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+      "initiallyOwned": true
+    }
+  ],
+  "derivedGrantedSkills": [],
+  "currentVersusFormal": {
+    "authority": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+    "published": "2025-04-16 15:06:56",
+    "effective": "2025-04-17 08:00",
+    "currentHeroAndApiStillUseOlderTiming": true,
+    "officialAdjustmentScope": "The formal notice explicitly changes the listed skills from 指定/成为目标时 to 指定/成为目标后 to remove erroneous or repeated triggering, and states effects and strength in other situations are unchanged.",
+    "chosenVersion": "Use the complete mobile 掠影 and 莺舞 text in the formal 2051 notice: 指定目标后. The still-live hero/API paragraphs below are retained as conflicting stale source text, not combined into a new hybrid skill.",
+    "currentHeroApiSkills": [
+      {
+        "name": "掠影",
+        "desc": "出牌阶段内，你使用【杀】指定其他角色为目标时，你获得一个“椎”标记，出牌阶段限两次。你使用【杀】结算结束后，若你拥有至少两个“椎”标记，则你移除两个“椎”标记，然后摸一张牌，且可以选择一名角色视为对其使用一张【过河拆桥】。"
+      },
+      {
+        "name": "莺舞",
+        "desc": "出牌阶段内，你使用非伤害类普通锦囊指定一名角色为目标时，若你拥有技能“掠影”，则你获得一个“椎”标记，出牌阶段限两次。你使用非伤害类普通锦囊结算结束后，若你拥有至少两个“椎”标记，则你移除两个“椎”标记，然后摸一张牌，且可以选择一名角色视为对其使用一张不受次数限制的普通【杀】。"
+      }
+    ],
+    "sourcePriorityDecision": {
+      "confirmed": true,
+      "basis": "An explicit formal timing adjustment for the same mobile general takes precedence over stale current hero/API wording; no new user ruling about this resolved publication conflict is needed."
+    },
+    "boundedFinding": "No later replacement or character-specific official FAQ was located for 掠影/莺舞 by the bounded official-source review. No authenticated client assets were used as rules authority.",
+    "latestLocatedWordingAnnouncement": {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "published": "2026-10-15 10:18:17",
+      "effective": "2026-10-16 12:00",
+      "tableUrl": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "tableSha256": "411a068609351931e47f91fcfde8f2b04b7451c9769c117b4d6d1c635addd16c",
+      "tableVisuallyInspected": true,
+      "finding": "The inspected official table contains neither 掠影 nor 莺舞. The notice says its wording changes do not affect actual effects or settlement logic."
+    }
+  },
+  "identityIsolation": {
+    "generalId": "mou:liu-cheng-mobile",
+    "proposedVariantId": "mou-mobile",
+    "rulesetId": "sanguosha-mobile",
+    "meaning": "This is the complete mobile 谋攻篇 version, with exactly two initial skills and no further acquired skill in either paragraph. Do not silently replace a different product's character or conflate 赪 with a different Chinese character."
+  },
+  "artwork": {
+    "sourcePage": "https://www.sanguosha.cn/hero-detail-440.html",
+    "selector": "first image beneath observed #heroInfo1",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/60900.jpg",
+    "finalUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/60900.jpg",
+    "httpStatus": 200,
+    "contentType": "image/jpeg",
+    "bytes": 388277,
+    "sha256": "be0ed5b85083cc238adfe6eee3e8a5a1e5f7d562aac230f57f8fd1a7b9a4c4b1",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-liu-cheng-mobile.jpg",
+    "unmodifiedOfficialBytes": true,
+    "visualSubjectVerified": true,
+    "fetchedAtUtc": "2026-10-20T05:34:06.879466+00:00",
+    "wpfRenderingVerified": true,
+    "inspection": "Viewed the exact official 530 x 750 JPEG: a dark-haired heroine in pale martial robes with dark-and-gold trim, a green butterfly hair ornament, a red-and-black sash and trailing ribbons, holding two long hooked blades in a leafy courtyard with red columns, butterflies and an armored figure behind her. The supplied full portrait canvas and original framing are preserved; this is a complete character illustration rather than a black silhouette. The lower official watermark remains. No redraw, crop, recoloring, resize or other image modification was applied."
+  },
+  "engineeringInterpretations": [
+    "These are explicit project implementation interpretations and native settlement requirements, not claims of an official FAQ. The target cardinality interpretation is accepted for this implementation and recorded separately below.",
+    "Use effective native card identity and the actual designated-target-after boundary. 掠影 accepts the native Slash family, including property Slashes; 莺舞 accepts non-damage ordinary tricks rather than equipment, delayed tricks or a small handwritten standard-card whitelist. A damage card that dealt zero damage is still a damage card.",
+    "The first sentence of each skill has its own 出牌阶段限两次 allowance. Shared 椎 does not mean one shared two-use allowance across both skills. Track the actual Play phase and the owner/named-skill usage; source loss/regrant or duplicate skill instances do not refresh that phase allowance.",
+    "Both skills refer to the same owner-level 椎 balance. The text specifies no overall mark cap or phase/turn-end clearing clause. The implementation preserves that balance across actual phase/turn boundaries and source loss/regrant; phase reset changes accrual usage only. This is a literal no-expiry implementation interpretation rather than a separately published official lifetime FAQ.",
+    "莺舞 explicitly requires having 掠影 while obtaining a mark. Its completion paragraph does not repeat that condition. Do not erase the shared balance or cancel an already-paid benefit merely because 掠影 is subsequently lost.",
+    "The completion sentence of each skill does not repeat 出牌阶段内. The implementation lets a matching genuine Use complete and consume existing two marks outside Play, while no new accrual is allowed outside an actual Play phase. Recast and pure Played are not matching Use completion; a genuine response Use keeps its native identity.",
+    "The complete clause says 若…则你移除两个…然后摸一张…且可以选择…. The implementation treats removal of exactly two and native Draw1 as the conditional settlement, and permits declining only the subsequent virtual use. Do not silently turn the entire clause into a skippable draw or omit its mark cost.",
+    "Freeze the exact original Use/source/candidate and pay two marks before native DrawAttempt, replacement, recovery and CardsGained children can reenter. A resumed child cannot consume the marks or draw again. Preserve an already-paid continuation after source loss using exact owning receipts, while actions requiring a living actor respect death and the native terminal cutoff.",
+    "After the one real draw, optionally issue one genuine zero-material native 过河拆桥 for 掠影 or one genuine zero-material ordinary 杀 for 莺舞. The drawn entity is not an extra payment. Native Action.PhysicalCards is empty, appearance is the standard neutral zero-material representation, and no nonexistent Card0 is moved.",
+    "掠影 gives no distance, use-count or prohibition exemption to 过河拆桥. 莺舞 grants only the printed use-count exemption to its ordinary 杀; retain native distance, target prohibition, response, damage and additional-target rules. Immediate outside-Play issuing is confined to the exact paid parent, not a global unrestricted-use flag.",
+    "Real followup 过河拆桥 and 杀 may themselves satisfy the other skill's target/completion clauses. Preserve their complete genuine Use acceptance, costs, nullification/dodge, damage and exactly-once completion. Typed child returns must restore the exact completed mother attack/nullification/dying continuation without replaying it or exposing a completed attack as active.",
+    "For 过河拆桥, use the native legal Hand/Equipment/Judgment selection and privacy rules; another hidden Hand is not disclosed merely by target choice. Public 椎/usage facts remain public, private decision drafts stay on their owning frame, and human/AI views use CreateSnapshot(viewerSeat). Queries do not consume selection RNG.",
+    "Use native actual phase tracking and owner/named-skill usage, immutable scalar rule facts and owning ProgramSkillFrame receipts. Collection-bearing new events require committed projection freezing. No global rules epoch, schema bump, package-version bump or parallel pending sidecar is implied by adding this general.",
+    "When this capability is loaded, a native DrawTwo Use with an implicit self target records that actual target from its creation, before accepted action and finalized-target facts. This preserves the original historical action shape when the capability is absent; accrual never invents a collector-only target.",
+    "The genuine zero-material Dismantlement has the same source-bound paid native identity checked both by invariant validation and by its finalized-trick execution continuation. Empty materials alone never authorize another producer or another card.",
+    "Each visible skill exposes its actual current Play allowance as the existing public ActivationLimit state with Value two and the exact named-skill earned count. The public counter is not debited by qualification, queries or a cold restore. Both native followups respect an active SelfOnly target restriction."
+  ],
+  "verificationLimits": [
+    "Official hero/API and dated release sources were checked; the exact official portrait was hashed, dimension-checked and visually inspected. No authenticated mobile client or character-specific official FAQ was used.",
+    "Focused native behavior and relevant shared mechanism checks, the actual WPF gallery rendering, and bounded routine checks passed. No manual Full run or complete foreground match."
+  ],
+  "validation": {
+    "status": "passed",
+    "sourceReview": "passed",
+    "officialPortraitHashAndDimensions": "passed",
+    "officialPortraitVisualInspection": "passed",
+    "wpfRendering": "passed",
+    "focused": {
+      "corePassed": 28,
+      "wpfPassed": 1,
+      "durationMs": 54868
+    },
+    "routine": {
+      "corePassed": 165,
+      "wpfPassed": 37,
+      "durationMs": 72740
+    },
+    "manualFullRun": false,
+    "focusedCheckNames": [
+      "Wenhe activity: real eight seats private draft and cold restore",
+      "Wenhe cards: real additional targets retire receipts and pay once cold",
+      "Shanhe team draw aura: source death loss before issue and frozen paid request cold",
+      "actual phase end: six actual phases typed cold returns skip and restoration",
+      "Native recast invocation: paid loss death and zero draw cold",
+      "Le Diao Chan: retained show native basic trick delayed equipment cold",
+      "Le Diao Chan: true response Played exclusion actual turn show OR name cold",
+      "Le Diao Chan: paid native children source loss death carrier retirement cold",
+      "Le Cai Yong: true Dodge Null parents Played exclusion cold",
+      "Le Cao Zhi: alternate native names real materials delayed responses cold",
+      "Le Cao Zhi: fixed accepted pairs nested Played cross turn source cold",
+      "Mou Yu Jin Mobile: paid discard source loss self rescue death native return cold",
+      "Mou Liu Cheng Mobile: mandatory completion debit draw shortfall true responses paid children cold",
+      "Mou Liu Cheng Mobile: native alternating Dismantlement Slash parents privacy legality cold",
+      "Mou Liu Cheng Mobile: actual target notifications independent skill quotas and card families cold",
+      "Mou Liu Cheng Mobile: exact Play phases source lifetime and permanent Chui cold",
+      "committed use contracts preserve immutable registration and response-use validation",
+      "character manifests preserve ordered registration and package isolation",
+      "Actor hand limit penalty: real uses stack and change actual discard",
+      "Original target addition rights quota armor and cold",
+      "committed event collections reject observer mutation",
+      "character manifests preserve program bindings and reject invalid input",
+      "response use completion Dodge timing parent and replay",
+      "skill program multi-target triggers wait for every Liuli redirection",
+      "viewer snapshot hides private roles and hands",
+      "viewer snapshot hides seed and other players' decisions",
+      "accepted command journals serialize and replay deterministically",
+      "command checkpoints restore a paused private prompt deterministically"
+    ]
+  },
+  "rootIndependentReview": {
+    "identityApiUrl": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+    "fetchedAtUtc": "2026-10-20T06:07:37.374203+00:00",
+    "identityApiSha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27",
+    "formalTimingSource": "https://www.sanguosha.cn/pc/news-detail-2051.html",
+    "formalTimingAndStaleCurrentWordingConfirmed": true,
+    "completeTwoSkillIdentityConfirmed": true,
+    "originalOfficialPortraitActuallyViewed": true
+  },
+  "supportedCardClassification": {
+    "basis": "The current native CardCatalog has28 ordinary tricks: seven direct card-damage kinds and21 other ordinary kinds. This is an explicit project classification, not an official mobile card-icon FAQ. Delayed tricks are excluded before this partition. A damage card remains a damage card when its damage is prevented or nullified.",
+    "directDamageOrdinary": [
+      "Duel",
+      "FireAttack",
+      "BarbarianAssault",
+      "ArrowBarrage",
+      "UnexpectedAssault",
+      "AgainstCurrent",
+      "WumiaoFlood"
+    ],
+    "nonDamageOrdinary": [
+      "DrawTwo",
+      "PeachGarden",
+      "FiveGrains",
+      "Dismantlement",
+      "Snatch",
+      "Nullification",
+      "IronChain",
+      "BorrowedSword",
+      "AllianceFeast",
+      "SowBeans",
+      "TransplantWood",
+      "ReturnSoul",
+      "StarShift",
+      "BeamSwap",
+      "HandRedistribution",
+      "WenheChaos",
+      "SameBoat",
+      "StriveUpstream",
+      "StoreGrain",
+      "Reinforcements",
+      "UnitedEffort"
+    ],
+    "indirectEffects": "BorrowedSword, TransplantWood and WenheChaos use a distinct actor Slash or HP-loss effect and are classified as non-direct-damage ordinary under this project interpretation."
+  },
+  "targetNotificationImplementation": {
+    "basis": "Project engineering contract implementing the formal target-after wording, not an official FAQ.",
+    "initial": "One ordinary native actor candidate retains its normal priority and traverses every actual frozen qualifying primary target, rather than treating one used card as one earned mark. Each named skill stops after two gains in that exact actual Play phase.",
+    "later": "Only genuinely new primary targets append a new frozen notification. An existing completed prefix remains unchanged; later source acquisition cannot retroactively earn old target notifications. BorrowedSword forced Slash recipients are not primary BorrowedSword targets.",
+    "restore": "Source/hash, actual Use/Action/phase and notification identity remain on native owning frames. Ordered target collections are readonly and compare by value across cold deserialization.",
+    "progress": "Existing public skill states show each skill own current actual-Play count out of two. Shared permanent Chui remains a separate public marker balance; displaying counts does not create a second usage ledger."
+  },
+  "engineeringDecisions": [
+    {
+      "id": "designated-target-cardinality",
+      "status": "accepted-project-interpretation",
+      "officialEvidence": "Formal 2051 fixes the target-after timing but contains no multi-target example. No decisive official FAQ or authenticated client ruling was found.",
+      "sourceLevel": "Root implementation decision from the complete formal body and existing native target occurrence contract; not a separately confirmed official FAQ or user-selected ruling.",
+      "implementation": "One accrual per actual designated target occurrence, with each skill capped at two in the exact Play phase, and exact Use/target occurrence de-duplication. 掠影 excludes own target. Do not set SingleActionInstance=true merely to simplify the implementation.",
+      "officialFaqConfirmed": false
+    }
+  ]
+}

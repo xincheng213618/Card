@@ -8,6 +8,11 @@ public sealed partial class GameEngine
         List<ProgramPublicRuleStateSnapshot>? states = null;
         foreach (var instance in GetSkillBindingShard(owner).ProgramInstances)
         {
+            if (instance.SkillId == skillId && MouLiuChengComposition.IsProgram(instance.Program) &&
+                CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } liuChengPhase &&
+                IsRecordedActualDiscardRecoveryPhase(liuChengPhase))
+                (states ??= []).Add(new(instance.SkillInstanceId, "after-designation", ProgramPublicRuleStateKind.ActivationLimit,
+                    2, MouLiuChengPhaseUses(owner.Seat, skillId, liuChengPhase), SkillUsageScope.Phase));
             if (instance.SkillId == skillId)
             foreach (var activation in instance.Program.Activations)
             {

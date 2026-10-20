@@ -91,7 +91,7 @@ public sealed partial class GameEngine
         _resolutionStack.LastOrDefault(frame => frame switch
         {
             CardUseFrame use => matches(use.Continuations) && !IsSuspendedGuoSiCompletedParent(use) &&
-                !IsDiouSuspendedCompletedAttack(use) && !IsDiouSuspendedRescueAttack(use),
+                !IsDiouSuspendedCompletedAttack(use) && !IsMouLiuChengSuspendedCompletedAttack(use) && !IsDiouSuspendedRescueAttack(use),
             ProgramSkillFrame program => matches(program.Continuations) && !IsDiouSuspendedRescueAttack(program),
             JudgmentFrame judgment => matches(judgment.Continuations) && !IsDiouSuspendedRescueAttack(judgment),
             _ => false

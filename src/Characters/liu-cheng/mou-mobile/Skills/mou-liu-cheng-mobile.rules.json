@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:lueying",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-designation",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [
+            {
+              "op": "accrueMouLiuChengChui",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "after-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "effects": [
+            {
+              "op": "resolveMouLiuChengCompletion",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:yingwu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-designation",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [
+            {
+              "op": "accrueMouLiuChengChui",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "after-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "effects": [
+            {
+              "op": "resolveMouLiuChengCompletion",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
