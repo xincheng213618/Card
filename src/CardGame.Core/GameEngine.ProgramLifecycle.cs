@@ -2184,6 +2184,7 @@ public sealed partial class GameEngine
         if (IsIssuedMouGuquCandidate(candidate, context) || IsIssuedDiouCandidate(candidate, context)) return true;
         if (IsIssuedMouPtTargets(candidate, context)) return true;
         if (IsIssuedMouChenGongZhichiCandidate(candidate, context)) return true;
+        if (IsIssuedMouHyQiCandidate(candidate, context)) return true;
         if (IsIssuedMouDaQiaoPhaseCandidate(candidate, context)) return true;
         if (IsIssuedMoLuBuDeathCandidate(candidate, context)) return true;
         if (IsIssuedOlMoRumoCandidate(candidate, context)) return true;

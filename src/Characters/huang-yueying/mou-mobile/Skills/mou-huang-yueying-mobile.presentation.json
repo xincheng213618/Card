@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:jizhi": { "name": "集智", "description": "锁定技，当你使用一张普通锦囊牌时，你摸一张牌。以此法获得的牌本回合不计入手牌上限。", "triggerLabels": { "ordinary-trick-used": "集智", "nullification-used": "集智" } },
+    "mou-mobile:qicai": { "name": "奇才", "description": "你使用锦囊牌没有距离限制。出牌阶段限一次，你可以选择一名其他角色，将手牌或弃牌堆中的一张装备牌置入其装备区，然后其获得“奇”标记。拥有“奇”标记的角色接下来获得的三张普通锦囊牌须交给你。", "activationLabels": { "place-equipment": "奇才：置入装备" }, "triggerLabels": { "receive-three": "奇才：交付锦囊" } }
+  }
+}

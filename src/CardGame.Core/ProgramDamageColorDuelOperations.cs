@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed record ProgramDamageAppearanceReceipt(int InstructionIndex, long DamageWindowFrameId,
     long DamageFrameId, int OwnerSeat, int? SourceSeat, CardKind? EffectiveCardKind, bool HasCard,
     bool IsRed, int? RecipientSeat, bool DrawIssued);
-public sealed record ProgramSelectedActorDuelOrigin(long ParentProgramFrameId, int InstructionIndex,
+public sealed partial record ProgramSelectedActorDuelOrigin(long ParentProgramFrameId, int InstructionIndex,
     int OwnerSeat, int InitialActorSeat, string SkillId, string ActivationId, string SkillInstanceId,
     string GameplayHash, int TurnNumber, bool AttackStarted = false)
 {

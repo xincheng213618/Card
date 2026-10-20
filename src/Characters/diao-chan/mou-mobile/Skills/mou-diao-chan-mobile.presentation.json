@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-mobile:lijian": {
+      "name": "离间",
+      "description": "出牌阶段限一次，你可以选择至少两名其他角色并弃置X张牌（X为你选择的角色数-1），然后他们依次对逆时针最近座次的你选择的另一名角色视为使用一张【决斗】。"
+    },
+    "mou-mobile:biyue": {
+      "name": "闭月",
+      "description": "锁定技，结束阶段，你摸X张牌。（X为本回合受到伤害的角色数+1，至多为4）"
+    }
+  }
+}

@@ -67,7 +67,7 @@ public sealed partial class GameEngine
     [NativeUseReturn(200)]
     private void ReturnSelectedActorDuel(CardUseFrame use)
     {
-        if(use.SelectedActorDuelOrigin is not {AttackStarted:false} origin)return;
+        if(use.SelectedActorDuelOrigin is not {AttackStarted:false} origin || origin.MouDiaoChanRing is not null)return;
         if(origin.OrderedPairPayment is not null)
         {
             if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame orderedParent)
@@ -86,6 +86,7 @@ public sealed partial class GameEngine
         foreach(var use in _resolutionStack.OfType<CardUseFrame>().Where(u=>u.SelectedActorDuelOrigin is not null))
         {
             var o=use.SelectedActorDuelOrigin!;
+            if (o.MouDiaoChanRing is not null) { AssertMouDiaoChanRingUse(use, o); continue; }
             var index=_resolutionStack.FindIndex(x=>x.Id==use.Id);
             if(o.OrderedPairPayment is not null)
             {

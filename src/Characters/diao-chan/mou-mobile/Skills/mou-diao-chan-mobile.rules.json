@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:lijian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "ring-duels",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveMouDiaoChanLijian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:biyue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-damaged-roles",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouDiaoChanBiyue",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

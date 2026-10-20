@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:diao-chan",
+  "skills": [
+    {
+      "registrationOrder": 2357,
+      "programBundle": "mou-diao-chan-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:lijian",
+        "name": "离间",
+        "description": "出牌阶段限一次，你可以选择至少两名其他角色并弃置X张牌（X为你选择的角色数-1），然后他们依次对逆时针最近座次的你选择的另一名角色视为使用一张【决斗】。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2358,
+      "programBundle": "mou-diao-chan-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:biyue",
+        "name": "闭月",
+        "description": "锁定技，结束阶段，你摸X张牌。（X为本回合受到伤害的角色数+1，至多为4）",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2359,
+      "pools": {
+        "current": 539
+      },
+      "definition": {
+        "id": "mou:diao-chan-mobile",
+        "name": "谋貂蝉·移动版",
+        "portraitKey": "mou-diao-chan-mobile",
+        "skillId": "mou-mobile:lijian",
+        "additionalSkillIds": [
+          "mou-mobile:biyue"
+        ],
+        "factionId": "qun",
+        "gender": "Female",
+        "baseHp": 3,
+        "characterId": "character:diao-chan",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

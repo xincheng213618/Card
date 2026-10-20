@@ -1,0 +1,8 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:lu-bu",
+ "skills":[
+  {"registrationOrder":2351,"programBundle":"mou-lu-bu-mobile","includeProgramPresentation":true,"definition":{"id":"mou-mobile:wushuang","name":"无双","description":"锁定技，你使用的【杀】需两张【闪】才能抵消；与你进行【决斗】的角色每次需打出两张【杀】。每回合限一次，若对方没有使用或打出【杀】或【闪】，则此【杀】或【决斗】对其造成的伤害+1。","executionForms":"Trigger,State","tags":"Locked"}},
+  {"registrationOrder":2352,"programBundle":"mou-lu-bu-mobile","includeProgramPresentation":true,"definition":{"id":"mou-mobile:liyu","name":"利驭","description":"当你使用【杀】对一名其他角色造成伤害后，你可以获得其区域里的至多等同于伤害数张牌，然后其摸等量张牌。若你与其因此获得了全部类别的牌，其选择一项：令你视为对由其指定的另一名其他角色使用一张【决斗】；其获得技能“无双”直至其下个回合结束。","executionForms":"Trigger"}}
+ ],
+ "generals":[{"registrationOrder":2353,"pools":{"current":538},"definition":{"id":"mou:lu-bu-mobile","name":"谋吕布·移动版","portraitKey":"mou-lu-bu-mobile","skillId":"mou-mobile:wushuang","additionalSkillIds":["mou-mobile:liyu"],"factionId":"qun","gender":"Male","baseHp":5,"characterId":"character:lu-bu","variantId":"mou-mobile","rulesetId":"sanguosha-mobile"}}]
+}

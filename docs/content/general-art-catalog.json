@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-huang-yueying-mobile",
+      "characterName": "谋黄月英·移动版",
+      "defaultSkinId": "64700",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-577.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/64700.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-huang-yueying-mobile.jpg",
+          "sha256": "f0ccb7dc1a7e07b54713336d93c510818655257eed290834970d4af8ff9fb8e0",
+          "pixelWidth": 4100,
+          "pixelHeight": 5799,
+          "id": "64700",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-lu-bu-mobile",
+      "characterName": "谋吕布·移动版",
+      "defaultSkinId": "83100",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-613.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/83100.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-lu-bu-mobile.jpg",
+          "sha256": "73f677296b637698183171ec258f10e83ed395fe8b619b5ba8882dcaa7b5fa4c",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508,
+          "id": "83100",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-diao-chan-mobile",
+      "characterName": "谋貂蝉·移动版",
+      "defaultSkinId": "69300",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-506.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/69300.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-diao-chan-mobile.jpg",
+          "sha256": "0d8c44a31d58d1986477b00ddebe24313ddb1af68650d46947e3ecfe127d598b",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "id": "69300",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-da-qiao-mobile",
       "characterName": "谋大乔·移动版",
       "defaultSkinId": "66700",

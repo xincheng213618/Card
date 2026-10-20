@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-yueying",
+  "skills": [
+    { "registrationOrder": 2345, "programBundle": "mou-huang-yueying-mobile", "includeProgramPresentation": true,
+      "definition": { "id": "mou-mobile:jizhi", "name": "集智", "description": "锁定技，当你使用一张普通锦囊牌时，你摸一张牌。以此法获得的牌本回合不计入手牌上限。", "tags": "Locked", "executionForms": "State, Trigger" } },
+    { "registrationOrder": 2346, "programBundle": "mou-huang-yueying-mobile", "includeProgramPresentation": true,
+      "definition": { "id": "mou-mobile:qicai", "name": "奇才", "description": "你使用锦囊牌没有距离限制。出牌阶段限一次，你可以选择一名其他角色，将手牌或弃牌堆中的一张装备牌置入其装备区，然后其获得“奇”标记。拥有“奇”标记的角色接下来获得的三张普通锦囊牌须交给你。", "executionForms": "State, Trigger", "actionForms": "Active" } }
+  ],
+  "generals": [ { "registrationOrder": 2347, "pools": { "current": 537 }, "definition": {
+    "id": "mou:huang-yueying-mobile", "name": "谋黄月英·移动版", "portraitKey": "mou-huang-yueying-mobile", "skillId": "mou-mobile:jizhi",
+    "additionalSkillIds": ["mou-mobile:qicai"], "factionId": "shu", "baseHp": 3, "gender": "Female",
+    "characterId": "character:huang-yueying", "variantId": "mou-mobile", "rulesetId": "sanguosha-mobile"
+  } } ]
+}

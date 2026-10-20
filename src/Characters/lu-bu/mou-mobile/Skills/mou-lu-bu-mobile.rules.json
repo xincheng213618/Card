@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[
+ {"id":"mou-mobile:wushuang","revision":1,"cardPolicies":[
+  {"id":"slash-two-dodges","kind":"minimumResponseCount","cardKinds":["slash","fireSlash","thunderSlash"],"requiredCardKinds":["dodge"],"value":2},
+  {"id":"duel-two-slashes","kind":"minimumResponseCount","cardKinds":["duel"],"requiredCardKinds":["slash"],"value":2}
+ ],"triggers":[{"id":"no-response-damage","window":"beforeDamageApplied","subject":"damageSource","optional":false,"effects":[{"op":"resolveMouLuBuWushuangBonus","target":"owner"}]}]},
+ {"id":"mou-mobile:liyu","revision":1,"triggers":[{"id":"obtain-draw-and-choose","window":"afterDamageApplied","subject":"damageSource","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveMouLuBuLiyu","target":"owner"}]}]}
+]}

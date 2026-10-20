@@ -1,0 +1,106 @@
+{
+  "generalId": "mou:diao-chan-mobile",
+  "name": "谋·貂蝉",
+  "edition": "Sanguosha Mobile Mou",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "heroPageId": 506,
+    "officialGeneralId": 693,
+    "faction": "qun",
+    "gender": "Female",
+    "baseHp": 3
+  },
+  "skills": [
+    {
+      "name": "离间",
+      "desc": "出牌阶段限一次，你可以选择至少两名其他角色并弃置X张牌（X为你选择的角色数-1），然后他们依次对逆时针最近座次的你选择的另一名角色视为使用一张【决斗】。"
+    },
+    {
+      "name": "闭月",
+      "desc": "锁定技，结束阶段，你摸X张牌。（X为本回合受到伤害的角色数+1，至多为4）"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-506.html",
+      "type": "Current official complete general page",
+      "checkedOn": "2026-10-21"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "type": "Current official mobile API",
+      "recordId": 506,
+      "generalId": 693,
+      "fullSkillAgreement": true
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-1568.html",
+      "type": "Formal first permanent release",
+      "publishedAt": "2023-07-14 17:30:00",
+      "availableFrom": "2023-07-15",
+      "method": "Anniversary box first release"
+    }
+  ],
+  "revisionAudit": {
+    "currentPageAndApiAgree": true,
+    "boundedOfficialSearchFoundConflictingRevision": false,
+    "scope": "Searched official-domain Mou Diao Chan skill modification/adjustment entries and checked current full hero and API. This is not an exhaustive FAQ claim; community descriptions were not used as authority."
+  },
+  "art": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/69300.jpg",
+    "officialPage": "https://www.sanguosha.cn/pc/hero-detail-506.html",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "bytes": 353946,
+    "sha256": "0d8c44a31d58d1986477b00ddebe24313ddb1af68650d46947e3ecfe127d598b",
+    "visuallyInspectedByRoot": true,
+    "observedActualDom": true,
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-diao-chan-mobile.jpg"
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Direction and processing order",
+      "status": "root-accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "decision": "Freeze the original chosen actors in native owner-relative action order. The repository defines +1 clockwise and -1 counterclockwise. At each actor, find the nearest still-living counterclockwise other among the original chosen set. Skip dead actors or actors with no remaining legal original-set target; never add new participants."
+    },
+    {
+      "topic": "Real Duel semantics",
+      "status": "native-protocol-reuse",
+      "decision": "Every accepted actor uses a genuine zero-material Duel with its own native Use, actor/provider, target adjustments, Nullification and Slash responses. The printed text does not forbid Nullification and does not restrict gender. Native use/target prohibitions still apply; an illegal item is skipped without refunding the whole already-paid roster."
+    },
+    {
+      "topic": "Paid lifetime",
+      "status": "root-accepted-project-interpretation",
+      "officialFaqConfirmed": false,
+      "decision": "After genuine N-1 HE discard payment, source loss or nonterminal skill-owner death does not cancel remaining living participants. Each issued native Duel and all its children finish once before the next actor. Native winner termination remains authoritative."
+    },
+    {
+      "topic": "Biyue quantity",
+      "status": "native-actual-turn-interpretation",
+      "officialFaqConfirmed": false,
+      "decision": "At the real own Ending, count distinct targets of positive native DamageApplied facts after this actual TurnStarted. Include owner and already-dead targets; native Armor-only applied-damage semantics are retained. HP loss is not damage, and the quantity is not the number of currently wounded roles. Request min(4,count+1) through native Draw and retain its real outcome."
+    },
+    {
+      "topic": "Play allowance",
+      "status": "native-phase-history",
+      "decision": "The actual owner Play phase started fact is the use key for Lijian; losing and reacquiring the source within that phase does not reset it. A real inserted Play has its own phase token."
+    }
+  ],
+  "validation": {
+    "status": "focused-native-gallery-and-routine-passed",
+    "focusedFilter": "Mou Diao Chan: native ring and actual Ending draw",
+    "behaviorPassClaimed": true,
+    "galleryCheck": "Edition general gallery: namespaced portraits and real details",
+    "galleryVisualInspection": "Root inspected the actual rendered gallery: correct namespaced portrait, HP and full skill text; long descriptions remain scrollable.",
+    "manualFullRun": false,
+    "routine": {
+      "runner": "tools/Test-Changed.ps1",
+      "scope": "routine defaults from tools/VerificationScopes.psd1",
+      "status": "passed",
+      "durationMs": 83059,
+      "manualFullRun": false
+    }
+  },
+  "status": "source-verified-implemented-and-validated"
+}

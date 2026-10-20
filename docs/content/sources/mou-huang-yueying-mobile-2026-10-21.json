@@ -1,0 +1,120 @@
+{
+  "formatVersion": 1,
+  "status": "source-verified-implemented-and-validated",
+  "generalId": "mou:huang-yueying-mobile",
+  "characterId": "character:huang-yueying",
+  "displayName": "谋黄月英·移动版",
+  "edition": "mou-mobile",
+  "rulesetId": "sanguosha-mobile",
+  "identity": {
+    "officialHeroId": 577,
+    "officialGeneralId": 647,
+    "factionId": "shu",
+    "gender": "Female",
+    "baseHp": 3
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:jizhi",
+      "name": "集智",
+      "officialText": "锁定技，当你使用一张普通锦囊牌时，你摸一张牌。以此法获得的牌本回合不计入手牌上限。",
+      "authority": "Fresh current official hero577 and the complete mobile API agree."
+    },
+    {
+      "id": "mou-mobile:qicai",
+      "name": "奇才",
+      "officialText": "（身份场、团战类）你使用锦囊牌没有距离限制。出牌阶段限一次，你可以选择一名其他角色，将手牌或弃牌堆中的一张装备牌置入其装备区，然后其获得“奇”标记。拥有“奇”标记的角色接下来获得的三张普通锦囊牌须交给你。（斗地主）你使用锦囊牌没有距离限制。出牌阶段限一次，你可以选择一名其他角色，将手牌或弃牌堆中一张防具牌置入其装备区（每局游戏每个防具名限一次），然后其获得“奇”标记。拥有“奇”标记的角色接下来获得的三张普通锦囊牌须交给你。",
+      "authority": "Fresh current official hero577 and the complete mobile API agree, including both mode branches."
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-577.html",
+      "sha256": "666DD6BB57CF9C9E2744F8CAE054CD2DF440C4EBA642D74895A333E3BAFC0276",
+      "bytes": 20589
+    },
+    {
+      "key": "release",
+      "url": "https://www.sanguosha.cn/pc/news-detail-1765.html",
+      "sha256": "1CE03B78FBF0C6F6C02A88CC7CE4A7E4BDED6EFA85A7F3F928C7DB8E3D26846C",
+      "bytes": 50340
+    },
+    {
+      "key": "api",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "bytes": 1820041
+    },
+    {
+      "key": "latest-description-notice",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "sha256": "F11A43F0A1C30425E72C08EA593C6BAAC715741593EDCE0E5E64139D25AB00AC",
+      "bytes": 15640
+    },
+    {
+      "key": "latest-description-table",
+      "url": "https://www.sanguosha.cn/storage/uploads/images/MmH9s06gKw0b89uRNAWq2muwQQVUVIqp78WXtjqd.png",
+      "sha256": "411A068609351931E47F91FCFDE8F2B04B7451C9769C117B4D6D1C635ADDD16C",
+      "bytes": 827107
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-1765.html",
+    "publishedAt": "2024-02-08 17:30:00",
+    "availableFrom": "2024-02-09",
+    "method": "天工宝库正式首发"
+  },
+  "revisionAudit": {
+    "heroApiFullTextAgreement": true,
+    "latestDescriptionNoticePublishedAt": "2026-10-15 10:18:17",
+    "latestDescriptionTableFinding": "The actual table image contains the classic optional Jizhi wording, without the locked mobile skill's entity exemption. It does not list mobile Qicai. It therefore does not supersede this edition's complete current hero/API text.",
+    "boundedUnconfirmed": "The bounded official-domain release and revision search found no later conflicting mobile Jizhi/Qicai body. This is not an exhaustive official FAQ claim."
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Supported modes and preserved Landlord clause",
+      "decision": "All currently runnable modes use the official Identity/team equipment branch. The repository has no formal Landlord mode discriminator; neither three seats nor a Lord role is treated as that mode. The complete official armor-only, per-armor-name game budget remains recorded above for a future explicit Landlord mode rule.",
+      "authority": "Root-selected implementation boundary for the currently supported mode set; not an official FAQ."
+    },
+    {
+      "topic": "One active Qi grant per recipient",
+      "decision": "A successful new real equipment placement replaces that recipient's active grant source and resets its remaining ordinary-trick count to three. Different recipients may hold independent grants. The debt does not stack to six. An already-issued exact gain claim retains its original source and material even if a later placement replaces the active grant.",
+      "authority": "Root-selected engineering interpretation of the short official description; not an official FAQ."
+    },
+    {
+      "topic": "Exact native Draw entities and actual-turn expiry",
+      "decision": "Jizhi issues Hand-limit exemptions only for the actual native Draw outcome entities, before their gain children. Replacement gains are not silently native Draw cards. Each exemption follows its original beneficiary and the exact whole actual turn, including native deferred phases until the actual-turn cursor returns; it is not a card-name exemption.",
+      "authority": "Native Draw-result and actual-turn ownership interpretation; not an official FAQ."
+    },
+    {
+      "topic": "Accepted transfer obligation",
+      "decision": "Reserve the next three actual ordinary-trick Hand gains in their original batch order before transfer children. Each accepted material moves truthfully if it remains in the recipient's Hand, and its original source obligation can finish after skill loss. Equipment special movement destinations, recovery/death children, and native terminal cutoffs remain authoritative; no fake Hand gain is recorded.",
+      "authority": "Owning-frame paid-continuation interpretation; not an official FAQ."
+    }
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/64700.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-huang-yueying-mobile.jpg",
+    "sha256": "F0CCB7DC1A7E07B54713336D93C510818655257EED290834970D4AF8FF9FB8E0",
+    "bytes": 3421973,
+    "width": 4100,
+    "height": 5799,
+    "visualValidation": "Root downloaded and visually inspected the original official hero portrait."
+  },
+  "validation": {
+    "status": "focused-native-gallery-and-routine-passed",
+    "focusedCoreFilter": "Mou Huang Yueying Mobile:",
+    "focusedCoreChecks": 1,
+    "galleryCheck": "Edition general gallery: namespaced portraits and real details",
+    "manualFullRun": false,
+    "galleryVisualInspection": "Root inspected the actual rendered gallery: correct namespaced portrait, HP and full skill text; long descriptions remain scrollable.",
+    "routine": {
+      "runner": "tools/Test-Changed.ps1",
+      "scope": "routine defaults from tools/VerificationScopes.psd1",
+      "status": "passed",
+      "durationMs": 83059,
+      "manualFullRun": false
+    }
+  }
+}

@@ -160,6 +160,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<int> DamageTargetDuelOuterProcessing(long useId)
     {
         var use=LifecycleCardUse(useId);
+        if (use?.DamageTargetDuelOrigin is { } mobile && IsMouLbDuelOrigin(mobile)) return MouLbDuelOuterProcessing(use);
         if(use?.DamageTargetDuelOrigin is not { } o || !IsDamageTargetDuelUse(useId) ||
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f=>f.Id==o.ParentProgramFrameId) is not { } parent ||
             !IsValidDamageTargetObtain(parent) || parent.DamageTargetObtain is not {Stage:ProgramDamageTargetObtainStage.DuelIssued} d ||
@@ -171,13 +172,13 @@ public sealed partial class GameEngine
     [NativeUseReturn(230)]
     private void ReturnDamageTargetDuel(CardUseFrame use)
     {
-        if(use.DamageTargetDuelOrigin is not {AttackStarted:false} o)return;
+        if(use.DamageTargetDuelOrigin is not {AttackStarted:false} o || IsMouLbDuelOrigin(o))return;
         if(_resolutionStack.LastOrDefault() is not ProgramSkillFrame f || f.Id!=o.ParentProgramFrameId || f.DamageTargetObtain?.Stage!=ProgramDamageTargetObtainStage.DuelIssued || !MatchesDamageTargetDuelParent(f,o))
             throw new InvalidOperationException("Nullified Duel lost its typed paid parent.");
         CompleteDamageTargetDuelReturn(f);
     }
     private bool MatchesDamageTargetDuelParent(ProgramSkillFrame f,ProgramDamageTargetDuelOrigin o) =>
-        IsValidDamageTargetObtain(f) && f.DamageTargetObtain is {Stage:ProgramDamageTargetObtainStage.DuelIssued} d && DamageTargetObtainedEquipment(d) &&
+        MatchesMouLbDuelParent(f, o) || IsValidDamageTargetObtain(f) && f.DamageTargetObtain is {Stage:ProgramDamageTargetObtainStage.DuelIssued} d && DamageTargetObtainedEquipment(d) &&
         o.ParentProgramFrameId==f.Id && o.InstructionIndex==f.InstructionIndex && o.ReceiptSequence==DamageTargetObtainAnchor(d) && DamageTargetDuelBaseMatches(d,o) &&
         o.OuterCardUseFrameId==d.OuterCardUseFrameId && o.OuterActionId==d.OuterActionId && o.DamageWindowId==d.DamageWindowId && o.DamageFrameId==d.DamageFrameId &&
         o.InitialActorSeat==d.OwnerSeat && o.VictimChooserSeat==d.VictimSeat && IsValidPlayerSeat(o.InitialTargetSeat) && o.InitialTargetSeat!=d.OwnerSeat && o.InitialTargetSeat!=d.VictimSeat &&
@@ -214,7 +215,9 @@ public sealed partial class GameEngine
     {
         foreach(var use in _resolutionStack.OfType<CardUseFrame>().Where(u=>u.DamageTargetDuelOrigin is not null))
         {
-            var o=use.DamageTargetDuelOrigin!;var index=_resolutionStack.FindIndex(x=>x.Id==use.Id);
+            var o=use.DamageTargetDuelOrigin!;
+            if (IsMouLbDuelOrigin(o)) { AssertMouLbDuelUse(use); continue; }
+            var index=_resolutionStack.FindIndex(x=>x.Id==use.Id);
             if(index<1 || _resolutionStack[index-1] is not ProgramSkillFrame f || !IsValidDamageTargetObtain(f) || f.DamageTargetObtain is not {Stage:ProgramDamageTargetObtainStage.DuelIssued} d || !DamageTargetObtainedEquipment(d) ||
                 o.ParentProgramFrameId!=f.Id || o.InstructionIndex!=f.InstructionIndex || o.ReceiptSequence!=DamageTargetObtainAnchor(d) || !DamageTargetDuelBaseMatches(d,o) || o.OuterCardUseFrameId!=d.OuterCardUseFrameId ||
                 o.DamageWindowId!=d.DamageWindowId || o.DamageFrameId!=d.DamageFrameId || o.OuterActionId!=d.OuterActionId ||

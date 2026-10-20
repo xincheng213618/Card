@@ -153,6 +153,7 @@ public sealed partial class GameEngine
         CaptureJiaoweiLossQualifications(completed, batch.JiaoweiLossSources);
         CaptureLeiluanPaymentBatch(completed);
         CaptureQingyuanGainBatch(completed);
+        CaptureMouHyQiGains(completed);
         CaptureNativePublicPilePaymentBatch(completed);
         CaptureNativeTrueUseProcessingEntries(completed);
         RecordMouXiahouDunDiscardOrigins(completed);
@@ -358,6 +359,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectFeiYiSingletonCandidates(batch));
         candidates.AddRange(CollectSilvRefundCandidates(batch));
         candidates.AddRange(CollectQingyuanGainCandidates(batch));
+        candidates.AddRange(CollectMouHyQiGainCandidates(batch));
         candidates.AddRange(CollectSunRuOlChishiCandidates(batch));
         candidates.AddRange(CollectRuanHuiClaimCandidates(batch));
         candidates.AddRange(CollectWuJingLiubingCandidates(batch));
@@ -575,6 +577,7 @@ public sealed partial class GameEngine
         if (IsHellZhiwangTrigger(GetProgramTrigger(candidate))) return CreateHellZhiwangContext(frame, candidate);
         if (IsXiangxuMinimumTrigger(GetProgramTrigger(candidate))) return CreateXiangxuMinimumContext(frame, candidate);
         if (IsQuHuangMovementTrigger(GetProgramTrigger(candidate))) return CreateQuHuangMovementContext(frame, candidate);
+        if (IsMouHyQiGainCandidate(candidate, frame.Batch)) return CreateMouHyQiGainContext(frame, candidate);
         if (IsQingyuanGainTrigger(GetProgramTrigger(candidate)))
             return CreateQingyuanGainContext(frame, candidate);
         if (IsFeiYiSingletonTrigger(GetProgramTrigger(candidate)))

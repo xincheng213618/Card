@@ -1,0 +1,99 @@
+{
+  "checkedOn": "2026-10-21",
+  "status": "source-verified-implemented-and-validated",
+  "name": "谋吕布·移动版",
+  "generalId": "mou:lu-bu-mobile",
+  "product": "sanguosha-mobile",
+  "series": "谋攻篇",
+  "identity": {
+    "officialHeroId": 613,
+    "officialGeneralId": 831,
+    "faction": "qun",
+    "gender": "Male",
+    "initialHp": 5,
+    "maxHp": 5,
+    "authority": "The formal 2026-07-31 notice2358 explicitly adjusts Mou Lu Bu to5/5 for the August1 release. It supersedes the older4HP retained in the hero/API metadata."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-613.html",
+      "role": "Current complete mobile Wushuang and Liyu text; freshly checked, including all response, category and temporary-skill branches. Exact official portrait src83100.jpg is present in the real page DOM."
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "role": "Current mobile item613/general831 identifies the product and reproduces the two skills. Its4HP field is stale relative to the later formal adjustment and is not the implemented HP source."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2075.html",
+      "published": "2025-05-30 17:30:00",
+      "firstAvailability": "2025-05-31",
+      "role": "Formal first release in the 盖世无双 activity. Historical release evidence, not a current acquisition or price claim."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2358.html",
+      "title": "8月1日暑期活动",
+      "published": "2026-07-31 17:30:00",
+      "effectiveFrom": "2026-08-01",
+      "exactHpAdjustment": "谋·吕布调整至5/5",
+      "role": "Later formal HP authority; no replacement of the current hero's complete skill bodies is asserted."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2404.html",
+      "published": "2026-10-15 10:18:17",
+      "role": "The actual description-adjustment image was visually inspected during source audit. Its Wushuang row is the Classic base wording, without this general's perturn bonus; there is no mobile Liyu row. It does not override the current complete mobile skill text."
+    }
+  ],
+  "skills": [
+    {
+      "id": "mou-mobile:wushuang",
+      "name": "无双",
+      "text": "锁定技，你使用的【杀】需两张【闪】才能抵消；与你进行【决斗】的角色每次需打出两张【杀】。每回合限一次，若对方没有使用或打出【杀】或【闪】，则此【杀】或【决斗】对其造成的伤害+1。"
+    },
+    {
+      "id": "mou-mobile:liyu",
+      "name": "利驭",
+      "text": "当你使用【杀】对一名其他角色造成伤害后，你可以获得其区域里的至多等同于伤害数张牌，然后其摸等量张牌。若你与其因此获得了全部类别的牌，其选择一项：令你视为对由其指定的另一名其他角色使用一张【决斗】；其获得技能“无双”直至其下个回合结束。"
+    }
+  ],
+  "versionSeparation": [
+    "This is the mobile general613, distinct from Classic Lu Bu, Boundary Liyu, OL Magic Lu Bu and other product editions.",
+    "Classic Wushuang's two native response policies are reused as capabilities, but do not replace the additional once-per-turn damage clause or the complete skill granted by Liyu.",
+    "Boundary Liyu's one-card equipment/non-equipment branch and the related entire-zone/obtained-count Duel are existing separate rules. The mobile skill retains up-to-damage multi-card acquisition, unconditional corresponding draw, category union and the victim's independent two-way consequence.",
+    "A bounded official-source search found no later conflicting replacement of the current two skill bodies. Community test drafts and custom buffs are excluded; this is not an exhaustive live-client FAQ claim."
+  ],
+  "portrait": {
+    "url": "https://www.sanguosha.cn/storage/uploads/images/83100.jpg",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-lu-bu-mobile.jpg",
+    "width": 2480,
+    "height": 3508,
+    "bytes": 4623091,
+    "sha256": "73f677296b637698183171ec258f10e83ed395fe8b619b5ba8882dcaa7b5fa4c",
+    "visuallyInspected": true,
+    "description": "Armored Lu Bu with a red feather crown, riding Red Hare above flames. Exact official original art, not an old four-HP skill screenshot."
+  },
+  "engineeringContracts": [
+    "These instantiate the complete official text through existing native mechanisms; they are engineering interpretations, not official FAQs or additional user-selected rulings.",
+    "Native minimum-response policies require two actual Dodges against Slash and two actual Slashes per Duel response. The added damage checks the exact native exchange: any already successful Dodge against this Slash or an actually paid Slash by this opponent in this Duel prevents the no-response bonus. A partial two-card response therefore matters even when damage still occurs. Unrelated responses elsewhere do not count.",
+    "The mandatory bonus is issued at the genuine before-damage window while the finalized amount is still adjustable. One owner+named-skill budget is shared by all sources for the current actual turn; an inserted Play after raw TurnEnded does not reset it. Ordinary native armor, damage prevention, redirection, resource Armor and damage ordering remain intact.",
+    "Liyu freezes the original true Slash Use, actor/provider, exact positive native damage, victim and source/hash. The accepted owner can choose zero up to that damage number from the victim's real Hand, Equipment and Judgment areas, using existing concealed Hand slots and native public equipment/judgment choices. Each selection actually moves its original entity and drains native gain/removal/recovery/HP/skill children before the next selection. The accepted selection count still consumes its cap if a special entity is natively destroyed OutsideGame instead of arriving in Hand.",
+    "The victim's corresponding draw requests the number of entities actually obtained into the original source's Hand, not the number merely selected or destroyed. It uses the native draw request and replacement protocol. The three-category union is frozen from the cards actually acquired by both participants in these two steps, including genuine replacement gains, and is Basic/Trick/Equipment by their actual printed physical categories. Unrelated gain children do not enlarge that union; no fabricated Draw or final-Hand-count approximation is used.",
+    "After all obtain/draw children, all three categories make the living victim independently choose a lawful third-party Duel or the complete mobile Wushuang. The Duel preserves the real source/provider, neutral suit/rank/color, zero physical materials, ordinary prohibitions and genuine Use/Nullification/response/damage completion. It reuses the existing damage-target Duel origin with an exact typed mobile-parent adapter, suspending and later resuming the original physical Slash on its own frame. No invented accepted action or duplicate pending state is created.",
+    "The temporary Wushuang grant has its own genuine source. It expires after the recipient's next real TurnStarted reaches ActualTurnCursorReturned, including an extra turn and any native inserted Play before that return. It grants both double-response rules and the same once-per-turn bonus; it does not delete a printed or independently granted Wushuang source. Losing or reacquiring Liyu does not refresh an issued grant.",
+    "Accepted costs and native child returns retain their original source/hash and scalar movement receipts. A resumed child cannot obtain, draw, issue a Duel or grant the skill twice. A dead owner receives no new Hand card, a dead victim receives no new draw, and native terminal cutoff remains authoritative. Source loss after a real acquisition does not refund the paid movement or erase its accepted draw/consequence queue."
+  ],
+  "validation": {
+    "status": "focused-native-gallery-and-routine-passed",
+    "focusedFilter": "Mou Lu Bu Mobile:",
+    "manualFullRun": false,
+    "note": "The native check passed for both victim branches, partial and absent responses, actual multi-card acquisition and draw, a live neutral zero-material Duel with its native declaration/completion/return, the complete temporary skill and its next-actual-turn expiry, and representative paid Cold recovery.",
+    "galleryCheck": "Edition general gallery: namespaced portraits and real details",
+    "galleryVisualInspection": "Root inspected the actual rendered gallery: correct namespaced portrait, five HP and both full skills; the end of Liyu remains reachable through the actual details scroller.",
+    "routine": {
+      "runner": "tools/Test-Changed.ps1",
+      "scope": "routine defaults from tools/VerificationScopes.psd1",
+      "status": "passed",
+      "durationMs": 83059,
+      "manualFullRun": false
+    }
+  }
+}
