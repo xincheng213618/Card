@@ -254,6 +254,7 @@ public enum SkillProgramEffectOp
     ResolveMouXiaoQiaoJueyan = 34002,
     ResolveMouXiaoQiaoJueyanReveal = 34003,
     PrepareMouZhangHeQiaobian = 34200, ResolveMouZhangHeSkippedPhase = 34201, ResolveMouZhangHeEnding = 34202,
+    ResolveMouZhuRanZhenwei = 34400, ResolveMouZhuRanHeyuan = 34401,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,

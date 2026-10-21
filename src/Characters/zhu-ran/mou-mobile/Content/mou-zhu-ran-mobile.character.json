@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhu-ran",
+  "skills": [
+    {
+      "registrationOrder": 2620,
+      "programBundle": "mou-zhu-ran-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:zhenwei",
+        "name": "镇围",
+        "description": "出牌阶段限一次，你可与一名其他角色同时选择是否弃置任意张牌。然后你可执行至多X项（X为你弃置牌大于等于其的条件数：1.牌数；2.花色数）：1.对其造成1点伤害；2.摸三张牌。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2621,
+      "programBundle": "mou-zhu-ran-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:heyuan",
+        "name": "合援",
+        "description": "每名角色限一次，结束阶段，你可选择一名已受伤角色并弃置X张牌（X为你上次发动镇围时弃置的牌数），令其执行上次“镇围”执行的最后一项，且此后你对除其以外的角色发动“镇围”时，该角色也可选择弃置牌（视为你弃置的牌）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2622,
+      "pools": {
+        "current": 566
+      },
+      "definition": {
+        "id": "mou:zhu-ran-mobile",
+        "name": "谋朱然·移动版",
+        "portraitKey": "mou-zhu-ran-mobile",
+        "skillId": "mou-mobile:zhenwei",
+        "additionalSkillIds": [
+          "mou-mobile:heyuan"
+        ],
+        "factionId": "wu",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:zhu-ran",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

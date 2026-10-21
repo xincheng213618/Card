@@ -1,0 +1,102 @@
+{
+  "generalId": "mou:zhu-ran-mobile",
+  "name": "谋朱然·移动版",
+  "edition": "三国杀移动版·谋攻篇",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "factionId": "wu",
+    "gender": "Male",
+    "maximumHp": 4,
+    "initialHp": 4
+  },
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-652.html",
+      "sha256": "F714F2410CFFE5131F2A0C584F495926997A560145E0F53614EF3CE3433EC667",
+      "bytes": 20532
+    },
+    {
+      "key": "roster",
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "bytes": 1820041
+    },
+    {
+      "key": "release",
+      "url": "https://www.sanguosha.cn/pc/news-detail-2285.html",
+      "sha256": "4C671E73FEF509F7630CC9DBB5EE461FBA63B1E7B1FB62F5AA4D9263C883C253",
+      "bytes": 87941
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-2285.html",
+    "publishedAt": "2026-04-03 17:30:00",
+    "availableFrom": "2026-04-04",
+    "authority": "Formal notice expressly announces the general and then marks the two reproduced skill bodies as 正式技能描述. API created_at=2026-04-07 is a website-record timestamp, not launch."
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:zhenwei",
+      "name": "镇围",
+      "text": "出牌阶段限一次，你可与一名其他角色同时选择是否弃置任意张牌。然后你可执行至多X项（X为你弃置牌大于等于其的条件数：1.牌数；2.花色数）：1.对其造成1点伤害；2.摸三张牌。"
+    },
+    {
+      "id": "mou-mobile:heyuan",
+      "name": "合援",
+      "text": "每名角色限一次，结束阶段，你可选择一名已受伤角色并弃置X张牌（X为你上次发动镇围时弃置的牌数），令其执行上次“镇围”执行的最后一项，且此后你对除其以外的角色发动“镇围”时，该角色也可选择弃置牌（视为你弃置的牌）。"
+    }
+  ],
+  "currentVersion": {
+    "heroAndApiFullTextExact": true,
+    "formalNoticePublishesCompleteBothSkills": true,
+    "differences": [
+      "Formal Zhenwei spells out 你弃置牌对比其弃置牌; current compresses the same comparison.",
+      "Formal Heyuan opens 结束阶段每名角色限一次; current opens 每名角色限一次，结束阶段. Do not claim a formal later skill redesign solely from word order.",
+      "Both primary sources say Draw3; the community post claiming Draw2 is not adopted."
+    ],
+    "adjustmentSearch": "Bounded official-domain searches for 谋朱然调整/镇围合援/合援伤害 returned the current hero and launch, without a complete later replacement or dedicated FAQ. No claim of exhaustive private-client FAQ absence.",
+    "notAdopted": "An official-hosted community account says Draw2; both primary complete skill texts say Draw3, which is implemented."
+  },
+  "portrait": {
+    "observedOfficialDomUrl": "https://www.sanguosha.cn/storage/uploads/images/88000.jpg",
+    "productionArtOwnedByRoot": true
+  },
+  "engineeringInterpretations": [
+    {
+      "topic": "Complete source and target discard commitments",
+      "decision": "Real Hand/Equipment costs include zero. Freeze the source, target and living prior Heyuan supporters except that target, with each seat once. All choices remain private until every participant commits; then each participant pays one native logical discard batch and all native children finish before comparison.",
+      "authority": "Project engineering interpretation; not official FAQ or user ruling."
+    },
+    {
+      "topic": "Aggregate owner metrics",
+      "decision": "Actually paid owner and supporting-seat materials are combined for the card count and union of effective suits. Those counts are considered the owner-side discard and the recorded prior cost. Real normalization/prevention is respected; child-caused unrelated discards do not inflate the primary cost.",
+      "authority": "Project engineering interpretation; not official FAQ."
+    },
+    {
+      "topic": "Comparison and ordered outcomes",
+      "decision": "Each >= comparison contributes one, including 0 >= 0. Select zero through X distinct items and execute in selected order, each at most once. The last genuinely issued native item is retained after its children; prevented damage and zero-actual Draw replacements still complete an issued item. A latest activation executing zero items does not fall back to an older item.",
+      "authority": "Project engineering interpretation; not official FAQ."
+    },
+    {
+      "topic": "Heyuan repeated damage attribution",
+      "decision": "When repeating the damage item, the original Zhu Ran causes one damage to the current wounded Heyuan beneficiary. It does not cause the beneficiary to attack the old Zhenwei opponent.",
+      "authority": "User explicitly selected this interpretation on 2026-10-21."
+    },
+    {
+      "topic": "Actual phase and lifetime ledgers",
+      "decision": "Zhenwei is once per actual own Play, keyed by owner and named skill rather than grant instance. Heyuan is one native optional binding in each actual own Ending, and each beneficiary seat can be accepted once in the owner/named-skill lifetime, including self. Source loss/regrant resets neither usage nor links.",
+      "authority": "Project engineering interpretation; not official FAQ."
+    },
+    {
+      "topic": "Heyuan exact payment and paid tails",
+      "decision": "Freeze the latest aggregate primary cost X and the last actual item. Accept a currently wounded living unused target and pay exactly X real HE cards; zero is legal. Native payment and children precede the repeated Draw3 or Damage1. Future activations require a live source; already accepted same-source/content obligations preserve their actual payment receipts through source loss.",
+      "authority": "Project engineering interpretation; not official FAQ."
+    }
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouZhuRanMobileChecks.cs",
+    "method": "MouZhuRanMobileChecks.NativeSealedPaymentsAndHeyuan",
+    "filter": "Mou Zhu Ran Mobile: sealed payments and Heyuan"
+  }
+}

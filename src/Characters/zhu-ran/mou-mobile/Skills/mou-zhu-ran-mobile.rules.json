@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:zhenwei",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "sealed-discard",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveMouZhuRanZhenwei",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:heyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "repeat-last",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouZhuRanHeyuan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -517,6 +517,7 @@ var tests = new (string Name, Action Body)[]
     ("Mou Deng Ai OL: native Gu exchange and Jiewan", CardGame.Core.Tests.MouDengAiOlChecks.NativeGuExchangeAndJiewan),
     ("OL Mo Cao Cao: native equipment and Bachao", CardGame.Core.Tests.OlMoCaoCaoChecks.NativeEquipmentAndBachao),
     ("Mou Zhang He Mobile: actual skipped phases and Liaoshi", CardGame.Core.Tests.MouZhangHeMobileChecks.NativeSkippedPhasesAndLiaoshi),
+    ("Mou Zhu Ran Mobile: sealed payments and Heyuan", CardGame.Core.Tests.MouZhuRanMobileChecks.NativeSealedPaymentsAndHeyuan),
     ("Mou Gongsun Zan OL: equal range native Slash and next actual Play expiry Cold", CardGame.Core.Tests.MouGongsunZanOlChecks.EqualRangeNativeSlashAndNextActualPlayExpiryCold),
     ("Mou Jiang Wei Mobile: real requested Slash gift charge awakening and Beifa Cold", CardGame.Core.Tests.MouJiangWeiMobileChecks.RealRequestedSlashGiftChargeAwakeningAndBeifaCold),
     ("Mou Lu Zhi OL: real red pressure counter and round draw Cold", CardGame.Core.Tests.MouLuZhiOlChecks.RealRedPressureCounterAndRoundDrawCold),
