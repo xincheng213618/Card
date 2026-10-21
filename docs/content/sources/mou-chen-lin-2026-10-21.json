@@ -1,0 +1,64 @@
+{
+  "generalId": "mou:chen-lin",
+  "rulesetId": "sanguosha-anniversary",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "initialHp": 3,
+    "maximumHp": 3,
+    "variantId": "mou",
+    "rulesetId": "sanguosha-anniversary"
+  },
+  "selectedVersion": {
+    "publishedAt": "2026-07-01",
+    "effectiveFrom": "2026-07-02",
+    "version": "6.4.0",
+    "url": "https://x.sanguosha.com/news/20260629_2301_5217.html"
+  },
+  "officialSources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1701.html",
+      "bytes": 22852,
+      "sha256": "026f1f902d6054d82697ddbb0a6ab57a778380c0d0a9bb071650e1a6c3f49fe5",
+      "role": "complete current3-skin text"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260629_2301_5217.html",
+      "bytes": 29247,
+      "sha256": "0db86377ba94097747d59d71a98588764f30b5f6e26cddd51b1605ed163a4174",
+      "role": "complete formal6.4.0 replacement text, reused original137 LuSu source bytes"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240923_3563_1916",
+      "bytes": 258726,
+      "sha256": "5454afa29c7f19d7adeaa6eaadd171ee16a0c451ea844f634e1937881defb0e7",
+      "role": "initial2024 version conflict only"
+    }
+  ],
+  "officialSkillTexts": {
+    "邀作": "出牌阶段限一次，所有其他角色可选择交给你一张牌，你以此法获得的牌不计入手牌上限，最快者选择另一名其他角色，视为你对其所选角色使用“撰文”。未交给你手牌的角色，本回合你下次对其造成的伤害+1。",
+    "撰文": "结束阶段，你可展示牌堆顶X张牌并选择一项对一名角色执行：1.对其使用其中的伤害牌；2.其获得其中的非伤害牌。结算后其余牌放置牌堆顶。（X为你的手牌数且至多为5）"
+  },
+  "versionSelection": "当前hero1701三皮肤与2026-07-02正式调整后全文一致；不可套2024初版X=目标手牌、限其他目标和没有邀作手牌上限豁免的旧规则。",
+  "engineeringMappings": [
+    "撰文X在真实结束阶段接受时按本人手牌数冻结，至多5。通过原生牌堆展示生产者，将真实实体置入公共Processing绑定；不会先伪造获得手牌。",
+    "伤害分支对同一选定目标按原生合法性逐张真实使用实际展示实体；南蛮/万箭先核原生完整合法目标集合包含该目标，再由本将来源/实体/帧/内容hash/原生Use回执冻结单目标。原生Group/Use共享该目标序列并完整返回，不用造成技能伤害冒充用牌。",
+    "可选择合法伤害牌的使用顺序；已经结算使用的实体只处理一次，动态无合法目标的实体留在余牌中。闪电按其原生合法目标及真实延时入判定区处理，不能漏种类。",
+    "非伤害分支只令同一选定角色获得本次真实展示且仍在Processing的非伤害实体。其余仍在Processing的本次实体按原展示顺序放回真实牌堆顶。此排序是沿既有绑定次序的工程解释，不冒称官方FAQ。",
+    "邀作的最快者只允许由同一公开邀请的真实成功Give付款回执发行；不给按座次询问的第一人最快资格，也不读取墙钟或随机制造竞速胜者。",
+    "前句交给一张牌与末句未交给手牌均按当前和新版公告保留。真实Give回执保留Hand/Equipment来源，装备贡献不会自动作为交给手牌消掉本回合下一次伤害票。",
+    "参与者提示仅投影当前演员合法HE；原PromptId、Revision、SourceSeat和SkillPrompt保持。decline/失效付款不发行最快资格；所有真实回复返回后关闭邀请，对没有从Hand实际给牌的冻结角色发行本实际回合下次真实伤害票。主链在同一own帧上承接最快者给定目标的撰文，不假造技能使用或另造公共pending。"
+  ],
+  "implementationBoundary": "The exact participant prompt port projects each participant private HE choices on one canonical issued invitation and accepts original AnswerPromptCommand inputs. Fastest qualification is emitted only by the first successful native Give callback; later gifts remain available once per participant. Independent automatic NPC race scheduling and desktop competition are not yet integrated, so this is not a claim that the complete general is delivered.",
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-mou-chen-lin.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1701.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1170101.png",
+    "bytes": 641591,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "sha256": "638188b7e6f3a99288e902098e397922d25736d7e1067e38c19ccd4d21b8ac3a",
+    "identityEvidence": "Actual first classic yang-img from hero1701; coordinator downloaded and visually verified the official asset."
+  }
+}

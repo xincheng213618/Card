@@ -666,9 +666,12 @@ public sealed partial class MainViewModel
         }
     }
 
-    private bool CanAutomaticallyAdvance => IsAutoAdvance && CanStepAi &&
+    private bool CanUseAutomaticProgress => IsAutoAdvance &&
         !IsHelpOpen && !IsNewGameSetupOpen && !IsHistoryOpen && !IsGeneralGalleryOpen &&
         !IsSettingsOpen && !IsLogOpen && !IsWushuangShopOpen && !IsIdentityRevealOpen && !IsOpeningDealVisible && !IsReserveDialogOpen;
+
+    private bool CanAutomaticallyAdvance => CanUseAutomaticProgress && CanStepAi &&
+        _participantHost?.IsAcceptingInput != true;
 
     private void ResetPresentation()
     {
@@ -938,6 +941,7 @@ public sealed partial class MainViewModel
     public void Dispose()
     {
         if (_disposed) return;
+        DetachParticipantPromptHost();
         FlushNianClock();
         FlushWushuangClock();
         FlushPreferences();

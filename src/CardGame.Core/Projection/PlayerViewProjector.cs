@@ -199,9 +199,7 @@ public sealed partial class GameEngine
             };
         }
 
-        var visibleDecision = _pendingDecision?.PlayerSeat == viewerSeat
-            ? _pendingDecision
-            : null;
+        var visibleDecision = GetPendingDecisionForActor(viewerSeat);
         // Publish only the responder's remaining selection bounds, including restored
         // older prompts. The private runtime draft stays on its owning frame.
         if (visibleDecision is { Kind: DecisionKind.ProgramTrigger } &&

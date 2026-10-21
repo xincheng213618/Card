@@ -184,6 +184,7 @@ public static partial class GeneralArt
             ["mou-zhang-he-mobile"] = "official-mou-zhang-he-mobile.jpg",
             ["mou-zhu-ran-mobile"] = "official-mou-zhu-ran-mobile.jpg",
             ["mou-wang-ling"] = "official-mou-wang-ling.png",
+            ["mou-chen-lin"] = "official-mou-chen-lin.png",
             ["mou-guo-jia"] = "official-mou-guo-jia.png",
             ["mou-cheng-yu"] = "official-mou-cheng-yu.png",
             ["mou-zhang-xiu"] = "official-mou-zhang-xiu.png",

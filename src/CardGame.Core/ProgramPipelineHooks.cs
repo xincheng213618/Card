@@ -35,7 +35,9 @@ internal enum ProgramPipelinePhase
     LifecycleWindowCompleted,
     AppendTurnEndingItems,
     ResumeScheduledPhase,
-    CancelScheduledPhase
+    CancelScheduledPhase,
+    ParticipantPrompt,
+    ParticipantHostState
 }
 
 // Register next to the owning implementation with an explicit order; orders are
@@ -73,6 +75,8 @@ internal delegate bool ProgramTurnSuppressionClaim(ProgramSkillFrame frame, int 
 internal delegate bool ProgramRumoEntryClaim(ProgramSkillFrame frame);
 internal delegate bool ProgramRumoOriginClaim(long id, CardConversionSource source, string hash);
 internal delegate CardKind? ProgramVirtualEquipmentProvider(int seat, EquipmentSlot slot);
+internal delegate PendingDecision? ProgramParticipantPromptProvider(PendingDecision issued, int actorSeat);
+internal delegate ParticipantPromptHostState? ProgramParticipantHostStateProvider();
 
 // Static metadata only; delegates are bound once per engine and never shared.
 internal sealed class ProgramPipelineHookCatalog
@@ -136,7 +140,11 @@ internal sealed class ProgramPipelineHookCatalog
             [ProgramPipelinePhase.RumoOrigin] = (typeof(ProgramRumoOriginClaim),
                 [typeof(long), typeof(CardConversionSource), typeof(string)], typeof(bool)),
             [ProgramPipelinePhase.VirtualEquipment] = (typeof(ProgramVirtualEquipmentProvider),
-                [typeof(int), typeof(EquipmentSlot)], typeof(CardKind?))
+                [typeof(int), typeof(EquipmentSlot)], typeof(CardKind?)),
+            [ProgramPipelinePhase.ParticipantPrompt] = (typeof(ProgramParticipantPromptProvider),
+                [typeof(PendingDecision), typeof(int)], typeof(PendingDecision)),
+            [ProgramPipelinePhase.ParticipantHostState] = (typeof(ProgramParticipantHostStateProvider),
+                [], typeof(ParticipantPromptHostState))
         };
 
     internal IReadOnlyDictionary<ProgramPipelinePhase, IReadOnlyList<Registration>> Phases { get; }
@@ -168,7 +176,8 @@ internal sealed class ProgramPipelineHookCatalog
             }
         }
         foreach (var (phase, registrations) in phases)
-            if (registrations.Count == 0 && phase != ProgramPipelinePhase.VirtualEquipment)
+            if (registrations.Count == 0 && phase is not
+                (ProgramPipelinePhase.VirtualEquipment or ProgramPipelinePhase.ParticipantPrompt or ProgramPipelinePhase.ParticipantHostState))
                 throw new InvalidOperationException($"Pipeline hook phase '{phase}' has no registrations.");
         return new(phases);
     }
@@ -223,6 +232,8 @@ internal sealed class ProgramPipelineHooks
     private readonly Action<List<TurnEndingBoundaryItem>>[] _appendTurnEndingItems;
     private readonly Func<bool>[] _resumeScheduledPhase, _cancelScheduledPhase;
     private readonly ProgramVirtualEquipmentProvider[] _virtualEquipment;
+    private readonly ProgramParticipantPromptProvider[] _participantPrompt;
+    private readonly ProgramParticipantHostStateProvider[] _participantHostState;
 
     internal ProgramPipelineHooks(ProgramPipelineHookCatalog catalog, GameEngine engine)
     {
@@ -257,6 +268,8 @@ internal sealed class ProgramPipelineHooks
         _resumeScheduledPhase = Bind<Func<bool>>(ProgramPipelinePhase.ResumeScheduledPhase);
         _cancelScheduledPhase = Bind<Func<bool>>(ProgramPipelinePhase.CancelScheduledPhase);
         _virtualEquipment = Bind<ProgramVirtualEquipmentProvider>(ProgramPipelinePhase.VirtualEquipment);
+        _participantPrompt = Bind<ProgramParticipantPromptProvider>(ProgramPipelinePhase.ParticipantPrompt);
+        _participantHostState = Bind<ProgramParticipantHostStateProvider>(ProgramPipelinePhase.ParticipantHostState);
 
     }
 
@@ -423,6 +436,20 @@ internal sealed class ProgramPipelineHooks
         foreach (var hook in _rumoOrigin)
             if (hook(id, source, hash)) return true;
         return false;
+    }
+
+    internal ParticipantPromptHostState? ParticipantHostState()
+    {
+        foreach (var provider in _participantHostState)
+            if (provider() is { } state) return state;
+        return null;
+    }
+
+    internal PendingDecision? ParticipantPrompt(PendingDecision issued, int actorSeat)
+    {
+        foreach (var provider in _participantPrompt)
+            if (provider(issued, actorSeat) is { } decision) return decision;
+        return null;
     }
 
     internal CardKind? VirtualEquipment(int seat, EquipmentSlot slot)

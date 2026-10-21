@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:yaozuo",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "invite-authors",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouChenLinYaozuo",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:zhuanwen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-top-written-cards",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouChenLinZhuanwen",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

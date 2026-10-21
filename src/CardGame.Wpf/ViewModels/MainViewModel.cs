@@ -465,10 +465,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         RefreshSaveSlots();
         foreach (var entry in _game.Log.TakeLast(400)) OnLogAdded(entry);
         RecordPublicPlays(_game.Events);
+        AttachParticipantPromptHost();
     }
 
     private void DetachEngine()
     {
+        DetachParticipantPromptHost();
         if (_game is null) return;
         _game.LogAdded -= OnLogAdded;
         _game.AiThoughtAdded -= OnAiThoughtAdded;
@@ -1029,6 +1031,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 ? "快速响应杀"
                 : "快速响应闪";
         CanStepAi = _snapshot.Status == EngineStatus.Running && _snapshot.PendingDecision is null;
+        RefreshParticipantStepAvailability();
 
         RebuildAiThoughts();
         RebuildEventStack();
@@ -1960,6 +1963,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         ExecuteSafely(() =>
         {
+            if (TryStepParticipantResponse()) return;
             var result = SubmitCommand(new AdvanceOneStepCommand((_automaticTableSnapshot ?? _snapshot).Revision));
             RefreshCommandResult(result.State);
         });
@@ -1969,6 +1973,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         ExecuteSafely(() =>
         {
+            if (TryStepParticipantResponse()) return;
             var result = SubmitCommand(new AdvanceCommand(_snapshot.Revision));
             RefreshCommandResult(result.State);
         });

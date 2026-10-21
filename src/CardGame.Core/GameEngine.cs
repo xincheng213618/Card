@@ -560,7 +560,7 @@ public sealed partial class GameEngine
     /// <summary>A snapshot filtered for the configured human seat.</summary>
     public GameSnapshot State => CreateSnapshot(_options.HumanSeat);
 
-    public PendingDecision? PendingDecision => _pendingDecision is { } decision && decision.PlayerSeat == _options.HumanSeat
+    public PendingDecision? PendingDecision => GetPendingDecisionForActor(_options.HumanSeat) is { } decision
         ? CloneDecision(decision) : null;
 
     public IReadOnlyList<GameLogEntry> Log => MouSmPublicLog();
@@ -1013,7 +1013,9 @@ public sealed partial class GameEngine
             return Reject(CommandErrorCode.InvalidPrompt, "There is no answerable prompt awaiting a response.");
         }
 
-        if (pending.PlayerSeat != actorSeat)
+        if (pending.ParticipantFrameId is not null)
+            pending = GetPendingDecisionForActor(actorSeat);
+        if (pending is null || pending.PlayerSeat != actorSeat)
         {
             return Reject(CommandErrorCode.NotActorTurn, "Only the published prompt responder may answer it.");
         }
@@ -1700,7 +1702,7 @@ public sealed partial class GameEngine
             return new CommandError(inactiveCode, "The engine is not waiting for this player action.");
         }
 
-        if (_pendingDecision.PlayerSeat != actorSeat)
+        if (GetPendingDecisionForActor(actorSeat) is null)
         {
             return new CommandError(CommandErrorCode.NotActorTurn, "Only the published prompt responder may act.");
         }
@@ -14172,6 +14174,7 @@ public sealed partial class GameEngine
         BindWuLuKangKegouSlashUse(LifecycleCardUse(resolutionId)!);
         BindMouHuCheErSlashUse(LifecycleCardUse(resolutionId)!);
         BindMouZhangXiuAnniversarySlashUse(LifecycleCardUse(resolutionId)!);
+        BindMouChenLinNativeUse(LifecycleCardUse(resolutionId)!);
         BindZongluanSlashUse(resolutionId);
         PrepareXieweiNativeUse(LifecycleCardUse(resolutionId)!);
         PrepareNativePublicPileUse(LifecycleCardUse(resolutionId)!);
@@ -19846,7 +19849,8 @@ public sealed partial class GameEngine
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CommonRules.RecordClaimedGroupPhysicalCard(claimedCardIds,groupResolutionId,groupPhysicalCards,attackResolutionId,claimedCardId);
 
     private bool IsHumanDecisionPending() =>
-        _pendingDecision is { } decision && decision.PlayerSeat == _options.HumanSeat;
+        _pendingDecision is { } decision &&
+        (decision.PlayerSeat == _options.HumanSeat || IsIssuedParticipantPrompt(decision));
 
     private bool IsAiResponsePending() =>
         ((_pendingDecision?.Kind is DecisionKind.RespondDodge or

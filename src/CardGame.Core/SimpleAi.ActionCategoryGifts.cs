@@ -31,12 +31,6 @@ public sealed partial class SimpleAiBrain
     {
         var decline = choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("program-action") == "different-action-category-decline");
-        var self = view.Players.Single(player => player.Seat == Seat);
-        var recipient = view.Players.Single(player => player.Seat == recipientSeat);
-        if (GetTacticalSupport(view, self.Role ?? Role.Renegade, recipient) <= 0) return decline.Id;
-        var owned = self.Hand.Concat(self.Equipment).ToDictionary(card => card.Id);
-        return choices.Where(choice => choice.Cards.Count == 1 && owned.ContainsKey(choice.Cards[0]))
-            .OrderBy(choice => CardCatalog.Get(owned[choice.Cards[0]].Kind).HandKeepValue)
-            .ThenBy(choice => choice.Cards[0]).FirstOrDefault()?.Id ?? decline.Id;
+        return ChooseOptionalOwnedCardGift(view, recipientSeat, choices, decline.Id);
     }
 }

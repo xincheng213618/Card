@@ -877,6 +877,10 @@ public sealed partial record PendingDecision
     /// <summary>Engine revision at which this prompt was published.</summary>
     public long Revision { get; init; }
 
+    /// <summary>Owning frame of an opt-in participant prompt; each actor receives only its private choices.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public long? ParticipantFrameId { get; init; }
+
     /// <summary>
     /// For DiscardCards, choose exactly this many distinct cards from ValidCardIds.
     /// Submit DiscardCardsCommand; Choices is empty to avoid enumerating every subset.

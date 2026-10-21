@@ -3746,7 +3746,7 @@ public sealed partial class GameEngine
         var error = ValidateHumanPrompt(actorSeat, DecisionKind.ProgramTrigger, promptId,
             CommandErrorCode.IllegalAction);
         if (error is not null) return Reject(error.Code, error.Message);
-        var selected = _pendingDecision!.Choices.SingleOrDefault(choice => choice.Id == choiceId);
+        var selected = GetPendingDecisionForActor(actorSeat)?.Choices.SingleOrDefault(choice => choice.Id == choiceId);
         if (selected?.Parameters.GetValueOrDefault("program-action") == "diamond-delayed" && !IsDiamondDelayedChoiceLegal(selected))
             return Reject(CommandErrorCode.InvalidChoice, "The diamond delayed payment or target is no longer legal.");
         if (selected is null) return Reject(CommandErrorCode.InvalidChoice, "The program choice is unavailable.");

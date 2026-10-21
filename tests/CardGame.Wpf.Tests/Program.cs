@@ -147,6 +147,7 @@ internal static class Program
             Check("conversion skill rail chooses output before materials and retires old mode buttons", () => ConversionSkillSelectionChecks.MultipleOutputs(output));
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
             Check("Program paid choices preserve actor control and opaque slots", () => ProgramPaidChoiceUiChecks.SharedChoiceSurfaces(output));
+            Check("Concurrent participant UI: private human input Step Auto and reload", ParticipantPromptUiChecks.PrivateHumanInputStepAutoAndReload);
             Check("declaration and general library views protect private faces", () => RuleInformationUiChecks.PrivateFacesAndPublicDeclarations(output));
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
             Check("Public pile UI: multi-card storage lower dock and portrait inspection", () => PublicPileInteractionUiChecks.StoreSetsAndInspectPortraitPiles(output));
