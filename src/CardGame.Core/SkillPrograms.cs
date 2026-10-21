@@ -249,6 +249,11 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    StartMouHuLieChuanyu = 37500,
+    RegiveMouHuLieChuanyu = 37501,
+    EndMouHuLieChuanyu = 37502,
+    ResolveMouHuLieYitou = 37503,
+    DrawMouHuLieYitou = 37504,
     ResolveMouJuShouZuoJun = 36900, ResolveMouJuShouMuwang = 36901,
     StoreCaoXianLingxi = 37300,
     ResolveCaoXianZhifou = 37301,

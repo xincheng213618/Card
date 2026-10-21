@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:hu-lie","skills":[
+ {"registrationOrder":2930,"programBundle":"mou-hu-lie","includeProgramPresentation":true,"definition":{"id":"mou:chuanyu","name":"传舆","description":"每轮开始时，你可交给一名角色1张牌，称为‘舆’。每当‘舆’因使用进入弃牌堆时，你可将其交给本轮未获得过‘舆’的一名角色。每轮结束时，弃置所有‘舆’，你可令本轮所有获得过‘舆’的角色依次视为对你指定的一名角色使用【杀】（不限距离）。","executionForms":"Trigger, State"}},
+ {"registrationOrder":2931,"programBundle":"mou-hu-lie","includeProgramPresentation":true,"definition":{"id":"mou:yitou","name":"倚投","description":"其他角色的出牌阶段开始时，若其手牌数为全场最多，你可将所有手牌交给该角色，直到本回合结束，该角色造成伤害后，你摸1张牌。","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":2932,"pools":{"current":597},"definition":{"id":"mou:hu-lie","name":"谋胡烈","portraitKey":"mou-hu-lie","skillId":"mou:chuanyu","additionalSkillIds":["mou:yitou"],"factionId":"wei","baseHp":4,"gender":"Male","characterId":"character:hu-lie","variantId":"mou","rulesetId":"sanguosha-anniversary"}}]}

@@ -1,0 +1,71 @@
+{
+  "generalId": "mou:hu-lie",
+  "rulesetId": "sanguosha-anniversary",
+  "verifiedOn": "2026-10-22",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4,
+    "rulesetId": "sanguosha-anniversary",
+    "variantId": "mou",
+    "title": "暗舆平叛",
+    "series": "幼麟绝战"
+  },
+  "selectedVersion": {
+    "currentUrl": "https://x.sanguosha.com/hero/1741.html",
+    "formalUrl": "https://x.sanguosha.com/news/20250904_3910_3309.html",
+    "formalPublished": "2025-09-05",
+    "availableFrom": "2025-09-06",
+    "agreement": "complete current and initial formal two-skill body identical"
+  },
+  "officialSkillTexts": {
+    "传舆": "每轮开始时，你可交给一名角色1张牌，称为“舆”。每当“舆”因使用进入弃牌堆时，你可将其交给本轮未获得过“舆”的一名角色。每轮结束时，弃置所有“舆”，你可令本轮所有获得过“舆”的角色依次视为对你指定的一名角色使用【杀】（不限距离）。",
+    "倚投": "其他角色的出牌阶段开始时，若其手牌数为全场最多，你可将所有手牌交给该角色，直到本回合结束，该角色造成伤害后，你摸1张牌。"
+  },
+  "officialSources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1741.html",
+      "role": "current complete body and actual classic portrait URL",
+      "bytes": 15265,
+      "sha256": "b1ed6a79dc549c4763b83eabbd7f40762a611f6215facd96738e328b3987fe6a"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250904_3910_3309.html",
+      "role": "existing full primary raw reused read-only; includes complete HuLie two-skill body",
+      "bytes": 380038,
+      "sha256": "3f42a2ef0f7dd089d8617e2808687eb3728dd3d1386d47f66b1a904fd9ee111d"
+    }
+  ],
+  "userDecisions": [
+    {
+      "scope": "传舆轮初给自己",
+      "choice": "允许自己，实体留在原处并标记为舆。",
+      "implementation": "验证本人的当前可动HE实体。原位置保持、无Give/CardMoved伪记录；发行明确Self标记和获得者事实。其他目标仍完整原生Give。"
+    },
+    {
+      "scope": "传舆轮末弃置范围",
+      "choice": "从当前Hand/Equipment/Judgment/DrawPile/Discard处理；排除私堆与Outside。",
+      "implementation": "已在Discard不伪造移动；HEJ沿真实牌主logical discard，Deck沿真实实体移入Discard，不伪造owned材料。私堆/Outside不取牌；结束本轮公开舆标记。"
+    }
+  ],
+  "engineeringMappings": [
+    "本轮获得者按现有原生行动顺序冻结：以当前实际行动座位为起点的座次环顺序。每名实际存活获得者依次使用零材料杀，所有使用共享本次胡烈选定的一名目标；自己对自己不能合法使用杀时跳过该使用者。此为依次的工程解释，非官网FAQ或额外用户裁定。",
+    "每张舆由真实来源、skill-instance、内容hash、实际轮、物理实体识别。Self是明确无移动的原地标记发票；他人获得必须native Give成功实体进入其Hand。每轮每名角色仅首次获得，不能按牌名字串或同类新造实体接力。",
+    "因使用进入弃牌堆复用NativeTrueUseProcessingEntryEvent及原生真实Use完成发票，覆盖正常Use、真实闪/无懈使用及转化素材，排除仅Played/逻辑弃牌/重铸。只有该实体实际仍在Discard才可再给本轮未得者。",
+    "轮末先完成当前可触达舆实体的真实弃置和移动子窗并清除标记，再可接受整条原生foreign-actor杀队列。每次SourceSeat/Actor/Provider均为该次实际获得者，技能来源仍为发行胡烈；不计普通杀额度、不限距离仅限exact issued receipt，不扩所有杀。",
+    "倚投沿正文仅转移本人所有实际Hand，不把装备混入。最大手牌允许并列；真实完整Give付款后发行本实际回合受益者造成伤害的lease，观察每次原生正伤害事件并以typed draw向胡烈摸一张，包含卡牌/技能/延时原生伤害，不按伤害点数多摸。",
+    "待决状态保留在own ProgramSkillFrame和对应native CardUseFrame；Move/Give/Draw/Slash保持真实付款、子窗和typed whole return，paid恢复不再支付。",
+    "真实入弃付款在原生CompleteCardMovementBatch内、Use/response父帧尚存在时由既有IsNativeTrueUseDiscardMovement精确验证并发行本将scalar实体发票；父帧退栈后的原生DiscardPileReceived仅消费同source/mark、batch、parent、实际turn、实体和sequence且仍为该实体最后真实移动的发票，不凭reason或历史牌名补资格。"
+  ],
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-mou-hu-lie.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1741.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1174101.png",
+    "bytes": 701697,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "sha256": "a18b7aa78cec60d8795e56910ef7e82e9cceaaefaf068359e835b2ae136ee2f3",
+    "visuallyVerified": true
+  }
+}

@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-hu-lie",
+      "characterName": "谋胡烈",
+      "defaultSkinId": "1174101",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1741.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1174101.png",
+          "sha256": "a18b7aa78cec60d8795e56910ef7e82e9cceaaefaf068359e835b2ae136ee2f3",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-hu-lie.png",
+          "id": "1174101",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-ju-shou",
       "characterName": "谋沮授",
       "defaultSkinId": "1170001",

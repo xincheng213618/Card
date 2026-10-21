@@ -12950,6 +12950,7 @@ public sealed partial class GameEngine
         AppendZhangYanSujiDamageCandidates(attack, window, candidates);
         AppendGuanHaiYouqueDamageCandidates(attack, window, candidates);
         AppendMouLuSuIssuedDamageCandidates(attack, window, candidates);
+        AppendMouHuLieDamageCandidates(attack, window, candidates);
         AppendZhaohuoDamageCandidates(attack, window, candidates);
         return candidates;
     }
@@ -14135,6 +14136,7 @@ public sealed partial class GameEngine
         if (actionContext is not null) actionContext = PrepareMouDanchiAction(actionContext);
         if (actionContext is not null) actionContext = PrepareHuanpeiAction(PrepareZonghuAction(PrepareWeijieAction(actionContext, weijieOrigin), zonghuOrigin), huanpeiOrigin);
         if (actionContext is not null) actionContext = PrepareMouZhangXiuAnniversarySlashAction(actionContext);
+        if (actionContext is not null) actionContext = PrepareMouHuLieSlashAction(actionContext);
         if (actionContext is not null) actionContext = PrepareMouHuCheErSlashAction(PrepareWuLuKangKegouSlashAction(PrepareZongluanSlashAction(PrepareYouqueSlashAction(PrepareXieweiAction(actionContext)))));
         if (actionContext is not null) actionContext = PrepareMouWenChouAction(PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareMouXqJueyanAction(PrepareDiouAction(actionContext)))));
         var colorFireAttack = FreezeColorFireAttackPolicy(sourceSeat, actionContext);
@@ -14175,6 +14177,7 @@ public sealed partial class GameEngine
         BindMouHuCheErSlashUse(LifecycleCardUse(resolutionId)!);
         BindMouZhangXiuAnniversarySlashUse(LifecycleCardUse(resolutionId)!);
         BindMouChenLinNativeUse(LifecycleCardUse(resolutionId)!);
+        BindMouHuLieSlashUse(LifecycleCardUse(resolutionId)!);
         BindZongluanSlashUse(resolutionId);
         PrepareXieweiNativeUse(LifecycleCardUse(resolutionId)!);
         PrepareNativePublicPileUse(LifecycleCardUse(resolutionId)!);

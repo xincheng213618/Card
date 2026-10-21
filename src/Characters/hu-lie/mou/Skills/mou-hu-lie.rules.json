@@ -1,0 +1,11 @@
+{"schemaVersion":62,"skills":[
+ {"id":"mou:chuanyu","revision":1,"triggers":[
+   {"id":"round-gift","window":"roundStarting","subject":"owner","optional":true,"effects":[{"op":"startMouHuLieChuanyu","target":"owner"}]},
+   {"id":"true-used-yu-discard","window":"discardPileReceived","subject":"owner","optional":true,"effects":[{"op":"regiveMouHuLieChuanyu","target":"owner"}]},
+   {"id":"round-clear-and-slashes","window":"roundEnding","subject":"owner","optional":false,"effects":[{"op":"endMouHuLieChuanyu","target":"owner"}]}
+ ]},
+ {"id":"mou:yitou","revision":1,"triggers":[
+   {"id":"other-largest-play","window":"playPhaseStarting","subject":"owner","turnOwnerScope":"otherLiving","optional":true,"effects":[{"op":"resolveMouHuLieYitou","target":"owner"}]},
+   {"id":"issued-recipient-damage","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","optional":false,"effects":[{"op":"drawMouHuLieYitou","target":"owner"}]}
+ ]}
+]}
