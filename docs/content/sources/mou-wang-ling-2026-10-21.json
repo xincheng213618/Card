@@ -1,0 +1,93 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:wang-ling",
+  "characterId": "character:wang-ling",
+  "displayName": "谋王凌",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4,
+    "officialHeroId": 1641
+  },
+  "firstRelease": {
+    "date": "2024-04-04",
+    "url": "https://www.sanguosha.com/news/20240402_3422_2416",
+    "formalIdentity": "SS / 魏 / 4 / 男 / 风节格尚 / 谋-冢虎狼顾"
+  },
+  "selectedRevision": {
+    "effectiveDate": "2024-08-22",
+    "version": "5.7.2",
+    "url": "https://www.sanguosha.com/news/20240819_7697_5415",
+    "decision": "采用正式调整表：集筹为结束阶段/本回合；谋立为至少5种。此为实现版本选择，不是官方FAQ或用户额外裁决。",
+    "currentHeroDifference": "当前武将页谋立仍写“超过了5种”。两主源有差异，本实现明确采用正式5.7.2表的“至少有5种”，没有默默合并。"
+  },
+  "skills": [
+    {
+      "id": "mou:jichou",
+      "name": "集筹",
+      "officialSelectedText": "结束阶段，若你本回合使用的牌名均不同，你可以从弃牌堆中将这些牌交给你选择的角色各一张，然后你摸X张牌（X是其中此前没有因此给出过的牌名张数）。"
+    },
+    {
+      "id": "mou:mouli",
+      "name": "谋立",
+      "officialSelectedText": "觉醒技，回合结束时，若你因“集筹”给出的牌名不同的牌至少有5种，你加1点体力上限并回复1点体力，然后获得“自缚”。",
+      "currentHeroText": "觉醒技，回合结束时，若你因“集筹”给出的牌名不同的牌超过了5种，你加1点体力上限并回复1点体力，然后获得“自缚”。"
+    },
+    {
+      "id": "mou:zifu",
+      "name": "自缚",
+      "derivedGrantedSkill": true,
+      "officialSelectedText": "锁定技，出牌阶段开始时，你将手牌摸至体力上限（最多摸至5张）。若你因此摸牌，你保留手牌中牌名不同的牌各一张，然后弃置其余的牌。",
+      "completeTextAuthority": "初次正式发布与5.7.2正式调整表均有完整正文；不因当前武将页只列初始两技而省略。"
+    }
+  ],
+  "primarySources": [
+    {
+      "role": "currentHero",
+      "url": "https://x.sanguosha.com/hero/1641.html",
+      "sha256": "30535eafa1904c39ff62e8f0ea72631297284a5a0cdc5e0e5f58467e504eb787",
+      "bytes": 22480
+    },
+    {
+      "role": "firstRelease",
+      "url": "https://www.sanguosha.com/news/20240402_3422_2416",
+      "sha256": "09482147e9f8fe59fed8f483d50c68f2ffe5791a2872bc7fd7fb2bc81f04845e",
+      "bytes": 534796
+    },
+    {
+      "role": "formalRevision",
+      "url": "https://www.sanguosha.com/news/20240819_7697_5415",
+      "sha256": "914692c581b6b04156fdf7d7bd31c859f21a5cb277c50267a349629d02458520",
+      "bytes": 51110
+    }
+  ],
+  "portrait": {
+    "officialUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164101.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1641.html",
+    "assetPath": "src/CardGame.Wpf/Assets/official-mou-wang-ling.png",
+    "sha256": "F390141296F28F4AAB29B64F633D521E5F2C122F2B9933C820C41F437DA3910E",
+    "width": 574,
+    "height": 761,
+    "bytes": 610968,
+    "imageRole": "经典形象，当前武将页实际DOM的大图；非头像或替换皮肤"
+  },
+  "engineeringContracts": [
+    "以下是按正文与现有原生协议确定的工程解释，不冒充官方FAQ。",
+    "集筹按本人当前实际回合内真实Use账本判断同名，包括原生使用响应；纯打出不计。原生有效牌名于原Use接受/声明时冻结，插入出牌阶段不清空该实际回合历史。杀、火杀、雷杀按同一杀牌名处理。",
+    "分赠候选只来自该实际Use的真实物理材料进入原生Processing的凭据，并要求该实体当前仍在弃牌堆。多物料只提供其中真实仍在弃牌堆的实体；零材料Use可影响同名资格但不制造赠牌实体。赠出的物理牌按实际印刷牌名记名，不把转换后的虚拟牌名写回实体。",
+    "集筹由本人选择零到若干真实实体，并给选择的存活角色各一张，包含本人。各实体和受赠角色均不重复。每张实际移动及其原生子结算完成后才进行下一张，随后按本次实际首次给出的不同牌名数请求真实摸牌。",
+    "本局此前实际给出的牌名按拥有者与命名技能永久累计；失去再获得来源不重置。接受并提交分赠后保留原来源、指纹、逐实体游标与实际移动凭据，已经完成的赠牌和摸牌不会因恢复而重复。未来新机会仍要求原生有效技能来源。",
+    "谋立按实际给出至少五种牌名觉醒一次；先接受觉醒，再沿原生加1上限、回复1、授予自缚顺序完成，没有额外自造费用或奖励。",
+    "自缚请求数为max(0,min(本人当前体力上限,5)-当前真实手牌数)。没有正请求不伪造摸牌；原生摸牌实际获得至少一张后，所有得牌子结算返回，才以当前手牌按当前有效牌名分组，每名保留一张实际实体，其余经真实逻辑弃置及其子结算处理。只有替代获得而无实际摸牌，不伪造“因此摸牌”。",
+    "新待决状态只保留在原ProgramSkillFrame；所有集合在初始化时复制为只读集合，事件为标量。原生回返核实际来源、父帧、指纹、实体和移动批次，不靠最终净手牌数推算付款。",
+    "图鉴沿用现有技能正文内嵌派生技说明的展示方式，在谋立正文末附完整自缚正文；初始技能仍只有集筹与谋立，自缚只经真实觉醒授予。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouWangLingChecks.cs",
+    "method": "ActualEndingGiftsFiveNamesAwakenAndRetainDuplicatesCold",
+    "scope": "真实使用、结束阶段分赠/摸牌、赠牌子窗冷恢复、五种觉醒，以及自缚实际补牌后保留各牌名一张并逻辑弃置。"
+  }
+}

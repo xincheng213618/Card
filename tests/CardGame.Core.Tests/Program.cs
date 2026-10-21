@@ -525,6 +525,7 @@ var tests = new (string Name, Action Body)[]
     ("Mou Dong Zhao OL: real damage gift and native suit-loss obligation Cold", CardGame.Core.Tests.MouDongZhaoOlChecks.RealDamageGiftAndNativeSuitLossObligationCold),
     ("Mou Gongsun Zan Mobile: real Hu original Played and Hand conversions Round charge Cold", CardGame.Core.Tests.MouGongsunZanMobileChecks.RealHuOriginalPlayedAndHandConversionsWithRoundChargeCold),
     ("Mou Xiao Qiao OL: real public Hand reveal returns and retained native uses Cold", CardGame.Core.Tests.MouXiaoQiaoOlChecks.RealMiluoRetainedUsesAndExternalRevealReturnCold),
+    ("Mou Wang Ling: real Ending gifts five-name awakening and duplicate retention Cold", CardGame.Core.Tests.MouWangLingChecks.ActualEndingGiftsFiveNamesAwakenAndRetainDuplicatesCold),
     ("Mou Lu Bu Mobile: actual double response multi-obtain and victim branches Cold", CardGame.Core.Tests.MouLuBuMobileChecks.ActualDoubleResponseMultiObtainAndVictimBranchesCold),
     ("Mou Gan Ning Mobile: real repeated guesses and independent Wei targets Cold", CardGame.Core.Tests.MouGanNingMobileChecks.RealRepeatedGuessesAndIndependentWeiTargetsCold),
     ("Mou Guo Huai Mobile: ordered real predictions and next actual start none Cold", CardGame.Core.Tests.MouGuoHuaiMobileChecks.OrderedRealPredictionsAndNextActualStartNoneCold),

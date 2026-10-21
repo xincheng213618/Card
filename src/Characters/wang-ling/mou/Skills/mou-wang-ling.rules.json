@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:jichou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "unique-turn-gifts",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouWangLingJichou",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:mouli",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "five-names-awakening",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "prepareMouWangLingMouli",
+              "target": "owner"
+            },
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "mou:zifu"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:zifu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-and-retain-names",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouWangLingZifu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

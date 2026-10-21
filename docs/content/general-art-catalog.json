@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-wang-ling",
+      "characterName": "谋王凌",
+      "defaultSkinId": "1164101",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1641.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164101.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-wang-ling.png",
+          "sha256": "f390141296f28f4aab29b64f633d521e5f2c122f2b9933c820c41f437da3910e",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1164101",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-zhu-ran-mobile",
       "characterName": "谋朱然·移动版",
       "defaultSkinId": "88000",

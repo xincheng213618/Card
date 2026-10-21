@@ -125,7 +125,7 @@ public sealed partial class GameEngine
             TracksWholeActualTurnUseOrdinal && HasOngoingWholeActualUseTurn
                 ? checked(WholeActualTurnUseHistory().Length + 1) : null)
             { ProgramInstructionIndex = programInstructionIndex,
-              EffectiveCardKind = _contentRegistry.ProgramDependencies.TracksSlashDamageUseOrdinals ? effectiveKind : null });
+              EffectiveCardKind = TracksWholeActualTurnUseOrdinal || _contentRegistry.ProgramDependencies.TracksSlashDamageUseOrdinals ? effectiveKind : null });
     }
 
     private int? CapturedActualTurnActorUseOrdinal(CardActionContext action)

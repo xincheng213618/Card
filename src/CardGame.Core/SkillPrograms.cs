@@ -249,6 +249,9 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveMouWangLingJichou = 34500,
+    PrepareMouWangLingMouli = 34501,
+    ResolveMouWangLingZifu = 34502,
     ResolveMouXiaoQiaoMiluo = 34000,
     ResolveMouXiaoQiaoMiluoRoundEnd = 34001,
     ResolveMouXiaoQiaoJueyan = 34002,

@@ -246,7 +246,15 @@ internal static class WenheActivityUiChecks
             for (var step = 0; step < 160; step++)
             {
                 if (ready()) return;
-                Program.Assert(vm.StepAiCommand.CanExecute(null), "The real survival UI must advance to its bounded setup/rule boundary.");
+                var boundary = Program.Engine(vm).CreateSnapshot(0);
+                if (boundary.PendingDecision is { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash, PlayerSeat: 0 } &&
+                    vm.DeclineResponseCommand.CanExecute(null))
+                {
+                    vm.DeclineResponseCommand.Execute(null);
+                    continue;
+                }
+                Program.Assert(vm.StepAiCommand.CanExecute(null),
+                    $"The real survival UI must advance to its bounded setup/rule boundary. Status={boundary.Status}; turn={boundary.TurnNumber}; phase={boundary.Phase}; seat={boundary.CurrentSeat}; pending={boundary.PendingDecision?.Kind}/{boundary.PendingDecision?.PlayerSeat}/{boundary.PendingDecision?.PromptId}; prompt={boundary.PendingDecision?.Prompt}; roster={string.Join(";", boundary.Players.Select(player => $"{player.Seat}:{player.GeneralId}"))}.");
                 vm.StepAiCommand.Execute(null);
             }
             throw new InvalidOperationException("The Wenhe UI did not reach its bounded setup/rule boundary.");
