@@ -142,6 +142,7 @@ public enum DamageNature
 /// </summary>
 public enum PlayerMarkerKind
 {
+    MouSunShangxiangZhu = 35100,
     MouDongZhuoGuanbian = 34700,
     MouKongRongXian = 34600,
     ShenwuPoison = 27720,
@@ -213,6 +214,7 @@ public static class PlayerMarkerCatalog
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
         PlayerMarkerKind.MouDongZhuoGuanbian => "观变",
+        PlayerMarkerKind.MouSunShangxiangZhu => "助",
         PlayerMarkerKind.MouKongRongXian => "贤",
         PlayerMarkerKind.GuanduGrain => "粮",
         PlayerMarkerKind.CaoPiSong => "颂",

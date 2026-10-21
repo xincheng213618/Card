@@ -23,7 +23,7 @@ public sealed partial class GameEngine
     private (long Base, long Revision) _nativeFactionQualificationDependencies;
     private bool _synchronizingNativeFactions;
 
-    private bool TracksNativeEffectiveFactionChanges => _contentRegistry.ProgramDependencies
+    private bool TracksNativeEffectiveFactionChanges => HasMouSunShangxiangMobile || _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice);
 

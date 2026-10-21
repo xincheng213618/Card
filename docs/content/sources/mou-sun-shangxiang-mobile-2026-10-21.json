@@ -1,0 +1,60 @@
+{
+  "generalId": "mou:sun-shangxiang-mobile",
+  "name": "谋孙尚香·移动版",
+  "ruleset": "sanguosha-mobile",
+  "verifiedOn": "2026-10-21",
+  "selectedVersion": "Current complete official mobile general page and live mobile roster API; API created_at is not treated as the skill release date.",
+  "officialSources": [
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-493.html",
+      "kind": "current official general page",
+      "sha256": "512f1b8b67960975fd605fa5d1268c6ebfd69ee8c988cca35517c00363797daa"
+    },
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "kind": "current official general roster API",
+      "generalId": 493,
+      "sha256": "49baef742f69b5bed7241ab9f420e3e4875b6dedc9fd79f1f7d6c6bdf02b8f27"
+    }
+  ],
+  "definition": {
+    "faction": "shu",
+    "gender": "Female",
+    "baseHp": 4
+  },
+  "officialSkillText": {
+    "mou-mobile:jieyin": "使命技，你的登场势力为“蜀”。游戏开始时，你选择一名其他角色，令其获得“助”标记。出牌阶段开始时，有“助”标记的角色选择一项：1. 若其有手牌，交给你两张手牌（若其手牌不足两张则交给你所有手牌），然后其获得一点“护甲”；2、令你移动或移除助标记（若其不是第一次获得“助”标记，则你只能移除“助”标记。）失败：当“助”标记被移除时，你回复1点体力并获得你武将牌上所有“妆”牌，移除“助”标记，你将势力修改为“吴”，减1点体力上限。",
+    "mou-mobile:liangzhu": "蜀势力技，出牌阶段限一次，你可以将其他角色装备区内的一张牌置于你的武将牌上，称为“妆”，然后令拥有“助”标记的角色选择一项：1.回复1点体力值；2.摸两张牌。",
+    "mou-mobile:xiaoji": "吴势力技，当你失去装备区内的一张牌时，你摸两张牌，然后可以弃置场上的一张牌。"
+  },
+  "userAdjudications": [
+    {
+      "topic": "Jieyin transfer target",
+      "decision": "移动助标记只能转给其他角色，沿用开局目标范围；不能转给孙尚香本人。",
+      "provenance": "Explicit user answer relayed by coordinating agent on 2026-10-21; this is a project adjudication, not an official FAQ."
+    },
+    {
+      "topic": "Marked holder death",
+      "decision": "有助标记的角色死亡时移除助，并结算使命失败。",
+      "provenance": "Explicit user answer relayed by coordinating agent on 2026-10-21. The current official skill text does not separately define holder death; this is a project adjudication, not an official FAQ."
+    }
+  ],
+  "implementation": [
+    "Track the initial and subsequent source-owned Zhu grants for the same owner across skill loss and regrant. A holder granted Zhu for a second time can only request removal; removing Zhu permanently fails this owner's mission.",
+    "The marked holder privately selects and transfers two real Hand cards, or all remaining Hand cards if fewer than two, before its native armor gain. An empty Hand cannot choose the gift branch.",
+    "Liangzhu moves one actual other role's Equipment entity into its source-owned public Zhuang pile. Original Equipment-loss effects and native recovery/draw children resolve before the marked holder's selected benefit returns.",
+    "Mission failure pays native Recover1, then obtains all actual remaining Zhuang entities, then changes native effective faction to Wu, then reduces maximum HP by1. Each native child returns to the same paid owning frame and cannot repay completed costs.",
+    "Liangzhu and Xiaoji check current effective faction. Xiaoji observes each actual Equipment-zone card loss, draws two through the native draw producer and optionally discards one currently legal Equipment or Judgment entity.",
+    "Use the existing CharacterDied collector with subject owner, which gathers every living skill observer; its actual victim must equal this source-owned Zhu holder. The death removal and mission failure follow the explicit user adjudication."
+  ],
+  "portrait": {
+    "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-493.html",
+    "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/69100.jpg",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-sun-shangxiang-mobile.jpg",
+    "sha256": "3ea70938f5d5af624e1981b466bc99c662a78326974bcda00c233fd740a3db29",
+    "pixelWidth": 530,
+    "pixelHeight": 750,
+    "bytes": 316415,
+    "visuallyVerified": true
+  }
+}

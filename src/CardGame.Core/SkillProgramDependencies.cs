@@ -130,7 +130,8 @@ internal sealed class SkillProgramDependencies
         CapturesCompletedResponseSuit = triggers.Any(trigger =>
             trigger.Window == SkillProgramTriggerWindow.CardUseCompleted && trigger.IncludeResponseUses &&
             resolver.Features(trigger).UsesCondition(SkillProgramTriggerConditionKind.CardActionSuitIs));
-        TracksPlayCardHistory = HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.ReplaceAllSlashTargets) ||
+        TracksPlayCardHistory = RequiresFact(ProgramTrackedFact.NativeActionAppearance) ||
+            HasTriggerOperation(SkillProgramEffectOp.BeginPhaseNamePrediction) || HasTriggerOperation(SkillProgramEffectOp.ReplaceAllSlashTargets) ||
             HasTriggerOperation(SkillProgramEffectOp.GrantRandomSkillAndSuitShield) ||
             programs.Any(program => program.ViewAs.Any(rule => rule.InheritPreviousPlaySuit)) ||
             UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionMatchesPreviousPlayCard) ||

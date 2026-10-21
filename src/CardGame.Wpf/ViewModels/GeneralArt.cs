@@ -184,6 +184,9 @@ public static partial class GeneralArt
             ["mou-zhang-he-mobile"] = "official-mou-zhang-he-mobile.jpg",
             ["mou-zhu-ran-mobile"] = "official-mou-zhu-ran-mobile.jpg",
             ["mou-wang-ling"] = "official-mou-wang-ling.png",
+            ["mou-sun-shangxiang-mobile"] = "official-mou-sun-shangxiang-mobile.jpg",
+            ["mou-guan-ping"] = "official-mou-guan-ping.png",
+            ["mou-xu-sheng"] = "official-mou-xu-sheng.png",
             ["mou-liu-xie"] = "official-mou-liu-xie.png",
             ["mou-dong-zhuo-ol"] = "official-mou-dong-zhuo-ol.png",
             ["mou-kong-rong-ol"] = "official-mou-kong-rong-ol.png",
@@ -610,6 +613,13 @@ public static partial class GeneralArt
         };
         if (NormalizeKey(id) == "magic-guan-yu")
             brush.Viewbox = new System.Windows.Rect(0.105, 0.064, 0.69, 0.575);
+        if (NormalizeKey(id) == "mou-xu-sheng" && brush.ImageSource is BitmapSource landscape)
+        {
+            var crop = new CroppedBitmap(landscape, new System.Windows.Int32Rect(
+                landscape.PixelWidth * 35 / 100, 0, landscape.PixelWidth * 54 / 100, landscape.PixelHeight));
+            crop.Freeze();
+            brush.ImageSource = crop;
+        }
         brush.Freeze();
         return brush;
     }

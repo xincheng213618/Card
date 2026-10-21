@@ -1,0 +1,90 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:xu-sheng",
+  "characterId": "character:xu-sheng",
+  "displayName": "谋徐盛",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "wu",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4,
+    "officialHeroId": 1784
+  },
+  "firstRelease": {
+    "publishedAt": "2026-07-09",
+    "availableFrom": "2026-07-11",
+    "url": "https://x.sanguosha.com/news/20260709_1838_3516.html"
+  },
+  "skills": [
+    {
+      "id": "mou:qinqiang",
+      "name": "勤强",
+      "officialSelectedText": "每回合每项限一次，你使用手牌时，可选择一项：1.令此牌伤害+X；2.摸X张牌（X你本回合当前与此牌连续使用的同颜色牌数）。"
+    },
+    {
+      "id": "mou:yizhen",
+      "name": "疑阵",
+      "officialSelectedText": "当你受到伤害后，你可以与伤害来源互相观看对方手牌，然后各弃置其中一张牌，若这两张牌颜色相同，则你获得之。"
+    }
+  ],
+  "versionConflict": {
+    "skillId": "mou:qinqiang",
+    "currentHeroText": "每回合每项限一次，你使用手牌时，可选择一项：1.令此牌伤害+X；2.摸X张牌（X你本回合此前与此牌连续使用同颜色的牌数）。",
+    "formalAnnouncementText": "每回合每项限一次，你使用手牌时，可选择一项：1.令此牌伤害+X；2.摸X张牌（X你本回合当前与此牌连续使用的同颜色牌数）。",
+    "decision": "用户明确选择2026年7月9日正式公告口径，X计入当前使用的本张牌。保留公告原文的X后缺少为字，不将当前武将页的此前静默合入。",
+    "decisionProvenance": "2026-10-21本次开发会话中用户决定，由主代理转达；不是官方FAQ。"
+  },
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/news/20260709_1838_3516.html",
+      "bytes": 357149,
+      "sha256": "a46f612e6b734f4c02d80b4bf88e96727a68f572ee11c1effc2d9030684b457c"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/1784.html",
+      "bytes": 18322,
+      "sha256": "07cff0e4461e67d689000f47e68db643c1a83bab9d64ff6befa0875a9c409387"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "selectedEntry": {
+        "gid": 1784,
+        "prefix": "谋",
+        "name": "徐盛",
+        "resource": 1178401,
+        "country": "吴",
+        "hp": 4
+      }
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1178401.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-xu-sheng.png",
+    "sha256": "2faf5a5ef61d8072760100f3a2262fbc5766db14ca24901174a0839165f6e098",
+    "pixelWidth": 876,
+    "pixelHeight": 632,
+    "bytes": 926922,
+    "id": "1178401",
+    "name": "经典形象",
+    "identityEvidence": "官方索引的实际gid1784条目resource为1178401，页面模板以resource构造big/static图像；已下载并人工查看绿披风横图。当前武将详情页另有4178401，标题为烈火将魂*谋徐盛，不作为经典图采用。"
+  },
+  "engineeringContracts": [
+    "以下是结合完整正文和现有原生协议确定的工程解释，不冒充官方FAQ。",
+    "勤强按每个实际回合分别记录增伤、摸牌两项，各限一次。X基于本人在本实际回合的真实使用顺序，从当前牌向前连续统计同颜色牌并计入当前牌；没有伪造使用事实或把普通打出计作使用。",
+    "勤强发动资格沿用原生手牌使用条件：实际动作的使用者、提供者均为本人，至少一张实体材料且全部来自本人手牌。连续使用历史仍按所有真实使用计数，不把其他区域的真实使用从历史中删去。原生响应中的真正使用也保留资格，普通打出不提供资格。",
+    "增伤只附在当前实际使用动作所属的原生CardUseFrame，并校验动作、使用实体、技能来源及已支付事实；无伤害的响应牌不把增伤错误附到正在响应的入站牌。摸牌调用原生Draw并等待其全部移动和观察子窗返回。",
+    "疑阵的互相观看对方手牌，然后各弃置其中一张牌，按双方各选择对方手牌中的一张处理。两份手牌视图在发动后冻结，只有对应观看者能看到对方当时的实体牌；仍以当前实际区域与原生可弃资格校验选择。",
+    "疑阵双方均完成选择后才依序支付弃置，首位选择不提前公开所选实体。每次由该选择者执行原生逻辑弃置对方手牌，保留精确主移动回执和弃置时实际颜色，完成原生子窗后再处理下一项。",
+    "疑阵必须有两份真正支付的弃置回执且颜色相同，才能取得其中仍在弃牌堆的原实体。已离开弃牌堆的牌不复制、不替代；观察或替代移动不伪装为本人原始弃置。",
+    "选择、材料、支付游标与原生返回状态保存在原ProgramSkillFrame；增伤保存在其实际CardUseFrame。所有公开嵌套集合复制为只读集合，新事件只有标量或不可变标量记录。冷恢复继续真实原生父子帧，不重复支付。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouXuShengChecks.cs",
+    "method": "NativeColorRunBenefitsAndMutualOpposingHandChoicesCold",
+    "scope": "固定小牌堆的真实红色无中生有X1摸牌、连续红杀X2增伤及两项各限一次；真实来源伤害后的双方私密对方手牌选择，在首位承诺后做一次代表性Cold，再验证两个原生逻辑弃置及同色原实体收回。复用既有使用、隐私、输入与移动检查，不另建武将固定矩阵。"
+  }
+}

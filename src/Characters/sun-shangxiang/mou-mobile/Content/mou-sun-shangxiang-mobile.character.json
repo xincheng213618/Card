@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-shangxiang",
+  "skills": [
+    {
+      "registrationOrder": 2690,
+      "programBundle": "mou-sun-shangxiang-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:jieyin",
+        "name": "结姻",
+        "description": "使命技，你的登场势力为“蜀”。游戏开始时，你选择一名其他角色，令其获得“助”标记。出牌阶段开始时，有“助”标记的角色选择一项：1. 若其有手牌，交给你两张手牌（若其手牌不足两张则交给你所有手牌），然后其获得一点“护甲”；2、令你移动或移除助标记（若其不是第一次获得“助”标记，则你只能移除“助”标记。）失败：当“助”标记被移除时，你回复1点体力并获得你武将牌上所有“妆”牌，移除“助”标记，你将势力修改为“吴”，减1点体力上限。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2691,
+      "programBundle": "mou-sun-shangxiang-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:liangzhu",
+        "name": "良助",
+        "description": "蜀势力技，出牌阶段限一次，你可以将其他角色装备区内的一张牌置于你的武将牌上，称为“妆”，然后令拥有“助”标记的角色选择一项：1.回复1点体力值；2.摸两张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2692,
+      "programBundle": "mou-sun-shangxiang-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:xiaoji",
+        "name": "枭姬",
+        "description": "吴势力技，当你失去装备区内的一张牌时，你摸两张牌，然后可以弃置场上的一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2693,
+      "pools": {
+        "current": 573
+      },
+      "definition": {
+        "id": "mou:sun-shangxiang-mobile",
+        "name": "谋孙尚香·移动版",
+        "portraitKey": "mou-sun-shangxiang-mobile",
+        "skillId": "mou-mobile:jieyin",
+        "additionalSkillIds": [
+          "mou-mobile:liangzhu",
+          "mou-mobile:xiaoji"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Female",
+        "characterId": "character:sun-shangxiang",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

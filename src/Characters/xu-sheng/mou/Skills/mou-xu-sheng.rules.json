@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:qinqiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "true-hand-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouXuShengQinqiang",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:yizhen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "mutual-private-hand",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "requireDamageSource": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouXuShengYizhen",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
