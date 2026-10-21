@@ -4670,7 +4670,7 @@ public sealed partial class GameEngine
         PrepareWuZhangFeiResponseRanks(responder, CardKind.Nullification, [card], selectedConversionSource);
         PrepareLeCaoZhiWenlanResponse(responder, CardKind.Nullification, [card]);
         PrepareSiruiResponsePayment(responder, card, CardKind.Nullification, selectedConversionSource);
-        var unrespondableSource = FreezeUnrespondableCounterspellSource(responder, [card.Id]);
+        var unrespondableSource = MouGjLunshiSource(responder, [card.Id], selectedConversionSource) ?? FreezeUnrespondableCounterspellSource(responder, [card.Id]);
         PrepareNativePublicPileResponsePayment(responder, card, CardKind.Nullification, selectedConversionSource);
         var responseFrom = FindOwnedCardLocation(responder, card);
         var responseCostIsRed = CapturePhysicalCardColor(responder.Seat,card);
@@ -11623,7 +11623,7 @@ public sealed partial class GameEngine
         CaptureProgramSlashSuitJudgment(pending, judgmentSuit);
         CaptureDamageJudgmentSuitResult(pending, judgmentCard, judgmentSuit);
         CaptureProgramRepeatedJudgmentClaimOutcome(pending, judgmentCard, judgmentSuit);
-        var succeeded = pending.Continuation switch
+        var succeeded = IsMouGjLightningJudgment(pending) ? judgmentSuit == Suit.Spade && judgmentRank is >= 2 and <= 9 : pending.Continuation switch
         {
             JudgmentContinuationKind.Lightning =>
                 judgmentSuit == Suit.Spade && judgmentRank is >= 2 and <= 9,
@@ -11894,6 +11894,7 @@ public sealed partial class GameEngine
         if (pending.Continuation == JudgmentContinuationKind.ProgramSkill)
         {
             if (TryReturnBinghuoJudgment(pending)) return;
+            if (ReturnMouGjJudgment(pending)) return;
             if (TryReturnNingwuJudgment(pending)) return;
             if (TryReturnWeifuJudgment(pending)) return;
             if (TryReturnZhangJiJudgment(pending)) return;

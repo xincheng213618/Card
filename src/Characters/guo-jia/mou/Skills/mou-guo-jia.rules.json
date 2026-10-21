@@ -1,0 +1,8 @@
+{"schemaVersion":62,"skills":[
+ {"id":"mou:xianmou","revision":1,"states":[{"id":"yin","initialValue":false,"visibility":"public","resetScope":"game","reacquirePolicy":"preserveUntilGameEnd"}],"triggers":[
+  {"id":"opening-state","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"initializeMouGuoJiaXianmou","target":"owner"}]},
+  {"id":"own-ended-loss","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[{"op":"resolveMouGuoJiaXianmou","target":"owner"}]},
+  {"id":"other-ended-loss","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"otherLiving","optional":true,"effects":[{"op":"resolveMouGuoJiaXianmou","target":"owner"}]}]},
+ {"id":"mou:lunshi","revision":1,"viewAs":[{"id":"balanced-hand-nullification","sourceZones":["hand"],"inputKinds":[],"inputSuits":[],"outputKind":"nullification","forPlay":false,"forResponse":true}]},
+ {"id":"mou-guo-jia:yiji","revision":1,"triggers":[{"id":"per-damage-point","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":true,"effects":[{"op":"resolveMouGuoJiaYiji","target":"owner"}]}]}
+]}

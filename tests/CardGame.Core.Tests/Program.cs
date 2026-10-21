@@ -546,6 +546,7 @@ var tests = new (string Name, Action Body)[]
     ("Mou Zhang Xiu Anniversary: actual Fuxi branches Haoyi entities Lightning and Cold", CardGame.Core.Tests.MouZhangXiuAnniversaryChecks.ActualFuxiBranchesHaoyiEntitiesLightningAndCold),
     ("Mou Sima Yi Anniversary: actual Give polarity private original Slash Played and Cold", CardGame.Core.Tests.MouSimaYiAnniversaryChecks.ActualGivePolarityPrivateOriginalSlashPlayedAndCold),
     ("Mou Cao Ang Anniversary: global equipment loss and original foreign damage Use source-less Cold", CardGame.Core.Tests.MouCaoAngAnniversaryChecks.GlobalEquipmentLossDiscardOriginalForeignUseSourceLessAndCold),
+    ("Mou Guo Jia Anniversary: private conversion current Yiji native Lightning Lunshi and Cold", CardGame.Core.Tests.MouGuoJiaAnniversaryChecks.PrivateConversionCurrentYijiNativeLightningLunshiAndCold),
     ("Mou Kong Rong OL: real turn-end zero Use sealed tied HP payments Cold", CardGame.Core.Tests.MouKongRongOlChecks.ActualTurnEndZeroUseAndSealedTiedHpPaymentsCold),
     ("Mou Sun Shangxiang Mobile: actual gift Zhuang repeated-holder failure and Wu Xiaoji Cold", CardGame.Core.Tests.MouSunShangxiangMobileChecks.ActualGiftZhuangRepeatedHolderFailureAndWuXiaojiCold),
     ("Mou Huang Gai Anniversary: completed Trick entity stacks actual top Slash and expiry Cold", CardGame.Core.Tests.MouHuangGaiAnniversaryChecks.CompletedTrickEntityStacksActualTopSlashAndExpiryCold),

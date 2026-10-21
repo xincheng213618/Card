@@ -217,7 +217,7 @@ internal static class NianActivityUiChecks
                 "Pausing automatic AI progression must not pause the active thirty-minute Nian clock.");
             var submit = typeof(MainViewModel).GetMethod("SubmitCommand", BindingFlags.Instance | BindingFlags.NonPublic)!;
             CommandResult Submit(GameCommand command) => (CommandResult)submit.Invoke(vm, [command])!;
-            // Expanded rosters can stop setup at an optional response or a mandatory Quanyu secret choice.
+            // Expanded rosters can stop setup at a response, a Quanyu secret choice, or a mandatory Harvest pick.
             for (var step = 0; step < 24; step++)
             {
                 if (Program.SetupResponseDeclineCommand(vm) is { } decline)
@@ -236,6 +236,16 @@ internal static class NianActivityUiChecks
                     Program.Assert(vm.IsSkillSelectionPending && vm.SelectSkillChoiceCommand.CanExecute(effect),
                         "The mandatory Quanyu setup choice must use its current published WPF skill choice command.");
                     vm.SelectSkillChoiceCommand.Execute(effect);
+                }
+                else if (game.CreateSnapshot(0).PendingDecision is
+                    { Kind: DecisionKind.SelectHarvestCard, PlayerSeat: 0, IsPrivate: true } harvest &&
+                    vm.HarvestChoices.FirstOrDefault(choice =>
+                        choice.Parameters.GetValueOrDefault("action") == "harvest-pick" &&
+                        harvest.Choices.Any(current => current.Id == choice.Id)) is { } harvestChoice)
+                {
+                    Program.Assert(vm.IsHarvestSelectionPending && vm.SelectHarvestChoiceCommand.CanExecute(harvestChoice),
+                        "The mandatory Harvest setup pick must use its current published WPF choice command.");
+                    vm.SelectHarvestChoiceCommand.Execute(harvestChoice);
                 }
                 else break;
                 if (vm.RunToHumanCommand.CanExecute(null)) vm.RunToHumanCommand.Execute(null);

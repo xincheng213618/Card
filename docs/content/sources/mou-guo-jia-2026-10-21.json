@@ -1,0 +1,23 @@
+{
+ "generalId":"mou:guo-jia","name":"谋郭嘉","verifiedAt":"2026-10-21","rulesetId":"sanguosha-anniversary","identity":{"characterId":"character:guo-jia","factionId":"wei","baseHp":3,"gender":"Male"},
+ "primarySources":[
+  {"url":"https://x.sanguosha.com/hero/1635.html","role":"完整当前两皮肤技能正文","sha256":"338b687224191ab404bed71861e33a2c08422b6347d6d8708de70c35deabf2c1"},
+  {"url":"https://www.sanguosha.com/news/20240913_4240_3411","role":"完整正式初发公告","publishedAt":"2024-09-14 18:01:45","availableFrom":"2024-09-15","sha256":"0d838cc3a5948a7d051719061191b7a27df7aa8d73a3567bf676343fa1c59461"},
+  {"url":"https://x.sanguosha.com/hero/21.html","role":"同一当前官网的派生遗计正文映射","sha256":"4e6648f0be2358f2b8bf88a59dfb1994f5f477618cbeb7c5846f10bd84907c56"}
+ ],
+ "versionSelection":"当前hero1635的先谋、论势与2024-09-14正式公告一致，仅空白、括号及书名号不同。没有采用同姓其他技能、排位皮肤活动或社区重制文本。",
+ "skills":[
+  {"id":"mou:xianmou","name":"先谋","text":"转换技，游戏开始时可自选阴阳状态。每个回合结束时，若你本回合失去过牌，你可以：阳：观看牌堆顶五张牌并获得至多X张牌，未达到X获得“遗计”直到再发动此项。阴：观看一名角色手牌并弃置其中至多X张牌，达到X你判定一次〖闪电〗。（X为本回合你失去牌数）"},
+  {"id":"mou:lunshi","name":"论势","text":"其他角色对其以外的角色使用普通锦囊牌时，若你两种颜色手牌数相同，你可将一张手牌当不可被响应的〖无懈可击〗使用。"},
+  {"id":"mou-guo-jia:yiji","name":"遗计","text":"每当你受到1点伤害后，你可以观看牌堆顶的两张牌，然后将其中一张牌交给一名角色，再将另一张牌交给一名角色。","mapping":"主代理按当前同一官网hero21作出的工程映射选择；不是用户裁定或官方FAQ。本将使用独立派生定义，保留项目既有classic、boundary郭嘉实现。"}
+ ],
+ "implementationDecisions":[
+  "先谋按每个真正TurnEnded取样本人当回合实际失牌X，排除Processing末段重复归因；原生AfterTurnEnded父帧保留source、instance、content hash及冻结X。",
+  "阳项再次发动时只移除本先谋来源的旧遗计；阴项不移除，其他来源的能力不被误撤销。实际获得张数未达到X才授予独立来源遗计。",
+  "顶五张及所看手牌实体保留在本将owning frame，选择至多X，使用当前合法原生获得和逻辑弃置；未取顶牌保留原生顺序，不伪造摸牌。",
+  "达到X后进行一次真正闪电判定，使用原生改判后的最终花色与点数，黑桃2至9才结算3点无来源雷电伤害；判定清理及伤害子流程各自真实返回。",
+  "派生遗计观看真实牌堆顶两张，逐张选择仍存活的接收者并真正给牌，可给自己；没有将此效果伪作摸2后给任意手牌。",
+  "论势只在原普通锦囊的合法无懈窗口，原使用者为其他角色且该牌对使用者以外目标生效时开放。当前本人有效红黑手牌数相等，材料为本人真实一张手牌；不可响应来源只附于实际选中的论势转换，不泛化给自然无懈或其他转换。"
+ ],
+ "portrait":{"path":"src/CardGame.Wpf/Assets/official-mou-guo-jia.png","sourcePage":"https://x.sanguosha.com/hero/1635.html","imageUrl":"https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163501.png","bytes":706508,"pixelWidth":574,"pixelHeight":761,"sha256":"9b8e5ddf23354ea3237b3141f40045c3c8bafed6aef1c6d3cc1ccb72a1e3aedf"}
+}

@@ -620,6 +620,7 @@ public sealed partial class GameEngine
     private bool IsValidProgramJudgmentContinuation(JudgmentFrame pending,
         ProgramSkillFrame? frame)
     {
+        if (frame?.MouGuoJia is not null) return IsMouGjJudgment(pending, frame);
         if (frame?.ZhouQun is not null) return IsNingwuJudgment(pending, frame);
         if (frame?.MaYuanYi is not null) return IsBinghuoJudgment(pending, frame);
         if (frame?.Weifu is not null) return IsWeifuJudgment(pending, frame);
@@ -647,6 +648,8 @@ public sealed partial class GameEngine
     private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
         string reason, string resultBind, SkillProgramCardSetVisibility visibility)
     {
+        if (frame.MouGuoJia is not null)
+            return MouGjJudgmentRequest(frame, targetSeat, reason, resultBind, visibility);
         if (frame.ZhouQun is not null)
             return CanBeginNingwuJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (frame.MaYuanYi is not null)

@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-guo-jia",
+      "characterName": "谋郭嘉",
+      "defaultSkinId": "1163501",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1635.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163501.png",
+          "sha256": "9b8e5ddf23354ea3237b3141f40045c3c8bafed6aef1c6d3cc1ccb72a1e3aedf",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-guo-jia.png",
+          "id": "1163501",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-cheng-yu",
       "characterName": "谋程昱",
       "defaultSkinId": "1168101",
