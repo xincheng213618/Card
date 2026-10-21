@@ -166,7 +166,7 @@ public sealed partial class GameEngine
                 PojunHoldCards = pojunHold.Count > 0
                     ? pojunHold.Select(ToSnapshot).ToArray()
                     : null,
-                Markers = AppendMouGuoHuaiJingce(player.Seat, AppendMouGanNingWei(player.Seat, AppendMouHuaXiongWei(player.Seat, AppendMouLixianProgressMarkers(player, canSeeGeneral, AppendMoQuanyuPublicMarkers(player.Seat, AppendOlMoRumoMarker(player.Seat, player.Markers.Count > 0 || player.Shanjia is { LossMarks: > 0 }
+                Markers = AppendOriginalUseLightningMarker(player.Seat, AppendMouGuoHuaiJingce(player.Seat, AppendMouGanNingWei(player.Seat, AppendMouHuaXiongWei(player.Seat, AppendMouLixianProgressMarkers(player, canSeeGeneral, AppendMoQuanyuPublicMarkers(player.Seat, AppendOlMoRumoMarker(player.Seat, player.Markers.Count > 0 || player.Shanjia is { LossMarks: > 0 }
                     ? player.Markers.Where(marker => marker.Key != PlayerMarkerKind.ShanjiaLoss)
                         .Concat(player.Shanjia is { LossMarks: > 0 } shanjia
                             ? [new KeyValuePair<PlayerMarkerKind, int>(PlayerMarkerKind.ShanjiaLoss, shanjia.LossMarks)]
@@ -177,7 +177,7 @@ public sealed partial class GameEngine
                             PlayerMarkerCatalog.GetDisplayName(marker.Key),
                             marker.Value))
                         .ToArray()
-                    : null)))))),
+                    : null))))))),
                 FactionId = canSeeFaction ? effectiveFactionId : null,
                 IsFactionRevealed = IsNationalWarMode
                     ? player.FactionRevealed

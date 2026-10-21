@@ -35,8 +35,9 @@ public sealed partial class GameEngine
             window.EffectCardKind == delayed.EffectiveKind && IsDelayedCard(delayed.EffectiveKind) &&
             window.SourceSeat == delayed.OwnerSeat && window.TargetSeats.SequenceEqual([delayed.OwnerSeat]) &&
             _turnNumber == delayed.TurnNumber && _phase == delayed.Phase && _currentSeat == delayed.OwnerSeat &&
-            _cardZones.GetLocation(delayed.CardId) == CardLocation.Judgment(delayed.OwnerSeat) &&
-            GetJudgmentEffectiveCardKind(GetNullificationEffectCard(window)) == delayed.EffectiveKind;
+            (delayed.OriginalUseLightning is not null ? ValidOriginalUseLightningDelayed(delayed) :
+             _cardZones.GetLocation(delayed.CardId) == CardLocation.Judgment(delayed.OwnerSeat) &&
+             GetJudgmentEffectiveCardKind(GetNullificationEffectCard(window)) == delayed.EffectiveKind);
     }
 
     private long? NullificationParentActionId(NullificationWindowFrame window) =>
@@ -49,6 +50,11 @@ public sealed partial class GameEngine
             parent?.Step != delayed.ParentStep || _turnNumber != delayed.TurnNumber ||
             _phase != delayed.Phase || _currentSeat != delayed.OwnerSeat)
             throw new InvalidOperationException("Delayed counterspell lost its exact turn and parent return.");
+        if (delayed.OriginalUseLightning is not null)
+        {
+            CompleteOriginalUseLightningNullification(delayed, window.EffectNullified, window.Id);
+            return;
+        }
         var owner = _players[delayed.OwnerSeat];
         if (_winner != Winner.None || !owner.IsAlive) return;
         var card = GetJudgment(owner).SingleOrDefault(card => card.Id == delayed.CardId);

@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[
+ {"id":"mou:baojia","revision":1,"triggers":[
+  {"id":"opening-link","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"initializeMouDongChengBaojia","target":"owner"}]},
+  {"id":"first-card-damage","window":"beforeDamageApplied","subject":"any","optional":true,"effects":[{"op":"resolveMouDongChengBaojia","target":"owner"}]},
+  {"id":"claim-finished","window":"cardUseCompleted","ownerRelation":"observer","optional":false,"effects":[{"op":"claimMouDongChengBaojia","target":"owner"}]}],"activations":[{"id":"native-delayed-settlement","minCards":0,"maxCards":0,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"resolveMouDongChengDelayedSettlement","target":"owner"}]}]},
+ {"id":"mou:douwei","revision":1,"activations":[{"id":"discard-damage-use","minCards":0,"maxCards":0,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"resolveMouDongChengDouwei","target":"owner"}]},{"id":"native-delayed-settlement","minCards":0,"maxCards":0,"sourceZones":["hand"],"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"resolveMouDongChengDelayedSettlement","target":"owner"}]}]}
+]}

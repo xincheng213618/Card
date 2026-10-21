@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public sealed record DelayedEffectContinuation(int CardId, CardKind EffectiveKind, int OwnerSeat,
+public sealed partial record DelayedEffectContinuation(int CardId, CardKind EffectiveKind, int OwnerSeat,
     int TurnNumber, TurnPhase Phase, long ParentFrameId, ResolutionFrameKind? ParentKind, ResolutionFrameStep? ParentStep);
 public sealed partial record CardEffectBeforeApplyFrame(long Id, long ParentFrameId, CardActionContext Action,
     IReadOnlyList<int> FinalDesignatedTargetSeats, IReadOnlyList<ProgramCardTriggerCandidate> Candidates,

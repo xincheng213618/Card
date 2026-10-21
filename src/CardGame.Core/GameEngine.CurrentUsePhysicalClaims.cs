@@ -55,7 +55,7 @@ public sealed partial class GameEngine
         return TryBeginCardsMovedProgramWindow(frame.Id) ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
     }
 
-    private bool IsClaimedUseCardEntity(long frameId, int cardId) => IsXumingClaimedProcessingMaterial(frameId, cardId) || IsXinPiPhysicalClaim(frameId, cardId) || IsHuaManClaimedEntity(frameId, cardId) || IsXuRongCausalEntityClaim(frameId, cardId) || IsExchangedUseCardClaim(frameId, cardId) || IsCurrentUsePhysicalCardClaim(frameId, cardId) || HasExtraEffectMaterialClaim(frameId, cardId);
+    private bool IsClaimedUseCardEntity(long frameId, int cardId) => IsMouDcClaimedEntity(frameId, cardId) || IsXumingClaimedProcessingMaterial(frameId, cardId) || IsXinPiPhysicalClaim(frameId, cardId) || IsHuaManClaimedEntity(frameId, cardId) || IsXuRongCausalEntityClaim(frameId, cardId) || IsExchangedUseCardClaim(frameId, cardId) || IsCurrentUsePhysicalCardClaim(frameId, cardId) || HasExtraEffectMaterialClaim(frameId, cardId);
 
     private bool IsCurrentUsePhysicalCardClaim(long frameId, int cardId) =>
         IsXiangChongClaimedUseMaterial(frameId, cardId) || IsOverflowTargetCancellationPhysicalClaim(frameId, cardId) ||

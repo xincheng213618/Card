@@ -99,6 +99,11 @@ public sealed partial class GameEngine
         if (_turnNumber != delayed.TurnNumber || _phase != delayed.Phase || _currentSeat != delayed.OwnerSeat ||
             (parent?.Id ?? 0) != delayed.ParentFrameId || parent?.Kind != delayed.ParentKind || parent?.Step != delayed.ParentStep)
             throw new InvalidOperationException("Delayed effect lost its exact turn/phase/parent.");
+        if (delayed.OriginalUseLightning is not null)
+        {
+            BeginOriginalUseLightningJudgment(delayed);
+            return;
+        }
         var owner = _players[delayed.OwnerSeat];
         if (!owner.IsAlive || _winner != Winner.None) return;
         var card = _cardZones.CardsAt(CardLocation.Judgment(owner.Seat)).SingleOrDefault(c => c.Id == delayed.CardId);

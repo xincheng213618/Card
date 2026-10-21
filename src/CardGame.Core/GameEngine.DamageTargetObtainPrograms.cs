@@ -156,7 +156,7 @@ public sealed partial class GameEngine
         BeginJizhiOrNullificationWindow(use,card,d.OwnerSeat,[target],LegalActionKind.Duel,playedCardKind:CardKind.Duel);
     }
     private bool IsDamageTargetDuelUse(long id) => LifecycleCardUse(id) is {DamageTargetDuelOrigin:not null,SelectedActorDuelOrigin:null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
-    private bool IsIssuedZeroEntityDuel(long id) => IsSelectedActorDuelUse(id) || IsDamageTargetDuelUse(id) || IsDualColorDuelUse(id) || IsConditionalDiscardDuelUse(id) || IsFriendRecastDuelUse(id) || IsZhenyingDuelUse(id) || IsHeJinMouzhuDuelUse(id) || IsWuAnGuoLiyongDuelUse(id) || IsJueshengDuelUse(id) || IsMouXuHuangZeroUse(id) || IsMouWenChouZeroDuel(id);
+    private bool IsIssuedZeroEntityDuel(long id) => IsMouDcZeroUse(id) && LifecycleCardUse(id)!.CardKind == CardKind.Duel || IsSelectedActorDuelUse(id) || IsDamageTargetDuelUse(id) || IsDualColorDuelUse(id) || IsConditionalDiscardDuelUse(id) || IsFriendRecastDuelUse(id) || IsZhenyingDuelUse(id) || IsHeJinMouzhuDuelUse(id) || IsWuAnGuoLiyongDuelUse(id) || IsJueshengDuelUse(id) || IsMouXuHuangZeroUse(id) || IsMouWenChouZeroDuel(id);
     private IReadOnlyList<int> DamageTargetDuelOuterProcessing(long useId)
     {
         var use=LifecycleCardUse(useId);

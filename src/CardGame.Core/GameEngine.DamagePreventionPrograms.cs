@@ -21,7 +21,7 @@ public sealed partial class GameEngine
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveWuLuXunXiongmuFirstDamage) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuaXiongYaowu) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouLuBuWushuangBonus);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouLuBuWushuangBonus) || HasMouDongCheng;
 
     private static bool UsesDamageNatureCondition(SkillProgramTriggerCondition condition) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamagePreventionPrograms.UsesDamageNatureCondition(condition);
@@ -77,6 +77,7 @@ public sealed partial class GameEngine
             !_players[targetSeat].IsAlive)
             return false;
 
+        var mouDcOccurrence = ObserveMouDcCardDamage();
         var target = _players[targetSeat];
         var candidates = _players
             .Where(owner => owner.IsAlive)
@@ -99,7 +100,7 @@ public sealed partial class GameEngine
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
                     .Where(candidate => !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ConsumeZengdaoForActualSourceDamage) && !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.PreventYinjuDamageAndRecover))
-                    .Where(candidate => !rangeChainOnly || ResolveDamageCardColorHealthDescriptor.IsTrigger(GetProgramTrigger(candidate)) || IsJudgmentOutcomePrevention(GetProgramTrigger(candidate)) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventHulaoArmoredLargeDamage or SkillProgramEffectOp.PreventShenwuNitaiOwnTurnDamage) || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveJingzhouBeforeDamageToggles or SkillProgramEffectOp.PreventYinjuDamageAndRecover or SkillProgramEffectOp.PayXiliActualOtherOwnerDamage or SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage or SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction or SkillProgramEffectOp.ResolveWuLuXunXiongmuFirstDamage or SkillProgramEffectOp.ResolveMouHuaXiongYaowu or SkillProgramEffectOp.ResolveMouLuBuWushuangBonus or SkillProgramEffectOp.PreventCurrentDamage))
+                    .Where(candidate => !rangeChainOnly || ResolveDamageCardColorHealthDescriptor.IsTrigger(GetProgramTrigger(candidate)) || IsJudgmentOutcomePrevention(GetProgramTrigger(candidate)) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventHulaoArmoredLargeDamage or SkillProgramEffectOp.PreventShenwuNitaiOwnTurnDamage) || UsesDamageNatureCondition(GetProgramTrigger(candidate).Condition) || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveJingzhouBeforeDamageToggles or SkillProgramEffectOp.PreventYinjuDamageAndRecover or SkillProgramEffectOp.PayXiliActualOtherOwnerDamage or SkillProgramEffectOp.SpareFirstLethalTarget or SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventParticipantDamageDrawActualSource or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage or SkillProgramEffectOp.DiscardBottomHeartsForDamageReduction or SkillProgramEffectOp.ResolveWuLuXunXiongmuFirstDamage or SkillProgramEffectOp.ResolveMouHuaXiongYaowu or SkillProgramEffectOp.ResolveMouLuBuWushuangBonus or SkillProgramEffectOp.ResolveMouDongChengBaojia or SkillProgramEffectOp.PreventCurrentDamage))
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&
@@ -143,7 +144,7 @@ public sealed partial class GameEngine
             nature,
             continuation,
             Array.AsReadOnly(candidates))
-        { ContinuationAttackResolutionId = rangeChainOnly ? CurrentDamageAttempt!.ResolutionId : null };
+        { ContinuationAttackResolutionId = rangeChainOnly ? CurrentDamageAttempt!.ResolutionId : null, MouDongChengOccurrence = mouDcOccurrence };
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<BeforeDamageProgramWindowFrame>();
         return true;

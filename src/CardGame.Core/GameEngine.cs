@@ -3397,6 +3397,7 @@ public sealed partial class GameEngine
 
     private void BeginDelayedJudgmentOrTurnStart(CharacterState current, int? excludedCardId = null)
     {
+        if (TryBeginHeldOriginalUseLightning(current, excludedCardId)) return;
         var delayedCard = GetJudgment(current)
             .FirstOrDefault(card =>
                 !IsZixiQinJudgmentCard(card.Id) && IsDelayedCard(GetJudgmentEffectiveCardKind(card)) &&
@@ -3546,7 +3547,8 @@ public sealed partial class GameEngine
         _judgmentEffectiveCardKinds.GetValueOrDefault(card.Id, card.Kind);
 
     private bool HasJudgmentEffectiveCard(CharacterState player, CardKind kind) =>
-        GetJudgment(player).Any(card => ZixiQinJudgmentSlot(card.Id) is { } slot ? slot == kind : GetJudgmentEffectiveCardKind(card) == kind);
+        GetJudgment(player).Any(card => ZixiQinJudgmentSlot(card.Id) is { } slot ? slot == kind : GetJudgmentEffectiveCardKind(card) == kind) ||
+        kind == CardKind.Lightning && HasHeldOriginalUseLightning(player);
 
     private static bool IsDelayedJudgmentContinuation(JudgmentContinuationKind continuation) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CommonRules.IsDelayedJudgmentContinuation(continuation);
@@ -4393,7 +4395,7 @@ public sealed partial class GameEngine
         {
             SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             ResolveNullifiableEffect(new NullificationWindowFrame(0, pending.ResolutionId,
-                pending.PlayerSeat, pending.TargetSeats, pending.Card.Id, pending.EffectiveCardKind,
+                pending.PlayerSeat, OriginalUseLightningPlacementTargets(pending), pending.Card.Id, pending.EffectiveCardKind,
                 pending.ActionKind, pending.TargetCardId, pending.RequiredCardKind, []));
             return;
         }
@@ -5709,6 +5711,7 @@ public sealed partial class GameEngine
 
     private void ResolveDelayedCardEffect(NullificationWindowFrame pending)
     {
+        if (PlaceOriginalUseLightning(pending)) return;
         var source = _players[pending.SourceSeat];
         var targetSeat = GetNullificationTargetSeat(pending) ??
             throw new InvalidOperationException("A delayed card must retain one target.");
@@ -6147,7 +6150,7 @@ public sealed partial class GameEngine
             pending.Id,
             source.Seat,
             target.Seat,
-            (IsMouZyZeroFireUse(pending.Id) || IsProgramVirtualOrdinaryTrickUse(pending.Id) || IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsDiouZeroUse(pending.Id) || IsMouXqJueyanUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
+            (IsMouDcZeroUse(pending.Id) || IsMouZyZeroFireUse(pending.Id) || IsProgramVirtualOrdinaryTrickUse(pending.Id) || IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsDiouZeroUse(pending.Id) || IsMouXqJueyanUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
             damageAmount: 1,
             playedCardKind: CardKind.FireAttack,
             physicalCards: GetCardUsePhysicalCards(pending.Id));
@@ -11389,7 +11392,9 @@ public sealed partial class GameEngine
         Card? delayedCard = null,
         int? sourceSeat = null,
         string? programResultBind = null,
-        SkillProgramCardSetVisibility? programResultVisibility = null)
+        SkillProgramCardSetVisibility? programResultVisibility = null,
+        OriginalUseLightningAttachment? originalUseLightning = null,
+        int? originalUseLightningExcludedCardId = null)
     {
         if (ActiveJudgment is not null)
         {
@@ -11411,6 +11416,8 @@ public sealed partial class GameEngine
             Continuation = continuation,
             ParentAttackId = attack?.ResolutionId,
             DelayedCardId = delayedCard?.Id,
+            OriginalUseLightning = originalUseLightning,
+            OriginalUseLightningExcludedCardId = originalUseLightningExcludedCardId,
             ProgramResultBind = programResultBind,
             ProgramResultVisibility = programResultVisibility
         };
@@ -11421,6 +11428,8 @@ public sealed partial class GameEngine
             targetSeat,
             reason,
             sourceCard));
+        if (originalUseLightning is { } attachment)
+            AdvanceEventRulesAndQueueFact(new OriginalUseLightningJudgmentEvent(attachment.Id, frameId, targetSeat, _turnNumber));
 
         var curseCard = TakeSourceCurseForJudgment(frame);
         if (curseCard is null && !EnsureDrawPile())
@@ -11831,6 +11840,11 @@ public sealed partial class GameEngine
         JudgmentFrame pending,
         bool hit)
     {
+        if (pending.OriginalUseLightning is not null)
+        {
+            CompleteOriginalUseLightningJudgment(pending, hit);
+            return;
+        }
         var lightning = GetDelayedJudgmentCard(pending) ??
             throw new InvalidOperationException("A Lightning judgment has no delayed card.");
         var target = _players[pending.TargetSeat];
@@ -11877,7 +11891,7 @@ public sealed partial class GameEngine
         }
     }
 
-    private void ResumeAfterLightningDamage(int delayedSeat)
+    private void ResumeAfterLightningDamage(int delayedSeat, int? excludedCardId = null)
     {
         var current = _players[delayedSeat];
         if (!current.IsAlive)
@@ -11886,7 +11900,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        BeginDelayedJudgmentOrTurnStart(current);
+        BeginDelayedJudgmentOrTurnStart(current, excludedCardId);
     }
 
     private void ResumeCompletedJudgment(JudgmentCompletionReceipt receipt)
@@ -13564,6 +13578,7 @@ public sealed partial class GameEngine
             return false;
         }
 
+        if (FinishOriginalUseLightningAttack(attack)) return false;
         var attackCard = RequireAttackCard(attack);
         var cardLocation = _cardZones.GetLocation(attackCard.Id);
 
@@ -13768,6 +13783,7 @@ public sealed partial class GameEngine
         if (TryCompleteWumiaoFloodAttack(attack)) return;
         if (TryCompleteDragonBoatAgainstCurrentAttack(attack)) return;
         if (TryContinueSequentialTrick(attack.ResolutionId, afterAttack: true)) return;
+        if (ContinueMouDcSlash(attack)) return;
         if (TryContinuePaidVirtualSlashTargets(attack)) return;
         if (TryContinueEnhancedSlashTargets(attack)) return;
         if (LifecycleCardUse(attack.ResolutionId) is not null)
@@ -13783,6 +13799,10 @@ public sealed partial class GameEngine
 
     private void CompleteAttackAfterCardResolution(AttackCompletionReceipt completion)
     {
+        PreserveNativeDelayedAttackCompletion(completion);
+        var delayedPhysicalExclusion = completion.DelayedTurn
+            ? _resolutionStack.OfType<JudgmentFrame>().Single(f => f.Id == completion.ResolutionId).OriginalUseLightningExcludedCardId
+            : null;
         if (NativeReturns.ReturnAttack(NativeAttackReturnPhase.BeforeCleanup, completion)) return;
         var borrowedSword = ActiveBorrowedSword is { ActiveAttack: { } borrowedAttack } pendingBorrowedSword &&
                             borrowedAttack.ResolutionId == completion.ResolutionId
@@ -13820,7 +13840,7 @@ public sealed partial class GameEngine
         }
         else if (resumesDelayedTurn && _winner == Winner.None && _status != EngineStatus.Completed)
         {
-            ResumeAfterLightningDamage(completion.DelayedTurnSeat!.Value);
+            ResumeAfterLightningDamage(completion.DelayedTurnSeat!.Value, delayedPhysicalExclusion);
         }
     }
 
@@ -14139,6 +14159,7 @@ public sealed partial class GameEngine
         if (actionContext is not null) actionContext = PrepareMouHuLieSlashAction(actionContext);
         if (actionContext is not null) actionContext = PrepareMouHuCheErSlashAction(PrepareWuLuKangKegouSlashAction(PrepareZongluanSlashAction(PrepareYouqueSlashAction(PrepareXieweiAction(actionContext)))));
         if (actionContext is not null) actionContext = PrepareMouWenChouAction(PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareMouXqJueyanAction(PrepareDiouAction(actionContext)))));
+        if (actionContext is not null) actionContext = PrepareMouDcAction(actionContext);
         var colorFireAttack = FreezeColorFireAttackPolicy(sourceSeat, actionContext);
         var firstUseDistance = actionContext is not null && HasFirstActualPlayUseDistance(_players[sourceSeat]);
         if (actionContext is not null) RecordActualPlayPhaseUse(actionContext);
@@ -14176,6 +14197,7 @@ public sealed partial class GameEngine
         BindWuLuKangKegouSlashUse(LifecycleCardUse(resolutionId)!);
         BindMouHuCheErSlashUse(LifecycleCardUse(resolutionId)!);
         BindMouZhangXiuAnniversarySlashUse(LifecycleCardUse(resolutionId)!);
+        BindMouDcUse(LifecycleCardUse(resolutionId)!);
         BindMouChenLinNativeUse(LifecycleCardUse(resolutionId)!);
         BindMouHuLieSlashUse(LifecycleCardUse(resolutionId)!);
         BindZongluanSlashUse(resolutionId);
@@ -14425,7 +14447,9 @@ public sealed partial class GameEngine
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CommonRules.GetNullificationTargetSeat(frame);
 
     private Card GetNullificationEffectCard(NullificationWindowFrame frame) =>
-        TryGetNativeSlashTargetDuel(frame, out var nativeUse, out _, out _)
+        frame.DelayedReturn is { OriginalUseLightning: not null } delayed && ValidOriginalUseLightningDelayed(delayed)
+            ? new(0, CardKind.Lightning, Suit.None, 0)
+            : TryGetNativeSlashTargetDuel(frame, out var nativeUse, out _, out _)
             ? NativeSlashTargetDuelRepresentation(nativeUse)
             : GetTrickRepresentation(frame.ParentFrameId, frame.EffectCardId);
 
@@ -14454,6 +14478,7 @@ public sealed partial class GameEngine
         if (TryBeginCharacterStateProgramWindow(frameId, CharacterStateContinuation.CardUse, card.Id, playedCardKind)) return;
         if (TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.CardUse, card.Id, playedCardKind)) return;
         if (TryContinueLeChengyanBorrowed(frameId)) return;
+        if (TryContinueOriginalUseLightningPlacement(frameId)) return;
         if (TryBeginExtraCardEffectRound(frameId)) return;
         if (TryContinueSequentialTrick(frameId)) return;
         if (TryContinueAdjustedSimpleCardUse(frameId)) return;
@@ -18753,7 +18778,8 @@ public sealed partial class GameEngine
             {
                 if ((coreTop is not ResponseWindowFrame response ||
                     response.ParentFrameId != pendingAttack.ResolutionId) &&
-                    !HasProgramDodgeResponseContinuation(pendingAttack) && !HasMouXqJueyanResponseContinuation(pendingAttack.ResolutionId))
+                    !HasProgramDodgeResponseContinuation(pendingAttack) && !HasMouXqJueyanResponseContinuation(pendingAttack.ResolutionId) &&
+                    !HasNativeDelayedAttackChild(pendingAttack.ResolutionId))
                 {
                     throw new InvalidOperationException(
                         "An active Slash must retain its response window as the stack top.");
@@ -18959,9 +18985,10 @@ public sealed partial class GameEngine
                 IsValidProgramJudgmentContinuation(pendingJudgment, programSkillFrame);
             var belongsToDelayedCard = IsDelayedJudgmentContinuation(pendingJudgment.Continuation) &&
                                         GetJudgmentAttack(pendingJudgment) is null &&
-                                        GetDelayedJudgmentCard(pendingJudgment) is { } delayedCard &&
-                                        _cardZones.GetLocation(delayedCard.Id) ==
-                                        CardLocation.Judgment(pendingJudgment.TargetSeat);
+                                        (IsOriginalUseLightningJudgment(pendingJudgment) ||
+                                         GetDelayedJudgmentCard(pendingJudgment) is { } delayedCard &&
+                                         _cardZones.GetLocation(delayedCard.Id) ==
+                                         CardLocation.Judgment(pendingJudgment.TargetSeat));
             if ((!belongsToActiveAttack && !belongsToProgramJudgmentDamage &&
                   !belongsToProgramSkill && !belongsToDelayedCard) ||
                 _resolutionStack.OfType<JudgmentFrame>().LastOrDefault() is not { } judgmentFrame ||
@@ -19472,6 +19499,7 @@ public sealed partial class GameEngine
             ActiveCardAttack is not null &&
             awaitingHumanResponse == awaitingAiResponse &&
             !HasIdentityAppearanceAttack(ActiveCardAttack) &&
+            !HasNativeDelayedAttackChild(ActiveCardAttack.ResolutionId) &&
             !HasProgramDodgeResponseContinuation(ActiveCardAttack) && !HasMouXqJueyanResponseContinuation(ActiveCardAttack.ResolutionId) &&
             !HasActualUseTargetObserver(ActiveCardAttack.ResolutionId) &&
             !HasLvKuangLvXiangCardObserver(ActiveCardAttack.ResolutionId) &&
@@ -19606,6 +19634,7 @@ public sealed partial class GameEngine
         if (IsMouWenChouDuelAttackConsistent(attack, processing) || IsMouXuHuangDuelAttackConsistent(attack, processing) || (IsMouDanchiAttackConsistent(attack, processing) || IsMouLiuChengAttackConsistent(attack, processing)) || IsDiouAttackConsistent(attack, processing) || IsMouXqJueyanAttackConsistent(attack, processing) || IsHuanpeiAttackConsistent(attack, processing)) return true;
         if (IsSoleTargetQuarantinedAttackConsistent(attack, processing)) return true;
         if (IsAHuiNanJuemanAttackConsistent(attack, processing) || IsQinLangXianyingAttackConsistent(attack, processing) || IsQinLangXianyingBorrowedAttackConsistent(attack, processing) || IsTianChouShandaoAttackConsistent(attack, processing) || IsChosenAssaultAttackConsistent(attack, processing) || IsMouZhijueZeroAttackConsistent(attack, processing) || IsMouZhijueBorrowedAttackConsistent(attack, processing) || IsPaidZeroMaterialAttackConsistent(attack, processing) || IsTieredRoundZeroBorrowedAttackConsistent(attack, processing)) return true;
+        if (IsMouDcZeroAttackConsistent(attack, processing)) return true;
         if (IsChainedStateBasicAttackConsistent(attack, processing)) return true;
         if (IsDrawFundedDistinctBasicAttackConsistent(attack, processing)) return true;
         if (IsDragonBoatZeroAgainstCurrentAttackConsistent(attack, processing)) return true;
@@ -19669,6 +19698,9 @@ public sealed partial class GameEngine
             virtualDuel.Attack.ResolutionId == attack.ResolutionId)
             return IsProgramVirtualDuelAttackConsistent(attack, processing);
 
+        if (attack.IsDelayedJudgmentDamage &&
+            _resolutionStack.OfType<JudgmentFrame>().Any(j => j.Id == attack.ResolutionId && j.OriginalUseLightning is not null))
+            return IsOriginalUseLightningAttackConsistent(attack, processing);
         var attackCard = attack.Card;
         if (attackCard is null)
         {

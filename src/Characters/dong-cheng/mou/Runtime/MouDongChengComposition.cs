@@ -1,0 +1,12 @@
+namespace CardGame.Core;
+internal static class MouDongChengComposition
+{
+ [ProgramCatalogValidation(1960)]internal static void Validate(string path,SkillProgram p)
+ {
+  var own=p.Id is MouDongChengRuntime.Baojia or MouDongChengRuntime.Douwei;var ops=p.Triggers.SelectMany(t=>t.Effects).Concat(p.Activations.SelectMany(a=>a.Effects)).Where(e=>e.Op is SkillProgramEffectOp.InitializeMouDongChengBaojia or SkillProgramEffectOp.ResolveMouDongChengBaojia or SkillProgramEffectOp.ClaimMouDongChengBaojia or SkillProgramEffectOp.ResolveMouDongChengDouwei or SkillProgramEffectOp.ResolveMouDongChengDelayedSettlement).ToArray();if(!own&&ops.Length==0)return;
+  bool Effect(SkillProgramTrigger t,SkillProgramEffectOp op)=>t.Effects is[var e]&&e.Op==op&&e.Target==SkillProgramEffectTarget.Owner&&e.Condition.Kind==SkillProgramConditionKind.Always;
+  var issued=p.Activations.Where(a=>a.Id=="native-delayed-settlement").ToArray();var activations=p.Activations.Where(a=>a.Id!="native-delayed-settlement").ToArray();
+  var valid=issued is[{MinCards:0,MaxCards:0,MinTargets:0,MaxTargets:0,UsesPerTurn:null,Effects:[{Op:SkillProgramEffectOp.ResolveMouDongChengDelayedSettlement,Target:SkillProgramEffectTarget.Owner,Condition.Kind:SkillProgramConditionKind.Always}]}]&&(p.Id==MouDongChengRuntime.Baojia?activations.Length==0&&p.Triggers is[{Id:"opening-link",Window:SkillProgramTriggerWindow.GameStarting,Subject:SkillProgramTriggerSubject.Owner,Optional:false}opening,{Id:"first-card-damage",Window:SkillProgramTriggerWindow.BeforeDamageApplied,Subject:SkillProgramTriggerSubject.Any,Optional:true}damage,{Id:"claim-finished",Window:SkillProgramTriggerWindow.CardUseCompleted,Optional:false}claim]&&Effect(opening,SkillProgramEffectOp.InitializeMouDongChengBaojia)&&Effect(damage,SkillProgramEffectOp.ResolveMouDongChengBaojia)&&Effect(claim,SkillProgramEffectOp.ClaimMouDongChengBaojia):p.Id==MouDongChengRuntime.Douwei&&p.Triggers.Count==0&&activations is[{Id:"discard-damage-use",MinCards:0,MaxCards:0,MinTargets:0,MaxTargets:0,UsesPerTurn:null,Effects:[{Op:SkillProgramEffectOp.ResolveMouDongChengDouwei,Target:SkillProgramEffectTarget.Owner,Condition.Kind:SkillProgramConditionKind.Always}]}]);
+  if(!own||!valid||p.ViewAs.Count!=0||p.BooleanStates.Count!=0||p.CardPolicies.Count!=0||p.DamageModifiers.Count!=0||p.Modifiers.Count!=0)throw new InvalidOperationException(path+": Mou Dong Cheng requires his genuine opening protection, actual first card-damage slot payment, whole-use physical claim and native cost-to-virtual-use flow.");
+ }
+}

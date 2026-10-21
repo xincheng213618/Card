@@ -29,7 +29,7 @@ public sealed partial class GameEngine
         if (KeepLeChengyanBorrowedMaterial(frameId)) return;
         if (HasUnstartedExtraCardEffect(frameId)) return;
         if (SkipTieredRoundZeroFinishedMovement(frameId, card)) return;
-        if (card.Id == 0 && (IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId) || IsJueshengDuelUse(frameId))) return;
+        if (card.Id == 0 && (IsOriginalUseLightning(frameId) || IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId) || IsJueshengDuelUse(frameId))) return;
         if (IsClaimedUseCardEntity(frameId,card.Id) || (IsHellDestroyedSoulMaterial(frameId, card.Id) || (IsHuiyunOutsideGeneralWeaponMaterial(frameId, card.Id) || IsSiruiOutsideGeneralWeaponMaterial(frameId, card.Id)) || IsGuanduDestroyedChariotMaterial(frameId, card.Id)) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }
@@ -48,7 +48,8 @@ public sealed partial class GameEngine
         }
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
             throw new InvalidOperationException("A trick must finish its child before the next target.");
-        var card = IsTieredRoundZeroUse(use.Id) ? TieredRoundZeroRepresentation(use.Id) :
+        var card = IsMouDcZeroUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
+            IsTieredRoundZeroUse(use.Id) ? TieredRoundZeroRepresentation(use.Id) :
             (IsMouZyZeroFireUse(use.Id) || IsProgramVirtualOrdinaryTrickUse(use.Id) || IsDiouZeroUse(use.Id) || IsMouXqJueyanUse(use.Id)) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             IsMouWenChouZeroDuel(use.Id) || IsMouXuHuangZeroUse(use.Id) || IsJueshengDuelUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
@@ -75,6 +76,7 @@ public sealed partial class GameEngine
                 LeChengyanNativeTargets(use).Distinct().Count() != LeChengyanNativeTargets(use).Count ||
                 LeChengyanNativeTargets(use).Any(seat => !IsValidPlayerSeat(seat)) ||
                 use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
+                !IsMouDcZeroUse(use.Id) &&
                 !IsTieredRoundZeroUse(use.Id) &&
                 !IsProgramVirtualOrdinaryTrickUse(use.Id) && !IsDiouZeroUse(use.Id) && !IsMouXqJueyanUse(use.Id) &&
                 !IsMouWenChouZeroDuel(use.Id) && !IsMouXuHuangZeroUse(use.Id) && !IsJueshengDuelUse(use.Id) &&

@@ -1,0 +1,74 @@
+{
+  "generalId": "mou:dong-cheng",
+  "name": "谋董承",
+  "verifiedAt": "2026-10-22",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "characterId": "character:dong-cheng",
+    "factionId": "qun",
+    "baseHp": 4,
+    "gender": "Male"
+  },
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/2300.html",
+      "role": "完整当前武将页",
+      "sha256": "28328923e771bd829ab7075136780fdab9e32dd5ec2924b0b7b5d63476be403c"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250514_9893_3515.html",
+      "role": "完整正式初发公告",
+      "publishedAt": "2025-05-15",
+      "availableFrom": "2025-05-16",
+      "sha256": "a369776f96c98c33dbb755b2a63711e7ddad814a615802d64f3ee3c3410443f0"
+    }
+  ],
+  "versionSelection": "当前hero2300与2025-05-15正式公告两项技能逐字一致。",
+  "skills": [
+    {
+      "id": "mou:baojia",
+      "name": "保驾",
+      "text": "游戏开始时，选择一名其他角色。你与其每回合首次受到卡牌造成的伤害时，你可废弃1个装备栏防止此伤害，且此牌结算完毕后你获得之。"
+    },
+    {
+      "id": "mou:douwei",
+      "name": "斗围",
+      "text": "出牌阶段，你可弃置一张伤害牌，视为对任意名攻击范围内包含你的其他角色使用之，若其因此进入濒死，你回复1点体力并恢复1个装备栏，然后本回合此技能失效。"
+    }
+  ],
+  "userDecisions": [
+    {
+      "topic": "斗围一次多目标使用的濒死奖励",
+      "choice": "整次斗围只奖励一次，首次满足后本回合失效。",
+      "authority": "用户明确选择，经主代理转达；不是官网FAQ。"
+    }
+  ],
+  "implementationDecisions": [
+    "保驾开局指定另一名真实存活角色，当前实际回合两位受保护者的首次卡牌伤害分别计数；可选发动的废栏为原生装备栏支付，保留失装及回复观察子流程。",
+    "保驾获得原牌须等待本次整张真实卡牌结算完毕，付款凭据保留原始Use/Action/source instance/hash与物理材料，不提前移动Processing牌，不把其他目标是否受伤当作获得前提。",
+    "斗围弃置的伤害实体是原生逻辑弃置成本；其后使用为独立零材料视为使用，不把已弃成本再充作使用材料。目标范围按其他角色的攻击范围包含本人计算。",
+    "斗围奖励只绑定该次真实Use直接造成的首次真实濒死回执，整次使用最多一次；其他嵌套技能伤害不伪作本牌伤害。",
+    "闪电延时效果保留同一次原生Use的来源instance/hash、Action和原目标，Use正常结束；后续真实无懈、判定、无来源雷伤及转移由通用零实体Lightning attachment承担，不生成卡、不把弃置成本充作材料。",
+    "实体闪电的保驾付款保留在其真实JudgmentFrame，等完整原生延时伤害结算结束后从真实弃牌堆取回该实体；零实体闪电无可获得的卡牌。角色回复/恢复栏子流程返回后沿原完整NativeDelayedAttackCompletion继续cleanup，不重造返回凭据。"
+  ],
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-mou-dong-cheng.png",
+    "sourcePage": "https://x.sanguosha.com/hero/2300.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1230001.png",
+    "bytes": 603015,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "sha256": "0d2a63afc84579612504e78bb79d89d0ad5bde2aaa205418c41c21f9ba840c57"
+  },
+  "integrationEvidence": {
+    "status": "已通过集成验证",
+    "behaviors": [
+      "普通伤害的首次防护、原生废栏、防伤与整次原牌结束后真实取牌。",
+      "实体闪电真实判定后的保驾防伤及原生延时结算结束后的弃牌堆实体取回。",
+      "真实伤害牌逻辑弃置与独立零材料Lightning原Use，两个持久附着不产生实体卡牌。",
+      "后续实际回合原生无懈、判定、无来源雷伤与濒死；同一原Use的多个附着只奖励一次。"
+    ],
+    "recovery": "普通原牌付款后的保护选择与延时闪电濒死后的恢复装备栏选择均保留代表性冷恢复覆盖；后者校验两个玩家视图、已完成原Use、已支付原生回复与完整typed cleanup返回。",
+    "flow": "复用同一个真实对局focused检查；普通、实体延时与零实体持续结算链均通过。"
+  }
+}

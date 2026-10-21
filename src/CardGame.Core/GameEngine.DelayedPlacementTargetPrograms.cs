@@ -8,6 +8,7 @@ public sealed partial class GameEngine
     private bool TryBeginFinalizedDelayedPlacementPrograms(long frameId, Card card,
         LegalActionKind actionKind)
     {
+        if (IsOriginalUseLightning(frameId)) return BeginOriginalUseLightningFinalized(frameId, card, actionKind);
         // This opt-in bridge is shared by physical play and the existing real
         // discarded-card and owned-card conversion producers. Their paid
         // movement children and committed-use observers have drained before
@@ -35,6 +36,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsExactFinalizedDelayedPlacementWindow(ProgramCardTriggerWindowFrame window) =>
+        IsOriginalUseLightningFinalizedWindow(window) ||
         (HasMouChenLin || HasMouSimaShi || HasMouHuangQuan || HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
         window.TrickContinuation is { TargetCardId: null, RequiredCardKind: null } continuation &&
         window.SimpleContinuation is null && window.CompletedResponseReturn is null && window.AttackOwnerFrameId is null &&
@@ -51,6 +53,11 @@ public sealed partial class GameEngine
 
     private void ContinueFinalizedDelayedPlacement(ProgramCardTriggerWindowFrame completedWindow)
     {
+        if (IsOriginalUseLightningFinalizedWindow(completedWindow))
+        {
+            ContinueOriginalUseLightningFinalized(completedWindow);
+            return;
+        }
         if (!IsExactFinalizedDelayedPlacementWindow(completedWindow) ||
             _resolutionStack.LastOrDefault()?.Id != completedWindow.ParentFrameId)
             throw new InvalidOperationException("A finalized delayed placement lost its native typed return.");

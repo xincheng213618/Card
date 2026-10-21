@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-dong-cheng",
+      "characterName": "谋董承",
+      "defaultSkinId": "1230001",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/2300.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1230001.png",
+          "sha256": "0d2a63afc84579612504e78bb79d89d0ad5bde2aaa205418c41c21f9ba840c57",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-dong-cheng.png",
+          "id": "1230001",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-hu-lie",
       "characterName": "谋胡烈",
       "defaultSkinId": "1174101",

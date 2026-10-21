@@ -206,7 +206,8 @@ public enum PlayerMarkerKind
     MouLiuChengChui = 29400,
     MouChenGongCe = 29600,
     MouFaZhengXuan = 31800,
-    GuanduGrain = 44000
+    GuanduGrain = 44000,
+    OriginalUseLightning = 44001
 }
 
 public static class PlayerMarkerCatalog
@@ -217,6 +218,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.MouSunShangxiangZhu => "助",
         PlayerMarkerKind.MouKongRongXian => "贤",
         PlayerMarkerKind.GuanduGrain => "粮",
+        PlayerMarkerKind.OriginalUseLightning => "闪电",
         PlayerMarkerKind.CaoPiSong => "颂",
         PlayerMarkerKind.MoQuanyuChoice => "权御",
         PlayerMarkerKind.OlMoRumo => "入魔",
