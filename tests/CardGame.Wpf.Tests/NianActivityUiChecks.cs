@@ -217,6 +217,16 @@ internal static class NianActivityUiChecks
                 "Pausing automatic AI progression must not pause the active thirty-minute Nian clock.");
             var submit = typeof(MainViewModel).GetMethod("SubmitCommand", BindingFlags.Instance | BindingFlags.NonPublic)!;
             CommandResult Submit(GameCommand command) => (CommandResult)submit.Invoke(vm, [command])!;
+            // Expanded rosters can place an ally before the human and offer Longhun counters.
+            // Decline only the published optional counterspells before testing the play clock.
+            for (var step = 0; step < 24 && game.PendingDecision is
+                { Kind: DecisionKind.Nullification, PlayerSeat: 0 }; step++)
+            {
+                Program.Assert(vm.CancelActionCommand.CanExecute(null),
+                    "An optional counterspell before the first human turn must expose its real decline command.");
+                vm.CancelActionCommand.Execute(null);
+                if (vm.RunToHumanCommand.CanExecute(null)) vm.RunToHumanCommand.Execute(null);
+            }
             var beforeNative = game.CreateSnapshot(0);
             Program.Assert(beforeNative.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
                 "The clock input regression needs the real first human play prompt.");

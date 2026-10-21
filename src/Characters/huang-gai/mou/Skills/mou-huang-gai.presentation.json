@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou:lieji": {
+      "name": "烈计",
+      "description": "当你使用一张锦囊牌后，可以令手中所有伤害牌造成的伤害+1直到回合结束。",
+      "triggerLabels": {
+        "after-trick": "锦囊结算完成后强化当前手中伤害牌"
+      }
+    },
+    "mou:quzhou": {
+      "name": "趋舟",
+      "description": "出牌阶段限一次，你可以亮出牌堆顶第一张牌。若为【杀】你使用之；若不为【杀】，你选择一项：1.获得所有亮出的牌；2.再次亮牌（次数不能超过存活人数）。",
+      "activationLabels": {
+        "reveal-and-sail": "亮牌趋舟"
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou:taozhou", "revision": 1, "activations": [
+      { "id": "secret-number-and-give", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [ { "op": "resolveMouZhugeJinTaozhou", "target": "owner" } ] }
+    ] },
+    { "id": "mou:houde", "revision": 1, "triggers": [
+      { "id": "first-qualified-target", "window": "cardUseBeforeTargetEffects", "ownerRelation": "target", "optional": false,
+        "effects": [ { "op": "resolveMouZhugeJinHoude", "target": "owner" } ] }
+    ] },
+    { "id": "mou:zijin", "revision": 1, "triggers": [
+      { "id": "undamaging-true-use", "window": "cardUseCompleted", "ownerRelation": "actor", "includeResponseUses": true, "optional": false,
+        "effects": [ { "op": "resolveMouZhugeJinZijin", "target": "owner" } ] }
+    ] }
+  ]
+}

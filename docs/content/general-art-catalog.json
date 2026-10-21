@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-zhuge-jin",
+      "characterName": "谋诸葛瑾",
+      "defaultSkinId": "1163301",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1163301.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhuge-jin.png",
+          "sha256": "e08b624448754630c85297eafe87c47831cc56f8aa53634bf05b65bd211601f4",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1163301",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-cao-shuang",
+      "characterName": "谋曹爽",
+      "defaultSkinId": "1164301",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164301.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-cao-shuang.png",
+          "sha256": "7e3928b349844dd57ad816ff194632b87542e91f96f6669e67d0911aa91dbfb4",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1164301",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-huang-gai",
+      "characterName": "谋黄盖",
+      "defaultSkinId": "1168201",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1682.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1168201.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-huang-gai.png",
+          "sha256": "0d95ed376f9d4422e84fd4519a82f0ccb17113a7ec732ff086ef293d8265ae24",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1168201",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-dian-wei",
       "characterName": "谋典韦",
       "defaultSkinId": "1166201",

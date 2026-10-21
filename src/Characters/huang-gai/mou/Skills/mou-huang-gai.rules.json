@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:lieji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-trick",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "cardCategories": [
+            "trick"
+          ],
+          "effects": [
+            {
+              "op": "armMouHuangGaiLieji",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:quzhou",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "reveal-and-sail",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouHuangGaiQuzhou",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

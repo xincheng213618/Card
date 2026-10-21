@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou:jianzhuan", "revision": 1, "triggers": [
+      { "id": "use-item", "window": "cardUseCommitted", "ownerRelation": "actor", "includeResponseUses": true, "optional": false, "effects": [{ "op": "resolveMouCaoShuangJianzhuan", "target": "owner" }] },
+      { "id": "remove-completed-item", "window": "playEnding", "subject": "owner", "optional": false, "effects": [{ "op": "deleteMouCaoShuangJianzhuanOption", "target": "owner" }] }
+    ] },
+    { "id": "mou:fanshi", "revision": 1, "triggers": [
+      { "id": "awaken-remaining", "window": "turnEnding", "subject": "owner", "optional": false, "usageScope": "game", "usageLimit": 1, "effects": [{ "op": "resolveMouCaoShuangFanshi", "target": "owner" }] }
+    ] },
+    { "id": "mou:fudou", "revision": 1, "triggers": [
+      { "id": "single-real-target", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": true, "effects": [{ "op": "resolveMouCaoShuangFudou", "target": "owner" }] }
+    ] }
+  ]
+}

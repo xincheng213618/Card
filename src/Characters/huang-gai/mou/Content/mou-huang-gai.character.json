@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-gai",
+  "skills": [
+    {
+      "registrationOrder": 2720,
+      "programBundle": "mou-huang-gai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:lieji",
+        "name": "烈计",
+        "description": "当你使用一张锦囊牌后，可以令手中所有伤害牌造成的伤害+1直到回合结束。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2721,
+      "programBundle": "mou-huang-gai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:quzhou",
+        "name": "趋舟",
+        "description": "出牌阶段限一次，你可以亮出牌堆顶第一张牌。若为【杀】你使用之；若不为【杀】，你选择一项：1.获得所有亮出的牌；2.再次亮牌（次数不能超过存活人数）。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2722,
+      "pools": {
+        "current": 576
+      },
+      "definition": {
+        "id": "mou:huang-gai",
+        "name": "谋黄盖",
+        "portraitKey": "mou-huang-gai",
+        "skillId": "mou:lieji",
+        "additionalSkillIds": [
+          "mou:quzhou"
+        ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:huang-gai",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

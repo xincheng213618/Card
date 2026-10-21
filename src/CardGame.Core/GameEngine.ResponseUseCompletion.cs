@@ -84,7 +84,7 @@ public sealed partial class GameEngine
             ? ProgramCompletedResponseKind.Dodge
             : ProgramCompletedResponseKind.Nullification;
         return TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCompleted, [],
-            continuation: null, completedResponseReturn: new(kind));
+            continuation: null, cardUseCausedDamage: false, completedResponseReturn: new(kind));
     }
 
     private Suit? FreezeCompletedResponseUseSuit(CharacterState owner, IReadOnlyList<Card> cards, CardKind kind)

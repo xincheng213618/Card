@@ -1,0 +1,9 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:cao-shuang",
+  "skills": [
+    { "registrationOrder": 2730, "programBundle": "mou-cao-shuang", "includeProgramPresentation": true, "definition": { "id": "mou:jianzhuan", "name": "渐专", "description": "锁定技，出牌阶段每项限一次，你使用牌时，选择一项：1.令一名角色弃X张牌；2.摸X张牌；3.重铸X张牌；4.弃X张牌（X为此技能此阶段发动次数）。出牌阶段结束时，若所有选项都执行过，随机删除一个选项。", "executionForms": "Trigger, State", "tags": "Locked" } },
+    { "registrationOrder": 2731, "programBundle": "mou-cao-shuang", "includeProgramPresentation": true, "definition": { "id": "mou:fanshi", "name": "返势", "description": "觉醒技，结束阶段，若“渐专”的选项小于2个，你执行3次剩余选项（X视为1），增加2点体力上限并回复2点体力，然后失去“渐专”，获得“覆斗”。覆斗：你使用黑色牌指定其他角色为唯一目标后，若其本局游戏对你造成过伤害，你可以与其各失去1点体力。你使用红色牌指定其他角色为唯一目标后，若其本局游戏没对你造成过伤害，你可以与其各摸一张牌。", "executionForms": "Trigger, State", "tags": "Awakening" } },
+    { "registrationOrder": 2732, "programBundle": "mou-cao-shuang", "includeProgramPresentation": true, "definition": { "id": "mou:fudou", "name": "覆斗", "description": "你使用黑色牌指定其他角色为唯一目标后，若其本局游戏对你造成过伤害，你可以与其各失去1点体力。你使用红色牌指定其他角色为唯一目标后，若其本局游戏没对你造成过伤害，你可以与其各摸一张牌。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 2733, "pools": { "current": 577 }, "definition": { "id": "mou:cao-shuang", "name": "谋曹爽", "portraitKey": "mou-cao-shuang", "skillId": "mou:jianzhuan", "additionalSkillIds": ["mou:fanshi"], "factionId": "wei", "gender": "Male", "baseHp": 4, "characterId": "character:cao-shuang", "variantId": "mou", "rulesetId": "sanguosha-anniversary" } }]
+}

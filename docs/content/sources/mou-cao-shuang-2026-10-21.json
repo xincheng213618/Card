@@ -1,0 +1,27 @@
+{
+  "generalId": "mou:cao-shuang", "name": "谋曹爽", "rulesetId": "sanguosha-anniversary", "verifiedOn": "2026-10-21",
+  "officialSources": [
+    { "url": "https://x.sanguosha.com/hero/1643.html", "kind": "current official general page", "sha256": "f9d822e2bee34e58732546e75b469bcc2583c247aed3c27c38ae5697f659da5c" },
+    { "url": "https://sanguosha.com/news/20240301_3524_0011", "kind": "formal release announcement, including derived Fudou", "publishedAt": "2024-03-01T21:48:21+08:00", "availableFrom": "2024-03-02", "sha256": "9086237178151835995b4669a09992295f5eba3e0fdae4cdc96f1afbd4cfbda3" }
+  ],
+  "identity": { "faction": "wei", "gender": "Male", "initialHp": 4, "maximumHp": 4 },
+  "officialSkillTexts": {
+    "渐专": "锁定技，出牌阶段每项限一次，你使用牌时，选择一项：1.令一名角色弃X张牌；2.摸X张牌；3.重铸X张牌；4.弃X张牌（X为此技能此阶段发动次数）。出牌阶段结束时，若所有选项都执行过，随机删除一个选项。",
+    "返势": "觉醒技，结束阶段，若“渐专”的选项小于2个，你执行3次剩余选项（X视为1），增加2点体力上限并回复2点体力，然后失去“渐专”，获得“覆斗”。",
+    "覆斗": "你使用黑色牌指定其他角色为唯一目标后，若其本局游戏对你造成过伤害，你可以与其各失去1点体力。你使用红色牌指定其他角色为唯一目标后，若其本局游戏没对你造成过伤害，你可以与其各摸一张牌。"
+  },
+  "sourceAgreement": "Current official page and 2024-03-01 formal announcement agree on Jianzhuan and Fanshi. The formal supplies the complete derived Fudou. This anniversary rule is distinct from the implemented OL Tuogu/Shanzhuan version.",
+  "userAdjudications": [
+    { "topic": "Recast region", "decision": "仅重铸手牌，不含装备区。", "provenance": "Explicit user answer relayed by coordinating agent on 2026-10-21; project adjudication, not an official FAQ." },
+    { "topic": "Insufficient discard or recast entities", "decision": "允许选择，按现有合法数量尽量执行，包括0张。弃置或重铸不是禁选该项的支付条件。", "provenance": "Explicit user answer relayed by coordinating agent on 2026-10-21; project adjudication, not an official FAQ." }
+  ],
+  "engineeringMappings": [
+    "Jianzhuan observes the native actor's true CardUseCommitted, including native true response Uses during an actual owner Play phase; played-only responses do not count. Freeze X from accepted option occurrences in that exact real phase.",
+    "Every surviving option is available once per actual Play phase. Completed effects, including a legally empty discard or recast, count as executed. Native PlayEnding deletes one remaining option using the actual replayable RNG only after all surviving options executed in that phase.",
+    "The actual affected role chooses its own discard entities. Recast uses current Hand entities only, the native physical recast movement, typed draw return and actual CardRecastEvent; it does not invent a discard-cost requirement.",
+    "Fanshi executes the remaining item three times with X fixed at1, then changes native maximum HP, performs native recovery, removes the actual Jianzhuan grants and grants Fudou. Fudou is registered and its full derived text is visible in Fanshi, but it is not an initial skill.",
+    "Fudou observes the original use after native targets are finalized. Its unique other target and effective red or black identity come from that real action. The historical damage relation uses actual positive, sourced DamageAppliedEvent facts in this game, never intent or an attempted damage.",
+    "Each red Fudou draw and black Fudou HP loss uses the existing native producer in owner-then-target order, allowing genuine movement, HP-change, recovery replacement and Dying children. Pending choices, physical materials and child cursors remain on their owning program frame."
+  ],
+  "portrait": { "sourcePage": "https://x.sanguosha.com/hero/1643.html", "domRole": "yang-img, classic official full portrait", "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164301.png", "asset": "src/CardGame.Wpf/Assets/official-mou-cao-shuang.png", "sha256": "7e3928b349844dd57ad816ff194632b87542e91f96f6669e67d0911aa91dbfb4", "pixelWidth": 574, "pixelHeight": 761, "bytes": 675868, "visuallyVerified": true }
+}

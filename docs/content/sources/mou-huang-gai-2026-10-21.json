@@ -1,0 +1,53 @@
+{
+  "generalId": "mou:huang-gai",
+  "name": "谋黄盖",
+  "ruleset": "sanguosha-anniversary",
+  "verifiedOn": "2026-10-21",
+  "selectedVersion": "Current complete official hero1682. No complete formal first-release announcement was found in the bounded primary-source search; no first-release date is claimed.",
+  "officialSources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1682.html",
+      "kind": "current official complete general page",
+      "sha256": "3081b0efa5c45f54340a3707d583ac9ffddb1ca50e1cb99a6aa4442cdb02226e"
+    }
+  ],
+  "definition": {
+    "faction": "wu",
+    "gender": "Male",
+    "baseHp": 4
+  },
+  "officialSkillText": {
+    "mou:lieji": "当你使用一张锦囊牌后，可以令手中所有伤害牌造成的伤害+1直到回合结束。",
+    "mou:quzhou": "出牌阶段限一次，你可以亮出牌堆顶第一张牌。若为【杀】你使用之；若不为【杀】，你选择一项：1.获得所有亮出的牌；2.再次亮牌（次数不能超过存活人数）。"
+  },
+  "userAdjudications": [
+    {
+      "topic": "Quzhou reveal count",
+      "decision": "首张之外，允许再展示至多存活人数张；总数最多为1加存活人数。"
+    },
+    {
+      "topic": "Quzhou Slash and earlier reveals",
+      "decision": "Slash使用完毕后，此前亮出的非Slash全部获得；Slash无合法目标则弃置该Slash，并获得此前非Slash。"
+    },
+    {
+      "topic": "Lieji entity lifetime and multi-material use",
+      "decision": "烈计随实体保留至本实际回合末；多材料各份增伤相加。"
+    }
+  ],
+  "adjudicationProvenance": "Explicit user answers relayed by coordinating agent on 2026-10-21. These decisions resolve omissions in the official skill text and are project adjudications, not official FAQs.",
+  "implementation": [
+    "Freeze real damage-card entities remaining in Hand after an actual Trick completion. Keep their identity private until an actual public material Use. Each accepted source grant attaches one damage increase to its original entity until this actual turn ends, including after transfer to another holder.",
+    "Freeze original native Use material matches onto that CardUseFrame. Independent grants and multiple actual material entities add; later obtained cards do not inherit earlier Lieji.",
+    "Quzhou reveals real top-deck entities into Processing through the existing native public reveal producer, permits the initial reveal plus at most living-role-count further reveals, uses a revealed Slash as its actual physical entity and returns to its owning frame before obtaining the preceding remaining reveals. No judgment substitutes for a reveal."
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1682.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1168201.png",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-huang-gai.png",
+    "sha256": "0d95ed376f9d4422e84fd4519a82f0ccb17113a7ec732ff086ef293d8265ae24",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "bytes": 703797,
+    "visuallyVerified": true
+  }
+}

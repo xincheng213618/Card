@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:zhuge-jin",
+  "characterId": "character:zhuge-jin",
+  "displayName": "谋诸葛瑾",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": { "factionId": "wu", "gender": "Male", "initialHp": 3, "maximumHp": 3, "officialHeroId": 1633 },
+  "firstRelease": { "publishedAt": "2024-05-16", "availableFrom": "2024-05-17", "url": "https://www.sanguosha.com/news/20240516_8307_4114" },
+  "sourceAgreement": "采用现行官方武将页1633的完整讨州、厚德，派生自矜完整正文取正式上线公告。当前页与正式公告的讨州存在实质差异；按用户明确选择采用当前页，只在差值至少2时授予自矜，不拼接旧公告的额外视为杀。",
+  "skills": [
+    { "id": "mou:taozhou", "name": "讨州", "officialSelectedText": "出牌阶段，选择一名有手牌的其他角色并秘密选择1~3中一个数字，此技能失效至对应轮数后恢复，其可交给你至多三张手牌，若其交给你手牌数大于等于所选数字，则你与其各摸一张牌；若你所选数字更大，其下X次受到的伤害+1（X为两者差值），若X大于等于2，则其获得“自矜”。" },
+    { "id": "mou:houde", "name": "厚德", "officialSelectedText": "其他角色出牌阶段，你首次成为红色【杀】目标后，可弃置一张牌令此牌对你无效；你首次成为黑色普通锦囊牌目标后，可弃其一张牌令此牌对你无效。" },
+    { "id": "mou:zijin", "name": "自矜", "derived": true, "initiallyGranted": false, "officialSelectedText": "锁定技，你无法成为“讨州”的目标，当你使用牌后，若此牌未造成伤害，需弃置一张牌或失去一点体力。", "fullTextSource": "https://www.sanguosha.com/news/20240516_8307_4114" }
+  ],
+  "versionConflict": {
+    "topic": "讨州差值至少2的结果",
+    "formalText": "若X≥2，则其视为对你使用一张【杀】并获得“自矜”。",
+    "currentText": "若X大于等于2，则其获得“自矜”。",
+    "selected": "当前武将页，只获得自矜；X≥2不再视为对本人使用杀。",
+    "provenance": "2026-10-21本次开发会话用户明确选择，由主代理转达；不是官方FAQ。"
+  },
+  "primarySources": [
+    { "url": "https://x.sanguosha.com/hero/1633.html", "bytes": 22974, "sha256": "20a70466735786adba47401d216b41494d358169f8121a8e592c7744168efb5e" },
+    { "url": "https://www.sanguosha.com/news/20240516_8307_4114", "bytes": 343236, "sha256": "1cefa245c6ee18dbf8fab9c84814fa9305499ebdab54be3ce11a476cf09fd5fa" },
+    { "url": "https://x.sanguosha.com/hero", "bytes": 187953, "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c", "selectedEntry": { "gid": 1633, "prefix": "谋", "name": "诸葛瑾", "resource": 1163301, "country": "吴", "gender": "男", "hp": 3 } }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1163301.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-zhuge-jin.png",
+    "id": "1163301", "name": "经典形象", "pixelWidth": 574, "pixelHeight": 761, "bytes": 578628,
+    "sha256": "e08b624448754630c85297eafe87c47831cc56f8aa53634bf05b65bd211601f4",
+    "identityEvidence": "官方索引实际gid1633条目resource1163301；主代理已下载并查看完整经典立绘。"
+  },
+  "engineeringInterpretations": [
+    { "topic": "对应轮数后恢复", "mapping": "以发动时原生RoundStarted轮次R加秘密选择N形成到期轮R+N，实际轮计时到达后恢复；额外回合不伪增轮次。", "provenance": "主代理接受的既有原生Round时钟映射，非官网FAQ。" },
+    { "topic": "厚德首次资格", "mapping": "按实际其他角色出牌阶段，红杀、黑普通锦囊两类分别取首次合格目标事件；该事件即消耗首次资格，即使本人拒绝或没能支付也不能等下一张再当首次。", "provenance": "主代理确认的正文语法工程解释，沿用真实动作目标与原生阶段边界，不另数发动次数。" }
+  ],
+  "engineeringContracts": [
+    "初始仅授予讨州、厚德。自矜正文嵌入讨州展示供图鉴查看，只有实际讨州短缺至少2才通过原生动态技能来源授予，不能提前授予派生技。",
+    "讨州先在本人私有帧选择目标和1至3的秘密数字，再由目标私有选择至多三张当前手牌并确认。对方承诺给牌前不发行可反推出数字的公开冷却字段或事件；AI给牌不读取秘密数字。",
+    "给牌使用真正手牌实体和原生多来源移动回执，X依据真正到达本人手牌的给牌数量；每个主移动与原生观察子窗完整返回后才比较。达标按本人、对方顺序各走一次原生Draw1及其替代与观察返回。",
+    "未达标保存差值X的未来受伤凭据，每个实际正伤害事件各加1且各消耗一次；预防掉的伤害不消耗，重复返回不能重复消费。已经真实授予的凭据不因来源失去技能而伪取消。",
+    "厚德在真实目标效果前窗口验证红杀或黑普通锦囊及本人目标身份。红杀支付本人当前手牌或装备区一张；黑锦囊支付原使用者当前手牌或装备区一张。对方暗手牌仅提供盲选随机入口，不能提前暴露实体；装备保持原生公开性。真实逻辑弃置及观察子窗返回后，才取消该牌对本人当前目标的效果。",
+    "自矜排除讨州目标；每次真正使用牌完成且该次实际未造成伤害后，选择原生逻辑弃置本人手牌或装备区一张，或原生失去1体力并完成健康、濒死返回。真实响应使用也进入原生Use完成路径，普通打出不伪造为Use。",
+    "秘密数字、已选给牌、实际给牌、抽牌游标和支付状态全部保留在所属ProgramSkillFrame；集合复制为只读集合。新增公开事件均是标量，原生卡牌使用与健康子帧保留准确父身份及支付来源，冷恢复不得重复支付或授予。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouZhugeJinAnniversaryChecks.cs",
+    "method": "PrivateGiftFiniteDamageAndDerivedTrueUseWithHoudeCold",
+    "scope": "固定山河真实手牌与小牌堆，秘密选择2后在对方未承诺的私有给牌处Cold；零给牌产生两个未来实际增伤和原生派生自矜。三个真正伤害结算验证有限次数，真实杀与闪使用触发自矜实际弃牌；随后其他角色实际出牌阶段首张红杀支付厚德并取消，第二张进入正常闪响应并真正伤害。"
+  }
+}
