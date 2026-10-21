@@ -59,10 +59,12 @@ internal static class ProgramFactRequirementChecks
         Require(legacyRejected,
             "A safe fact metadata query must not make a legacy operation a supported JSON node.");
 
+        var unknownFacts = (ProgramTrackedFact)~Enum.GetValues<ProgramTrackedFact>()
+            .Aggregate(0, (all, fact) => all | (int)fact);
         foreach (var invalid in new[]
                  {
-                     new ProgramFactRequirements(Triggered: (ProgramTrackedFact)32),
-                     new ProgramFactRequirements(Activated: (ProgramTrackedFact)64)
+                     new ProgramFactRequirements(Triggered: unknownFacts),
+                     new ProgramFactRequirements(Activated: unknownFacts)
                  })
         {
             var rejected = false;

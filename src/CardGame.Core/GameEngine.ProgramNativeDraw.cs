@@ -17,7 +17,7 @@ public sealed partial class GameEngine
 
     private SkillProgramStepOutcome BeginOperationProgramDraw(ProgramSkillFrame frame,
         int recipientSeat, int requestedCount, CardMoveReason reason) =>
-        NativeDrawProducer.BeginOperationProgramDraw(frame, recipientSeat, requestedCount, reason);
+        ProgramCapabilities.Get<IProgramOperationDraws>().BeginOperationProgramDraw(frame, recipientSeat, requestedCount, reason);
 
     private bool ResumeProgramNativeDraw(long id) => NativeDrawProducer.ResumeProgramNativeDraw(id);
     private bool ContinueProgramNativeDraw(long id) => NativeDrawProducer.ContinueProgramNativeDraw(id);

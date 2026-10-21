@@ -7,6 +7,9 @@ public sealed partial class GameEngine
         if (!HasCardEffectBeforeApplyPrograms || IsDelayedCard(pending.EffectCardKind)) return false;
         var use = _resolutionStack.OfType<CardUseFrame>().Single(f => f.Id == pending.ParentFrameId);
         var action = use.Action ?? throw new InvalidOperationException("An actual trick effect needs its frozen action.");
+        if (TryGetNativeSlashTargetDuel(pending, out _, out _, out var nativeSlice))
+            return BeginCardEffectPrograms(NativeSlashTargetDuelEffectAction(use, nativeSlice),
+                [nativeSlice.TargetSeat], pending, null);
         var designated = action.EffectiveKind == CardKind.BorrowedSword
             ? action.TargetSeats.Where((_,i) => i % 2 == 0).Distinct().ToArray()
             : action.EffectiveDesignatedTargetSeats.Distinct().ToArray();

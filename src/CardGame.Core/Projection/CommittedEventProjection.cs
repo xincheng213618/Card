@@ -52,10 +52,31 @@ internal static class CommittedEventProjection
         }
     };
 
+    private static NativeDrawOutcome FreezeNativeDrawOutcome(NativeDrawOutcome value) => value with
+    { ActualDrawIds = FreezeList(value.ActualDrawIds), Replacement = value.Replacement is { } replacement
+        ? replacement with { GainedIds = FreezeList(replacement.GainedIds) } : null };
+
+    private static MoZhangFeiReceipt FreezeMoZhangFeiReceipt(MoZhangFeiReceipt value) => value with
+    { GainedIds = FreezeList(value.GainedIds), DrawOutcome = value.DrawOutcome is { } outcome ? FreezeNativeDrawOutcome(outcome) : null };
+
     // Keep collection-bearing built-in facts here when adding a mechanism.
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        NativeMaterialSlashExtraTargetsIssuedEvent value => value with
+        {
+            Origin = value.Origin with
+            {
+                PhysicalCardIds = FreezeList(value.Origin.PhysicalCardIds),
+                TargetSeats = FreezeList(value.Origin.TargetSeats),
+                Claims = Array.AsReadOnly(value.Origin.Claims.Select(claim => claim with
+                    { TargetSeats = FreezeList(claim.TargetSeats) }).ToArray())
+            }
+        },
+        MoZhangFeiColorArrivedEvent value => value with
+        { Change = value.Change with { FrozenLossCandidates = FreezeOptionalList(value.Change.FrozenLossCandidates) } },
+        MoZhangFeiStartedEvent value => value with { Receipt = FreezeMoZhangFeiReceipt(value.Receipt) },
+        MoZhangFeiDrawReturnedEvent value => value with { Outcome = FreezeNativeDrawOutcome(value.Outcome) },
         RandomAreaAcquisitionStartedEvent value => value with { Receipt = FreezeRandomAreaReceipt(value.Receipt) },
         RandomAreaAcquisitionRegionPaidEvent value => value with { Step = FreezeRandomAreaStep(value.Step) },
         SequentialDeckKindGrowthStepPaidEvent value => value with

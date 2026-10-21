@@ -254,37 +254,18 @@ public sealed partial class GameEngine
         UpdateLifecycleCardUse(id, use => use with { AdjustedSlashReturn = typedReturn, TargetsAdjusted = true });
         if (frame?.NextActualUseAdjustment is { } receipt)
             ReplaceRuntimeFrame(frame.Id, frame with { NextActualUseAdjustment = receipt with { Stage = ProgramNextActualUseAdjustmentStage.Applied, CardUseFrameId = id } });
-        var nuzhan = GetNuzhanModifiers(id, owner);
-        foreach (var card in cards) MoveCard(card, FindOwnedCardLocation(owner, card), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
-        typedReturn = typedReturn with { PaidMovementLastSequence = CardMovements[^1].Sequence };
-        UpdateLifecycleCardUse(id, use => use with { AdjustedSlashReturn = typedReturn });
-        var counted = !(LifecycleCardUse(id)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(id, owner.Seat) && !HasWuHfOrDixianIssuedUse(id, owner.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(owner, source) &&
-            _phase == TurnPhase.Play && owner.Seat == _currentSeat;
-        if (counted) RecordSlashUseDebit(id, owner.Seat);
-        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, kind);
-        var damage = (1 + owner.AlcoholDamageBonus) + nuzhan.DamageBonus;
-        CaptureProgramAlcoholConsumption(id, owner); owner.HasAlcoholEffect = false;
-        var pending = new FangtianHalberdHandle(this, id, owner.Seat, cards[0], kind,
-            armor, damage, seats, false, counted, source);
-        ActiveFangtianHalberd = pending;
-        if (source is not null)
-            AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(id, source.SkillId, source.BindingId,
-                owner.Seat, Array.AsReadOnly(cards.Select(c => c.Id).ToArray()), kind, IsUse: true, seats));
-        else AdvanceEventRulesAndQueueFact(new ZhangbaSerpentSpearConvertedEvent(id, owner.Seat,
-            Array.AsReadOnly(cards.Select(c => c.Id).ToArray()), IsUse: true, seats[0]));
-        AdvanceEventRulesAndQueueFact(new CardUsedEvent(cards[0].Id, kind, owner.Seat, seats[0], IgnoresArmor: armor));
-        foreach (var seat in seats) NotifyAiOfSlash(owner, _players[seat]);
-        BeginNextFangtianHalberdTarget(pending);
+        CompleteNativeMaterialSlash(id, owner, cards, kind, seats, source, armor);
     }
 
     private CommandError? ValidateNextActualUseZhangba(CharacterState owner, IReadOnlyList<int> ids, IReadOnlyList<int> targets)
     {
         if (targets.Count <= 1) return null;
-        if (HasHpLossSlashTargets(owner)) return ValidateHpLossSlashZhangba(owner, ids, targets);
+        if (HasHpLossSlashTargets(owner) && ValidateHpLossSlashZhangba(owner, ids, targets) is null) return null;
+        if (TryGetNativeMaterialSlashExpansion(owner, ids, targets, out _, out _)) return null;
         var cards = GetZhangbaSlashPairs(owner).FirstOrDefault(pair => pair.Select(c => c.Id).Order().SequenceEqual(ids.Order()));
         if (targets.Count != 2 || CurrentNextActualUseAdjustment(owner.Seat) is null || !CanUseZhangbaSerpentSpear(owner) || cards is null ||
             !IsMoQuanyuCompleteZhangbaQuotaLegal(owner, targets, cards) ||
-            targets.Any(t => !CanUseVirtualSlashTarget(owner, _players[t], CardKind.Slash, PhysicalGroupSuit(owner, cards),
+            targets.Distinct().Count() != targets.Count || targets.Any(t => !IsValidPlayerSeat(t) || !CanUseVirtualSlashTarget(owner, _players[t], CardKind.Slash, PhysicalGroupSuit(owner, cards),
                 PhysicalGroupColor(owner, cards), ZhangbaSpecificSlashRank(owner, cards), ids) ||
                 IsDirectedCardTargetProhibited(owner.Seat, t, CardKind.Slash) ||
                 IsCardTargetProhibited(_players[t], CardKind.Slash, PhysicalGroupSuit(owner, cards), PhysicalGroupColor(owner, cards)) ||
@@ -297,7 +278,12 @@ public sealed partial class GameEngine
     {
         if (ValidateNextActualUseZhangba(owner, cards.Select(c => c.Id).ToArray(), targets) is { } error)
             throw new InvalidOperationException(error.Message);
-        if (HasHpLossSlashTargets(owner)) { ResolveHpLossSlashZhangba(owner, targets, cards); return; }
+        if (HasHpLossSlashTargets(owner) && ValidateHpLossSlashZhangba(owner, cards.Select(c => c.Id).ToArray(), targets) is null)
+        { ResolveHpLossSlashZhangba(owner, targets, cards); return; }
+        if (targets.Count == 2 && CurrentNextActualUseAdjustment(owner.Seat) is { } grant)
+        { BeginNextActualUseMaterialSlash(owner, cards, CardKind.Slash, targets, null, grant, null); return; }
+        if (TryGetNativeMaterialSlashExpansion(owner, cards.Select(c => c.Id).ToArray(), targets, out _, out _))
+        { BeginNativeMaterialSlashExpansion(owner, cards, targets); return; }
         BeginNextActualUseMaterialSlash(owner, cards, CardKind.Slash, targets, null,
             CurrentNextActualUseAdjustment(owner.Seat) ?? throw new InvalidOperationException("Adjusted spear source expired before payment."), null);
     }

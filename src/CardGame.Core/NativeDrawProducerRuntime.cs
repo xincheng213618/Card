@@ -2,10 +2,10 @@ namespace CardGame.Core;
 
 // Cursor ownership, observer order and once-only draw payment stay on the
 // original ProgramSkillFrame. Dependencies capture ports, never match state.
-[ProgramRuntimeModule]
+[ProgramRuntimeModule, ProgramCapability]
 internal sealed class NativeDrawProducerRuntime(IProgramRuntimeFrames frames,
     INativeDrawProducerQueries queries, INativeDrawProducerOperations operations,
-    INativeDrawAttemptRuntime attempts)
+    INativeDrawAttemptRuntime attempts) : IProgramOperationDraws
 {
     internal SkillProgramStepOutcome ExecuteProgramDrawInstruction(ProgramSkillFrame frame,
         DrawProgramInstruction instruction, int targetSeat, CardMoveReason reason)
@@ -41,7 +41,7 @@ internal sealed class NativeDrawProducerRuntime(IProgramRuntimeFrames frames,
             ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
     }
 
-    internal SkillProgramStepOutcome BeginOperationProgramDraw(ProgramSkillFrame frame,
+    public SkillProgramStepOutcome BeginOperationProgramDraw(ProgramSkillFrame frame,
         int recipientSeat, int requestedCount, CardMoveReason reason)
     {
         if (frames.Top is not ProgramSkillFrame active || active.Id != frame.Id ||

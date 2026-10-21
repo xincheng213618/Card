@@ -64,6 +64,8 @@ internal static class ProgramRuntimeModuleChecks
         var adapters = new ProgramCapabilityRegistry(first, capabilities);
         Require(ReferenceEquals(adapters.Get<IProgramWindowCursors>(), first.GetRuntimeModule<ProgramWindowCursorRuntime>()),
             "Native returns and ordinary window dispatch must share the same cursor runtime instance.");
+        Require(ReferenceEquals(adapters.Get<IProgramOperationDraws>(), first.GetRuntimeModule<NativeDrawProducerRuntime>()),
+            "Independent skill runtimes and legacy draw bridges must share the actual native producer.");
         var returnMethod = typeof(ProgramWindowReturnRuntime).GetMethod("ReturnDrawPhaseEndedProgramWindow",
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         Require(ReferenceEquals(first.BindRuntimeHandler(returnMethod, typeof(Action<ProgramSkillFrame, bool>)).Target,

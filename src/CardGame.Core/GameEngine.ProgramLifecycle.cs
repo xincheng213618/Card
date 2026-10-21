@@ -2169,6 +2169,7 @@ public sealed partial class GameEngine
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
         if (IsIssuedMouYishiCandidate(candidate, context)) return true;
+        if (_programPipelineHooks.IssuedTriggerCandidate(candidate, context)) return true;
         if (IsIssuedMoDiaoChanCandidate(candidate, context)) return true;
         if (IsMouLzDirectCandidate(candidate, context)) return true;
         if (!CanMouXiahouShiCandidate(candidate, context)) return false;

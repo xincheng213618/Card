@@ -20,7 +20,16 @@ internal enum ProgramPipelinePhase
     UnissuedTurnStartObligation,
     ObservesResponseUseCompletion,
     CardEntitySkillLabel,
-    SelectDiscardBatchIndexes
+    SelectDiscardBatchIndexes,
+    HealthChangeSubject,
+    CaptureHealthChange,
+    IncludeHealthChangeCandidates,
+    IncludeNativeDrawCandidates,
+    SlashTargetDuelSource,
+    IssuedTriggerCandidate,
+    AdmitTurnSuppression,
+    RumoEntry,
+    RumoOrigin
 }
 
 // Register next to the owning implementation with an explicit order; orders are
@@ -47,6 +56,16 @@ internal delegate bool ProgramResponseUseCompletionObservation(CardActionContext
 internal delegate string? ProgramCardEntitySkillLabelProvider(int cardId);
 internal delegate int[]? ProgramDiscardBatchIndexSelector(
     CardMovementBatchContext batch, ProgramTriggerCandidate candidate, ProgramInstructionFeatures features);
+
+internal delegate bool ProgramHealthChangeSubject(int targetSeat);
+internal delegate void ProgramHealthChangeCapture(HpChangeContext change);
+internal delegate IReadOnlyList<ProgramTriggerCandidate> ProgramHealthCandidateIncluder(HpChangeContext change, IReadOnlyList<ProgramTriggerCandidate> candidates);
+internal delegate IReadOnlyList<ProgramTriggerCandidate> ProgramNativeDrawCandidateIncluder(int recipientSeat, IReadOnlyList<ProgramTriggerCandidate> candidates);
+internal delegate CardUseEffectSource? ProgramSlashTargetDuelSource(CardUseFrame use, int targetSeat);
+internal delegate bool ProgramIssuedTriggerCandidate(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context);
+internal delegate bool ProgramTurnSuppressionClaim(ProgramSkillFrame frame, int targetSeat);
+internal delegate bool ProgramRumoEntryClaim(ProgramSkillFrame frame);
+internal delegate bool ProgramRumoOriginClaim(long id, CardConversionSource source, string hash);
 
 // Static metadata only; delegates are bound once per engine and never shared.
 internal sealed class ProgramPipelineHookCatalog
@@ -82,7 +101,25 @@ internal sealed class ProgramPipelineHookCatalog
                 [typeof(int)], typeof(string)),
             [ProgramPipelinePhase.SelectDiscardBatchIndexes] = (typeof(ProgramDiscardBatchIndexSelector),
                 [typeof(CardMovementBatchContext), typeof(ProgramTriggerCandidate), typeof(ProgramInstructionFeatures)],
-                typeof(int[]))
+                typeof(int[])),
+            [ProgramPipelinePhase.HealthChangeSubject] = (typeof(ProgramHealthChangeSubject),
+                [typeof(int)], typeof(bool)),
+            [ProgramPipelinePhase.CaptureHealthChange] = (typeof(ProgramHealthChangeCapture),
+                [typeof(HpChangeContext)], typeof(void)),
+            [ProgramPipelinePhase.IncludeHealthChangeCandidates] = (typeof(ProgramHealthCandidateIncluder),
+                [typeof(HpChangeContext), typeof(IReadOnlyList<ProgramTriggerCandidate>)], typeof(IReadOnlyList<ProgramTriggerCandidate>)),
+            [ProgramPipelinePhase.IncludeNativeDrawCandidates] = (typeof(ProgramNativeDrawCandidateIncluder),
+                [typeof(int), typeof(IReadOnlyList<ProgramTriggerCandidate>)], typeof(IReadOnlyList<ProgramTriggerCandidate>)),
+            [ProgramPipelinePhase.SlashTargetDuelSource] = (typeof(ProgramSlashTargetDuelSource),
+                [typeof(CardUseFrame), typeof(int)], typeof(CardUseEffectSource)),
+            [ProgramPipelinePhase.IssuedTriggerCandidate] = (typeof(ProgramIssuedTriggerCandidate),
+                [typeof(ProgramTriggerCandidate), typeof(ProgramSkillWindowContext)], typeof(bool)),
+            [ProgramPipelinePhase.AdmitTurnSuppression] = (typeof(ProgramTurnSuppressionClaim),
+                [typeof(ProgramSkillFrame), typeof(int)], typeof(bool)),
+            [ProgramPipelinePhase.RumoEntry] = (typeof(ProgramRumoEntryClaim),
+                [typeof(ProgramSkillFrame)], typeof(bool)),
+            [ProgramPipelinePhase.RumoOrigin] = (typeof(ProgramRumoOriginClaim),
+                [typeof(long), typeof(CardConversionSource), typeof(string)], typeof(bool))
         };
 
     internal IReadOnlyDictionary<ProgramPipelinePhase, IReadOnlyList<Registration>> Phases { get; }
@@ -155,6 +192,16 @@ internal sealed class ProgramPipelineHooks
     private readonly ProgramCardEntitySkillLabelProvider[] _cardEntitySkillLabel;
     private readonly ProgramDiscardBatchIndexSelector[] _selectDiscardBatchIndexes;
 
+    private readonly ProgramHealthChangeSubject[] _healthChangeSubject;
+    private readonly ProgramHealthChangeCapture[] _captureHealthChange;
+    private readonly ProgramHealthCandidateIncluder[] _includeHealthChangeCandidates;
+    private readonly ProgramNativeDrawCandidateIncluder[] _includeNativeDrawCandidates;
+    private readonly ProgramSlashTargetDuelSource[] _slashTargetDuelSource;
+    private readonly ProgramIssuedTriggerCandidate[] _issuedTriggerCandidate;
+    private readonly ProgramTurnSuppressionClaim[] _admitTurnSuppression;
+    private readonly ProgramRumoEntryClaim[] _rumoEntry;
+    private readonly ProgramRumoOriginClaim[] _rumoOrigin;
+
     internal ProgramPipelineHooks(ProgramPipelineHookCatalog catalog, GameEngine engine)
     {
         T[] Bind<T>(ProgramPipelinePhase phase) where T : class => catalog.Phases[phase]
@@ -173,6 +220,16 @@ internal sealed class ProgramPipelineHooks
         _observesResponseUseCompletion = Bind<ProgramResponseUseCompletionObservation>(ProgramPipelinePhase.ObservesResponseUseCompletion);
         _cardEntitySkillLabel = Bind<ProgramCardEntitySkillLabelProvider>(ProgramPipelinePhase.CardEntitySkillLabel);
         _selectDiscardBatchIndexes = Bind<ProgramDiscardBatchIndexSelector>(ProgramPipelinePhase.SelectDiscardBatchIndexes);
+        _healthChangeSubject = Bind<ProgramHealthChangeSubject>(ProgramPipelinePhase.HealthChangeSubject);
+        _captureHealthChange = Bind<ProgramHealthChangeCapture>(ProgramPipelinePhase.CaptureHealthChange);
+        _includeHealthChangeCandidates = Bind<ProgramHealthCandidateIncluder>(ProgramPipelinePhase.IncludeHealthChangeCandidates);
+        _includeNativeDrawCandidates = Bind<ProgramNativeDrawCandidateIncluder>(ProgramPipelinePhase.IncludeNativeDrawCandidates);
+        _slashTargetDuelSource = Bind<ProgramSlashTargetDuelSource>(ProgramPipelinePhase.SlashTargetDuelSource);
+        _issuedTriggerCandidate = Bind<ProgramIssuedTriggerCandidate>(ProgramPipelinePhase.IssuedTriggerCandidate);
+        _admitTurnSuppression = Bind<ProgramTurnSuppressionClaim>(ProgramPipelinePhase.AdmitTurnSuppression);
+        _rumoEntry = Bind<ProgramRumoEntryClaim>(ProgramPipelinePhase.RumoEntry);
+        _rumoOrigin = Bind<ProgramRumoOriginClaim>(ProgramPipelinePhase.RumoOrigin);
+
     }
 
     internal IReadOnlyList<ProgramTriggerCandidate> IncludeTriggerCandidate(
@@ -254,5 +311,64 @@ internal sealed class ProgramPipelineHooks
         foreach (var selector in _selectDiscardBatchIndexes)
             if (selector(batch, candidate, features) is { } indexes) return indexes;
         return null;
+    }
+
+    internal bool HealthChangeSubject(int targetSeat)
+    {
+        foreach (var hook in _healthChangeSubject)
+            if (hook(targetSeat)) return true;
+        return false;
+    }
+
+    internal void CaptureHealthChange(HpChangeContext change)
+    {
+        foreach (var hook in _captureHealthChange) hook(change);
+    }
+
+    internal IReadOnlyList<ProgramTriggerCandidate> IncludeHealthChangeCandidates(HpChangeContext change, IReadOnlyList<ProgramTriggerCandidate> candidates)
+    {
+        foreach (var hook in _includeHealthChangeCandidates) candidates = hook(change, candidates);
+        return candidates;
+    }
+
+    internal IReadOnlyList<ProgramTriggerCandidate> IncludeNativeDrawCandidates(int recipientSeat, IReadOnlyList<ProgramTriggerCandidate> candidates)
+    {
+        foreach (var hook in _includeNativeDrawCandidates) candidates = hook(recipientSeat, candidates);
+        return candidates;
+    }
+
+    internal CardUseEffectSource? SlashTargetDuelSource(CardUseFrame use, int targetSeat)
+    {
+        foreach (var hook in _slashTargetDuelSource)
+            if (hook(use, targetSeat) is { } source) return source;
+        return null;
+    }
+
+    internal bool IssuedTriggerCandidate(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context)
+    {
+        foreach (var hook in _issuedTriggerCandidate)
+            if (hook(candidate, context)) return true;
+        return false;
+    }
+
+    internal bool AdmitTurnSuppression(ProgramSkillFrame frame, int targetSeat)
+    {
+        foreach (var hook in _admitTurnSuppression)
+            if (hook(frame, targetSeat)) return true;
+        return false;
+    }
+
+    internal bool RumoEntry(ProgramSkillFrame frame)
+    {
+        foreach (var hook in _rumoEntry)
+            if (hook(frame)) return true;
+        return false;
+    }
+
+    internal bool RumoOrigin(long id, CardConversionSource source, string hash)
+    {
+        foreach (var hook in _rumoOrigin)
+            if (hook(id, source, hash)) return true;
+        return false;
     }
 }

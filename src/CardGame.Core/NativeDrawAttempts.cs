@@ -13,9 +13,19 @@ public sealed record NativeDrawAttemptReturn(NativeDrawAttemptReturnKind Kind, i
     int RecipientIndex);
 
 /// <summary>Replacement gains are never the physical result of a draw.</summary>
+public enum NativeDrawReplacementSourceKind { OwnedHandOrEquipment, DrawPileSlash }
+
+/// <summary>The issued rule source is retained even after its owner or skill disappears.</summary>
+public sealed record NativeDrawPileSlashProof(long ProgramFrameId, long EntitlementFrameId,
+    CardConversionSource EntitlementSource, string EntitlementGameplayHash);
+
 public sealed record NativeDrawReplacementResult(int OwnerSeat, string SkillId, string SkillInstanceId,
     string BindingId, int SourceSeat, CardMoveReason Reason, long SequenceBefore, long SequenceAfter)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public NativeDrawReplacementSourceKind SourceKind { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public NativeDrawPileSlashProof? DrawPileSlashProof { get; init; }
     private readonly IReadOnlyList<int> _gainedIds = Array.AsReadOnly(Array.Empty<int>());
     public IReadOnlyList<int> GainedIds
     { get => _gainedIds; init => _gainedIds = Array.AsReadOnly(value.ToArray()); }

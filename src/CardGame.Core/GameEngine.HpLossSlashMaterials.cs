@@ -92,25 +92,7 @@ public sealed partial class GameEngine
             parent?.Id, parent?.GameplayHash, parent?.SkillInstanceId, parent?.InstructionIndex ?? 0, parent is null, SlashTargetPenaltySequence + 1);
         UpdateLifecycleCardUse(id, use => use with { HpLossMaterialSlashReturn = receipt, TargetsAdjusted = true });
         if (parent is not null) ReplaceRuntimeFrame(parent.Id, parent with { HpLossSlashSelection = parent.HpLossSlashSelection! with { CardUseFrameId = id } });
-        var nuzhan = GetNuzhanModifiers(id, owner);
-        foreach (var card in cards) MoveCard(card, FindOwnedCardLocation(owner, card), CardLocation.Processing, CardMoveReasons.Use, disclosure: CardMovementDisclosure.FaceUp);
-        receipt = receipt with { PaidLast = SlashTargetPenaltySequence };
-        UpdateLifecycleCardUse(id, use => use with { HpLossMaterialSlashReturn = receipt });
-        AdvanceEventRulesAndQueueFact(new HpLossMaterialSlashIssuedEvent(id, action.ActionId, policy.Source, policy.Hash, receipt.FrozenMaximum, parent?.Id, parent is null));
-        var counted = LifecycleCardUse(id)?.UnlimitedUse != true && !HasIssuedJudgedRankSlashQuota(id, owner.Seat) && !HasWuHfOrDixianIssuedUse(id, owner.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(owner, conversion) &&
-            _phase == TurnPhase.Play && owner.Seat == _currentSeat;
-        if (counted) RecordSlashUseDebit(id, owner.Seat);
-        MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, kind);
-        var damage = (1 + owner.AlcoholDamageBonus) + nuzhan.DamageBonus;
-        CaptureProgramAlcoholConsumption(id, owner); owner.HasAlcoholEffect = false;
-        var pending = new FangtianHalberdHandle(this, id, owner.Seat, cards[0], kind, armor, damage, seats, false, counted, conversion);
-        ActiveFangtianHalberd = pending;
-        if (conversion is not null) AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(id, conversion.SkillId, conversion.BindingId,
-            owner.Seat, Array.AsReadOnly(cards.Select(c => c.Id).ToArray()), kind, IsUse: true, seats));
-        else AdvanceEventRulesAndQueueFact(new ZhangbaSerpentSpearConvertedEvent(id, owner.Seat, Array.AsReadOnly(cards.Select(c => c.Id).ToArray()), true, seats[0]));
-        AdvanceEventRulesAndQueueFact(new CardUsedEvent(cards[0].Id, kind, owner.Seat, seats[0], IgnoresArmor: armor));
-        foreach (var seat in seats) NotifyAiOfSlash(owner, _players[seat]);
-        BeginNextFangtianHalberdTarget(pending);
+        CompleteNativeMaterialSlash(id, owner, cards, kind, seats, conversion, armor);
     }
     private bool MatchesHpLossMaterialSlash(CardUseFrame use)
     {

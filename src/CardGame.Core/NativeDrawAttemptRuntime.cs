@@ -91,6 +91,53 @@ internal sealed class NativeDrawAttemptRuntime(IProgramRuntimeFrames frames,
         operations.CompleteLingkongReplacement(frame, attempt, replacement);
     }
 
+    // A DrawPile replacement has a separate issued entitlement and material
+    // contract. It never inherits the HE source-seat exception above.
+    internal void CompleteDrawPileSlashReplacement(ProgramSkillFrame frame,
+        IReadOnlyList<int> gainedIds, CardMoveReason reason, long sequenceBefore)
+    {
+        if (frames.Top is not ProgramSkillFrame active || active.Id != frame.Id ||
+            frame.WindowContext is not { } context || ExactNativeDrawAttempt(context) is not { Replacement: null } attempt ||
+            frames.ParentOf(active.Id) is not ProgramLifecycleTriggerWindowFrame window ||
+            window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count ||
+            !global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_DamageTargetMountObserver.MountObserverCandidateMatches(frame, window.Candidates[window.CandidateIndex]) ||
+            !IsExactNativeDrawCandidate(window.Candidates[window.CandidateIndex], context) ||
+            queries.DrawPileSlashReplacementProof(frame, attempt.Context) is not { } proof || proof.ProgramFrameId != frame.Id)
+            throw new InvalidOperationException("A DrawPile replacement lost its exact issued request and entitlement.");
+        var replacement = new NativeDrawReplacementResult(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId,
+            frame.ActivationId, -1, reason, sequenceBefore, queries.MovementSequence)
+        {
+            SourceKind = NativeDrawReplacementSourceKind.DrawPileSlash,
+            DrawPileSlashProof = proof,
+            GainedIds = gainedIds
+        };
+        if (!ValidReplacement(attempt.Context, replacement))
+            throw new InvalidOperationException("A DrawPile replacement lost its issued Slash materials.");
+        frames.Replace(attempt.Id, attempt with { Replacement = replacement });
+    }
+
+    private bool ValidReplacement(NativeDrawAttemptContext context, NativeDrawReplacementResult replacement)
+    {
+        if (replacement.OwnerSeat != context.RecipientSeat || !Enum.IsDefined(replacement.SourceKind) ||
+            replacement.SequenceBefore < context.SequenceBefore || replacement.SequenceAfter < replacement.SequenceBefore ||
+            replacement.SequenceAfter > queries.MovementSequence || replacement.GainedIds.Count > context.RequestedCount ||
+            replacement.GainedIds is not System.Collections.IList { IsReadOnly: true } ||
+            replacement.GainedIds.Distinct().Count() != replacement.GainedIds.Count) return false;
+        var material = queries.Movements().Where(m => m.Sequence > replacement.SequenceBefore && m.Sequence <= replacement.SequenceAfter &&
+            m.To == CardLocation.Hand(context.RecipientSeat) && m.Reason == replacement.Reason).OrderBy(m => m.Sequence).ToArray();
+        if (!material.Select(m => m.CardId).SequenceEqual(replacement.GainedIds)) return false;
+        return replacement.SourceKind switch
+        {
+            NativeDrawReplacementSourceKind.OwnedHandOrEquipment => replacement.DrawPileSlashProof is null &&
+                queries.IsValidSeat(replacement.SourceSeat) && replacement.SourceSeat != context.RecipientSeat &&
+                material.All(m => m.From.OwnerSeat == replacement.SourceSeat && m.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment),
+            NativeDrawReplacementSourceKind.DrawPileSlash => replacement.SourceSeat == -1 && replacement.DrawPileSlashProof is not null &&
+                material.All(m => m.From == CardLocation.DrawPile && m.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
+                queries.IsIssuedDrawPileSlashReplacement(context, replacement),
+            _ => false
+        };
+    }
+
     [ProgramWindowReturn(SkillProgramTriggerWindow.NativeDrawStarting)]
     internal void ReturnNativeDrawStartingProgram(ProgramSkillFrame frame, bool completed)
     {
@@ -167,20 +214,25 @@ internal sealed class NativeDrawAttemptRuntime(IProgramRuntimeFrames frames,
                 (frames.ChildOf(attempt.Id) is not ProgramLifecycleTriggerWindowFrame window ||
                  !global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_NativeDrawAttempts.NativeDrawAttemptRidesOn(window, attempt)))
                 throw new InvalidOperationException("A pre-draw request lost its active candidate window.");
-            if (attempt.Replacement is { } replacement &&
-                (replacement.OwnerSeat != context.RecipientSeat || !queries.IsValidSeat(replacement.SourceSeat) ||
-                 replacement.SourceSeat == context.RecipientSeat || replacement.SequenceBefore < context.SequenceBefore ||
-                 replacement.SequenceAfter < replacement.SequenceBefore || replacement.SequenceAfter > queries.MovementSequence ||
-                 replacement.GainedIds.Count > context.RequestedCount ||
-                 replacement.GainedIds is not System.Collections.IList { IsReadOnly: true } ||
-                 replacement.GainedIds.Distinct().Count() != replacement.GainedIds.Count ||
-                 !queries.Movements().Where(m => m.Sequence > replacement.SequenceBefore && m.Sequence <= replacement.SequenceAfter &&
-                     m.To == CardLocation.Hand(context.RecipientSeat) && m.Reason == replacement.Reason)
-                     .OrderBy(m => m.Sequence).Select(m => m.CardId).SequenceEqual(replacement.GainedIds) ||
-                 queries.Movements().Any(m => m.Sequence > replacement.SequenceBefore && m.Sequence <= replacement.SequenceAfter &&
-                     m.To == CardLocation.Hand(context.RecipientSeat) && m.Reason == replacement.Reason &&
-                     (m.From.OwnerSeat != replacement.SourceSeat || m.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))))
+            if (attempt.Replacement is { } replacement && !ValidReplacement(context, replacement))
                 throw new InvalidOperationException("A draw replacement lost its frozen actual obtained materials.");
+        }
+        // The attempt child may already have returned while its paid producer
+        // is draining movement children. Its typed DrawPile proof stays checked
+        // on that original producer as well.
+        foreach (var parent in frames.OfType<ResolutionFrame>())
+        {
+            if (parent.NativeDraw is not { Replacement: { } replacement } paid ||
+                replacement.SourceKind == NativeDrawReplacementSourceKind.OwnedHandOrEquipment && replacement.DrawPileSlashProof is null)
+                continue;
+            var issued = queries.StartedEvents().Where(e => e.Context.AttemptFrameId == paid.ActiveAttemptId &&
+                e.Context.ParentFrameId == parent.Id).ToArray();
+            if (!paid.AttemptReturned || paid.RecipientIndex < 0 || paid.RecipientIndex >= paid.Recipients.Count ||
+                issued is not [var start] || start.Context.RecipientSeat != paid.Recipients[paid.RecipientIndex] ||
+                start.Context.RequestedCount != paid.RequestedCount || start.Context.Reason != paid.Reason ||
+                start.Return.Kind != paid.ReturnKind || start.Return.InstructionIndex != paid.InstructionIndex ||
+                start.Return.RecipientIndex != paid.RecipientIndex || !ValidReplacement(start.Context, replacement))
+                throw new InvalidOperationException("A returned DrawPile replacement lost its original producer and material proof.");
         }
     }
 }

@@ -1,5 +1,13 @@
 namespace CardGame.Core;
 
+// Character runtimes issue an operation draw without depending on an engine
+// bridge. The existing producer still owns payment, its frame and typed return.
+internal interface IProgramOperationDraws : IProgramRuntimeOperations
+{
+    SkillProgramStepOutcome BeginOperationProgramDraw(ProgramSkillFrame frame,
+        int recipientSeat, int requestedCount, CardMoveReason reason);
+}
+
 internal interface INativeDrawProducerQueries : IProgramSelectionQuery
 {
     int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference);
@@ -55,6 +63,8 @@ internal interface INativeDrawAttemptQueries : IProgramSelectionQuery
     IEnumerable<CardMovementRecord> Movements();
     IEnumerable<NativeDrawAttemptStartedEvent> StartedEvents();
     IEnumerable<NativeDrawAttemptDecidedEvent> DecidedEvents();
+    NativeDrawPileSlashProof? DrawPileSlashReplacementProof(ProgramSkillFrame frame, NativeDrawAttemptContext context);
+    bool IsIssuedDrawPileSlashReplacement(NativeDrawAttemptContext context, NativeDrawReplacementResult replacement);
 }
 
 internal interface INativeDrawAttemptOperations : IProgramRuntimeOperations

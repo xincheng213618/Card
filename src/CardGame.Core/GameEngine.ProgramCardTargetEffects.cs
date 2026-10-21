@@ -117,6 +117,7 @@ public sealed partial class GameEngine
         NullificationWindowFrame pending,
         int targetSeat)
     {
+        if (TryCompleteCanceledNativeSlashTargetDuel(pending)) return;
         SetCardUseStep(pending.ParentFrameId, ResolutionFrameStep.ResolvingEffect);
         foreach (var physicalCard in GetCardUsePhysicalCards(pending.ParentFrameId))
         {

@@ -48,6 +48,8 @@ internal static class BoundaryJianYongChecks
             game.CreateSnapshot(2).PublicRevealedCards.Count == 0,
             "Uncommitted real contest choices stay private until both actual participants commit.");
         Cold(game, registry);
+        if (P(game) is { PlayerSeat: 0 } source && source.Choices.Any(c => c.Parameters.GetValueOrDefault("action") == "pindian-source-card"))
+            Answer(game, c => c.Cards.SequenceEqual([card]) && c.Parameters.GetValueOrDefault("action") == "pindian-source-card");
         Reach(game, p => p.PlayerSeat == 0 && p.Choices.Any(c => c.Parameters.GetValueOrDefault("action") == "pindian-claim"));
         RejectUnpublished(game); Cold(game, registry);
         var result = game.Events.Select(e => e.Payload).OfType<PindianResultDeterminedEvent>().Skip(prior).Single().Result;

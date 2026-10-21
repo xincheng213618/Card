@@ -20,6 +20,7 @@ public sealed partial class GameEngine
         CaptureDianhuRecoveryQualification(change);
         CaptureSpSunShangxiangRecovery(change);
         CaptureMouSunJianOlHp(change);
+        _programPipelineHooks.CaptureHealthChange(change);
         return change;
     }
 
@@ -35,21 +36,21 @@ public sealed partial class GameEngine
         {
             _pendingHpChanges.Remove(change);
             var owner = _players[change.TargetSeat];
-            if (!owner.IsAlive) continue;
             var windows = change.Kind switch
             {
                 HpChangeKind.Loss => new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged },
                 HpChangeKind.Recovery => new[] { SkillProgramTriggerWindow.AfterHpRecovered, SkillProgramTriggerWindow.AfterHealthChanged },
                 _ => new[] { SkillProgramTriggerWindow.AfterHealthChanged }
             };
-            var registered = (change.FrozenLossCandidates ??
+            var ordinary = (change.FrozenLossCandidates ??
                 windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
                 .Where(candidate => !IsYintianRecoveryTrigger(GetProgramTrigger(candidate)) && !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
                     !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)) && !IsSpSunShangxiangLiangzhuTrigger(GetProgramTrigger(candidate)) &&
                     !IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) && !IsNianRecoveryTrigger(GetProgramTrigger(candidate)))
                 .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).Concat(CollectSpSunShangxiangRecoveryCandidates(change))
                 .Concat(CollectShenwuRecoveryCandidates(change)).Concat(CollectNianRecoveryCandidates(change)).ToArray();
-            if (registered.Length == 0) continue;
+            var registered = _programPipelineHooks.IncludeHealthChangeCandidates(change, owner.IsAlive ? ordinary : []);
+            if (registered.Count == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
             {
                 HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter,
@@ -76,7 +77,7 @@ public sealed partial class GameEngine
                 : IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) ? CreateShenwuRecoveryContext(change, candidate)
                 : IsNianRecoveryTrigger(GetProgramTrigger(candidate)) ? CreateNianRecoveryContext(change, candidate)
                 : new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,
-                owner.Seat, SourceSeat: change.SourceSeat, TargetSeat: owner.Seat, Amount: change.Amount,
+                candidate.OwnerSeat, SourceSeat: change.SourceSeat, TargetSeat: owner.Seat, Amount: change.Amount,
                 OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts, HpChange: change)).ToArray();
             if (continuation == PostEventContinuation.AwaitedProgramMovement &&
                 _resolutionStack.LastOrDefault() is ProgramSkillFrame

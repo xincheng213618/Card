@@ -1,0 +1,38 @@
+{
+  "generalId": "ol:mo-zhang-fei",
+  "displayName": "魔张飞",
+  "product": "三国杀OL普通OL魔系列",
+  "checkedOn": "2026-10-21",
+  "sources": [
+    {"url":"https://www.sanguosha.com/hero/750","kind":"first-party-current-hero","supports":"蜀、男、5体力；初始灼魂和瞋视正文；人物图URL"},
+    {"url":"https://www.sanguosha.com/api/v1/hero/info?gid=750","kind":"first-party-api","supports":"身份和初始技能文字，hp=5、initial_hp=0表示未另列初始值"},
+    {"url":"https://www.sanguosha.com/news/20260427_9510_4213","publishedAt":"2026-04-30 17:01:04","kind":"first-party-formal-launch","title":"5.1-5.10 开黑祈福魔孙权来袭 限时双倍重置 开黑魔珠魔张飞上新","supports":"2026-05-01上线；完整初始灼魂、瞋视、修改后灼魂绿黄红三段"},
+    {"url":"https://www.sanguosha.com/news/20250708_4123_3813","kind":"first-party-series-rule","supports":"入魔后每轮结束若本轮未造成过伤害失去1体力；项目采用既有系列机制，非张飞专属FAQ"}
+  ],
+  "engineeringInterpretations": [
+    "以下口径是明确采用的项目工程解释，不冒称官方FAQ、用户实测或官方补充裁定。",
+    "勾玉颜色沿项目既有颜色语义：实际体力3及以上绿色，2黄色，1及以下红色；不按体力上限比例。",
+    "初始赋值不计变化；每个本人实际回合，以主人、变化角色、实际到达颜色分别计首次。真实伤害、回复、流失、设置体力及上限夹取均以原生变化收据的前后体力计算；同颜色变化不触发。",
+    "瞋视至少3伤按单次真实杀或决斗DamageApplied的实际Amount>=3，本人造成或承受任一方向第一次达成；不累计多次小伤害。",
+    "黑杀混合颜色目标保留同一次原Use、使用者、提供者、全部实体材料与目标，只支付一次，沿原杀使用配额。颜色资格在原Use全部目标确定后按目标冻结；同色目标在原Use按目标执行真实决斗效果及其真实无懈、轮流出杀、供杀和伤害返回，异色保留杀效果。没有将整次Use都改决斗或额外伪造一次Use。此冻结时点与无懈安排均为本项目的原生机制工程实现，不冒称官方混合目标FAQ。",
+    "额外目标保留文本允许的全部合格角色及其余原生合法性；正文没有额外免距离。",
+    "原生多实体杀（如丈八的两张同黑异花材料）沿真实有效三态颜色取得额外目标和同色决斗资格；保留原材料、提供者、一次支付和原帧上的已签发来源及内容hash。混色或无色不能仅凭非红擅算黑。冷恢复仅核实静态授权与原已接受收据，不因当前来源丢失、颜色变化而重算或重付。",
+    "修改后灼魂先完成真实补手至体力上限请求及其子结算，再执行已签发颜色效果；黄色允许本人，本实际回合对后续新授予的非锁定技也生效。红色在效果实际执行时判断是否有任何濒死角色。",
+    "绿色替代该角色本实际回合的真实摸牌请求，从当前牌堆获得等量杀；库存不足只获得现存数量，不造牌，不将Gain算作ActualDraw。绿色义务一经真实颜色分支签发，不因原技能来源失去技能或死亡取消，仅持续原实际回合；保留原source和内容hash，实际摸牌请求由活着的收牌者持有。",
+    "本人回合闪强制视为杀，沿现有mandatory cardIdentities使使用与响应保留实际实体支付；不增加可选viewAs。"
+  ],
+  "printedSkills": ["ol:mo-zhuohun","ol:mo-chenshi"],
+  "derivedSkills": ["ol:mo-zhuohun-modified","ol:mo-rumo"],
+  "galleryPresentation": "正式仍只有灼魂、瞋视两项初始技能。图鉴按general.SkillIds展示，故在瞋视的可见描述中附共享入魔说明和正式公告完整修改后灼魂正文，保留绿黄红三段；附录展示不使派生技能成为初始授予。",
+  "portrait": {
+    "source": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75000.png",
+    "evidence": "hero/750实际DOM及API cover一致；由负责整合的作者下载、目视核对，运行时作者复用其已核实结果，未重复下载。",
+    "asset": "src/CardGame.Wpf/Assets/official-mo-zhang-fei.png",
+    "width": 750,
+    "height": 950,
+    "bytes": 1364976,
+    "sha256": "31FAEEC373F4DDA352A1AD4F20F0ED94883A3E5ADDE23F9150E0BBC57C5F40CF"
+  },
+  "laterRebalanceFound": false,
+  "searchScope": "有限官方检索未发现后续改版或明确颜色阈值、混合目标与3伤计数FAQ；不声称穷尽全部历史。"
+}

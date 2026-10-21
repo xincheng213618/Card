@@ -4758,6 +4758,7 @@ public sealed partial class GameEngine
         SetCardUseStep(pending.ParentFrameId, ResolutionFrameStep.ResolvingEffect);
         if (pending.EffectNullified && !HasCurrentCardEnhancement(pending.ParentFrameId, CurrentCardEnhancement.Uncancelable))
         {
+            if (TryCompleteCanceledNativeSlashTargetDuel(pending)) return;
             foreach (var physicalCard in GetCardUsePhysicalCards(pending.ParentFrameId))
             {
                 MoveFinishedTrickCard(pending.ParentFrameId, physicalCard);
@@ -5337,6 +5338,7 @@ public sealed partial class GameEngine
 
     private void ResolveDuelEffect(NullificationWindowFrame pending)
     {
+        if (TryResolveNativeSlashTargetDuel(pending)) return;
         var source = _players[pending.SourceSeat];
         var targetSeat = GetNullificationTargetSeat(pending) ??
             throw new InvalidOperationException("Duel must retain one target.");
@@ -7042,7 +7044,7 @@ public sealed partial class GameEngine
         IReadOnlyList<CardConversionSource>? additionalConversionSources = null)
     {
         var targetSeats = targets.Select(target => target.Seat).ToArray();
-        var stillLegal = targetSeats.Length >= 2 && (targetSeats.Length <= 5 || HasHpLossSlashTargets(source) && targetSeats.Length < _players.Count(p => p.IsAlive)) &&
+        var stillLegal = targetSeats.Length >= 2 && (targetSeats.Length <= 5 || (HasHpLossSlashTargets(source) || HasNativeExtraSlashTargets(source, slash, playedCardKind)) && targetSeats.Length < _players.Count(p => p.IsAlive)) &&
             BuildLegalActions(source, selectedPhysicalCardId: slash.Id).Any(action =>
                 action.Kind == LegalActionKind.Slash &&
                 action.CardId == slash.Id &&
@@ -7191,6 +7193,8 @@ public sealed partial class GameEngine
         if (LifecycleCardUse(pending.ResolutionId)?.AdjustedSlashReturn is { } adjustedReturn)
             UpdateCardAttackState(pending.ResolutionId, state => state! with { AdjustedSlashReturn = adjustedReturn,
                 PhysicalCardIds = LifecycleCardUse(pending.ResolutionId)!.PhysicalCardIds! });
+        if (LifecycleCardUse(pending.ResolutionId) is { NativeMaterialSlashExtraTargets: not null, PhysicalCardIds: { } nativeMaterials })
+            UpdateCardAttackState(pending.ResolutionId, state => state! with { PhysicalCardIds = nativeMaterials });
         if (LifecycleCardUse(pending.ResolutionId) is { HpLossMaterialSlashReturn: not null, PhysicalCardIds: { } hpMaterials })
             UpdateCardAttackState(pending.ResolutionId, state => state! with { PhysicalCardIds = hpMaterials });
         if (LifecycleCardUse(pending.ResolutionId) is { PhysicalCardIds: { } baitMaterials } baitUse && IsXieweiMultiTargetUse(baitUse))
@@ -7419,6 +7423,7 @@ public sealed partial class GameEngine
         var currentUse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId);
         if (currentUse.SourceSeat != attack.CardUserSeat) attack.ReplaceCardUser(currentUse.SourceSeat);
         if (HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.IgnoreArmor)) attack.SetIgnoresArmor(true);
+        FreezeNativeSlashTargetDuelPlan(currentUse);
         if (TryBeginSlashTargetPenalties(attack)) { AdvanceRulesAndPublishState(); return; }
         if (TryBeginSlashTargetBenefits(attack)) { AdvanceRulesAndPublishState(); return; }
         if (TryBeginActualUseTargetPrograms(attack, ActualUseTargetReturnKind.Slash))
@@ -7444,6 +7449,7 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (TryBeginNativeSlashTargetDuel(attack)) return;
         if (TryBeginProgramSlashStage(attack, SkillProgramTriggerWindow.SlashBeforeResponse,
                 ProgramCardContinuation.SlashBeforeResponse))
         {
@@ -7463,6 +7469,7 @@ public sealed partial class GameEngine
 
     private void ContinueSlashDefense(CardAttackHandle attack)
     {
+        if (TryBeginNativeSlashTargetDuel(attack)) return;
         ApplyMoQuanyuAttackPolicy(attack);
         CaptureExtraCardEffectAttack(attack);
         if (!SameAttackOwner(ActiveCardAttack, attack))
@@ -13488,7 +13495,7 @@ public sealed partial class GameEngine
             return false;
         }
 
-        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash ||
+        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash || IsNativeSlashTargetDuelAttack(attack) ||
             LifecycleCardUse(attack.ResolutionId) is { } fireUse && IsCurrentSlashFireChangedUse(fireUse) ||
             IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
             (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
@@ -14375,7 +14382,9 @@ public sealed partial class GameEngine
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CommonRules.GetNullificationTargetSeat(frame);
 
     private Card GetNullificationEffectCard(NullificationWindowFrame frame) =>
-        GetTrickRepresentation(frame.ParentFrameId, frame.EffectCardId);
+        TryGetNativeSlashTargetDuel(frame, out var nativeUse, out _, out _)
+            ? NativeSlashTargetDuelRepresentation(nativeUse)
+            : GetTrickRepresentation(frame.ParentFrameId, frame.EffectCardId);
 
     private void SetCardUseTargetIndex(long frameId, int targetIndex)
     {
@@ -14436,6 +14445,7 @@ public sealed partial class GameEngine
     private void QueueCardUseFinishedWithoutPop(long frameId, Card card, CardKind? playedCardKind)
     {
         if (LifecycleCardUse(frameId) is { LeChengyanEffect: not null } originalUse && ValidLeChengyanEffect(originalUse)) playedCardKind = originalUse.CardKind;
+        if (LifecycleCardUse(frameId) is { NativeSlashTargetDuel: { } targetPlan } targetUse && ValidNativeSlashTargetDuelPlan(targetUse, targetPlan)) playedCardKind = targetUse.CardKind;
         SetCardUseStep(frameId, ResolutionFrameStep.Completed);
         if (_resolutionStack.Count == 0 ||
             _resolutionStack[^1] is not CardUseFrame cardUse ||
@@ -17978,7 +17988,7 @@ public sealed partial class GameEngine
             completedResponseDying |= counterspellPaymentRide && ActiveDying is not null;
             completedResponseDying |= slotNamedPaymentRide && ActiveDying is not null;
             if (counterspellPaymentRide) rescueCosts = paymentRescueCosts;
-            var expectedPhysicalCardIds = nullification.DelayedReturn is not null || IsZeroEntityUse(nullification.ParentFrameId) || IsProgramVirtualOrdinaryTrickUse(nullification.ParentFrameId) ? Array.Empty<int>() : IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId) || IsConditionalDiscardDuelUse(nullification.ParentFrameId) || IsFriendRecastDuelUse(nullification.ParentFrameId) || IsZhenyingDuelUse(nullification.ParentFrameId) || IsHeJinMouzhuDuelUse(nullification.ParentFrameId) || IsWuAnGuoLiyongDuelUse(nullification.ParentFrameId) || IsJueshengDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
+            var expectedPhysicalCardIds = nullification.DelayedReturn is not null || IsZeroEntityUse(nullification.ParentFrameId) || IsNativeSlashTargetDuelZeroUse(nullification.ParentFrameId) || IsProgramVirtualOrdinaryTrickUse(nullification.ParentFrameId) ? Array.Empty<int>() : IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId) || IsConditionalDiscardDuelUse(nullification.ParentFrameId) || IsFriendRecastDuelUse(nullification.ParentFrameId) || IsZhenyingDuelUse(nullification.ParentFrameId) || IsHeJinMouzhuDuelUse(nullification.ParentFrameId) || IsWuAnGuoLiyongDuelUse(nullification.ParentFrameId) || IsJueshengDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
                 ? physicalCardIds
                 : [nullification.EffectCardId];
             var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(nullification.ParentFrameId) ?? DiouNativeAncestorProcessing(nullification.ParentFrameId) ?? MouLiuChengNativeAncestorProcessing(nullification.ParentFrameId);
@@ -19533,6 +19543,7 @@ public sealed partial class GameEngine
         if (LifecycleCardUse(attack.ResolutionId)?.WuAnGuoLiyong is not null)
             return IsWuAnGuoLiyongAttackConsistent(attack, processing);
         if (IsExactHpLossMaterialSlash(attack, processing)) return true;
+        if (IsExactNativeMaterialSlashExpansion(attack, processing)) return true;
         if (IsRoundOnceCardlessProgramRequestAttackConsistent(attack, processing)) return true;
         if (IsWeijieProgramRequestAttackConsistent(attack, processing)) return true;
         if (IsZonghuProgramRequestAttackConsistent(attack, processing)) return true;
@@ -19561,7 +19572,7 @@ public sealed partial class GameEngine
                        .Any(frame => frame.Id == frameId);
         }
 
-        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash ||
+        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash || IsNativeSlashTargetDuelAttack(attack) ||
             LifecycleCardUse(attack.ResolutionId) is { } fireUse && IsCurrentSlashFireChangedUse(fireUse) ||
             IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
             (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
@@ -19672,8 +19683,8 @@ public sealed partial class GameEngine
             if (IsXieweiMultiTargetAttack(fangtian, attack, processing)) return true;
             var fangtianCardLocation = _cardZones.GetLocation(fangtian.Card.Id);
             return attack.ResolutionId == fangtian.ResolutionId &&
-                   attack.SourceSeat == fangtian.SourceSeat &&
-                   attack.EffectiveCardKind == fangtian.EffectiveCardKind &&
+                   (attack.SourceSeat == fangtian.SourceSeat && attack.EffectiveCardKind == fangtian.EffectiveCardKind ||
+                    IsNativeSlashTargetDuelAttack(attack)) &&
                    attack.PhysicalCards.Count == 1 &&
                    attack.PhysicalCards[0].Id == fangtian.Card.Id &&
                    fangtianCardLocation.Zone is CardZoneKind.Processing or CardZoneKind.Hand or

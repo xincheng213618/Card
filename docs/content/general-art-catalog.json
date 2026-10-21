@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "ol-mo-zhang-fei",
+      "characterName": "魔张飞",
+      "defaultSkinId": "75000",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/750",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mo-zhang-fei.png",
+          "sha256": "31faeec373f4dda352a1ad4f20f0ed94883a3e5adde23f9150e0bbc57c5f40cf",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "75000",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-gongsun-zan-mobile",
       "characterName": "谋公孙瓒·移动版",
       "defaultSkinId": "69900",

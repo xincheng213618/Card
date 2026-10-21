@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:mo-zhuohun", "revision": 1,
+      "cardIdentities": [{"id":"own-turn-dodge-as-slash","zones":["hand","woodenOxGrain"],"inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","condition":{"kind":"ownTurn"}}],
+      "triggers": [{"id":"first-color-arrival","window":"afterHealthChanged","subject":"owner","optional":false,"effects":[{"op":"resolveMoZhangFeiZhuohun","target":"owner"}]}]
+    },
+    {
+      "id": "ol:mo-chenshi", "revision": 1,
+      "triggers": [{"id":"first-three-damage","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":false,"effects":[{"op":"resolveMoZhangFeiChenshi","target":"owner"}]}]
+    },
+    {
+      "id": "ol:mo-zhuohun-modified", "revision": 1,
+      "cardIdentities": [{"id":"own-turn-dodge-as-slash","zones":["hand","woodenOxGrain"],"inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","condition":{"kind":"ownTurn"}}],
+      "triggers": [
+        {"id":"first-color-arrival","window":"afterHealthChanged","subject":"owner","optional":false,"effects":[{"op":"resolveMoZhangFeiZhuohun","target":"owner"}]},
+        {"id":"issued-green-draw-replacement","window":"nativeDrawStarting","subject":"owner","optional":false,"effects":[{"op":"resolveMoZhangFeiGreenDraw","target":"owner"}]}
+      ]
+    }
+  ]
+}

@@ -125,14 +125,17 @@ public sealed partial class GameEngine
         var targetCountRule = EvaluateCardTargetCount(actor, effectiveKind);
         var configuredMaximum = ((FiniteRuleQueryValue)targetCountRule.Value).Value;
         var programBonus = configuredMaximum - 1;
-        if (programBonus <= 0) return;
+        var extraTargets = TargetRules.ExtraSlashTargets(new(actor.Seat, effectiveKind,
+            GetProgramEffectiveSuit(actor, physicalCard), legalTargets.Select(p => p.Seat).ToArray()));
+        if (programBonus <= 0 && extraTargets.Count == 0) return;
 
         var usesFangtian = UsesFormalFangtianHalberd &&
                            GetHand(actor).Count == 1 &&
                            GetHand(actor)[0].Id == physicalCard.Id &&
                            HasWeaponAbility(actor, CardKind.FangtianHalberd);
         var existingMaximum = usesFangtian ? 3 : 1;
-        var maximum = Math.Min(existingMaximum + programBonus, legalTargets.Count);
+        var ordinaryMaximum = existingMaximum + Math.Max(0, programBonus);
+        var maximum = Math.Min(ordinaryMaximum + extraTargets.Count, legalTargets.Count);
         if (maximum <= existingMaximum) return;
 
         var orderedTargets = legalTargets
@@ -159,6 +162,7 @@ public sealed partial class GameEngine
             {
                 if (selected.Count == targetCount)
                 {
+                    if (selected.Count(target => !extraTargets.Contains(target.Seat)) > ordinaryMaximum) return;
                     var targetSeats = Array.AsReadOnly(selected.Select(target => target.Seat).ToArray());
                     var combinedEffects = new List<string>();
                     if (usesFangtian) combinedEffects.Add("方天画戟");
@@ -169,7 +173,9 @@ public sealed partial class GameEngine
                         targetSeats[0],
                         DescribeConversion(
                             conversionSource,
-                            $"发动【{string.Join("】【", combinedEffects)}】，以【{slashName}】指定 {string.Join("、", selected.Select(target => target.Name))}"),
+                            combinedEffects.Count == 0
+                                ? $"以【{slashName}】指定 {string.Join("、", selected.Select(target => target.Name))}"
+                                : $"发动【{string.Join("】【", combinedEffects)}】，以【{slashName}】指定 {string.Join("、", selected.Select(target => target.Name))}"),
                         PlayedCardKind: playedCardKind,
                         TargetSeats: targetSeats)
                     {
@@ -201,6 +207,11 @@ public sealed partial class GameEngine
                            HasWeaponAbility(source, CardKind.FangtianHalberd);
         var existingMaximum = usesFangtian ? 3 : 1;
         return targetCount > existingMaximum &&
-               ((FiniteRuleQueryValue)EvaluateCardTargetCount(source, effectiveKind).Value).Value > 1;
+               (((FiniteRuleQueryValue)EvaluateCardTargetCount(source, effectiveKind).Value).Value > 1 ||
+                HasNativeExtraSlashTargets(source, physicalCard, effectiveKind));
     }
+    private bool HasNativeExtraSlashTargets(CharacterState actor, Card physical, CardKind kind) =>
+        TargetRules.ExtraSlashTargets(new(actor.Seat, kind, GetProgramEffectiveSuit(actor, physical),
+            _players.Where(p => p.IsAlive && p.Seat != actor.Seat).Select(p => p.Seat).ToArray())).Count != 0;
+
 }

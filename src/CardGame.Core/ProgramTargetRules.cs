@@ -12,6 +12,8 @@ internal enum ProgramTargetRulePoint
     SlashQualification,
     NativeUseMaterialQualification,
     TargetCountContributions,
+    ExtraSlashTargets,
+    ExtraSlashTargetSource,
     QuotaAllowance,
     SlashQuotaBeforeLimit,
     SlashQuotaAfterLimit
@@ -27,6 +29,15 @@ internal readonly record struct ProgramNativeUseMaterialQuery(
     int ActorSeat, CardKind Kind, IReadOnlyList<int> PhysicalCardIds,
     CardConversionSource? Source = null, long? ExistingUseFrameId = null);
 internal readonly record struct ProgramTargetCountQuery(CharacterState Actor, CardKind Kind);
+internal readonly record struct ProgramSlashTargetExpansionQuery(
+    int ActorSeat, CardKind Kind, Suit EffectiveSuit, IReadOnlyList<int> LegalTargetSeats, bool? EffectiveIsRed = null);
+internal readonly record struct ProgramSlashTargetSourceQuery(CardUseEffectSource Source, string GameplayHash);
+public sealed record ProgramSlashTargetExpansion(CardUseEffectSource Source, string GameplayHash)
+{
+    private readonly IReadOnlyList<int> _targets = Array.AsReadOnly(Array.Empty<int>());
+    public IReadOnlyList<int> TargetSeats
+    { get => _targets; init => _targets = Array.AsReadOnly(value.ToArray()); }
+}
 internal readonly record struct ProgramSlashQuotaQuery(
     CharacterState Actor, CharacterState Target, CardKind Kind, Card? PhysicalCard,
     int? EffectiveRank, int? ExcludedEquipmentId, IReadOnlyList<int>? PhysicalCardIds,
@@ -81,6 +92,8 @@ internal sealed class ProgramTargetRuleCatalog
         ProgramTargetRulePoint.SlashQualification => typeof(Func<ProgramSlashTargetQuery, bool>),
         ProgramTargetRulePoint.NativeUseMaterialQualification => typeof(Func<ProgramNativeUseMaterialQuery, bool>),
         ProgramTargetRulePoint.TargetCountContributions => typeof(Func<ProgramTargetCountQuery, RuleQueryContribution?>),
+        ProgramTargetRulePoint.ExtraSlashTargets => typeof(Func<ProgramSlashTargetExpansionQuery, ProgramSlashTargetExpansion>),
+        ProgramTargetRulePoint.ExtraSlashTargetSource => typeof(Func<ProgramSlashTargetSourceQuery, bool>),
         ProgramTargetRulePoint.QuotaAllowance => typeof(Func<ProgramTargetQuotaQuery, bool>),
         ProgramTargetRulePoint.SlashQuotaBeforeLimit or ProgramTargetRulePoint.SlashQuotaAfterLimit =>
             typeof(Func<ProgramSlashQuotaQuery, bool>),
@@ -95,6 +108,8 @@ internal sealed class ProgramTargetRules
     private readonly Func<ProgramSlashTargetQuery, bool>[] _slashQualifications;
     private readonly Func<ProgramNativeUseMaterialQuery, bool>[] _nativeUseMaterialQualifications;
     private readonly Func<ProgramTargetCountQuery, RuleQueryContribution?>[] _targetCountContributions;
+    private readonly Func<ProgramSlashTargetExpansionQuery, ProgramSlashTargetExpansion?>[] _extraSlashTargets;
+    private readonly Func<ProgramSlashTargetSourceQuery, bool>[] _extraSlashTargetSources;
     private readonly Func<ProgramTargetQuotaQuery, bool>[] _quotaAllowances;
     private readonly Func<ProgramSlashQuotaQuery, bool>[] _slashQuotaBeforeLimit;
     private readonly Func<ProgramSlashQuotaQuery, bool>[] _slashQuotaAfterLimit;
@@ -113,6 +128,8 @@ internal sealed class ProgramTargetRules
         _slashQualifications = Bind<Func<ProgramSlashTargetQuery, bool>>(ProgramTargetRulePoint.SlashQualification);
         _nativeUseMaterialQualifications = Bind<Func<ProgramNativeUseMaterialQuery, bool>>(ProgramTargetRulePoint.NativeUseMaterialQualification);
         _targetCountContributions = Bind<Func<ProgramTargetCountQuery, RuleQueryContribution?>>(ProgramTargetRulePoint.TargetCountContributions);
+        _extraSlashTargets = Bind<Func<ProgramSlashTargetExpansionQuery, ProgramSlashTargetExpansion?>>(ProgramTargetRulePoint.ExtraSlashTargets);
+        _extraSlashTargetSources = Bind<Func<ProgramSlashTargetSourceQuery, bool>>(ProgramTargetRulePoint.ExtraSlashTargetSource);
         _quotaAllowances = Bind<Func<ProgramTargetQuotaQuery, bool>>(ProgramTargetRulePoint.QuotaAllowance);
         _slashQuotaBeforeLimit = Bind<Func<ProgramSlashQuotaQuery, bool>>(ProgramTargetRulePoint.SlashQuotaBeforeLimit);
         _slashQuotaAfterLimit = Bind<Func<ProgramSlashQuotaQuery, bool>>(ProgramTargetRulePoint.SlashQuotaAfterLimit);
@@ -142,6 +159,27 @@ internal sealed class ProgramTargetRules
             if (contribute(query) is { } contribution) contributions = [.. contributions, contribution];
         return contributions;
     }
+
+    internal IReadOnlyList<ProgramSlashTargetExpansion> ExtraSlashTargetClaims(ProgramSlashTargetExpansionQuery query)
+    {
+        var claims = new List<ProgramSlashTargetExpansion>();
+        foreach (var rule in _extraSlashTargets)
+        {
+            if (rule(query) is not { } claim) continue;
+            if (claim.Source.OwnerSeat != query.ActorSeat || !IsExtraSlashTargetSource(claim.Source, claim.GameplayHash) ||
+                claim.TargetSeats.Distinct().Count() != claim.TargetSeats.Count ||
+                claim.TargetSeats.Any(seat => !query.LegalTargetSeats.Contains(seat)))
+                throw new InvalidOperationException("A target expansion lost its declared source or legal target domain.");
+            if (claim.TargetSeats.Count != 0) claims.Add(claim);
+        }
+        return claims.AsReadOnly();
+    }
+
+    internal IReadOnlyList<int> ExtraSlashTargets(ProgramSlashTargetExpansionQuery query) =>
+        Array.AsReadOnly(ExtraSlashTargetClaims(query).SelectMany(claim => claim.TargetSeats).Distinct().ToArray());
+
+    internal bool IsExtraSlashTargetSource(CardUseEffectSource source, string gameplayHash) =>
+        Any(_extraSlashTargetSources, new ProgramSlashTargetSourceQuery(source, gameplayHash));
 
     private static bool Any<TQuery>(Func<TQuery, bool>[] queries, TQuery query)
     {

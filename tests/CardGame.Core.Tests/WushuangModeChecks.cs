@@ -15,14 +15,9 @@ internal static class WushuangModeChecks
             "The actual opt-in content package registers a genuine two-seat duel.");
         // The reported desktop crash: opening-hand confirmation, a host clock
         // debit, then a paced step that creates the initial shopping frame.
-        var reported = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(956567926) with
-            { ConfirmOpeningHand = true, AdvanceAfterHumanCommands = false }, realRegistry);
-        Accept(reported, new StartGameCommand());
-        var published = P(reported)!;
-        // Candidate versions can change with content; keep the reported host
-        // ordering while selecting a currently published legal general.
-        var selected = published.ValidContentIds.FirstOrDefault(id => id.StartsWith("classic:", StringComparison.Ordinal)) ?? published.ValidContentIds[0];
-        Accept(reported, new SelectGeneralCommand(0, selected, reported.Revision, published.PromptId));
+        // Keep the reported host ordering and seed, with the existing bounded
+        // native fixture so an expanding general pool cannot change this setup.
+        var (reported, reportedRegistry) = Start(clock: false, seed: 956567926, confirmOpeningHand: true);
         Accept(reported, new AdvanceOneStepCommand(reported.Revision));
         Accept(reported, new AdvanceOneStepCommand(reported.Revision));
         var confirm = P(reported)!;
@@ -46,7 +41,7 @@ internal static class WushuangModeChecks
         Shopping(reported);
         Require(Shop(reported).Offers.Select(offer => offer.Id).SequenceEqual(nextPage),
             "The ending intermission opens the exact page previewed during the preceding turn.");
-        Cold(reported, realRegistry);
+        Cold(reported, reportedRegistry);
         var (game, registry) = Start(clock: false);
         Drive(game, () => Shop(game).Phase == WushuangShopPhase.OpeningTactic && Shop(game).CanShop);
         Require(Shop(game).Offers.Count == 3 && Shop(game).Offers.All(o => o.Cost == 0 && o.Kind == WushuangOfferKind.Tactic) &&
@@ -157,11 +152,11 @@ internal static class WushuangModeChecks
         Cold(game, registry);
     }
 
-    private static (GameEngine, ContentRegistry) Start(bool clock)
+    private static (GameEngine, ContentRegistry) Start(bool clock, int seed = 17, bool confirmOpeningHand = false)
     {
         var registry = ComposedSkillContentRegistry.CreateShowcase(additionalPackages: [new Fixture(clock)]);
-        var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(17) with
-        { AdvanceAfterHumanCommands = false, UseInteractiveDiscard = false }, registry);
+        var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(seed) with
+        { ConfirmOpeningHand = confirmOpeningHand, AdvanceAfterHumanCommands = false, UseInteractiveDiscard = false }, registry);
         Require(!game.IsWushuangClockRunning && !game.Submit(new TickWushuangClockCommand(1, game.Revision)).Accepted,
             "A started, selected game is required before the trusted host clock can advance.");
         Accept(game, new StartGameCommand());

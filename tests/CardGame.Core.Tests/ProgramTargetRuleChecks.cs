@@ -9,9 +9,13 @@ internal static class ProgramTargetRuleChecks
         var supplied = Methods(typeof(Fixture)).Reverse().ToList();
         var catalog = ProgramTargetRuleCatalog.Discover(supplied);
         supplied.Clear();
+        var expectedOrders = Methods(typeof(Fixture)).SelectMany(method => method.GetCustomAttributes<ProgramTargetRuleAttribute>())
+            .GroupBy(attribute => attribute.Point).ToDictionary(group => group.Key,
+                group => group.Select(attribute => attribute.Order).Order().ToArray());
         Need(catalog.Registrations is IDictionary<ProgramTargetRulePoint, IReadOnlyList<ProgramTargetRuleRegistration>> { IsReadOnly: true } &&
+            catalog.Registrations.Count == Enum.GetValues<ProgramTargetRulePoint>().Length &&
             catalog.Registrations.All(pair => pair.Value is IList<ProgramTargetRuleRegistration> { IsReadOnly: true } &&
-                pair.Value.Select(row => row.Order).SequenceEqual(pair.Key == ProgramTargetRulePoint.DeclaredGlobalProhibition ? [10] : [10, 20])),
+                pair.Value.Select(row => row.Order).SequenceEqual(expectedOrders.GetValueOrDefault(pair.Key, []))),
             "Target query points retain frozen independent admission sets and explicit order.");
         var a = new Fixture(catalog);
         var b = new Fixture(catalog);

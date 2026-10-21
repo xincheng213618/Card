@@ -19,10 +19,11 @@ public sealed partial class GameEngine
     private void IssueCurrentTurnNonLockedSkillSuppression(ProgramSkillFrame frame, int targetSeat)
     {
         ValidateProgramTurnEffectGrant(frame);
+        var issued = _programPipelineHooks.AdmitTurnSuppression(frame, targetSeat);
         if (!ReferenceEquals(frame, _resolutionStack.LastOrDefault()) ||
             _turnProgression.OwnerSeat != _currentSeat || _turnProgression.TurnNumber != _turnNumber ||
-            !IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat || !_players[targetSeat].IsAlive ||
-            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
+            !IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat && !issued || !_players[targetSeat].IsAlive ||
+            !issued && !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
             throw new InvalidOperationException("Suppression requires its actual owned program frame and living other target.");
         var fact = new CurrentTurnNonLockedSkillSuppression(_turnNumber, _currentSeat,
             frame.Id, frame.InstructionIndex - 1, CreateProgramTurnEffectSource(frame), targetSeat);

@@ -156,18 +156,23 @@ public sealed partial class SimpleAiBrain
 
         if (action.Kind == LegalActionKind.Slash)
         {
-            var card = AiActionPhysicalCard(self, action);
-            if (!IsSlashCard(card.Kind))
+            // Native zero-material actions were scored above; only an actual
+            // physical material can carry this additional hand reserve cost.
+            if (action.CardId is > 0)
             {
-                var reserve = card.Kind switch
+                var card = AiActionPhysicalCard(self, action);
+                if (!IsSlashCard(card.Kind))
                 {
-                    CardKind.Peach => self.Hp < self.MaxHp ? 105 : 65,
-                    CardKind.Dodge when self.Hand.Count(card => card.Kind == CardKind.Dodge) == 1 => self.Hp <= 2 ? 40 : 15,
-                    CardKind.Alcohol when self.Hp <= 1 => 75,
-                    _ => 0
-                };
-                score -= reserve;
-                if (reserve > 0) reason += $" 转化会消耗保命牌，扣除 {reserve} 分。";
+                    var reserve = card.Kind switch
+                    {
+                        CardKind.Peach => self.Hp < self.MaxHp ? 105 : 65,
+                        CardKind.Dodge when self.Hand.Count(card => card.Kind == CardKind.Dodge) == 1 => self.Hp <= 2 ? 40 : 15,
+                        CardKind.Alcohol when self.Hp <= 1 => 75,
+                        _ => 0
+                    };
+                    score -= reserve;
+                    if (reserve > 0) reason += $" 转化会消耗保命牌，扣除 {reserve} 分。";
+                }
             }
             if (self.HasAlcoholEffect)
             {

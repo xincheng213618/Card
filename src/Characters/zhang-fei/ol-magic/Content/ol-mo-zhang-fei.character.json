@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-fei",
+  "skills": [
+    {
+      "registrationOrder": 2550,
+      "programBundle": "ol-mo-zhang-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-zhuohun", "name": "灼魂",
+        "description": "锁定技，你的回合内：你的【闪】均视为【杀】；一名角色的勾玉首次变为一个颜色后，你摸一张牌。",
+        "executionForms": "State, Trigger", "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2551,
+      "programBundle": "ol-mo-zhang-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-chenshi", "name": "瞋视",
+        "description": "锁定技，若其他角色的勾玉颜色与你：不同，你使用黑色【杀】能额外指定其为目标；相同，你对其，或其对你使用的黑色【杀】改为【决斗】。你因【杀】和【决斗】首次造成了或受到了至少3点伤害后，你回复1点体力，修改“灼魂”并入魔。入魔后，每轮结束时，若本轮你未造成过伤害，你失去1点体力。修改后的“灼魂”：锁定技，你的回合内：你的【闪】均视为【杀】；一名角色的勾玉首次变为一个颜色后，你将手牌摸至体力上限，并执行对应效果：绿色，其本回合摸牌改为从牌堆获得等量【杀】；黄色，其本回合非锁定技失效；红色，若无角色处于濒死状态，其失去所有体力。",
+        "executionForms": "State, Trigger", "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2552,
+      "programBundle": "ol-mo-zhang-fei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-zhuohun-modified", "name": "灼魂（修改后）",
+        "description": "锁定技，你的回合内：你的【闪】均视为【杀】；一名角色的勾玉首次变为一个颜色后，你将手牌摸至体力上限，并执行对应效果：绿色，其本回合摸牌改为从牌堆获得等量【杀】；黄色，其本回合非锁定技失效；红色，若无角色处于濒死状态，其失去所有体力。",
+        "executionForms": "State, Trigger", "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2553,
+      "pools": { "current": 559 },
+      "definition": {
+        "id": "ol:mo-zhang-fei", "name": "魔张飞", "portraitKey": "ol-mo-zhang-fei",
+        "skillId": "ol:mo-zhuohun", "additionalSkillIds": ["ol:mo-chenshi"],
+        "factionId": "shu", "baseHp": 5, "gender": "Male",
+        "characterId": "character:zhang-fei", "variantId": "magic-ol", "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

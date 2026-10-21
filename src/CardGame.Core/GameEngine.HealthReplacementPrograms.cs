@@ -22,7 +22,8 @@ public sealed partial class GameEngine
         };
         if (!_setupComplete || changed.Item1 < 0 || changed.Item3 <= 0 || _winner != Winner.None ||
             (CollectProgramTriggerCandidates(_players[changed.Item1], SkillProgramTriggerWindow.AfterHealthChanged).Count == 0 &&
-             !HasQimeiHealthSubject(changed.Item1) && !HasWenyiHealthSubject(changed.Item1))) return;
+             !HasQimeiHealthSubject(changed.Item1) && !HasWenyiHealthSubject(changed.Item1) &&
+             !_programPipelineHooks.HealthChangeSubject(changed.Item1))) return;
         var owner = _players[changed.Item1];
         var healthOwner = GrantedEntityTrailerHealthOwner(payload) ?? _resolutionStack.LastOrDefault()?.Id;
         var before = payload is DamageAppliedEvent damagePaid ? damagePaid.ArmorPayment?.HpBefore ?? owner.Hp + changed.Item3 :
@@ -33,6 +34,7 @@ public sealed partial class GameEngine
         _pendingHpChanges.Add(change);
         CaptureQimeiHpQualification(change);
         CaptureMouSunJianOlHp(change);
+        _programPipelineHooks.CaptureHealthChange(change);
     }
 
     private bool ApplyAttackAsHpLoss(IDamageAttempt attack)

@@ -33,6 +33,12 @@ internal static class WoLongFengChuChecks
                 "Cold returning from the paid cost issues one real native DrawTwo, even after the source disappeared, without a second equipment or quota payment. " +
                 JsonSerializer.Serialize(new { loss, hand, current = V(g, 0).HandCount, paid = E<EquipmentSlotNamedUsePaidEvent>(g).Count(), consumed = E<EquipmentSlotNamedUseConsumedEvent>(g).Count(), issued = E<EquipmentSlotNamedUseIssuedEvent>(g).Count(), actions = E<CardActionAcceptedEvent>(g).Select(e => new { e.Action.ActorSeat, e.Action.Type, e.Action.EffectiveKind, physical = e.Action.PhysicalCards.Count, conversions = e.Action.ConversionChain.Select(c => c.SkillId) }) }));
             _ = Cold(g, registry); if (loss) continue;
+            var zeroSlash = NamedActions(g).First(a => a.PlayedCardKind == CardKind.Slash && a.TargetSeats.SequenceEqual([1]));
+            var endPlay = g.GetHumanLegalActions().Single(a => a.Kind == LegalActionKind.EndPlay);
+            var (aiChoice, aiThought) = new SimpleAiBrain(0, 31, policyVersion: 2).ChoosePlay(g.CreateSnapshot(0), [zeroSlash, endPlay], 1);
+            Need(aiChoice == zeroSlash && aiThought.Candidates.Single(c => c.Action == zeroSlash).Score > 0 &&
+                zeroSlash.CardId == 0 && zeroSlash.TieredRoundZeroUse is not null,
+                "Tactical AI scores and selects the genuinely published zero-material Slash without looking up a nonexistent physical card or charging a hand reserve cost.");
             Named(g, CardKind.Slash, 1); Reach(g, () => Slots(P(g))); Slot(g, EquipmentSlot.Armor); Play(g);
             Need(E<EquipmentSlotNamedUsePaidEvent>(g).Select(e => e.Payment.Yin).SequenceEqual([false, true]) && !NamedActions(g).Any(),
                 "Yang and Yin each pay their own one-use allowance during the actual round.");

@@ -61,13 +61,18 @@ public sealed partial class GameEngine
         public long MovementSequence => engine.OutsidePhaseMovementSequence;
         public SkillProgramTriggerFacts CaptureTriggerFacts(int seat) => engine.CaptureProgramTriggerFacts(engine._players[seat]);
         public IReadOnlyList<ProgramTriggerCandidate> CollectCandidates(int seat, SkillProgramTriggerFacts facts) =>
-            engine.CollectEligibleProgramTriggerCandidates(engine._players[seat], SkillProgramTriggerWindow.NativeDrawStarting, facts);
+            engine._programPipelineHooks.IncludeNativeDrawCandidates(seat,
+                engine.CollectEligibleProgramTriggerCandidates(engine._players[seat], SkillProgramTriggerWindow.NativeDrawStarting, facts));
         public IEnumerable<CardMovementRecord> Movements()
         {
             foreach (var movement in engine._cardMovements) yield return movement;
         }
         public IEnumerable<NativeDrawAttemptStartedEvent> StartedEvents() => engine.ProgramEventHistory<NativeDrawAttemptStartedEvent>();
         public IEnumerable<NativeDrawAttemptDecidedEvent> DecidedEvents() => engine.ProgramEventHistory<NativeDrawAttemptDecidedEvent>();
+        public NativeDrawPileSlashProof? DrawPileSlashReplacementProof(ProgramSkillFrame frame, NativeDrawAttemptContext context) =>
+            engine.NativeDrawPileSlashReplacementProof(frame, context);
+        public bool IsIssuedDrawPileSlashReplacement(NativeDrawAttemptContext context, NativeDrawReplacementResult replacement) =>
+            engine.IsIssuedNativeDrawPileSlashReplacement(context, replacement);
         public void CompleteLingkongReplacement(ProgramSkillFrame frame, NativeDrawAttemptFrame attempt, NativeDrawReplacementResult replacement) =>
             engine.CompleteLingkongNativeDrawReplacement(frame, attempt, replacement);
     }

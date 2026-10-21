@@ -493,6 +493,8 @@ var tests = new (string Name, Action Body)[]
     ("Mou Da Qiao Mobile: Identity Guose shares four native uses", CardGame.Core.Tests.MouDaQiaoMobileChecks.IdentityGuoseSharesFourNativeUses),
     ("Mou Huang Yueying Mobile: native Jizhi exact exemption and Qicai three received entities", CardGame.Core.Tests.MouHuangYueyingMobileChecks.NativeJizhiExactExemptionAndQicaiThreeReceivedEntities),
     ("OL Mo Lu Bu: native opening Qi Gangquan reciprocal Kuang and death return", CardGame.Core.Tests.OlMoLuBuChecks.NativeOpeningQiGangquanReciprocalKuangAndDeathReturn),
+    ("OL Mo Zhang Fei: mandatory identity mixed native targets and counterspell Cold", CardGame.Core.Tests.OlMoZhangFeiChecks.MandatoryIdentityMixedNativeTargetsAndCounterspellCold),
+    ("OL Mo Zhang Fei: native three damage modification colors and issued green Cold", CardGame.Core.Tests.OlMoZhangFeiChecks.NativeThreeDamageModificationColorsAndIssuedGreenCold),
     ("Mou Han Dang Mobile: native color responses and range aid", CardGame.Core.Tests.MouHanDangMobileChecks.NativeColorResponsesAndRangeAid),
     ("Wu Huangfu Song: Chaozhen real minimum first turn Dying recovery cold", CardGame.Core.Tests.WuHuangFuSongChecks.ChaozhenRealMinimumFirstTurnDyingRecoveryAndCold),
     ("Wu Zhuge Liang: complete opening HP ordering Qingshi branches copied Use cold", CardGame.Core.Tests.WuZhugeLiangChecks.CompleteOpeningHpOrderingQingshiBranchesAndCopiedUseCold),
