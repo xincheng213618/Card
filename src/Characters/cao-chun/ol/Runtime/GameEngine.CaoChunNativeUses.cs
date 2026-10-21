@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private CardLocation CaoChunNativeCostDestination(CardActionContext action,CardActionCost cost)=>NormalizeDiouCarrierDestination(GetAdvancedCard(cost.CardId), cost.From, GetAdvancedCard(cost.CardId).IsGeneralWeapon&&cost.From.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:IsProgramAlternativeCost(action,cost.CardId)?CardLocation.DrawPile:CardLocation.Processing);
+ private CardLocation CaoChunNativeCostDestination(CardActionContext action,CardActionCost cost)=>NormalizeEphemeralCardDestination(GetAdvancedCard(cost.CardId), cost.From, GetAdvancedCard(cost.CardId).IsGeneralWeapon&&cost.From.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:IsProgramAlternativeCost(action,cost.CardId)?CardLocation.DrawPile:CardLocation.Processing);
  private void BindCaoChunNativeUse(CardUseFrame use)
  {
   var i=_resolutionStack.FindIndex(x=>x.Id==use.Id);if(i<1||_resolutionStack[i-1]is not ProgramSkillFrame{CaoChun:{Stage:CaoChunStage.NativeSlash,Slash:{}n}r}parent)return;

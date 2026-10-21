@@ -66,7 +66,10 @@ public sealed record ExtraEffectMaterialClaim(long CardUseFrameId, long ActionId
 public sealed partial record CardUseFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ExtraCardEffectState? ExtraCardEffect { get; init; } }
 public sealed record ExtraForeignCardSlot(int Slot, int? PublicCardId, CardLocation? PublicLocation);
-public sealed record ExtraForeignCardSelection(long ActionId, int HandCount, IReadOnlyList<ExtraForeignCardSlot> Slots);
+public sealed record ExtraForeignCardSelection(long ActionId, int HandCount, IReadOnlyList<ExtraForeignCardSlot> Slots)
+{
+    public bool AllowFinish { get; init; }
+}
 public sealed partial record TargetCardSelectionFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ExtraForeignCardSelection? ExtraForeignSelection { get; init; } }
 internal interface IExtraEffectsAndRankGuessHost

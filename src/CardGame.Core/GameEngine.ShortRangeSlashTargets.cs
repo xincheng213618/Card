@@ -51,7 +51,7 @@ public sealed partial class GameEngine
                 : !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, use.CardKind, use.Id) &&
                     !IsCardTargetProhibited(target, use.CardKind, Suit.None, null) && !HasBeneficiarySuitShield(actor.Seat, target.Seat, Suit.None) &&
                     !IsSlashProhibited(target) && IsWithinSpecificSlashRange(actor, target, use.CardKind, null, use.Id)))
-            .OrderBy(target => (target.Seat - actor.Seat + _playerCount) % _playerCount).Select(target => target.Seat).ToArray();
+            .OrderBy(target => RelativeTableOrder(actor.Seat, target.Seat)).Select(target => target.Seat).ToArray();
     }
     private SkillProgramStepOutcome OfferShortRangeSlashTarget(ProgramSkillFrame supplied)
     {

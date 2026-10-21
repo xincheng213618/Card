@@ -68,9 +68,11 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class NativeProgramExecution(GameEngine engine) : INativeProgramExecution
     {
-        public bool TryResume(long frameId) => ProgramContinuations.Value.TryResume(engine, frameId);
+        public bool TryResume(long frameId) => engine.TryBeginProgramSkillInvocation(frameId) ||
+            ProgramContinuations.Value.TryResume(engine, frameId);
         public void Execute(long frameId)
         {
+            if (engine.TryBeginProgramSkillInvocation(frameId)) return;
             var host = new ProgramSkillHost(engine);
             new SkillProgramExecutor().Run(frameId, host, host);
         }

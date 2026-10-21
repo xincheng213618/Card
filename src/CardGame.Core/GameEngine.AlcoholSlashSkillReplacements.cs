@@ -139,13 +139,19 @@ public sealed partial class GameEngine
     private bool WasGrantPermanentlyRevokedAfterLoss(int ownerSeat, SkillGrant grant, IGameEvent originalLoss)
     {
         if (!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ReplaceOwnSkillsAfterAlcoholSlashDamage) &&
-            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePrepPoisonOutcomeByRound)) return false;
+            !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePrepPoisonOutcomeByRound) &&
+            !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveShenHuaTuoHuandao) &&
+            !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.TeachMobileShenHuaTuoWuling)) return false;
         var history = CompleteProgramEventHistory().ToArray();
         var lossIndex = Array.FindIndex(history, e => ReferenceEquals(e, originalLoss));
         if (lossIndex < 0) throw new InvalidOperationException("Permanent grant restoration validation lost its original issued loss fact.");
         return history.Skip(lossIndex + 1).OfType<ProgramAlcoholSlashSkillsReplacedEvent>().Any(e => e.Receipt.Source.OwnerSeat == ownerSeat &&
             e.Receipt.RevokedGrants.Any(revoked => SamePermanentGrantIdentity(grant, revoked))) ||
-            history.Skip(lossIndex + 1).OfType<PrepPoisonGrantRevokedEvent>().Any(e => e.OwnerSeat == ownerSeat && SameRoundSkillIdentity(grant, e.Grant));
+            history.Skip(lossIndex + 1).OfType<PrepPoisonGrantRevokedEvent>().Any(e => e.OwnerSeat == ownerSeat && SameRoundSkillIdentity(grant, e.Grant)) ||
+            history.Skip(lossIndex + 1).OfType<ShenHuaTuoSkillRevokedEvent>().Any(e => e.TargetSeat == ownerSeat &&
+                e.GrantId == grant.GrantId && e.SkillId == grant.SkillId && e.SkillInstanceId == grant.SkillInstanceId && e.SourceId == grant.SourceId) ||
+            history.Skip(lossIndex + 1).OfType<MobileWulingGrantRevokedEvent>().Any(e => e.TargetSeat == ownerSeat &&
+                e.GrantId == grant.GrantId && e.SkillId == grant.SkillId && e.SkillInstanceId == grant.SkillInstanceId && e.SourceId == grant.SourceId);
     }
 
     [ProgramContinuation(ProgramContinuationKind.Resume, 3902)]

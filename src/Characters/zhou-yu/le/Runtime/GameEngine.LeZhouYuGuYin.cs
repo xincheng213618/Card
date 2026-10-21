@@ -95,7 +95,7 @@ public sealed partial class GameEngine
             .Where(i => i.SkillId == "le:guyin").SelectMany(i => i.Program.Triggers.Where(IsGuYinDiscardTrigger)
                 .Select(t => new GuYinSourceSnapshot(new(i.SkillId, t.Id, p.Seat, i.SkillInstanceId), i.Program.GameplayHash)))
             .OrderBy(s => s.Source.SkillInstanceId, StringComparer.Ordinal).Take(1))
-            .OrderBy(s => (s.Source.OwnerSeat - _currentSeat + _playerCount) % _playerCount).ToArray());
+            .OrderBy(s => RelativeTableOrder(_currentSeat, s.Source.OwnerSeat)).ToArray());
 
     private void CaptureGuYinDiscardBatch(CardMovementBatchContext batch, IReadOnlyList<GuYinSourceSnapshot> sources)
     {

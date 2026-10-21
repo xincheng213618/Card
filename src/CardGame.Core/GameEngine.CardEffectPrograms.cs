@@ -36,7 +36,7 @@ public sealed partial class GameEngine
     {
         var candidates = CollectSharedCardActionCandidates(action,SkillProgramTriggerWindow.CardEffectBeforeApply,designated,null)
             .Where(candidate => !perTargetOnly || HasPerTargetTrickEffectBinding(candidate))
-            .OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId,StringComparer.Ordinal)
+            .OrderByDescending(c => c.Priority).ThenBy(c => RelativeTableOrder(0, c.OwnerSeat)).ThenBy(c => c.SkillId,StringComparer.Ordinal)
             .ThenBy(c => c.SkillInstanceId,StringComparer.Ordinal).ThenBy(c => c.TriggerId,StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return false;
         var id = ++_resolutionSequence; var parentId = ordinary?.ParentFrameId ?? delayed?.ParentFrameId ?? (nativeTargetReturn!.WenheProgramFrameId ?? nativeTargetReturn.UseId);

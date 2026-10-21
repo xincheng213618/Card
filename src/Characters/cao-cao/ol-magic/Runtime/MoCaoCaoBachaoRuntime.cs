@@ -23,7 +23,7 @@ internal sealed partial class MoCaoCaoBachaoRuntime(IMoCaoCaoFacts facts, IMoCao
             if (facts.Phase is not { Kind: ActualDiscardRecoveryPhaseKind.Play } phase || phase.ActorSeat != f.OwnerSeat)
                 throw new InvalidOperationException("Bachao starts only at the owner's actual Play boundary.");
             var seats = facts.Seats.Where(s => s != f.OwnerSeat && facts.Participant(s).Alive)
-                .OrderBy(s => (s - f.OwnerSeat + facts.Seats.Count) % facts.Seats.Count).ToArray();
+                .OrderBy(s => DamageTriggerOrdering.GetRelativeSeatOrder(f.OwnerSeat, s, facts.Seats.Count, facts.Seats)).ToArray();
             frames.ReplaceTop(f = f with { MoCaoCaoBachao = new(Source(f), f.GameplayHash, f.WindowContext!.ParentFrameId, phase)
                 { Participants = seats, Stage = MoCaoCaoBachaoStage.Commit, Accepted = true } });
             events.AdvanceFact(new MoCaoCaoBachaoStartedEvent(f.Id, Source(f), f.GameplayHash, f.MoCaoCaoBachao!.WindowId, phase));

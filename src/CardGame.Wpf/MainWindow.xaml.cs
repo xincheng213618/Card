@@ -97,7 +97,7 @@ public partial class MainWindow : Window
         {
             button ??= source as Button;
             hand ??= source as HandPanel;
-            onPlaySurface |= ReferenceEquals(source, Battlefield) || ReferenceEquals(source, HandDock);
+            onPlaySurface |= ReferenceEquals(source, Battlefield) || ReferenceEquals(source, HandDock) || ReferenceEquals(source, HumanSkillPanel);
             source = source is Visual ? VisualTreeHelper.GetParent(source) : LogicalTreeHelper.GetParent(source);
         }
         if (hand is not null) button = hand.CardButtonAt(e.GetPosition(hand));

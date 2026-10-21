@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-ce",
+  "skills": [
+    { "registrationOrder": 30100, "programBundle": "mobile-shen-sun-ce", "includeProgramPresentation": true, "definition": {
+      "id": "mobile:yingba", "name": "英霸", "description": "出牌阶段限一次，你可以令一名体力上限大于1的其他角色减1点体力上限并获得1个“平定”标记，然后你减1点体力上限。你对拥有“平定”标记的角色使用牌无距离限制。", "actionForms": "Active", "executionForms": "State" } },
+    { "registrationOrder": 30101, "programBundle": "mobile-shen-sun-ce", "includeProgramPresentation": true, "definition": {
+      "id": "mobile:fuhai", "name": "覆海", "description": "锁定技，拥有“平定”标记的角色不能响应你对其使用的牌。你使用牌指定有“平定”标记的角色为目标后，你摸一张牌（每回合你至多以此法获得两张牌）。拥有“平定”标记的角色死亡时，你增加X点体力上限并摸X张牌（X为其拥有的“平定”标记数）。", "tags": "Locked", "executionForms": "State, Trigger" } },
+    { "registrationOrder": 30102, "programBundle": "mobile-shen-sun-ce", "includeProgramPresentation": true, "definition": {
+      "id": "mobile:fenghe", "name": "冯河", "description": "锁定技，你的手牌上限等于已损失的体力值。当你受到其他角色造成的伤害时，若你有手牌且体力上限大于1，则防止此伤害，然后你减1点体力上限并将一张手牌交给一名其他角色，然后若你拥有“英霸”，伤害来源获得1个“平定”标记。", "tags": "Locked", "executionForms": "State, Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 30103, "pools": { "current": 30103 }, "definition": {
+    "id": "mobile:shen-sun-ce", "name": "神孙策", "portraitKey": "mobile-shen-sun-ce", "skillId": "mobile:yingba", "additionalSkillIds": ["mobile:fuhai", "mobile:fenghe"],
+    "factionId": "god", "baseHp": 6, "initialHp": 1, "gender": "Male", "characterId": "character:sun-ce", "variantId": "mobile-god", "rulesetId": "sanguosha-mobile"
+  } } ]
+}

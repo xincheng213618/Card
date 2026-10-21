@@ -97,8 +97,9 @@ public sealed partial class GameEngine
     }
 
     private Card ApplyProgramUseAppearance(CharacterState owner, Card card, CardConversionSource? source) =>
+        IsShenZfIdentitySource(owner, card, source) ? card with { Suit = Suit.None } :
         ApplyJuewuOwnedAppearance(owner,
-        source is not null && IsXieweiSource(source) ? card with { Suit = Suit.None, Rank = 0 } :
+        source is not null && (IsXieweiSource(source) || IsWushuangJinzhiSource(source)) ? card with { Suit = Suit.None, Rank = 0 } :
         source is not null && ViewAsRule(source)?.InheritPreviousPlaySuit == true &&
         PreviousPlayCard(owner.Seat)?.EffectiveSuit is { } suit
             ? card with { Suit = suit }

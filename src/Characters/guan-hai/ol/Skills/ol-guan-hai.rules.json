@@ -44,7 +44,7 @@
       ],
       "triggers": [
         {
-          "id": "paid-bait-basic-use",
+          "id": "paid-bait-basic-use", "isSkillInvocation": false,
           "window": "cardUseCommitted",
           "ownerRelation": "conversionSource",
           "sourceSkillId": "ol:xiewei",

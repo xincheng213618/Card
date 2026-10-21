@@ -57,7 +57,7 @@ public sealed partial class GameEngine
         var entries = new List<(ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)>();
         AppendUnannouncedUniqueHpTargets(use, parent.Id, entries);
         if (entries.Count == 0) return parent;
-        entries = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => e.Candidate.OwnerSeat)
+        entries = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => RelativeTableOrder(0, e.Candidate.OwnerSeat))
             .ThenBy(e => e.Candidate.SkillId, StringComparer.Ordinal).ToList();
         // Preserve the completed prefix, current cursor and all old candidates.
         ReplaceRuntimeTop(parent = parent with { Candidates = parent.Candidates.Concat(entries.Select(e => e.Candidate)).ToArray(),

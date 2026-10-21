@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             return false;
         }
         if (!attack.TryAdvanceChainedTarget(seat => _players[seat].IsAlive,
-                UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers || IsGuanduActivity ||
+                UsesFormalTengjia || UsesFormalSilverLion || HasShenwuRecipientDamageModifiers || IsGuanduActivity || IsWushuangMode ||
                 HasPublicEnemyRecipientDamageScope(attack) || HasFixedTargetRecipientDamageScope(attack) ||
                 HasPerOccurrenceSourceDamageModifiers(attack.SourceSeat) || HasNextRecipientPassiveDamageCap(attack), out fromSeat)) return false;
         DamageHooks.AdvanceChain(ProgramDamagePhase.AfterChainAdvance, attack);

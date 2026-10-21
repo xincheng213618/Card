@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "移动版神荀彧与一将成名正式版神姜维、神邓艾的官方默认立绘及本地图鉴绑定；规则分别见人物来源档案。",
+  "portraits": [
+    {
+      "key": "mobile-shen-xun-yu",
+      "characterName": "神荀彧",
+      "defaultSkinId": "22200",
+      "skins": [
+        {
+          "id": "22200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-337.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22200.jpg",
+          "sha256": "223277089c1b360c21daf2f5d99094a5a0a1eebc2bac65ed7bb91c571ef164cf",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-xun-yu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-jiang-wei",
+      "characterName": "神姜维",
+      "defaultSkinId": "121301",
+      "skins": [
+        {
+          "id": "121301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/213.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121301.png",
+          "sha256": "2c0c3a7fe49c7624f76038fc09b3021f4cc3dbdbbf959c4aa68a9f0517552fd3",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-jiang-wei.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-deng-ai",
+      "characterName": "神邓艾",
+      "defaultSkinId": "121701",
+      "skins": [
+        {
+          "id": "121701",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/217.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121701.png",
+          "sha256": "8e8232819f2bbbd26b7e3f951ab52f08879d14a24c1e4745c3638b443c6c582f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-deng-ai.png"
+        }
+      ]
+    }
+  ]
+}

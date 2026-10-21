@@ -43,7 +43,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Mou Fa Zheng cannot borrow another gain or Preparation window.");
             r = r with { Accepted = true, Stage = MouFaZhengStage.NextMark };
             if (op == SkillProgramEffectOp.ResolveMouFaZhengEnyuan)
-                r = r with { Marks = MouFaZhengMarks().Where(m => m.Source.OwnerSeat == f.OwnerSeat).OrderBy(m => (m.TargetSeat - f.OwnerSeat + _playerCount) % _playerCount).Select(m => m.MarkId).ToArray() };
+                r = r with { Marks = MouFaZhengMarks().Where(m => m.Source.OwnerSeat == f.OwnerSeat).OrderBy(m => RelativeTableOrder(f.OwnerSeat, m.TargetSeat)).Select(m => m.MarkId).ToArray() };
             else
             {
                 var q = MouFaZhengQualification(new(f.OwnerSeat, f.SkillId, GetProgramBindingId(f), f.SkillInstanceId, f.GameplayHash, GetProgramTrigger(f).Priority, w.OccurrenceIndex), w)!;

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
 
-public enum CardDeclarationPurpose { Use, Dodge, Duel, Group, Counterspell, Recovery, FactionDefense, FactionSlash, ProvidedSlash, BorrowedSword, BorrowedSwordProvidedSlash, QinglongProvidedSlash, MouLuSuAnniversaryPlayed = 36100, MouSimaYiPlayed = 36200, MouJuShouUse = 36900 }
+public enum CardDeclarationPurpose { Use, Dodge, Duel, Group, Counterspell, Recovery, FactionDefense, FactionSlash, ProvidedSlash, BorrowedSword, BorrowedSwordProvidedSlash, QinglongProvidedSlash, MouLuSuAnniversaryPlayed = 36100, MouSimaYiPlayed = 36200, MouJuShouUse = 36900, QizhengResponse = 38300 }
 public enum CardDeclarationStage { Paying, Challenging, Granting, Cleaning, Returning, Applying }
 
 public sealed record CardDeclarationParentReturn(CardDeclarationPurpose Purpose, long ParentFrameId,

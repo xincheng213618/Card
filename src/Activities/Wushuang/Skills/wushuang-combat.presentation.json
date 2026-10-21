@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "wushuang:tactic-2028": {
+      "name": "狭路相逢",
+      "description": "受到【决斗】伤害后回复1点体力"
+    },
+    "wushuang:tactic-2048": {
+      "name": "淬血",
+      "description": "你每轮【杀】首次造成伤害后摸1张牌"
+    },
+    "wushuang:tactic-2049": {
+      "name": "淬血Ⅱ",
+      "description": "你每轮【杀】首次造成伤害后摸2张牌"
+    },
+    "wushuang:tactic-2085": {
+      "name": "策定天下",
+      "description": "出牌阶段限一次,你使用锦囊牌造成伤害后,摸1张牌"
+    },
+    "wushuang:tactic-2086": {
+      "name": "策定天下Ⅱ",
+      "description": "出牌阶段限一次,你使用锦囊牌造成伤害后,摸2张牌"
+    },
+    "wushuang:tactic-2111": {
+      "name": "酣战",
+      "description": "与你【决斗】的角色每次需打出两张【杀】"
+    },
+    "wushuang:tactic-2116": {
+      "name": "荆棘甲",
+      "description": "每次受到伤害后对伤害来源造成1点伤害"
+    },
+    "wushuang:tactic-2128": {
+      "name": "及时雨",
+      "description": "回合外失去最后一张手牌后，摸两张牌"
+    },
+    "wushuang:tactic-2147": {
+      "name": "血战Ⅰ",
+      "description": "体力上限-1（最低为1），每轮开始时回复1点体力 "
+    },
+    "wushuang:tactic-2148": {
+      "name": "血战Ⅱ",
+      "description": "体力上限-1（最低为1），每轮开始时回复2点体力"
+    },
+    "wushuang:tactic-2264": {
+      "name": "血战Ⅰ",
+      "description": "体力上限-1（最低为1），每轮开始时回复1点体力"
+    },
+    "wushuang:tactic-2265": {
+      "name": "血战Ⅱ",
+      "description": "体力上限-2（最低为1），每轮开始时回复2点体力"
+    },
+    "wushuang:tactic-2266": {
+      "name": "血战Ⅲ",
+      "description": "体力上限-3（最低为1），每轮开始时回复3点体力"
+    },
+    "wushuang:tactic-2174": {
+      "name": "勇战Ⅰ",
+      "description": "你脱离濒死时，对所有敌方造成1点伤害"
+    },
+    "wushuang:tactic-2175": {
+      "name": "勇战Ⅱ",
+      "description": "你脱离濒死时，对所有敌方造成2点伤害"
+    },
+    "wushuang:tactic-2190": {
+      "name": "阴阳术法",
+      "description": "敌方无法响应你的伤害锦囊牌"
+    },
+    "wushuang:tactic-2228": {
+      "name": "奋进",
+      "description": "当体力大于2点，回合开始时失去1点体力并摸2张牌"
+    },
+    "wushuang:tactic-2238": {
+      "name": "妙手空空",
+      "description": "你使用【顺手牵羊】无距离限制"
+    },
+    "wushuang:tactic-2242": {
+      "name": "蓄力箭",
+      "description": "你使用的【万箭齐发】其他角色需要打出2张【闪】来响应"
+    },
+    "wushuang:tactic-2368": {
+      "name": "孤注一掷",
+      "description": "回合开始时你失去一点体力，本回合出杀次数+1"
+    },
+    "wushuang:tactic-2019": {
+      "name": "雷鸣",
+      "description": "所有角色在判定阶段都要进行一次【闪电】判定"
+    },
+    "wushuang:tactic-2039": {
+      "name": "铸刀",
+      "description": "你使用【杀】后可以重铸1张牌"
+    },
+    "wushuang:tactic-2040": {
+      "name": "铸刀Ⅱ",
+      "description": "你使用【杀】后可以重铸至多2张牌"
+    },
+    "wushuang:tactic-2104": {
+      "name": "神龙摆尾",
+      "description": "你每摸9张牌，对随机敌方造成1点伤害"
+    },
+    "wushuang:tactic-2143": {
+      "name": "神龙摆尾Ⅱ",
+      "description": "你每摸6张牌，对随机敌方造成1点伤害"
+    },
+    "wushuang:tactic-2120": {
+      "name": "应急战略",
+      "description": "回合外成为敌方角色使用牌唯一目标，随机弃置使用者1张牌"
+    },
+    "wushuang:tactic-2121": {
+      "name": "应急方案",
+      "description": "回合外成为敌方角色基本牌唯一目标，随机弃置使用者1张牌"
+    },
+    "wushuang:tactic-2122": {
+      "name": "应急战术",
+      "description": "回合外成为敌方角色锦囊牌唯一目标，随机弃置使用者1张牌"
+    },
+    "wushuang:tactic-2130": {
+      "name": "重击技",
+      "description": "对敌方造成伤害一次大于等于3点时，摸1张牌"
+    },
+    "wushuang:tactic-2131": {
+      "name": "破釜沉舟",
+      "description": "回合外受到伤害一次大于等于3点时，对伤害来源造成等量同属性伤害。"
+    },
+    "wushuang:tactic-2198": {
+      "name": "搬运",
+      "description": "回合开始时，获得随机敌方一张手牌"
+    },
+    "wushuang:tactic-2245": {
+      "name": "远谋Ⅰ",
+      "description": "第3轮你的回合开始时，你回复2点体力"
+    },
+    "wushuang:tactic-2246": {
+      "name": "远谋Ⅱ",
+      "description": "第3轮你的回合开始时，你回复3点体力"
+    },
+    "wushuang:tactic-2247": {
+      "name": "远谋Ⅲ",
+      "description": "第2轮你的回合开始时，你回复2点体力"
+    },
+    "wushuang:tactic-2367": {
+      "name": "幸运数字",
+      "description": "游戏开始时随机展示一个数字，摸到点数为幸运数字的牌时额外摸一张牌"
+    },
+    "wushuang:tactic-2020": {
+      "name": "稳定体质",
+      "description": "你的体力上限固定为7，无法通过任何途径改变体力值上限"
+    },
+    "wushuang:tactic-2105": {
+      "name": "雷震Ⅰ",
+      "description": "战斗开始时，全场所有角色受到1点雷属性伤害（触发1次）"
+    },
+    "wushuang:tactic-2106": {
+      "name": "雷震Ⅱ",
+      "description": "战斗开始时，全场所有角色受到2点雷属性伤害（触发1次）"
+    },
+    "wushuang:tactic-2185": {
+      "name": "士气剥夺",
+      "description": "敌方的体力上限-1，最低为1"
+    },
+    "wushuang:tactic-2365": {
+      "name": "机略纵横",
+      "description": "你可以重铸桃园结义，万箭齐发，闪电三张锦囊"
+    },
+    "wushuang:tactic-2337": {
+      "name": "双掠",
+      "description": "你使用的【顺手牵羊】额外结算一次"
+    }
+  }
+}

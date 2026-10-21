@@ -60,7 +60,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(f = f with { Step = ResolutionFrameStep.ResolvingEffect, OrdinaryBingyi = r with { OtherRecipients = r.OtherRecipients.Contains(peer) ? r.OtherRecipients.Where(s => s != peer).ToArray() : r.OtherRecipients.Append(peer).ToArray() } });
             PublishOrdinaryBingyi(f); return;
         }
-        var recipients = new[] { f.OwnerSeat }.Concat(r.OtherRecipients.OrderBy(s => (s - r.Phase.ActualTurnOwnerSeat + _players.Count) % _players.Count)).ToArray();
+        var recipients = new[] { f.OwnerSeat }.Concat(r.OtherRecipients.OrderBy(s => RelativeTableOrder(r.Phase.ActualTurnOwnerSeat, s))).ToArray();
         ReplaceRuntimeTop(f = f with { Step = ResolutionFrameStep.ResolvingEffect, OrdinaryBingyi = r with { RecipientsCommitted = true, Recipients = recipients, Stage = OrdinaryBingyiStage.Drawing } });
         AdvanceEventRulesAndQueueFact(new OrdinaryBingyiRecipientsCommittedEvent(f.Id, recipients.Length));
         for (var i = 0; i < recipients.Length; i++) AdvanceEventRulesAndQueueFact(new OrdinaryBingyiRecipientEvent(f.Id, i, recipients[i]));

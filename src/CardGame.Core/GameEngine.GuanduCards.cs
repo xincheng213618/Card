@@ -23,7 +23,7 @@ public sealed partial class GameEngine
     });
     private IReadOnlyList<int> GuanduEligibleTargets(CharacterState actor, CardKind kind, Suit? suit, bool? color,
         bool excludeOwner = false) => Enumerable.Range(0, _playerCount)
-        .Select(offset => _players[(actor.Seat + offset) % _playerCount])
+        .Select(offset => _players[TableStepSeat(actor.Seat, offset)])
         .Where(target => target.IsAlive && (!excludeOwner || actor.Seat != target.Seat) && (kind switch
         {
             CardKind.Intoxication => !GuanduAllies(actor.Seat, target.Seat) && !GuanduIntoxicationTargetSpent(target.Seat),

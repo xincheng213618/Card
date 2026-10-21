@@ -103,7 +103,7 @@ public sealed partial class GameEngine
         if(r.ReplacedCardId is { } replaced)
         {
             if(replacements is not [var movement] ||movement.CardId!=replaced ||replaced==r.CardId ||
-                GetAdvancedCard(replaced).IsGeneralWeapon!=r.ReplacedGeneralWeapon ||movement.To!=NormalizeDiouCarrierDestination(GetAdvancedCard(r.ReplacedCardId!.Value), CardLocation.Equipment(target), (r.ReplacedGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile)) ||
+                GetAdvancedCard(replaced).IsGeneralWeapon!=r.ReplacedGeneralWeapon ||movement.To!=NormalizeEphemeralCardDestination(GetAdvancedCard(r.ReplacedCardId!.Value), CardLocation.Equipment(target), (r.ReplacedGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile)) ||
                 !EquipmentCatalog.IsEquipment(movement.CardKind) ||EquipmentCatalog.Get(movement.CardKind).Slot!=r.Slot)
                 throw new InvalidOperationException("Captured equipment placement lost its first replaced physical/generated identity.");
         }
@@ -114,7 +114,7 @@ public sealed partial class GameEngine
         if(payment.Any(m=>!(m.Sequence==r.EntryMovementSequence &&m.CardId==r.CardId &&m.From==r.OriginalFrom &&
                 m.To==CardLocation.Equipment(target) &&m.Reason==CardMoveReasons.EquipmentEnter) &&
             !(m.CardId==r.ReplacedCardId &&m.From==CardLocation.Equipment(target) &&
-                m.To==NormalizeDiouCarrierDestination(GetAdvancedCard(r.ReplacedCardId!.Value), CardLocation.Equipment(target), (r.ReplacedGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&m.Reason==CardMoveReasons.EquipmentReplace) &&
+                m.To==NormalizeEphemeralCardDestination(GetAdvancedCard(r.ReplacedCardId!.Value), CardLocation.Equipment(target), (r.ReplacedGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&m.Reason==CardMoveReasons.EquipmentReplace) &&
             !(movedOx &&m.From==CardLocation.WoodenOxGrain(f.OwnerSeat) &&m.To==CardLocation.WoodenOxGrain(target) &&m.Reason==CardMoveReasons.WoodenOxTransfer) &&
             !(replacedOx &&m.From==CardLocation.WoodenOxGrain(target) &&m.To==CardLocation.DiscardPile &&m.Reason==CardMoveReasons.WoodenOxGrainDiscard)))
             throw new InvalidOperationException("Captured equipment placement contains a movement outside its exact equipment/WoodenOx payment.");

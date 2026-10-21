@@ -10,7 +10,7 @@ public sealed partial class GameEngine
             .GroupBy(m => (m.CardId, m.To.OwnerSeat)).Select(g => g.OrderBy(m => m.Sequence).Last()).OrderBy(m => m.Sequence).ToArray();
         if (gains.Length == 0) return;
         foreach (var m in gains) AdvanceEventRulesAndQueueFact(new BiriPotentialGainEvent(batch.Id, m.Sequence, m.CardId, m.To.OwnerSeat!.Value, batch.TurnNumber, _turnProgression.OwnerSeat));
-        foreach (var owner in _players.Where(p => p.IsAlive).OrderBy(p => (p.Seat - _turnProgression.OwnerSeat + _players.Count) % _players.Count))
+        foreach (var owner in _players.Where(p => p.IsAlive).OrderBy(p => RelativeTableOrder(_turnProgression.OwnerSeat, p.Seat)))
         {
             var source = GetSkillBindingShard(owner).ProgramInstances.SelectMany(i => i.Program.Triggers.Where(IsBiriTrigger).Select(t => (Source: new CardConversionSource(i.SkillId, t.Id, owner.Seat, i.SkillInstanceId), Hash: i.Program.GameplayHash)))
                 .OrderBy(s => s.Source.SkillInstanceId, StringComparer.Ordinal).FirstOrDefault();

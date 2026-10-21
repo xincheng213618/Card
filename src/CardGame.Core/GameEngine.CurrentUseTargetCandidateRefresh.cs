@@ -21,7 +21,7 @@ public sealed partial class GameEngine
             null, window.Continuation).Where(c => addedMainTargets.Contains(c.OwnerSeat) &&
             _contentRegistry.GetSkill(c.SkillId).Program!.Triggers.Single(t => t.Id == c.TriggerId).OwnerRelation == SkillProgramCardActionOwnerRelation.Target &&
             !window.Candidates.Any(old => old.OwnerSeat == c.OwnerSeat && old.SkillId == c.SkillId && old.TriggerId == c.TriggerId && old.SkillInstanceId == c.SkillInstanceId))
-            .OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal)
+            .OrderByDescending(c => c.Priority).ThenBy(c => RelativeTableOrder(0, c.OwnerSeat)).ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal)
             .Select(c => c with { FrozenContext = c.FrozenContext! with { ParentFrameId = window.Id,
                 CardUse = c.FrozenContext.CardUse! with { ParentCardUseFrameId = use.Id } } }).ToArray();
         if (newCandidates.Length > 0) ReplaceRuntimeFrame(window.Id, window with { Candidates = Array.AsReadOnly(window.Candidates.Concat(newCandidates).ToArray()) });

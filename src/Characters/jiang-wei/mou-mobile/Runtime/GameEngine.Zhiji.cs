@@ -3,7 +3,7 @@ public sealed partial class GameEngine
 {
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 33200, SkillProgramEffectOp.ResolveMouJiangWeiZhiji)]
     private bool CanAwakenMouJw(ProgramTriggerLegalityContext g) => g.SkillId == MouJiangWeiComposition.Zhiji && g.Context.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow && g.Context.SourceSeat == g.OwnerSeat &&
-        CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Preparation } p && p.ActorSeat == g.OwnerSeat && g.Owner.IsAlive && MouJwSelectedCount(g.OwnerSeat) >= 4 && !ProgramEventHistory<MouJiangWeiAwakenedEvent>().Any(e => e.OwnerSeat == g.OwnerSeat);
+        CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Preparation } p && p.ActorSeat == g.OwnerSeat && g.Owner.IsAlive && (MouJwSelectedCount(g.OwnerSeat) >= 4 || HasShenGuoJiaAwakeningCondition(g.OwnerSeat,g.SkillId,g.Candidate.BindingId)) && !ProgramEventHistory<MouJiangWeiAwakenedEvent>().Any(e => e.OwnerSeat == g.OwnerSeat);
     private void GrantMouJwBeifa(ProgramSkillFrame f)
     {
         var r = f.MouJiangWei!;

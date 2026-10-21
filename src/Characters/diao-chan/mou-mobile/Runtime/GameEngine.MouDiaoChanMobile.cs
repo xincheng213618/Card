@@ -83,7 +83,7 @@ public sealed partial class GameEngine
         { var id = choice.Cards.Single(); ReplaceRuntimeTop(f = f with { MouDiaoChanMobile = r with { Cards = r.Cards.Contains(id) ? r.Cards.Where(x => x != id).ToArray() : r.Cards.Append(id).ToArray() } }); PublishMouDiaoChan(f); return; }
         if (branch != "pay" || r.Cards.Count != r.Targets.Count - 1 || !r.Cards.All(id => MouDiaoChanCosts(f.OwnerSeat).Any(c => c.Id == id)) || r.Targets.Any(s => !_players[s].IsAlive))
             throw new InvalidOperationException("Lijian must pay exactly its complete selected roster minus one.");
-        var roster = r.Targets.OrderBy(s => (s - f.OwnerSeat + _playerCount) % _playerCount).ToArray(); var before = _movementSequence;
+        var roster = r.Targets.OrderBy(s => RelativeTableOrder(f.OwnerSeat, s)).ToArray(); var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { MouDiaoChanMobile = r = r with { Paid = true, Targets = roster, Stage = MouDiaoChanMobileStage.CostChildren, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         for (var i = 0; i < roster.Length; i++) AdvanceEventRulesAndQueueFact(new MouDiaoChanMobileRosterEvent(f.Id, i, roster[i]));
         foreach (var id in r.Cards)

@@ -69,10 +69,10 @@ public sealed partial class GameEngine
                 identity, c, CaptureProgramTriggerFacts(owner)));
         }
         if (added.Count == 0) return ordinary;
-        var ordered = added.OrderBy(i => (i.Candidate!.OwnerSeat - parent.OwnerSeat + _players.Count) % _players.Count)
+        var ordered = added.OrderBy(i => RelativeTableOrder(parent.OwnerSeat, i.Candidate!.OwnerSeat))
             .ThenByDescending(i => i.Priority).ThenBy(i => i.StableIdentity, StringComparer.Ordinal);
         return Array.AsReadOnly((parent.AfterTurnEnded is null ? ordinary.Concat(ordered)
-            .OrderBy(i => (i.Candidate!.OwnerSeat - parent.OwnerSeat + _players.Count) % _players.Count)
+            .OrderBy(i => RelativeTableOrder(parent.OwnerSeat, i.Candidate!.OwnerSeat))
             .ThenByDescending(i => i.Priority).ThenBy(i => i.StableIdentity, StringComparer.Ordinal) : ordinary.Concat(ordered)).ToArray());
     }
     private bool IsIssuedXumingCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context) =>

@@ -26,7 +26,7 @@ public sealed partial class GameEngine
     {
         return Array.AsReadOnly(_players.Where(target => target.IsAlive && target.Seat != actor.Seat && GetAliveSeatDistance(actor.Seat, target.Seat) == 1 &&
             CanSpendSlashUse(actor, target, false, CardKind.FireSlash, card) && CanUseSlashTarget(actor, target, card, source, CardKind.FireSlash, ignoreDistance: true))
-            .OrderBy(target => (target.Seat - actor.Seat + _players.Count) % _players.Count).Select(target => target.Seat).ToArray());
+            .OrderBy(target => RelativeTableOrder(actor.Seat, target.Seat)).Select(target => target.Seat).ToArray());
     }
     [ProgramCardAction(ProgramCardActionPhase.AfterProgram, 30800)]
     private void AddMoGangquanActions(List<LegalAction> actions, CharacterState actor, IReadOnlyList<Card> playable, int? selectedPhysicalCardId = null)

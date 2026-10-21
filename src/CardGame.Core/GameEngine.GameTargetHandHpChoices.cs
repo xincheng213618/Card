@@ -91,7 +91,7 @@ public sealed partial class GameEngine
         return r.Draw ? r.CardIds.Count == 0 && r.ActualCount is >= 0 and <= 2 && paid.Length == r.ActualCount && paid.All(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(target)) :
             r.CardIds.Count == r.RequiredCount && r.ActualCount == r.RequiredCount && paid.Length == r.RequiredCount && r.CardIds.Select((id, n) => (id, from: r.Locations[n])).All(p =>
                 paid.Count(m => m.CardId == p.id && m.From == p.from && p.from.OwnerSeat == target && p.from.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
-                    (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAdvancedCard(p.id).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m)))) == 1);
+                    (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAdvancedCard(p.id).IsGeneralWeapon || IsEphemeralCardDestroyedMaterial(m)))) == 1);
     }
     [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 290)]
     private bool IsGameHandHpMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) =>

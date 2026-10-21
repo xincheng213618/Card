@@ -243,7 +243,7 @@ public sealed partial class GameEngine
         {
             var from = new CardLocation(slot.Zone, draft.SourceSeat);
             var card = _cardZones.CardsAt(from)[slot.SlotIndex];
-            return (Card: card, From: from, To: NormalizeDiouCarrierDestination(card, from, card.IsGeneralWeapon && slot.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.Hand(frame.OwnerSeat)));
+            return (Card: card, From: from, To: NormalizeEphemeralCardDestination(card, from, card.IsGeneralWeapon && slot.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.Hand(frame.OwnerSeat)));
         }).ToArray();
         ReplaceRuntimeTop(frame with { OtherCardSelection = null, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         var batch = BeginCardMovementBatch(moves.Select(move => move.From), moves.Select(move => move.To));

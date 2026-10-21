@@ -7,7 +7,7 @@
         { "id": "modified", "initialValue": false, "visibility": "public", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" }
       ],
       "triggers": [
-        { "id": "opening-state", "window": "gameStarting", "subject": "owner", "optional": false, "effects": [{ "op": "initializeMouJiangWeiJuemou", "target": "owner" }] },
+        { "id": "opening-state", "isSkillInvocation": false, "window": "gameStarting", "subject": "owner", "optional": false, "effects": [{ "op": "initializeMouJiangWeiJuemou", "target": "owner" }] },
         { "id": "trick-use", "window": "cardUseCommitted", "ownerRelation": "actor", "cardCategories": ["trick"], "includeResponseUses": true, "optional": true, "effects": [{ "op": "resolveMouJiangWeiJuemou", "target": "owner" }] },
         { "id": "modified-start", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true, "condition": { "kind": "booleanState", "stateId": "modified", "expectedValue": true }, "effects": [{ "op": "resolveMouJiangWeiJuemou", "target": "owner" }] },
         { "id": "modified-ending", "window": "afterTurnEnded", "subject": "owner", "optional": true, "condition": { "kind": "booleanState", "stateId": "modified", "expectedValue": true }, "effects": [{ "op": "resolveMouJiangWeiJuemou", "target": "owner" }] },

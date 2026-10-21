@@ -1,0 +1,5 @@
+{"schemaVersion":62,"skills":[
+  {"id":"mobile:tamo","revision":1,"triggers":[{"id":"redistribute-seats","window":"gameStarting","subject":"owner","optional":true,"priority":1000,"effects":[{"op":"resolveShenLuSuTamo","target":"owner"}]}]},
+  {"id":"mobile:dingzhou","revision":1,"activations":[{"id":"give-and-obtain","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveShenLuSuDingzhou","target":"owner"}]}]},
+  {"id":"mobile:zhimeng","revision":1,"triggers":[{"id":"divide-hands","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[{"op":"resolveShenLuSuZhimeng","target":"owner"}]}]}
+]}

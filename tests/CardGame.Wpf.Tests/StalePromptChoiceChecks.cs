@@ -489,9 +489,12 @@ internal static class StalePromptChoiceChecks
             model.SelectTargetCommand.Execute(model.Seats.Single(seat => seat.Seat == 2));
             var engine = Program.Engine(model);
             var published = (GameSnapshot)typeof(MainViewModel).GetField("_snapshot", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(model)!;
-            Program.Assert(model.Seats.Single(seat => seat.Seat == 2).IsSelectedTarget && model.PublicTargetChoices.Count == 0 &&
+            Program.Assert(model.Seats.Single(seat => seat.Seat == 2).IsSelectedTarget &&
+                model.PublicTargetChoices.Count == published.Players.Single(player => player.Seat == 2).HandCount &&
+                model.PublicTargetChoices.All(choice => !ReferenceEquals(choice, retired) &&
+                    choice.Targets.SequenceEqual([2]) && choice.Parameters.ContainsKey("target-hand-slot")) &&
                 published.PendingDecision!.Choices.Any(choice => ReferenceEquals(choice, retired)),
-                "Selecting the other real legal target must retire the weapon button while keeping its choice in the same prompt.");
+                "Selecting another legal target must replace the weapon button with that target's opaque hand slots while retaining the original published choice in the same prompt.");
             Console.WriteLine($"Public-target fixture: seed 31, {game.AcceptedCommands.Count} setup commands, " +
                 $"physical weapon {weapon.Id}, same-prompt target 1 to 2.");
             var revision = engine.Revision;

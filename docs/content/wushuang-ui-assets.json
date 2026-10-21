@@ -1336,6 +1336,786 @@
       "file": "src/CardGame.Wpf/Assets/Wushuang/roguelike1v1_bg_r.png",
       "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/assets/bigPng/roguelike1v1_bg_r.png?v=-2131617876",
       "sha256": "f8dbcca0dba33ef7684a631fcaececc7a984f37f55df1e9675c9a6109d06616a"
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2002.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2002.png",
+      "sha256": "97fcbb382fa6ff43908b0f2eef8f318878c3ac5e98217df85a561c471ae921ce",
+      "sourcePlotId": 2002
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2003.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2003.png",
+      "sha256": "0683845ef5a5e4d37751a7d936d08848dcf647114989b4d2de2020916dbe3a8f",
+      "sourcePlotId": 2003
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2004.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2004.png",
+      "sha256": "b11f224bde6fed579ce68a154ddc602e1504e06b91f55587007875d67742f611",
+      "sourcePlotId": 2004
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2005.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2005.png",
+      "sha256": "c23671128c1ea6d1b81b678339b6c8d005a94564925d8374ee78ce74736ae38c",
+      "sourcePlotId": 2005
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2006.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2006.png",
+      "sha256": "ca128b4ffb26438455da629e3344eed2a1de5f2e1303be3e1a983de4b5e0e902",
+      "sourcePlotId": 2006
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2007.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2007.png",
+      "sha256": "cb746cfdf572f6b1dc33ad2698ae3b50753301f46281340c9d963ed6f7dd1396",
+      "sourcePlotId": 2007
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2008.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2008.png",
+      "sha256": "a2a5de49b3dc452697627648efe4b911aff2ad147f46f8c6ebce603637726f71",
+      "sourcePlotId": 2008
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2010.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2010.png",
+      "sha256": "4e71f4c31ff7d60fefeacc0470cd8a6b57efba1b8144028da9ce8a4fc9a4f356",
+      "sourcePlotId": 2010
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2132.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2132.png",
+      "sha256": "7180aab0cb65d33c9939c36d3620513186fed8e45661b313d079bd21c150f983",
+      "sourcePlotId": 2132
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2133.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2132.png",
+      "sha256": "7180aab0cb65d33c9939c36d3620513186fed8e45661b313d079bd21c150f983",
+      "sourcePlotId": 2133
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2135.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2132.png",
+      "sha256": "7180aab0cb65d33c9939c36d3620513186fed8e45661b313d079bd21c150f983",
+      "sourcePlotId": 2135
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2019.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2019.png",
+      "sha256": "f443a35beecd16737d793d99196df923b740337dbb925e282c479565d66adf56",
+      "sourcePlotId": 2019
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2020.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2020.png",
+      "sha256": "e5470b92ec13190e58ddc2490e9c6f481ed787fd38cd332acf21ba11d2ebb961",
+      "sourcePlotId": 2020
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2028.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2028.png",
+      "sha256": "ed8c5672e08b79dd7125e51f437ba1a32cad6797b363c954d0b58f902053a871",
+      "sourcePlotId": 2028
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2030.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2030.png",
+      "sha256": "3cf06a98602e15588e3094372c17a430c53cdd6ebdb816ad0e54d570721259a9",
+      "sourcePlotId": 2030
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2033.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2033.png",
+      "sha256": "9c40ff33f317b5ddb5b617d22816cf6be240b8d123b87c9ef5243ee9a0c7405a",
+      "sourcePlotId": 2033
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2034.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2033.png",
+      "sha256": "9c40ff33f317b5ddb5b617d22816cf6be240b8d123b87c9ef5243ee9a0c7405a",
+      "sourcePlotId": 2034
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2040.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2039.png",
+      "sha256": "5334ee98c217a45b4d3e525b95cdc9d44266be11c8424e32c7dc5d0b32cd123d",
+      "sourcePlotId": 2040
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2045.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2045.png",
+      "sha256": "bf0ac9ba315c77847224e0955836d9f94dfc532e5bbc93af70682bfb1205f472",
+      "sourcePlotId": 2045
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2048.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2049.png",
+      "sha256": "947270736605429d4185094686a5353e5f3be01e7416e08afa6e5271e8bb3ba7",
+      "sourcePlotId": 2048
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2055.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2054.png",
+      "sha256": "c63bcd20355d3e1d40b188b82dd36cee963832c7998910e5487ee016349e61e3",
+      "sourcePlotId": 2055
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2060.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2059.png",
+      "sha256": "d48212040035a28249b1da002178ab774e31320377e789fdd9a3a14138d0d5ef",
+      "sourcePlotId": 2060
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2064.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2064.png",
+      "sha256": "773a4361b9c7fa0bc727a0fa2d27618a34330e9cf91843b642298333e8199c57",
+      "sourcePlotId": 2064
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2065.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2064.png",
+      "sha256": "773a4361b9c7fa0bc727a0fa2d27618a34330e9cf91843b642298333e8199c57",
+      "sourcePlotId": 2065
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2066.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2064.png",
+      "sha256": "773a4361b9c7fa0bc727a0fa2d27618a34330e9cf91843b642298333e8199c57",
+      "sourcePlotId": 2066
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2069.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2069.png",
+      "sha256": "a3f814f4b8fd03663500b434decde67a4c2efe4d40b5e9da2980b80a87710938",
+      "sourcePlotId": 2069
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2070.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2069.png",
+      "sha256": "a3f814f4b8fd03663500b434decde67a4c2efe4d40b5e9da2980b80a87710938",
+      "sourcePlotId": 2070
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2071.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2071.png",
+      "sha256": "f2d338f67a4d2ad1ae42364c44a0c9dbd959201135f1e4d22479869f0631adca",
+      "sourcePlotId": 2071
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2072.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2071.png",
+      "sha256": "f2d338f67a4d2ad1ae42364c44a0c9dbd959201135f1e4d22479869f0631adca",
+      "sourcePlotId": 2072
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2074.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2071.png",
+      "sha256": "f2d338f67a4d2ad1ae42364c44a0c9dbd959201135f1e4d22479869f0631adca",
+      "sourcePlotId": 2074
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2076.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2076.png",
+      "sha256": "203c7bb0f9e23250d06877fe1b87ca250374ef0491864030d39f553000318d01",
+      "sourcePlotId": 2076
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2079.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2079.png",
+      "sha256": "c89da3c18047e0d5254ebbfb970ccfab33fac0a3b00bb97559d879b4b79cc7c5",
+      "sourcePlotId": 2079
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2080.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2079.png",
+      "sha256": "c89da3c18047e0d5254ebbfb970ccfab33fac0a3b00bb97559d879b4b79cc7c5",
+      "sourcePlotId": 2080
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2085.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2085.png",
+      "sha256": "00e856e7845ed87817afd81fadb0e1915d157e241f528824307ccc65d71fd4ed",
+      "sourcePlotId": 2085
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2086.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2085.png",
+      "sha256": "00e856e7845ed87817afd81fadb0e1915d157e241f528824307ccc65d71fd4ed",
+      "sourcePlotId": 2086
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2088.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2088.png",
+      "sha256": "cce7b8a51b32b8b40b606582a01ee0db5f0da72863c8bf993f92340936fc8d98",
+      "sourcePlotId": 2088
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2093.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2093.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "sourcePlotId": 2093
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2096.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2093.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "sourcePlotId": 2096
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2097.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2093.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "sourcePlotId": 2097
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2098.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2093.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "sourcePlotId": 2098
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2099.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2093.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "sourcePlotId": 2099
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2144.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2093.png",
+      "sha256": "983863d735c0c304718fa9d32bf6655d7cada0807dd9ce1c7a63e81eaa5e93db",
+      "sourcePlotId": 2144
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2103.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2103.png",
+      "sha256": "23bf2c3ba5511842858fa463f0ba53e88dd8355a4efc694ab2b18d044b8ef58f",
+      "sourcePlotId": 2103
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2105.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2105.png",
+      "sha256": "e7da296d954cdb7ddadcf24c27a417d4dfdbcfba15d1fba82233428ff3cd3349",
+      "sourcePlotId": 2105
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2106.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2105.png",
+      "sha256": "e7da296d954cdb7ddadcf24c27a417d4dfdbcfba15d1fba82233428ff3cd3349",
+      "sourcePlotId": 2106
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2108.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2108.png",
+      "sha256": "ce21505cb376ed2469b9617ae7a5ef1ee1f1a56ffd9db70fd03b7627a039395b",
+      "sourcePlotId": 2108
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2109.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2108.png",
+      "sha256": "ce21505cb376ed2469b9617ae7a5ef1ee1f1a56ffd9db70fd03b7627a039395b",
+      "sourcePlotId": 2109
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2111.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2111.png",
+      "sha256": "3e293fe7df96fbaf11c3fce7185ef65a9bc4bf123adb720da8a11168ef6f5010",
+      "sourcePlotId": 2111
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2115.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2113.png",
+      "sha256": "e1315a26f1e874f998e1ee230a0d160a845eff7c02bcc873831d6e724b1fc851",
+      "sourcePlotId": 2115
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2127.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2127.png",
+      "sha256": "5818cdb967ecd893c644cae800ccb05f45f2561413aff30cd5783712baf845f1",
+      "sourcePlotId": 2127
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2116.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2116.png",
+      "sha256": "f5e4807ed7c03bd2907250a4048ece30baa13e68ba4ec6858f2eaf09a4b0e7bc",
+      "sourcePlotId": 2116
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2121.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2121.png",
+      "sha256": "c17d8dbf578ce7d77928e8507fabdb54b63e3ff4b90507a3ec604ff00a3f9080",
+      "sourcePlotId": 2121
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2122.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2122.png",
+      "sha256": "864c6e3f26e066c56eea728416a092210cea1436e8865918aad66f38c0aa34d0",
+      "sourcePlotId": 2122
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2130.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2130.png",
+      "sha256": "d95813a3d6b2ecfe4355177d380751146cf574164dece77ca3a841ebd965a983",
+      "sourcePlotId": 2130
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2147.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2147.png",
+      "sha256": "1c64dd4180fec5e85db9f1d74bcdf92ec701ea14add25c2c2e445baebd8f5914",
+      "sourcePlotId": 2147
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2148.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2147.png",
+      "sha256": "1c64dd4180fec5e85db9f1d74bcdf92ec701ea14add25c2c2e445baebd8f5914",
+      "sourcePlotId": 2148
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2150.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2150.png",
+      "sha256": "a787a02a841726112fa250e7568aab9e214b6727c91f065b3f710359eca94c21",
+      "sourcePlotId": 2150
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2151.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2150.png",
+      "sha256": "a787a02a841726112fa250e7568aab9e214b6727c91f065b3f710359eca94c21",
+      "sourcePlotId": 2151
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2152.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2150.png",
+      "sha256": "a787a02a841726112fa250e7568aab9e214b6727c91f065b3f710359eca94c21",
+      "sourcePlotId": 2152
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2153.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2153.png",
+      "sha256": "9fdb56e16145897c63c8a370973be71bf7484301d620cc6cdcce9355afcef021",
+      "sourcePlotId": 2153
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2154.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2153.png",
+      "sha256": "9fdb56e16145897c63c8a370973be71bf7484301d620cc6cdcce9355afcef021",
+      "sourcePlotId": 2154
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2155.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2153.png",
+      "sha256": "9fdb56e16145897c63c8a370973be71bf7484301d620cc6cdcce9355afcef021",
+      "sourcePlotId": 2155
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2156.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2156.png",
+      "sha256": "de38da508c1221de5f6b638ca0476f9a4fda717cbc1b0f09daef93a2c4752437",
+      "sourcePlotId": 2156
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2157.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2156.png",
+      "sha256": "de38da508c1221de5f6b638ca0476f9a4fda717cbc1b0f09daef93a2c4752437",
+      "sourcePlotId": 2157
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2158.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2156.png",
+      "sha256": "de38da508c1221de5f6b638ca0476f9a4fda717cbc1b0f09daef93a2c4752437",
+      "sourcePlotId": 2158
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2164.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2162.png",
+      "sha256": "e73eb4cf029980c42ffb57c324bb3fb507a6c10c84ecfa3a0562721457b4da06",
+      "sourcePlotId": 2164
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2166.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2166.png",
+      "sha256": "630a76de67fcb7297f1b0b75f21292c9434d05e43ace727d3dba4cb18a125689",
+      "sourcePlotId": 2166
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2167.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2167.png",
+      "sha256": "172c05f5b37a0bde7379b9e49668a18257544e87ba914af9f256d85068dcccee",
+      "sourcePlotId": 2167
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2174.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2174.png",
+      "sha256": "ad08a27b168d31bbb8a0467a342fcd63c5ab4206905f985c788c6256f699ce96",
+      "sourcePlotId": 2174
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2185.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2185.png",
+      "sha256": "fe31fb94e15391452fc28d4bf04b984a7b60f98ed280b04e5f0e7b51af3c727b",
+      "sourcePlotId": 2185
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2188.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2188.png",
+      "sha256": "728e6946406f27397fcf439edf2659b130a70dfdcb18373a2e090928f7cd3ef3",
+      "sourcePlotId": 2188
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2189.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2188.png",
+      "sha256": "728e6946406f27397fcf439edf2659b130a70dfdcb18373a2e090928f7cd3ef3",
+      "sourcePlotId": 2189
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2193.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2193.png",
+      "sha256": "44ec0c32327361df1380c70f1d1ec32ea08cb42e4619384c3848985c24ce04c3",
+      "sourcePlotId": 2193
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2194.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2194.png",
+      "sha256": "e2f7a7ae0508dbe7293b7b4740c4bbbe050ba2a80e017755b0a9b0b0937c2aae",
+      "sourcePlotId": 2194
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2195.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2194.png",
+      "sha256": "e2f7a7ae0508dbe7293b7b4740c4bbbe050ba2a80e017755b0a9b0b0937c2aae",
+      "sourcePlotId": 2195
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2196.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2196.png",
+      "sha256": "c69d80a69aaac094dcb9914aeeb25e97cbbda2d50d8ccdf4ae972ff7fd2e209e",
+      "sourcePlotId": 2196
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2198.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2198.png",
+      "sha256": "dfd1b6367080781ba2ed9a4b2d12486c7ba977c405a612b332b7021d688a4518",
+      "sourcePlotId": 2198
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2208.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2208.png",
+      "sha256": "d1ef3a619d45d443b224e3ef1a6b650fd1a110ac2f79e880971f6e3240ce662f",
+      "sourcePlotId": 2208
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2209.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2209.png",
+      "sha256": "f33dfec6ea36697ab56b8056a3e8e5a1d7a0d5dba2dcf09369c6c2d07bc21253",
+      "sourcePlotId": 2209
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2211.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2211.png",
+      "sha256": "aeb6c0b0539f57dd1e3f57d4a19b11bfe4bbe92b781788ea7b74bc0e94752aa4",
+      "sourcePlotId": 2211
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2228.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2228.png",
+      "sha256": "63f8066a86932343a33b733370a3c4bbf46244f353289d8a06da59ed67fc65fe",
+      "sourcePlotId": 2228
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2238.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2320.png",
+      "sha256": "dda829396cb79e18f3d32ff8006dc65febac209429139dd47d9cabca8ac0e394",
+      "sourcePlotId": 2238
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2239.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2338.png",
+      "sha256": "ec73dceb545fa7a605798a545f9d8adb786a9754680980a3626f3e1735b62c93",
+      "sourcePlotId": 2239
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2241.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2358.png",
+      "sha256": "d60bd48c46e703e6554a20bef6a4bb849fb4f6f5bf34129387d99f66c911ce2a",
+      "sourcePlotId": 2241
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2242.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2324.png",
+      "sha256": "8b86d67aeae722fd84ce04fb3e30dcb8c51cbd2ca58cc83253ff92a15958d57e",
+      "sourcePlotId": 2242
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2243.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2355.png",
+      "sha256": "edd47ceb19f251f1bf714a40af3d0944435396bb742b22b71b9e3c6e4c884381",
+      "sourcePlotId": 2243
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2244.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2369.png",
+      "sha256": "0418d1ac9e8b6b71b36c8746b4f577b1d2a53fb7a3c45e4bc05a4f398b87167f",
+      "sourcePlotId": 2244
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2245.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2329.png",
+      "sha256": "15f311aa77ac7c93a2c63ac48619e54363a8a02343f2d6200e1f6152431428e2",
+      "sourcePlotId": 2245
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2246.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2329.png",
+      "sha256": "15f311aa77ac7c93a2c63ac48619e54363a8a02343f2d6200e1f6152431428e2",
+      "sourcePlotId": 2246
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2247.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2329.png",
+      "sha256": "15f311aa77ac7c93a2c63ac48619e54363a8a02343f2d6200e1f6152431428e2",
+      "sourcePlotId": 2247
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2250.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2357.png",
+      "sha256": "dcd5983c590809cb7045d01ef6f6f0e173e8460302da57a511782274fd24a627",
+      "sourcePlotId": 2250
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2251.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2357.png",
+      "sha256": "dcd5983c590809cb7045d01ef6f6f0e173e8460302da57a511782274fd24a627",
+      "sourcePlotId": 2251
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2258.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2071.png",
+      "sha256": "f2d338f67a4d2ad1ae42364c44a0c9dbd959201135f1e4d22479869f0631adca",
+      "sourcePlotId": 2258
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2259.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2071.png",
+      "sha256": "f2d338f67a4d2ad1ae42364c44a0c9dbd959201135f1e4d22479869f0631adca",
+      "sourcePlotId": 2259
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2260.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2071.png",
+      "sha256": "f2d338f67a4d2ad1ae42364c44a0c9dbd959201135f1e4d22479869f0631adca",
+      "sourcePlotId": 2260
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2261.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2054.png",
+      "sha256": "c63bcd20355d3e1d40b188b82dd36cee963832c7998910e5487ee016349e61e3",
+      "sourcePlotId": 2261
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2262.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2054.png",
+      "sha256": "c63bcd20355d3e1d40b188b82dd36cee963832c7998910e5487ee016349e61e3",
+      "sourcePlotId": 2262
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2263.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2054.png",
+      "sha256": "c63bcd20355d3e1d40b188b82dd36cee963832c7998910e5487ee016349e61e3",
+      "sourcePlotId": 2263
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2264.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2147.png",
+      "sha256": "1c64dd4180fec5e85db9f1d74bcdf92ec701ea14add25c2c2e445baebd8f5914",
+      "sourcePlotId": 2264
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2265.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2147.png",
+      "sha256": "1c64dd4180fec5e85db9f1d74bcdf92ec701ea14add25c2c2e445baebd8f5914",
+      "sourcePlotId": 2265
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2266.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2147.png",
+      "sha256": "1c64dd4180fec5e85db9f1d74bcdf92ec701ea14add25c2c2e445baebd8f5914",
+      "sourcePlotId": 2266
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2281.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2281.png",
+      "sha256": "c07967d5b3be5264c747e2f16c1025a3fc4b7de1d85a8140e86120c6b39a6a03",
+      "sourcePlotId": 2281
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2282.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2282.png",
+      "sha256": "2d63c4297babbafeb5fdceca57e72b3e7251e8c34fdf54089e639b5c3916d112",
+      "sourcePlotId": 2282
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2283.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2283.png",
+      "sha256": "77369cafc887203458662bd334d30025b46cd7bfaa0153a99d38881ef581baa4",
+      "sourcePlotId": 2283
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2284.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2284.png",
+      "sha256": "0fc2026b2cbb26b1736e25fc35ec2302081510ae305b095ce978fdd0368e279e",
+      "sourcePlotId": 2284
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2287.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2287.png",
+      "sha256": "cb533221c63c8fd7e1e8a7384d176da23b5ce060a86ea38944d1039aefdbb320",
+      "sourcePlotId": 2287
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2288.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2288.png",
+      "sha256": "c105025af519456c997a47d4156f49c81db41a17ece3bf548aad18b9ef32b463",
+      "sourcePlotId": 2288
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2289.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2289.png",
+      "sha256": "34271e1fedbf17d1e0074d9e221ad6d56a0424190bd4d98baaec8a55facd169b",
+      "sourcePlotId": 2289
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2290.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2290.png",
+      "sha256": "e29de902fcb0454958a307a1801c336ceb326b0226b1749ab75d484d9693b62b",
+      "sourcePlotId": 2290
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2291.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2291.png",
+      "sha256": "9385f8eff7a9259e49d436f59537d0dbb6933c8260e702e4d3d17e38f7f5f3a8",
+      "sourcePlotId": 2291
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2292.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2292.png",
+      "sha256": "3b40e6fc8f2873e587ba7e4055e3ba01645c1d18abdeb96f28f8fc5e78b9a270",
+      "sourcePlotId": 2292
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2293.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2293.png",
+      "sha256": "2e76fa17a46c4a4cfe2723ec4e7df3469d7534cfb155e8383a961f3021bb7989",
+      "sourcePlotId": 2293
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2294.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2294.png",
+      "sha256": "b67824fcd1293b7cd926557589bc480b5fbde38e8c531852c6e8a31c61ce6d15",
+      "sourcePlotId": 2294
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2295.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2295.png",
+      "sha256": "c9039731097ab226fa4568a38fcc35e3f1e887685f4f7285d5f62e7d7b4fe5bb",
+      "sourcePlotId": 2295
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2296.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2296.png",
+      "sha256": "1ff957a08711e6fdcf689b6b78b73f199953f02dfc52c7dd3d786f9406745176",
+      "sourcePlotId": 2296
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2297.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2297.png",
+      "sha256": "f14a43fb0ca913db3012b7995349bf62e9bfd640c434521aa34c62c50b647261",
+      "sourcePlotId": 2297
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2221.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2221.png",
+      "sha256": "2dadb06d5db33bd615ff3d409350ae1e9bebf0c0b10ce7177f268a86a3b0fc78",
+      "sourcePlotId": 2221
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2226.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2226.png",
+      "sha256": "024bbe39d64611c2d20d4c27e61a29bd97501a236df125dbaff56fbb921e6b55",
+      "sourcePlotId": 2226
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2298.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2183.png",
+      "sha256": "8e4d0123a64b90155c00304a88e5a41f5122eeef1d586fa7b5fc35dbf1a34351",
+      "sourcePlotId": 2298
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2299.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2184.png",
+      "sha256": "42acf062cd22e4fe0b7214b731c127954980ecf1c7627f7842f79d4c1a081769",
+      "sourcePlotId": 2299
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2333.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2398.png",
+      "sha256": "c07387986925634268f23f90a5ba04b9067d22174240578c79b3e01261fe0bb6",
+      "sourcePlotId": 2333
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2334.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2398.png",
+      "sha256": "c07387986925634268f23f90a5ba04b9067d22174240578c79b3e01261fe0bb6",
+      "sourcePlotId": 2334
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2337.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2394.png",
+      "sha256": "e85c1517f44e1d337070431e519c2375bdf36778a52889ebf44d2a2ca27eb7ba",
+      "sourcePlotId": 2337
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2357.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2396.png",
+      "sha256": "e3fb7220a54e6e362adf2d9e711d21730a8ec72e30158651836045e2417f215a",
+      "sourcePlotId": 2357
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2358.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2396.png",
+      "sha256": "e3fb7220a54e6e362adf2d9e711d21730a8ec72e30158651836045e2417f215a",
+      "sourcePlotId": 2358
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2359.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2396.png",
+      "sha256": "e3fb7220a54e6e362adf2d9e711d21730a8ec72e30158651836045e2417f215a",
+      "sourcePlotId": 2359
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2365.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2405.png",
+      "sha256": "5fd51a7b0f616653786b9b44846c778e7b63fa8164f8c604c1c114a8961b61af",
+      "sourcePlotId": 2365
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2367.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2407.png",
+      "sha256": "20f3d1b906006dd5afeb253ba0e96627f349cbd46ed456597c486aaed884c75d",
+      "sourcePlotId": 2367
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2368.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2408.png",
+      "sha256": "895b9a26912b86dce607d1d0ba4016c9c48f2af14b57f977713c59df490f9976",
+      "sourcePlotId": 2368
+    },
+    {
+      "file": "src/CardGame.Wpf/Assets/Shanhe/2369.png",
+      "sourceUrl": "https://web.sanguosha.com/220/h5_2/res/runtime/pc/pattern/roguelike/zhanfa/reward_zhanfa_2288.png",
+      "sha256": "c105025af519456c997a47d4156f49c81db41a17ece3bf548aad18b9ef32b463",
+      "sourcePlotId": 2369
     }
   ]
 }

@@ -24,7 +24,7 @@ public sealed partial class GameEngine
   var red=ChouceIsRed(f);
   if(CompleteProgramEventHistory().OfType<ChouceOutcomeIssuedEvent>().Count(e=>e.FrameId==f.Id&&e.JudgmentFrameId==r.JudgmentFrameId&&e.TargetSeat==target&&e.Red==red&&e.Before==p.Before&&e.After==p.After&&e.Count==p.Count&&e.CardId==p.CardId)!=1)return false;
   return red?p.Count is >=0 and <=2&&_cardMovements.Count(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(target)&&m.Reason.Value=="program.chouce.red")==p.Count:
-   p.Count==1&&p.CardId is {} id&&p.CardLocation is {} location&&_cardMovements.Count(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&m.CardId==id&&m.From==location&&m.Reason.Value=="program.chouce.black"&&(m.To==CardLocation.DiscardPile||m.To==CardLocation.OutsideGame&&(GetAdvancedCard(id).IsGeneralWeapon||IsDiouCarrierDestroyedMaterial(m))))==1;
+   p.Count==1&&p.CardId is {} id&&p.CardLocation is {} location&&_cardMovements.Count(m=>m.Sequence>p.Before&&m.Sequence<=p.After&&m.CardId==id&&m.From==location&&m.Reason.Value=="program.chouce.black"&&(m.To==CardLocation.DiscardPile||m.To==CardLocation.OutsideGame&&(GetAdvancedCard(id).IsGeneralWeapon||IsEphemeralCardDestroyedMaterial(m))))==1;
  }
  private bool IsExactChouceFinalizedChildSubtree(ProgramJudgmentTriggerWindowFrame frame,JudgmentFrame? judgmentFrame,int frameIndex)
  {

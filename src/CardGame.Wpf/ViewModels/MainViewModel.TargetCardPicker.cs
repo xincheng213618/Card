@@ -74,7 +74,7 @@ public sealed partial class MainViewModel
         var skillChoices = CenterSkillChoices;
         IReadOnlyList<PromptChoice> source = publicPlay ? PublicTargetChoices
             : nativeTarget ? TargetCardChoices
-            : IsSkillSelectionPending && !IsOwnedCardSelectionPending && !IsHandResponsePending && !HasDockSkillChoices
+            : IsSkillSelectionPending && (!IsOwnedCardSelectionPending || IsForeignCardTakeSelectionPending) && !IsHandResponsePending && !HasDockSkillChoices
                 ? skillChoices : [];
         var entries = source.Select(choice => (Choice: choice, Region: TargetChoiceRegion(choice, publicPlay)))
             .Where(entry => entry.Region is not null).ToArray();

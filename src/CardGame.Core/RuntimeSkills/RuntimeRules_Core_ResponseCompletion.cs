@@ -6,7 +6,7 @@ internal static class RuntimeRules_Core_ResponseCompletion
     internal static bool IsResponseCompletionContinuation(ProgramCardContinuation continuation) => continuation is
         ProgramCardContinuation.Dodge or ProgramCardContinuation.DuelSlash or ProgramCardContinuation.GroupResponse or
         ProgramCardContinuation.FactionDefenseDodge or ProgramCardContinuation.FactionSlashDuelSlash or
-        ProgramCardContinuation.FactionSlashGroupResponse or ProgramCardContinuation.NullificationResponse;
+        ProgramCardContinuation.FactionSlashGroupResponse or ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.QizhengResponse;
 
     // Extended Nullification uses the ordinary multi-card Respond/ResponseFinished
     // route; the single native counterspell uses Nullification/NullificationFinished.

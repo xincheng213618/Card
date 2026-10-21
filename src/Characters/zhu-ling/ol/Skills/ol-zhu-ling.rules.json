@@ -50,7 +50,7 @@
           ]
         },
         {
-          "id": "zhanyi-expire",
+          "id": "zhanyi-expire", "isSkillInvocation": false,
           "window": "turnStartBeforeNormalFlow",
           "subject": "owner",
           "optional": false,

@@ -6,7 +6,7 @@ internal static class LeCaoZhiComposition
     [
         CardKind.Slash, CardKind.Dodge, CardKind.Peach, CardKind.Alcohol, CardKind.FireSlash, CardKind.ThunderSlash,
         CardKind.DrawTwo, CardKind.Duel, CardKind.BarbarianAssault, CardKind.ArrowBarrage, CardKind.PeachGarden,
-        CardKind.FiveGrains, CardKind.Dismantlement, CardKind.Snatch, CardKind.FireAttack, CardKind.IronChain,
+        CardKind.FiveGrains, CardKind.Dismantlement, CardKind.Snatch, CardKind.QizhengXiangsheng, CardKind.FireAttack, CardKind.IronChain,
         CardKind.BorrowedSword, CardKind.WumiaoFlood, CardKind.Nullification, CardKind.Indulgence,
         CardKind.SupplyShortage, CardKind.Lightning, CardKind.UnexpectedAssault
     ];
@@ -43,7 +43,7 @@ internal static class LeCaoZhiComposition
         var name = r.OutputKind.ToString();
         var trick = r.OutputKind is CardKind.DrawTwo or CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or
             CardKind.PeachGarden or CardKind.FiveGrains or CardKind.Dismantlement or CardKind.Snatch or CardKind.FireAttack or
-            CardKind.IronChain or CardKind.BorrowedSword or CardKind.WumiaoFlood;
+            CardKind.IronChain or CardKind.BorrowedSword or CardKind.WumiaoFlood or CardKind.QizhengXiangsheng;
         var delayed = r.OutputKind is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning;
         return FuKinds.Contains(r.OutputKind) && r.Id == "fu-alias-" + char.ToLowerInvariant(name[0]) + name[1..] &&
             r.ForPlay == (r.OutputKind is not (CardKind.Dodge or CardKind.Nullification)) &&

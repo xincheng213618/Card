@@ -33,6 +33,7 @@ public sealed partial class GameEngine
     // same amount and never adds the grant twice; each additional target has its own receipt.
     private int ApplyIssuedCardRecoveryModifiers(long useId, int actorSeat, int targetSeat, int baseAmount)
     {
+        baseAmount = ApplyShenDengAiFengtianRecovery(useId, actorSeat, targetSeat, baseAmount);
         var use = LifecycleCardUse(useId);
         if (use?.IssuedRecoveryModifiers is not { Count: > 0 } modifiers) return baseAmount;
         if (use.SourceSeat != actorSeat || modifiers.Any(item => item.Source.OwnerSeat != actorSeat))

@@ -268,6 +268,9 @@ public sealed partial class GameEngine
             _revision)
         {
             CardDeclarations = GetCardDeclarationSnapshots(viewerSeat, revealAll),
+            TableOrder = CurrentTableOrder(),
+            BenevolenceCards = _cardZones.CardsAt(CardLocation.Benevolence) is { Count: > 0 } benevolence
+                ? benevolence.Select(ToSnapshot).ToArray() : null,
             WinnerSeat = _winnerSeat,
             WenheRule = GetWenheRuleSnapshot(),
             WenheAspiration = GetWenheAspirationSnapshot(viewerSeat),
@@ -301,7 +304,7 @@ public sealed partial class GameEngine
         };
         if (JuewuForeignHandRank(owner, card) is { } juewuRank)
             snapshot = snapshot with { Rank = juewuRank, RankText = juewuRank.ToString(System.Globalization.CultureInfo.InvariantCulture) };
-        return ProjectWenhePoisonHandCard(owner, card, ProjectFuleHandCard(owner, card, snapshot));
+        return ProjectShenZfHandCard(owner, card, ProjectShenDengAiHandCard(owner, card, ProjectWenhePoisonHandCard(owner, card, ProjectFuleHandCard(owner, card, snapshot))));
     }
 
     private string? ProjectAuthorityName(IReadOnlyList<GeneralSkillDefinition>? skills)
@@ -318,6 +321,8 @@ public sealed partial class GameEngine
     // to both its result and every observer. Never freeze live content/state in place.
     private static GameSnapshot FreezePlayerView(GameSnapshot snapshot) => snapshot with
     {
+        TableOrder = FreezeViewList(snapshot.TableOrder),
+        BenevolenceCards = FreezeViewList(snapshot.BenevolenceCards),
         CardDeclarations = snapshot.CardDeclarations is { } declarations
             ? Array.AsReadOnly(declarations.Select(item => item with { TargetSeats = FreezeViewList(item.TargetSeats)! }).ToArray()) : null,
         Players = Array.AsReadOnly(snapshot.Players.Select(FreezePlayer).ToArray()),

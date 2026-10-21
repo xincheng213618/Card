@@ -404,6 +404,7 @@
                                     </Border>
                                 </Grid>
                                 <TextBlock x:Name="CurrentPlayerText" Text="{Binding CurrentPlayerText}" Foreground="#403422" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0" Visibility="{Binding IsTableIdle, Converter={StaticResource BoolToVisibility}}" />
+                                <Button x:Name="BenevolencePileButton" Content="{Binding BenevolencePileText}" Command="{Binding OpenBenevolencePileCommand}" Visibility="{Binding HasBenevolenceCards, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" HorizontalAlignment="Center" Margin="0,5,0,0" Padding="12,3" ToolTip="查看所有角色共用的公开仁区" />
                                 <Border x:Name="WenheRuleBanner" Visibility="{Binding IsWenheActivityTable, Converter={StaticResource BoolToVisibility}}" Background="#DCE9DCBE" BorderBrush="#927449" BorderThickness="1" CornerRadius="3" Padding="10,5" Margin="0,6,0,0" MaxWidth="520">
                                     <StackPanel>
                                         <TextBlock Text="{Binding WenheRoundText}" Foreground="#654422" FontSize="14" FontWeight="Bold" TextAlignment="Center" />
@@ -739,6 +740,7 @@
                     </ItemsControl>
                 </WrapPanel>
                 <Border x:Name="ActionBar" Grid.Row="1" Background="Transparent" Padding="8,5,8,0" Height="90">
+                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding IsWushuangShopOpen}" Value="True"><Setter Property="Opacity" Value="0" /></DataTrigger></Style.Triggers></Style></Border.Style>
                     <Grid>
                         <!-- Supplemental actions float above this fixed dock instead of resizing the battlefield. -->
                         <Grid.RowDefinitions><RowDefinition Height="0" /><RowDefinition Height="23" /><RowDefinition Height="48" /><RowDefinition Height="14" /></Grid.RowDefinitions>
@@ -876,21 +878,28 @@
                             </controls:HandScrollViewer>
                         </Grid>
 
-                        <Border x:Name="HumanSkillPanel" Grid.Column="2" Margin="3,0,5,0" AutomationProperties.Name="本方技能区">
-                                <StackPanel VerticalAlignment="Bottom">
-                                    <Button x:Name="SortHandButton" Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource TableSortButton}" Width="88" Height="28" HorizontalAlignment="Right" Margin="0,0,4,10" />
-                                    <ScrollViewer x:Name="HumanSkillViewport" MaxHeight="144" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Right" Width="{Binding HumanSkillRailWidth}">
-                                        <ScrollViewer.LayoutTransform><ScaleTransform ScaleX="{DynamicResource SkillControlScale}" ScaleY="{DynamicResource SkillControlScale}" /></ScrollViewer.LayoutTransform>
-                                        <ItemsControl x:Name="HumanSkillCards" ItemsSource="{Binding HumanSkillCards}" ItemTemplate="{StaticResource CompactSkillTemplate}">
-                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding HumanSkillColumns}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                </StackPanel>
+                        <Border x:Name="HumanSkillSpace" Grid.Column="2" Margin="3,0,5,0" Width="{Binding HumanSkillRailWidth}" IsHitTestVisible="False">
+                            <Border.LayoutTransform><ScaleTransform ScaleX="{DynamicResource SkillControlScale}" ScaleY="{DynamicResource SkillControlScale}" /></Border.LayoutTransform>
                         </Border>
                         <Viewbox Grid.Column="3" Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Right"><ContentControl x:Name="HumanPortrait" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" /></Viewbox>
                     </Grid>
                 </Border>
-                <ScrollViewer x:Name="HumanWushuangTactics" Grid.Row="1" Panel.ZIndex="3" MaxWidth="372" MaxHeight="132" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Visibility="{Binding HumanPlayer.HasWushuangTactics, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="本方战法">
+                <!-- Reserve the rail's width in the hand dock, but let its rows grow upward across the table. -->
+                <Grid Grid.RowSpan="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8,0,8,6">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{Binding Width, ElementName=HumanPortraitColumn}" /></Grid.ColumnDefinitions>
+                    <Border x:Name="HumanSkillPanel" Margin="3,0,5,0" VerticalAlignment="Bottom" AutomationProperties.Name="本方技能区">
+                        <StackPanel VerticalAlignment="Bottom">
+                            <Button x:Name="SortHandButton" Content="整理手牌" Command="{Binding SortHandCommand}" Style="{StaticResource TableSortButton}" Width="88" Height="28" HorizontalAlignment="Right" Margin="0,0,4,10" />
+                            <Border x:Name="HumanSkillViewport" HorizontalAlignment="Right" Width="{Binding HumanSkillRailWidth}">
+                                <Border.LayoutTransform><ScaleTransform ScaleX="{DynamicResource SkillControlScale}" ScaleY="{DynamicResource SkillControlScale}" /></Border.LayoutTransform>
+                                <ItemsControl x:Name="HumanSkillCards" ItemsSource="{Binding HumanSkillCards}" ItemTemplate="{StaticResource CompactSkillTemplate}">
+                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><controls:SkillRailPanel Columns="{Binding HumanSkillColumns}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <ScrollViewer x:Name="HumanWushuangTactics" Grid.RowSpan="2" Panel.ZIndex="3" MaxWidth="372" MaxHeight="132" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Visibility="{Binding HumanPlayer.HasWushuangTactics, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="本方战法">
                     <ScrollViewer.Style>
                         <Style TargetType="ScrollViewer">
                             <Setter Property="Margin" Value="0,0,8,8" />

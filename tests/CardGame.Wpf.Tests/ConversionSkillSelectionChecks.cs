@@ -109,7 +109,8 @@ internal static class ConversionSkillSelectionChecks
                     if (scenario.Output == CardKind.IronChain)
                         Program.Assert(model.ShowRecastAction && model.CanRecastSelected == (action.TargetSeats.Count == 0),
                             "Converted Iron Chain must retain its genuine Recast action and reversible target draft.");
-                    Program.Assert(model.CanConfirmSelected && game.Revision == before && game.AcceptedCommands.Count == commandCount,
+                    Program.Assert(model.CanConfirmSelected == (scenario.Output != CardKind.Dismantlement) &&
+                        game.Revision == before && game.AcceptedCommands.Count == commandCount,
                         $"{scenario.Skill} selected its printed card kind or committed before confirmation.");
                     AssertPrintedFaces();
                     if (scenario.Skill == "standard:longdan")
@@ -225,9 +226,12 @@ internal static class ConversionSkillSelectionChecks
         var reference = GameReplay.Restore(game.CreateCheckpoint(), registry);
         var expected = new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, revision, game.PendingDecision!.PromptId,
             action.PlayedCardKind, action.TargetCardId)
-        { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources };
+        { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources,
+            TargetHandSlot = action.Kind is LegalActionKind.Dismantlement or LegalActionKind.Snatch ? 0 : null };
         Accept(reference, expected);
-        model.ConfirmSelectedCommand.Execute(null);
+        if (expected.TargetHandSlot is not null)
+            model.SelectPublicTargetChoiceCommand.Execute(model.PublicTargetChoices.Single(choice => choice.Parameters.GetValueOrDefault("target-hand-slot") == "0"));
+        else model.ConfirmSelectedCommand.Execute(null);
         Program.Assert(game.Revision == revision + 1 && game.AcceptedCommands.Count == commands + 1 &&
             CommandJson.Serialize([game.AcceptedCommands.Last()]) == CommandJson.Serialize([expected]) &&
             game.CardMovements.SequenceEqual(reference.CardMovements) && !model.HasSelection &&

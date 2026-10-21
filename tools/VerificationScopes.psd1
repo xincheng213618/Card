@@ -5,6 +5,8 @@
     Core = @(
         'Bagua response: failed judgment hand Dodge and cold replay',
         'Wushuang mode: native shop growth acquired skills replacement and replay',
+        'Wushuang pools: OfficialPoolsPricesVersionsAndAcquisitionRecovery',
+        'Wushuang shop: mixed goods no mounts and ephemeral equipment',
         'Guandu mode: frozen roster private rotating draft tier five military deck',
         'Guandu events: counterspell Use and played Slash keep distinct global count',
         'Dragon boat activity: opt in team only fixed draft and cold restore',
@@ -264,6 +266,7 @@
         'PeachGarden resolves a paused multi-target recovery',
         'FiveGrains reveals public cards with private draft prompts',
         'FireAttack reveals privately then resolves typed fire damage',
+        'target-card preselection survives native nullification and replay without second picker',
         'Hand reveal privacy: FireAttack and Gongxin close before opaque Dismantlement cold',
         'dying response can pause and recover with a private Peach',
         'throwing observers are isolated after commit',
@@ -327,7 +330,8 @@
         # Native press feedback requires idle physical input. Run it by name when
         # changing native input; ordinary background verification cannot own it.
         'opaque target-card slots render privately and commit through WPF commands',
-        'Target card UI: single hidden hand card resolves once without second picker',
+        'Target card UI: concrete hand slots resolve without second picker',
+        'Target card UI: multiple taken cards require one confirmation',
         'saved UI boundaries restore and continue through actual files',
         'failed writes preserve saves and failed reads initialize a new game',
         'battle feedback exposes only committed public actions',

@@ -41,7 +41,8 @@ public static class DamageTriggerOrdering
     public static IReadOnlyList<DamageTriggerCandidate> Order(
         IEnumerable<DamageTriggerCandidate> candidates,
         int currentActorSeat,
-        int playerCount)
+        int playerCount,
+        IReadOnlyList<int>? tableOrder = null)
     {
         ArgumentNullException.ThrowIfNull(candidates);
         ValidateSeat(currentActorSeat, playerCount, nameof(currentActorSeat));
@@ -88,7 +89,7 @@ public static class DamageTriggerOrdering
             .ThenBy(candidate => GetRelativeSeatOrder(
                 currentActorSeat,
                 candidate.OwnerSeat,
-                playerCount))
+                playerCount, tableOrder))
             .ThenBy(candidate => candidate.ProgramId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.ProgramTriggerId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)
@@ -105,11 +106,23 @@ public static class DamageTriggerOrdering
     public static int GetRelativeSeatOrder(
         int currentActorSeat,
         int candidateSeat,
-        int playerCount)
+        int playerCount,
+        IReadOnlyList<int>? tableOrder = null)
     {
         ValidateSeat(currentActorSeat, playerCount, nameof(currentActorSeat));
         ValidateSeat(candidateSeat, playerCount, nameof(candidateSeat));
-        return (candidateSeat - currentActorSeat + playerCount) % playerCount;
+        if (tableOrder is null) return (candidateSeat - currentActorSeat + playerCount) % playerCount;
+        if (tableOrder.Count != playerCount || tableOrder.Distinct().Count() != playerCount ||
+            tableOrder.Any(seat => seat < 0 || seat >= playerCount))
+            throw new ArgumentException("Table order must contain every participant exactly once.", nameof(tableOrder));
+        var origin = -1;
+        var target = -1;
+        for (var index = 0; index < tableOrder.Count; index++)
+        {
+            if (tableOrder[index] == currentActorSeat) origin = index;
+            if (tableOrder[index] == candidateSeat) target = index;
+        }
+        return (target - origin + playerCount) % playerCount;
     }
 
     private static void ValidateSeat(int seat, int playerCount, string parameterName)
@@ -131,7 +144,8 @@ public static class JudgmentTriggerOrdering
     public static IReadOnlyList<JudgmentTriggerCandidate> Order(
         IEnumerable<JudgmentTriggerCandidate> candidates,
         int currentActorSeat,
-        int playerCount)
+        int playerCount,
+        IReadOnlyList<int>? tableOrder = null)
     {
         ArgumentNullException.ThrowIfNull(candidates);
         ValidateSeat(currentActorSeat, playerCount, nameof(currentActorSeat));
@@ -178,7 +192,7 @@ public static class JudgmentTriggerOrdering
             .ThenBy(candidate => DamageTriggerOrdering.GetRelativeSeatOrder(
                 currentActorSeat,
                 candidate.OwnerSeat,
-                playerCount))
+                playerCount, tableOrder))
             .ThenBy(candidate => candidate.ProgramId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.ProgramTriggerId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)

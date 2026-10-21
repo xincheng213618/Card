@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "一将成名（原十周年）正式版神张飞、神华佗、神许褚的官方默认立绘及本地图鉴绑定；规则分别见人物来源档案。",
+  "portraits": [
+    {
+      "key": "anniversary-shen-zhang-fei",
+      "characterName": "神张飞",
+      "defaultSkinId": "121501",
+      "skins": [
+        {
+          "id": "121501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/215.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121501.png",
+          "sha256": "33b463dd4f493739c5e826c9ed6d8c94ec8f07cf47ff72ba4d068f3e2b245a1b",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhang-fei.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-hua-tuo",
+      "characterName": "神华佗",
+      "defaultSkinId": "122001",
+      "skins": [
+        {
+          "id": "122001",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/220.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122001.png",
+          "sha256": "488e2e915f57a0db04d4273dc42019ca72b1b997d92740f61044b2a2f6282853",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-hua-tuo.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-xu-chu",
+      "characterName": "神许褚",
+      "defaultSkinId": "121901",
+      "skins": [
+        {
+          "id": "121901",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/219.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121901.png",
+          "sha256": "47cc74717f0a73918e1d2f6e9fcacd384fe453765bc52a6d588e67f5e21f3e31",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-xu-chu.png"
+        }
+      ]
+    }
+  ]
+}

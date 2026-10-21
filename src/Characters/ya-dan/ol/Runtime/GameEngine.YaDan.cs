@@ -12,7 +12,7 @@ public sealed partial class GameEngine
         if(op==SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards)
         {
             var use=QingyaQualifiedUse(candidate,context)??throw new InvalidOperationException("Qingya requires one genuinely designated native Slash target.");
-            var living=Array.AsReadOnly(_players.Where(p=>p.IsAlive).Select(p=>p.Seat).ToArray());var arcs=QingyaArcs(f.OwnerSeat,use.TargetSeats.Single(),living);
+            var living=Array.AsReadOnly(CurrentTableOrder().Where(seat=>_players[seat].IsAlive).ToArray());var arcs=QingyaArcs(f.OwnerSeat,use.TargetSeats.Single(),living);
             r=new(YaDanSource(f),f.GameplayHash,op,_turnNumber,context.ParentFrameId,arcs.Count>1?QingyaStage.SideChoice:QingyaStage.HandChoice)
             {IssuedPhase=CurrentActualDiscardRecoveryPhase(),OriginalUseId=use.Id,OriginalActionId=use.Action!.ActionId,OriginalProvider=use.Action.ProviderSeat,
                 OriginalTarget=use.TargetSeats.Single(),Arcs=arcs,LivingSeats=living,IssuedHistoryCutoff=CompleteProgramEventHistory().Count()};

@@ -189,7 +189,7 @@ public sealed partial class GameEngine
                 ReplaceRuntimeTop(frame with { Stage = CardDeclarationStage.Returning, Succeeded = false });
                 ContinueCardDeclaration(id); return;
             }
-            var seats = Enumerable.Range(0, _playerCount).Select(offset => (_currentSeat + offset) % _playerCount)
+            var seats = Enumerable.Range(0, _playerCount).Select(offset => TableStepSeat(_currentSeat, offset))
                 .Where(seat => CanChallengeDeclaration(seat, frame.OwnerSeat)).ToArray();
             ReplaceRuntimeTop(frame with { Stage = CardDeclarationStage.Challenging });
             var child = new CardDeclarationChallengeFrame(++_resolutionSequence, id, Array.AsReadOnly(seats));
@@ -357,6 +357,10 @@ public sealed partial class GameEngine
                 else { var attack = ActiveCardAttack!; if (_resolutionStack.LastOrDefault() is ResponseWindowFrame response && response.ParentFrameId == attack.ResolutionId) PopResponseWindow(attack.ResolutionId); ClearPendingDecision(); if (!ApplyAttackDamage(attack)) CompleteAttack(attack); }
                 break;
             case CardDeclarationPurpose.Duel: ResolveDuelResponse(ActiveDuel!, owner, success ? card : null); break;
+            case CardDeclarationPurpose.QizhengResponse:
+                if (success) PayQizhengSingleResponse(parent.ParentFrameId, owner, card, parent.FinalEffectiveKind ?? frame.Payment.DeclaredKind);
+                else ResolveQizhengAfterResponse(parent.ParentFrameId);
+                break;
             case CardDeclarationPurpose.Group: ResolveGroupResponse(ActiveGroupCard!, owner, success ? card : null); break;
             case CardDeclarationPurpose.Counterspell: ResolveNullificationChoice(ActiveNullificationWindow!, owner, success ? card : null, success ? frame.Payment.Source : null); break;
             case CardDeclarationPurpose.Recovery:

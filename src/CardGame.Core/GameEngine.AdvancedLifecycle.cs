@@ -48,7 +48,7 @@ public sealed partial class GameEngine
                 DrawCards(owner, grants.Select(grant => grant.SkillId).Distinct(StringComparer.Ordinal).Count(), true);
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.ReplaceSkillsOnAwakening:
-                if (AdvancedOwnedSkillIds(owner).Count <= owner.MaxHp ||
+                if (!HasShenGuoJiaAwakeningCondition(owner.Seat, frame.SkillId, frame.TriggerId) && AdvancedOwnedSkillIds(owner).Count <= owner.MaxHp ||
                     !_skillRuntimeState.TryConsumeUsage(owner.Seat, frame.SkillId, "awakening", SkillUsageScope.Game, 1))
                     return SkillProgramStepOutcome.Continue;
                 ChangeProgramMaximumHp(frame, -1);

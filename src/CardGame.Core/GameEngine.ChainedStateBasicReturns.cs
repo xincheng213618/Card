@@ -183,7 +183,7 @@ public sealed partial class GameEngine
         {
             var cursors = parent.NumberBindings.Where(b => b.Name == "participant-cursor-" + (parent.InstructionIndex - 1)).ToArray();
             return op == SkillProgramEffectOp.RequestSlashByNearest && parent.ReexecuteParticipantInstruction && cursors is [var cursor] &&
-                cursor.Value >= 1 && cursor.Value < _playerCount && p.Source.OwnerSeat == (parent.OwnerSeat + cursor.Value) % _playerCount;
+                cursor.Value >= 1 && cursor.Value < _playerCount && p.Source.OwnerSeat == TableStepSeat(parent.OwnerSeat, cursor.Value);
         }
         return parent.SelectedTargetSeats.SequenceEqual([p.Source.OwnerSeat]) && (p.Intent switch
         {

@@ -35,7 +35,7 @@ public sealed partial class GameEngine
         var owner=_players[candidate.OwnerSeat];if(e.Op==SkillProgramEffectOp.ResolveQingjiaoIssuedEndingDiscard)return IsIssuedWenYangQingjiaoEndingCandidate(candidate,c);
         if(!owner.IsAlive||_winner!=Winner.None)return false;
         if(e.Op==SkillProgramEffectOp.ResolveLvliActualDamageChoice)return WenYangDamageParent(candidate,c)&&(candidate.BindingId!="after-receiving-damage"||WenYangHasAwakened(owner.Seat,2))&&WenYangLvliUses(owner.Seat)<WenYangLvliLimit(owner.Seat)&&!ProgramEventHistory<WenYangLvliIssuedEvent>().Any(x=>x.OwnerSeat==owner.Seat&&x.DamageWindowId==c.ParentFrameId);
-        if(e.Op==SkillProgramEffectOp.ResolveWenYangAwakening)return WenYangAwakeningParent(candidate,c)&&owner.MaxHp>0&&(candidate.SkillId=="ol:choujue"?!WenYangHasAwakened(owner.Seat,1)&&Math.Abs(GetHand(owner).Count-owner.Hp)>=3:!WenYangHasAwakened(owner.Seat,2)&&(GetHand(owner).Count<2||owner.Hp<2));
+        if(e.Op==SkillProgramEffectOp.ResolveWenYangAwakening)return WenYangAwakeningParent(candidate,c)&&owner.MaxHp>0&&(candidate.SkillId=="ol:choujue"?!WenYangHasAwakened(owner.Seat,1)&&(Math.Abs(GetHand(owner).Count-owner.Hp)>=3||HasShenGuoJiaAwakeningCondition(owner.Seat,candidate.SkillId,candidate.BindingId)):!WenYangHasAwakened(owner.Seat,2)&&(GetHand(owner).Count<2||owner.Hp<2||HasShenGuoJiaAwakeningCondition(owner.Seat,candidate.SkillId,candidate.BindingId)));
         return WenYangPlayParent(candidate,c)&&WenYangDiscardable(owner.Seat,candidate.SkillInstanceId,true).Count==GetHand(owner).Count;
     }
     private SkillProgramStepOutcome BeginWenYang(ProgramSkillFrame input,SkillProgramEffectOp op)

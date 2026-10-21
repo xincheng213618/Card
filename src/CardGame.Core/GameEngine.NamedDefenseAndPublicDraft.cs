@@ -203,7 +203,7 @@ public sealed partial class GameEngine
             var start = choice.Targets.Single();
             if (!_players[start].IsAlive) throw new InvalidOperationException("The chosen starting character is no longer alive.");
             ClearPendingDecision(); ReplaceRuntimeTop(frame = frame with { PublicHandDraft = draft with
-            { Stage = 3, RecipientSeats = draft.RecipientSeats.OrderBy(seat => (seat - start + _playerCount) % _playerCount).ToArray() } });
+            { Stage = 3, RecipientSeats = draft.RecipientSeats.OrderBy(seat => RelativeTableOrder(start, seat)).ToArray() } });
             ContinuePublicHandDraft(frame); return;
         }
         if (draft.Stage == 3 && action == "public-draft-gain")

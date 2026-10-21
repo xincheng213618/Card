@@ -6,6 +6,7 @@ internal interface IMouZhuRanFacts:IProgramSelectionQuery
     bool Finished {get;}
     ActualDiscardRecoveryPhaseKey? Phase {get;}
     IReadOnlyList<int> Seats {get;}
+    IReadOnlyList<int> ActionOrder(int from,IEnumerable<int> seats);
     MouZhuRanPlayer Player(int seat);
     IEnumerable<T> History<T>()where T:IGameEvent;
     SkillProgram? Program(string skill);

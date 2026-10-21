@@ -2,7 +2,7 @@ using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
-internal static class WushuangModeChecks
+internal static partial class WushuangModeChecks
 {
     private const string Driver = "fixture:wushuang-driver";
     private const string Human = "fixture:wushuang-human";
@@ -72,18 +72,18 @@ internal static class WushuangModeChecks
             "The extra turn adds no payday or shop; the AI normal turn shops and the next human normal turn adds income.");
         Shopping(game);
         var first = Shop(game);
-        Require(first.Offers.Count == 4 && first.Offers.Count(o => o.Kind == WushuangOfferKind.Skill) == 1 &&
-            first.Offers.Count(o => o.Kind == WushuangOfferKind.Card) == 2 && first.Offers.Count(o => o.Kind == WushuangOfferKind.Tactic) == 1 &&
+        Require(first.Offers.Count == 4 && first.Offers.All(o => o.Kind is WushuangOfferKind.Skill or WushuangOfferKind.Card or WushuangOfferKind.Tactic) &&
             first.Experience == 0 && first.ExperienceToNextLevel == 0 && first.LevelUpCost == 0 &&
             E<WushuangTokensChangedEvent>(game).Any(e => e.Reason == "round-start" && e.Delta == 1) &&
             !game.Submit(new UpgradeWushuangShopCommand(0, game.Revision)).Accepted,
             "Four goods appear only in the ending intermission; round income is separate, with no XP or shop leveling.");
-        var skill = first.Offers.Single(o => o.SkillId is not null);
+        AffordableSkillPage(game, withCard: true);
+        var skill = Shop(game).Offers.First(o => o.SkillId is not null && o.Cost <= Shop(game).Tokens);
         Buy(game, skill.Id);
         Require(Shop(game).ExtraSkillIds.Contains(skill.SkillId!) && Shop(game).PurchasedOffers.Single().Id == skill.Id &&
             game.CreateSnapshot(0).Players[0].Skills!.Any(s => s.ContentId == skill.SkillId),
             "A purchase grants a real skill and retains its sold slot for display.");
-        var card = Shop(game).Offers.First(o => o.CardKind is not null);
+        var card = Shop(game).Offers.First(o => o.CardKind is { } kind && !EquipmentCatalog.IsEquipment(kind) && o.Cost == 0);
         var hand = game.CreateSnapshot(0).Players[0].HandCount;
         Buy(game, card.Id);
         Require(game.CreateSnapshot(0).Players[0].HandCount == hand + 1, "A card offer places an actual owned physical card.");
@@ -101,10 +101,12 @@ internal static class WushuangModeChecks
             Shop(game).PurchasedOffers.Count == 0 && Shop(game).IsLocked &&
             !game.Submit(new BuyWushuangOfferCommand(0, staleOffer, null, game.Revision)).Accepted,
             "Manual refresh costs exactly one token, resets sold positions and retires the old page, while preserving the lock.");
-        Buy(game, Shop(game).Offers.Single(o => o.SkillId is not null).Id);
+        AffordableSkillPage(game);
+        Buy(game, Shop(game).Offers.First(o => o.SkillId is not null && o.Cost <= Shop(game).Tokens).Id);
         Accept(game, new FinishWushuangShopCommand(0, game.Revision));
         Shopping(game);
         Accept(game, new RerollWushuangShopCommand(0, game.Revision));
+        AffordableSkillPage(game);
         var third = Shop(game).Offers.First(o => o.SkillId is not null && o.Cost <= Shop(game).Tokens);
         var before = Views(game);
         Require(!game.Submit(new BuyWushuangOfferCommand(0, third.Id, null, game.Revision)).Accepted && Views(game) == before &&
@@ -152,9 +154,9 @@ internal static class WushuangModeChecks
         Cold(game, registry);
     }
 
-    private static (GameEngine, ContentRegistry) Start(bool clock, int seed = 17, bool confirmOpeningHand = false)
+    private static (GameEngine, ContentRegistry) Start(bool clock, int seed = 17, string[]? skills = null, bool gain = false, int? initialHp = null, int? aiQuota = null, bool confirmOpeningHand = false)
     {
-        var registry = ComposedSkillContentRegistry.CreateShowcase(additionalPackages: [new Fixture(clock)]);
+        var registry = ComposedSkillContentRegistry.CreateShowcase(additionalPackages: [new Fixture(clock, skills, gain, initialHp, aiQuota)]);
         var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(seed) with
         { ConfirmOpeningHand = confirmOpeningHand, AdvanceAfterHumanCommands = false, UseInteractiveDiscard = false }, registry);
         Require(!game.IsWushuangClockRunning && !game.Submit(new TickWushuangClockCommand(1, game.Revision)).Accepted,
@@ -173,6 +175,18 @@ internal static class WushuangModeChecks
         Accept(g, new BuyWushuangOfferCommand(0, id, replacement, g.Revision));
     }
     private static void Shopping(GameEngine g) => Drive(g, () => Shop(g) is { Phase: WushuangShopPhase.Shopping, CanShop: true });
+    private static void AffordableSkillPage(GameEngine g, bool withCard = false)
+    {
+        for (var attempt = 0; attempt < 8; attempt++)
+        {
+            if (Shop(g).Offers.Any(o => o.SkillId is not null && o.Cost <= Shop(g).Tokens) &&
+                (!withCard || Shop(g).Offers.Any(o => o.CardKind is { } kind && !EquipmentCatalog.IsEquipment(kind) && o.Cost == 0))) return;
+            if (Shop(g).IsLocked && Shop(g).Tokens >= Shop(g).RerollCost)
+                Accept(g, new RerollWushuangShopCommand(0, g.Revision));
+            else { Accept(g, new FinishWushuangShopCommand(0, g.Revision)); Shopping(g); }
+        }
+        throw new InvalidOperationException("The bounded native fixture did not accumulate the official skill price.");
+    }
     private static void End(GameEngine g) => Accept(g, new EndPlayPhaseCommand(0, g.Revision, P(g)!.PromptId));
     private static void Play(GameEngine g) => Drive(g, () => P(g) is { PlayerSeat: 0, Kind: DecisionKind.PlayCard });
     private static void NextHumanTurn(GameEngine g)
@@ -211,11 +225,15 @@ internal static class WushuangModeChecks
     { var r = g.Submit(c); Require(r.Accepted, r.Error?.Message ?? "Wushuang command rejected."); }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
-    private sealed class Fixture(bool clock) : IGameContentPackage
+    private sealed class Fixture(bool clock, string[]? skills = null, bool gain = false, int? initialHp = null, int? aiQuota = null) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("wushuang-fixture", new Version(1, 0, 0));
         public void Register(IContentRegistryBuilder builder)
         {
+            foreach (var skill in StandardWushuangContentRegistry.Create().Skills.Values.Where(s =>
+                s.Id.StartsWith("wushuang:", StringComparison.Ordinal) || s.Id.StartsWith("shanhe:", StringComparison.Ordinal) ||
+                s.Id.StartsWith("hulao:", StringComparison.Ordinal) || s.Id.StartsWith("shenwu:", StringComparison.Ordinal) ||
+                s.Id.StartsWith("ghost:", StringComparison.Ordinal))) builder.AddSkill(skill);
             var rules = $$$"""
             {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[
               {"id":"{{{Driver}}}","revision":1,
@@ -227,11 +245,26 @@ internal static class WushuangModeChecks
                 skills = new Dictionary<string, object> { [Driver] = new { name = "无双小型验证", description = "原生额外回合与付费后窗口。" } } }));
             builder.AddSkill(new(Driver, "无双小型验证", "原生额外回合与付费后窗口。")
             { Program = catalog.Programs[Driver], ProgramPresentation = catalog.Presentations[Driver] });
+            if (gain)
+            {
+                var gainCatalog = SkillProgramCatalog.Load($$$"""
+                {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:wushuang-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","optional":true,"effects":[{"op":"recover","target":"owner","amount":1}]}]}]}
+                """, """{"schemaVersion":3,"skills":{"fixture:wushuang-gain":{"name":"获得牌子窗","description":"获得牌后真实可选子窗。"}}}""");
+                builder.AddSkill(new("fixture:wushuang-gain", "获得牌子窗", "获得牌后真实可选子窗。")
+                { Program = gainCatalog.Programs["fixture:wushuang-gain"], ProgramPresentation = gainCatalog.Presentations["fixture:wushuang-gain"] });
+            }
             builder.AddGeneral(new(Human, "无双主将", "", Driver, "qun", BaseHp: 30,
-                AdditionalSkillIds: ["classic:qingguo", "classic:lianying"]));
-            builder.AddGeneral(new("fixture:wushuang-ai", "无双对手", "", "classic:qianxun", "qun", BaseHp: 30));
+                AdditionalSkillIds: (skills ?? ["classic:qingguo", "classic:lianying"]).Concat(gain ? ["fixture:wushuang-gain"] : Array.Empty<string>()).ToArray()) { InitialHp = initialHp });
+            if (aiQuota is { } quota)
+            {
+                var quotaCatalog = SkillProgramCatalog.Load($$$"""
+                {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:wushuang-ai-quota","revision":1,"modifiers":[{"id":"draw","query":"drawCount","operation":"set","value":{{{quota}}},"priority":100},{"id":"slash","query":"slashLimit","operation":"set","value":{{{quota}}},"priority":100}]}]}
+                """, """{"schemaVersion":3,"skills":{"fixture:wushuang-ai-quota":{"name":"固定额度","description":"固定摸牌与出杀额度。"}}}""");
+                builder.AddSkill(new("fixture:wushuang-ai-quota", "固定额度", "固定摸牌与出杀额度。") { Program = quotaCatalog.Programs["fixture:wushuang-ai-quota"] });
+            }
+            builder.AddGeneral(new("fixture:wushuang-ai", "无双对手", "", aiQuota is null ? "classic:qianxun" : "fixture:wushuang-ai-quota", "qun", BaseHp: 30));
             builder.AddDeck(new("fixture:wushuang-deck", "Bounded native shop material", 4, 0, [])
-            { PhysicalCards = Enumerable.Range(0, 240).Select(_ => new ContentDeckPhysicalCard(clock ? "standard:slash" : "standard:dodge", Suit.Heart, 7)).ToArray() });
+            { PhysicalCards = Enumerable.Range(0, 240).Select(_ => new ContentDeckPhysicalCard(gain ? "standard:draw_two" : clock ? "standard:slash" : "standard:dodge", Suit.Heart, 7)).ToArray() });
             builder.AddMode(new(WushuangMode.ModeId, "无双小型验证", 2, 2, new Dictionary<string, int>(),
                 "fixture:wushuang-deck", 2, [Human, "fixture:wushuang-ai"], ContentModeKind.Team,
                 new Dictionary<string, int> { [WushuangMode.PlayerTeamId] = 1, [WushuangMode.AiTeamId] = 1 }));

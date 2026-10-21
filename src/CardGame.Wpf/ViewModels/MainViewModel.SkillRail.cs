@@ -5,13 +5,16 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private IReadOnlyList<HumanSkillViewModel> BuildHumanSkillCards() =>
-        BuildOwnedHumanSkillCards().Where(skill => !IsWushuangTacticSkill(skill.ContentId))
+        BuildOwnedHumanSkillCards().Where(skill => !IsWushuangPassiveTacticSkill(skill.ContentId))
             .Select(skill => skill with { ProgressText = SkillActivationProgressText(skill.ContentId) })
             .Concat(BuildForeignHumanSkillCards()).ToArray();
 
-    private bool IsWushuangTacticSkill(string? skillId) => skillId is not null && IsWushuangTable &&
+    private bool IsWushuangPassiveTacticSkill(string? skillId) => skillId is not null && IsWushuangTable &&
         (_snapshot?.Players.SingleOrDefault(player => player.IsHuman)?.WushuangTacticIds ?? [])
-            .Any(id => WushuangTactics.ById.TryGetValue(id, out var tactic) && tactic.SkillId == skillId);
+            .Any(id => WushuangTactics.ById.TryGetValue(id, out var tactic) && tactic.SkillId == skillId) &&
+        !(CurrentPresentationRegistry.Skills.TryGetValue(skillId, out var definition) &&
+            (definition.ActionForms.HasFlag(SkillActionForm.Active) || definition.Program?.Activations.Count > 0 ||
+             definition.Program?.ViewAs.Count > 0));
 
     private string SkillActivationProgressText(string? skillId)
     {

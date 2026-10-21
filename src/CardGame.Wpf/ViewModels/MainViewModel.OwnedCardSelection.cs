@@ -10,10 +10,17 @@ public sealed partial class MainViewModel
     private PromptId? _ownedSelectionPromptId;
     private bool _confirmingOwnedCardSelection;
 
+    public bool IsForeignCardTakeSelectionPending => _snapshot?.PendingDecision is { SkillPrompt: not null, RequiredCardCount: > 1 } prompt &&
+        prompt.PlayerSeat == _snapshot.HumanSeat && prompt.Choices.Count > 0 && prompt.Choices.All(choice =>
+            choice.Cards.Count == 1 && choice.Parameters.GetValueOrDefault("program-action") == "private-hand-take" &&
+            (_snapshot.PrivateRevealedCards ?? []).Any(card => card.Id == choice.Cards[0]));
+    public IReadOnlyList<int> SelectedTargetCardIds => _selectedOwnedCardIds.AsReadOnly();
+
     public bool IsOwnedCardSelectionPending
     {
         get
         {
+            if (IsForeignCardTakeSelectionPending) return true;
             if (_snapshot?.PendingDecision is not { SkillPrompt: not null, Choices.Count: > 0 } prompt ||
                 prompt.PlayerSeat != _snapshot.HumanSeat) return false;
             var human = _snapshot.Players.Single(player => player.Seat == _snapshot.HumanSeat);
@@ -63,6 +70,7 @@ public sealed partial class MainViewModel
             _selectedOwnedCardIds.Clear();
         _ownedSelectionGame = _game;
         _ownedSelectionPromptId = promptId;
+        RaisePropertyChanged(nameof(SelectedTargetCardIds));
     }
 
     private void ToggleOwnedSelectionCard(int id)
@@ -76,12 +84,14 @@ public sealed partial class MainViewModel
         foreach (var card in Hand) card.IsSelected = _selectedOwnedCardIds.Contains(card.Id);
         SelectedCardText = $"已选择 {_selectedOwnedCardIds.Count}/{_snapshot.PendingDecision!.RequiredCardCount} 张牌";
         RefreshEquipmentMaterialSelection();
+        RaisePropertyChanged(nameof(SelectedTargetCardIds));
         RefreshSelectionHint();
     }
 
     private string OwnedCardSelectionHint => $"{_snapshot.PendingDecision!.SkillPrompt!.Name} · 选择 " +
         (_snapshot.PendingDecision.MinimumCardCount is { } min && min != _snapshot.PendingDecision.RequiredCardCount
-            ? $"{min} 至 {_snapshot.PendingDecision.RequiredCardCount}" : $"{_snapshot.PendingDecision.RequiredCardCount}") + " 张手牌或装备" +
+            ? $"{min} 至 {_snapshot.PendingDecision.RequiredCardCount}" : $"{_snapshot.PendingDecision.RequiredCardCount}") +
+        (IsForeignCardTakeSelectionPending ? " 张目标手牌" : " 张手牌或装备") +
         $"（已选 {_selectedOwnedCardIds.Count}/{_snapshot.PendingDecision.RequiredCardCount}）· 选好后点击「确定」；再次点击取消单张，Esc 清空选择。";
 
     private ICommand? _selectOwnedCardEquipmentCommand;

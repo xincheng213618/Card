@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public enum RecoveryAttemptProducer
 {
     Program, ProgramMaximum, SilverLion, CardUse, GroupCard, VirtualBasic,
-    DyingBoundAlcohol, DyingVirtualAlcohol, Hengye
+    DyingBoundAlcohol, DyingVirtualAlcohol, Hengye,
+    SkillInvocation = 38700
 }
 
 public sealed record RecoveryAttemptCompletion(RecoveryAttemptProducer Producer,
@@ -196,7 +197,7 @@ public sealed partial class GameEngine
             _turnNumber <= 0 || target.Hp >= target.MaxHp || _winner != Winner.None) return [];
         var faction = GetEffectiveFactionId(target);
         return Array.AsReadOnly(_players.Where(p => p.IsAlive && p.HasHpValue && p.Seat != seat && p.Hp <= target.Hp)
-            .OrderBy(p => (p.Seat - seat + _players.Count) % _players.Count)
+            .OrderBy(p => RelativeTableOrder(seat, p.Seat))
             .SelectMany(owner => CardPolicies(owner, SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery)
                 .Where(item => item.Policy.FactionId == faction)
                 .Select(item => new RecoveryReplacementCandidate(owner.Seat, item.Source.SkillId,
@@ -442,6 +443,10 @@ public sealed partial class GameEngine
         switch (continuation.Continuation)
         {
             case PostEventContinuation.Program: AdvanceRuntimeProgram(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.SkillInvocation:
+                if (_resolutionStack.LastOrDefault() is not SkillInvocationFrame invocation || !IsSkillInvocationHealthChild(invocation, completed))
+                    throw new InvalidOperationException("A skill invocation lost its exact recovery producer return.");
+                AdvanceRuntimeFrame(invocation.Id); break;
             case PostEventContinuation.FriendDuelResponse: ContinueFriendDuelResponse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.AwaitedProgramMovement:
                 if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(continuation.ResumeFrameId!.Value); break;

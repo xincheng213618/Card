@@ -12,7 +12,7 @@ public sealed partial class GameEngine
     private string SequentialDiscardReason(ProgramSkillFrame frame) => $"skill-program.{frame.SkillId}.{SequentialDiscardEffect(frame).Op}";
     private CardConversionSource SequentialDiscardSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private IReadOnlyList<int> SequentialDiscardOrder(int owner, int start, bool ring) => Array.AsReadOnly((ring
-        ? Enumerable.Range(0, _playerCount).Select(offset => (start + offset) % _playerCount).Where(seat => seat != owner)
+        ? Enumerable.Range(0, _playerCount).Select(offset => TableStepSeat(start, offset)).Where(seat => seat != owner)
         : Enumerable.Repeat(start, 1)).ToArray());
     private bool SequentialDiscardCanContinue(ProgramSkillFrame frame) => _winner == Winner.None && _players[frame.OwnerSeat].IsAlive &&
         HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId);

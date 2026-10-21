@@ -496,6 +496,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
     }
 
+    internal static IReadOnlyList<ContentDeckPhysicalCard> CreateWushuangPhysicalDeck() =>
+        CreateMilitaryPhysicalDeck().Where(card => card.CardDefinitionId is not
+            ("classic:borrowed-sword" or "standard:offensive_horse" or "standard:defensive_horse" or "classic:dawan" or "classic:zixing" or
+             "classic:dilu" or "classic:zhaohuangfeidian" or "classic:hualiu")).ToArray();
+
     private static IReadOnlyList<ContentDeckPhysicalCard> CreateMilitaryPhysicalDeck()
     {
         var cards = CreateStandardPhysicalDeck(distinctHorseNames: true).ToList();

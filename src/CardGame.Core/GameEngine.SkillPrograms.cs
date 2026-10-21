@@ -870,6 +870,7 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
             }
+            if (frame.InstructionIndex == 0 && IsProgramWaitingForSkillInvocation(frame)) continue;
             RuntimeHooks.AssertFrame(ProgramFrameInvariantPhase.BeforeSelectionState, frame, plan);
             if (frame.InstructionIndex < 1 || frame.InstructionIndex > plan.Instructions.Count ||
                 frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||

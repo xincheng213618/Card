@@ -40,7 +40,7 @@ public sealed partial class GameEngine
     }
 
     private IReadOnlyList<int> HellReturnSoulTargets(int actorSeat) => Array.AsReadOnly(
-        Enumerable.Range(0, _playerCount).Select(offset => (actorSeat + offset) % _playerCount)
+        Enumerable.Range(0, _playerCount).Select(offset => TableStepSeat(actorSeat, offset))
             .Where(seat => _players[seat].IsAlive && HellSoulOutstandingLosses(seat).Length != 0).ToArray());
 
     private void AddHellSoulActions(List<LegalAction> actions, CharacterState actor, IEnumerable<Card> cards)

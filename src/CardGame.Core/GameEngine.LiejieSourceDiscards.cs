@@ -31,7 +31,7 @@ public sealed partial class GameEngine
 
     private bool IsLiejieDiscardDestination(CardMovementRecord movement) =>
         movement.To == CardLocation.DiscardPile || movement.From.Zone == CardZoneKind.Equipment &&
-        movement.To == CardLocation.OutsideGame && (GetAttackCard(movement.CardId).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(movement));
+        movement.To == CardLocation.OutsideGame && (GetAttackCard(movement.CardId).IsGeneralWeapon || IsEphemeralCardDestroyedMaterial(movement));
 
     private bool IsAtomicLiejieCostMove(ProgramSkillFrame frame, string sourceBind)
     {

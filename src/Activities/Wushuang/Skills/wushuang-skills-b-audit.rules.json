@@ -1,0 +1,801 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wushuang:skill-3248",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "target-draw",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "onlyDesignatedCardTargets": true,
+          "optional": false,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "cardActionActorIsOwner"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "shiYuanTargetDraw",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3269",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "flip-use-alcohol",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useVirtualAlcohol",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "flip-for-virtual-alcohol",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "jiushi-choice",
+              "options": [
+                {
+                  "id": "flip",
+                  "condition": {
+                    "kind": "not",
+                    "children": [
+                      {
+                        "kind": "faceDown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "pass",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "jiushi-choice",
+                "optionId": "flip"
+              }
+            },
+            {
+              "op": "useVirtualDyingAlcohol",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "jiushi-choice",
+                "optionId": "flip"
+              }
+            }
+          ]
+        },
+        {
+          "id": "flip-back-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "setFaceState",
+              "target": "owner",
+              "faceDown": false
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "wushuang:skill-3062",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "target-hp-cost",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingInAttackRange",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "discardTargetHpCardsAndDamage",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3100",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "nearby-target-cannot-respond",
+          "kind": "prohibitNearbyTargetResponse",
+          "cardKinds": [],
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3076",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "guanchao-choose-pattern",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "guanchaoChoosePattern",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "guanchao-rank-draw",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "condition": {
+            "kind": "cardActionActorIsCurrentTurn"
+          },
+          "effects": [
+            {
+              "op": "guanchaoRankDraw",
+              "target": "owner"
+            }
+          ],
+          "includeResponseUses": true
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3139",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "restore-at-discard-phase-end",
+          "window": "discardPhaseEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "resolveWushuangGuzheng",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3075",
+      "revision": 1,
+      "states": [
+        {
+          "id": "shown-basic",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "shown-trick",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "shown-equipment",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "reset-shown-category",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-basic",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-trick",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-equipment",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": "reveal-hand-card",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWithHand"
+            },
+            {
+              "op": "revealTargetHandCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "resultBind": "qiangzhi-shown",
+              "mode": "random"
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-basic",
+              "value": true,
+              "condition": {
+                "kind": "boundCardsMatchCategories",
+                "sourceBind": "qiangzhi-shown",
+                "cardCategories": [
+                  "basic"
+                ]
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-trick",
+              "value": true,
+              "condition": {
+                "kind": "boundCardsMatchCategories",
+                "sourceBind": "qiangzhi-shown",
+                "cardCategories": [
+                  "trick"
+                ]
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-equipment",
+              "value": true,
+              "condition": {
+                "kind": "boundCardsMatchCategories",
+                "sourceBind": "qiangzhi-shown",
+                "cardCategories": [
+                  "equipment"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "draw-on-matching-category",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionActorIsCurrentTurn"
+              },
+              {
+                "kind": "cardActionPhaseIsPlay"
+              },
+              {
+                "kind": "any",
+                "children": [
+                  {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "booleanState",
+                        "stateId": "shown-basic",
+                        "expectedValue": true
+                      },
+                      {
+                        "kind": "cardActionCategoryIs",
+                        "categories": [
+                          "basic"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "booleanState",
+                        "stateId": "shown-trick",
+                        "expectedValue": true
+                      },
+                      {
+                        "kind": "cardActionCategoryIs",
+                        "categories": [
+                          "trick"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "booleanState",
+                        "stateId": "shown-equipment",
+                        "expectedValue": true
+                      },
+                      {
+                        "kind": "cardActionCategoryIs",
+                        "categories": [
+                          "equipment"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "clear-shown-category",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "priority": -100,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-basic",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-trick",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-equipment",
+              "value": false
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "wushuang:skill-3291",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "dingcuo-damage-caused",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "dingcuo",
+          "condition": {
+            "kind": "damageTargetIsOther"
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "resultBind": "dingcuo-drawn"
+            },
+            {
+              "op": "chooseOwnCardDiscard",
+              "target": "owner",
+              "zones": [
+                "hand"
+              ],
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardsSameColor",
+                    "sourceBind": "dingcuo-drawn"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "dingcuo-damage-taken",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "dingcuo",
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "resultBind": "dingcuo-drawn"
+            },
+            {
+              "op": "chooseOwnCardDiscard",
+              "target": "owner",
+              "zones": [
+                "hand"
+              ],
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardsSameColor",
+                    "sourceBind": "dingcuo-drawn"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3023",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "1-heart",
+          "inputKinds": [],
+          "inputSuits": [
+            "heart"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true
+        },
+        {
+          "id": "1-diamond",
+          "inputKinds": [],
+          "inputSuits": [
+            "diamond"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true
+        },
+        {
+          "id": "1-club",
+          "inputKinds": [],
+          "inputSuits": [
+            "club"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true
+        },
+        {
+          "id": "1-spade",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true
+        },
+        {
+          "id": "2-heart",
+          "inputKinds": [],
+          "inputSuits": [
+            "heart"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "inputCount": 2,
+          "sameSuit": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "recoveryBonus": 1
+        },
+        {
+          "id": "2-diamond",
+          "inputKinds": [],
+          "inputSuits": [
+            "diamond"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "inputCount": 2,
+          "sameSuit": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "damageBonus": 1
+        },
+        {
+          "id": "2-club",
+          "inputKinds": [],
+          "inputSuits": [
+            "club"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "inputCount": 2,
+          "sameSuit": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true
+        },
+        {
+          "id": "2-spade",
+          "inputKinds": [],
+          "inputSuits": [
+            "spade"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "inputCount": 2,
+          "sameSuit": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true
+        }
+      ],
+      "activations": [
+        {
+          "id": "two-heart",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "selectedCardsSameSuit": true,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "condition": {
+            "kind": "wounded"
+          },
+          "effects": [
+            {
+              "op": "useSelectedCardsAs",
+              "target": "owner",
+              "sourceBind": "2-heart",
+              "outputKind": "peach"
+            }
+          ]
+        },
+        {
+          "id": "two-diamond",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "selectedCardsSameSuit": true,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "useSelectedCardsAs",
+              "target": "selectedTarget",
+              "sourceBind": "2-diamond",
+              "outputKind": "fireSlash"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "two-club-discard",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "conversionSource",
+          "allowNoEventTarget": true,
+          "sourceSkillId": "wushuang:skill-3023",
+          "sourceViewAsId": "2-club",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "currentTurnPlayer"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true
+            }
+          ]
+        },
+        {
+          "id": "two-spade-discard",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "conversionSource",
+          "allowNoEventTarget": true,
+          "sourceSkillId": "wushuang:skill-3023",
+          "sourceViewAsId": "2-spade",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "currentTurnPlayer"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3287",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "nullify-actual-dodge-use",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "observer",
+          "optional": true,
+          "cardKinds": [
+            "dodge"
+          ],
+          "effects": [
+            {
+              "op": "resolveWushuangZengou",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

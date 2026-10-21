@@ -9,10 +9,11 @@ public sealed partial class GameEngine
         GameProgramActivationFrames(ownerSeat, skillId, activationId).Length;
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 950)]
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.Collection, 10)]
-    private bool CanOfferGameActivationAwakening(int ownerSeat, SkillProgramTrigger trigger) =>
+    private bool CanOfferGameActivationAwakening(int ownerSeat, string skillId, SkillProgramTrigger trigger) =>
         !trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.AwakenAfterGameActivations) ||
         trigger.Effects is [{ Op: SkillProgramEffectOp.AwakenAfterGameActivations } effect] &&
-        GameProgramActivationCount(ownerSeat, effect.SourceBind!, effect.StateId!) >= effect.MinimumValue;
+        (HasShenGuoJiaAwakeningCondition(ownerSeat, skillId, trigger.Id) ||
+            GameProgramActivationCount(ownerSeat, effect.SourceBind!, effect.StateId!) >= effect.MinimumValue);
 
     private bool ExactGameActivationAwakeningParent(ProgramSkillFrame f)
     {
@@ -30,7 +31,7 @@ public sealed partial class GameEngine
     {
         var f = GetActiveProgramFrame(supplied.Id); var trigger = GetProgramTrigger(f);
         if (f.GameActivationAwakening is not null || f.InstructionIndex != 1 || !ExactGameActivationAwakeningParent(f) ||
-            trigger.Effects is not [var configured] || configured != effect || !CanOfferGameActivationAwakening(f.OwnerSeat, trigger) ||
+            trigger.Effects is not [var configured] || configured != effect || !CanOfferGameActivationAwakening(f.OwnerSeat, f.SkillId, trigger) ||
             !_players[f.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId) || _winner != Winner.None)
             throw new InvalidOperationException("Game-activation awakening lost its exact preparation candidate or actual activation threshold.");
         var owner = _players[f.OwnerSeat]; var before = owner.MaxHp; var after = Math.Max(1, before - 1);
@@ -75,7 +76,8 @@ public sealed partial class GameEngine
             r.Source != new CardConversionSource(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId) || r.GameplayHash != f.GameplayHash ||
             r.LifecycleFrameId != f.WindowContext!.ParentFrameId || r.ActualTurnNumber != _turnNumber || r.ActualTurnOwnerSeat != _currentSeat ||
             r.ActualTurnOwnerSeat != f.OwnerSeat || !Enum.IsDefined(r.Stage) || r.MaximumBefore < 1 || r.MaximumAfter != Math.Max(1, r.MaximumBefore - 1) ||
-            r.HpAfter != Math.Min(r.HpBefore, r.MaximumAfter) || r.MinimumValue < 1 || r.ActivationFrameIds.Count < r.MinimumValue ||
+            r.HpAfter != Math.Min(r.HpBefore, r.MaximumAfter) || r.MinimumValue < 1 ||
+            r.ActivationFrameIds.Count < r.MinimumValue && !HasShenGuoJiaAwakeningReceipt(f) ||
             !r.ActivationFrameIds.SequenceEqual(GameProgramActivationFrames(f.OwnerSeat, r.CountedSkillId, r.CountedActivationId, f.Id)) ||
             GetProgramTrigger(f).Effects is not [{ Op: SkillProgramEffectOp.AwakenAfterGameActivations } e] ||
             e.SourceBind != r.CountedSkillId || e.StateId != r.CountedActivationId || e.MinimumValue != r.MinimumValue || !e.SkillIds.SequenceEqual(r.SkillIds) ||

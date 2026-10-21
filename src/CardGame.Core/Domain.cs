@@ -116,6 +116,7 @@ public enum CardKind
     Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
     Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623, ThunderChariot = 624,
     WumiaoFlood = 700,
+    QizhengXiangsheng = 710,
     QiBaoDao = 33800,
     BaiBiDao = 33801
 }
@@ -142,6 +143,21 @@ public enum DamageNature
 /// </summary>
 public enum PlayerMarkerKind
 {
+    Pingding = 38100,
+    ShenTaishiCiWei = 38200,
+    Tianren = 38400,
+    ShencaiChi = 38600,
+    ShencaiZhang = 38601,
+    ShencaiTu = 38602,
+    ShencaiLiu = 38603,
+    ShencaiSi = 38604,
+    QingBanner = 38800,
+    MobileWuling = 39100,
+    MobileWulingTiger = 39101,
+    MobileWulingCrane = 39102,
+    MobileWulingBear = 39103,
+    MobileWulingApe = 39104,
+    MobileWulingDeer = 39105,
     MouSunShangxiangZhu = 35100,
     MouDongZhuoGuanbian = 34700,
     MouKongRongXian = 34600,
@@ -214,6 +230,21 @@ public static class PlayerMarkerCatalog
 {
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
+        PlayerMarkerKind.Pingding => "平定",
+        PlayerMarkerKind.ShenTaishiCiWei => "围",
+        PlayerMarkerKind.Tianren => "天任",
+        PlayerMarkerKind.ShencaiChi => "笞",
+        PlayerMarkerKind.ShencaiZhang => "杖",
+        PlayerMarkerKind.ShencaiTu => "徒",
+        PlayerMarkerKind.ShencaiLiu => "流",
+        PlayerMarkerKind.ShencaiSi => "死",
+        PlayerMarkerKind.QingBanner => "擎",
+        PlayerMarkerKind.MobileWuling => "五灵",
+        PlayerMarkerKind.MobileWulingTiger => "虎",
+        PlayerMarkerKind.MobileWulingCrane => "鹤",
+        PlayerMarkerKind.MobileWulingBear => "熊",
+        PlayerMarkerKind.MobileWulingApe => "猿",
+        PlayerMarkerKind.MobileWulingDeer => "鹿",
         PlayerMarkerKind.MouDongZhuoGuanbian => "观变",
         PlayerMarkerKind.MouSunShangxiangZhu => "助",
         PlayerMarkerKind.MouKongRongXian => "贤",
@@ -456,7 +487,8 @@ public enum LegalActionKind
     WenheChaos = 553,
     Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
     Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623,
-    WumiaoFlood = 700
+    WumiaoFlood = 700,
+    QizhengXiangsheng = 710
 }
 
 public sealed record GameOptions
@@ -1091,6 +1123,13 @@ public sealed record GameSnapshot(
     int ProcessingCardCount = 0,
     long Revision = 0)
 {
+    /// <summary>Public clockwise participant identities; null in older externally constructed views.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? TableOrder { get; init; }
+    /// <summary>Shared public benevolence pile, in arrival order from oldest to newest.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? BenevolenceCards { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardDeclarationSnapshot>? CardDeclarations { get; init; }
     /// <summary>Public winning team id for team modes; null for identity results.</summary>

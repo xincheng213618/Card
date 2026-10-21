@@ -1,0 +1,52 @@
+{
+  "allowedEquipmentKinds": [
+    "Crossbow", "QinggangSword", "CixiongDoubleSwords", "QinglongCrescentBlade",
+    "ZhangbaSerpentSpear", "StoneAxe", "QilinBow", "GudingBlade", "ZhuqueFan",
+    "FangtianHalberd", "IceSword", "BaguaFormation", "RenwangShield", "Tengjia", "SilverLion"
+  ],
+  "excludedCardKinds": ["BorrowedSword"],
+  "additionalGenerals": ["boundary:zhang-jiao"],
+  "excludedSkillOffers": {
+    "3071": "连破：对手死亡即结束对局，没有击杀后的额外回合。",
+    "3099": "完杀：双人对局没有第三名救援者或第三方非锁定技能。",
+    "3103": "暗箭：单骑双方距离固定为1，正常攻击范围内无法触发此技能。",
+    "3153": "乱战：仅增加额外目标，双人对局没有第三名目标。",
+    "3157": "誓仇：仅增加杀的额外目标，双人对局无收益。",
+    "3261": "征南：对手死亡即结束对局，没有后续成长。",
+    "3275": "求援：需要杀的使用者、目标及第三名角色。",
+    "3276": "离间：需要技能拥有者之外的两名男性角色。",
+    "3294": "托孤：对手死亡即结束对局，没有后续继承。"
+  },
+  "excludedTacticOffers": {
+    "2010": "关刀之脊：单骑无距离，纯距离豁免没有收益。",
+    "2069": "禁用数值护甲。", "2070": "禁用数值护甲。",
+    "2071": "禁用数值护甲。", "2072": "禁用数值护甲。",
+    "2073": "禁用数值护甲。", "2074": "禁用数值护甲。",
+    "2129": "远击技：单骑双方距离固定为1，无法触发远距离增伤。",
+    "2177": "不使用数值护甲，无需护甲穿透。",
+    "2193": "不使用数值护甲，无需护甲增伤。",
+    "2238": "妙手空空：单骑无距离，顺手牵羊的距离豁免没有收益。",
+    "2244": "单骑牌堆和技能选牌均不提供借刀杀人。",
+    "2258": "禁用数值护甲。", "2259": "禁用数值护甲。", "2260": "禁用数值护甲。"
+  },
+  "excludedGenerals": {
+    "classic:liu-bei": "辅助仁德、激将依赖队友。",
+    "classic:da-qiao": "辅助流离需要第三名角色；用户提供的标准包单骑将池未收录。",
+    "classic:diao-chan": "辅助离间需要第三名角色；用户提供的标准包单骑将池未收录。",
+    "classic:hua-tuo": "辅助治疗型武将；用户提供的标准包单骑将池未收录。",
+    "boundary:liu-bei": "辅助仁德、激将依赖队友。",
+    "boundary:da-qiao": "辅助流离需要第三名角色。",
+    "boundary:diao-chan": "辅助离间需要第三名角色。",
+    "boundary:hua-tuo": "辅助治疗型武将。",
+    "classic:cao-rui": "明鉴、兴衰主要依赖队友配合。",
+    "classic:lu-su": "好施、缔盟主要依赖队友及第三名角色。",
+    "boundary:lu-su": "好施、缔盟主要依赖队友及第三名角色。",
+    "classic:liu-shan": "放权、若愚主要依赖队友及身份局条件。",
+    "classic:chen-gong": "明策主要依赖队友及第三名角色。",
+    "boundary:chen-gong": "明策主要依赖队友及第三名角色。",
+    "ol:liu-xie": "密诏需要队友及第三名角色。",
+    "mou:huang-gai-mobile": "核心规则依赖数值护甲，当前单骑禁用护甲。",
+    "mou:yu-jin-mobile": "核心规则依赖数值护甲，当前单骑禁用护甲。",
+    "mou:lu-meng-mobile": "该移动版的核心规则依赖数值护甲；标准、界、OL 谋吕蒙不受此条影响。"
+  }
+}

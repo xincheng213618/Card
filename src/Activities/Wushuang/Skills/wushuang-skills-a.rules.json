@@ -1,0 +1,556 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wushuang:skill-3079",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "red-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "cardActionCardIsRed"
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "red-response",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "cardActionCardIsRed"
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "red-discard",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perCard",
+          "optional": true,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "movementDiscardOnly": true
+        },
+        {
+          "id": "red-equipment-discard",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "equipment"
+          ],
+          "movementOccurrence": "perCard",
+          "optional": true,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "movementDiscardOnly": true
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3081",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "private-top-distribution",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWushuangOriginalYiji",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3125",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "skip-draw-most-hand",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "skipWushuangFenliPhase",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "skip-play-most-hp",
+          "window": "afterNormalDraw",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "skipWushuangFenliPhase",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "skip-discard-most-equipment",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "skipWushuangFenliPhase",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3126",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "silence-or-inspect",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWushuangYashi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3131",
+      "revision": 1,
+      "equipmentSuitSkillGrants": [
+        {
+          "id": "one-mashu",
+          "skillId": "classic:mashu",
+          "minimumDistinctSuits": 1
+        },
+        {
+          "id": "two-yingzi",
+          "skillId": "boundary:yingzi",
+          "minimumDistinctSuits": 2
+        },
+        {
+          "id": "three-duanbing",
+          "skillId": "ol:duanbing",
+          "minimumDistinctSuits": 3
+        },
+        {
+          "id": "four-fenwei",
+          "skillId": "boundary:fenwei",
+          "minimumDistinctSuits": 4
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3180",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "judgment-color-ban",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "wushuang-qianxi",
+              "resultBind": "qianxi-judge",
+              "visibility": "public",
+              "outcomeBind": "qianxi-outcome"
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingAtDistanceOne"
+            },
+            {
+              "op": "restrictWushuangQianxiJudgmentColor",
+              "target": "owner"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "qianxi-judge",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3229",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "parity-chain",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveWushuangShenfu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3246",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "unlimited-slash-distance",
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3247",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "guess-card-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": true,
+          "usageScope": "phase",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "cardActionPhaseIsPlay"
+          },
+          "effects": [
+            {
+              "op": "resolveWushuangLingren",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3265",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-refill",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveWushuangTairan",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "play-payback",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleWushuangTairan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3282",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "inspect-and-exchange",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveWushuangGuanxu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3283",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "reveal-and-rewrite",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveWushuangChoufa",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3284",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "nullify-second-use",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "observer",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "owner"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "resultBind": "ciwei-payment",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "nullifyWushuangSecondUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3004",
+      "revision": 1,
+      "hpSkillGrants": [
+        {
+          "id": "taunt",
+          "skillId": "wushuang:skill-3001",
+          "maximumHp": 3
+        },
+        {
+          "id": "roar",
+          "skillId": "classic:paoxiao",
+          "maximumHp": 2
+        },
+        {
+          "id": "swift",
+          "skillId": "boundary:shensu",
+          "minimumHp": 1,
+          "maximumHp": 1
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3083",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "refill-to-min-five-maxhp",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveWushuangOriginalJieming",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3252",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "jinzhi-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "jinzhi-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "jinzhi-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "jinzhi-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "jinzhi-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "jinzhi-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "jinzhi-use-draw",
+          "window": "cardUseCommitted",
+          "ownerRelation": "conversionSource",
+          "sourceSkillId": "wushuang:skill-3252",
+          "allowNoEventTarget": true,
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "payAndDrawWushuangJinzhi",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "jinzhi-response-draw",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "conversionSource",
+          "sourceSkillId": "wushuang:skill-3252",
+          "allowNoEventTarget": true,
+          "singleActionInstance": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "payAndDrawWushuangJinzhi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

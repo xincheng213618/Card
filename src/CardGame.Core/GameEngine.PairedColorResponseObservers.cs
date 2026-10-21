@@ -7,7 +7,7 @@ public sealed partial class GameEngine
         var intended = r.PaidGeneralWeapon && r.PaidFrom?.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame :
             r.Obtain ? CardLocation.Hand(f.OwnerSeat) : CardLocation.DiscardPile;
         return r.PaidCardId is { } id && r.PaidFrom is { } from
-            ? NormalizeDiouCarrierDestination(GetAdvancedCard(id), from, intended) : intended;
+            ? NormalizeEphemeralCardDestination(GetAdvancedCard(id), from, intended) : intended;
     }
     private string PairedColorPaidReason(ProgramPairedColorDispositionReceipt r) => r.Obtain ? PairedColorObtainReason : PairedColorDiscardReason;
 

@@ -69,7 +69,7 @@ public sealed partial class GameEngine
         }
         if(branch=="done")
         {
-            var targets=r.Targets.OrderBy(s=>(s-r.TurnOwner+_playerCount)%_playerCount).ToArray();
+            var targets=r.Targets.OrderBy(s=>RelativeTableOrder(r.TurnOwner, s)).ToArray();
             ReplaceRuntimeTop(f=f with{CaiMao=r=r with{Targets=targets,Committed=true}});
             AdvanceEventRulesAndQueueFact(new CaiMaoTargetsCommittedEvent(f.Id,targets.Length));
             if(targets.Length==0){FinishCaiMao(f);return;}

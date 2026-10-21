@@ -4,6 +4,7 @@ public sealed record CardAppearanceReference(int Id, CardKind Kind, Suit Suit, i
 
 public sealed record FactionDefenseState
 {
+    public string? InvocationOccurrenceKey { get; init; }
     public bool Active { get; init; } = true;
     public FactionResponsePolicySource Source { get; init; } = null!;
     public int OwnerSeat { get; init; }
@@ -77,6 +78,7 @@ public sealed record BorrowedSwordState
 
 public sealed record FactionCardRequestState
 {
+    public string? InvocationOccurrenceKey { get; init; }
     public bool Active { get; init; } = true;
     public FactionResponsePolicySource? PolicySource { get; init; }
     public string? AssistedResultBind { get; init; }

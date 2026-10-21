@@ -52,7 +52,7 @@ public sealed partial class GameEngine
   if(branch is"target"or"unselect-target")
   {var seat=choice.Targets.Single();AdvanceEventRulesAndQueueFact(new CaoYuTargetChoiceEvent(f.Id,ProgramEventHistory<CaoYuTargetChoiceEvent>().Count(e=>e.FrameId==f.Id),seat,branch=="target"));ReplaceRuntimeTop(f=f with{CaoYu=r with{Targets=branch=="target"?r.Targets.Append(seat).ToArray():r.Targets.Where(s=>s!=seat).ToArray()}});PublishCaoYu(f);return;}
   if(branch=="targets-done")
-  {var targets=r.Targets.OrderBy(s=>(s-r.TurnOwner+_players.Count)%_players.Count).ToArray();for(var i=0;i<targets.Length;i++)AdvanceEventRulesAndQueueFact(new CaoYuTargetFrozenEvent(f.Id,i,targets[i]));ReplaceRuntimeTop(f=f with{CaoYu=r with{Targets=targets,Stage=CaoYuStage.GongjieTake}});PublishCaoYu(f);return;}
+  {var targets=r.Targets.OrderBy(s=>RelativeTableOrder(r.TurnOwner, s)).ToArray();for(var i=0;i<targets.Length;i++)AdvanceEventRulesAndQueueFact(new CaoYuTargetFrozenEvent(f.Id,i,targets[i]));ReplaceRuntimeTop(f=f with{CaoYu=r with{Targets=targets,Stage=CaoYuStage.GongjieTake}});PublishCaoYu(f);return;}
   if(branch=="take")
   {if(!Enum.TryParse<CardZoneKind>(choice.Parameters.GetValueOrDefault("source-zone"),out var zone)||!int.TryParse(choice.Parameters.GetValueOrDefault("slot-index"),out var slot))throw new InvalidOperationException("Gongjie lost the original source slot.");var card=_cardZones.CardsAt(new(zone,f.OwnerSeat))[slot];PayCaoYuCards(f,[card.Id],r.Targets[r.Index],CaoYuStage.GongjieGiftChildren,GongjieGiftReason);ContinueCaoYu(f.Id);return;}
   if(branch=="recipient"){ReplaceRuntimeTop(f=f with{CaoYu=r with{Target=choice.Targets.Single(),Stage=CaoYuStage.XiangzuCards}});PublishCaoYu(f);return;}

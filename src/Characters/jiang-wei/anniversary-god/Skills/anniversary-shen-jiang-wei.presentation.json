@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:tianren": { "name": "天任", "description": "非因使用进入弃牌堆的基本牌、普通锦囊牌增加天任；天任达到体力上限时移除等量标记，增加1点上限并摸两张牌。" },
+    "anniversary:jiufa": { "name": "九伐", "description": "每使用或打出九种不同牌名后，可亮出牌堆顶九张，获得每组重复点数中的一张。" },
+    "anniversary:pingxiang": { "name": "平襄", "description": "限定技，减9点体力上限，依次视为使用至多九张火杀，然后失去九伐，本局手牌上限改为体力上限。" }
+  }
+}

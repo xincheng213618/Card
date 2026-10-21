@@ -19,7 +19,7 @@ public sealed partial class GameEngine
             _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(w => w.Id == context.ParentFrameId) is not { } found ||
             found.ParentFrameId != identity.ParentCardUseFrameId || found.CompletedResponseReturn is not null ||
             found.Continuation is not (ProgramCardContinuation.Slash or ProgramCardContinuation.FinalizedTrick or
-                ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.DelayedCard) ||
+                ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.DelayedCard or ProgramCardContinuation.FinalizedDelayedPlacement) ||
             GetCardActionWindow(found) != SkillProgramTriggerWindow.CardUseTargetsFinalized ||
             LifecycleCardUse(found.ParentFrameId) is not { Action: { Type: CardActionType.Use } action } actual ||
             action.ActionId != identity.CardActionId || action.ActorSeat != owner || actual.SourceSeat != owner || identity.EffectiveKind != actual.CardKind ||
@@ -183,8 +183,8 @@ public sealed partial class GameEngine
     private bool TryCompleteOverflowCanceledUse(ProgramCardTriggerWindowFrame window)
     {
         if (window.Continuation is not (ProgramCardContinuation.Slash or ProgramCardContinuation.FinalizedTrick or
-                ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.DelayedCard) ||
-            LifecycleCardUse(window.ParentFrameId) is not { TargetSeats.Count: 0 } use || !(HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use) || use.BeiMiHuTargetMutation is { Kind: "cancel" } && ValidBeiMiHuTargetMutation(use) ||
+                ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.DelayedCard or ProgramCardContinuation.FinalizedDelayedPlacement) ||
+            LifecycleCardUse(window.ParentFrameId) is not { TargetSeats.Count: 0 } use || !(HasDinghanCancellation(use) || HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use) || use.BeiMiHuTargetMutation is { Kind: "cancel" } && ValidBeiMiHuTargetMutation(use) ||
                     window.Continuation == ProgramCardContinuation.FinalizedTrick &&
                     (HasRoundGainedTrickTargetCancellation(use) || HasNeifaTrickTargetCancellation(use)))) return false;
         if (_resolutionStack.LastOrDefault()?.Id != use.Id || window.Action.ActionId != use.Action!.ActionId)

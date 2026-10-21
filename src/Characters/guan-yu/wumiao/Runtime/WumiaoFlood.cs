@@ -240,7 +240,7 @@ public sealed partial class GameEngine
         movement.Reason == WumiaoFloodDiscardReason &&
         (r.DiscardNativeDestruction ? movement.From.Zone == CardZoneKind.Equipment && movement.To == CardLocation.OutsideGame &&
             (GetAdvancedCard(movement.CardId).IsGeneralWeapon ||
-             IsGuanduThunderChariotDeparture(GetAdvancedCard(movement.CardId), movement.From, CardLocation.DiscardPile) || IsDiouCarrierDestroyedMaterial(movement)) :
+             IsGuanduThunderChariotDeparture(GetAdvancedCard(movement.CardId), movement.From, CardLocation.DiscardPile) || IsEphemeralCardDestroyedMaterial(movement)) :
             movement.To == CardLocation.DiscardPile || IsHellShiyouPaidDiscardMovement(movement, movement.From, WumiaoFloodDiscardReason));
 
     [ProgramRuntimeHook(ProgramRuntimePhase.BeforeDeclaration, 28510)]

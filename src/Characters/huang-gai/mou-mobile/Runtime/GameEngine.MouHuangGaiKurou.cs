@@ -206,7 +206,7 @@ public sealed partial class GameEngine
             movement.CardId != gift.CardId || movement.CardKind != gift.PrintedKind || movement.From != gift.From || movement.To != gift.To ||
             movement.Reason.Value != MouKurouGiftReason ||
             gift.To != CardLocation.Hand(gift.RecipientSeat) && !(gift.To == CardLocation.OutsideGame &&
-                (IsDiouCarrierDestroyedMaterial(movement) || gift.From.Zone == CardZoneKind.Equipment &&
+                (IsEphemeralCardDestroyedMaterial(movement) || gift.From.Zone == CardZoneKind.Equipment &&
                  (gift.PrintedKind == CardKind.GeneralWeapon || IsGuanduThunderChariotDeparture(GetAdvancedCard(gift.CardId), gift.From, CardLocation.Hand(gift.RecipientSeat)))))) return false;
         if (receipt.Stage == MouHuangGaiKurouStage.GiftChildren) return requested.Length == 0 && losses.Length == 0 && receipt.Loss is null;
         if (receipt.Stage == MouHuangGaiKurouStage.Complete && requested.Length == 0)
@@ -420,7 +420,7 @@ public sealed partial class GameEngine
                         choice.Cards is [var id] && id == card.Id &&
                         choice.Targets is [var target] && target == recipient.Seat)) continue;
                 var intended = CardLocation.Hand(recipient.Seat);
-                var destination = NormalizeDiouCarrierDestination(card, from,
+                var destination = NormalizeEphemeralCardDestination(card, from,
                     card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment ||
                     IsGuanduThunderChariotDeparture(card, from, intended) ? CardLocation.OutsideGame : intended);
                 var delivers = destination == intended;

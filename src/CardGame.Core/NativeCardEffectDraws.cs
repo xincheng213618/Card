@@ -6,6 +6,7 @@ public enum NativeCardEffectDrawStage { Requesting, DrawingChildren }
 public sealed record NativeCardEffectDrawReceipt(long NullificationFrameId, int EffectCardId,
     CardKind EffectCardKind, int RecipientSeat, int TargetIndex, NativeCardEffectDrawStage Stage)
 {
+    public int RequestedCount { get; init; } = 2;
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public long? AwaitingProgramFrameId { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -42,10 +43,10 @@ public sealed partial class GameEngine
         var recipient = GetNullificationTargetSeat(pending) ?? pending.SourceSeat;
         var receipt = new NativeCardEffectDrawReceipt(pending.Id, pending.EffectCardId,
             pending.EffectCardKind, recipient, use.TargetIndex, NativeCardEffectDrawStage.Requesting)
-        { AwaitingProgramFrameId = _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is { } parent &&
+        { RequestedCount = WushuangDrawTwoCount(pending.SourceSeat), AwaitingProgramFrameId = _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is { } parent &&
                 IsAwaitingProgramMovement(parent) ? parent.Id : null };
         ReplaceRuntimeTop(use with { NativeCardEffectDraw = receipt,
-            NativeDraw = new NativeDrawProducerReceipt(0, 2, null, SkillProgramCardSetVisibility.Private, CardMoveReasons.Draw)
+            NativeDraw = new NativeDrawProducerReceipt(0, receipt.RequestedCount, null, SkillProgramCardSetVisibility.Private, CardMoveReasons.Draw)
             { Recipients = [recipient], ReturnKind = NativeDrawAttemptReturnKind.CardUseDrawTwo } });
         AdvanceEventRulesAndQueueFact(new NativeCardEffectDrawStartedEvent(use.Id, pending.Id,
             receipt.EffectCardId, receipt.EffectCardKind, recipient, use.TargetIndex, receipt.AwaitingProgramFrameId));
@@ -68,9 +69,9 @@ public sealed partial class GameEngine
             if (!paid.AttemptReturned && TryBeginNativeDrawAttempt(use)) return;
             var before = OutsidePhaseMovementSequence;
             var ids = paid.Replacement is null && _players[receipt.RecipientSeat].IsAlive && _winner == Winner.None
-                ? DrawCards(_players[receipt.RecipientSeat], 2, true, CardMoveReasons.Draw)
+                ? DrawCards(_players[receipt.RecipientSeat], receipt.RequestedCount, true, CardMoveReasons.Draw)
                 : Array.AsReadOnly(Array.Empty<int>());
-            var outcome = new NativeDrawOutcome(receipt.RecipientSeat, 2, paid.ActiveAttemptId,
+            var outcome = new NativeDrawOutcome(receipt.RecipientSeat, receipt.RequestedCount, paid.ActiveAttemptId,
                 before, OutsidePhaseMovementSequence, paid.Replacement) { ActualDrawIds = ids };
             use = (CardUseFrame)_resolutionStack.Last();
             ReplaceRuntimeTop(use = use with { NativeDraw = null, NativeCardEffectDraw = receipt = receipt with
@@ -129,7 +130,7 @@ public sealed partial class GameEngine
     private void AssertNativeCardEffectDraw(CardUseFrame use)
     {
         if (use.NativeCardEffectDraw is not { } receipt) return;
-        if (!HasNativeDrawAttemptCapability || receipt.NullificationFrameId <= 0 ||
+        if (!HasNativeDrawAttemptCapability || receipt.RequestedCount is < 2 or > 3 || receipt.NullificationFrameId <= 0 ||
             receipt.EffectCardKind != CardKind.DrawTwo || LeChengyanNativeEffectKind(use) != CardKind.DrawTwo ||
             !IsValidPlayerSeat(receipt.RecipientSeat) || receipt.TargetIndex != use.TargetIndex || !Enum.IsDefined(receipt.Stage) ||
             ProgramEventHistory<NativeCardEffectDrawStartedEvent>().Count(e => e.UseFrameId == use.Id &&
@@ -144,15 +145,15 @@ public sealed partial class GameEngine
             if (receipt.Outcome is not null || use.NativeDraw is not { } paid ||
                 paid.ReturnKind != NativeDrawAttemptReturnKind.CardUseDrawTwo || paid.InstructionIndex != 0 ||
                 paid.Recipients is not [var seat] || seat != receipt.RecipientSeat || paid.RecipientIndex != 0 ||
-                paid.RequestedCount != 2 || paid.ResultBind is not null || paid.Operation is not null || paid.RecipientApplied ||
+                paid.RequestedCount != receipt.RequestedCount || paid.ResultBind is not null || paid.Operation is not null || paid.RecipientApplied ||
                 paid.Reason != CardMoveReasons.Draw || paid.Replacement is not null && !paid.AttemptReturned ||
                 paid.ActiveAttemptId is null && paid.AttemptReturned)
                 throw new InvalidOperationException("DrawTwo changed its exact pre-draw producer contract.");
             return;
         }
         if (use.NativeDraw is not null || receipt.Outcome is not { } result || result.RecipientSeat != receipt.RecipientSeat ||
-            result.RequestedCount != 2 || result.SequenceBefore > result.SequenceAfter || result.SequenceAfter > OutsidePhaseMovementSequence ||
-            result.ActualDrawIds.Count > 2 || result.ActualDrawIds.Distinct().Count() != result.ActualDrawIds.Count ||
+            result.RequestedCount != receipt.RequestedCount || result.SequenceBefore > result.SequenceAfter || result.SequenceAfter > OutsidePhaseMovementSequence ||
+            result.ActualDrawIds.Count > receipt.RequestedCount || result.ActualDrawIds.Distinct().Count() != result.ActualDrawIds.Count ||
             result.ActualDrawIds is not System.Collections.IList { IsReadOnly: true } ||
             result.Replacement is not null && result.ActualDrawIds.Count != 0 ||
             !_cardMovements.Where(m => m.Sequence > result.SequenceBefore && m.Sequence <= result.SequenceAfter &&
@@ -164,7 +165,7 @@ public sealed partial class GameEngine
                 e.SequenceAfter == result.SequenceAfter) != 1 ||
             result.AttemptFrameId is { } attempt && ProgramEventHistory<NativeDrawAttemptDecidedEvent>().Count(e =>
                 e.AttemptFrameId == attempt && e.ParentFrameId == use.Id && e.RecipientSeat == receipt.RecipientSeat &&
-                e.RequestedCount == 2 && e.Replaced == (result.Replacement is not null)) != 1)
+                e.RequestedCount == receipt.RequestedCount && e.Replaced == (result.Replacement is not null)) != 1)
             throw new InvalidOperationException("DrawTwo lost its original draw materials or exact replacement return.");
     }
 }

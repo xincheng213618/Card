@@ -26,7 +26,7 @@ public sealed partial class GameEngine
         if (_winner != Winner.None || !owner.IsAlive || !HasRuntimeSkillInstance(owner, frame.SkillId, frame.SkillInstanceId)) return SkillProgramStepOutcome.Continue;
         var receipt = new ProgramRandomAreaAcquisitionReceipt(frame.Id, frame.InstructionIndex, RandomAreaSource(frame), frame.GameplayHash,
             window.Id, damage.Id, frame.WindowContext!.OccurrenceIndex, damage.Amount)
-        { OtherSeats = _players.Where(p => p.Seat != frame.OwnerSeat).OrderBy(p => (p.Seat - frame.OwnerSeat + _playerCount) % _playerCount).Select(p => p.Seat).ToArray() };
+        { OtherSeats = _players.Where(p => p.Seat != frame.OwnerSeat).OrderBy(p => RelativeTableOrder(frame.OwnerSeat, p.Seat)).Select(p => p.Seat).ToArray() };
         ReplaceRuntimeTop(frame with { RandomAreaAcquisition = receipt });
         AdvanceEventRulesAndQueueFact(new RandomAreaAcquisitionStartedEvent(receipt));
         ResumeRandomAreaAcquisition(frame.Id); return SkillProgramStepOutcome.AwaitChild;

@@ -675,7 +675,7 @@ public static partial class GeneralArt
         var key = GuanduPortraitSource(id) ?? id;
         foreach (var prefix in new[] { "standard:", "classic:", "national:wei-", "national:shu-", "national:ambitious-", "national:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = key[prefix.Length..]; break; }
-        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:", "le:", "wumiao:" })
+        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:", "anniversary:", "le:", "wumiao:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = prefix[..^1] + "-" + key[prefix.Length..]; break; }
         return PortraitAliases.GetValueOrDefault(key, key);
     }

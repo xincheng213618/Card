@@ -5,7 +5,7 @@
       "viewAs": [{ "id": "non-basic-as-slash", "inputKinds": [], "inputSuits": [], "inputCategories": ["trick", "equipment"],
         "sourceZones": ["hand", "equipment"], "outputKind": "slash", "forPlay": true, "forResponse": false,
         "nonBasicUnrespondableSlash": true }],
-      "triggers": [{ "id": "converted-slash-gain", "window": "cardUseCompleted", "ownerRelation": "conversionSource",
+      "triggers": [{ "id": "converted-slash-gain", "isSkillInvocation": false, "window": "cardUseCompleted", "ownerRelation": "conversionSource",
         "sourceSkillId": "ol:wuniang", "sourceViewAsId": "non-basic-as-slash", "singleActionInstance": true,
         "optional": false, "effects": [{ "op": "takeConvertedSlashTargetAndResetLimitedSkill", "target": "owner", "sourceBind": "ol:zhennan" }] }]
     },

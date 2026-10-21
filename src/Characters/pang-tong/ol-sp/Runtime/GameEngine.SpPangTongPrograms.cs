@@ -75,7 +75,7 @@ public sealed partial class GameEngine
   }
   var own=GetAdvancedCard(int.Parse(selected.Parameters["card-id"],CultureInfo.InvariantCulture));var foreign=GetAdvancedCard(r.RevealedCard!.Value);var from=_cardZones.GetLocation(own.Id);var before=_movementSequence;
   r=r with{Stage="exchange-children",OwnCard=own.Id,OwnFrom=from,OwnRank=EffectiveOwnedCardRank(_players[f.OwnerSeat],own),TargetRank=EffectiveOwnedCardRank(_players[r.Target],foreign),Before=before,After=before};r=r with{RewardSeat=r.OwnRank<r.TargetRank?f.OwnerSeat:r.TargetRank<r.OwnRank?r.Target:null};ReplaceRuntimeTop(f=f with{SpPangTong=r,PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-  var moves=new[]{(Card:own,From:from,To:NormalizeDiouCarrierDestination(own,from,CardLocation.Hand(r.Target))),(Card:foreign,From:CardLocation.Hand(r.Target),To:CardLocation.Hand(f.OwnerSeat))};var batch=BeginCardMovementBatch(moves.Select(m=>m.From),moves.Select(m=>m.To));var records=new List<CardMovementRecord>();var committed=false;
+  var moves=new[]{(Card:own,From:from,To:NormalizeEphemeralCardDestination(own,from,CardLocation.Hand(r.Target))),(Card:foreign,From:CardLocation.Hand(r.Target),To:CardLocation.Hand(f.OwnerSeat))};var batch=BeginCardMovementBatch(moves.Select(m=>m.From),moves.Select(m=>m.To));var records=new List<CardMovementRecord>();var committed=false;
   try{
    foreach(var m in moves)_cardZones.Move(m.Card.Id,m.From,m.To);
    foreach(var m in moves){records.Add(RecordMovement(m.Card,m.From,m.To,new(GuolunExchangeReason)));ResolveEquipmentSkillGrant(m.Card,m.From,m.To);ClearJudgmentEffectiveKindAfterMove(m.Card,m.From,m.To);ResolveSilverLionRemoval(m.Card,m.From,new(GuolunExchangeReason));ResolveWoodenOxMove(m.Card,m.From,m.To);}committed=true;

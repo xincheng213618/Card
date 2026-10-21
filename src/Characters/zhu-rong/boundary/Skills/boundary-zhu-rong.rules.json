@@ -133,7 +133,7 @@
       ],
       "triggers": [
         {
-          "id": "mark-converted-slash-damage",
+          "id": "mark-converted-slash-damage", "isSkillInvocation": false,
           "window": "afterDamageApplied",
           "subject": "source",
           "sourceSkillId": "boundary:changbiao-current",

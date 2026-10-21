@@ -21,7 +21,7 @@
           ]
         },
         {
-          "id": "expire-wu-skills",
+          "id": "expire-wu-skills", "isSkillInvocation": false,
           "window": "turnEnding",
           "subject": "owner",
           "optional": false,

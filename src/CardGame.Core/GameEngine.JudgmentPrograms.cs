@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -9,7 +9,7 @@ public sealed partial class GameEngine
         bool succeeded)
     {
         if (!_players[pending.TargetSeat].IsAlive) return false;
-        var candidates = _players.Where(player => player.IsAlive).OrderBy(player => player.Seat)
+        var candidates = _players.Where(player => player.IsAlive).OrderBy(player => RelativeTableOrder(0, player.Seat))
             .SelectMany(owner => EnabledUniqueProgramTriggers(owner, SkillProgramTriggerWindow.JudgmentFinalized)
                 .OrderBy(binding => binding.SkillId, StringComparer.Ordinal)
                 .ThenBy(binding => binding.Trigger.Id, StringComparer.Ordinal)
@@ -19,6 +19,7 @@ public sealed partial class GameEngine
                     owner.Seat, binding.Program.Id, binding.Trigger.Id,
                     binding.SkillInstanceId, binding.Program.GameplayHash)))
             .ToArray();
+        candidates = PrependShenZfJudgmentGain(pending, candidates);
         if (candidates.Length == 0) return false;
 
         var context = new JudgmentFinalizedContext(
@@ -355,6 +356,7 @@ public sealed partial class GameEngine
         resolvingProgram |= IsExactJudgmentOutcomeFinalizedSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactBinghuoFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactNingwuFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
+        resolvingProgram |= IsExactShenZfJudgmentGainSubtree(frame, judgmentFrame, frameIndex);
         if (pending is null || (frame.ZhenyiBeforeResult == true ? pending.ZhenyiBeforeResultCompleted == true || pending.Succeeded is not null : pending.Succeeded is null) ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage && !resolvingProgram) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||

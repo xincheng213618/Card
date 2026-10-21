@@ -18,7 +18,7 @@
       ],
       "triggers": [
         {
-          "id": "liu-shi-damage", "window": "afterDamageApplied", "subject": "source",
+          "id": "liu-shi-damage", "isSkillInvocation": false, "window": "afterDamageApplied", "subject": "source",
           "sourceSkillId": "ol:liu-shi", "sourceViewAsId": "topdeck-heart-slash",
           "damageOccurrence": "perDamage", "optional": false, "priority": 0,
           "effects": [{ "op": "applyLiushiEffect", "target": "owner" }]

@@ -23,6 +23,9 @@ public sealed class StandardContentPackage : IGameContentPackage
     public void Register(IContentRegistryBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+        builder.AddCard(new ContentCardDefinition("mobile:qizheng-xiangsheng", "奇正相生", "锦囊牌",
+            CardCatalog.Get(CardKind.QizhengXiangsheng).Description, CardKind.QizhengXiangsheng,
+            new Dictionary<string, string> { ["action"] = "targeted-damage-or-obtain" }));
 
         builder.AddCard(new ContentCardDefinition(
             Id: "standard:slash",

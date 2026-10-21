@@ -40,7 +40,7 @@
       ],
       "triggers": [
         {
-          "id": "grant-parent-skills",
+          "id": "grant-parent-skills", "isSkillInvocation": false,
           "window": "afterDamageApplied",
           "subject": "source",
           "sourceSkillId": "classic:fuhun",

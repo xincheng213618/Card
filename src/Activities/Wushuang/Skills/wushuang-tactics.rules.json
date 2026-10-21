@@ -1,0 +1,1188 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wushuang:tactic-2009",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "bypassSlashLimitBySuit",
+          "kind": "bypassSlashLimitBySuit",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "inputSuit": "spade"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2010",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "ignoreSlashUseDistanceBySuit",
+          "kind": "ignoreSlashUseDistanceBySuit",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "inputSuit": "diamond"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2021",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "preventForeignEquipmentDiscard",
+          "kind": "preventForeignEquipmentDiscard"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2132",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "handLimit",
+          "query": "handLimit",
+          "operation": "add",
+          "value": 1,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2133",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "handLimit",
+          "query": "handLimit",
+          "operation": "add",
+          "value": 2,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2135",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "handLimit",
+          "query": "handLimit",
+          "operation": "add",
+          "value": 5,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2059",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "drawCount",
+          "query": "drawCount",
+          "operation": "add",
+          "value": 1,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2060",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "drawCount",
+          "query": "drawCount",
+          "operation": "add",
+          "value": 2,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2088",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "drawCount",
+          "query": "drawCount",
+          "operation": "add",
+          "value": 2,
+          "priority": 0
+        },
+        {
+          "id": "handLimit",
+          "query": "handLimit",
+          "operation": "add",
+          "value": -1,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2076",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turnEnding",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2077",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turnEnding",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2078",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turnEnding",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2103",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "drawCount",
+          "query": "drawCount",
+          "operation": "add",
+          "value": -1,
+          "priority": 0
+        }
+      ],
+      "triggers": [
+        {
+          "id": "turnEnding",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2069",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "roundStarting",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2070",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "roundStarting",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2166",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "hp-independent-base",
+          "query": "handLimit",
+          "operation": "set",
+          "value": 0,
+          "priority": 0
+        },
+        {
+          "id": "handLimit",
+          "query": "handLimit",
+          "operation": "add",
+          "priority": 0,
+          "valueExpression": "ownerMaxHp"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2211",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "hp-independent-base",
+          "query": "handLimit",
+          "operation": "set",
+          "value": 0,
+          "priority": 0
+        },
+        {
+          "id": "handLimit",
+          "query": "handLimit",
+          "operation": "add",
+          "priority": 0,
+          "valueExpression": "ownerMaxHp"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2167",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "unrespondableNullification",
+          "kind": "unrespondableNullification",
+          "cardKinds": [
+            "nullification"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2208",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "drawCount",
+          "query": "drawCount",
+          "operation": "set",
+          "value": 5,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2209",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "slashLimit",
+          "query": "slashLimit",
+          "operation": "set",
+          "value": 5,
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2308",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "pindianRankBonus",
+          "kind": "pindianRankBonus",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2194",
+      "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "low-hand-slash",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "amount": 1,
+          "condition": "sourceHandBelowLimit",
+          "sourceHandCountLimit": 4,
+          "damageLayer": "additionalDamage"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2195",
+      "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "low-hand-slash",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "amount": 1,
+          "condition": "sourceHandBelowLimit",
+          "sourceHandCountLimit": 6,
+          "damageLayer": "additionalDamage"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2079",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "cardUseCompleted",
+          "window": "cardUseCompleted",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "condition": {
+            "kind": "cardActionActualTurnUseOrdinalIs",
+            "value": 7
+          },
+          "ownerRelation": "actor"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2080",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "cardUseCompleted",
+          "window": "cardUseCompleted",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "condition": {
+            "kind": "cardActionActualTurnUseOrdinalIs",
+            "value": 5
+          },
+          "ownerRelation": "actor"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2081",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "cardUseCompleted",
+          "window": "cardUseCompleted",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ],
+          "condition": {
+            "kind": "cardActionActualTurnUseOrdinalIs",
+            "value": 6
+          },
+          "ownerRelation": "actor"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2117",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectRandomPublicTeamTarget",
+              "target": "owner",
+              "targetKind": "publicTeamEnemies",
+              "allowEmpty": true
+            },
+            {
+              "op": "damageParticipants",
+              "target": "selectedTargets",
+              "amount": 1,
+              "nature": "normal"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2227",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "damageOccurrence": "perDamagePoint"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2054",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2055",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 2
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2056",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 3
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2261",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2262",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 2
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2263",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 3
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2064",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2065",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 2
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2066",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 3
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2071",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2072",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 2
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2073",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 4
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2074",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 6
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2258",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2259",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 2
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2260",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantArmor",
+              "target": "owner",
+              "amount": 4
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2182",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2093",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "outputKind": "slash"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2094",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 2,
+              "outputKind": "peach"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2095",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "outputKind": "dismantlement"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2096",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "outputKind": "snatch"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2097",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "outputKind": "duel"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2098",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "outputKind": "ironChain"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2099",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "outputKind": "fireAttack"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2144",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "outputKind": "dodge"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2249",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 1,
+              "category": "trick"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2250",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 2,
+              "category": "trick"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2251",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-before-start",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 3,
+              "category": "trick"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2294",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 3,
+              "category": "trick"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2295",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 4,
+              "category": "basic"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2296",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 4,
+              "category": "equipment"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2297",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainWushuangDeckCards",
+              "target": "owner",
+              "amount": 3
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2310",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "wushuang:tactic-2311",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquired",
+          "window": "skillsChanged",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 2
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    }
+  ]
+}
+

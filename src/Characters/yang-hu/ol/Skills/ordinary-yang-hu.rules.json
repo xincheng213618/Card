@@ -6,7 +6,7 @@
       "revision": 1,
       "triggers": [
         {
-          "id": "initialize-sui",
+          "id": "initialize-sui", "isSkillInvocation": false,
           "window": "gameStarting",
           "subject": "owner",
           "optional": false,

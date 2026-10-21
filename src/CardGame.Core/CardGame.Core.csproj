@@ -10,6 +10,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\..\docs\content\wushuang-reference.json" LogicalName="CardGame.Core.Wushuang.reference.json" />
     <EmbeddedResource Include="..\Activities\Wushuang\Content\runtime-bindings.json" LogicalName="CardGame.Core.Wushuang.bindings.json" />
+    <EmbeddedResource Include="..\Activities\Wushuang\Content\eligibility.json" LogicalName="CardGame.Core.Wushuang.eligibility.json" />
     <Compile Include="..\Characters\**\Runtime\**\*.cs">
       <Link>Characters\$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)\..\Characters', '%(FullPath)'))</Link>
     </Compile>

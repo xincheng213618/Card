@@ -19,7 +19,7 @@ public sealed partial class GameEngine
             var card = GetAdvancedCard(movement.CardId); var from = new CardLocation(step.SelectedZone, step.TargetSeat);
             var expected = card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment || IsGuanduThunderChariotDeparture(card, from, CardLocation.Hand(frame.OwnerSeat))
                 ? CardLocation.OutsideGame : CardLocation.Hand(frame.OwnerSeat);
-            expected = NormalizeDiouCarrierDestination(card, from, expected);
+            expected = NormalizeEphemeralCardDestination(card, from, expected);
             if (movement.From != from || movement.To != expected || movement.Reason != RandomAreaReason(frame, step.SeatIndex)) return false;
         }
         return ProgramEventHistory<RandomAreaAcquisitionRegionPaidEvent>().Where(e => e.ProgramFrameId == frame.Id && e.Step.SeatIndex == step.SeatIndex).ToArray() is [var issued] &&
@@ -31,7 +31,7 @@ public sealed partial class GameEngine
             r.FrameId != frame.Id || r.InstructionIndex != frame.InstructionIndex || r.Source != RandomAreaSource(frame) || r.GameplayHash != frame.GameplayHash ||
             _contentRegistry.GetSkill(frame.SkillId).Program?.GameplayHash != r.GameplayHash || r.DamageWindowId != window.Id || r.DamageFrameId != damage.Id ||
             r.OccurrenceIndex != frame.WindowContext!.OccurrenceIndex || r.DamageAmount != damage.Amount || !Enum.IsDefined(r.Stage) ||
-            !r.OtherSeats.SequenceEqual(_players.Where(p => p.Seat != frame.OwnerSeat).OrderBy(p => (p.Seat - frame.OwnerSeat + _playerCount) % _playerCount).Select(p => p.Seat)) ||
+            !r.OtherSeats.SequenceEqual(_players.Where(p => p.Seat != frame.OwnerSeat).OrderBy(p => RelativeTableOrder(frame.OwnerSeat, p.Seat)).Select(p => p.Seat)) ||
             r.NextSeatIndex < 0 || r.NextSeatIndex > r.OtherSeats.Count || r.Steps.Select(s => s.SeatIndex).Distinct().Count() != r.Steps.Count ||
             !r.Steps.Select(s => s.SeatIndex).SequenceEqual(r.Steps.Select(s => s.SeatIndex).Order()) || r.Steps.Any(s => !ValidRandomAreaStep(frame, s))) return false;
         var history = CompleteProgramEventHistory().ToArray();

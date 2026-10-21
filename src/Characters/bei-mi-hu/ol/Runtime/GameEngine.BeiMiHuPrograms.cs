@@ -19,7 +19,7 @@ public sealed partial class GameEngine
         if(op==SkillProgramEffectOp.MarkLowestHpUnmarkedOtherAtRoundStart)return context.Window==SkillProgramTriggerWindow.RoundStarting && context.BeforeTurnPreludeProof is{}roundProof && ValidBeiMiHuBeforeTurnPrelude(roundProof) && BeiMiHuRound>0 &&
             BeiMiHuLowestUnmarkedOthers(owner).Length>0 && !CompleteProgramEventHistory().OfType<BeiMiHuKuiPaidEvent>().Any(e=>e.Source.OwnerSeat==owner && e.Kind=="round" && e.Round==BeiMiHuRound);
         if(op==SkillProgramEffectOp.AwakenFromActualGujuCards)return context.Window==SkillProgramTriggerWindow.TurnStartBeforeNormalFlow && owner==_currentSeat &&
-            _players[owner].HasHpValue && BeiMiHuActualCards(owner)>=7;
+            _players[owner].HasHpValue && (BeiMiHuActualCards(owner)>=7 || HasShenGuoJiaAwakeningCondition(owner,"ol:baijia",trigger.Id));
         return true;
     }
     private bool ExactBeiMiHuLifecycleParent(ProgramSkillFrame f)

@@ -77,7 +77,7 @@ public sealed partial class GameEngine
         var from = _cardZones.GetLocation(cardId);
         var to = CardLocation.Hand(recipientSeat);
         return !(card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment) &&
-            !IsGuanduThunderChariotDeparture(card, from, to) && NormalizeDiouCarrierDestination(card, from, to) == to;
+            !IsGuanduThunderChariotDeparture(card, from, to) && NormalizeEphemeralCardDestination(card, from, to) == to;
     }
 
     private SkillProgramEffect LianZhuPausedEffect(ProgramSkillFrame frame) => ProgramInstructionResolver.Default

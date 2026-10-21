@@ -13,7 +13,8 @@ public sealed partial class GameEngine
     private bool CanOfferSpZhangLiao(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)
     {
         if (t.Effects.Any(e => e.Op == SkillProgramEffectOp.AwakenMubing))
-            return !HasDiaolingAwakened(c.OwnerSeat) && MubingMilitaryCount(c.OwnerSeat) >= 6;
+            return !HasDiaolingAwakened(c.OwnerSeat) && (MubingMilitaryCount(c.OwnerSeat) >= 6 ||
+                HasShenGuoJiaAwakeningCondition(c.OwnerSeat, c.SkillId, c.BindingId));
         if (!t.Effects.Any(e => e.Op == SkillProgramEffectOp.PreventDamageForHighestRankGift)) return true;
         return context is { SourceSeat: { } source, TargetSeat: { } target } && source == c.OwnerSeat && target != source &&
             _players[target].IsAlive && !ProgramEventHistory<ZiquDamagePreventedEvent>().Any(e => e.Source.OwnerSeat == source && e.VictimSeat == target);
@@ -24,7 +25,8 @@ public sealed partial class GameEngine
         var f = GetActiveProgramFrame(supplied.Id);
         if (op == SkillProgramEffectOp.AwakenMubing)
         {
-            if (HasDiaolingAwakened(f.OwnerSeat) || MubingMilitaryCount(f.OwnerSeat) < 6) throw new InvalidOperationException("Diaoling has no six-card acquisition receipt.");
+            if (HasDiaolingAwakened(f.OwnerSeat) || MubingMilitaryCount(f.OwnerSeat) < 6 &&
+                !HasShenGuoJiaAwakeningCondition(f.OwnerSeat, f.SkillId, f.TriggerId)) throw new InvalidOperationException("Diaoling has no six-card acquisition receipt or its exact Huishi awakening grant.");
             AdvanceEventRulesAndQueueFact(new DiaolingAwakenedEvent(f.Id, f.OwnerSeat, MubingMilitaryCount(f.OwnerSeat)));
             return SkillProgramStepOutcome.Continue;
         }

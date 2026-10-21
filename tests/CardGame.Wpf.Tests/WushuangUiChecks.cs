@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -14,8 +15,54 @@ using CardGame.Wpf.ViewModels;
 
 internal static class WushuangUiChecks
 {
+    public static void MoLuBuOpeningAndNormalInitiativeAreVisible(string output)
+    {
+        var registry = StandardWushuangContentRegistry.Create();
+        foreach (var seed in new[] { 17, 1 })
+        {
+            var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(seed) with
+                { AdvanceAfterHumanCommands = false, UseInteractiveDiscard = false }, registry);
+            Accept(game, new StartGameCommand());
+            for (var step = 0; game.PendingDecision?.Kind != DecisionKind.SelectGeneral && step < 40; step++)
+                Accept(game, new AdvanceOneStepCommand(game.Revision));
+            Accept(game, new RequestGeneralRosterCommand(0, true, game.Revision, game.PendingDecision!.PromptId));
+            Accept(game, new SelectGeneralCommand(0, "ol:mo-lu-bu", game.Revision, game.PendingDecision!.PromptId));
+            var store = new MemorySaveStore();
+            store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+            using var vm = Create(new MemorySaveStore(), store, registry);
+            vm.LoadWushuangManualGameCommand.Execute(null);
+            Drive(vm, () => vm.IsWushuangOpening && vm.IsWushuangShopInteractive);
+            var firstSeat = Program.Engine(vm).CreateWushuangSnapshot(0)!.FirstNormalSeat;
+            vm.BuyWushuangOfferCommand.Execute(vm.WushuangOffers.First());
+            Drive(vm, () => Program.Engine(vm).PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
+            Program.Assert(vm.RoundText.Contains("夺炁") && vm.RoundText.Contains("额外出牌") && vm.TurnHeadline.Contains("夺炁额外出牌阶段") &&
+                vm.Seats.Single(s => s.Seat == firstSeat).SeatLabel.Contains("先手") &&
+                vm.Seats.Single(s => s.Seat != firstSeat).SeatLabel.Contains("后手"),
+                "The opening names Duoqi explicitly and the seat labels show actual normal initiative even while Lu Bu temporarily acts first.");
+            var window = new MainWindow(vm);
+            try
+            {
+                Program.Render((FrameworkElement)window.Content, 1440, 880, Path.Combine(output, $"mo-lu-bu-opening-{firstSeat}.png"));
+                vm.EndTurnCommand.Execute(null);
+                Drive(vm, () => Program.Engine(vm).Events.Count(e => e.Payload is TurnStartedEvent) >= 2);
+                Program.Assert(!vm.RoundText.Contains("夺炁") && !vm.TurnHeadline.Contains("夺炁额外出牌阶段") &&
+                    vm.Seats.Single(s => s.Seat == firstSeat).SeatLabel.Contains("先手"),
+                    "The phase indication expires at the actual normal return while the first actor label stays stable.");
+            }
+            finally { window.Close(); }
+        }
+    }
+
     public static void EntryShopAndIndependentColdRestore(string output)
     {
+        foreach (var tactic in WushuangTactics.All)
+        {
+            var offer = new WushuangShopOfferViewModel("artwork", tactic.Name, tactic.Description, tactic.Cost, null, true, 0)
+                { Kind = WushuangOfferKind.Tactic, TacticId = tactic.Id, Quality = tactic.Quality };
+            Program.Assert(offer.Artwork is BitmapSource { IsFrozen: true, PixelWidth: > 0, PixelHeight: > 0 } &&
+                ReferenceEquals(offer.Artwork, new WushuangTacticViewModel(tactic.Id).Icon),
+                $"Tactic {tactic.Id} ({tactic.Name}) has a decoded local icon shared by shop offers and table badges.");
+        }
         var ordinary = new MemorySaveStore();
         var wushuang = new MemorySaveStore();
         using var vm = Create(ordinary, wushuang);
@@ -50,6 +97,28 @@ internal static class WushuangUiChecks
                 vm.WushuangSkillSlots.Count == 2 && vm.WushuangSkillSlots.All(slot => slot.SkillId is null),
                 "The selected game automatically opens a free three-choice initial tactic panel.");
             Program.Render(root, 1440, 880, Path.Combine(output, "wushuang-opening.png"));
+            var originalOffers = vm.WushuangOffers.ToArray();
+            try
+            {
+                vm.WushuangOffers.Clear();
+                foreach (var id in new[] { 2295, 2045, 2209 })
+                {
+                    var tactic = WushuangTactics.ById[id];
+                    vm.WushuangOffers.Add(new("artwork-" + id, tactic.Name, tactic.Description, 0, null, true, game.Revision)
+                        { Kind = WushuangOfferKind.Tactic, TacticId = id, Quality = tactic.Quality, IsOpening = true });
+                }
+                Layout(root);
+                var artworkGrids = Program.Find<Grid>(panel).Where(grid => grid.Name == "WushuangTacticArtwork").ToArray();
+                Program.Assert(artworkGrids.Length == vm.WushuangOffers.Count && artworkGrids.All(grid =>
+                    ReferenceEquals(Program.Find<Image>(grid).Last().Source, ((WushuangShopOfferViewModel)grid.DataContext).Artwork)),
+                    "The previously blank opening choices bind their actual tactic icon above the quality frame.");
+                Program.Render(root, 1440, 880, Path.Combine(output, "wushuang-tactic-icons.png"));
+            }
+            finally
+            {
+                vm.WushuangOffers.Clear();
+                foreach (var savedOffer in originalOffers) vm.WushuangOffers.Add(savedOffer);
+            }
             var initialTactic = vm.WushuangOffers.First(offer => offer.TacticId is { } id && WushuangTactics.ById[id].SkillId is not null);
             vm.BuyWushuangOfferCommand.Execute(initialTactic);
             Program.Assert(!game.IsFaulted && !vm.IsWushuangShopOpen &&
@@ -87,6 +156,7 @@ internal static class WushuangUiChecks
             Drive(vm, () => Program.Engine(vm).CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.Shopping, Tokens: >= 2 });
             Program.Assert(vm.WushuangOffers.Select(item => item.Id).SequenceEqual(previewIds),
                 "The next buying window uses the previewed goods without rolling a different page.");
+            Drive(vm, () => HasAffordableSkillOffer(vm));
             var offer = vm.WushuangOffers.First(item => item.IsEnabled && item.SkillId is not null);
             var beforeTokens = game.CreateWushuangSnapshot(0)!.Tokens;
             vm.BuyWushuangOfferCommand.Execute(offer);
@@ -101,7 +171,8 @@ internal static class WushuangUiChecks
             var sidebar = (FrameworkElement)window.FindName("TableSidebar");
             var shopEnd = panel.TranslatePoint(new Point(panel.ActualWidth, panel.ActualHeight), root);
             Program.Assert(shopEnd.X <= sidebar.TranslatePoint(new Point(), root).X &&
-                shopEnd.Y <= dock.TranslatePoint(new Point(), root).Y,
+                shopEnd.Y <= dock.TranslatePoint(new Point(), root).Y &&
+                ((FrameworkElement)window.FindName("ActionBar")).Opacity == 0,
                 "The shop scales inside the battlefield, aligned above the hand dock and to the left of the log sidebar.");
             var priceSlots = Program.Find<Grid>(panel).Where(grid => grid.Name == "WushuangPriceSlot").ToArray();
             Program.Assert(priceSlots.Length == 4 &&
@@ -159,15 +230,15 @@ internal static class WushuangUiChecks
         store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
         using var vm = Create(new MemorySaveStore(), store, registry);
         vm.LoadWushuangManualGameCommand.Execute(null);
-        Drive(vm, () => Program.Engine(vm).CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.Shopping, Tokens: >= 2 });
+        Drive(vm, () => HasAffordableSkillOffer(vm));
         game = Program.Engine(vm);
         vm.OpenWushuangShopCommand.Execute(null);
         for (var slotNumber = 0; slotNumber < 2; slotNumber++)
         {
-            var current = vm.WushuangOffers.Single(item => item.SkillId is not null);
+            var current = vm.WushuangOffers.First(item => item.SkillId is not null && item.IsEnabled);
             vm.BuyWushuangOfferCommand.Execute(current);
             vm.CloseWushuangShopCommand.Execute(null);
-            Drive(vm, () => Program.Engine(vm).CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.Shopping, Tokens: >= 2 });
+            Drive(vm, () => HasAffordableSkillOffer(vm));
         }
         Program.Assert(game.CreateWushuangSnapshot(0)!.ExtraSkillIds.Count == 2,
             "The bounded native fixture buys two real skills over consecutive shopping windows.");
@@ -200,11 +271,113 @@ internal static class WushuangUiChecks
         finally { window.Content = null; window.DataContext = null; window.Close(); }
     }
 
+    public static void FreeRefreshAndExpandedSlotsFollowNativeSnapshot(string output)
+    {
+        foreach (var (seed, tactic) in new[] { (148, 2291), (57, 2293) })
+        {
+            var registry = ComposedSkillContentRegistry.CreateShowcase(additionalPackages: [new QuietFixture()]);
+            var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(seed) with
+                { UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false }, registry);
+            Accept(game, new StartGameCommand());
+            for (var step = 0; game.PendingDecision?.Kind != DecisionKind.SelectGeneral && step < 40; step++)
+                Accept(game, new AdvanceOneStepCommand(game.Revision));
+            Accept(game, new SelectGeneralCommand(0, "fixture:wushuang-ui-human", game.Revision, game.PendingDecision!.PromptId));
+            var store = new MemorySaveStore();
+            store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+            using var vm = Create(new MemorySaveStore(), store, registry);
+            vm.LoadWushuangManualGameCommand.Execute(null);
+            Drive(vm, () => vm.IsWushuangOpening && vm.IsWushuangShopInteractive);
+            vm.BuyWushuangOfferCommand.Execute(vm.WushuangOffers.Single(o => o.TacticId == tactic));
+            Drive(vm, () => Program.Engine(vm).CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.Shopping });
+            game = Program.Engine(vm);
+            if (tactic == 2291)
+            {
+                var tokens = game.CreateWushuangSnapshot(0)!.Tokens;
+                Program.Assert(vm.WushuangRerollPriceText == "免费" && !vm.WushuangRerollShowsToken && vm.WushuangRerollText.Contains('2'),
+                    "A native free refresh grant updates the visible price, token icon and remaining-count tooltip.");
+                vm.RerollWushuangShopCommand.Execute(null);
+                vm.RerollWushuangShopCommand.Execute(null);
+                Program.Assert(vm.WushuangRerollPriceText == "1" && vm.WushuangRerollShowsToken &&
+                    game.CreateWushuangSnapshot(0)!.Tokens == tokens,
+                    "After two native free commands the UI returns to the paid price without spending currency.");
+            }
+            else Program.Assert(vm.WushuangSkillSlots.Count == 3 && vm.WushuangSkillSlotsText.Contains("/3"),
+                "The expanded native capacity exposes a real third selectable skill slot.");
+        }
+    }
+
+    public static void MixedShopEquipmentShowsItsNativePurchase(string output)
+    {
+        var registry = ComposedSkillContentRegistry.CreateShowcase(additionalPackages: [new QuietFixture()]);
+        var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(17) with
+            { UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false }, registry);
+        Accept(game, new StartGameCommand());
+        for (var step = 0; game.PendingDecision?.Kind != DecisionKind.SelectGeneral && step < 40; step++)
+            Accept(game, new AdvanceOneStepCommand(game.Revision));
+        Accept(game, new SelectGeneralCommand(0, "fixture:wushuang-ui-human", game.Revision, game.PendingDecision!.PromptId));
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+        using var vm = Create(new MemorySaveStore(), store, registry);
+        vm.LoadWushuangManualGameCommand.Execute(null);
+        Drive(vm, () => vm.IsWushuangOpening && vm.IsWushuangShopInteractive);
+        vm.BuyWushuangOfferCommand.Execute(vm.WushuangOffers.First());
+        Drive(vm, () => Program.Engine(vm).CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.Shopping });
+        var equipment = vm.WushuangOffers.FirstOrDefault(o => o.IsEquipment && o.IsEnabled);
+        Program.Assert(vm.WushuangOffers.Count(o => o.Kind == WushuangOfferKind.Skill) == 2 &&
+            vm.WushuangOffers.Count(o => o.Kind == WushuangOfferKind.Card) == 1,
+            "The verified mixed page contains two skills and one card, proving there is no fixed type quota.");
+        Program.Assert(equipment is { CardOfferId: not null, TypeText: "装备", Artwork: not null } &&
+            equipment.DetailText.Contains("立即装备") && equipment.DetailText.Contains("销毁"),
+            "The real random page exposes an enabled equipment card with its source identity, artwork and immediate-equip/destruction explanation.");
+        var panel = new WushuangShopPanel { DataContext = vm };
+        Program.Render(panel, 1240, 650, Path.Combine(output, "wushuang-mixed-equipment-shop.png"));
+        Program.Assert(Program.Find<TextBlock>(panel).Any(text => text.Text == "装备"),
+            "The actual offer template labels equipment rather than presenting it as an ordinary hand-card purchase.");
+        vm.BuyWushuangOfferCommand.Execute(equipment);
+        Program.Assert(!Program.Engine(vm).IsFaulted && Program.Engine(vm).CreateSnapshot(0).Players[0].Equipment
+            .Any(card => card.Kind == equipment!.CardKind) && vm.WushuangOffers.Single(o => o.Id == equipment!.Id).IsPurchased,
+            "The visible buy command equips the native card and retains its sold position.");
+        Program.Assert(vm.WushuangOffers.Where(o => o.IsEquipment).All(o => o.CardKind is { } kind &&
+            WushuangCatalogue.IsCardAllowed(kind) && EquipmentCatalog.Get(kind).Slot is EquipmentSlot.Weapon or EquipmentSlot.Armor),
+            "The visible equipment shop contains basic weapons and armor, without treasures or mode-exclusive equipment.");
+    }
+
+    public static void ActiveTacticKeepsAnExecutableEntry(string output)
+    {
+        var registry = ComposedSkillContentRegistry.CreateShowcase(additionalPackages: [new QuietFixture("standard:peach_garden")]);
+        var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(31) with
+            { UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false }, registry);
+        Accept(game, new StartGameCommand());
+        for (var step = 0; game.PendingDecision?.Kind != DecisionKind.SelectGeneral && step < 40; step++)
+            Accept(game, new AdvanceOneStepCommand(game.Revision));
+        Accept(game, new SelectGeneralCommand(0, "fixture:wushuang-ui-human", game.Revision, game.PendingDecision!.PromptId));
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+        using var vm = Create(new MemorySaveStore(), store, registry);
+        vm.LoadWushuangManualGameCommand.Execute(null);
+        Drive(vm, () => vm.IsWushuangOpening && vm.IsWushuangShopInteractive);
+        vm.BuyWushuangOfferCommand.Execute(vm.WushuangOffers.Single(o => o.TacticId == 2365));
+        Drive(vm, () => Program.Engine(vm).PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
+        game = Program.Engine(vm);
+        var chip = vm.HumanSkillCards.Single(s => s.ContentId == "wushuang:tactic-2365");
+        Program.Assert(chip.IsAvailable && vm.HumanPlayer!.WushuangTactics.Any(t => t.Id == 2365) &&
+            game.CreateWushuangSnapshot(0)!.ExtraSkillIds.Count == 0,
+            "An active tactic keeps its public badge and a real executable entry while consuming no extra skill slot.");
+        vm.ActivateHumanSkillCommand.Execute(chip);
+        Drive(vm, () => Program.Engine(vm).ResolutionStack.OfType<ProgramSkillFrame>().Any(f =>
+            f.SkillId == "wushuang:tactic-2365" && f.OwnedCardSelection is not null));
+        Program.Assert(game.PendingDecision?.SkillPrompt?.SkillId == "wushuang:tactic-2365",
+            "Clicking the zero-input entry reaches its native physical-card selection before any actual recast payment.");
+    }
+
     private static MainViewModel Create(IGameSaveStore ordinary, IGameSaveStore wushuang, ContentRegistry? registry = null) =>
         new(false, 17, true, ordinary, contentRegistry: registry, wushuangSaveStore: wushuang,
             shanheSaveStore: new MemoryShanheCampaignSaveStore())
         { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
     private static FieldInfo Field(string name) => typeof(MainViewModel).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
+    private static bool HasAffordableSkillOffer(MainViewModel vm) =>
+        Program.Engine(vm).CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.Shopping } &&
+        vm.WushuangOffers.Any(offer => offer.IsEnabled && !offer.IsPurchased && offer.SkillId is not null);
     private static MethodInfo Method(string name) => typeof(MainViewModel).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
     private static void Layout(FrameworkElement root)
     { root.Measure(new Size(1440, 880)); root.Arrange(new Rect(0, 0, 1440, 880)); root.UpdateLayout(); Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle); }
@@ -234,15 +407,19 @@ internal static class WushuangUiChecks
     private static void Accept(GameEngine game, GameCommand command)
     { var result = game.Submit(command); Program.Assert(result.Accepted, result.Error?.Message ?? "Native duel fixture rejected its command."); }
 
-    private sealed class QuietFixture : IGameContentPackage
+    private sealed class QuietFixture(string cardId = "standard:dodge") : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("wushuang-ui-fixture", new Version(1, 0, 0));
         public void Register(IContentRegistryBuilder builder)
         {
+            foreach (var skill in StandardWushuangContentRegistry.Create().Skills.Values.Where(s =>
+                s.Id.StartsWith("wushuang:", StringComparison.Ordinal) || s.Id.StartsWith("shanhe:", StringComparison.Ordinal) ||
+                s.Id.StartsWith("hulao:", StringComparison.Ordinal) || s.Id.StartsWith("shenwu:", StringComparison.Ordinal) ||
+                s.Id.StartsWith("ghost:", StringComparison.Ordinal))) builder.AddSkill(skill);
             builder.AddGeneral(new("fixture:wushuang-ui-human", "无双主将", "", "classic:qianxun", "qun", BaseHp: 20));
             builder.AddGeneral(new("fixture:wushuang-ui-ai", "无双对手", "", "classic:qianxun", "qun", BaseHp: 20));
             builder.AddDeck(new("fixture:wushuang-ui-deck", "Bounded native duel UI", 4, 0, [])
-            { PhysicalCards = Enumerable.Range(0, 160).Select(_ => new ContentDeckPhysicalCard("standard:dodge", Suit.Heart, 7)).ToArray() });
+            { PhysicalCards = Enumerable.Range(0, 160).Select(_ => new ContentDeckPhysicalCard(cardId, Suit.Heart, 7)).ToArray() });
             builder.AddMode(new(WushuangMode.ModeId, "无双界面验证", 2, 2, new Dictionary<string, int>(),
                 "fixture:wushuang-ui-deck", 2, ["fixture:wushuang-ui-human", "fixture:wushuang-ui-ai"], ContentModeKind.Team,
                 new Dictionary<string, int> { [WushuangMode.PlayerTeamId] = 1, [WushuangMode.AiTeamId] = 1 }));

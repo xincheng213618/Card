@@ -2,10 +2,11 @@
 public sealed partial class GameEngine
 {
     private bool TracksActionDiscardColor=>_contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardDiscardedActionColor)==true;
-    private bool? CapturePhysicalCardColor(int seat,Card card)=>LiveDeclarationPayment(card.Id) is {} declared ? declared.Cost.EffectiveIsRed : CapturesActionColor?SuitColor(EffectiveSuit(_players[seat],card)):null;
+    private bool? CapturePhysicalCardColor(int seat,Card card)=>LiveDeclarationPayment(card.Id) is {} declared ? declared.Cost.EffectiveIsRed : CapturesActionColor || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayAndDrawWushuangJinzhi) ? SuitColor(EffectiveSuit(_players[seat],card)):null;
     private bool? CaptureActionColor(IReadOnlyList<CardActionCost> costs,Suit? effectiveSuit=null)
     {
         if(!CapturesActionColor||costs.Count==0)return null;
+        if(effectiveSuit==Suit.None)return null;
         if(SuitColor(effectiveSuit) is {} declared)return declared;
         var colors=costs.Select(c=>c.EffectiveIsRed).Distinct().ToArray();return colors.Length==1?colors[0]:null;
     }

@@ -254,7 +254,7 @@ public sealed partial class GameEngine
             return new() { Transfers = Array.AsReadOnly(transfers) };
         var redirects = new List<HellShiyouRedirectReceipt>();
         foreach (var owner in _players.Where(p => p.IsAlive && !p.IsHuman && p.Seat != phase.ActorSeat)
-            .OrderBy(p => (p.Seat - _currentSeat + _playerCount) % _playerCount))
+            .OrderBy(p => RelativeTableOrder(_currentSeat, p.Seat)))
         {
             var policy = CardPolicies(owner, SkillProgramCardPolicyKind.HellShiyouIntercept).FirstOrDefault();
             if (policy.Source is null) continue;

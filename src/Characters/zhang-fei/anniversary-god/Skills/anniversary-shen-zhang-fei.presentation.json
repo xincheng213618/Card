@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:shencai": { "name": "神裁", "description": "令一名其他角色判定并获得判定牌，按印刷牌面关键词覆盖四罚，或增加死标记并获得其区域内一张牌。" },
+    "anniversary:xunshi": { "name": "巡使", "description": "多目标锦囊视为无色杀；使用无色牌无距离和次数限制，可增加任意目标，并永久提高神裁阶段次数至多五次。" }
+  }
+}

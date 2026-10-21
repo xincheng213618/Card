@@ -16,7 +16,7 @@ public sealed partial class GameEngine
             ProgramEventHistory<MouXuHuangShipoStartedEvent>().Count(e => e == new MouXuHuangShipoStartedEvent(f.Id, r.Source, r.GameplayHash, r.EndingWindowId, r.Phase, r.OwnerHp)) != 1) return false;
         if (!r.Accepted) return r.Stage == MouXuHuangShipoStage.ModeChoice && r.Mode is null && r.Targets.Count == 0 && r.Gifts.Count == 0;
         if (r.Mode is not ("mode-single" or "mode-all") || r.Targets.Count == 0 || r.Mode == "mode-single" && r.Targets.Count != 1 ||
-            !r.Targets.SequenceEqual(r.Targets.OrderBy(t => (t - f.OwnerSeat + _players.Count) % _players.Count)) ||
+            !r.Targets.SequenceEqual(r.Targets.OrderBy(t => RelativeTableOrder(f.OwnerSeat, t))) ||
             ProgramEventHistory<MouXuHuangShipoModeAcceptedEvent>().Count(e => e == new MouXuHuangShipoModeAcceptedEvent(f.Id, r.Mode, r.Targets.Count)) != 1) return false;
         var targets = ProgramEventHistory<MouXuHuangShipoTargetFrozenEvent>().Where(e => e.FrameId == f.Id).OrderBy(e => e.Index).ToArray();
         if (targets.Length != r.Targets.Count || targets.Where((e, i) => e.Index != i || e.TargetSeat != r.Targets[i]).Any()) return false;

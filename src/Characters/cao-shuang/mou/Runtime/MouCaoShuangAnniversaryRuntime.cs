@@ -2,7 +2,7 @@ using System.Globalization;
 namespace CardGame.Core;
 [ProgramRuntimeModule, ProgramCapability]
 internal sealed class MouCaoShuangAnniversaryRuntime(IMouCaoShuangAnniversaryFacts facts, IMouCaoShuangAnniversaryNative native,
-    IProgramRuntimeFrames frames, IProgramRuntimeEvents events, IProgramRuntimePrompts prompts, IProgramOperationDraws draws) : IMouCaoShuangAnniversaryRuntime
+    IProgramRuntimeFrames frames, IProgramRuntimeEvents events, IProgramRuntimePrompts prompts, IProgramOperationDraws draws, IProgramAwakeningOverrideQuery awakeningConditions) : IMouCaoShuangAnniversaryRuntime
 {
     internal const string Jianzhuan = "mou:jianzhuan", Fanshi = "mou:fanshi", Fudou = "mou:fudou", Action = "mou-cao-shuang-anniversary", DiscardReason = "skill-program.mou:jianzhuan.discard", DrawReason = "skill-program.mou:jianzhuan.draw";
     private static CardConversionSource Source(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId ?? f.ActivationId, f.OwnerSeat, f.SkillInstanceId);
@@ -17,7 +17,7 @@ internal sealed class MouCaoShuangAnniversaryRuntime(IMouCaoShuangAnniversaryFac
         if (op == SkillProgramEffectOp.ResolveMouCaoShuangJianzhuan) return facts.ActualPlay(c.OwnerSeat) && Available(c.OwnerSeat).Length > 0 && facts.Use(c, w) is not null;
         if (op == SkillProgramEffectOp.DeleteMouCaoShuangJianzhuanOption) return c.OwnerSeat == facts.CurrentSeat && Items(Remaining(c.OwnerSeat)).Length > 0 && Items(Remaining(c.OwnerSeat)).All(i => PhaseUses(c.OwnerSeat).Any(e => e.Option == i)) &&
             !facts.History<MouCaoShuangAnniversaryDeletedEvent>().Any(e => e.Owner == c.OwnerSeat && e.Turn == facts.Turn && e.PhaseId == facts.PhaseId);
-        if (op == SkillProgramEffectOp.ResolveMouCaoShuangFanshi) return Items(Remaining(c.OwnerSeat)).Length < 2 && !facts.History<MouCaoShuangAnniversaryAwakenedEvent>().Any(e => e.Owner == c.OwnerSeat);
+        if (op == SkillProgramEffectOp.ResolveMouCaoShuangFanshi) return (Items(Remaining(c.OwnerSeat)).Length < 2 || awakeningConditions.Granted(c.OwnerSeat,c.SkillId,c.BindingId)) && !facts.History<MouCaoShuangAnniversaryAwakenedEvent>().Any(e => e.Owner == c.OwnerSeat);
         var use = facts.Use(c, w); return use is { Other: >= 0, Red: { } red } && (red ? !facts.Hurt(use.Other, c.OwnerSeat) : facts.Hurt(use.Other, c.OwnerSeat));
     }
     public SkillProgramStepOutcome Resolve(ProgramSkillFrame supplied, SkillProgramEffectOp operation)
@@ -38,8 +38,9 @@ internal sealed class MouCaoShuangAnniversaryRuntime(IMouCaoShuangAnniversaryFac
         Continue(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
     internal bool Valid(ProgramSkillFrame f) => f.MouCaoShuangAnniversary is { } r && f.InstructionIndex == 1 && f.TriggerId == f.ActivationId && r.Source == Source(f) && r.GameplayHash == f.GameplayHash && facts.Program(f.SkillId).GameplayHash == f.GameplayHash &&
-        r.ParentId == f.WindowContext?.ParentFrameId && frames.ParentOf(f.Id)?.Id == r.ParentId && r.Turn == facts.Turn && r.PhaseId == facts.PhaseId && Enum.IsDefined(r.Stage) && r.Repeat is >= 0 and <= 3 && r.Cursor is >= 0 and <= 2 &&
+        r.ParentId == f.WindowContext?.ParentFrameId && frames.ParentOf(f.Id)?.Id == r.ParentId && r.Turn == facts.Turn && r.PhaseId == facts.PhaseId && Enum.IsDefined(r.Stage) && r.Repeat >= 0 && r.Repeat <= 3 * Math.Max(1,Items(r.Remaining).Length) && r.Cursor is >= 0 and <= 2 &&
         r.Before >= 0 && r.After >= r.Before && r.After <= facts.Sequence && facts.Parent(f) &&
+        (r.Operation != SkillProgramEffectOp.ResolveMouCaoShuangFanshi || Items(r.Remaining).Length < 2 || awakeningConditions.Issued(f)) &&
         facts.History<MouCaoShuangAnniversaryStartedEvent>().Count(e => e == new MouCaoShuangAnniversaryStartedEvent(f.Id, r.Source, r.GameplayHash, r.Operation, r.ParentId, r.Turn, r.PhaseId, r.Remaining, r.X, r.ActionId, r.UseId, r.Other, r.Red)) == 1;
     private int Chooser(ProgramSkillFrame f) => f.MouCaoShuangAnniversary is { Stage: MouCaoShuangAnniversaryStage.Cards } r ? r.Payer : f.OwnerSeat;
     private PromptChoice Choice(ProgramSkillFrame f, string branch, string label, int? card = null, int? target = null, int item = 0) => new(new ChoiceId($"mou-cao-shuang-anniversary.{f.Id}.{f.MouCaoShuangAnniversary!.Stage}.{f.MouCaoShuangAnniversary.Repeat}.{f.MouCaoShuangAnniversary.Cards.Count}.{branch}.{card}.{target}.{item}"), label,
@@ -128,7 +129,8 @@ internal sealed class MouCaoShuangAnniversaryRuntime(IMouCaoShuangAnniversaryFac
             }
             if (r.Stage == MouCaoShuangAnniversaryStage.NextRepeat)
             {
-                if (r.Repeat < 3 && Items(r.Remaining) is [var item]) { BeginItem(f, item); return; }
+                var remaining = Items(r.Remaining);
+                if (remaining.Length > 0 && r.Repeat < 3 * remaining.Length) { BeginItem(f, remaining[r.Repeat % remaining.Length]); return; }
                 frames.ReplaceTop(f with { MouCaoShuangAnniversary = r with { Stage = MouCaoShuangAnniversaryStage.Maximum } }); continue;
             }
             if (r.Stage == MouCaoShuangAnniversaryStage.Maximum)

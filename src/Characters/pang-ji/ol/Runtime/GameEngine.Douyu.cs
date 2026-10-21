@@ -28,7 +28,7 @@ public sealed partial class GameEngine
                 .OrderByDescending(c => c.Priority).ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal).FirstOrDefault();
             if (candidate is not null) result.Add(new(candidate) { Opponents = seat == source ? participants.Where(s => s != source).ToArray() : [source] });
         }
-        return Array.AsReadOnly(result.OrderBy(o => (o.Candidate.OwnerSeat - _turnProgression.OwnerSeat + _players.Count) % _players.Count)
+        return Array.AsReadOnly(result.OrderBy(o => RelativeTableOrder(_turnProgression.OwnerSeat, o.Candidate.OwnerSeat))
             .ThenByDescending(o => o.Candidate.Priority).ToArray());
     }
     private void CaptureDouyuContest(ResolutionFrame parent, bool simultaneous, int source,

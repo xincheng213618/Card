@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             var card = _cardZones.CardsAt(source).Single(item => item.Id == id);
             var target = destinationForCard?.Invoke(card, source) ?? destination;
             if (source.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, source, target)) target = CardLocation.OutsideGame;
-            target = NormalizeDiouCarrierDestination(card, source, target);
+            target = NormalizeEphemeralCardDestination(card, source, target);
             return (Card: card, Source: source, Target: target);
         }).ToArray();
         if (entries.Length == 0) return;

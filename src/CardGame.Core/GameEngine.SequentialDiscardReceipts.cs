@@ -143,7 +143,7 @@ public sealed partial class GameEngine
         if (records.Length != p.CardIds.Count || p.CardIds.Where((id, n) => records.Count(m => m.CardId == id &&
             m.From == p.SourceLocations[n] && m.Reason.Value == SequentialDiscardReason(f) &&
             (m.To == CardLocation.DiscardPile || m.From.Zone == CardZoneKind.Equipment && m.To == CardLocation.OutsideGame &&
-             (_cardZones.CardsAt(CardLocation.OutsideGame).Any(card => card.Id == id && card.IsGeneralWeapon) || IsDiouCarrierDestroyedMaterial(m)))) != 1).Any()) return false;
+             (_cardZones.CardsAt(CardLocation.OutsideGame).Any(card => card.Id == id && card.IsGeneralWeapon) || IsEphemeralCardDestroyedMaterial(m)))) != 1).Any()) return false;
         var paid = CompleteProgramEventHistory().OfType<ProgramSequentialDiscardPaidEvent>().Where(e => e.FrameId == f.Id &&
             e.Cursor == p.Cursor && e.ChooserSeat == p.ChooserSeat && e.SequenceBefore == p.SequenceBefore && e.SequenceAfter == p.SequenceAfter).ToArray();
         if (paid.Length != 1 || paid[0].SelectedCount != p.CardIds.Count || paid[0].ActualCount != p.ActualCount ||

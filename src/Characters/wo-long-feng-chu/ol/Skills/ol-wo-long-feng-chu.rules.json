@@ -366,6 +366,26 @@
             "usageId": "yang"
           },
           "singleCardTrickUse": true
+        },
+        {
+          "id": "named-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "equipment-slot-named-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "equipment-slot-named-tier",
+            "usageId": "yang"
+          },
+          "singleCardTrickUse": true
         }
       ],
       "activations": [

@@ -57,7 +57,7 @@ public sealed partial class GameEngine
         _sourceCurseLosses.Where(l => l.ActualTurn == _turnNumber && l.Deposit.Source.OwnerSeat == owner &&
             l.Deposit.Source.SkillId == skill && l.Deposit.Source.SkillInstanceId == instance &&
             l.Deposit.GameplayHash == hash).DistinctBy(l => l.Deposit.TargetSeat)
-            .OrderBy(l => (l.Deposit.TargetSeat - _currentSeat + _players.Count) % _players.Count).ToArray();
+            .OrderBy(l => RelativeTableOrder(_currentSeat, l.Deposit.TargetSeat)).ToArray();
     private bool SourceCurseHasFinalGameEnd()
     {
         if (_status != EngineStatus.Completed) return false;

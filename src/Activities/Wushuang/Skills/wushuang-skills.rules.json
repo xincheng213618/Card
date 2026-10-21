@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wushuang:skill-3260",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "lose-hp-for-turn-benefits",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "chooseOwnerHpLoss",
+              "target": "owner",
+              "resultBind": "loss"
+            },
+            {
+              "op": "drawPaidHpLoss",
+              "target": "owner",
+              "sourceBind": "loss",
+              "drawCards": false
+            },
+            {
+              "op": "grantPaidHpLossDistance",
+              "target": "owner",
+              "sourceBind": "loss"
+            },
+            {
+              "op": "grantPaidHpLossSlashLimit",
+              "target": "owner",
+              "sourceBind": "loss"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3090",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "show-and-give",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "condition": {
+            "kind": "handCountAtLeast",
+            "value": 1
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "owner"
+              },
+              "zones": [
+                "hand"
+              ],
+              "count": 1,
+              "destination": "selectedTargetHand",
+              "targetRef": {
+                "kind": "selectedTarget"
+              },
+              "resultBind": "gift",
+              "revealBeforeMove": true,
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "zones": [
+                "hand"
+              ],
+              "numberExpression": "allOwnedZoneCards",
+              "resultBind": "recipient-cards"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "recipient-cards",
+              "resultBind": "matching",
+              "matchSuitOfBind": "gift",
+              "effectiveSuitForRef": {
+                "kind": "selectedTarget"
+              }
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "zones": [
+                "hand"
+              ],
+              "numberExpression": "allOwnedZoneCards",
+              "resultBind": "recipient-hand"
+            },
+            {
+              "op": "chooseOption",
+              "target": "selectedTarget",
+              "resultBind": "penalty",
+              "options": [
+                {
+                  "id": "discard",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "lose-hp",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "revealBoundCards",
+              "target": "owner",
+              "sourceBind": "recipient-hand",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "penalty",
+                "optionId": "discard"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "matching",
+              "destination": "discardPile",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "penalty",
+                "optionId": "discard"
+              }
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "penalty",
+                "optionId": "lose-hp"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3226",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHp"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "boundary:yingzi",
+                "classic:yinghun"
+              ]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "wushuang:skill-3329",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "equipment-nullification",
+          "inputKinds": [],
+          "sourceZones": [
+            "equipment"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "condition": {
+            "kind": "handCountGreaterThanHp"
+          },
+          "inputSuits": []
+        }
+      ]
+    }
+  ]
+}

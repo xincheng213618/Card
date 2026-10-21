@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "移动版神鲁肃、神华佗及一将成名神马超的官方默认立绘与图鉴绑定；各人物规则另见来源档案。",
+  "portraits": [
+    {
+      "key": "mobile-shen-lu-su",
+      "characterName": "神鲁肃",
+      "defaultSkinId": "22600",
+      "skins": [
+        {
+          "id": "22600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-581.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/22600.jpg",
+          "sha256": "9ff6728bb935e72fd979da8c9c3a1f328911a3b973d20018de602160340b6cf2",
+          "pixelWidth": 2798,
+          "pixelHeight": 3903,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-su.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-ma-chao",
+      "characterName": "神马超",
+      "defaultSkinId": "121401",
+      "skins": [
+        {
+          "id": "121401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/214.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121401.png",
+          "sha256": "9239cbefb5830b6d1396baa04eb362bb320046243dbd9fb73bd290471063e6c2",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-ma-chao.png"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-hua-tuo",
+      "characterName": "神华佗",
+      "defaultSkinId": "22501",
+      "skins": [
+        {
+          "id": "22501",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-568.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/22501.jpg",
+          "sha256": "80d2657de5d8b75a4c80be234c3a9aa709d7c9be1beef9a0852cdf4b38ad7e2f",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-hua-tuo.jpg"
+        }
+      ]
+    }
+  ]
+}

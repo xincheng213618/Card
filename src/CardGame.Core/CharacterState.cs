@@ -74,7 +74,12 @@ public sealed partial class CharacterState
     }
     public bool SecondaryGeneralSelected { get; set; }
     public bool SecondaryGeneralRevealed { get; set; }
-    public required int MaxHp { get; set; }
+    private int _maxHp;
+    public required int MaxHp
+    {
+        get => _maxHp;
+        set => _maxHp = SkillGrants.Grants.Any(g => g.IsEnabled && g.SkillId == "wushuang:tactic-2020") ? 7 : value;
+    }
     public required int Hp { get; set; }
     public GeneralGender? GenderOverride { get; set; }
     internal Func<CharacterState,GeneralGender?>? GeneralLibraryGenderQuery {get;set;}

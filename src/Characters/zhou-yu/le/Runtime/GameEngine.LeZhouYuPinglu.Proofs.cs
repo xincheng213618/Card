@@ -52,7 +52,7 @@ public sealed partial class GameEngine
             r.Targets.Select(s => s.TargetSeat).Distinct().Count() != r.Targets.Count ||
             r.Targets.Any(s => !IsValidPlayerSeat(s.TargetSeat) || s.TargetSeat == frame.OwnerSeat) ||
             !r.Targets.Select(s => s.TargetSeat).SequenceEqual(r.Targets.Select(s => s.TargetSeat)
-                .OrderBy(seat => (seat - frame.OwnerSeat + _players.Count) % _players.Count)) ||
+                .OrderBy(seat => RelativeTableOrder(frame.OwnerSeat, seat))) ||
             r.Targets.Where(s => s.CardId is not null).Select(s => s.CardId).Distinct().Count() != r.Targets.Count(s => s.CardId is not null))
             throw new InvalidOperationException("Pinglu lost its exact source, actual Play or frozen all-target original Hand samples.");
         var samples = ProgramEventHistory<PingluTargetSampledEvent>().Where(e => e.FrameId == frame.Id).OrderBy(e => e.Index).ToArray();

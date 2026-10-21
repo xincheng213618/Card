@@ -17,7 +17,7 @@ public sealed partial class GameEngine
         if (kind == CardKind.Peach && ActiveDying is { } dying && !CanUsePeachToRescue(owner.Seat, dying.VictimSeat)) return [];
         return GetProgramMultiCardViewAsSelections(owner, kind, true).Where(selection =>
             (kind != CardKind.Peach || !IsShieldedRescueSelection(owner, selection)) &&
-            (kind != CardKind.Alcohol || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null || ViewAsRule(selection.Source)?.LeiluanBasicUse is not null)).Select(selection =>
+            (kind != CardKind.Alcohol || IsWushuangJinzhiSelection(selection) || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null || ViewAsRule(selection.Source)?.LeiluanBasicUse is not null)).Select(selection =>
         {
             var parameters = new Dictionary<string, string> { ["response"] = "extended-view-as", ["output-kind"] = kind.ToString() };
             AddConversionParameters(parameters, selection.Source);
@@ -49,6 +49,7 @@ public sealed partial class GameEngine
             ActiveFactionDefense is { } defense && defense.CurrentCandidateSeat == owner.Seat &&
             TryCompleteXieweiFactionDefense(defense, owner, selection)) return;
         if (TryResolveLeiluanDyingResponse(owner, selection)) return;
+        if (TryResolveWushuangJinzhiDyingAlcohol(owner, selection)) return;
         if (TryResolveRoundDistinctBasicDyingResponse(owner, selection)) return;
         if (kind == CardKind.Peach)
         {
@@ -62,7 +63,8 @@ public sealed partial class GameEngine
                 ? CardPolicies(victim, SkillProgramCardPolicyKind.RescueRecoveryBonus, CardKind.Peach)
                     .Where(item => string.Equals(GetEffectiveFactionId(owner), item.Policy.FactionId, StringComparison.Ordinal)).ToArray()
                 : [];
-            ResolveRecoveryCard(owner, _players[dying.VictimSeat], selection.Cards[0], "桃", CardKind.Peach,
+            ResolveRecoveryCard(owner, _players[dying.VictimSeat], IsWushuangJinzhiSelection(selection)
+                    ? ApplyProgramUseAppearance(owner, selection.Cards[0], selection.Source) : selection.Cards[0], "桃", CardKind.Peach,
                 1 + rule.RecoveryBonus + recoveryPolicies.Sum(item => item.Policy.Value),
                 recoveryPolicySources: recoveryPolicies.Select(item => (item.Source.SkillId, item.Policy.Id)).ToArray(), conversionSource: selection.Source,
                 dyingResponse: new(dying.FrameId, owner.Seat, true, selection.Cards[0].Id, false, null),

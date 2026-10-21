@@ -35,7 +35,7 @@ public sealed partial class GameEngine
         }
         else if(r.Op==SkillProgramEffectOp.ResolveMoucuanAwakening)
         {
-            if(r.Stage is not(MaYuanYiStage.MaximumChildren or MaYuanYiStage.GrantChildren)||c.Window!=SkillProgramTriggerWindow.TurnStartBeforeNormalFlow||r.TurnOwner!=f.OwnerSeat||r.BingBefore<r.FactionCount||r.MaximumBefore<1||r.ActionId is not null||r.TargetSeat is not null||r.Pile is not null||f.PendingMovementContinuation is not null||
+            if(r.Stage is not(MaYuanYiStage.MaximumChildren or MaYuanYiStage.GrantChildren)||c.Window!=SkillProgramTriggerWindow.TurnStartBeforeNormalFlow||r.TurnOwner!=f.OwnerSeat||r.BingBefore<r.FactionCount&&!HasShenGuoJiaAwakeningReceipt(f)||r.MaximumBefore<1||r.ActionId is not null||r.TargetSeat is not null||r.Pile is not null||f.PendingMovementContinuation is not null||
                 ProgramEventHistory<MoucuanMaximumPaidEvent>().Where(e=>e.FrameId==f.Id).ToArray()is not[var maximum]||maximum!=new MoucuanMaximumPaidEvent(f.Id,f.OwnerSeat,r.MaximumBefore,r.MaximumBefore-1,r.HpBefore,Math.Min(r.HpBefore,r.MaximumBefore-1))||
                 ProgramEventHistory<MoucuanMaximumPaidEvent>().Count(e=>e.OwnerSeat==f.OwnerSeat)!=1||!ProgramEventHistory<MaximumHpChangedEvent>().Any(e=>e.PlayerSeat==f.OwnerSeat&&e.SkillId==f.SkillId&&e.Delta==-1&&e.MaximumHp==r.MaximumBefore-1)||
                 (r.Stage==MaYuanYiStage.GrantChildren?ProgramEventHistory<MoucuanSkillGrantedEvent>().Count(e=>e.FrameId==f.Id&&e.OwnerSeat==f.OwnerSeat)!=1:ProgramEventHistory<MoucuanSkillGrantedEvent>().Any(e=>e.FrameId==f.Id)))

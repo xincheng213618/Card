@@ -37,7 +37,7 @@ internal sealed partial class MouZhuRanRuntime(IMouZhuRanFacts facts,IMouZhuRanN
         {
             var supporters=facts.History<MouZhuRanHeyuanAcceptedEvent>().Where(e=>e.Source.OwnerSeat==f.OwnerSeat)
                 .Select(e=>e.TargetSeat).Where(s=>s!=opponent&&s!=f.OwnerSeat&&facts.Player(s).Alive);
-            var participants=new[]{f.OwnerSeat,opponent}.Concat(supporters).Distinct().OrderBy(s=>(s-f.OwnerSeat+facts.Seats.Count)%facts.Seats.Count).ToArray();
+            var participants=facts.ActionOrder(f.OwnerSeat,new[]{f.OwnerSeat,opponent}.Concat(supporters));
             r=r with{Stage=MouZhuRanStage.Commit,Participants=participants};
         }
         else

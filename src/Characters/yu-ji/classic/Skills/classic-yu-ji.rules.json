@@ -249,6 +249,20 @@
             "challengeGrantSkillId": "classic:chanyuan"
           },
           "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
         }
       ]
     },

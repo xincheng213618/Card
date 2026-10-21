@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<(int First, int Second)> PayableEquipmentPairs(int ownerSeat, string skillId, string instanceId)
     {
         var result = new List<(int, int)>();
-        var living = _players.Where(p => p.IsAlive).Select(p => p.Seat).Order().ToArray();
+        var living = CurrentTableOrder().Where(seat => _players[seat].IsAlive).ToArray();
         for (var first = 0; first < living.Length; first++)
             for (var second = first + 1; second < living.Length; second++)
                 if (IsPayableEquipmentPair(ownerSeat, living[first], living[second], skillId, instanceId)) result.Add((living[first], living[second]));
@@ -142,7 +142,7 @@ public sealed partial class GameEngine
             m.From == set.SourceLocations[n] && m.To == OwnedPaymentDiscardDestination(id) && m.Reason.Value == reason) != 1).Any();
     }
     private CardLocation OwnedPaymentDiscardDestination(int cardId) =>
-        (_cardZones.CardsAt(_cardZones.GetLocation(cardId)).Single(c => c.Id == cardId).IsGeneralWeapon || ProgramEventHistory<DiouCarrierDestroyedEvent>().Any(e => e.CardId == cardId && IsDiouCarrierDestroyedMaterial(cardId,e.From,CardLocation.OutsideGame))) ? CardLocation.OutsideGame : CardLocation.DiscardPile;
+        (_cardZones.CardsAt(_cardZones.GetLocation(cardId)).Single(c => c.Id == cardId).IsGeneralWeapon || ProgramEventHistory<DiouCarrierDestroyedEvent>().Any(e => e.CardId == cardId && IsEphemeralCardDestroyedMaterial(cardId,e.From,CardLocation.OutsideGame))) ? CardLocation.OutsideGame : CardLocation.DiscardPile;
     private bool CanResumePaidEquipmentPair(ProgramSkillFrame frame) => EquipmentPairCostIsPaid(frame) &&
         frame.EquipmentPairPayment is { } paid && _winner == Winner.None && _players[frame.OwnerSeat].IsAlive &&
         _players[paid.FirstSeat].IsAlive && _players[paid.SecondSeat].IsAlive &&

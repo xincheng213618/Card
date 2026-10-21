@@ -56,7 +56,7 @@ public sealed partial class GameEngine
                     participants.ToDictionary(p => p.Seat, CaptureProgramTriggerFacts));
                 var candidates = Array.AsReadOnly(participants.SelectMany(p =>
                         CollectEligibleProgramTriggerCandidates(p, SkillProgramTriggerWindow.RoundEnding, facts[p.Seat]))
-                    .OrderBy(c => (c.OwnerSeat - frame.OwnerSeat + _players.Count) % _players.Count)
+                    .OrderBy(c => RelativeTableOrder(frame.OwnerSeat, c.OwnerSeat))
                     .ThenByDescending(c => c.Priority).ThenBy(c => c.SkillId, StringComparer.Ordinal)
                     .ThenBy(c => c.BindingId, StringComparer.Ordinal).ToArray());
                 if (candidates.Count != 0)

@@ -81,7 +81,7 @@ public sealed partial class GameEngine
             if (participant == f.OwnerSeat || r.PaidMaterial is not { } material || !r.EligibleMaterials.Contains(material) ||
                 material.From.OwnerSeat != participant || r.ActualCount != 1 || r.BatchId is null || movements is not [var paid] ||
                 paid.CardId != material.CardId || paid.CardKind != material.PrintedKind || paid.From != material.From ||
-                paid.To != NormalizeDiouCarrierDestination(GetAdvancedCard(material.CardId), material.From, (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&
+                paid.To != NormalizeEphemeralCardDestination(GetAdvancedCard(material.CardId), material.From, (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&
                     !IsHellShiyouPaidDiscardMovement(paid, material.From, new(OutsidePhaseMovementReason(f, false))) ||
                 paid.Reason.Value != OutsidePhaseMovementReason(f, false)) return false;
         }
@@ -110,7 +110,7 @@ public sealed partial class GameEngine
                             m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle :
                             moved.Batch.Id == r.BatchId && r.PaidMaterial is { } material && m.CardId == material.CardId &&
                             m.CardKind == material.PrintedKind && m.From == material.From &&
-                            m.To == NormalizeDiouCarrierDestination(GetAdvancedCard(material.CardId), material.From, (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&
+                            m.To == NormalizeEphemeralCardDestination(GetAdvancedCard(material.CardId), material.From, (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&
                             m.Reason.Value == OutsidePhaseMovementReason(f, false)) ||
                      !draw && PaidEquipment(CardKind.WoodenOx) && moved.Batch.ParentBatchId == r.BatchId &&
                         m.Reason == CardMoveReasons.WoodenOxGrainDiscard && m.From == CardLocation.WoodenOxGrain(participant) &&

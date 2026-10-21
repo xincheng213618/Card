@@ -128,7 +128,7 @@
       ],
       "triggers": [
         {
-          "id": "last-hand-use",
+          "id": "last-hand-use", "isSkillInvocation": false,
           "window": "cardUseCommitted",
           "ownerRelation": "conversionSource",
           "sourceSkillId": "ol:leiluan",

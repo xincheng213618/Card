@@ -693,6 +693,45 @@
           "usesPerPhase": 1,
           "usageGroup": "direct-card",
           "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "declared-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "direct-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
         }
       ],
       "activations": [

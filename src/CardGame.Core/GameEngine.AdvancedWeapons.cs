@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     private readonly HashSet<string> _usedGeneralWeaponSources = new(StringComparer.Ordinal);
     private bool MoveProcessingCardUnlessDestroyed(Card card, CardLocation destination, CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null)
     {
-        if ((card.IsGeneralWeapon || IsDiouCarrier(card.Id)) && _cardZones.GetLocation(card.Id) == CardLocation.OutsideGame)
+        if ((card.IsGeneralWeapon || IsDiouCarrier(card.Id) || IsWushuangShopEquipment(card.Id)) && _cardZones.GetLocation(card.Id) == CardLocation.OutsideGame)
             return false;
         MoveCard(card, CardLocation.Processing, destination, reason, beforeFact);
         return true;
@@ -149,8 +149,8 @@ public sealed partial class GameEngine
     private IReadOnlyList<int> AliveSeatsBetweenInclusive(int start, int end)
     {
         var clockwise = new List<int>(); var counterclockwise = new List<int>();
-        for (var seat = start; seat != end; seat = (seat + 1) % _playerCount) if (_players[seat].IsAlive) clockwise.Add(seat);
-        for (var seat = start; seat != end; seat = (seat + _playerCount - 1) % _playerCount) if (_players[seat].IsAlive) counterclockwise.Add(seat);
+        for (var seat = start; seat != end; seat = TableStepSeat(seat, 1)) if (_players[seat].IsAlive) clockwise.Add(seat);
+        for (var seat = start; seat != end; seat = TableStepSeat(seat, -1)) if (_players[seat].IsAlive) counterclockwise.Add(seat);
         return clockwise.Count <= counterclockwise.Count ? clockwise : counterclockwise;
     }
 }

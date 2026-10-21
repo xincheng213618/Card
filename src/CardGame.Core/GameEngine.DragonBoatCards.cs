@@ -68,7 +68,7 @@ public sealed partial class GameEngine
             _ => false
         });
     private IReadOnlyList<int> DragonBoatGlobalTargets(CharacterState actor, Card card) => ApplyTurnCardGroupTargetRestrictions(actor,
-        Enumerable.Range(0, _playerCount).Select(offset => _players[(actor.Seat + offset) % _playerCount])
+        Enumerable.Range(0, _playerCount).Select(offset => _players[TableStepSeat(actor.Seat, offset)])
             .Where(target => target.IsAlive && !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, CardKind.StriveUpstream) &&
                 !IsCardTargetProhibited(target, CardKind.StriveUpstream, card.Suit, SuitColor(EffectiveSuit(actor, card))) &&
                 !IsShenwuRobeTargetProhibited(actor.Seat, target.Seat, CardKind.StriveUpstream) &&
@@ -164,7 +164,7 @@ public sealed partial class GameEngine
         if (!_players[target].IsAlive) { FinishCardUse(use.Id, GetNullificationEffectCard(pending), LeChengyanNativeEffectKind(use)); return; }
         var rank = DragonBoatCardRank(use.SourceSeat);
         var recipients = LeChengyanNativeEffectKind(use) == CardKind.SameBoat
-            ? _players.Where(p => p.IsAlive && DragonBoatCardAllies(target, p.Seat)).OrderBy(p => (p.Seat - target + _playerCount) % _playerCount).Select(p => p.Seat).ToArray()
+            ? _players.Where(p => p.IsAlive && DragonBoatCardAllies(target, p.Seat)).OrderBy(p => RelativeTableOrder(target, p.Seat)).Select(p => p.Seat).ToArray()
             : LeChengyanNativeEffectKind(use) == CardKind.StriveUpstream ? [target] : Array.Empty<int>();
         var count = LeChengyanNativeEffectKind(use) == CardKind.SameBoat ? rank.Most ? 2 : 1 :
             LeChengyanNativeEffectKind(use) == CardKind.StriveUpstream ? target == use.SourceSeat ? Math.Min(5, DragonBoatCardTeamScore(use.SourceSeat)) : 1 : 0;

@@ -36,7 +36,7 @@ public sealed partial class GameEngine
         return e.Op switch{
             SkillProgramEffectOp.ReplaceJibingDrawWithTwoBing=>context.Window==SkillProgramTriggerWindow.DrawPhaseStarting&&c.OwnerSeat==_currentSeat&&JibingPileCards(_players[c.OwnerSeat]).Count<GetLivingFactionCount()&&
                 _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().SingleOrDefault(w=>w.Id==context.ParentFrameId) is{NormalDrawReplaced:false,Continuation:ProgramLifecycleContinuation.CompleteDrawPhase},
-            SkillProgramEffectOp.ResolveMoucuanAwakening=>context.Window==SkillProgramTriggerWindow.TurnStartBeforeNormalFlow&&c.OwnerSeat==_currentSeat&&_players[c.OwnerSeat].MaxHp>0&&JibingPileCards(_players[c.OwnerSeat]).Count>=MoucuanFactionCount()&&
+            SkillProgramEffectOp.ResolveMoucuanAwakening=>context.Window==SkillProgramTriggerWindow.TurnStartBeforeNormalFlow&&c.OwnerSeat==_currentSeat&&_players[c.OwnerSeat].MaxHp>0&&(JibingPileCards(_players[c.OwnerSeat]).Count>=MoucuanFactionCount()||HasShenGuoJiaAwakeningCondition(c.OwnerSeat,c.SkillId,c.BindingId))&&
                 !ProgramEventHistory<MoucuanMaximumPaidEvent>().Any(x=>x.OwnerSeat==c.OwnerSeat),
             SkillProgramEffectOp.ResolveWangjingBingOpponentDraw=>WangjingQualification(c,context)is not null,
             _=>context.Window==SkillProgramTriggerWindow.TurnEnding&&ProgramEventHistory<MaYuanYiBingActionEvent>().Any(x=>x.ActualTurn==_turnNumber&&x.TurnOwner==_currentSeat&&x.ProviderSeat==c.OwnerSeat&&ValidBingAction(x))};

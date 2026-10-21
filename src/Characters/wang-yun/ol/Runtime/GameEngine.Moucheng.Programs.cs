@@ -6,7 +6,7 @@ public sealed partial class GameEngine
 {
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 360)]
     private bool CanAwakenWangYun(int owner,SkillProgramTrigger trigger)=>!ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.AwakenFromIssuedLianjiSlashDamage) ||
-        CompleteProgramEventHistory().OfType<WangYunLianjiDamageEvent>().Any(e=>e.PlanOwner==owner && e.Amount>0);
+        CompleteProgramEventHistory().OfType<WangYunLianjiDamageEvent>().Any(e=>e.PlanOwner==owner && e.Amount>0) || HasShenGuoJiaAwakeningCondition(owner,"ol:moucheng",trigger.Id);
     private SkillProgramStepOutcome AwakenFromIssuedLianjiSlashDamage(ProgramSkillFrame supplied)
     {
         var f=GetActiveProgramFrame(supplied.Id);var c=f.WindowContext;

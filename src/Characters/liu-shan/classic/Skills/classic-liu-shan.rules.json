@@ -79,7 +79,7 @@
       "activations": [],
       "triggers": [
         {
-          "id": "reset-pending",
+          "id": "reset-pending", "isSkillInvocation": false,
           "window": "turnStartBeforeNormalFlow",
           "subject": "owner",
           "optional": false,

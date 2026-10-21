@@ -29,7 +29,7 @@ public sealed partial class GameEngine
     private void AppendQushiEndingItems(List<TurnEndingBoundaryItem> items)
     {
         if(!HasQushiCapability||!_players[_currentSeat].IsAlive)return;var t=_contentRegistry.GetSkill("ol:qushi").Program!.Triggers.Single(t=>t.Id=="issued-holder-ending");
-        foreach(var s in LiveQushiSeals().Where(s=>s.HolderSeat==_currentSeat).OrderBy(s=>(s.Source.OwnerSeat-_currentSeat+_players.Count)%_players.Count).ThenBy(s=>s.SealId))
+        foreach(var s in LiveQushiSeals().Where(s=>s.HolderSeat==_currentSeat).OrderBy(s=>RelativeTableOrder(_currentSeat, s.Source.OwnerSeat)).ThenBy(s=>s.SealId))
         {var c=new ProgramTriggerCandidate(s.Source.OwnerSeat,"ol:qushi",t.Id,s.Source.SkillInstanceId,s.GameplayHash,t.Priority,items.Count);items.Add(new(TurnEndingBoundaryItemKind.Program,t.Priority,$"qushi:{s.SealId}",c,CaptureProgramTriggerFacts(_players[c.OwnerSeat])));}
     }
     private ProgramSkillWindowContext CreateQushiEndingContext(TurnEndingBoundaryFrame parent,ProgramTriggerCandidate c,ProgramSkillWindowContext context)

@@ -111,6 +111,10 @@ public static class GeneralGalleryCatalog
         Add("fame-6", "guo-huanghou li-yan sun-deng liu-yu cen-hun sun-zi-liu-fang huang-hao zhang-rang");
         Add("fame-7", "xin-xianying wu-xian xu-shi cao-jie ji-kang qin-mi xue-zong cai-yong");
         Add("god", "shen-guan-yu shen-sima-yi shen-lu-meng shen-cao-cao shen-zhao-yun shen-zhou-yu shen-lu-bu");
+        foreach (var id in new[] { "guo-jia", "sun-ce", "taishi-ci", "xun-yu", "lu-su", "hua-tuo" })
+            groups.Add("mobile:shen-" + id, "god");
+        foreach (var id in new[] { "jiang-wei", "deng-ai", "zhang-fei", "hua-tuo", "xu-chu", "ma-chao" })
+            groups.Add("anniversary:shen-" + id, "god");
         foreach (var id in new[] { "guan-yu", "zhou-yu", "zhuge-liang", "lu-bu", "zhao-yun", "sima-yi",
                      "liu-bei", "lu-xun", "gan-ning", "zhang-liao", "sun-quan", "zhang-jiao", "dian-wei", "huang-zhong" })
             groups.Add("ol:shen-" + id, "god");

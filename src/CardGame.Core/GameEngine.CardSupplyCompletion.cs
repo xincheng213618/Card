@@ -127,7 +127,7 @@ public sealed partial class GameEngine
             PushRuntimeFrame(child); AdvanceRuntimeTop<CardsMovedTriggerWindowFrame>(); return true;
         }
         var candidates = CollectSharedCardActionCandidates(CardSupplyCompletionActorAction(window), SkillProgramTriggerWindow.CardSupplyCompleted, [], null)
-            .OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal)
+            .OrderByDescending(c => c.Priority).ThenBy(c => RelativeTableOrder(0, c.OwnerSeat)).ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal)
             .ThenBy(c => c.TriggerId, StringComparer.Ordinal).Select(c => c.FrozenContext is { CardUse: { } use } context ? c with {
                 FrozenContext = context with { ParentFrameId = window.Id, CardUse = use with { ParentCardUseFrameId = window.ParentFrameId } } } :
                 throw new InvalidOperationException("A supplied play candidate lost its frozen provider context.")).ToArray();

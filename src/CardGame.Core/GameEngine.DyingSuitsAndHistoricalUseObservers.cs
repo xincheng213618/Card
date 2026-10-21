@@ -100,6 +100,7 @@ public sealed partial class GameEngine
     // mature observer helpers: those helpers may themselves query ActiveDying.
     private bool DyingSuitsStructuralEdge(ResolutionFrame parent, ResolutionFrame child)
     {
+        if (SkillInvocationStructuralEdge(parent, child)) return true;
         if (child is ProgramSkillFrame observer)
         {
             if (observer.WindowContext is not { } context || context.ParentFrameId != parent.Id ||

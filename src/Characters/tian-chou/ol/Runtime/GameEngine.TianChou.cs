@@ -18,7 +18,7 @@ public sealed partial class GameEngine
             f.InstructionIndex != 1 || f.SelectedCardIds.Count != 0 || f.SelectedTargetSeats.Count != 0 || !_players[f.OwnerSeat].IsAlive || _winner != Winner.None ||
             _currentSeat != f.OwnerSeat || _phase != TurnPhase.Play || !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId))
             throw new InvalidOperationException("Shandao requires its own actual once-per-Play living source.");
-        var candidates = Enumerable.Range(0, _playerCount).Select(i => (f.OwnerSeat + i) % _playerCount).Where(TianChouHasCards).ToArray();
+        var candidates = Enumerable.Range(0, _playerCount).Select(i => TableStepSeat(f.OwnerSeat, i)).Where(TianChouHasCards).ToArray();
         if (candidates.Length == 0) throw new InvalidOperationException("Shandao needs at least one actual HE owner.");
         var r = new TianChouShandaoReceipt(TianChouSource(f), f.GameplayHash, 1, _turnNumber, _cardUseDebitPhaseInstanceId, _movementSequence) { Candidates = candidates };
         ReplaceRuntimeTop(f = f with { TianChouShandao = r });
@@ -68,7 +68,7 @@ public sealed partial class GameEngine
                 var seat = choice.Targets.Single(); AdvanceEventRulesAndQueueFact(new TianChouShandaoSelectedEvent(f.Id, r.Targets.Count, seat));
                 ReplaceRuntimeTop(f = f with { TianChouShandao = r with { Targets = r.Targets.Append(seat).ToArray() } }); PublishTianChou(f); return;
             }
-            var ordered = Enumerable.Range(0, _playerCount).Select(i => (f.OwnerSeat + i) % _playerCount).Where(r.Targets.Contains).ToArray();
+            var ordered = Enumerable.Range(0, _playerCount).Select(i => TableStepSeat(f.OwnerSeat, i)).Where(r.Targets.Contains).ToArray();
             ReplaceRuntimeTop(f = f with { TianChouShandao = r with { Stage = TianChouShandaoStage.Card, TargetsFrozen = true, Targets = ordered } });
             AdvanceEventRulesAndQueueFact(new TianChouShandaoTargetsFrozenEvent(f.Id, ordered.Length));
             for (var i = 0; i < ordered.Length; i++) AdvanceEventRulesAndQueueFact(new TianChouShandaoTargetOrderedEvent(f.Id, i, ordered[i]));
@@ -114,7 +114,7 @@ public sealed partial class GameEngine
             }
             if (r.TrickIndex >= 2) { FinishTianChou(f, "completed"); return; }
             var kind = r.TrickIndex == 0 ? CardKind.FiveGrains : CardKind.ArrowBarrage;
-            var nominated = r.TrickIndex == 0 ? r.Targets : Enumerable.Range(1, _playerCount - 1).Select(i => (f.OwnerSeat + i) % _playerCount).Where(s => !r.Targets.Contains(s)).ToArray();
+            var nominated = r.TrickIndex == 0 ? r.Targets : Enumerable.Range(1, _playerCount - 1).Select(i => TableStepSeat(f.OwnerSeat, i)).Where(s => !r.Targets.Contains(s)).ToArray();
             var targets = TianChouShandaoTrickTargets(f.OwnerSeat, kind, nominated);
             if (targets.Count == 0)
             {

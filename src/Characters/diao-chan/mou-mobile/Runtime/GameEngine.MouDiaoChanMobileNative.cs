@@ -7,7 +7,7 @@ public sealed partial class GameEngine
         while (_winner == Winner.None && r.Index < r.Targets.Count)
         {
             var actor = r.Targets[r.Index];
-            var candidates = r.Targets.Where(s => s != actor && _players[s].IsAlive).OrderBy(s => (actor - s + _playerCount) % _playerCount).ToArray();
+            var candidates = r.Targets.Where(s => s != actor && _players[s].IsAlive).OrderBy(s => RelativeTableOrder(s, actor)).ToArray();
             if (_players[actor].IsAlive && candidates is [var target, ..] && CanIssueSelectedActorDuel(target, actor))
             {
                 var ring = new MouDiaoChanMobileRingOrigin(f.Id, r.Index, actor, target, r.Source, r.GameplayHash);

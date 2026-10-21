@@ -35,7 +35,7 @@ internal static class SiruiComposition
         CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.Dodge, CardKind.Peach, CardKind.Alcohol,
         CardKind.DrawTwo, CardKind.Duel, CardKind.BarbarianAssault, CardKind.ArrowBarrage,
         CardKind.PeachGarden, CardKind.FiveGrains, CardKind.Dismantlement, CardKind.Snatch,
-        CardKind.FireAttack, CardKind.IronChain, CardKind.BorrowedSword, CardKind.Nullification
+        CardKind.QizhengXiangsheng, CardKind.FireAttack, CardKind.IronChain, CardKind.BorrowedSword, CardKind.Nullification
     });
 
     [ProgramCatalogValidation(1330)]

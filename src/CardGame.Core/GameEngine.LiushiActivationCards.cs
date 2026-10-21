@@ -36,6 +36,6 @@ public sealed partial class GameEngine
         var from = _cardZones.GetLocation(cardId);
         return !(card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment) &&
             !IsGuanduThunderChariotDeparture(card, from, CardLocation.DrawPile) &&
-            NormalizeDiouCarrierDestination(card, from, CardLocation.DrawPile) == CardLocation.DrawPile;
+            NormalizeEphemeralCardDestination(card, from, CardLocation.DrawPile) == CardLocation.DrawPile;
     }
 }

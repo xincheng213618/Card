@@ -83,7 +83,8 @@ public sealed partial class GameEngine
         if (r.Stage == NamedAmbushStage.SelectCard)
             choices.AddRange(GetHand(_players[f.OwnerSeat]).Select(c => Choice("card", $"暗置【{c.DisplayName}】", [c.Id])));
         else if (r.Stage == NamedAmbushStage.SelectName && r.SelectedCardId is { } selected && _cardZones.GetLocation(selected) == CardLocation.Hand(f.OwnerSeat))
-            choices.AddRange(Enum.GetValues<CardKind>().Select(AmbushCardName).Distinct().Where(k => CardCatalog.Get(k).CategoryName != "装备牌")
+            choices.AddRange(Enum.GetValues<CardKind>().Select(AmbushCardName).Distinct().Where(k => CardCatalog.Get(k).CategoryName != "装备牌" &&
+                (!IsWushuangMode || WushuangCatalogue.IsCardAllowed(k)))
                 .Select(k => Choice("name", $"记录【{CardCatalog.Get(k).DisplayName}】", name: k)));
         else if (r.Stage == NamedAmbushStage.SelectDeposit && r.Use is { } use)
             choices.AddRange(LiveAmbushDeposits(f.OwnerSeat, f.SkillId, f.SkillInstanceId).Where(d => d.RecordedKind == AmbushCardName(use.EffectiveKind))

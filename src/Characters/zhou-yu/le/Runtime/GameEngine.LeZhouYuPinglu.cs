@@ -21,7 +21,7 @@ public sealed partial class GameEngine
     }
     private int[] PingluTargets(int actor) => _players.Where(player => player.IsAlive && player.Seat != actor &&
         GetCombatDistance(actor, player.Seat) <= GetAttackRange(actor))
-        .OrderBy(player => (player.Seat - actor + _players.Count) % _players.Count).Select(player => player.Seat).ToArray();
+        .OrderBy(player => RelativeTableOrder(actor, player.Seat)).Select(player => player.Seat).ToArray();
 
     // One invocation's original Hand residency blocks this phase. A later gain of
     // the same entity is a new residency, and a new real Play has a different token.

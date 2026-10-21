@@ -28,8 +28,8 @@ public sealed partial class GameEngine
         var ownerSeat = roundParent?.OwnerSeat ?? cardParent!.SourceSeat;
         if (_resolutionStack.LastOrDefault()?.Id != parentId) throw new InvalidOperationException("Chaos cannot change its live parent.");
         var living = _players.Where(p => p.IsAlive).Select(p => p.Seat).ToArray();
-        var start = cardParent is null && living.Length > 0 ? living[_random.Next(living.Length)] : (ownerSeat + 1) % _playerCount;
-        var actors = Enumerable.Range(0, _playerCount).Select(offset => (start + offset) % _playerCount)
+        var start = cardParent is null && living.Length > 0 ? living[_random.Next(living.Length)] : TableStepSeat(ownerSeat, 1);
+        var actors = Enumerable.Range(0, _playerCount).Select(offset => TableStepSeat(start, offset))
             .Where(seat => _players[seat].IsAlive && (cardParent is null || seat != ownerSeat)).ToArray();
         const string skillId = "wenhe:chaos-resolution";
         var program = _contentRegistry.GetSkill(skillId).Program ?? throw new InvalidOperationException("Chaos program is missing.");

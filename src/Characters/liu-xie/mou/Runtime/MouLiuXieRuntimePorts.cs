@@ -4,6 +4,7 @@ internal interface IMouLiuXieFacts : IProgramSelectionQuery
     int Turn { get; }
     int CurrentSeat { get; }
     int PlayerCount { get; }
+    int TableStepSeat(int from, int offset);
     long MovementSequence { get; }
     bool Finished { get; }
     ActualDiscardRecoveryPhaseKey? Phase { get; }

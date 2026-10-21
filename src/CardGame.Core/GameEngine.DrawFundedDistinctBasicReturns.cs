@@ -86,7 +86,7 @@ public sealed partial class GameEngine
             // its request. It deliberately retains the activation's original targets.
             return op == SkillProgramEffectOp.RequestSlashByNearest && parent.ReexecuteParticipantInstruction &&
                 cursors is [var cursor] && cursor.Value >= 1 && cursor.Value < _playerCount &&
-                payment.Source.OwnerSeat == (parent.OwnerSeat + cursor.Value) % _playerCount;
+                payment.Source.OwnerSeat == TableStepSeat(parent.OwnerSeat, cursor.Value);
         }
         return parent.SelectedTargetSeats.SequenceEqual([payment.Source.OwnerSeat]) && (payment.Intent switch
         {

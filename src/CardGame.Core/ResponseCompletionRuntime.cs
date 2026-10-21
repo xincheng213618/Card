@@ -66,6 +66,8 @@ internal sealed partial class ResponseCompletionRuntime
             { paid.Add(destroyedSirui); continue; }
             if (_native.TryGetXieweiResponseCostMovement(a, cost.CardId, out var baitMovement))
             { paid.Add(baitMovement); continue; }
+            if (_native.TryGetWushuangJinzhiResponseMovements(a, cost.CardId, out var jinzhiMovements))
+            { paid.AddRange(jinzhiMovements); continue; }
             if (_native.IsProgramAlternativeCost(a, cost.CardId))
             {
                 var alternative = _facts.LastMovement(m => m.CardId == cost.CardId && m.From == cost.From &&
@@ -109,7 +111,7 @@ internal sealed partial class ResponseCompletionRuntime
             paid.ActorSeat != action.ActorSeat || paid.Cost != cost || paid.Source.OwnerSeat != action.ProviderSeat ||
             !(paid.DeclaredKind == action.EffectiveKind || action.EffectiveKind == CardKind.Slash && RuntimeSkills.RuntimeRules_Core_CommonRules.MatchesRequiredCard(paid.DeclaredKind, action.EffectiveKind) &&
                 continuation is (ProgramCardContinuation.DuelSlash or ProgramCardContinuation.FactionSlashDuelSlash or
-                    ProgramCardContinuation.GroupResponse or ProgramCardContinuation.FactionSlashGroupResponse)) ||
+                    ProgramCardContinuation.GroupResponse or ProgramCardContinuation.FactionSlashGroupResponse or ProgramCardContinuation.QizhengResponse)) ||
             !action.ConversionChain.Contains(paid.Source) ||
             _facts.ViewAsRule(paid.Source) is not { DeclarationValidation: not null } rule || rule.OutputKind != paid.DeclaredKind) return false;
         IReadOnlyList<int>? nativeTargets = continuation switch
@@ -117,6 +119,7 @@ internal sealed partial class ResponseCompletionRuntime
             ProgramCardContinuation.NullificationResponse =>
                 (FrameFacts().SingleOrDefault(f => f.Id == parentFrameId) as NullificationWindowFrame)?.TargetSeats,
             ProgramCardContinuation.DuelSlash => _facts.ActiveDuelOwnerId is { } duel && duel == parentFrameId ? [_facts.DuelOpponentSeat(duel)] : null,
+            ProgramCardContinuation.QizhengResponse => FrameFacts().SingleOrDefault(f => f.Id == parentFrameId) is CardUseFrame { Qizheng: not null } qizheng ? [qizheng.SourceSeat] : null,
             ProgramCardContinuation.GroupResponse => _facts.ActiveGroupOwnerId is { } group && group == parentFrameId ? [_facts.GroupSourceSeat(group)] : null,
             ProgramCardContinuation.Dodge or ProgramCardContinuation.FactionDefenseDodge or
                 ProgramCardContinuation.FactionSlashDuelSlash or ProgramCardContinuation.FactionSlashGroupResponse =>
@@ -156,6 +159,8 @@ internal sealed partial class ResponseCompletionRuntime
             return records is [var originalSirui] && originalSirui == destroyedSirui;
         if (_native.TryGetXieweiResponseCostMovement(window.Action, cost.CardId, out var baitMovement))
             return records is [var bait] && bait == baitMovement;
+        if (_native.TryGetWushuangJinzhiResponseMovements(window.Action, cost.CardId, out var jinzhiMovements))
+            return records.SequenceEqual(jinzhiMovements);
         if (_native.IsProgramAlternativeCost(window.Action, cost.CardId))
             return records is [var alternative] && alternative.From == cost.From && alternative.To == CardLocation.DrawPile && alternative.Reason == CardMoveReasons.Respond;
         var enter = records[0];
@@ -235,6 +240,10 @@ internal sealed partial class ResponseCompletionRuntime
             if (r.OriginalContinuation is ProgramCardContinuation.DuelSlash or ProgramCardContinuation.FactionSlashDuelSlash &&
                 (!RuntimeSkills.RuntimeRules_Core_CommonRules.IsSlashCard(a.EffectiveKind) || _facts.ActiveDuelOwnerId is not { } duel || duel != r.ParentFrameId ||
                     a.ActorSeat != _facts.DuelResponderSeat(duel) || a.OpponentSeat != _facts.DuelOpponentSeat(duel))) return false;
+            if (r.OriginalContinuation == ProgramCardContinuation.QizhengResponse &&
+                (parent is not CardUseFrame { Qizheng: { Stage: QizhengStage.PaidResponse } qr } qu ||
+                    a.ActorSeat != qr.Target || a.ProviderSeat != qr.Target || a.RequesterSeat is not null || a.OpponentSeat != qu.SourceSeat ||
+                    a.EffectiveKind != qr.ResponseKind || a.EffectiveKind != CardKind.Dodge && !RuntimeSkills.RuntimeRules_Core_CommonRules.IsSlashCard(a.EffectiveKind))) return false;
             if (r.OriginalContinuation is ProgramCardContinuation.GroupResponse or ProgramCardContinuation.FactionSlashGroupResponse &&
                 (_facts.ActiveGroupOwnerId is not { } group || group != r.ParentFrameId || _facts.GroupCurrentAttackOwnerId(group) != r.ParentFrameId ||
                     _facts.GroupRequiredCardKind(group) != RuntimeSkills.RuntimeRules_Core_AlternativeViewAsCosts.ProgramBasicCardName(a.EffectiveKind) || a.ActorSeat != attack.TargetSeat ||

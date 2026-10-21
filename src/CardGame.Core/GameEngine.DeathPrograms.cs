@@ -292,7 +292,7 @@ public sealed partial class GameEngine
             return false;
 
         var ordered = collected
-            .OrderBy(item => (item.Candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
+            .OrderBy(item => RelativeTableOrder(_currentSeat, item.Candidate.OwnerSeat))
             .ThenByDescending(item => item.Candidate.Priority)
             .ThenBy(item => item.Candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(item => item.Candidate.BindingId, StringComparer.Ordinal)
@@ -511,7 +511,8 @@ public sealed partial class GameEngine
         foreach (var player in _players)
         {
             var attributed = player.MarkerSourceCounts
-                .Where(item => item.Key.SkillOwnerSeat == owner.Seat && item.Key.Marker is not (PlayerMarkerKind.Kui or PlayerMarkerKind.DragonSeal or PlayerMarkerKind.PhoenixSeal))
+                .Where(item => item.Key.SkillOwnerSeat == owner.Seat && item.Key.Marker is not (PlayerMarkerKind.Kui or PlayerMarkerKind.DragonSeal or PlayerMarkerKind.PhoenixSeal or PlayerMarkerKind.Pingding or
+                    PlayerMarkerKind.ShencaiChi or PlayerMarkerKind.ShencaiZhang or PlayerMarkerKind.ShencaiTu or PlayerMarkerKind.ShencaiLiu or PlayerMarkerKind.ShencaiSi))
                 // Issued Liushi hand-limit effects belong to the affected role;
                 // their original source's death does not withdraw them.
                 .Where(item => item.Key.Marker != PlayerMarkerKind.LiuShi ||

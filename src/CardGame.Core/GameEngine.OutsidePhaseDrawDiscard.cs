@@ -19,6 +19,7 @@ public sealed partial class GameEngine
     }
     private bool TracksNativeDrawInvocations =>
         _contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.NativeDrawInvocation) ||
+        IsWushuangMode ||
         TracksNativeDrawOrdinals ||
         _contentRegistry.ProgramDependencies.UsesDrawPhaseDrawCountHandLimit ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingLixian) ||
@@ -283,7 +284,7 @@ public sealed partial class GameEngine
             {
                 foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
                 if (records is not [var move] || move.CardId != paid.CardId || move.CardKind != paid.PrintedKind || move.From != paid.From ||
-                    move.To != NormalizeDiouCarrierDestination(GetAdvancedCard(paid.CardId), paid.From, (paid.IsGeneralWeapon && paid.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)))
+                    move.To != NormalizeEphemeralCardDestination(GetAdvancedCard(paid.CardId), paid.From, (paid.IsGeneralWeapon && paid.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)))
                     throw new InvalidOperationException("Outside-phase discard did not pay its single real frozen foreign card.");
                 var current = GetActiveProgramFrame(f.Id);
                 ReplaceRuntimeTop(current with { OutsidePhaseDrawDiscard = current.OutsidePhaseDrawDiscard! with {

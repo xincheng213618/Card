@@ -517,9 +517,9 @@ public sealed partial class MainViewModel
     public string AlternatePlayText => SelectedConversionAction() is { } conversion
         ? $"当作{CardCatalog.Get(conversion.PlayedCardKind!.Value).DisplayName}使用"
         : "转换使用";
-    public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
+    public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : _game.IsMoLuBuOpeningPhase ? $"{CenterTitle} · 夺炁额外出牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
-    public bool HasCenterChoices => HasChoicePrompt && (HasDockSkillChoices || IsOwnedCardSelectionPending ? false : IsHandResponsePending ? HandResponseExtraChoices.Count > 0
+    public bool HasCenterChoices => HasChoicePrompt && (HasDockSkillChoices || IsOwnedCardSelectionPending && !IsForeignCardTakeSelectionPending ? false : IsHandResponsePending ? HandResponseExtraChoices.Count > 0
         : !IsSkillTargetSelectionPending || CenterSkillChoices.Count > 0) || HasPublicTargetChoices || HasTargetCombinationChoices ||
         HasPublicRevealedCards || HasPrivatelyViewedCards || HasDeclaredCards ||
         ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
@@ -687,7 +687,7 @@ public sealed partial class MainViewModel
         // The next seat is at the lower right; play proceeds around the table.
         var origin = HumanPlayer?.Seat ?? 0;
         var opponents = Seats.Where(seat => seat.Seat != origin)
-            .OrderBy(seat => (seat.Seat - origin + Seats.Count) % Seats.Count).ToArray();
+            .OrderBy(seat => TableSeatOffset(origin, seat.Seat)).ToArray();
         // Reserve disjoint side groups; a lone opponent belongs at the top.
         var sideCount = Math.Min(Seats.Count >= 7 ? 2 : 1, opponents.Length / 2);
         SyncSeats(RightSeats, opponents.Take(sideCount).Reverse());
@@ -722,7 +722,7 @@ public sealed partial class MainViewModel
         if (_snapshot is null) return;
         var card = Hand.FirstOrDefault(item => item.Id == _selectedCardId);
         var human = _snapshot.Players.SingleOrDefault(player => player.IsHuman);
-        var equipment = human?.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human))
+        var equipment = human?.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).Concat(ForeignFieldPlayMaterials(human))
             .FirstOrDefault(item => item.Id == _selectedCardId);
         var selectedName = card?.Name ?? equipment?.DisplayName;
         var target = Seats.FirstOrDefault(item => item.Seat == _selectedTargetSeat);
@@ -833,6 +833,7 @@ public sealed partial class MainViewModel
         ResetPlayCardSelection();
         _discardCardIds.Clear();
         _selectedOwnedCardIds.Clear();
+        RaisePropertyChanged(nameof(SelectedTargetCardIds));
         _paymentCardIds.Clear();
         _paymentChoiceId = null;
         RefreshEquipmentMaterialSelection();

@@ -224,6 +224,7 @@ public sealed partial class GameEngine
     }
     private bool ValidProgramVirtualOrdinaryTrickUse(CardUseFrame use)
     {
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == "mobile:zuoxing") return IsShenGuoJiaVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin?.SkillId == MouXunYuAnniversaryRuntime.Shimou) return IsMouXyVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin is not { } origin || use.CardId != 0 ||
             use.CardKind != origin.OutputKind || use.PhysicalCardIds is not { Count: 0 } ||
@@ -234,7 +235,7 @@ public sealed partial class GameEngine
                 EffectiveSuit: Suit.None, EffectiveRank: 0, EffectiveIsRed: not true, RequesterSeat: null,
                 ResponderSeat: null, OpponentSeat: null } action ||
             action.EffectiveKind != origin.OutputKind || action.ActionId != origin.CardActionId ||
-            !action.TargetSeats.SequenceEqual(use.TargetSeats) || use.TargetSeats.Count == 0 && !(HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use)) ||
+            !action.TargetSeats.SequenceEqual(use.TargetSeats) || use.TargetSeats.Count == 0 && !(HasDinghanCancellation(use) || HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use)) ||
             use.TargetSeats.Distinct().Count() != use.TargetSeats.Count ||
             use.TargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
             action.ProviderSeat != origin.InitialActorSeat || origin.TurnNumber != _turnNumber ||
@@ -259,10 +260,11 @@ public sealed partial class GameEngine
     }
 
     private bool IsProgramVirtualOrdinaryTrickUse(long frameId) =>
-        IsMouDanchiDrawTwo(frameId) || LifecycleCardUse(frameId) is { } use && ValidProgramVirtualOrdinaryTrickUse(use);
+        IsShenDaCuixinTrick(frameId) || IsMouDanchiDrawTwo(frameId) || LifecycleCardUse(frameId) is { } use && ValidProgramVirtualOrdinaryTrickUse(use);
 
     private Card ReadVirtualOrdinaryTrickUseAppearance(long ownerId, CardAppearanceReference appearance)
     {
+        if (IsShenDaCuixinUse(ownerId)) return ReadShenDaCuixinAppearance(ownerId, appearance);
         if (IsMouDanchiDrawTwo(ownerId)) return ReadMouDanchiAppearance(ownerId, appearance);
         if (LifecycleCardUse(ownerId) is not { VirtualOrdinaryTrickOrigin: not null } use)
             return ReadMouDcUseAppearance(ownerId, appearance);
@@ -298,7 +300,7 @@ public sealed partial class GameEngine
     private bool IsProgramVirtualSingleAttackConsistent(CardAttackHandle attack, IReadOnlyList<Card> processing)
     {
         if (LifecycleCardUse(attack.ResolutionId) is not { } use || !ValidProgramVirtualOrdinaryTrickUse(use) ||
-            use.CardKind is not (CardKind.Duel or CardKind.FireAttack or CardKind.UnexpectedAssault) ||
+            use.CardKind is not (CardKind.Duel or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.QizhengXiangsheng) ||
             attack.PhysicalCards.Count != 0 || processing.Count != 0 || attack.EffectiveCardKind != use.CardKind ||
             attack.CardUserSeat != use.SourceSeat || attack.IsSourceLess || attack.IsDelayedJudgmentDamage ||
             attack.ProgramSkillFrameId is not null || attack.ProgramJudgmentFrameId is not null ||
@@ -314,6 +316,8 @@ public sealed partial class GameEngine
             return ProgramEventHistory<FireAttackResolvedEvent>().LastOrDefault(e => e.ResolutionId == use.Id) is
                 { CausedDamage: true, MatchingDiscardCardId: > 0 } paid && paid.SourceSeat == use.SourceSeat &&
                 use.TargetSeats.Contains(paid.TargetSeat) && VirtualTrickDamageTargetMatches(use, attack, paid.TargetSeat);
+        if (use.CardKind == CardKind.QizhengXiangsheng)
+            return use.Qizheng is { } qizheng && VirtualTrickDamageTargetMatches(use, attack, qizheng.Target);
         return use.UnexpectedAssaultReveal is { CanCauseDamage: true } reveal && reveal.CardUseFrameId == use.Id &&
             reveal.ActionId == use.Action!.ActionId && reveal.TargetIndex == use.TargetIndex &&
             ProgramEventHistory<UnexpectedAssaultRevealedEvent>().Count(e => e.Receipt == reveal) == 1 &&
@@ -331,7 +335,7 @@ public sealed partial class GameEngine
     {
         paused = false;
         if (LifecycleCardUse(attack.ResolutionId) is not { } use || !ValidProgramVirtualOrdinaryTrickUse(use) ||
-            use.CardKind is not (CardKind.Duel or CardKind.FireAttack or CardKind.UnexpectedAssault) ||
+            use.CardKind is not (CardKind.Duel or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.QizhengXiangsheng) ||
             attack.EffectiveCardKind != use.CardKind || attack.PhysicalCards.Count != 0 ||
             ActiveCardAttack is not { } current || !SameAttackOwner(current, attack)) return false;
         SetCardUseStep(use.Id, ResolutionFrameStep.Completed);
@@ -352,6 +356,7 @@ public sealed partial class GameEngine
     private void ReturnProgramVirtualOrdinaryTrick(CardUseFrame use)
     {
         if (use.VirtualOrdinaryTrickOrigin is not { } origin) return;
+        if (TryReturnShenGuoJiaVirtualUse(use)) return;
         if (ReturnMouXyVirtualUse(use)) return;
         if (ReturnMouLuXunNativeUse(use)) return;
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != origin.ParentProgramFrameId ||
@@ -361,7 +366,7 @@ public sealed partial class GameEngine
             use.Step != ResolutionFrameStep.Completed || frame.WindowContext?.ParentFrameId != origin.LifecycleFrameId ||
             ValidateVirtualOrdinaryTrickInstruction(frame).OutputKind != origin.OutputKind)
             throw new InvalidOperationException("A completed virtual ordinary trick lost its typed program return.");
-        if (use.CardKind is CardKind.Duel or CardKind.FireAttack or CardKind.UnexpectedAssault && use.CardAttack is { Active: true })
+        if (use.CardKind is CardKind.Duel or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.QizhengXiangsheng && use.CardAttack is { Active: true })
         {
             if (ProgramEventHistory<ProgramVirtualOrdinaryAttackReturnedEvent>().Any(e => e.UseId == use.Id))
                 throw new InvalidOperationException("A virtual ordinary attack cannot return twice.");

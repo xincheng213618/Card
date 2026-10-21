@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile-god:wuling", "revision": 1, "activations": [{ "id": "teach-five-spirits", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 2, "effects": [{ "op": "teachMobileShenHuaTuoWuling", "target": "owner" }] }] },
+    { "id": "mobile-god:youyi", "revision": 1,
+      "activations": [{ "id": "clear-ren-and-heal", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1, "effects": [{ "op": "recoverMobileShenHuaTuoYouyi", "target": "owner" }] }],
+      "triggers": [{ "id": "store-phase-discards", "window": "discardPhaseEnded", "subject": "owner", "turnOwnerScope": "own", "allowOwnDiscardPhaseEnded": true, "optional": true, "effects": [{ "op": "depositMobileShenHuaTuoYouyi", "target": "owner" }] }]
+    },
+    { "id": "mobile-god:wuling-effects", "revision": 1, "triggers": [
+      { "id": "next-spirit", "window": "turnStartBeforeNormalFlow", "subject": "owner", "turnOwnerScope": "own", "optional": false, "isSkillInvocation": false, "effects": [{ "op": "advanceMobileShenHuaTuoWuling", "target": "owner" }] },
+      { "id": "bear-first-damage", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": false, "usageScope": "turn", "usageLimit": 1, "effects": [{ "op": "reduceCurrentDamage", "target": "owner", "amount": 1 }] }
+    ] },
+    { "id": "mobile-god:wuling-deer", "revision": 1, "cardPolicies": [{ "id": "no-delayed-target", "kind": "prohibitDelayedTrickTarget" }] }
+  ]
+}

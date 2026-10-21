@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:yingba", "revision": 1, "activations": [ {
+      "id": "subdue", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+      "effects": [ { "op": "resolveShenSunCeYingba", "target": "owner" } ]
+    } ] },
+    { "id": "mobile:fuhai", "revision": 1, "triggers": [
+      { "id": "marked-target-draw", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": false, "effects": [ { "op": "resolveShenSunCeFuhaiDraw", "target": "owner" } ] },
+      { "id": "marked-death-growth", "window": "characterDied", "subject": "any", "optional": false, "effects": [ { "op": "resolveShenSunCeFuhaiDeath", "target": "owner" } ] }
+    ] },
+    { "id": "mobile:fenghe", "revision": 1, "modifiers": [
+      { "id": "lost-hp-base", "query": "handLimit", "operation": "set", "value": 0, "priority": 381 },
+      { "id": "lost-hp", "query": "handLimit", "operation": "add", "valueExpression": "ownerLostHp", "priority": 0 }
+    ], "triggers": [ {
+      "id": "prevent-and-give", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": false,
+      "effects": [ { "op": "resolveShenSunCeFenghe", "target": "owner" } ]
+    } ] }
+  ]
+}

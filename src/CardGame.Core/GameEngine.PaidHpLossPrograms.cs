@@ -90,7 +90,8 @@ public sealed partial class GameEngine
         var plan=ProgramInstructionResolver.Default.Resolve(a,_contentRegistry.GetSkill(a.SkillId).Program!);
         if(!HasValidPaidHpLossReceipt(a,plan)||a.InstructionIndex!=2||p.ResultBind!=bind||p.DrawIssued)throw new InvalidOperationException("HP loss Draw is not its exact once-paid tail.");
         ReplaceRuntimeTop(a with {PaidHpLossReceipt=p with {DrawIssued=true}});
-        DrawProgramCards(f.Id,f.OwnerSeat,p.ActualLost,null,null,SkillProgramCardSetVisibility.Private,CardMoveReasons.Draw);
+        if (plan.Instructions[1].PaidHpLossDrawCards != false)
+            DrawProgramCards(f.Id,f.OwnerSeat,p.ActualLost,null,null,SkillProgramCardSetVisibility.Private,CardMoveReasons.Draw);
         a=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(a with {PaidHpLossReceipt=a.PaidHpLossReceipt! with {DrawReturned=true}});
         return SkillProgramStepOutcome.Continue;
     }

@@ -18,6 +18,7 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    SkillInvocation = 38700,
     PublicHandRevealWindow = 34003,
     WushuangIntermission = 61000,
     WuLuKangPindian = 29700,
@@ -139,6 +140,7 @@ internal interface IProgramChildResolutionFrame
 [JsonDerivedType(typeof(TurnEndingBoundaryFrame), "turn-ending-boundary")]
 [JsonDerivedType(typeof(PlayPhaseStartingBoundaryFrame), "play-phase-starting-boundary")]
 [JsonDerivedType(typeof(ProgramDeathTriggerWindowFrame), "program-death-trigger-window")]
+[JsonDerivedType(typeof(ProgramKillTriggerWindowFrame), "program-kill-trigger-window")]
 [JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
 [JsonDerivedType(typeof(BeforeDamageProgramWindowFrame), "before-damage-program-window")]
 
@@ -834,7 +836,8 @@ public enum DyingContinuationKind
     Damage,
     ProgramSkill,
     AttackHpLoss,
-    WenhePoison = 555
+    WenhePoison = 555,
+    SkillInvocation = 38700
 }
 
 public sealed partial record DyingFrame(

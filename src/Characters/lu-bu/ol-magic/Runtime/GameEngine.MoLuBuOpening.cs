@@ -2,6 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    public bool IsMoLuBuOpeningPhase => _winner == Winner.None && IsMoLuBuOpeningPlay(_currentSeat);
+
     private bool TryBeginMoLuBuOpening()
     {
         if (!HasMoLuBu || !_setupComplete || _winner != Winner.None || _turnProgression.Kind != ActualTurnKind.Normal || _roundNumber != 0 ||
@@ -21,6 +23,7 @@ public sealed partial class GameEngine
         if (_turnProgression.Kind != ActualTurnKind.Extra || _turnProgression.NormalResumeSeat != r.NormalSeat || owner.Seat != r.Source.OwnerSeat || _currentSeat != owner.Seat || r.ActualTurn != _turnNumber)
             throw new InvalidOperationException("Duoqi lost its exact opening actual-turn owner and first-seat return.");
         _turnProgression = _turnProgression with { MoLuBuOpening = r with { PlayStarted = true } };
+        AddLog("SkillActivated", $"{owner.Name} 发动【夺炁】，执行开局额外出牌阶段（不能使用延时锦囊牌）。", owner.Seat);
         EnterPlayPhase(owner); return true;
     }
     private bool IsMoLuBuOpeningPlay(int owner) => _turnProgression.MoLuBuOpening is { PlayStarted: true } r &&
@@ -31,6 +34,7 @@ public sealed partial class GameEngine
         var r = _turnProgression.MoLuBuOpening!; _turnProgression = _turnProgression with { MoLuBuOpening = null };
         ClearActualDiscardRecoveryPhase();
         AdvanceEventRulesAndQueueFact(new MoLuBuOpeningCompletedEvent(r.IssuerFrameId, _currentSeat, _turnNumber, r.NormalSeat));
+        AddLog("SkillResolved", $"【夺炁】额外出牌阶段结束，接下来由先手 {_players[r.NormalSeat].Name} 开始首个正常回合。", _currentSeat);
         FinalizeEndTurn(_players[_currentSeat]); return true;
     }
     private bool TryEndMoLuBuOpeningEarly()

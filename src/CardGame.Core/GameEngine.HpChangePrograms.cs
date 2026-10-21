@@ -46,9 +46,9 @@ public sealed partial class GameEngine
                 windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray())
                 .Where(candidate => !IsYintianRecoveryTrigger(GetProgramTrigger(candidate)) && !IsWenyiHpTrigger(GetProgramTrigger(candidate)) && !IsQimeiEqualityTrigger(GetProgramTrigger(candidate)) &&
                     !IsXianfuEchoTrigger(GetProgramTrigger(candidate)) && !IsDianhuDrawTrigger(GetProgramTrigger(candidate)) && !IsSpSunShangxiangLiangzhuTrigger(GetProgramTrigger(candidate)) &&
-                    !IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) && !IsNianRecoveryTrigger(GetProgramTrigger(candidate)))
+                    !IsShenwuJicaiTrigger(GetProgramTrigger(candidate)) && !IsNianRecoveryTrigger(GetProgramTrigger(candidate)) && candidate.SkillId != BChunlao)
                 .Concat(CollectYintianRecoveryCandidates(change)).Concat(CollectWenyiHpCandidates(change)).Concat(CollectQimeiHpCandidates(change)).Concat(CollectXianfuHpCandidates(change)).Concat(CollectDianhuHpCandidates(change)).Concat(CollectSpSunShangxiangRecoveryCandidates(change))
-                .Concat(CollectShenwuRecoveryCandidates(change)).Concat(CollectNianRecoveryCandidates(change)).ToArray();
+                .Concat(CollectShenwuRecoveryCandidates(change)).Concat(CollectNianRecoveryCandidates(change)).Concat(CollectWushuangBChunlaoLossCandidates(change)).ToArray();
             var registered = _programPipelineHooks.IncludeHealthChangeCandidates(change, owner.IsAlive ? ordinary : []);
             if (registered.Count == 0) continue;
             var facts = CaptureProgramTriggerFacts(owner) with
@@ -65,7 +65,9 @@ public sealed partial class GameEngine
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
             if (candidates.Length == 0) continue;
-            var contexts = candidates.Select(candidate => IsYintianRecoveryTrigger(GetProgramTrigger(candidate))
+            var contexts = candidates.Select(candidate => candidate.SkillId == BChunlao
+                ? CreateWushuangBChunlaoLossContext(change, candidate)
+                : IsYintianRecoveryTrigger(GetProgramTrigger(candidate))
                 ? CreateYintianRecoveryContext(change, candidate)
                 : IsWenyiHpTrigger(GetProgramTrigger(candidate))
                 ? CreateWenyiHpContext(change, candidate)
@@ -151,6 +153,10 @@ public sealed partial class GameEngine
             case PostEventContinuation.RecoveryReplacement:
                 AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
                 break;
+            case PostEventContinuation.SkillInvocation:
+                if (_resolutionStack.LastOrDefault() is not SkillInvocationFrame invocation || !IsSkillInvocationHealthChild(invocation, frame))
+                    throw new InvalidOperationException("A skill invocation lost its exact paid health return.");
+                AdvanceRuntimeFrame(invocation.Id); break;
             case PostEventContinuation.AmountSupport:
                 if (!IsAmountSupportHealthChild(_resolutionStack.LastOrDefault(), frame))
                     throw new InvalidOperationException("Amount support lost its exact health-change return.");
@@ -267,6 +273,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
+                PostEventContinuation.SkillInvocation => parent is SkillInvocationFrame invocation && IsSkillInvocationHealthChild(invocation, hp),
                 PostEventContinuation.AmountSupport => IsAmountSupportHealthChild(parent, hp),
                 PostEventContinuation.WenhePoison => IsWenhePoisonHealthChild(parent, hp),
                 PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,

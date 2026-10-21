@@ -529,7 +529,7 @@ public sealed partial class GameEngine
         if (sourceSkillId is not null && sourceSkillId != frame.SkillId &&
             !HasRuntimeSkillInstance(owner, sourceSkillId, GetRuntimeSkillInstanceId(owner, sourceSkillId)))
             throw new InvalidOperationException("Maximum-HP attribution requires the owner's actual source skill instance.");
-        owner.MaxHp = Math.Max(1, checked(owner.MaxHp + amount));
+        owner.MaxHp = HasWushuangTactic(owner.Seat, 2020) ? 7 : Math.Max(1, checked(owner.MaxHp + amount));
         owner.Hp = Math.Min(owner.Hp, owner.MaxHp);
         AdvanceEventRulesAndQueueFact(new MaximumHpChangedEvent(
             owner.Seat,
@@ -620,6 +620,10 @@ public sealed partial class GameEngine
     private bool IsValidProgramJudgmentContinuation(JudgmentFrame pending,
         ProgramSkillFrame? frame)
     {
+        if (frame?.ShenZhangFei is not null) return IsShenZfJudgment(pending, frame);
+        if (frame?.ShenGuoJia is not null) return IsShenGuoJiaJudgment(pending, frame);
+        if (frame?.WushuangCombat is { TacticId: 2019 })
+            return pending.ParentFrameId == frame.Id && IsWushuangLightningJudgment(frame, pending.TargetSeat, pending.Reason, pending.ProgramResultBind!, pending.ProgramResultVisibility ?? SkillProgramCardSetVisibility.Private);
         if (frame?.MouGuoJia is not null) return IsMouGjJudgment(pending, frame);
         if (frame?.ZhouQun is not null) return IsNingwuJudgment(pending, frame);
         if (frame?.MaYuanYi is not null) return IsBinghuoJudgment(pending, frame);
@@ -648,6 +652,12 @@ public sealed partial class GameEngine
     private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
         string reason, string resultBind, SkillProgramCardSetVisibility visibility)
     {
+        if (frame.ShenZhangFei is not null)
+            return CanBeginShenZfJudgment(frame, targetSeat, reason, resultBind, visibility);
+        if (frame.ShenGuoJia is not null)
+            return CanBeginShenGuoJiaJudgment(frame, targetSeat, reason, resultBind, visibility);
+        if (frame.WushuangCombat is { TacticId: 2019 })
+            return IsWushuangLightningJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (frame.MouGuoJia is not null)
             return MouGjJudgmentRequest(frame, targetSeat, reason, resultBind, visibility);
         if (frame.ZhouQun is not null)
@@ -1312,7 +1322,7 @@ public sealed partial class GameEngine
         var takenSeats = new List<int>();
         foreach (var target in _players
                      .Where(player => player.IsAlive && player.Seat != ownerSeat)
-                     .OrderBy(player => (player.Seat - ownerSeat + _playerCount) % _playerCount))
+                     .OrderBy(player => RelativeTableOrder(ownerSeat, player.Seat)))
         {
             var candidates = zones
                 .SelectMany(zone => zone switch
@@ -2147,13 +2157,17 @@ public sealed partial class GameEngine
                 var plan = ProgramInstructionResolver.Default.Resolve(program,
                     ProgramInstructionSourceKind.Trigger, candidate.BindingId);
                 var trigger = plan.Trigger!;
-                return !IsPhaseNamePredictionResolver(candidate, program) && !trigger.DeferredTurnEndOnly && (!IsPhaseHandDebtResolver(candidate) || CurrentPhaseHandSeizureDebt(candidate.OwnerSeat, candidate.SkillId, candidate.SkillInstanceId, candidate.GameplayHash, candidate.BindingId) is not null) && (trigger.EvaluateConditionAtResolution || trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) &&
+                return !IsPhaseNamePredictionResolver(candidate, program) && !trigger.DeferredTurnEndOnly && (!IsPhaseHandDebtResolver(candidate) || CurrentPhaseHandSeizureDebt(candidate.OwnerSeat, candidate.SkillId, candidate.SkillInstanceId, candidate.GameplayHash, candidate.BindingId) is not null) && (trigger.EvaluateConditionAtResolution || trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId) || IsAwakeningProgramConditionOverridden(new(owner, program, plan, candidate, null))) &&
                     HasInitialOwnedCardSelectionCandidates(owner, trigger) &&
                     ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.Collection,
                         new(owner, program, plan, candidate, null));
             })
             .ToArray();
     }
+
+    private bool IsAwakeningProgramConditionOverridden(ProgramTriggerLegalityContext context) =>
+        (_contentRegistry.GetSkill(context.SkillId).Tags & SkillTag.Awakening) != 0 &&
+        ProgramLegality.OverridesAwakeningCondition(context);
 
     private bool HasInitialOwnedCardSelectionCandidates(CharacterState owner, SkillProgramTrigger trigger)
     {
@@ -2277,7 +2291,7 @@ public sealed partial class GameEngine
         if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.BeforeCondition, legality)) return false;
         if (trigger.NoDyingAtActivation && (ActiveDying is not null || _players.Any(p => p.IsAlive && p.Hp <= 0))) return false;
         if (!ProgramLegality.CanTrigger(ProgramTriggerLegalityPhase.AfterDyingCheck, legality)) return false;
-        if (!trigger.Condition.Evaluate(trigger.EvaluateConditionAtResolution ? CaptureProgramTriggerFacts(owner) : context.Facts ?? CaptureProgramTriggerFacts(owner),
+        if (!IsAwakeningProgramConditionOverridden(legality) && !trigger.Condition.Evaluate(trigger.EvaluateConditionAtResolution ? CaptureProgramTriggerFacts(owner) : context.Facts ?? CaptureProgramTriggerFacts(owner),
                 candidate.SkillId, candidate.SkillInstanceId))
             return false;
         if (!HasInitialOwnedCardSelectionCandidates(owner, trigger)) return false;
@@ -2381,7 +2395,7 @@ public sealed partial class GameEngine
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat ||
                  IsYanPuDrawContext(candidate, context) || IsGuanduForeignDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
-            SkillProgramTriggerWindow.DyingExited => IsMouJiangWeiFuzhanExitContext(candidate, context) || IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context),
+            SkillProgramTriggerWindow.DyingExited => IsMouJiangWeiFuzhanExitContext(candidate, context) || IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context) || IsWushuangDyingExitContext(candidate, context),
             SkillProgramTriggerWindow.CardEffectBeforeApply => CanRunCardEffectCandidate(candidate, context),
             SkillProgramTriggerWindow.AfterTurnEnded =>
                 CanRunAfterTurnEndedCandidate(candidate, context, trigger),
@@ -2469,7 +2483,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.OtherActualTurnStarted => CanRunForeignActualTurnContest(candidate, context),
             SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged =>
                 context.HpChange is { } change &&
-                (IsShenwuJicaiTrigger(trigger) ? IsShenwuRecoveryCandidate(candidate, context) : IsNianRecoveryTrigger(trigger) ? IsNianRecoveryCandidate(candidate, context) : IsYintianRecoveryTrigger(trigger) ? CanRunYintianRecovery(candidate, context) : IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : IsSpSunShangxiangLiangzhuTrigger(trigger) ? CanRunSpSunShangxiangLiangzhu(candidate, context) : IsMouCyForeignHealthCandidate(candidate, context) || change.TargetSeat == owner.Seat) && change.Amount > 0 &&
+                (candidate.SkillId == BChunlao ? change.Kind == HpChangeKind.Loss && _cardZones.Count(CardLocation.Chunlao(owner.Seat)) > 0 : IsShenwuJicaiTrigger(trigger) ? IsShenwuRecoveryCandidate(candidate, context) : IsNianRecoveryTrigger(trigger) ? IsNianRecoveryCandidate(candidate, context) : IsYintianRecoveryTrigger(trigger) ? CanRunYintianRecovery(candidate, context) : IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : IsSpSunShangxiangLiangzhuTrigger(trigger) ? CanRunSpSunShangxiangLiangzhu(candidate, context) : IsMouCyForeignHealthCandidate(candidate, context) || change.TargetSeat == owner.Seat) && change.Amount > 0 &&
                 _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
                 hpWindow.Id == context.ParentFrameId && hpWindow.Change == change &&
                 hpWindow.Candidates[hpWindow.CandidateIndex] == candidate,
@@ -3017,7 +3031,7 @@ public sealed partial class GameEngine
         var candidates = participants.SelectMany(player =>
                 CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.RoundStarting,
                     participantFacts[player.Seat]))
-            .OrderBy(candidate => (candidate.OwnerSeat - turnOwner.Seat + _players.Count) % _players.Count)
+            .OrderBy(candidate => RelativeTableOrder(turnOwner.Seat, candidate.OwnerSeat))
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
@@ -3053,7 +3067,7 @@ public sealed partial class GameEngine
                         (player.Seat == turnOwner.Seat
                             ? SkillProgramTurnOwnerScope.Own
                             : SkillProgramTurnOwnerScope.OtherLiving)))
-            .OrderBy(candidate => (candidate.OwnerSeat - turnOwner.Seat + _players.Count) % _players.Count)
+            .OrderBy(candidate => RelativeTableOrder(turnOwner.Seat, candidate.OwnerSeat))
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal)
@@ -3089,7 +3103,7 @@ public sealed partial class GameEngine
             if (!candidates.Contains(issued)) candidates.Add(issued);
         foreach (var issued in IssuedMouCaoHongPlayEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
-        var orderedCandidates = candidates.OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
+        var orderedCandidates = candidates.OrderBy(candidate => RelativeTableOrder(owner.Seat, candidate.OwnerSeat))
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
@@ -3122,7 +3136,7 @@ public sealed partial class GameEngine
         if (extra.Length == 0) return existing;
         participants = new System.Collections.ObjectModel.ReadOnlyDictionary<int, SkillProgramTriggerFacts>(facts);
         return Array.AsReadOnly(existing.Concat(extra).Distinct().OrderByDescending(candidate => candidate.Priority)
-            .ThenBy(candidate => (candidate.OwnerSeat - subject.Seat + _playerCount) % _playerCount)
+            .ThenBy(candidate => RelativeTableOrder(subject.Seat, candidate.OwnerSeat))
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal).ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray());
     }
 
@@ -3214,7 +3228,7 @@ public sealed partial class GameEngine
                     participantFacts[player.Seat])
                     .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
                         (player.Seat == owner.Seat ? SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving)))
-            .OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
+            .OrderBy(candidate => RelativeTableOrder(owner.Seat, candidate.OwnerSeat))
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
@@ -3249,7 +3263,7 @@ public sealed partial class GameEngine
                     .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
                         (player.Seat == phaseOwner.Seat ? SkillProgramTurnOwnerScope.Own :
                             SkillProgramTurnOwnerScope.OtherLiving)))
-            .OrderBy(candidate => (candidate.OwnerSeat - phaseOwner.Seat + _players.Count) % _players.Count)
+            .OrderBy(candidate => RelativeTableOrder(phaseOwner.Seat, candidate.OwnerSeat))
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
@@ -3304,7 +3318,7 @@ public sealed partial class GameEngine
         AppendLianjuEndingItems(items);
         _programPipelineHooks.AppendTurnEndingItems(items);
         var ordered = items
-            .OrderBy(item => (((item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value) - owner.Seat + _players.Count) % _players.Count))
+            .OrderBy(item => RelativeTableOrder(owner.Seat, item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value))
             .ThenByDescending(item => item.Priority)
             .ThenBy(item => item.StableIdentity, StringComparer.Ordinal)
             .ToArray();
@@ -3433,7 +3447,7 @@ public sealed partial class GameEngine
                             : player.Seat == owner.Seat ? null : playerFacts));
             }).ToList();
         var ordered = items
-            .OrderBy(item => ((item.Candidate!.OwnerSeat - owner.Seat + _players.Count) % _players.Count))
+            .OrderBy(item => (RelativeTableOrder(owner.Seat, item.Candidate!.OwnerSeat)))
             .ThenByDescending(item => item.Priority)
             .ThenBy(item => item.StableIdentity, StringComparer.Ordinal)
             .ToArray();

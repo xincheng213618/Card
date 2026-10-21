@@ -1,11 +1,11 @@
-using System.Globalization;
+﻿using System.Globalization;
 namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
     private bool TryBeginExtraForeignSelection(NullificationWindowFrame pending, CharacterState target)
     {
-        if (!(IsExtraCardEffectRound(pending.ParentFrameId) || IsLeChengyanEffectUse(pending.ParentFrameId)) || pending.ActionKind is not (LegalActionKind.Snatch or LegalActionKind.Dismantlement)) return false;
+        if (!(IsExtraCardEffectRound(pending.ParentFrameId) || IsLeChengyanEffectUse(pending.ParentFrameId) || IsWushuangExtraForeignSelection(pending.ParentFrameId)) || pending.ActionKind is not (LegalActionKind.Snatch or LegalActionKind.Dismantlement)) return false;
         var use = LifecycleCardUse(pending.ParentFrameId)!;
         var hand = GetHand(target); var slots = new List<ExtraForeignCardSlot>();
         slots.AddRange(Enumerable.Range(0, hand.Count).Select(slot => new ExtraForeignCardSlot(slot, null, null)));
@@ -16,12 +16,14 @@ public sealed partial class GameEngine
             slots.Add(new(slots.Count, card.Id, location));
         }
         if (slots.Count == 0) { SkipUnavailableTargetCardEffect(pending, target, CardEffectSkipReason.PublicTargetMissing); return true; }
-        var receipt = new ExtraForeignCardSelection(use.Action!.ActionId, hand.Count, Array.AsReadOnly(slots.ToArray()));
+        var allowFinish = IsWushuangExtraForeignSelection(use.Id);
+        if (allowFinish) slots.Add(new(slots.Count, null, null));
+        var receipt = new ExtraForeignCardSelection(use.Action!.ActionId, hand.Count, Array.AsReadOnly(slots.ToArray())) { AllowFinish = allowFinish };
         SetCardUseStep(use.Id, ResolutionFrameStep.AwaitingResponse);
         PushRuntimeFrame(new TargetCardSelectionFrame(++_resolutionSequence, use.Id, use.SourceSeat, target.Seat, use.CardId,
             LeChengyanNativeEffectKind(use), pending.ActionKind, Array.AsReadOnly(slots.Select(slot => slot.Slot).ToArray())) { ExtraForeignSelection = receipt });
         var choices = slots.Select(slot => new PromptChoice(new($"extra-effect.foreign.{use.Id}.{slot.Slot}"),
-            slot.PublicCardId is { } cardId ? $"选择 {target.Name} 的【{GetAttackCard(cardId).DisplayName}】" : $"选择 {target.Name} 的一张暗牌（牌位 {slot.Slot + 1}）",
+            allowFinish && slot.Slot == slots.Count - 1 ? "结束额外弃置" : slot.PublicCardId is { } cardId ? $"选择 {target.Name} 的【{GetAttackCard(cardId).DisplayName}】" : WushuangHasVisibleTargetHand(use.SourceSeat, pending.EffectCardKind) ? $"选择【{hand[slot.Slot].DisplayName}】（{hand[slot.Slot].RankText}）" : $"选择 {target.Name} 的一张暗牌（牌位 {slot.Slot + 1}）",
             slot.PublicCardId is { } visible ? [visible] : [], [target.Seat], new Dictionary<string, string> {
                 ["action"] = "target-card-slot", ["slot-index"] = slot.Slot.ToString(CultureInfo.InvariantCulture) })).ToArray();
         _pendingDecision = new(DecisionKind.SelectTargetCard, use.SourceSeat, "选择目标区域的一张牌。", [], [target.Seat], use.SourceSeat, LeChengyanNativeEffectKind(use))
@@ -33,7 +35,7 @@ public sealed partial class GameEngine
     {
         if (pending.ExtraForeignSelection is not { } r) return false;
         if (_resolutionStack.LastOrDefault()?.Id != pending.Id || LifecycleCardUse(pending.ParentFrameId) is not { Action: { } action } use ||
-            action.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id)) || GetHand(_players[pending.TargetSeat]).Count != r.HandCount ||
+            action.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id) || IsWushuangExtraForeignSelection(use.Id)) || GetHand(_players[pending.TargetSeat]).Count != r.HandCount ||
             r.Slots.SingleOrDefault(s => s.Slot == slot) is not { } selected)
             throw new InvalidOperationException("Extra foreign selection lost its current slot or actual use.");
         var target = _players[pending.TargetSeat]; Card chosen; CardLocation from;
@@ -45,6 +47,8 @@ public sealed partial class GameEngine
             if (pending.ActionKind == LegalActionKind.Dismantlement && IsForeignEquipmentDiscardPrevented(use.SourceSeat, chosen, from, OwnedCardMoveIntent.Discard))
                 throw new InvalidOperationException("Extra foreign selection cannot discard protected equipment.");
         }
+        else if (r.AllowFinish && slot == r.Slots.Count - 1)
+        { PopResolutionFrame(pending.Id, ResolutionFrameKind.TargetCardSelection); SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect); FinishWushuangTargetCards(use); return true; }
         else { chosen = GetHand(target)[slot]; from = CardLocation.Hand(target.Seat); }
         var card = GetTrickRepresentation(use.Id, use.CardId, true);
         PopResolutionFrame(pending.Id, ResolutionFrameKind.TargetCardSelection); SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect);
@@ -60,15 +64,17 @@ public sealed partial class GameEngine
     {
         if (pending.ExtraForeignSelection is not { } r) return false;
         var use = LifecycleCardUse(pending.ParentFrameId);
-        if (_resolutionStack.LastOrDefault()?.Id != pending.Id || use?.Action?.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id)) ||
+        if (_resolutionStack.LastOrDefault()?.Id != pending.Id || use?.Action?.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id) || IsWushuangExtraForeignSelection(use.Id)) ||
             pending.ActionKind is not (LegalActionKind.Snatch or LegalActionKind.Dismantlement) ||
             pending.SourceSeat != use.SourceSeat || pending.EffectCardId != use.CardId || pending.EffectCardKind != LeChengyanNativeEffectKind(use) ||
             GetHand(_players[pending.TargetSeat]).Count != r.HandCount ||
             !pending.CandidateSlots.SequenceEqual(r.Slots.Select(s => s.Slot)) || r.Slots.Count == 0 ||
             !r.Slots.Select(s => s.Slot).SequenceEqual(Enumerable.Range(0, r.Slots.Count)) ||
             r.Slots.Take(r.HandCount).Any(s => s.PublicCardId is not null || s.PublicLocation is not null) ||
-            r.Slots.Skip(r.HandCount).Any(s => s.PublicCardId is not { } id || s.PublicLocation is not { } location ||
+            r.Slots.Skip(r.HandCount).Where(s => !r.AllowFinish || s.Slot != r.Slots.Count - 1).Any(s => s.PublicCardId is not { } id || s.PublicLocation is not { } location ||
                 location.OwnerSeat != pending.TargetSeat || location.Zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment) || _cardZones.GetLocation(id) != location) ||
+            r.AllowFinish != IsWushuangExtraForeignSelection(use.Id) ||
+            r.AllowFinish && r.Slots[^1] is not { PublicCardId: null, PublicLocation: null } ||
             decision is not { Kind: DecisionKind.SelectTargetCard, IsPrivate: true } || decision.PlayerSeat != pending.SourceSeat ||
             decision.SourceSeat != pending.SourceSeat || decision.TargetSeat != pending.TargetSeat || decision.ValidCardIds.Count != 0 ||
             !decision.ValidTargetSeats.SequenceEqual([pending.TargetSeat]) || decision.Choices.Count != r.Slots.Count ||

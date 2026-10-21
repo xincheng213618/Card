@@ -23,7 +23,7 @@
       ],
       "triggers": [
         {
-          "id": "initial-polarity",
+          "id": "initial-polarity", "isSkillInvocation": false,
           "window": "gameStarting",
           "subject": "owner",
           "optional": false,

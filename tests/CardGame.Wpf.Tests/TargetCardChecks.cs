@@ -22,10 +22,9 @@ internal static class TargetCardChecks
             var targetBefore = engine.CreateSnapshot(targetSeat, revealAll: true)
                 .Players.Single(player => player.Seat == targetSeat);
 
-            viewModel.SelectCardCommand.Execute(viewModel.Hand.Single(card => card.Id == action.CardId));
-            viewModel.SelectTargetCommand.Execute(viewModel.Seats.Single(seat => seat.Seat == targetSeat));
-            Program.Assert(viewModel.CanConfirmSelected, "Target-card action did not reach the confirmation boundary.");
-            viewModel.PlaySelectedCardCommand.Execute(null);
+            Program.Assert(engine.Submit(new PlayCardCommand(engine.State.HumanSeat, action.CardId!.Value,
+                action.TargetSeats, engine.Revision, engine.PendingDecision!.PromptId)).Accepted,
+                "The legacy native target-card prompt could not be opened.");
             Program.AdvanceToDecision(viewModel);
 
             Program.Assert(viewModel.IsTargetCardSelectionPending, "WPF did not expose the private target-card prompt.");
@@ -104,9 +103,10 @@ internal static class TargetCardChecks
     public static void OnlyHandCard(string output)
     {
         foreach (var effect in new[] { "standard:dismantlement", "standard:snatch" })
+        foreach (var handCount in new[] { 1, 2 })
         {
             var (game, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture(effect, "standard:bagua");
-            while (game.CreateSnapshot(0).Players[1].HandCount > 1)
+            while (game.CreateSnapshot(0).Players[1].HandCount > handCount)
             {
                 Accept(new UseProgramSkillCommand(0, "fixture:published-play-choice-driver", "strip", [], [1],
                     game.Revision, game.PendingDecision!.PromptId));
@@ -114,65 +114,68 @@ internal static class TargetCardChecks
                 Accept(new AnswerPromptCommand(0, game.PendingDecision.PromptId, choice.Id, game.Revision));
                 ReachPlay();
             }
-            var handCard = game.CreateSnapshot(0, revealAll: true).Players[1].Hand.Single();
-            var armorId = game.CreateSnapshot(0).Players[1].Equipment.Single().Id;
+            if (handCount == 2)
+            {
+                var armor = game.CreateSnapshot(0).Players[1].Equipment.Single().Id;
+                Accept(new UseProgramSkillCommand(0, "fixture:published-play-choice-driver", "strip", [], [1],
+                    game.Revision, game.PendingDecision!.PromptId));
+                var choice = game.PendingDecision!.Choices.Single(candidate => candidate.Cards.SequenceEqual([armor]));
+                Accept(new AnswerPromptCommand(0, game.PendingDecision.PromptId, choice.Id, game.Revision));
+                ReachPlay();
+            }
+            var handCard = game.CreateSnapshot(0, revealAll: true).Players[1].Hand.Last();
+            var equipmentIds = game.CreateSnapshot(0).Players[1].Equipment.Select(card => card.Id).ToArray();
             var store = new MemorySaveStore();
             store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
             using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry)
                 { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
             model.LoadManualGameCommand.Execute(null);
             game = Program.Engine(model);
-            ChooseHand();
-            var retired = game;
-            var oldPrompt = model.TargetCardChoices.Single();
-            var retiredRevision = retired.Revision;
-            // Loading a replacement before the callback runs must retire its work.
-            model.LoadManualGameCommand.Execute(null);
-            game = Program.Engine(model);
-            var replacementRevision = game.Revision;
-            Pump();
-            Program.Assert(retired.Revision == retiredRevision && game.Revision == replacementRevision,
-                "A queued sole-card answer must not affect a replaced game or its retired prompt.");
-
             var commandsBefore = game.AcceptedCommands.Count;
-            ChooseHand();
+            var oldChoice = ChooseHand();
             Pump();
             Program.AdvanceToDecision(model);
             var newCommands = game.AcceptedCommands.Skip(commandsBefore).ToArray();
             Program.Assert(newCommands.Count(command => command is PlayCardCommand) == 1 &&
-                newCommands.Count(command => command is AnswerPromptCommand) == 1 &&
+                newCommands.All(command => command is not AnswerPromptCommand) &&
                 !model.IsTargetCardSelectionPending && !model.HasTargetCardPicker && !model.HasSelection &&
-                game.CreateSnapshot(0).Players[1].HandCount == 0 &&
-                game.CreateSnapshot(0).Players[1].Equipment.Single().Id == armorId &&
+                game.CreateSnapshot(0).Players[1].HandCount == handCount - 1 &&
+                game.CreateSnapshot(0).Players[1].Equipment.Select(card => card.Id).SequenceEqual(equipmentIds) &&
                 game.CardMovements.Count(move => move.CardId == handCard.Id && move.From == CardLocation.Hand(1)) == 1 &&
                 (effect == "standard:snatch"
                     ? game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == handCard.Id)
                     : game.CardMovements.Any(move => move.CardId == handCard.Id && move.To == CardLocation.DiscardPile)),
-                "Clicking the only hand card must finish exactly one native use and answer without a second picker or touching equipment.");
+                "Clicking any concrete hand back must finish one native use without an answer or second picker, preserving equipment.");
             var completedRevision = game.Revision;
-            model.SelectTargetCardChoiceCommand.Execute(oldPrompt);
+            model.SelectPublicTargetChoiceCommand.Execute(oldChoice);
             Pump();
             Program.Assert(game.Revision == completedRevision,
                 "A retired sole-card callback or choice must not repeat a completed target effect.");
             var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
             Program.Assert(SnapshotJson.Serialize(game.CreateSnapshot(0)) == SnapshotJson.Serialize(restored.CreateSnapshot(0)),
-                "The automatic sole opaque choice must remain a normal replayable answer command.");
+                "The chosen opaque slot must remain part of the replayable Play command.");
             var window = new MainWindow(model);
-            try { Program.Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, $"target-only-hand-finished-{effect.Split(':')[1]}.png")); }
+            try { Program.Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, $"target-direct-hand-finished-{effect.Split(':')[1]}-{handCount}.png")); }
             finally { window.Content = null; window.Close(); }
 
-            void ChooseHand()
+            PromptChoice ChooseHand()
             {
                 var action = game.GetHumanLegalActions().First(candidate => candidate.TargetSeat == 1 && candidate.TargetCardId is null &&
                     candidate.Kind is LegalActionKind.Dismantlement or LegalActionKind.Snatch);
                 model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == action.CardId));
                 model.SelectTargetCommand.Execute(model.Seats.Single(seat => seat.Seat == 1));
-                Program.Assert(model.TargetCardRegions.Single(region => region.Zone == CardZoneKind.Hand).Hint == "1 张暗牌 · 点击选择",
-                    "A sole hand card must advertise selection instead of another expansion step.");
-                model.SelectPublicTargetChoiceCommand.Execute(model.PublicTargetChoices.Single(choice => !choice.Parameters.ContainsKey("target-card-id")));
+                var choices = model.TargetCardRegions.Single(region => region.Zone == CardZoneKind.Hand).Choices;
+                Program.Assert(choices.Count == handCount && choices.All(choice => choice.Parameters.ContainsKey("target-hand-slot")),
+                    "The hand region must expose one opaque selection per current hand card.");
+                Program.Assert(model.TargetCardRegions.Select(region => region.Zone).SequenceEqual(equipmentIds.Length == 0
+                    ? [CardZoneKind.Hand] : new[] { CardZoneKind.Hand, CardZoneKind.Equipment }),
+                    "Empty equipment and judgment regions must be absent from the same concrete-card picker.");
+                var selected = choices.Last();
+                model.SelectPublicTargetChoiceCommand.Execute(selected);
                 Program.AdvanceToDecision(model);
-                Program.Assert(model.IsTargetCardSelectionPending && model.TargetCardChoices.Count == 1,
-                    "The shortcut must use the real native effect-time prompt before answering after commit.");
+                Program.Assert(!model.IsTargetCardSelectionPending,
+                    "A concrete hand selection must not reopen the native picker.");
+                return selected;
             }
             void Accept(GameCommand command)
             {
@@ -189,6 +192,77 @@ internal static class TargetCardChecks
     }
 
     private static void Pump() => Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+
+    public static void MultiTakeConfirmsOnce(string output)
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new MultiTakeFixture());
+        var game = GameEngine.CreateStandard(new GameOptions { Seed = 7, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
+            ModeId = "fixture:multi-take", UseInteractiveSetup = true, AdvanceAfterHumanCommands = false }, registry);
+        Program.Assert(game.Submit(new StartGameCommand()).Accepted, "Could not start the multi-take fixture.");
+        Program.Assert(game.Submit(new SelectGeneralCommand(0, "fixture:multi-take-owner", game.Revision, game.PendingDecision!.PromptId)).Accepted,
+            "Could not select the multi-take owner.");
+        for (var step = 0; step < 48 && game.PendingDecision?.SkillPrompt?.SkillId != "fixture:multi-take-driver"; step++)
+            Program.Assert(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Could not reach the actual draw-end take window.");
+        var targetChoice = game.PendingDecision!.Choices.Single(choice => choice.Targets.SequenceEqual([1]));
+        Program.Assert(game.Submit(new AnswerPromptCommand(0, game.PendingDecision.PromptId, targetChoice.Id, game.Revision)).Accepted,
+            "Could not select the private hand owner.");
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+        using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry) { IsMotionEnabled = false };
+        model.LoadManualGameCommand.Execute(null);
+        game = Program.Engine(model);
+        var targetBefore = game.CreateSnapshot(1).Players[1].HandCount;
+        var sourceBefore = game.CreateSnapshot(0).Players[0].HandCount;
+        var revision = game.Revision;
+        var choices = model.TargetCardRegions.Single().Choices.Take(2).ToArray();
+        Program.Assert(model.IsForeignCardTakeSelectionPending && choices.Length == 2 && !model.CanConfirmSelected &&
+            model.TargetCardRegions.Single().Zone == CardZoneKind.Hand, "A multi-take must show only its hand region and wait for selection.");
+        model.SelectSkillChoiceCommand.Execute(choices[0]);
+        Program.Assert(game.Revision == revision && !model.CanConfirmSelected, "Selecting the first take card must not move it or confirm an incomplete set.");
+        model.SelectSkillChoiceCommand.Execute(choices[1]);
+        Program.Assert(game.Revision == revision && model.CanConfirmSelected && model.SelectedTargetCardIds.Count == 2,
+            "Selecting the full take set must still wait for one explicit confirmation.");
+        model.ClearSelectionCommand.Execute(null);
+        Program.Assert(model.SelectedTargetCardIds.Count == 0 && !model.CanConfirmSelected && game.Revision == revision,
+            "Clearing a multi-take must retire the local draft without taking any card.");
+        model.SelectSkillChoiceCommand.Execute(choices[0]);
+        model.SelectSkillChoiceCommand.Execute(choices[1]);
+        var window = new MainWindow(model);
+        try { Program.Render((FrameworkElement)window.Content, 1120, 740, Path.Combine(output, "target-multi-take-selected.png")); }
+        finally { window.Content = null; window.Close(); }
+        model.ConfirmSelectedCommand.Execute(null);
+        Program.AdvanceToDecision(model);
+        Program.Assert(game.CreateSnapshot(1).Players[1].HandCount == targetBefore - 2 &&
+            game.CreateSnapshot(0).Players[0].HandCount == sourceBefore + 2 && !model.HasTargetCardPicker &&
+            !model.IsForeignCardTakeSelectionPending, "One confirmation must obtain both selected cards and close the picker.");
+        var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+        Program.Assert(SnapshotJson.Serialize(game.CreateSnapshot(0)) == SnapshotJson.Serialize(restored.CreateSnapshot(0)),
+            "The shared multi-take confirmation must replay through the original selection commands.");
+    }
+
+    private sealed class MultiTakeFixture : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture-multi-take", new(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var catalog = SkillProgramCatalog.Load($$"""
+                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:multi-take-driver","revision":1,"triggers":[
+                  {"id":"take-two","window":"drawPhaseEnded","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[
+                    {"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
+                    {"op":"viewAndTakeSelectedTargetHand","target":"selectedTarget","amount":2}]}]}]}
+                """, System.Text.Json.JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
+                    skills = new Dictionary<string, object> { ["fixture:multi-take-driver"] = new { name = "取两张牌", description = "实际结束摸牌后的观看与取得。" } } }));
+            builder.AddSkill(new("fixture:multi-take-driver", "取两张牌", "实际取得两张目标手牌") { Program = catalog.Programs["fixture:multi-take-driver"] });
+            builder.AddGeneral(new("fixture:multi-take-owner", "取牌者", "supporter", "fixture:multi-take-driver", "wei", 4));
+            var peers = Enumerable.Range(1, 3).Select(seat => $"fixture:multi-take-peer-{seat}").ToArray();
+            foreach (var peer in peers) builder.AddGeneral(new(peer, peer, "supporter", "standard:none", "wei", 4));
+            builder.AddDeck(new("fixture:multi-take-deck", "取牌测试", 4, 0, []) { PhysicalCards = Enumerable.Range(0, 56)
+                .Select(_ => new ContentDeckPhysicalCard("standard:dodge", Suit.Spade, 7)).ToArray() });
+            builder.AddMode(new("fixture:multi-take", "取牌测试", 4, 4,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 }, "fixture:multi-take-deck",
+                GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:multi-take-owner", .. peers]));
+        }
+    }
 
     private static void RegionChoices(string output)
     {
@@ -225,7 +299,7 @@ internal static class TargetCardChecks
                     panel.Visibility == Visibility.Collapsed && engine.Revision == revision,
                     "Deselecting the target must close its region choices and retire their commands.");
                 model.SelectTargetCommand.Execute(targetSeat);
-                var handChoice = model.PublicTargetChoices.Single(choice => !choice.Parameters.ContainsKey("target-card-id"));
+                var handChoice = model.PublicTargetChoices.Last(choice => !choice.Parameters.ContainsKey("target-card-id"));
                 var armorChoice = model.PublicTargetChoices.Single(choice => choice.Parameters.GetValueOrDefault("target-card-id") == armor.Id.ToString());
                 Program.Assert(model.PublicTargetChoices.All(choice => choice.Targets.SequenceEqual([targetSeat.Seat])) &&
                     !model.CanConfirmSelected && !model.CanPlaySelected && !model.CanPlaySelectedAsSlash,
@@ -267,18 +341,10 @@ internal static class TargetCardChecks
                 Program.Assert(engine.AcceptedCommands.Last(command => command is PlayCardCommand) is PlayCardCommand paid &&
                     paid.CardId == action.CardId && paid.TargetSeats.SequenceEqual([1]) &&
                     paid.TargetCardId == (chooseHand ? (int?)null : armor.Id), "The region choice submitted a different physical target.");
-                if (chooseHand)
-                {
-                    Program.Assert(model.IsTargetCardSelectionPending && model.TargetCardChoices.Count == handBefore &&
-                        model.TargetCardChoices.All(choice => choice.Cards.Count == 0),
-                        "The explicit hand option must preserve the native private opaque-slot prompt.");
-                    var revisionBeforePump = engine.Revision;
-                    Pump();
-                    Program.Assert(handBefore > 1 && model.IsTargetCardSelectionPending && engine.Revision == revisionBeforePump,
-                        "Several opaque cards must remain a human choice instead of silently picking one.");
-                    model.SelectTargetCardChoiceCommand.Execute(model.TargetCardChoices.Last());
-                    Program.AdvanceToDecision(model);
-                }
+                Program.Assert(!model.IsTargetCardSelectionPending &&
+                    engine.AcceptedCommands.Last(command => command is PlayCardCommand) is PlayCardCommand selectedPlay &&
+                    selectedPlay.TargetHandSlot == (chooseHand ? handBefore - 1 : (int?)null),
+                    "A direct region selection must carry its opaque slot in the Play command and never reopen a picker.");
                 var target = engine.CreateSnapshot(0).Players[1];
                 Program.Assert(target.HandCount == handBefore - (chooseHand ? 1 : 0) &&
                     target.Equipment.Any(card => card.Id == armor.Id) == chooseHand && engine.State.ProcessingCardCount == 0,

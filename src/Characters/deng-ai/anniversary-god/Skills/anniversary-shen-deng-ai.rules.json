@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary-god:tuoyu", "revision": 1, "triggers": [
+      { "id": "initialize-domains", "isSkillInvocation": false, "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "initializeShenDengAiTuoYu", "target": "owner" }] },
+      { "id": "allocate-play-start", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+        "effects": [{ "op": "allocateShenDengAiTuoYu", "target": "owner" }] },
+      { "id": "allocate-play-end", "window": "playEnding", "subject": "owner", "optional": false,
+        "effects": [{ "op": "allocateShenDengAiTuoYu", "target": "owner" }] }
+    ] },
+    { "id": "anniversary-god:xianjin", "revision": 1, "triggers": [
+      { "id": "two-damage-occurrences", "window": "afterDamageApplied", "subject": "any", "optional": false, "damageOccurrence": "perDamage",
+        "effects": [{ "op": "developShenDengAiXianjin", "target": "owner" }] }
+    ] },
+    { "id": "anniversary-god:qijing", "revision": 1, "triggers": [
+      { "id": "all-domains-developed", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false,
+        "effects": [
+          { "op": "awakenShenDengAiQijing", "target": "owner" },
+          { "op": "changeMaximumHp", "target": "owner", "amount": -1 },
+          { "op": "grantSkills", "target": "owner", "skillIds": ["anniversary-god:cuixin"] },
+          { "op": "awakenShenDengAiQijing", "target": "owner" }
+        ] }
+    ] },
+    { "id": "anniversary-god:cuixin", "revision": 1, "triggers": [
+      { "id": "repeat-neighbor-hand-use", "window": "cardUseCompleted", "ownerRelation": "actor", "optional": false,
+        "effects": [{ "op": "repeatShenDengAiCuixin", "target": "owner" }] }
+    ] }
+  ]
+}

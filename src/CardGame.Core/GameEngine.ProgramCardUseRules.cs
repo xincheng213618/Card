@@ -134,7 +134,7 @@ public sealed partial class GameEngine
         if (maximum <= existingMaximum) return;
 
         var orderedTargets = legalTargets
-            .OrderBy(player => (player.Seat - actor.Seat + _playerCount) % _playerCount)
+            .OrderBy(player => RelativeTableOrder(actor.Seat, player.Seat))
             .ToArray();
         var skillNames = GetSkillBindingShard(actor)!
             .GetNumericModifiers(SkillRuleQuery.CardTargetCount)

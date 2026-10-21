@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:huishi",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "judgment-chain",
+          "targetKind": "anyLiving",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveShenGuoJiaHuishi",
+              "target": "owner"
+            }
+          ],
+          "usesPerPhase": 1
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "mobile:tianyi",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "all-living-damaged",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "resolveShenGuoJiaTianyi",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "mobile:huishi-gift",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "grant-awakening",
+          "targetKind": "anyLiving",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveShenGuoJiaHuishiGrant",
+              "target": "owner"
+            }
+          ],
+          "usesPerGame": 1
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "mobile:zuoxing",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "borrow-ordinary-trick",
+          "targetKind": "anyLiving",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveShenGuoJiaZuoxing",
+              "target": "owner"
+            }
+          ],
+          "usesPerPhase": 1
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

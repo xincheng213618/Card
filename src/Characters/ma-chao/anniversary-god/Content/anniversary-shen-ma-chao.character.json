@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-chao",
+  "skills": [
+    { "registrationOrder": 31000, "programBundle": "anniversary-shen-ma-chao", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:shouli", "name": "狩骊", "description": "游戏开始时，从下家开始所有角色随机使用牌堆中的一张坐骑。你可将场上的一张进攻马当【杀】（不计入次数）、防御马当【闪】使用或打出，以此法失去坐骑的其他角色本回合非锁定技失效，你与其本回合受到的伤害+1且改为雷电伤害。", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 31001, "programBundle": "anniversary-shen-ma-chao", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:hengwu", "name": "横骛", "description": "当你使用或打出牌时，若你没有该花色的手牌，你可摸X张牌（X为场上与此牌花色相同的装备数量）。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 31002, "pools": { "current": 31002 }, "definition": {
+      "id": "anniversary:shen-ma-chao", "name": "神马超", "portraitKey": "anniversary-shen-ma-chao", "skillId": "anniversary:shouli",
+      "additionalSkillIds": ["anniversary:hengwu"], "factionId": "god", "gender": "Male", "baseHp": 4,
+      "characterId": "character:ma-chao", "variantId": "anniversary-god", "rulesetId": "sanguosha-anniversary"
+    } }
+  ]
+}

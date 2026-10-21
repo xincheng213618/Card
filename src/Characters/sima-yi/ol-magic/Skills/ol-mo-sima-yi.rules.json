@@ -12,9 +12,14 @@
           "optional": false,
           "condition": {
             "kind": "compare",
-            "left": { "kind": "roundTurnSeatCount" },
+            "left": {
+              "kind": "roundTurnSeatCount"
+            },
             "operator": "equal",
-            "right": { "kind": "integerConstant", "value": 1 }
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
           },
           "effects": [
             {
@@ -596,6 +601,20 @@
           "forResponse": false,
           "extendedUse": true,
           "allowSameKind": true
+        },
+        {
+          "id": "recorded-QizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
         }
       ]
     },

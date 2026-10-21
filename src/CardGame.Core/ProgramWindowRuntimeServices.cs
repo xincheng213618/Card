@@ -18,6 +18,7 @@ internal interface IProgramWindowReturnQueries : IProgramSelectionQuery
     TurnPhase Phase { get; }
     DamageTriggerWindowFrame? ActiveDamageTrigger { get; }
     bool IsCurrentYanPuDyingExitEdge();
+    bool IsWushuangDyingExitReturn(ProgramSkillFrame frame);
     bool MountObserverCandidateMatches(ProgramSkillFrame frame, ProgramTriggerCandidate candidate);
     SkillProgramTrigger GetProgramTrigger(ProgramSkillFrame frame);
     bool ValidBeiMiHuPreludeLifecycleWindow(ProgramLifecycleTriggerWindowFrame frame);
@@ -49,6 +50,7 @@ public sealed partial class GameEngine
         public TurnPhase Phase => engine._phase;
         public DamageTriggerWindowFrame? ActiveDamageTrigger => engine.ActiveDamageTrigger;
         public bool IsCurrentYanPuDyingExitEdge() => engine.IsYanPuDyingExitEdge(engine._resolutionStack.Count - 1);
+        public bool IsWushuangDyingExitReturn(ProgramSkillFrame frame) => engine.IsWushuangDyingExitReturn(frame);
         public bool MountObserverCandidateMatches(ProgramSkillFrame frame, ProgramTriggerCandidate candidate) =>
             RuntimeSkills.RuntimeRules_Core_DamageTargetMountObserver.MountObserverCandidateMatches(frame, candidate);
         public SkillProgramTrigger GetProgramTrigger(ProgramSkillFrame frame) => engine.GetProgramTrigger(frame);

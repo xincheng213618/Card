@@ -142,7 +142,7 @@ public sealed partial class GameEngine
         if (f.MouGuoHuai!.Stage == MouGuoHuaiStage.SelectingCard) return p.Choices.First();
         // Public turn order and normal draw count only; unknown stock is not read.
         var ordinal = f.MouGuoHuai.Predictions.Count + 1; var steps = Math.Clamp((ordinal * 3 + 1) / 2, 1, _players.Count);
-        var alive = _players.Where(x => x.IsAlive).OrderBy(x => (x.Seat - f.OwnerSeat + _players.Count) % _players.Count).ToArray();
+        var alive = _players.Where(x => x.IsAlive).OrderBy(x => RelativeTableOrder(f.OwnerSeat, x.Seat)).ToArray();
         var predicted = alive[steps % alive.Length].Seat;
         return p.Choices.FirstOrDefault(c => c.Targets.SequenceEqual([predicted])) ?? p.Choices.Last();
     }

@@ -93,14 +93,18 @@ internal static class LuoXianChecks
         Play(game);
         Need(V(game, 1).HandCount == count - 1, "The opaque choice must still discard exactly one actual hand card.");
         Concealed();
+        Native(CardKind.Dismantlement, slot: V(game, 1).HandCount - 1);
+        Play(game);
+        Need(V(game, 1).HandCount == count - 2, "A converted Dismantlement must honor the concrete opaque slot without reopening its prompt.");
+        Concealed();
         _ = Cold(game, registry);
 
-        void Native(CardKind kind)
+        void Native(CardKind kind, int? slot = null)
         {
             var action = game.GetHumanLegalActions().First(action => action.PlayedCardKind == kind && action.TargetSeat == 1 &&
                 action.TargetCardId is null && action.ConversionSource?.SkillId == Driver);
             Accept(game, new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, game.Revision, P(game)!.PromptId,
-                action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource });
+                action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource, TargetHandSlot = slot });
         }
         void Concealed()
         {

@@ -43,7 +43,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramCardTriggerCandidate> SoleTargetRedirectCandidates(ProgramCardTriggerWindowFrame frame,
         CardUseFrame use, IReadOnlyList<int> targets) => Array.AsReadOnly(CollectSharedCardActionCandidates(use.Action!,
             SkillProgramTriggerWindow.SlashTargetRedirecting, targets, null, ProgramCardContinuation.SlashTargetRedirecting)
-        .OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId, StringComparer.Ordinal)
+        .OrderByDescending(c => c.Priority).ThenBy(c => RelativeTableOrder(0, c.OwnerSeat)).ThenBy(c => c.SkillId, StringComparer.Ordinal)
         .ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal).ThenBy(c => c.TriggerId, StringComparer.Ordinal)
         .Select(c => c with { FrozenContext = c.FrozenContext! with { ParentFrameId = frame.Id,
             CardUse = c.FrozenContext.CardUse! with { ParentCardUseFrameId = use.Id } } }).ToArray());

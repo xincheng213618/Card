@@ -21,6 +21,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false, long? existingUseFrameId = null) =>
+        IsWushuangMode && !WushuangCatalogue.IsCardAllowed(effectiveKind) ||
         CardLegality.IsUseForbidden(ProgramCardLegalityStage.BeforeIntrinsicUseBan,
             new(actorSeat, effectiveKind, actionType, existingUseFrameId)) ||
         effectiveKind == CardKind.Poison ||
@@ -103,7 +104,7 @@ public sealed partial class GameEngine
             action.Kind is not (LegalActionKind.Slash or LegalActionKind.Peach or
                 LegalActionKind.Duel or LegalActionKind.DrawTwo or LegalActionKind.BarbarianAssault or
                 LegalActionKind.ArrowBarrage or LegalActionKind.PeachGarden or LegalActionKind.FiveGrains or
-                LegalActionKind.WumiaoFlood or LegalActionKind.Dismantlement or LegalActionKind.Snatch or LegalActionKind.FireAttack or LegalActionKind.UnexpectedAssault or
+                LegalActionKind.WumiaoFlood or LegalActionKind.QizhengXiangsheng or LegalActionKind.Dismantlement or LegalActionKind.Snatch or LegalActionKind.FireAttack or LegalActionKind.UnexpectedAssault or
                 LegalActionKind.Alcohol or LegalActionKind.Equip or LegalActionKind.IronChain or
                 LegalActionKind.Indulgence or LegalActionKind.SupplyShortage or LegalActionKind.Lightning or
                 LegalActionKind.BorrowedSword or LegalActionKind.StarShift or LegalActionKind.BeamSwap or

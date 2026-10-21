@@ -23,7 +23,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A Pindian reveal requires its actual complete paid group.");
         var candidates = cards.SelectMany(c => CollectProgramTriggerCandidates(_players[c.Seat],SkillProgramTriggerWindow.PindianCardsRevealed))
             .Where(c => GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe }])
-            .OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId,StringComparer.Ordinal).ThenBy(c => c.SkillInstanceId,StringComparer.Ordinal).ToArray();
+            .OrderByDescending(c => c.Priority).ThenBy(c => RelativeTableOrder(0, c.OwnerSeat)).ThenBy(c => c.SkillId,StringComparer.Ordinal).ThenBy(c => c.SkillInstanceId,StringComparer.Ordinal).ToArray();
         PushRuntimeFrame(new PindianRevealWindowFrame(++_resolutionSequence,parent,simultaneous,cards,candidates));
         ContinuePindianRevealWindow();
     }

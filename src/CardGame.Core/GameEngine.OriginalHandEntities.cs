@@ -81,7 +81,8 @@ public sealed partial class GameEngine
             return context.Window == SkillProgramTriggerWindow.GameStarting && !_originalHandEntityStates.ContainsKey(key);
         if (effect.Op == SkillProgramEffectOp.AwakenWhenOriginalHandEmpty)
             return context.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow && ownerSeat == _currentSeat &&
-                _originalHandEntityStates.TryGetValue(key, out var state) && state.Entities.All(e => e.FirstLossSequence is not null);
+                _originalHandEntityStates.TryGetValue(key, out var state) &&
+                (HasShenGuoJiaAwakeningCondition(ownerSeat, skillId, trigger.Id) || state.Entities.All(e => e.FirstLossSequence is not null));
         if (effect.Op == SkillProgramEffectOp.InheritOriginalHandBonuses)
             return context.Window == SkillProgramTriggerWindow.OwnerDied && !_players[ownerSeat].IsAlive &&
                 OriginalHandInheritableBonuses(ownerSeat, skillId, effect.StateId!).Length > 0 &&

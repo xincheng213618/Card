@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-tuo",
+  "skills": [
+    { "registrationOrder": 30700, "programBundle": null, "includeProgramPresentation": false, "definition": { "id": "anniversary-god:jingyu", "name": "静域", "description": "锁定技，每个技能每轮限一次，有角色发动除“静域”外的技能时，你摸一张牌。", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 30701, "programBundle": "anniversary-shen-hua-tuo", "includeProgramPresentation": true, "definition": { "id": "anniversary-god:luxin", "name": "滤心", "description": "出牌阶段限一次，你可以交给一名其他角色一张手牌，然后你选择一项：1.令其摸X张牌；2.令其随机弃置X张手牌（X为游戏轮数且最多为5）。然后若其摸到/弃置了与你交给其牌名相同的牌，该角色下次发动技能时回复/失去1点体力。", "actionForms": "Active" } },
+    { "registrationOrder": 30702, "programBundle": "anniversary-shen-hua-tuo", "includeProgramPresentation": true, "definition": { "id": "anniversary-god:huandao", "name": "寰道", "description": "限定技，出牌阶段，你可以令一名其他角色复原武将牌，然后其可以获得其随机一名同名武将的随机一个技能，然后选择失去一个其他技能。", "tags": "Limited", "actionForms": "Active" } }
+  ],
+  "generals": [{ "registrationOrder": 30703, "pools": { "current": 30703 }, "definition": {
+    "id": "anniversary:shen-hua-tuo", "name": "神华佗", "portraitKey": "anniversary-shen-hua-tuo", "skillId": "anniversary-god:jingyu", "additionalSkillIds": ["anniversary-god:luxin", "anniversary-god:huandao"], "factionId": "god", "baseHp": 3, "gender": "Male", "characterId": "character:hua-tuo", "variantId": "anniversary-god", "rulesetId": "sanguosha-anniversary"
+  } }]
+}

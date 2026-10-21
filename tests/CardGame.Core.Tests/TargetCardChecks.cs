@@ -4,6 +4,47 @@ using CardGame.Core;
 
 internal static class TargetCardChecks
 {
+    public static void PreselectedSlotSurvivesNullificationAndReplay()
+    {
+        foreach (var kind in new[] { CardKind.Dismantlement, CardKind.Snatch })
+        {
+            var (game, action) = FindHumanFixture(kind, paced: true, sourceNullification: true);
+            var target = game.CreateSnapshot(0, true).Players.Single(player => player.Seat == action.TargetSeat);
+            var chosen = target.Hand.Last().Id;
+            var play = new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, game.Revision,
+                game.PendingDecision!.PromptId) { TargetHandSlot = target.HandCount - 1 };
+            var before = game.SerializeState();
+            foreach (var bad in new[] { -1, target.HandCount })
+            {
+                True(!game.Submit(play with { TargetHandSlot = bad }).Accepted, "An invalid preselected slot was accepted.");
+                Equal(before, game.SerializeState());
+            }
+            True(game.Submit(play).Accepted, "The opaque preselection was rejected.");
+            for (var step = 0; step < 48 && game.PendingDecision?.Kind != DecisionKind.Nullification; step++)
+                True(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "The real nullification boundary did not advance.");
+            True(game.PendingDecision is { Kind: DecisionKind.Nullification }, "Preselection must retain the normal human nullification window.");
+            var frame = game.ResolutionStack.OfType<CardUseFrame>().Single();
+            True(frame.TargetHandPreselection is { } selected && selected.SlotIndex == target.HandCount - 1,
+                "The selected opaque slot must be owned by the actual card-use frame.");
+            var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), StandardContentRegistry.Create());
+            Equal(JsonSerializer.Serialize(game.ResolutionStack), JsonSerializer.Serialize(restored.ResolutionStack));
+            game = restored;
+            var prompt = game.PendingDecision!;
+            True(game.Submit(new AnswerPromptCommand(0, prompt.PromptId,
+                prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("response") == "pass").Id, game.Revision)).Accepted,
+                "Passing nullification after restore failed.");
+            for (var step = 0; step < 96 && game.ResolutionStack.Count > 0; step++)
+            {
+                True(game.PendingDecision?.Kind != DecisionKind.SelectTargetCard, "A preselected card reopened the target-card picker.");
+                True(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "The selected effect failed to finish.");
+            }
+            True(game.ResolutionStack.Count == 0 && game.CardMovements.Count(move => move.CardId == chosen && move.From == CardLocation.Hand(target.Seat)) == 1,
+                "The exact preselected slot must move once after its normal response window.");
+            True(game.Events.All(item => item.Payload is not TargetCardSelectionRequestedEvent), "The selected slot must not ask for a second input.");
+            Console.WriteLine($"Direct target-card fixture: {kind}, seed {game.Seed}, slot {target.HandCount - 1}.");
+        }
+    }
+
     public static void OpaqueSlotFlow()
     {
         var (game, action) = FindHumanFixture();
@@ -105,9 +146,11 @@ internal static class TargetCardChecks
     }
 
 
-    private static (GameEngine Game, LegalAction Action) FindHumanFixture()
+    private static (GameEngine Game, LegalAction Action) FindHumanFixture(CardKind? required = null, bool paced = false, bool sourceNullification = false)
     {
-        for (var seed = 1; seed <= 1_024; seed++)
+        IEnumerable<int> seeds = sourceNullification && required is { } kind
+            ? [kind == CardKind.Dismantlement ? 47 : 13] : Enumerable.Range(1, 1_024);
+        foreach (var seed in seeds)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
@@ -115,7 +158,8 @@ internal static class TargetCardChecks
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
-                MaxTurns = 180
+                MaxTurns = 180,
+                AdvanceAfterHumanCommands = !paced
             }, StandardContentRegistry.Create());
             var result = game.Submit(new StartGameCommand());
             if (!result.Accepted || result.State.Status != EngineStatus.AwaitingHumanPlay) continue;
@@ -125,8 +169,11 @@ internal static class TargetCardChecks
                 candidate.CardId is not null &&
                 candidate.TargetSeat is not null &&
                 candidate.TargetCardId is null &&
+                (required is null || full.Players[0].Hand.Single(card => card.Id == candidate.CardId).Kind == required) &&
                 full.Players.Single(player => player.Seat == candidate.TargetSeat).HandCount > 0 &&
-                full.Players.All(player => player.Hand.All(card => card.Kind != CardKind.Nullification)));
+                (sourceNullification ? full.Players[0].Hand.Any(card => card.Kind == CardKind.Nullification) &&
+                    full.Players.Where(player => player.Seat != 0).All(player => player.Hand.All(card => card.Kind != CardKind.Nullification))
+                    : full.Players.All(player => player.Hand.All(card => card.Kind != CardKind.Nullification))));
             if (action is not null) return (game, action);
         }
 

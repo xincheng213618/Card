@@ -64,6 +64,13 @@ internal static class CommittedEventProjection
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
         MouSmTargetsDisclosedEvent value => value with { Targets = FreezeList(value.Targets), HeldEventSequences = FreezeList(value.HeldEventSequences), HeldLogSequences = FreezeList(value.HeldLogSequences) },
+        WushuangTairanDrawnEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        WushuangChoufaRewrittenEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        WushuangJinzhiPaidEvent value => value with { Action = new CardActionContext(value.Action.ActionId, value.Action.ParentActionId,
+            value.Action.Type, value.Action.ActorSeat, value.Action.ProviderSeat, value.Action.RequesterSeat,
+            value.Action.ResponderSeat, value.Action.OpponentSeat, value.Action.EffectiveKind, value.Action.TargetSeats,
+            value.Action.PhysicalCards, value.Action.ConversionChain, value.Action.DesignatedTargetSeats,
+            value.Action.EffectiveSuit, value.Action.EffectiveRank, value.Action.EffectiveIsRed, value.Action.FactionOrigin) },
         NativeMaterialSlashExtraTargetsIssuedEvent value => value with
         {
             Origin = value.Origin with

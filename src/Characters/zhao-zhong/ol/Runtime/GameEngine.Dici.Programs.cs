@@ -20,7 +20,7 @@ public sealed partial class GameEngine
     }
     private int[] DiciNeighbors(int target)
     {
-        var living = _players.Where(p => p.IsAlive).Select(p => p.Seat).Order().ToArray(); var index = Array.IndexOf(living, target);
+        var living = CurrentTableOrder().Where(seat => _players[seat].IsAlive).ToArray(); var index = Array.IndexOf(living, target);
         return index < 0 || living.Length < 2 ? [] : new[] { living[(index + 1) % living.Length], living[(index + living.Length - 1) % living.Length] }.Distinct().ToArray();
     }
 }

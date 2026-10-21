@@ -51,9 +51,10 @@ internal static class AutomaticTargetSelectionChecks
                         continue;
                     }
 
+                    var concreteCardPick = action.Kind is LegalActionKind.Dismantlement or LegalActionKind.Snatch;
                     Program.Assert(selected.SequenceEqual(action.TargetSeats) && card.IsSelected &&
-                        model.CanConfirmSelected && Boundary(game) == unchanged,
-                        $"{scenario.Card}/{scenario.Conversion ?? "printed"} must draft its sole native recipient and enable confirmation without a command or payment.");
+                        model.CanConfirmSelected == !concreteCardPick && Boundary(game) == unchanged,
+                        $"{scenario.Card}/{scenario.Conversion ?? "printed"} must draft its sole recipient and retain the required card choice without payment.");
                     if (scenario.Card == "standard:slash" && scenario.Conversion is null)
                     {
                         var portrait = model.Seats.Single(seat => seat.Seat == action.TargetSeats[0]);
@@ -76,9 +77,12 @@ internal static class AutomaticTargetSelectionChecks
                     var reference = GameReplay.Restore(before, registry);
                     var command = new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, game.Revision,
                         game.CreateSnapshot(0).PendingDecision!.PromptId, action.PlayedCardKind, action.TargetCardId)
-                    { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources };
+                    { ConversionSource = action.ConversionSource, AdditionalConversionSources = action.AdditionalConversionSources,
+                        TargetHandSlot = concreteCardPick ? 0 : null };
                     Accept(reference, command);
-                    Click((Button)window.FindName("PlayCardButton"));
+                    if (concreteCardPick)
+                        model.SelectPublicTargetChoiceCommand.Execute(model.PublicTargetChoices.Single(choice => choice.Parameters.GetValueOrDefault("target-hand-slot") == "0"));
+                    else Click((Button)window.FindName("PlayCardButton"));
                     Program.Assert(game.Revision == before.Revision + 1 &&
                         CommandJson.Serialize([game.AcceptedCommands.Last()]) == CommandJson.Serialize([command]) &&
                         Boundary(game) == Boundary(reference),

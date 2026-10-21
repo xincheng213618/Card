@@ -25,7 +25,7 @@ internal static class ProgramLegalityChecks
                      new[] { "DuplicateA", "DuplicateB" }, new[] { "WrongReturn" },
                      new[] { "AmbiguousStrings" }, new[] { "UnknownOperation" },
                      new[] { "NegativeOrder" }, new[] { "UnknownPhase" },
-                     new[] { "Generic" }, new[] { "WindowDuringCollection" }
+                     new[] { "Generic" }, new[] { "WindowDuringCollection" }, new[] { "WindowDuringAwakeningOverride" }
                  })
             Reject(() => ProgramLegalityCatalog.Discover(names.Select(name =>
                 typeof(InvalidHost).GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!)));
@@ -100,6 +100,14 @@ internal static class ProgramLegalityChecks
                 otherHost.Calls.SequenceEqual(["activation:10", "activation:20"]) &&
                 host.Calls.SequenceEqual(["collection"]),
             "Shared registration metadata must never capture a different game session.");
+        host.Stop = false;
+        host.Calls.Clear();
+        Require(!router.OverridesAwakeningCondition(trigger) && host.Calls.SequenceEqual(["override:10", "override:20"]),
+            "An absent awakening waiver must keep the original condition, even when providers are registered.");
+        host.Stop = true;
+        host.Calls.Clear();
+        Require(router.OverridesAwakeningCondition(trigger) && host.Calls.SequenceEqual(["override:10", "override:20"]),
+            "An affirmative waiver provider must override a condition after unrelated providers decline.");
     }
 
     private static MethodInfo[] Methods(Type type) => type.GetMethods(
@@ -175,6 +183,18 @@ internal static class ProgramLegalityChecks
 
         [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AfterCondition, 10)]
         private static bool Fail(ProgramTriggerLegalityContext gate) => throw Failure;
+
+        [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AwakeningConditionOverride, 5, SkillProgramEffectOp.Recover)]
+        private static bool UnrelatedOverride(ProgramTriggerLegalityContext gate) =>
+            throw new Exception("An unrelated waiver inspected runtime state.");
+
+        [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AwakeningConditionOverride, 10)]
+        private bool DeclineOverride(ProgramTriggerLegalityContext gate)
+        { Require(gate == ExpectedTrigger, "Waiver context changed."); Calls.Add("override:10"); return false; }
+
+        [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AwakeningConditionOverride, 20, SkillProgramEffectOp.Draw)]
+        private bool Override(ProgramTriggerLegalityContext gate)
+        { Require(gate == ExpectedTrigger, "Waiver context changed."); Calls.Add("override:20"); return Stop; }
     }
 
     private static class InvalidHost
@@ -197,5 +217,7 @@ internal static class ProgramLegalityChecks
         private static bool Generic<T>(ProgramTriggerLegalityContext context) => true;
         [ProgramTriggerLegality(ProgramTriggerLegalityPhase.Collection, 10)]
         private static bool WindowDuringCollection(ProgramSkillWindowContext context) => true;
+        [ProgramTriggerLegality(ProgramTriggerLegalityPhase.AwakeningConditionOverride, 10)]
+        private static bool WindowDuringAwakeningOverride(ProgramSkillWindowContext context) => true;
     }
 }

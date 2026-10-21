@@ -216,6 +216,13 @@ public sealed partial class GameEngine
                 if (!actual.SequenceEqual(designated) || !IsRoundGainedTrickTargetFact(use, roundTarget, originalTargets)) return false;
                 designated = roundTarget.ResultTargetSeats.ToList(); actual = roundTarget.ResultTargetSeats.ToList();
             }
+            else if (fact is DinghanTargetCanceledEvent dinghan && dinghan.UseId == use.Id)
+            {
+                IReadOnlyList<int> before = designated;
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 && dinghan.OriginalAction.TargetSeats is [var self] && self == actor) before = [actor];
+                if (!actual.SequenceEqual(designated) || !IsDinghanCancellationFact(use, dinghan, before)) return false;
+                designated = DinghanRetainedTargets(kind, before, dinghan.Owner).ToList(); actual = designated.ToList();
+            }
             else if (fact is BeiMiHuTargetsPaidEvent kuiTargets && kuiTargets.Receipt.CardUseId == use.Id)
             {
                 var receipt = kuiTargets.Receipt;

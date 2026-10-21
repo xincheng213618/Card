@@ -73,6 +73,7 @@
          <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Margin" Value="7,218,7,0"/><Setter Property="MaxHeight" Value="98"/><Style.Triggers>
           <DataTrigger Binding="{Binding IsSkill}" Value="True"><Setter Property="Margin" Value="7,159,7,0"/><Setter Property="MaxHeight" Value="166"/></DataTrigger>
           <DataTrigger Binding="{Binding IsCard}" Value="True"><Setter Property="Margin" Value="7,240,7,0"/><Setter Property="MaxHeight" Value="40"/><Setter Property="TextAlignment" Value="Center"/></DataTrigger>
+          <DataTrigger Binding="{Binding IsEquipment}" Value="True"><Setter Property="MaxHeight" Value="64"/></DataTrigger>
          </Style.Triggers></Style></TextBlock.Style>
         </TextBlock>
        </Grid>
@@ -112,9 +113,9 @@
     </Grid>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,16" Style="{StaticResource AfterOpening}">
      <Button x:Name="WushuangLockButton" Command="{Binding ToggleWushuangShopLockCommand}" Style="{StaticResource FooterAction}" ToolTip="{Binding WushuangLockText}"><Grid Width="62" Height="74"><Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="26"/></Grid.RowDefinitions><Image x:Name="WushuangLockIcon" Source="{Binding WushuangLockImage}" Width="48" Height="48"/></Grid></Button>
-     <Button x:Name="WushuangRerollButton" Command="{Binding RerollWushuangShopCommand}" Style="{StaticResource FooterAction}" ToolTip="花费1虎符刷新所有商品">
+     <Button x:Name="WushuangRerollButton" Command="{Binding RerollWushuangShopCommand}" Style="{StaticResource FooterAction}" ToolTip="{Binding WushuangRerollText}">
       <Grid Width="62" Height="74"><Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="26"/></Grid.RowDefinitions><Image x:Name="WushuangRefreshIcon" Source="/CardGame.Wpf;component/Assets/Wushuang/roguelike1v1_shop_refresh.png" Width="48" Height="48"/>
-       <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"><Image Source="/CardGame.Wpf;component/Assets/Wushuang/roguelike1v1_hufu_icon.png" Width="23" Height="20"/><TextBlock Text="1" Foreground="#EBD49C" FontSize="23" Margin="5,0,0,0"/></StackPanel>
+       <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"><Image Source="/CardGame.Wpf;component/Assets/Wushuang/roguelike1v1_hufu_icon.png" Width="23" Height="20" Visibility="{Binding WushuangRerollShowsToken, Converter={StaticResource VisibleWhen}}"/><TextBlock Text="{Binding WushuangRerollPriceText}" Foreground="#EBD49C" FontSize="23" Margin="5,0,0,0"/></StackPanel>
       </Grid>
      </Button>
     </StackPanel>

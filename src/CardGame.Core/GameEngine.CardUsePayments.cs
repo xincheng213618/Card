@@ -70,10 +70,10 @@ public sealed partial class GameEngine
             var card = _cardZones.CardsAt(_cardZones.GetLocation(move.CardId)).Single(card => card.Id == move.CardId);
             var destination = card.IsGeneralWeapon && cost.From.Zone == CardZoneKind.Equipment ||
                 IsGuanduThunderChariotDeparture(card, cost.From, CardLocation.Processing)
-                ? CardLocation.OutsideGame : IsProgramAlternativeCost(action, move.CardId)
+                ? CardLocation.OutsideGame : IsWushuangJinzhiPaidMaterial(action, move.CardId) ? CardLocation.Processing : IsProgramAlternativeCost(action, move.CardId)
                     ? CardLocation.DrawPile : CardLocation.Processing;
-            destination = NormalizeDiouCarrierDestination(card, cost.From, destination);
-            if (move.To != destination || IsDiouCarrier(card.Id) && destination == CardLocation.OutsideGame && !IsDiouCarrierDestroyedMaterial(move)) return false;
+            destination = NormalizeEphemeralCardDestination(card, cost.From, destination);
+            if (move.To != destination || IsDiouCarrier(card.Id) && destination == CardLocation.OutsideGame && !IsEphemeralCardDestroyedMaterial(move)) return false;
         }
         return true;
     }

@@ -308,7 +308,7 @@ public sealed partial class GameEngine
             var cursor = frame.NumberBindings.SingleOrDefault(binding => binding.Name == "participant-cursor-" + instructionIndex)?.Value ?? 0;
             var wenhe = frame.WenheChaos is not null && IsExactWenheChaos(frame) ? frame.WenheChaos : null;
             if (cursor < 1 || cursor > (wenhe?.ActorSeats.Count ?? _playerCount - 1) || !frame.ReexecuteParticipantInstruction ||
-                frame.SelectedTargetSeats is not [var actor] || actor != (wenhe is null ? (frame.OwnerSeat + cursor) % _playerCount : wenhe.ActorSeats[cursor - 1]))
+                frame.SelectedTargetSeats is not [var actor] || actor != (wenhe is null ? TableStepSeat(frame.OwnerSeat, cursor) : wenhe.ActorSeats[cursor - 1]))
                 return false;
             if (frame.NearestLegalSlashRequest is { } draft) return draft.ActorSeat == actor;
             return child switch

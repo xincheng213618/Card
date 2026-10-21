@@ -140,7 +140,7 @@ public sealed partial class GameEngine
         {
             if(TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.Program))return true;
             if(_winner!=Winner.None){FinishProgramSkill(GetActiveProgramFrame(id),true);return true;}
-            if(r.DyingSurvived!=true){FinishProgramSkill(f,true);return true;}
+            if(f.SkillId==BDuwu ? r.DyingFrameId is null : r.DyingSurvived!=true){FinishProgramSkill(f,true);return true;}
             if(r.DamageFrameId is not { } damageId || r.DyingFrameId is not { } dyingId)throw new InvalidOperationException("Survival cost lost exact damage/Dying.");
             if(_skillRuntimeState.GetUsage(f.OwnerSeat,f.SkillId,DynamicDiscardDamageBlocked,SkillUsageScope.Turn)==0)
             {
@@ -250,7 +250,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Variable attack tail precedes its exact native damage completion.");
         }
         var penalties=facts.OfType<DynamicDiscardDamagePenaltyEvent>().Where(e=>e.FrameId==f.Id).ToArray();
-        if(r.Stage==DynamicDiscardDamageStage.PenaltyIssued ? penalties.Length!=1 || r.DyingSurvived!=true ||
+        if(r.Stage==DynamicDiscardDamageStage.PenaltyIssued ? penalties.Length!=1 || (f.SkillId==BDuwu ? r.DyingFrameId is null : r.DyingSurvived!=true) ||
             penalties[0].DamageFrameId!=r.DamageFrameId || penalties[0].DyingFrameId!=r.DyingFrameId || penalties[0].TargetSeat!=r.ActualDamageTargetSeat ||
             penalties[0].ActualTurn!=r.ActualTurn || penalties[0].OwnerSeat!=f.OwnerSeat : penalties.Length!=0)
             throw new InvalidOperationException("Variable attack survival penalty must issue exactly once after its own survivor.");

@@ -9,6 +9,7 @@ public sealed partial class GameEngine
         public bool Finished=>e._winner!=Winner.None;
         public ActualDiscardRecoveryPhaseKey? Phase=>e.CurrentActualDiscardRecoveryPhase();
         public IReadOnlyList<int> Seats=>Array.AsReadOnly(e._players.Select(p=>p.Seat).ToArray());
+        public IReadOnlyList<int> ActionOrder(int from,IEnumerable<int> seats)=>Array.AsReadOnly(seats.Distinct().OrderBy(s=>e.RelativeTableOrder(from,s)).ToArray());
         public MouZhuRanPlayer Player(int seat)=>new(seat,e._players[seat].IsAlive,e._players[seat].IsHuman,e.IsRuleWounded(e._players[seat]));
         public IEnumerable<T> History<T>()where T:IGameEvent=>e.ProgramEventHistory<T>();
         public SkillProgram? Program(string skill)=>e._contentRegistry.Skills.GetValueOrDefault(skill)?.Program;

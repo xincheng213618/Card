@@ -27,6 +27,8 @@ public sealed record WushuangShopOffer(string Id, string Name, string Descriptio
     public int Quality { get; init; } = 1;
     public int? TacticId { get; init; }
     public CardKind? CardKind { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? CardOfferId { get; init; }
 }
 
 /// <summary>Only the requested seat's shop is exposed; collections are immutable projections.</summary>
@@ -34,6 +36,11 @@ public sealed record WushuangSnapshot(int Seat, int Level, int Experience, int E
     int Tokens, IReadOnlyList<string> ExtraSkillIds, IReadOnlyList<WushuangShopOffer> Offers,
     bool CanShop, int RerollCost, int LevelUpCost, int RemainingMilliseconds, long Revision)
 {
+    /// <summary>The randomly chosen normal first actor, independent of any opening extra phase.</summary>
+    public int FirstNormalSeat { get; init; }
+    public int ExtraSkillCapacity { get; init; } = WushuangMode.MaximumExtraSkills;
+    public int FreeRerolls { get; init; }
+    public IReadOnlyList<string> ReplaceableOriginalSkillIds { get; init; } = Array.AsReadOnly(Array.Empty<string>());
     public WushuangShopPhase Phase { get; init; }
     public long WindowId { get; init; }
     public bool IsLocked { get; init; }
@@ -59,7 +66,15 @@ public sealed record WushuangClockAdvancedEvent(int ElapsedMilliseconds, int Tot
 public sealed record WushuangClockExpiredEvent(int TotalMilliseconds, int? WinnerSeat, string ScoringRule) : IGameEvent;
 public sealed record WushuangResolutionCancelledEvent(long FrameId, ResolutionFrameKind Kind) : IGameEvent;
 public sealed record WushuangShopLockChangedEvent(int Seat, bool IsLocked) : IGameEvent;
+public sealed record WushuangFreeRerollsChangedEvent(int Seat, int Count, string Reason) : IGameEvent;
 public sealed record WushuangTacticAcquiredEvent(int Seat, int TacticId, bool IsOpening) : IGameEvent;
 
 public sealed record WushuangIntermissionFrame(long Id, bool Opening, int EndedSeat, bool Skipped, int SeatCursor = 0)
-    : ResolutionFrame(Id, ResolutionFrameKind.WushuangIntermission, ResolutionFrameStep.ResolvingEffect);
+    : ResolutionFrame(Id, ResolutionFrameKind.WushuangIntermission, ResolutionFrameStep.ResolvingEffect)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public WushuangAcquisitionReceipt? Acquisition { get; init; }
+}
+
+public sealed record WushuangAcquisitionReceipt(int Seat, int TacticId, string OfferId,
+    string SkillId, string SkillInstanceId, string GameplayHash, bool AdvanceSeat);

@@ -25,7 +25,7 @@ public sealed partial class GameEngine
             IReadOnlyList<ProgramOrdinaryTrickUseOption> options;
             if(kind==CardKind.FiveGrains)
             {
-                var targets=Enumerable.Range(0,_players.Count).Select(i=>(actor.Seat+i)%_players.Count).Where(s=>_players[s].IsAlive&&
+                var targets=Enumerable.Range(0,_players.Count).Select(i=>TableStepSeat(actor.Seat, i)).Where(s=>_players[s].IsAlive&&
                     (!HasTurnCardTargetRestriction(actor.Seat,SkillProgramCardTargetRestriction.SelfOnly)||s==actor.Seat)&&!HasCardPolicy(_players[s],SkillProgramCardPolicyKind.ExcludeGlobalTarget,kind)&&
                     !IsDirectedCardTargetProhibited(actor.Seat,s,kind)&&!IsCardTargetProhibited(_players[s],kind,Suit.None,null)&&!HasBeneficiarySuitShield(actor.Seat,s,Suit.None)).ToArray();
                 options=targets.Length==0||IsSelfTargetForbiddenAction(actor,kind,targets)||HasIssuedPlayPhaseUseBan(actor.Seat)||IsNextActualUseTrickForbidden(actor.Seat,kind)?[]:

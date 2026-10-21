@@ -24,6 +24,25 @@ public sealed class StandardWushuangContentPackage : IGameContentPackage
     public void Register(IContentRegistryBuilder builder)
     {
         builder.AddSkill(new("wushuang:catalogue", "单骑无双商品配置", WushuangCatalogue.Fingerprint));
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-tactics", skill => skill with { Tags = SkillTag.Locked });
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills", skill => skill with
+        { Tags = skill.Id == "wushuang:skill-3226" ? SkillTag.Awakening : skill.Id == "wushuang:skill-3260" ? SkillTag.Limited : SkillTag.None });
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills-a", skill => skill with
+        { Tags = skill.Id is "wushuang:skill-3004" or "wushuang:skill-3131" or "wushuang:skill-3246" or "wushuang:skill-3265" ? SkillTag.Locked : SkillTag.None });
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills-b");
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills-b-audit");
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-audit-a", skill => skill with
+        { Tags = skill.Id == "wushuang:skill-3106" ? SkillTag.Locked : SkillTag.None });
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-audit-combat", skill => skill with
+        { Tags = skill.Id == "wushuang:skill-3263" ? SkillTag.Locked : SkillTag.None });
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-combat", skill => skill with { Tags = SkillTag.Locked });
+        foreach (var (bundle, id) in new[]
+        {
+            ("hulao-activity", "hulao:aozhan"), ("hulao-activity", "hulao:shenji"),
+            ("ghost-activity", "ghost:guiji"),
+            ("shanhe-s5-zaiqi", "shanhe:s5-zaiqi-887"), ("shanhe-s5-yudu", "shanhe:s5-niepan-95"),
+            ("shanhe-current-yuanji", "shanhe:current-yuanji-2129")
+        }) builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(bundle, id));
         foreach (var (bundle, id) in new[]
         {
             ("shanhe-current-jinnangji", "shanhe:current-jinnangji-2011"),
@@ -45,9 +64,13 @@ public sealed class StandardWushuangContentPackage : IGameContentPackage
             """);
         builder.AddSkill(new("wushuang:boming", "搏命", "手牌上限-2，出杀次数+1。")
         { Tags = SkillTag.Locked, Program = catalog.Programs["wushuang:boming"], ProgramPresentation = catalog.Presentations["wushuang:boming"] });
+        builder.AddDeck(new("wushuang:duel-deck", "单骑无双无坐骑军争牌堆", 4, 2, [])
+        { PhysicalCards = StandardClassicGeneralPackage.CreateWushuangPhysicalDeck() });
         builder.AddMode(new(
         WushuangMode.ModeId, "单骑无双 · 本地版", 2, 2, new Dictionary<string, int>(),
-        "classic:standard-deck", 5, StandardClassicGeneralPackage.CurrentGeneralIds.Concat(StandardClassicGeneralPackage.FanGeneralIds).ToArray(),
+        "wushuang:duel-deck", 5, StandardClassicGeneralPackage.CurrentGeneralIds.Concat(StandardClassicGeneralPackage.FanGeneralIds)
+            .Concat(WushuangCatalogue.AdditionalGeneralIds).Distinct(StringComparer.Ordinal)
+            .Where(WushuangCatalogue.IsGeneralAllowed).ToArray(),
         ModeKind: ContentModeKind.Team,
         TeamCounts: new Dictionary<string, int> { [WushuangMode.PlayerTeamId] = 1, [WushuangMode.AiTeamId] = 1 }));
     }

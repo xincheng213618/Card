@@ -56,7 +56,7 @@ public sealed partial class GameEngine
   var effectiveKind=a.PlayedCardKind??card.Kind;
   if(a.Kind==LegalActionKind.Peach)return [actor.Seat];
   if(a.Kind is not(LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage or LegalActionKind.PeachGarden or LegalActionKind.FiveGrains))return GetImplicitSelfCardUseTargets(a.PlayedCardKind??card.Kind,actor.Seat,a.TargetSeats);
-  var offensive=a.Kind is LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage;var seats=Enumerable.Range(offensive?1:0,_playerCount-(offensive?1:0)).Select(offset=>_players[(actor.Seat+offset)%_playerCount]).Where(p=>p.IsAlive&&(!offensive||!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,effectiveKind))&&!IsCardTargetProhibited(p,effectiveKind,card.Suit,SuitColor(EffectiveSuit(actor,card)))&&!HasBeneficiarySuitShield(actor.Seat,p.Seat,EffectiveSuit(actor,card))).Select(p=>p.Seat).ToArray();
+  var offensive=a.Kind is LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage;var seats=Enumerable.Range(offensive?1:0,_playerCount-(offensive?1:0)).Select(offset=>_players[TableStepSeat(actor.Seat, offset)]).Where(p=>p.IsAlive&&(!offensive||!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,effectiveKind))&&!IsCardTargetProhibited(p,effectiveKind,card.Suit,SuitColor(EffectiveSuit(actor,card)))&&!HasBeneficiarySuitShield(actor.Seat,p.Seat,EffectiveSuit(actor,card))).Select(p=>p.Seat).ToArray();
   if(!offensive)seats=ApplyTurnCardGroupTargetRestrictions(actor,seats).ToArray();if(a.Kind==LegalActionKind.FiveGrains)seats=seats.Take(_cardZones.Count(CardLocation.DrawPile)+_cardZones.Count(CardLocation.DiscardPile)).ToArray();return Array.AsReadOnly(seats);
  }
  [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 40)]

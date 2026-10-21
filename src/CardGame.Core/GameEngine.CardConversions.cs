@@ -144,6 +144,8 @@ public sealed partial class GameEngine
         if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
         if (identityHand && ShiluIdentity(owner, card) is { } shilu) return [shilu];
         if (identityHand && WeilinIdentity(owner, card) is { } weilin) return [weilin];
+        if (identityHand && WushuangChoufaIdentity(owner, card) is { } choufa) return [choufa];
+        if (identityHand && WushuangBianyuIdentity(owner, card) is { } bianyu) return [bianyu];
 
         var bindings = GetSkillBindingShard(owner);
         if (bindings.CardIdentityPrograms.Count == 0) return [];
@@ -239,6 +241,8 @@ public sealed partial class GameEngine
             !IsWenyiPeachSupplyQuery(owner, requested))) return [];
         if (UnclaimedDeclarationPayment(owner.Seat, card.Id) is { } paid &&
             (paid.DeclaredKind == outputKind || forResponse && outputKind == CardKind.Slash && IsSlashCard(paid.DeclaredKind))) return [paid.Source];
+        var fieldMounts = ShouliFieldConversions(owner, card, outputKind, forResponse, dyingUse);
+        if (fieldMounts.Count != 0) return fieldMounts;
         var registered = GetSkillBindingShard(owner).GetSingleCardConversions(outputKind);
         var hasTurnConversions = _turnCardUseEffects.Conversions.Count > 0;
         if (registered.Count == 0 && !hasTurnConversions) return [];
@@ -269,7 +273,7 @@ public sealed partial class GameEngine
                 {
                     var (instance, rule) = item;
                     return (!wuyouJuewuIdentity || instance.SkillId == "wumiao:juewu" && rule.RankTwoDamageUse) &&
-                               rule.KenshangUse != true && !(rule.VariableInputCount && rule.CostDestination == SkillProgramCardDestination.DrawPileBottom) && rule.InputCount == 1 &&
+                               instance.SkillId != WushuangJinzhiSkill && rule.KenshangUse != true && !(rule.VariableInputCount && rule.CostDestination == SkillProgramCardDestination.DrawPileBottom) && rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || CardLegality.AllowsNativeSlashAlias(new(owner, instance, rule, outputKind, forResponse)) || instance.SkillId == "le:fule" && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && FuleSlashAliasAllowed(owner, forResponse) || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || rule.RankTwoDamageUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && JuewuSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                MatchesZhongshenRoundGain(owner, card, rule) &&
@@ -345,7 +349,8 @@ public sealed partial class GameEngine
 
         var bindings = GetSkillBindingShard(owner).ProgramInstances;
         var leiluan = LeiluanSelections(owner, outputKind, forResponse, ignoreSuitUseProhibition);
-        if (leiluan.Count == 0 && !bindings.Any(instance => instance.Program.ViewAs.Any(rule => rule.InputCount > 1 && !rule.VariableInputCount))) return [];
+        var jinzhi = WushuangJinzhiSelections(owner, outputKind, forResponse);
+        if (leiluan.Count == 0 && jinzhi.Count == 0 && !bindings.Any(instance => instance.Program.ViewAs.Any(rule => rule.InputCount > 1 && !rule.VariableInputCount))) return [];
         var context = CreateSkillContext(owner);
         var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
             ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
@@ -384,12 +389,12 @@ public sealed partial class GameEngine
                     MatchesRoundDistinctBasicMaterials(owner, rule, cards))
                     selections.Add(new(cards, source, rule.RoundDistinctBasicUse is null ? outputKind : rule.OutputKind));
         }
-        return selections.Concat(leiluan)
+        return selections.Concat(leiluan).Concat(jinzhi)
             .Where(item => IsProgramViewAsAllowed(owner, outputKind, item.Cards.Select(c => c.Id).ToArray(), item.Source, forResponse, dyingUse, requestedUseTarget))
-            .Where(item => !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
-            .Where(item => !IsProgramMaterialUseForbidden(owner.Seat, outputKind, item.Cards.Select(c => c.Id), forResponse && !dyingUse))
-            .Where(item => !forResponse || !IsCuiYanNativeResponseForbidden(owner, outputKind, item.Cards))
-            .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
+            .Where(item => IsWushuangJinzhiSelection(item) || !forResponse || IsRecordedSuitResponseAllowed(owner, item.Cards, outputKind))
+            .Where(item => IsWushuangJinzhiSelection(item) || !IsProgramMaterialUseForbidden(owner.Seat, outputKind, item.Cards.Select(c => c.Id), forResponse && !dyingUse))
+            .Where(item => IsWushuangJinzhiSelection(item) || !forResponse || !IsCuiYanNativeResponseForbidden(owner, outputKind, item.Cards))
+            .Where(item => IsWushuangJinzhiSelection(item) || forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
             .ThenBy(item => item.Source.BindingId, StringComparer.Ordinal)
             .ThenBy(item => string.Join(',', item.Cards.Select(card => card.Id)), StringComparer.Ordinal)
@@ -474,7 +479,7 @@ public sealed partial class GameEngine
         BorrowedSwordHandle? borrowedSword = null,
         bool enforceOwnTurnSlashLimit = true)
     {
-        var effectiveKind = ViewAsRule(selection.Source) is { RoundDistinctBasicUse: not null } or { LeiluanBasicUse: not null }
+        var effectiveKind = IsWushuangJinzhiSelection(selection) || ViewAsRule(selection.Source) is { RoundDistinctBasicUse: not null } or { LeiluanBasicUse: not null }
             ? selection.OutputKind : CardKind.Slash;
         var current = FindProgramMultiCardViewAsSelection(
             source,
@@ -490,7 +495,7 @@ public sealed partial class GameEngine
         ResolveSlashCore(
             source,
             target,
-            IsXieweiSelection(current) ? ApplyProgramUseAppearance(source, current.Cards[0], current.Source) : current.Cards[0],
+            IsXieweiSelection(current) || IsWushuangJinzhiSelection(current) ? ApplyProgramUseAppearance(source, current.Cards[0], current.Source) : current.Cards[0],
             effectiveKind,
             source.Seat,
             borrowedSword: borrowedSword,
@@ -525,7 +530,7 @@ public sealed partial class GameEngine
         var xieweiPayment = IsXieweiSelection(current);
         if (xieweiPayment && !TryPayXieweiMaterials(current.Cards, responder.Seat, null, CardMoveReasons.Respond))
             throw new InvalidOperationException("The configured Xiewei response has no exact issued public-pile payment.");
-        var completedResponseUseSuit = actorSeat is null || actorSeat == responder.Seat
+        var completedResponseUseSuit = HasHengwuCapability || actorSeat is null || actorSeat == responder.Seat
             ? FreezeCompletedResponseUseSuit(responder, current.Cards, selection.OutputKind) : null;
         var leiluanAtomicPayment = ViewAsRule(current.Source)?.LeiluanBasicUse is not null;
         if (leiluanAtomicPayment && !xieweiPayment)
@@ -581,7 +586,8 @@ public sealed partial class GameEngine
     private void FinishProgramMultiCardResponse(ProgramMultiCardViewAsSelection selection)
     {
         foreach (var card in selection.Cards)
-            if (!IsXieweiResponseRemovedMaterial(selection, card.Id))
+            if (!IsXieweiResponseRemovedMaterial(selection, card.Id) &&
+                !(IsWushuangJinzhiSelection(selection) && _cardZones.GetLocation(card.Id) != CardLocation.Processing))
                 MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.ResponseFinished);
     }
 

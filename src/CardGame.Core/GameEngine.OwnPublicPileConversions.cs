@@ -51,7 +51,7 @@ public sealed partial class GameEngine
                     ViewAsRule(source)?.SourcePileSkillId is not null) &&
                 !window.Candidates.Any(old => old.OwnerSeat == c.OwnerSeat && old.SkillId == c.SkillId &&
                     old.TriggerId == c.TriggerId && old.SkillInstanceId == c.SkillInstanceId && old.OpponentSeat == c.OpponentSeat);
-        }).OrderByDescending(c => c.Priority).ThenBy(c => c.OwnerSeat).ThenBy(c => c.SkillId, StringComparer.Ordinal)
+        }).OrderByDescending(c => c.Priority).ThenBy(c => RelativeTableOrder(0, c.OwnerSeat)).ThenBy(c => c.SkillId, StringComparer.Ordinal)
             .ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal).ThenBy(c => c.OpponentSeat)
             .Select(c => c with { FrozenContext = c.FrozenContext! with { ParentFrameId = window.Id,
                 CardUse = c.FrozenContext.CardUse! with { ParentCardUseFrameId = use.Id } } }).ToArray();

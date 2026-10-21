@@ -5,6 +5,7 @@
              Visibility="{Binding HasTargetCardRegions, Converter={StaticResource BoolToVisibility}}">
     <UserControl.Resources>
         <controls:TargetRegionCardChoiceConverter x:Key="TargetRegionCardChoiceConverter" />
+        <controls:TargetRegionCardSelectionConverter x:Key="TargetRegionCardSelectionConverter" />
         <DataTemplate x:Key="RegionCardTemplate">
             <Button Command="{Binding DataContext.Command, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                     CommandParameter="{Binding}" Style="{StaticResource BareButton}" Margin="3,4" Padding="2"
@@ -12,6 +13,9 @@
                 <Border BorderThickness="1" CornerRadius="3" Padding="1">
                     <Border.Style><Style TargetType="Border"><Setter Property="BorderBrush" Value="#847555" />
                         <Style.Triggers>
+                            <DataTrigger Value="True"><DataTrigger.Binding><MultiBinding Converter="{StaticResource TargetRegionCardSelectionConverter}">
+                                <Binding /><Binding Path="DataContext.SelectedTargetCardIds" RelativeSource="{RelativeSource AncestorType=Window}" />
+                            </MultiBinding></DataTrigger.Binding><Setter Property="BorderBrush" Value="#FFE09A" /><Setter Property="Background" Value="#80684F26" /></DataTrigger>
                             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True"><Setter Property="BorderBrush" Value="#FFE09A" /></DataTrigger>
                             <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=Button}}" Value="True"><Setter Property="BorderBrush" Value="#FFE09A" /></DataTrigger>
                         </Style.Triggers>

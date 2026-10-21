@@ -9,6 +9,7 @@ public sealed record DamageArmorPaymentReceipt(long DamageFrameId, long AttackFr
     int UnclampedHpAfter, int HpAfter)
 {
     public int ActualHpLost => Math.Max(0, HpBefore - HpAfter);
+    public int ArmorDamageMultiplier { get; init; } = 1;
 }
 
 public sealed partial record DamageFrame
@@ -22,19 +23,20 @@ public sealed partial class GameEngine
     private DamageArmorPaymentReceipt? PrepareDamageArmorPayment(long frameId, IDamageAttempt attack)
     {
         var target = _players[attack.TargetSeat];
-        if (target.Armor == 0) return null;
+        if (target.Armor == 0 || WushuangArmorBypass(attack)) return null;
         if (target.Armor < 0 || _resolutionStack.LastOrDefault() is not DamageFrame damage ||
             damage.Id != frameId || damage.ParentFrameId != attack.ResolutionId ||
             damage.SourceSeat != attack.SourceSeat || damage.TargetSeat != attack.TargetSeat ||
             damage.Amount != attack.DamageAmount || damage.Amount < 0 || !attack.DamageAmountFinalized || damage.ArmorPayment is not null ||
             !IsExactArmorDamageRequest(damage, attack, requireUnpaid: true))
             throw new InvalidOperationException("Armor payment requires the exact unpaid native damage segment.");
-        var absorbed = Math.Min(target.Armor, damage.Amount);
-        var hpLoss = damage.Amount - absorbed;
+        var multiplier = WushuangArmorDamageMultiplier(attack);
+        var absorbed = Math.Min(target.Armor, checked(damage.Amount * multiplier));
+        var hpLoss = damage.Amount - (absorbed + multiplier - 1) / multiplier;
         var unclamped = checked(target.Hp - hpLoss);
         var receipt = new DamageArmorPaymentReceipt(damage.Id, damage.ParentFrameId,
             damage.SourceSeat, damage.TargetSeat, damage.Amount, damage.Nature, attack.IsSourceLess,
-            target.Armor, absorbed, target.Armor - absorbed, target.Hp, hpLoss, unclamped, unclamped);
+            target.Armor, absorbed, target.Armor - absorbed, target.Hp, hpLoss, unclamped, unclamped) { ArmorDamageMultiplier = multiplier };
         ReplaceRuntimeTop(damage with { ArmorPayment = receipt });
         return receipt;
     }
@@ -70,9 +72,9 @@ public sealed partial class GameEngine
             payment.DamageFrameId != damage.Id || payment.AttackFrameId != damage.ParentFrameId ||
             payment.SourceSeat != damage.SourceSeat || payment.TargetSeat != damage.TargetSeat ||
             payment.DamageAmount != damage.Amount || payment.DamageAmount < 0 || payment.Nature != damage.Nature ||
-            payment.ArmorBefore <= 0 || payment.ArmorAbsorbed != Math.Min(payment.ArmorBefore, payment.DamageAmount) ||
+            payment.ArmorDamageMultiplier is < 1 or > 2 || payment.ArmorBefore <= 0 || payment.ArmorAbsorbed != Math.Min(payment.ArmorBefore, checked(payment.DamageAmount * payment.ArmorDamageMultiplier)) ||
             payment.ArmorAfter != payment.ArmorBefore - payment.ArmorAbsorbed ||
-            payment.HpLossAmount != payment.DamageAmount - payment.ArmorAbsorbed ||
+            payment.HpLossAmount != payment.DamageAmount - (payment.ArmorAbsorbed + payment.ArmorDamageMultiplier - 1) / payment.ArmorDamageMultiplier ||
             (long)payment.UnclampedHpAfter != (long)payment.HpBefore - payment.HpLossAmount ||
             payment.HpAfter != payment.UnclampedHpAfter ||
             attack.SourceSeat != payment.SourceSeat || attack.TargetSeat != payment.TargetSeat ||

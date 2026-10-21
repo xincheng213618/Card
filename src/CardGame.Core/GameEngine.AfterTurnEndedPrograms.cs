@@ -43,10 +43,10 @@ public sealed partial class GameEngine
             AfterTurnEndedCandidate(parent) == candidate && context.OwnerSeat == candidate.OwnerSeat &&
             context.SourceSeat == parent.OwnerSeat && context.TargetSeat == parent.OwnerSeat &&
             context.OccurrenceIndex == candidate.OccurrenceIndex && context.Facts == parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts &&
-            (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own ? candidate.OwnerSeat == parent.OwnerSeat :
+            (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.AnyLiving || (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own ? candidate.OwnerSeat == parent.OwnerSeat :
                 candidate.OwnerSeat != parent.OwnerSeat && (_players[parent.OwnerSeat].IsAlive || IsWenYangChoujueCandidate(candidate, context) || IsAHuiNanJuemanEndingCandidate(candidate, context) || IsIssuedQinLangXianyingCandidate(candidate, context) || IsIssuedXiangxuEndingCandidate(candidate, context) ||
                     trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains or SkillProgramEffectOp.ResolveDailiTurnEnd or SkillProgramEffectOp.ResolveGoudeActualTurnEnd or SkillProgramEffectOp.ResolveZhijieActualTurnEnd or SkillProgramEffectOp.ResolveWuLuKangKegou or SkillProgramEffectOp.ResolveMouKongRongLiwen or SkillProgramEffectOp.PrepareMouLiuXieChensheng or SkillProgramEffectOp.ResolveMouXunYuAnniversaryBizuo or SkillProgramEffectOp.ResolveMouGuoJiaXianmou ||
-                        e.NumberExpression == SkillProgramNumberExpression.ActualTurnDeathBenefits)));
+                        e.NumberExpression == SkillProgramNumberExpression.ActualTurnDeathBenefits))));
     }
 
     private bool ContinueAfterTurnEndedPrograms(DeferredTurnEndFrame parent)
@@ -64,13 +64,14 @@ public sealed partial class GameEngine
                     .Any(t => t.Trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawFudaoRecordedPair)))
                     facts = facts with { EventTargetHandCount = GetHand(_players[parent.OwnerSeat]).Count };
                 return CollectEligibleProgramTriggerCandidates(owner, SkillProgramTriggerWindow.AfterTurnEnded, facts)
-                    .Where(c => !GetProgramTrigger(c).Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment) && GetProgramTrigger(c).TurnOwnerScope == (owner.Seat == parent.OwnerSeat ?
-                        SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving))
+                    .Where(c => !GetProgramTrigger(c).Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveXiangxuIssuedTurnEndAdjustment) &&
+                        (GetProgramTrigger(c).TurnOwnerScope == SkillProgramTurnOwnerScope.AnyLiving || GetProgramTrigger(c).TurnOwnerScope == (owner.Seat == parent.OwnerSeat ?
+                            SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving)))
                     .Select(c => new TurnEndingBoundaryItem(TurnEndingBoundaryItemKind.Program, c.Priority,
                         $"program:{c.SkillId}:{c.BindingId}:{c.SkillInstanceId}", c, facts));
-            }).OrderBy(i => (i.Candidate!.OwnerSeat - parent.OwnerSeat + _players.Count) % _players.Count)
+            }).OrderBy(i => RelativeTableOrder(parent.OwnerSeat, i.Candidate!.OwnerSeat))
                 .ThenByDescending(i => i.Priority).ThenBy(i => i.StableIdentity, StringComparer.Ordinal).ToArray();
-            ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = new(IncludeMouXyAfterTurnEndedItems(parent, IncludeXumingAfterTurnEndedItems(parent, IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, IncludeQinLangXianyingAfterTurnEndedItems(parent, Array.AsReadOnly(items))))))) });
+            ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = new(IncludeShenZfAfterTurnEndedItems(parent, IncludeMouXyAfterTurnEndedItems(parent, IncludeXumingAfterTurnEndedItems(parent, IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, IncludeQinLangXianyingAfterTurnEndedItems(parent, Array.AsReadOnly(items)))))))) });
         }
         if (parent.AfterTurnEnded.CurrentChild is null)
         {

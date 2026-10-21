@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:zhang-fei",
+  "skills": [
+    { "registrationOrder": 30600, "programBundle": "anniversary-shen-zhang-fei", "includeProgramPresentation": true, "definition": { "id": "anniversary:shencai", "name": "神裁", "description": "出牌阶段限一次，你可以令一名其他角色进行判定且你获得判定牌。若判定牌包含以下内容，其获得（已有标记则改为修改）对应标记：1.体力：“笞”标记，每次受到伤害后失去等量体力；2.武器：“杖”标记，无法响应【杀】；3.打出：“徒”标记，以此法外失去手牌后随机弃置一张手牌；4.距离：“流”标记，结束阶段将武将牌翻面；若判定牌不包含以上内容，该角色获得一个“死”标记且手牌上限减少其身上“死”标记个数，然后你获得其区域内一张牌。“死”标记个数大于场上存活人数的角色回合结束时，其直接死亡。", "actionForms": "Active", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 30601, "programBundle": "anniversary-shen-zhang-fei", "includeProgramPresentation": true, "definition": { "id": "anniversary:xunshi", "name": "巡使", "description": "锁定技，你的多目标锦囊牌均视为无色的【杀】。你使用无色牌无距离和次数限制且可以额外指定任意个目标，然后修改“神裁”的发动次数（每次修改次数+1，至多为5）。", "tags": "Locked", "executionForms": "Trigger, State" } }
+  ],
+  "generals": [{ "registrationOrder": 30602, "pools": { "current": 30602 }, "definition": { "id": "anniversary:shen-zhang-fei", "name": "神张飞", "portraitKey": "anniversary-shen-zhang-fei", "skillId": "anniversary:shencai", "additionalSkillIds": ["anniversary:xunshi"], "factionId": "god", "gender": "Male", "baseHp": 4, "characterId": "character:zhang-fei", "variantId": "anniversary-god", "rulesetId": "sanguosha-anniversary" } }]
+}

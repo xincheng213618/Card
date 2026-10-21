@@ -19,7 +19,8 @@ internal enum ProgramTriggerLegalityPhase
     BeforeCondition,
     AfterDyingCheck,
     AfterCondition,
-    AfterInitialPayments
+    AfterInitialPayments,
+    AwakeningConditionOverride
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
@@ -101,7 +102,7 @@ internal sealed class ProgramLegalityCatalog
             foreach (var registration in method.GetCustomAttributes<ProgramTriggerLegalityAttribute>())
             {
                 ValidateRegistration(registration.Phase, registration.Order, registration.Operations, method);
-                if (registration.Phase == ProgramTriggerLegalityPhase.Collection &&
+                if (registration.Phase is ProgramTriggerLegalityPhase.Collection or ProgramTriggerLegalityPhase.AwakeningConditionOverride &&
                     method.GetParameters().Any(parameter => parameter.ParameterType == typeof(ProgramSkillWindowContext)))
                     throw InvalidSignature(method);
                 Add(triggers, registration.Phase, registration.Order, registration.Operations, method);
@@ -168,6 +169,16 @@ internal sealed class ProgramLegalityRouter(ProgramLegalityCatalog catalog, obje
 
     internal bool CanTrigger(ProgramTriggerLegalityPhase phase, ProgramTriggerLegalityContext context) =>
         Evaluate(catalog.Triggers(phase), context, context.Features);
+
+    internal bool OverridesAwakeningCondition(ProgramTriggerLegalityContext context)
+    {
+        // Providers grant a condition waiver; a provider that declines cannot
+        // veto a waiver issued by another provider. All ordinary gates remain.
+        foreach (var gate in catalog.Triggers(ProgramTriggerLegalityPhase.AwakeningConditionOverride))
+            if ((gate.Operations.Count == 0 || gate.Operations.Any(context.Features.HasOperation)) &&
+                gate.Invoke(resolveTarget is null ? session : resolveTarget(gate.Method), context)) return true;
+        return false;
+    }
 
     private bool Evaluate<TContext>(IReadOnlyList<ProgramLegalityCatalog.Gate<TContext>> gates,
         TContext context, ProgramInstructionFeatures features)

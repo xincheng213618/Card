@@ -10,7 +10,7 @@ public sealed partial class MainViewModel
     public string ActionDockConfirmText => CanEndTurn ? "确 定" : PlayButtonText;
     public string ActionDockCancelText => IsBaguaActivationPending ? "不发动" : IsStoneAxeSelectionPending ? "否" : OwnedCardDeclineChoice is not null || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
         ? "放 弃" : "取 消";
-    public int HumanSkillColumns => HumanSkillCards.Count > 4 ? 2 : 1;
+    public int HumanSkillColumns => HumanSkillCards.Count > 2 ? 2 : 1;
     public double HumanSkillRailWidth => HumanSkillColumns == 2 ? 216 : 108;
 
     // Equipment activates from its slot. Keep explicit alternatives for other activations.

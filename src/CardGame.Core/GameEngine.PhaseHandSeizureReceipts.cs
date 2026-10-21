@@ -22,7 +22,7 @@ public sealed partial class GameEngine
         var costs = _cardMovements.Where(m => m.Sequence > receipt.CostBefore && m.Sequence <= receipt.CostAfter &&
             m.Reason.Value == PhaseHandSeizureReason(frame, "payment")).ToArray();
         if (costs is not [var move] || move.CardId != cost || move.From != receipt.CostFrom ||
-            !(move.To == CardLocation.DiscardPile || move.To == CardLocation.OutsideGame && (GetAdvancedCard(cost).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(move)))) return false;
+            !(move.To == CardLocation.DiscardPile || move.To == CardLocation.OutsideGame && (GetAdvancedCard(cost).IsGeneralWeapon || IsEphemeralCardDestroyedMaterial(move)))) return false;
         var flipped = CompleteProgramEventHistory().OfType<PhaseHandSeizureTurnedEvent>().Where(e => e.FrameId == frame.Id).ToArray();
         var issued = CompleteProgramEventHistory().OfType<PhaseHandSeizureIssuedEvent>().Where(e => e.FrameId == frame.Id).ToArray();
         if (receipt.Stage == PhaseHandSeizureStage.PaymentChildren)

@@ -205,6 +205,7 @@ internal sealed class NativeDrawAttemptRuntime(IProgramRuntimeFrames frames,
                     NativeDrawAttemptReturnKind.WumiaoFlood => parent is not CardUseFrame { WumiaoFlood.Stage: WumiaoFloodStage.Drawing },
                     NativeDrawAttemptReturnKind.DragonBoatCardEffect => parent is not CardUseFrame { DragonBoatCardEffect.Stage: DragonBoatCardEffectStage.Drawing },
                     NativeDrawAttemptReturnKind.EquipmentRecast => parent is not EquipmentRecastFrame { DrawApplied: false },
+                    NativeDrawAttemptReturnKind.SkillInvocation => parent is not SkillInvocationFrame { Stage: SkillInvocationStage.Drawing },
                     _ => parent is not ProgramSkillFrame
                 }) ||
                 queries.StartedEvents().Count(e => e.Context == context && e.Return == attempt.Return) != 1 ||

@@ -156,7 +156,7 @@ public sealed partial class GameEngine
             LegalActionKind.Peach => IsRuleWounded(target),
             LegalActionKind.Alcohol or LegalActionKind.DrawTwo or LegalActionKind.IronChain => true,
             LegalActionKind.WumiaoFlood => true,
-            LegalActionKind.Duel => target.Seat != actor.Seat,
+            LegalActionKind.Duel or LegalActionKind.QizhengXiangsheng => target.Seat != actor.Seat,
             LegalActionKind.FireAttack => GetHand(target).Count > 0,
             LegalActionKind.UnexpectedAssault => target.Seat != actor.Seat && GetHand(target).Count > 0,
             LegalActionKind.Dismantlement or LegalActionKind.Snatch => target.Seat != actor.Seat &&
@@ -338,6 +338,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramOrdinaryTrickUseOption> NextActualUseOrdinaryTrickOptions(CharacterState actor,
         IReadOnlyList<ProgramOrdinaryTrickUseOption> ordinary, Suit? suit, bool? color, Suit? shieldSuit, bool excludeOwner)
     {
+        ordinary = ShenZfOrdinaryTrickOptions(actor, ordinary, suit, color, shieldSuit, excludeOwner);
         if (CurrentNextActualUseAdjustment(actor.Seat) is null) return ordinary;
         var options = ordinary.ToList();
         var keys = ordinary.Select(o => (o.EffectiveCardKind, o.TargetCardId, Targets: string.Join(",", o.TargetSeats))).ToHashSet();

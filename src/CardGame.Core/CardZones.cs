@@ -23,7 +23,8 @@ public enum CardZoneKind
     PublicPersistentPile = 1140,
     PrivateTurnHold = 1700,
     RoundHold = 9800,
-    PrivatePersistentPile = 20700
+    PrivatePersistentPile = 20700,
+    Benevolence = 39100
 }
 
 public readonly record struct CardLocation
@@ -72,6 +73,7 @@ public readonly record struct CardLocation
     public static CardLocation DiscardPile => new(CardZoneKind.DiscardPile);
 
     public static CardLocation OutsideGame => new(CardZoneKind.OutsideGame);
+    public static CardLocation Benevolence => new(CardZoneKind.Benevolence);
 
     public static CardLocation Hand(int seat) => new(CardZoneKind.Hand, seat);
 
@@ -266,6 +268,7 @@ internal sealed class CardZoneStore
         AddZone(CardLocation.Processing);
         AddZone(CardLocation.DiscardPile);
         AddZone(CardLocation.OutsideGame);
+        AddZone(CardLocation.Benevolence);
 
         for (var seat = 0; seat < playerCount; seat++)
         {

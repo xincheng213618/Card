@@ -19,7 +19,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramTriggerCandidate> WuLuKangSources(int? onlySeat = null) => Array.AsReadOnly(_players.Where(p => p.IsAlive && (onlySeat is null || p.Seat == onlySeat))
         .SelectMany(p => GetSkillBindingShard(p).ProgramInstances.SelectMany(i => i.Program.Triggers.Where(t => t.Window == SkillProgramTriggerWindow.WuLuKangPindian &&
             t.Effects is [{ Op: SkillProgramEffectOp.ResolveWuLuKangShenduan }]).Select(t => new ProgramTriggerCandidate(p.Seat, i.SkillId, t.Id, i.SkillInstanceId, i.Program.GameplayHash, t.Priority))))
-        .OrderBy(c => (c.OwnerSeat - _turnProgression.OwnerSeat + _players.Count) % _players.Count).ThenByDescending(c => c.Priority).ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal).ToArray());
+        .OrderBy(c => RelativeTableOrder(_turnProgression.OwnerSeat, c.OwnerSeat)).ThenByDescending(c => c.Priority).ThenBy(c => c.SkillInstanceId, StringComparer.Ordinal).ToArray());
     private int WuLuKangTurnOrdinal => CompleteProgramEventHistory().OfType<TurnStartedEvent>().Count();
     private void CaptureWuLuKangContest(ResolutionFrame parent, bool group, int source, IReadOnlyList<WuLuKangPindianInput> inputs)
     {

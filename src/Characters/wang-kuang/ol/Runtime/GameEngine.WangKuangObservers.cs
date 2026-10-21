@@ -16,7 +16,7 @@ public sealed partial class GameEngine
                 m.Sequence > r.Before && m.Sequence <= r.After && (r.Branch == WangKuangRenxiaBranch.Draw ?
                     m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(f.OwnerSeat) && m.Reason.Value == RenxiaDrawReason || m.Reason == CardMoveReasons.Reshuffle :
                     m.Reason.Value == RenxiaDiscardReason && r.Selected.Any(c => c.CardId == m.CardId && c.From == m.From &&
-                        m.To == NormalizeDiouCarrierDestination(GetAttackCard(c.CardId), c.From, (c.From.Zone == CardZoneKind.Equipment && GetAttackCard(c.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) ||
+                        m.To == NormalizeEphemeralCardDestination(GetAttackCard(c.CardId), c.From, (c.From.Zone == CardZoneKind.Equipment && GetAttackCard(c.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) ||
                     m.Reason == CardMoveReasons.WoodenOxGrainDiscard && m.From == CardLocation.WoodenOxGrain(f.OwnerSeat) && m.To == CardLocation.DiscardPile && r.WoodenOxGrainIds.Contains(m.CardId)));
         if (child is RecoveryReplacementFrame recovery) return IsWangKuangRecoveryParent(f, recovery);
         if (child is HpChangedTriggerWindowFrame hp) return r.Branch == WangKuangRenxiaBranch.Discard && hp.ResumeFrameId == f.Id && hp.Continuation == PostEventContinuation.Program &&

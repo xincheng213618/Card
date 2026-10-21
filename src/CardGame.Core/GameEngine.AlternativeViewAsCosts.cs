@@ -20,7 +20,7 @@ public sealed partial class GameEngine
         row.Kinds.Contains(ProgramBasicCardName(kind));
 
     private bool IsProgramAlternativeCost(CardActionContext? action, int cardId) =>
-        action is not null && (action.Type == CardActionType.Use ||
+        IsWushuangJinzhiPaidMaterial(action, cardId) || action is not null && (action.Type == CardActionType.Use ||
             action.Type == CardActionType.Response && action.EffectiveKind == CardKind.Dodge &&
             action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null) &&
         action.PhysicalCards.Any(cost => cost.CardId == cardId) &&
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
         var alternative = IsProgramTopDeckDodgeSource(source);
         if (alternative && (source!.OwnerSeat != provider.Seat || !IsProgramResponseCardUse(provider, effectiveKind)))
             throw new InvalidOperationException("A top-deck response cost requires its own enabled Slash-defense Dodge use.");
-        MoveCard(card, FindOwnedCardLocation(provider, card),
+        MoveCard(card, FindOwnedCardLocation(provider, card, source),
             alternative ? CardLocation.DrawPile : CardLocation.Processing, CardMoveReasons.Respond,
             disclosure: CardMovementDisclosure.FaceUp);
     }

@@ -47,6 +47,7 @@ internal interface IResponseCompletionNativeProtocols : IProgramRuntimeOperation
     bool HasChenglieResponseObserver(CardActionContext action, ProgramCardContinuation continuation);
     bool TryGetXieweiResponseCostMovement(CardActionContext action, int cardId, out CardMovementRecord movement);
     bool TryGetSiruiDestroyedResponseCost(CardActionContext action, int cardId, out CardMovementRecord movement);
+    bool TryGetWushuangJinzhiResponseMovements(CardActionContext action, int cardId, out IReadOnlyList<CardMovementRecord> movements);
     CardMovementRecord? GuanduChariotResponsePayment(CardActionContext action, long parentFrameId,
         CardActionCost cost, ProgramCardContinuation continuation);
     bool IsProgramAlternativeCost(CardActionContext action, int cardId);
@@ -151,6 +152,7 @@ public sealed partial class GameEngine
         public bool HasChenglieResponseObserver(CardActionContext action, ProgramCardContinuation continuation) => engine.HasChenglieResponseObserver(action, continuation);
         public bool TryGetXieweiResponseCostMovement(CardActionContext action, int cardId, out CardMovementRecord movement) => engine.TryGetXieweiResponseCostMovement(action, cardId, out movement);
         public bool TryGetSiruiDestroyedResponseCost(CardActionContext action, int cardId, out CardMovementRecord movement) => engine.TryGetSiruiDestroyedResponseCost(action, cardId, out movement);
+        public bool TryGetWushuangJinzhiResponseMovements(CardActionContext action, int cardId, out IReadOnlyList<CardMovementRecord> movements) => engine.TryGetWushuangJinzhiResponseMovements(action, cardId, out movements);
         public CardMovementRecord? GuanduChariotResponsePayment(CardActionContext action, long parentFrameId,
             CardActionCost cost, ProgramCardContinuation continuation) => engine.GuanduChariotResponsePayment(action, parentFrameId, cost, continuation);
         public bool IsProgramAlternativeCost(CardActionContext action, int cardId) => engine.IsProgramAlternativeCost(action, cardId);

@@ -33,7 +33,7 @@
       "activations": [],
       "triggers": [
         {
-          "id": "reset-shown-category",
+          "id": "reset-shown-category", "isSkillInvocation": false,
           "window": "playPhaseStarting",
           "subject": "owner",
           "turnOwnerScope": "own",
@@ -204,7 +204,7 @@
           ]
         },
         {
-          "id": "clear-shown-category",
+          "id": "clear-shown-category", "isSkillInvocation": false,
           "window": "playEnding",
           "subject": "owner",
           "turnOwnerScope": "own",
@@ -260,7 +260,7 @@
       "activations": [],
       "triggers": [
         {
-          "id": "reset-gift",
+          "id": "reset-gift", "isSkillInvocation": false,
           "window": "playPhaseStarting",
           "subject": "owner",
           "turnOwnerScope": "otherLiving",
@@ -484,7 +484,7 @@
           ]
         },
         {
-          "id": "reset-gift-at-phase-end",
+          "id": "reset-gift-at-phase-end", "isSkillInvocation": false,
           "window": "playEnding",
           "subject": "owner",
           "turnOwnerScope": "otherLiving",

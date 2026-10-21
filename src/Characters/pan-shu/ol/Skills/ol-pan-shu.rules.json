@@ -56,7 +56,7 @@
      ]
     },
     {
-     "id": "zhiren-unrestricted-clear",
+     "id": "zhiren-unrestricted-clear", "isSkillInvocation": false,
      "window": "turnStartBeforeNormalFlow",
      "subject": "owner",
      "optional": false,

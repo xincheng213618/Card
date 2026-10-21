@@ -28,7 +28,7 @@ public sealed partial class GameEngine
             var c=new ProgramTriggerCandidate(group.Key.OwnerSeat,"ol:xianying",group.Key.OwnerSeat==parent.OwnerSeat?"turn-end-own":"turn-end-foreign",group.Key.SkillInstanceId,group.Key.GameplayHash,0);
             items.Add(new(TurnEndingBoundaryItemKind.Program,c.Priority,$"program:{c.SkillId}:{c.BindingId}:{c.SkillInstanceId}",c,CaptureProgramTriggerFacts(_players[c.OwnerSeat])));
         }
-        return Array.AsReadOnly(items.OrderBy(i=>(i.Candidate!.OwnerSeat-parent.OwnerSeat+_players.Count)%_players.Count).ThenByDescending(i=>i.Priority).ThenBy(i=>i.StableIdentity,StringComparer.Ordinal).ToArray());
+        return Array.AsReadOnly(items.OrderBy(i=>RelativeTableOrder(parent.OwnerSeat, i.Candidate!.OwnerSeat)).ThenByDescending(i=>i.Priority).ThenBy(i=>i.StableIdentity,StringComparer.Ordinal).ToArray());
     }
     private bool IsIssuedQinLangXianyingCandidate(ProgramTriggerCandidate c,ProgramSkillWindowContext context)
     {

@@ -899,7 +899,10 @@
       "source": {
         "generator": "tools/Build-HellEmblemArtwork.ps1",
         "generatorSha256": "9b4c4607ec70c788b5f059cf04bd081e2c65a499aa479c8216b624cb0769f0db",
-        "originalSize": [186, 260],
+        "originalSize": [
+          186,
+          260
+        ],
         "rankSuitBakedIn": false
       },
       "sha256": "737067c10f18def21ee4e58eb384f65857d349cb967d67224b44295ab3fc37de",
@@ -912,7 +915,10 @@
       "source": {
         "generator": "tools/Build-WenheCardArtwork.ps1",
         "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
-        "originalSize": [186, 260],
+        "originalSize": [
+          186,
+          260
+        ],
         "rankSuitBakedIn": false
       },
       "sha256": "D350F03C097679CFAC04CA06AB8763E3B2C00153C4324FFAF17007E026A67A77",
@@ -925,7 +931,10 @@
       "source": {
         "generator": "tools/Build-WenheCardArtwork.ps1",
         "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
-        "originalSize": [186, 260],
+        "originalSize": [
+          186,
+          260
+        ],
         "rankSuitBakedIn": false
       },
       "sha256": "0CE5F5F181719CC2150F8C0001FF4D26C4FE6379D7FFFFDA106BCC391B9C779C",
@@ -938,7 +947,10 @@
       "source": {
         "generator": "tools/Build-WenheCardArtwork.ps1",
         "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
-        "originalSize": [186, 260],
+        "originalSize": [
+          186,
+          260
+        ],
         "rankSuitBakedIn": false
       },
       "sha256": "87E295EE713958F8945C6372BC383BAD736B9DCE8F11759E0DCCE0B85164BFD1",
@@ -951,7 +963,10 @@
       "source": {
         "generator": "tools/Build-WenheCardArtwork.ps1",
         "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
-        "originalSize": [186, 260],
+        "originalSize": [
+          186,
+          260
+        ],
         "rankSuitBakedIn": false
       },
       "sha256": "6AB8530133D5B489D2218960F3E60DC5F1A28284252BD7375127D8AE8F856D3D",
@@ -964,65 +979,224 @@
       "source": {
         "generator": "tools/Build-WenheCardArtwork.ps1",
         "generatorSha256": "5608B8937EB82017974FA6AFF4E65E933C9F4B5B6BD19CA16938DB6F7C17CB69",
-        "originalSize": [186, 260],
+        "originalSize": [
+          186,
+          260
+        ],
         "rankSuitBakedIn": false
       },
       "sha256": "4F5C4C65D5D24F3CB79ABF5EC1BDD4C2FF15C889DA9E52286AC6D8D236ACD7E6",
       "notes": "Original project-drawn Wenhe poison-vial seal; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "Zong", "file": "Zong.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "Zong",
+      "file": "Zong.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-DragonBoatCardArtwork.ps1",
+        "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "6FC8B6E6412ADBA1BFC1E668F258F7C72958AA1A6F0400307932559B8F67896C",
       "notes": "Original project-drawn Dragon Boat wrapped-zong symbol; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "RealgarWine", "file": "RealgarWine.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "RealgarWine",
+      "file": "RealgarWine.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-DragonBoatCardArtwork.ps1",
+        "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "F25EAEB0517223649267A3732038F8E60166E47A43C5580170FD61AE1EB673C3",
       "notes": "Original project-drawn Dragon Boat wine-jar and mugwort symbol; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "SameBoat", "file": "SameBoat.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "SameBoat",
+      "file": "SameBoat.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-DragonBoatCardArtwork.ps1",
+        "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "94465C01099A7ACE8BF2823ADC91D0CD45FF4FE1C1C9C7381025668C433E7292",
       "notes": "Original project-drawn Dragon Boat paired-rowers symbol; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "StriveUpstream", "file": "StriveUpstream.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "StriveUpstream",
+      "file": "StriveUpstream.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-DragonBoatCardArtwork.ps1",
+        "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "E13EC6B90083E1E7687B7978C6469F7840AB0A15AFCD6D0F9AD279D038B4758D",
       "notes": "Original project-drawn Dragon Boat ascending-paddles symbol; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "AgainstCurrent", "file": "AgainstCurrent.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-DragonBoatCardArtwork.ps1", "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "AgainstCurrent",
+      "file": "AgainstCurrent.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-DragonBoatCardArtwork.ps1",
+        "generatorSha256": "CBE0BD5AA1FFFC491D64E4E131EB4AFCC804EF91A956FD03299B7FF976272F58",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "199F87D6BF156A3B15EEA4E8D613BF1DC86FC7F135F686E3D17D2005AB6FA297",
       "notes": "Original project-drawn Dragon Boat opposing-flow symbol; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "Intoxication", "file": "Intoxication.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "Intoxication",
+      "file": "Intoxication.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "B15DC2A912115019D87042F9556DB1537DEC237C5865B9DD1917586252550A76",
       "notes": "Original project-drawn Guandu wine jar symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "StoreGrain", "file": "StoreGrain.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "StoreGrain",
+      "file": "StoreGrain.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "F0374F7050657436EEBAFE7C65BC6477BDE5FCD2F93A793909698A72C373B17C",
       "notes": "Original project-drawn Guandu granary symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "Reinforcements", "file": "Reinforcements.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "Reinforcements",
+      "file": "Reinforcements.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "2796B4DB06308AA3E2147C86A4D556F1179313640B308301D7293049067588FE",
       "notes": "Original project-drawn Guandu marching reinforcements symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
     },
     {
-      "kind": "UnitedEffort", "file": "UnitedEffort.png", "sourceKind": "projectGenerated",
-      "source": { "generator": "tools/Build-GuanduCardArtwork.ps1", "generatorSha256": "5CD7A51EC2ADED47305F7B3E0902DEFF1EC3C6B87F412813D0ECE3439B3DF5CA", "originalSize": [186, 260], "rankSuitBakedIn": false },
+      "kind": "UnitedEffort",
+      "file": "UnitedEffort.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
       "sha256": "6990D85F20797F39E0943621F1DCC41039C9CC279B86471D3D8B4ECE57FDCD2D",
       "notes": "Original project-drawn Guandu linked armies symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "kind": "Xuanjian",
+      "file": "Xuanjian.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false,
+        "templateFile": "GeneralWeapon.png",
+        "templateSha256": "562CF9B5808ECF8784352C155568A33EFE368CC89178C03980C49E047EA61BE5"
+      },
+      "sha256": "562CF9B5808ECF8784352C155568A33EFE368CC89178C03980C49E047EA61BE5",
+      "notes": "Exact copy of the existing project-generated GeneralWeapon template; Xuanjian name uses the existing runtime overlay. Not official game artwork."
+    },
+    {
+      "kind": "ThunderChariot",
+      "file": "ThunderChariot.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "E44969BF66A0AC259461B6958C5585193855D231F425FADCB05D991486CC45B9",
+      "notes": "Original project-drawn symbol and current card-name label; not official game artwork. Rank, suit and rules remain runtime data."
+    },
+    {
+      "kind": "WumiaoFlood",
+      "file": "WumiaoFlood.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "15CF33790B855071EE196E78241D7D0EEBA601B97E5F07F6EB5DC10D5CFFD26C",
+      "notes": "Original project-drawn symbol and current card-name label; not official game artwork. Rank, suit and rules remain runtime data."
+    },
+    {
+      "kind": "QizhengXiangsheng",
+      "file": "QizhengXiangsheng.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "03753531BC040CCB71BE35D63F3FDA3585FB6E6C986F74A69AF0622B0F63F1D0",
+      "notes": "Project-drawn paired standards and current card name, following the existing derived-card style; not official artwork. Suit, rank and rules remain runtime data."
     }
   ],
   "components": [
@@ -1899,6 +2073,40 @@
       },
       "sha256": "622A24691BC03BD4F9BB81BEF1235279A9CD84EBDD7BFAE3A0F66062E3306945",
       "notes": "Original project-drawn Shenwu symbol and KaiTi label; not official game artwork. Rank and suit remain runtime overlays."
+    },
+    {
+      "id": "equipment:Xuanjian",
+      "file": "equip-Xuanjian.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false,
+        "templateFile": "equip-GeneralWeapon.png",
+        "templateSha256": "812ACE8990F778D4EFC0A4F5DC521ADA7E2BDB6C260F0F4E01C8D02EA60CE7A4"
+      },
+      "sha256": "812ACE8990F778D4EFC0A4F5DC521ADA7E2BDB6C260F0F4E01C8D02EA60CE7A4",
+      "notes": "Exact copy of the existing project-generated GeneralWeapon equipment template; Xuanjian name uses the existing runtime overlay."
+    },
+    {
+      "id": "equipment:ThunderChariot",
+      "file": "equip-ThunderChariot.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GuanduCardArtwork.ps1",
+        "generatorSha256": "635814F575BEF229209DFD34ED9D7A3CB2F70548E9E71652978E48789E60CFEF",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "FB59E66BB634F1416588D4F8BA0293FB5C61890DC98E48E721FBCB9ABC54ABDC",
+      "notes": "Original project-drawn equipment symbol and current name; not official game artwork."
     }
   ]
 }

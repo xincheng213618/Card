@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:tianzuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "eight-qizheng",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "addTianzuoCards",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "qizheng-ineffective",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "qizhengXiangsheng"
+          ],
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "nullifyCurrentCardEffect",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:lingce",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "real-trick-draw",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawLingceActualTrick",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:dinghan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "new-trick-name",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recordAndCancelDinghanTarget",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "edit-trick-name",
+          "window": "turnBeforeStart",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "editDinghanNames",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

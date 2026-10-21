@@ -81,7 +81,7 @@ public sealed partial class MainViewModel
                 : suits.Count == 1 ? suits.Single() switch
                 { Suit.Heart => "红桃", Suit.Diamond => "方块", Suit.Spade => "黑桃", _ => "梅花" } : string.Empty;
             var kinds = rule.InputKinds.Count > 0 ? string.Join("或", rule.InputKinds.Select(kind => $"【{CardCatalog.Get(kind).DisplayName}】")) : string.Empty;
-            var zone = rule.SourceZones.SequenceEqual([CardZoneKind.Hand]) ? "手牌" : rule.SourceZones.SequenceEqual([CardZoneKind.Equipment])
+            var zone = rule.FieldMountConversion == true ? "场上坐骑" : rule.SourceZones.SequenceEqual([CardZoneKind.Hand]) ? "手牌" : rule.SourceZones.SequenceEqual([CardZoneKind.Equipment])
                 ? "装备牌" : rule.SourceZones.SequenceEqual([CardZoneKind.Judgment]) ? "判定牌"
                 : rule.SourceZones.SequenceEqual([CardZoneKind.Authority]) ? "牌堆中的牌" : "牌";
             return suit + kinds + zone;
@@ -143,9 +143,18 @@ public sealed partial class MainViewModel
         return true;
     }
 
-    private static IEnumerable<CardSnapshot> PlayMaterials(PlayerSnapshot player) => player.Hand
+    private IEnumerable<CardSnapshot> PlayMaterials(PlayerSnapshot player) => player.Hand
         .Concat(player.WoodenOxGrain ?? []).Concat(player.Equipment).Concat(player.Judgment).Concat(player.AuthorityCards ?? [])
-        .Concat(OwnPublicPileMaterials(player));
+        .Concat(OwnPublicPileMaterials(player)).Concat(ForeignFieldPlayMaterials(player));
+
+    private IEnumerable<CardSnapshot> ForeignFieldPlayMaterials(PlayerSnapshot player)
+    {
+        var ids = GetViewLegalActions().Where(action => action.ConversionSource is { } source &&
+                _game.GetCardConversionDefinition(source)?.FieldMountConversion == true && action.CardId.HasValue)
+            .Select(action => action.CardId!.Value).ToHashSet();
+        return _snapshot.Players.Where(other => other.Seat != player.Seat)
+            .SelectMany(other => other.Equipment.Concat(other.Judgment)).Where(card => ids.Contains(card.Id));
+    }
 
     private static IEnumerable<CardSnapshot> OwnPublicPileMaterials(PlayerSnapshot player) =>
         player.PublicPersistentPiles is { Count: > 0 } piles

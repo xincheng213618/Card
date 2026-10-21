@@ -1,0 +1,2376 @@
+{
+  "verifiedOn": "2026-10-21",
+  "source": "sources/wushuang-roster-observed-2026-10-21.json",
+  "inspection": "Compiled global registry; IsGeneralPlayable with explicit source name aliases and OL suffix normalization. National and mobile editions are separate.",
+  "observedCount": 241,
+  "implementedCount": 208,
+  "pendingCount": 33,
+  "generals": [
+    {
+      "group": "标准版",
+      "name": "关羽",
+      "status": "已实现",
+      "generalIds": [
+        "classic:guan-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "张飞",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhang-fei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "诸葛亮",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhuge-liang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "赵云",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhao-yun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "马超",
+      "status": "已实现",
+      "generalIds": [
+        "classic:ma-chao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "黄月英",
+      "status": "已实现",
+      "generalIds": [
+        "classic:huang-yueying"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "孙权",
+      "status": "已实现",
+      "generalIds": [
+        "classic:sun-quan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "甘宁",
+      "status": "已实现",
+      "generalIds": [
+        "classic:gan-ning"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "吕蒙",
+      "status": "已实现",
+      "generalIds": [
+        "classic:lu-meng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "黄盖",
+      "status": "已实现",
+      "generalIds": [
+        "classic:huang-gai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "周瑜",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhou-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "陆逊",
+      "status": "已实现",
+      "generalIds": [
+        "classic:lu-xun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "曹操",
+      "status": "已实现",
+      "generalIds": [
+        "classic:cao-cao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "司马懿",
+      "status": "已实现",
+      "generalIds": [
+        "classic:sima-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "夏侯惇",
+      "status": "已实现",
+      "generalIds": [
+        "classic:xiahou-dun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "张辽",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhang-liao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "许褚",
+      "status": "已实现",
+      "generalIds": [
+        "classic:xu-chu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "郭嘉",
+      "status": "已实现",
+      "generalIds": [
+        "classic:guo-jia"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "甄姬",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhen-ji"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "吕布",
+      "status": "已实现",
+      "generalIds": [
+        "classic:lu-bu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "标准版",
+      "name": "孙尚香",
+      "status": "已实现",
+      "generalIds": [
+        "classic:sun-shangxiang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神甘宁",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shen-gan-ning"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "许攸",
+      "status": "已实现",
+      "generalIds": [
+        "classic:xu-you"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "诸葛瞻",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhuge-zhan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "魏延",
+      "status": "已实现",
+      "generalIds": [
+        "classic:wei-yan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "夏侯渊",
+      "status": "已实现",
+      "generalIds": [
+        "classic:xiahou-yuan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "典韦",
+      "status": "已实现",
+      "generalIds": [
+        "classic:dian-wei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "袁绍",
+      "status": "已实现",
+      "generalIds": [
+        "classic:yuan-shao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "姜维",
+      "status": "已实现",
+      "generalIds": [
+        "classic:jiang-wei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "孙策",
+      "status": "已实现",
+      "generalIds": [
+        "classic:sun-ce"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "黄忠",
+      "status": "已实现",
+      "generalIds": [
+        "classic:huang-zhong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神吕蒙",
+      "status": "已实现",
+      "generalIds": [
+        "classic:shen-lu-meng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神周瑜",
+      "status": "已实现",
+      "generalIds": [
+        "classic:shen-zhou-yu",
+        "ol:shen-zhou-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神赵云",
+      "status": "已实现",
+      "generalIds": [
+        "classic:shen-zhao-yun",
+        "ol:shen-zhao-yun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "张角",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhang-jiao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神刘备",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shen-liu-bei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神陆逊",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shen-lu-xun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神孙权",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shen-sun-quan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神张角",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shen-zhang-jiao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神典韦",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shen-dian-wei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "神黄忠",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shen-huang-zhong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "神话再临",
+      "name": "王基",
+      "status": "已实现",
+      "generalIds": [
+        "classic:wang-ji"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "马谡",
+      "status": "已实现",
+      "generalIds": [
+        "classic:ma-su"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "王异",
+      "status": "已实现",
+      "generalIds": [
+        "classic:wang-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "秦宓",
+      "status": "已实现",
+      "generalIds": [
+        "classic:qin-mi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "凌统",
+      "status": "已实现",
+      "generalIds": [
+        "classic:ling-tong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "徐盛",
+      "status": "已实现",
+      "generalIds": [
+        "classic:xu-sheng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "于禁",
+      "status": "已实现",
+      "generalIds": [
+        "classic:yu-jin"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "张春华",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhang-chun-hua"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "马岱",
+      "status": "已实现",
+      "generalIds": [
+        "classic:ma-dai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "朱然",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhu-ran"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "吴懿",
+      "status": "已实现",
+      "generalIds": [
+        "classic:wu-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "朱桓",
+      "status": "已实现",
+      "generalIds": [
+        "classic:zhu-huan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "沮授",
+      "status": "已实现",
+      "generalIds": [
+        "classic:ju-shou"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "孙资刘放",
+      "status": "已实现",
+      "generalIds": [
+        "classic:sun-zi-liu-fang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "辛宪英",
+      "status": "已实现",
+      "generalIds": [
+        "classic:xin-xianying"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "嵇康",
+      "status": "已实现",
+      "generalIds": [
+        "classic:ji-kang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "一将成名",
+      "name": "薛综",
+      "status": "已实现",
+      "generalIds": [
+        "classic:xue-zong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界黄忠",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:huang-zhong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界关羽",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:guan-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界黄盖",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:huang-gai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界诸葛亮",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhuge-liang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界孙权",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:sun-quan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界魏延",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:wei-yan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界姜维",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:jiang-wei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界典韦",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:dian-wei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界张飞",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhang-fei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界赵云",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhao-yun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界马超",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:ma-chao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界甘宁",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:gan-ning"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界周瑜",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhou-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界陆逊",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:lu-xun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界曹操",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:cao-cao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界司马懿",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:sima-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界夏侯惇",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:xiahou-dun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界张辽",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhang-liao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界许褚",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:xu-chu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界郭嘉",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:guo-jia"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界吕布",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:lu-bu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界黄月英",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:huang-yueying"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界甄姬",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhen-ji"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界华雄",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:hua-xiong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界张角",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhang-jiao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界孙策",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:sun-ce"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界小乔",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:xiao-qiao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界庞德",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:pang-de"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界太史慈",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:taishi-ci"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界贾诩",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:jia-xu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界限突破",
+      "name": "界颜良文丑",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:yan-liang-wen-chou"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界徐盛",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:xu-sheng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界凌统",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:ling-tong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界虞翻",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:yu-fan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界高顺",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:gao-shun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界王异",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:wang-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界张春华",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhang-chun-hua"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界曹冲",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:cao-chong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界曹植",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:cao-zhi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界廖化",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:liao-hua"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界李儒",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:li-ru"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界郭淮",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:guo-huai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界韩当",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:han-dang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界关兴张苞",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:guan-xing-zhang-bao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界马岱",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:ma-dai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界郭皇后",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:guo-huang-hou"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界沮授",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:ju-shou"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界夏侯氏",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:xiahou-shi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界张松",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:zhang-song"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界于禁",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:yu-jin"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "界一将",
+      "name": "界关平",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "界一将",
+      "name": "界步练师",
+      "status": "已实现",
+      "generalIds": [
+        "boundary:bu-lian-shi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "王元姬",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "文德武备",
+      "name": "杜预",
+      "status": "已实现",
+      "generalIds": [
+        "ol:du-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "杨艳",
+      "status": "已实现",
+      "generalIds": [
+        "ol:yang-yan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "钟琰",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhong-yan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "成济成倅",
+      "status": "已实现",
+      "generalIds": [
+        "ol:cheng-ji-cheng-cui"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "司马师",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "文德武备",
+      "name": "司马昭",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "文德武备",
+      "name": "石苞",
+      "status": "已实现",
+      "generalIds": [
+        "ol:shi-bao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "李肃",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "文德武备",
+      "name": "司马伷",
+      "status": "已实现",
+      "generalIds": [
+        "ol:sima-zhou"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "杨芷",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "文德武备",
+      "name": "贾充",
+      "status": "已实现",
+      "generalIds": [
+        "ol:jia-chong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "文德武备",
+      "name": "王祥",
+      "status": "已实现",
+      "generalIds": [
+        "ol:wang-xiang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "王荣",
+      "status": "已实现",
+      "generalIds": [
+        "ol:wang-rong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "麴义",
+      "status": "已实现",
+      "generalIds": [
+        "classic:qu-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "李傕",
+      "status": "已实现",
+      "generalIds": [
+        "ol:li-jue"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "丁原",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ding-yuan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "清河公主",
+      "status": "已实现",
+      "generalIds": [
+        "ol:qinghe-gongzhu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "诸葛恪",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhuge-ke"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "夏侯霸",
+      "status": "已实现",
+      "generalIds": [
+        "ol:xiahou-ba"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "乐进",
+      "status": "已实现",
+      "generalIds": [
+        "ol:yue-jin"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "曹昂",
+      "status": "已实现",
+      "generalIds": [
+        "classic:cao-ang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "诸葛瑾",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhuge-jin"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "潘凤",
+      "status": "已实现",
+      "generalIds": [
+        "ol:pan-feng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "马良",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ma-liang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "程昱",
+      "status": "已实现",
+      "generalIds": [
+        "ol:cheng-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "张鲁",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhang-lu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "邓芝",
+      "status": "已实现",
+      "generalIds": [
+        "ol:deng-zhi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "董白",
+      "status": "已实现",
+      "generalIds": [
+        "ol:dong-bai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "诸葛果",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhuge-guo"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "鲁芝",
+      "status": "已实现",
+      "generalIds": [
+        "ol:lu-zhi-wei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "沙摩柯",
+      "status": "已实现",
+      "generalIds": [
+        "classic:sha-mo-ke"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "吕旷吕翔",
+      "status": "已实现",
+      "generalIds": [
+        "ol:lv-kuang-lv-xiang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "花鬘",
+      "status": "已实现",
+      "generalIds": [
+        "ol:hua-man"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "张陵",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhang-ling"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "周鲂",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhou-fang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "曹性",
+      "status": "已实现",
+      "generalIds": [
+        "ol:cao-xing"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "黄祖",
+      "status": "已实现",
+      "generalIds": [
+        "ol:huang-zu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "刘辩",
+      "status": "已实现",
+      "generalIds": [
+        "ol:liu-bian"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "杨仪",
+      "status": "已实现",
+      "generalIds": [
+        "ol:yang-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "陈登",
+      "status": "已实现",
+      "generalIds": [
+        "ol:chen-deng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "辛毗",
+      "status": "已实现",
+      "generalIds": [
+        "ol:xin-pi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "杨婉",
+      "status": "已实现",
+      "generalIds": [
+        "ol:yang-wan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "滕芳兰",
+      "status": "已实现",
+      "generalIds": [
+        "ol:teng-fang-lan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "芮姬",
+      "status": "已实现",
+      "generalIds": [
+        "ol:rui-ji"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "郭槐",
+      "status": "已实现",
+      "generalIds": [
+        "ol:guo-huai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "邓忠",
+      "status": "已实现",
+      "generalIds": [
+        "ol:deng-zhong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "霍峻",
+      "status": "已实现",
+      "generalIds": [
+        "ol:huo-jun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "张芝",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "文鸯",
+      "status": "已实现",
+      "generalIds": [
+        "ol:wen-yang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "夏侯玄",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "马日磾",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ma-mi-di"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "阎柔",
+      "status": "已实现",
+      "generalIds": [
+        "ol:yan-rou"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "朱儁",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhu-jun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "卢氏",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "张翼",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhang-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "张华",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhang-hua"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "曹羲",
+      "status": "已实现",
+      "generalIds": [
+        "ol:cao-xi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "孟达",
+      "status": "已实现",
+      "generalIds": [
+        "ol:meng-da"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "彭羕",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "吕伯奢",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "张燕",
+      "status": "已实现",
+      "generalIds": [
+        "ol:zhang-yan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "陆凯",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "向宠",
+      "status": "已实现",
+      "generalIds": [
+        "ol:xiang-chong"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "胡金定",
+      "status": "已实现",
+      "generalIds": [
+        "ol:hu-jin-ding"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "凌操",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ling-cao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "刘辟",
+      "status": "已实现",
+      "generalIds": [
+        "ol:liu-pi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "郭图",
+      "status": "已实现",
+      "generalIds": [
+        "ol:guo-tu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "孙茹",
+      "status": "已实现",
+      "generalIds": [
+        "ol:sun-ru"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "刘焉",
+      "status": "已实现",
+      "generalIds": [
+        "ol:liu-yan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "王匡",
+      "status": "已实现",
+      "generalIds": [
+        "ol:wang-kuang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "轲比能",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ke-bi-neng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "秦朗",
+      "status": "已实现",
+      "generalIds": [
+        "ol:qin-lang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "陶谦",
+      "status": "已实现",
+      "generalIds": [
+        "ol:tao-qian"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "武安国",
+      "status": "已实现",
+      "generalIds": [
+        "ol:wu-an-guo"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "袁姬",
+      "status": "已实现",
+      "generalIds": [
+        "ol:yuan-ji"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "牛辅",
+      "status": "已实现",
+      "generalIds": [
+        "ol:niu-fu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "董翓",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "阮慧",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ruan-hui"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "袁涣",
+      "status": "已实现",
+      "generalIds": [
+        "ol:yuan-huan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "吴景",
+      "status": "已实现",
+      "generalIds": [
+        "ol:wu-jing"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "马元义",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ma-yuan-yi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "刘晔",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "逄纪",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "裴元绍",
+      "status": "已实现",
+      "generalIds": [
+        "ol:pei-yuan-shao"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "刘璋",
+      "status": "已实现",
+      "generalIds": [
+        "ol:liu-zhang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "李丰",
+      "status": "已实现",
+      "generalIds": [
+        "ol:li-feng"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "张曼成",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "管亥",
+      "status": "已实现",
+      "generalIds": [
+        "ol:guan-hai"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "孙鸢",
+      "status": "已实现",
+      "generalIds": [
+        "ol:sun-yuan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "乔国老",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "阮瑀",
+      "status": "已实现",
+      "generalIds": [
+        "ol:ruan-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "鲍信",
+      "status": "已实现",
+      "generalIds": [
+        "ol:bao-xin"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "环淑君",
+      "status": "已实现",
+      "generalIds": [
+        "ol:huan-shu-jun"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "崔琰",
+      "status": "已实现",
+      "generalIds": [
+        "ol:cui-yan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "唐咨",
+      "status": "已实现",
+      "generalIds": [
+        "ol:tang-zi"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "董子安",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "璀璨星河",
+      "name": "段煨",
+      "status": "已实现",
+      "generalIds": [
+        "ol:duan-wei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "璀璨星河",
+      "name": "谢灵毓",
+      "status": "已实现",
+      "generalIds": [
+        "ol:xie-ling-yu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋姜维",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [
+        "mou:jiang-wei-mobile"
+      ],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋关羽",
+      "status": "已实现",
+      "generalIds": [
+        "mou:guan-yu-ol"
+      ],
+      "otherVersionIds": [
+        "mou:guan-yu-mobile"
+      ],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋邓艾",
+      "status": "已实现",
+      "generalIds": [
+        "mou:deng-ai-ol"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋太史慈",
+      "status": "已实现",
+      "generalIds": [
+        "mou:taishi-ci-ol"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋董卓",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋孙坚",
+      "status": "已实现",
+      "generalIds": [
+        "mou:sun-jian-ol"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋黄月英",
+      "status": "已实现",
+      "generalIds": [
+        "mou:huang-yueying-ol"
+      ],
+      "otherVersionIds": [
+        "mou:huang-yueying-mobile"
+      ],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋庞统",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [
+        "mou:pang-tong-mobile"
+      ],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋华雄",
+      "status": "已实现",
+      "generalIds": [
+        "mou:hua-xiong-ol"
+      ],
+      "otherVersionIds": [
+        "mou:hua-xiong-mobile"
+      ],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋袁术",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋公孙瓒",
+      "status": "已实现",
+      "generalIds": [
+        "mou:gongsun-zan-ol"
+      ],
+      "otherVersionIds": [
+        "mou:gongsun-zan-mobile"
+      ],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋田丰",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋贾诩",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋文丑",
+      "status": "已实现",
+      "generalIds": [
+        "mou:wen-chou-ol"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋张绣",
+      "status": "已实现",
+      "generalIds": [
+        "mou:zhang-xiu-ol"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋卢植",
+      "status": "已实现",
+      "generalIds": [
+        "mou:lu-zhi-ol"
+      ],
+      "otherVersionIds": [
+        "mou:lu-zhi-mobile"
+      ],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋张让",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋小乔",
+      "status": "实现中",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋诸葛亮",
+      "status": "已实现",
+      "generalIds": [
+        "mou:zhuge-liang"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋鲁肃",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋许攸",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋戏志才",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋程昱",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋董昭",
+      "status": "已实现",
+      "generalIds": [
+        "mou:dong-zhao-ol"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "谋",
+      "name": "谋祝融",
+      "status": "待实现",
+      "generalIds": [],
+      "otherVersionIds": [
+        "mou:zhu-rong-mobile"
+      ],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "谋",
+      "name": "谋周瑜",
+      "status": "已实现",
+      "generalIds": [
+        "mou:zhou-yu-ol"
+      ],
+      "otherVersionIds": [
+        "mou:zhou-yu-mobile"
+      ],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "魔",
+      "name": "魔司马懿",
+      "status": "实现中",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "魔",
+      "name": "魔孙权",
+      "status": "已实现",
+      "generalIds": [
+        "ol:mo-sun-quan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "魔",
+      "name": "魔曹操",
+      "status": "实现中",
+      "generalIds": [],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": false
+    },
+    {
+      "group": "魔",
+      "name": "魔吕布",
+      "status": "已实现",
+      "generalIds": [
+        "ol:mo-lu-bu"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "魔",
+      "name": "魔貂蝉",
+      "status": "已实现",
+      "generalIds": [
+        "ol:mo-diao-chan"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    },
+    {
+      "group": "魔",
+      "name": "魔张飞",
+      "status": "已实现",
+      "generalIds": [
+        "ol:mo-zhang-fei"
+      ],
+      "otherVersionIds": [],
+      "inCurrentDuelPool": true
+    }
+  ],
+  "inProgressCount": 3,
+  "verificationScope": "Compiled global registry snapshot. Concurrent unfinished OL Mo Sima Yi, Mo Cao Cao and Mou Xiao Qiao are marked in progress and excluded from this verification only."
+}

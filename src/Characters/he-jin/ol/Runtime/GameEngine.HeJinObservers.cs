@@ -24,7 +24,7 @@ public sealed partial class GameEngine
                     moved.Batch.OriginSkillId == f.SkillId && moved.Batch.OriginSkillInstanceId == f.SkillInstanceId && moved.Batch.Movements.Count > 0 &&
                     moved.Batch.Movements.All(m => _cardMovements.Contains(m) && m.Sequence > r.Before && m.Sequence <= r.After &&
                         (m.Reason.Value == HeJinDiscardReason && r.SelectedCards.Any(s => s.CardId == m.CardId && s.From == m.From &&
-                            m.To == NormalizeDiouCarrierDestination(GetAttackCard(s.CardId), s.From, (s.From.Zone == CardZoneKind.Equipment && GetAttackCard(s.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) ||
+                            m.To == NormalizeEphemeralCardDestination(GetAttackCard(s.CardId), s.From, (s.From.Zone == CardZoneKind.Equipment && GetAttackCard(s.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) ||
                          m.Reason == CardMoveReasons.WoodenOxGrainDiscard && m.From == CardLocation.WoodenOxGrain(r.KillerSeat) && m.To == CardLocation.DiscardPile &&
                             r.SelectedCards.Any(s => s.From == CardLocation.Equipment(r.KillerSeat) && GetAttackCard(s.CardId).Kind == CardKind.WoodenOx)));
             if (child is RecoveryReplacementFrame recovery) return IsHeJinRecoveryParent(f, recovery);

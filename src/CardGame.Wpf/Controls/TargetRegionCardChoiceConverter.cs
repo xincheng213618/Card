@@ -30,3 +30,13 @@ public sealed class TargetRegionCardChoiceConverter : IMultiValueConverter
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+public sealed class TargetRegionCardSelectionConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) =>
+        values.Length >= 2 && values[0] is PromptChoice { Cards: [var id] } &&
+        values[1] is IReadOnlyList<int> selected && selected.Contains(id);
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}

@@ -3,6 +3,8 @@ namespace CardGame.Core;
 public sealed record WushuangTactic(int Id, string Name, string Description, int Cost, int Quality, string? SkillId = null)
 {
     public bool IsImplemented { get; init; }
+    public bool IsAvailableInShop { get; init; }
+    public bool StartOnly { get; init; }
     public IReadOnlyList<int> RelatedIds { get; init; } = Array.AsReadOnly(Array.Empty<int>());
 }
 

@@ -281,7 +281,7 @@ public sealed partial class GameEngine
     {
         if (!ExactOriginalUseLightning(a)) throw new InvalidOperationException("Lightning transfer lost its original held effect.");
         var holder = a.Holder;
-        var nextHolder = Enumerable.Range(1, _playerCount - 1).Select(offset => (holder + offset) % _playerCount)
+        var nextHolder = Enumerable.Range(1, _playerCount - 1).Select(offset => TableStepSeat(holder, offset))
             .FirstOrDefault(seat => _players[seat].IsAlive && !_players[seat].JudgmentAreaAbolished &&
                 !HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget) &&
                 !IsBlackTrickTargetProhibited(_players[seat], CardKind.Lightning, null) &&

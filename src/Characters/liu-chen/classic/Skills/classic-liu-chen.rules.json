@@ -11,7 +11,7 @@
         "effects":[{"op":"useAllHandCardsAsOrdinaryTrick","target":"owner","viewAsId":"all-hand-duel","outputKind":"duel"}]
       }],
       "triggers":[{
-        "id":"completed-duel-draws","window":"cardUseCompleted","ownerRelation":"conversionSource",
+        "id":"completed-duel-draws", "isSkillInvocation": false,"window":"cardUseCompleted","ownerRelation":"conversionSource",
         "sourceSkillId":"classic:zhanjue","sourceViewAsId":"all-hand-duel","optional":false,"allowNoEventTarget":true,
         "effects":[{"op":"drawCompletedCardParticipants","target":"owner","stateId":"zhanjue-exhausted","threshold":2}]
       }]

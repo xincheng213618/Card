@@ -11,6 +11,51 @@ internal static class OlMoLuBuChecks
         Enemy = "fixture:mlb-enemy", Far = "fixture:mlb-far", Ally = "fixture:mlb-ally", Deck = "fixture:mlb-deck";
     private static ShanheStartingCard C(CardKind kind) => new(kind, Suit.Spade, 7);
 
+    public static void WushuangOpeningBeforeEitherNormalFirstSeat()
+    {
+        var firstSeats = new HashSet<int>();
+        foreach (var seed in new[] { 1, 2 })
+        {
+            var registry = StandardWushuangContentRegistry.Create();
+            var game = GameEngine.CreateStandard(StandardWushuangContentRegistry.CreateOptions(seed) with
+            { ConfirmOpeningHand = true, AdvanceAfterHumanCommands = false, UseInteractiveDiscard = false }, registry);
+            var s = new Scene(game, registry);
+            s.Accept(new StartGameCommand());
+            s.Reach(() => s.P is { Kind: DecisionKind.SelectGeneral });
+            s.Accept(new RequestGeneralRosterCommand(0, true, s.G.Revision, s.P!.PromptId));
+            s.Accept(new SelectGeneralCommand(0, "ol:mo-lu-bu", s.G.Revision, s.P!.PromptId));
+            s.Reach(() => s.P?.Choices.Any(c => c.Id.Value == "setup.opening.confirm") == true);
+            s.Answer(c => c.Id.Value == "setup.opening.confirm");
+            s.Reach(() => s.G.CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.OpeningTactic });
+            s.Answer(_ => true);
+            s.Play();
+            s.Need(s.E<MoLuBuOpeningStartedEvent>() is [{ ActualTurn: 1 }] && s.E<TurnStartedEvent>() is [{ ActorSeat: 0 }] &&
+                s.E<RoundStartedEvent>().Length == 0 && s.E<MoLuBuQiMarkedEvent>().Length == 9,
+                "The actual Wushuang selection, confirmed Hand and opening tactic must reach Duoqi before the first normal turn.");
+            var opening = s.E<MoLuBuOpeningStartedEvent>().Single();
+            firstSeats.Add(opening.NormalSeat);
+            s.Need(s.G.IsMoLuBuOpeningPhase && Enumerable.Range(0, 2).All(viewer =>
+                s.G.CreateWushuangSnapshot(viewer)!.FirstNormalSeat == opening.NormalSeat) &&
+                s.G.Log.Any(log => log.Message.Contains("开局额外出牌阶段")),
+                "The public opening phase and actual normal initiative stay distinct from the temporary opening actor.");
+            s.Cold();
+            s.Accept(new EndPlayPhaseCommand(0, s.G.Revision, s.P!.PromptId));
+            s.Reach(() => s.E<TurnStartedEvent>().Length >= 2);
+            s.Need(s.E<MoLuBuOpeningCompletedEvent>() is [var completed] && completed.NormalSeat == opening.NormalSeat &&
+                s.E<TurnStartedEvent>()[1].ActorSeat == opening.NormalSeat && s.E<RoundStartedEvent>() is [{ RoundNumber: 1 }],
+                "The opening resumes the original Wushuang first actor, including a second consecutive turn when Lu Bu acts first.");
+            s.Need(!s.G.IsMoLuBuOpeningPhase && s.G.CreateWushuangSnapshot(0)!.FirstNormalSeat == opening.NormalSeat,
+                "Completing the opening clears its phase indication without changing the displayed normal initiative.");
+            if (opening.NormalSeat == 0)
+            {
+                s.Play();
+                s.Need(s.E<ActualDiscardRecoveryPhaseStartedEvent>().Count(e => e.Phase.ActorSeat == 0 && e.Phase.Kind == ActualDiscardRecoveryPhaseKind.Play) == 2,
+                    "First-acting Lu Bu reaches both the opening and normal Play before the opponent begins a turn.");
+            }
+        }
+        if (!firstSeats.SetEquals([0, 1])) throw new InvalidOperationException("Wushuang regression seeds must cover both normal first actors: " + string.Join(",", firstSeats));
+    }
+
     public static void NativeOpeningQiGangquanReciprocalKuangAndDeathReturn()
     {
         var s = Scene.Start(); var opening = s.E<MoLuBuOpeningStartedEvent>().Single();

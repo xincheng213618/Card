@@ -114,12 +114,11 @@ public sealed partial class GameEngine
     // slashes itself.
     private IEnumerable<int> TongxieFollowUpResponders(IReadOnlyList<int> members, int actorSeat, int targetSeat)
     {
-        var count = _players.Count;
         return members
             .Where(seat => seat != actorSeat && seat != targetSeat)
             .Where(seat => _players[seat].IsAlive)
             .Where(seat => GetHand(_players[seat]).Any(card => IsSlashCard(card.Kind)))
-            .OrderBy(seat => (seat - actorSeat + count) % count)
+            .OrderBy(seat => RelativeTableOrder(actorSeat, seat))
             .ThenBy(seat => seat);
     }
 
@@ -127,12 +126,11 @@ public sealed partial class GameEngine
     // turn, in seat order after the protected member.
     private IEnumerable<int> TongxieEligiblePreventers(IReadOnlyList<int> members, int protectedSeat)
     {
-        var count = _players.Count;
         return members
             .Where(seat => seat != protectedSeat)
             .Where(seat => _players[seat].IsAlive)
             .Where(seat => !TongxieLostHpThisTurn(seat))
-            .OrderBy(seat => (seat - protectedSeat + count) % count)
+            .OrderBy(seat => RelativeTableOrder(protectedSeat, seat))
             .ThenBy(seat => seat);
     }
 

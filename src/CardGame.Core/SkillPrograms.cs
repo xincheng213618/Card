@@ -249,6 +249,44 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveShenGuoJiaHuishi = 38000,
+    ResolveShenGuoJiaTianyi = 38001,
+    ResolveShenGuoJiaHuishiGrant = 38002,
+    ResolveShenGuoJiaZuoxing = 38003,
+    ResolveShenSunCeYingba = 38100,
+    ResolveShenSunCeFuhaiDeath = 38101,
+    ResolveShenSunCeFenghe = 38102,
+    ResolveShenSunCeFuhaiDraw = 38103,
+    ResolveShenTaishiCiPowei = 38200,
+    CancelShenTaishiCiDulie = 38201,
+    AddTianzuoCards = 38300,
+    DrawLingceActualTrick = 38301,
+    RecordAndCancelDinghanTarget = 38302,
+    EditDinghanNames = 38303,
+    ResolveShenJiangWeiTianren = 38400,
+    ResolveShenJiangWeiJiufa = 38401,
+    ResolveShenJiangWeiPingxiang = 38402,
+    InitializeShenDengAiTuoYu = 38500,
+    AllocateShenDengAiTuoYu = 38501,
+    DevelopShenDengAiXianjin = 38502,
+    AwakenShenDengAiQijing = 38503,
+    RepeatShenDengAiCuixin = 38504,
+    ResolveShenZhangFeiShencai = 38600,
+    ResolveShenZhangFeiPunishment = 38601,
+    ResolveShenZhangFeiXunshi = 38602,
+    ResolveShenHuaTuoLuxin = 38701,
+    ResolveShenHuaTuoHuandao = 38702,
+    SettleZhengqingRound = 38800,
+    ResolveZhuangpoTarget = 38801,
+    ResolveShenLuSuTamo = 38900,
+    ResolveShenLuSuDingzhou = 38901,
+    ResolveShenLuSuZhimeng = 38902,
+    DealShouliStartingMounts = 39000,
+    DrawHengwuFieldSuitEquipment = 39001,
+    TeachMobileShenHuaTuoWuling = 39100,
+    AdvanceMobileShenHuaTuoWuling = 39101,
+    DepositMobileShenHuaTuoYouyi = 39102,
+    RecoverMobileShenHuaTuoYouyi = 39103,
     InitializeMouDongChengBaojia = 37400, ResolveMouDongChengBaojia = 37401, ClaimMouDongChengBaojia = 37402, ResolveMouDongChengDouwei = 37403, ResolveMouDongChengDelayedSettlement = 37404,
     StartMouHuLieChuanyu = 37500,
     RegiveMouHuLieChuanyu = 37501,
@@ -324,6 +362,27 @@ public enum SkillProgramEffectOp
     ResolveMouXiaoQiaoJueyanReveal = 34003,
     PrepareMouZhangHeQiaobian = 34200, ResolveMouZhangHeSkippedPhase = 34201, ResolveMouZhangHeEnding = 34202,
     ResolveMouZhuRanZhenwei = 34400, ResolveMouZhuRanHeyuan = 34401,
+    ObtainWushuangDeckCards = 62000,
+    ResolveWushuangOriginalYiji = 61010,
+    ResolveWushuangYashi = 61011,
+    ResolveWushuangShenfu = 61012,
+    ResolveWushuangLingren = 61013,
+    ResolveWushuangTairan = 61014,
+    SettleWushuangTairan = 61015,
+    ResolveWushuangGuanxu = 61016,
+    ResolveWushuangChoufa = 61017,
+    NullifyWushuangSecondUse = 61018,
+    ResolveWushuangOriginalJieming = 61019,
+    PayAndDrawWushuangJinzhi = 61020,
+    SkipWushuangFenliPhase = 61021,
+    RestrictWushuangQianxiJudgmentColor = 61022,
+    RecordWushuangTiaoxinPhaseExpansion = 63000,
+    ResolveWushuangWeiyi = 61200, DrawWushuangZhendan = 61201, ArmWushuangYinglue = 61202,
+    ResolveWushuangLiantao = 61203, ResolveWushuangBianyu = 61204, ArmWushuangXiaojie = 61205,
+    ResolveWushuangXiaojie = 61206, ResolveWushuangDingan = 61207, RecoverWushuangChunlao = 61208, ResolveWushuangGuzheng = 61209, ResolveWushuangZengou = 61220,
+    ResolveWushuangCombatTactic = 61400,
+    ClaimWushuangEndedCampHand = 63200,
+    CaptureWushuangWangongUse = 63201,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,
@@ -2181,6 +2240,8 @@ public sealed class SkillProgramViewAs
     public bool InheritPreviousPlaySuit { get; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? KenshangUse { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? FieldMountConversion { get; internal init; }
     public bool VariableInputCount { get; internal init; }
     public bool AllHandCardsOfSelectedSuit { get; internal init; }
     public bool DistanceUnlimited { get; internal init; }
@@ -2551,6 +2612,7 @@ public sealed record SkillProgramDynamicUsageLimit(SkillProgramDynamicUsageLimit
 
 public sealed class SkillProgramTrigger
 {
+    public bool IsSkillInvocation { get; internal init; } = true;
     internal SkillProgramTrigger(string id, SkillProgramTriggerWindow window, string? sourceSkillId,
         string? sourceViewAsId, SkillProgramTriggerSubject? subject, IReadOnlyList<Suit> suits,
         int minimumRank, int maximumRank, IReadOnlyList<string> excludedReasons,
@@ -3680,12 +3742,14 @@ public sealed class SkillProgramCatalog
         CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCategories", "inputCount", "sourceZones",
             "outputKind", "forPlay", "forResponse", "allowChainedInput", "sameSuit", "condition", "allHandCardsOfSelectedSuit",
             "usesPerPhase", "usesPerActualTurn", "usageGroup", "inheritPreviousPlaySuit", "extendedUse", "damageBonus", "recoveryBonus",
-            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation", "useEffectiveInputSuit", "distanceUnlimited", "tieredRoundConversion", "drawFundedDistinctBasic", "disableSkillUntilTurnEndIfNoDamage", "roundDistinctBasicUse", "lastInSourceZone", "chainedStateCost", "nonBasicUnrespondableSlash", "roundOnceCardlessBasic", "roundGainedRedHandOnly", "kenshangUse", "sourcePileSkillId", "leiluanBasicUse", "xieweiBaitBasicUse", "equalNameLengthUse", "rankTwoDamageUse");
+            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation", "useEffectiveInputSuit", "distanceUnlimited", "tieredRoundConversion", "drawFundedDistinctBasic", "disableSkillUntilTurnEndIfNoDamage", "roundDistinctBasicUse", "lastInSourceZone", "chainedStateCost", "nonBasicUnrespondableSlash", "roundOnceCardlessBasic", "roundGainedRedHandOnly", "kenshangUse", "sourcePileSkillId", "leiluanBasicUse", "xieweiBaitBasicUse", "equalNameLengthUse", "rankTwoDamageUse", "fieldMountConversion");
         var sourcePileSkillId = node.TryGetProperty("sourcePileSkillId", out _)
             ? Identifier(node, "sourcePileSkillId", path) : null;
         var kenshangUse = node.TryGetProperty("kenshangUse", out _) ? RequiredBool(node, "kenshangUse", path) : (bool?)null;
         var lastInSourceZone = node.TryGetProperty("lastInSourceZone", out _)
             ? RequiredBool(node, "lastInSourceZone", path) : (bool?)null;
+        var fieldMountConversion = node.TryGetProperty("fieldMountConversion", out _)
+            ? RequiredBool(node, "fieldMountConversion", path) : (bool?)null;
         var chainedStateCost = node.TryGetProperty("chainedStateCost", out var chainedStateCostNode) && chainedStateCostNode.ValueKind != JsonValueKind.Null
             ? RequiredBool(node, "chainedStateCost", path) : (bool?)null;
         var roundOnceCardless = node.TryGetProperty("roundOnceCardlessBasic", out var roundOnceCardlessNode)
@@ -3750,7 +3814,7 @@ public sealed class SkillProgramCatalog
             : [CardZoneKind.Hand];
         if (sourceZones.Count == 0 && !((tieredRound is not null || roundOnceCardless is not null || drawFunded is not null || chainedStateCost.HasValue) && inputCount == 0) || sourceZones.Any(zone =>
                 zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Authority or CardZoneKind.WoodenOxGrain) &&
-                !(zone == CardZoneKind.Judgment && lastInSourceZone == true) &&
+                !(zone == CardZoneKind.Judgment && (lastInSourceZone == true || fieldMountConversion == true)) &&
                  !(zone == CardZoneKind.PublicPersistentPile && sourcePileSkillId is not null)))
             Fail(path + ".sourceZones", "viewAs requires an owned source; judgment requires an explicit last-source-zone policy");
         if (inputCount > 1 && !extended && !sourceZones.SequenceEqual([CardZoneKind.Hand]))
@@ -3764,7 +3828,7 @@ public sealed class SkillProgramCatalog
         var fuleAlias = id.StartsWith("fu-alias-", StringComparison.Ordinal);
         if (!(extended && inputCount == 1 && CardUseCategoryCatalog.Get(output) is CardUseCategories.Basic or CardUseCategories.DelayedTrick) && !fuleAlias && tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
                 CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
-                CardKind.IronChain or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.Nullification or CardKind.Peach or
+                CardKind.IronChain or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.QizhengXiangsheng or CardKind.Nullification or CardKind.Peach or
                 CardKind.ArrowBarrage or CardKind.Alcohol or CardKind.Snatch))
             Fail(path + ".outputKind", "this card kind has no configured viewAs use or response path");
         var forPlay = RequiredBool(node, "forPlay", path);
@@ -3825,7 +3889,7 @@ public sealed class SkillProgramCatalog
         if (inputCount > 1 && inputCategories.Count != 0)
             Fail(path + ".inputCategories", "multi-card viewAs does not support category input filters");
         if (output is CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
-                CardKind.IronChain or CardKind.FireAttack or CardKind.UnexpectedAssault && forResponse)
+                CardKind.IronChain or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.QizhengXiangsheng && forResponse)
             Fail(path + ".forResponse", "this trick cannot be used as a response");
         if (output == CardKind.Nullification && forPlay)
             Fail(path + ".forPlay", "nullification is only legal in the counterspell response window");
@@ -3875,11 +3939,28 @@ public sealed class SkillProgramCatalog
         var parsedViewAs = new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
             OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput, inputCategories, sameSuit,
             usesPerPhase, usageGroup, inheritPreviousPlaySuit)
-        { RankTwoDamageUse = rankTwoDamageUse, EqualNameLengthUse = equalNameLengthUse, XieweiBaitBasicUse = xieweiBaitBasicUse, LeiluanBasicUse = leiluanBasicUse, SourcePileSkillId = sourcePileSkillId, RoundGainedRedHandOnly = node.TryGetProperty("roundGainedRedHandOnly", out _) ? RequiredBool(node, "roundGainedRedHandOnly", path) : null, UsesPerActualTurn = usesPerActualTurn, ChainedStateCost = chainedStateCost, LastInSourceZone = lastInSourceZone, DisableSkillUntilTurnEndIfNoDamage = node.TryGetProperty("disableSkillUntilTurnEndIfNoDamage", out _) ? RequiredBool(node, "disableSkillUntilTurnEndIfNoDamage", path) : null, TieredRoundConversion = tieredRound, RoundOnceCardlessBasic = roundOnceCardless, DrawFundedDistinctBasic = drawFunded, RoundDistinctBasicUse = roundDistinct, UseEffectiveInputSuit = node.TryGetProperty("useEffectiveInputSuit", out _) ? RequiredBool(node, "useEffectiveInputSuit", path) : null, DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
+        { FieldMountConversion = fieldMountConversion, RankTwoDamageUse = rankTwoDamageUse, EqualNameLengthUse = equalNameLengthUse, XieweiBaitBasicUse = xieweiBaitBasicUse, LeiluanBasicUse = leiluanBasicUse, SourcePileSkillId = sourcePileSkillId, RoundGainedRedHandOnly = node.TryGetProperty("roundGainedRedHandOnly", out _) ? RequiredBool(node, "roundGainedRedHandOnly", path) : null, UsesPerActualTurn = usesPerActualTurn, ChainedStateCost = chainedStateCost, LastInSourceZone = lastInSourceZone, DisableSkillUntilTurnEndIfNoDamage = node.TryGetProperty("disableSkillUntilTurnEndIfNoDamage", out _) ? RequiredBool(node, "disableSkillUntilTurnEndIfNoDamage", path) : null, TieredRoundConversion = tieredRound, RoundOnceCardlessBasic = roundOnceCardless, DrawFundedDistinctBasic = drawFunded, RoundDistinctBasicUse = roundDistinct, UseEffectiveInputSuit = node.TryGetProperty("useEffectiveInputSuit", out _) ? RequiredBool(node, "useEffectiveInputSuit", path) : null, DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
           KenshangUse = kenshangUse, VariableInputCount = variableInput, DistanceUnlimited = distanceUnlimited, AllHandCardsOfSelectedSuit = allHandSuit,
           NonBasicUnrespondableSlash = node.TryGetProperty("nonBasicUnrespondableSlash", out _) && RequiredBool(node, "nonBasicUnrespondableSlash", path),
           DamageBonus = node.TryGetProperty("damageBonus", out _) ? NonNegativeInt(node, "damageBonus", path) : 0,
           RecoveryBonus = node.TryGetProperty("recoveryBonus", out _) ? NonNegativeInt(node, "recoveryBonus", path) : 0 };
+        if (fieldMountConversion == true && (parsedViewAs.InputCount != 1 || variableInput ||
+            !sourceZones.SequenceEqual([CardZoneKind.Equipment, CardZoneKind.Judgment]) ||
+            output is not (CardKind.Slash or CardKind.Dodge) || inputs.Count == 0 ||
+            inputs.Any(kind => !EquipmentCatalog.IsEquipment(kind) || EquipmentCatalog.Get(kind).Slot !=
+                (output == CardKind.Slash ? EquipmentSlot.OffensiveHorse : EquipmentSlot.DefensiveHorse)) ||
+            suits.Count != 0 || inputCategories.Count != 0 || lastInSourceZone == true ||
+            sourcePileSkillId is not null || chainedStateCost.HasValue || tieredRound is not null ||
+            roundOnceCardless is not null || drawFunded is not null || roundDistinct is not null ||
+            leiluanBasicUse is not null || xieweiBaitBasicUse is not null || kenshangUse == true ||
+            conversionState is not null || costDestination is not null || declaration is not null ||
+            usesPerPhase is not null || usesPerActualTurn is not null || activationGroup is not null ||
+            unusedName || unusedOutputThisTurn || singleTrick || extended || rankTwoDamageUse || equalNameLengthUse ||
+            allowChainedInput || sameSuit || inheritPreviousPlaySuit || allHandSuit || distanceUnlimited ||
+            parsedViewAs.UseOnly || parsedViewAs.ExcludeOwnerEffects || parsedViewAs.NoDying ||
+            parsedViewAs.DamageBonus != 0 || parsedViewAs.RecoveryBonus != 0 || parsedViewAs.NonBasicUnrespondableSlash ||
+            parsedViewAs.DisableSkillUntilTurnEndIfNoDamage is not null || parsedViewAs.RoundGainedRedHandOnly is not null))
+            Fail(path + ".fieldMountConversion", "requires one field mount of the corresponding slot and a plain Slash or Dodge conversion");
         if (fuleAlias && !LeCaoZhiComposition.IsFuleRule(parsedViewAs))
             Fail(path, "reserved Fu aliases require the exact complete physical-name metadata profile");
         TieredRoundConversionSchema.Validate(parsedViewAs, path);
@@ -4269,7 +4350,7 @@ public sealed class SkillProgramCatalog
     private static SkillProgramTrigger ParseTrigger(JsonElement node, string path, string skillId)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "id", "window", "sourceSkillId", "sourceViewAsId", "cardKinds",
+        CheckProperties(node, path, "id", "window", "sourceSkillId", "sourceViewAsId", "cardKinds", "isSkillInvocation",
             "cardCategories", "damageCardKinds", "sourceZones", "movementOccurrence", "damageOccurrence",
             "subject", "suits", "minimumRank", "maximumRank", "excludedReasons", "judgmentReasons",
             "judgmentSource", "optional", "condition", "priority", "usageScope", "usageLimit",
@@ -4317,7 +4398,8 @@ public sealed class SkillProgramCatalog
             node.TryGetProperty("effects", out var meiYingEffects) && meiYingEffects.ValueKind == JsonValueKind.Array &&
             meiYingEffects.GetArrayLength() == 1 && meiYingEffects[0].ValueKind == JsonValueKind.Object &&
             meiYingEffects[0].TryGetProperty("op", out var meiYingOp) && meiYingOp.ValueKind == JsonValueKind.String &&
-            string.Equals(meiYingOp.GetString(), "drawAfterPaidMeiYingConversion", StringComparison.OrdinalIgnoreCase);
+            (string.Equals(meiYingOp.GetString(), "drawAfterPaidMeiYingConversion", StringComparison.OrdinalIgnoreCase) ||
+             skillId == "wushuang:skill-3252" && string.Equals(meiYingOp.GetString(), "payAndDrawWushuangJinzhi", StringComparison.OrdinalIgnoreCase));
         var leiluanPaidSingleAction = window == SkillProgramTriggerWindow.CardUseCommitted &&
             node.TryGetProperty("effects", out var leiluanEffects) && leiluanEffects.ValueKind == JsonValueKind.Array &&
             leiluanEffects.GetArrayLength() == 1 && leiluanEffects[0].ValueKind == JsonValueKind.Object &&
@@ -4621,6 +4703,7 @@ public sealed class SkillProgramCatalog
                       sealDeathEffects.GetArrayLength() == 1 && sealDeathEffects[0].ValueKind == JsonValueKind.Object &&
                       sealDeathEffects[0].TryGetProperty("op", out var sealDeathOp) && sealDeathOp.ValueKind == JsonValueKind.String &&
                       (string.Equals(sealDeathOp.GetString(), "transferDeadDragonPhoenixSeal", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals(sealDeathOp.GetString(), "resolveShenSunCeFuhaiDeath", StringComparison.OrdinalIgnoreCase) ||
                        string.Equals(sealDeathOp.GetString(), "resolveGuanduSuishiDeath", StringComparison.OrdinalIgnoreCase) &&
                        !RequiredBool(node, "optional", path))) &&
                     !(window is (SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain) && subject == SkillProgramTriggerSubject.Any) &&
@@ -5067,7 +5150,10 @@ public sealed class SkillProgramCatalog
              !RequiresPositiveTriggerCondition(condition, SkillProgramTriggerConditionKind.CardActionPhaseIsPlay)))
             Fail(path, "issued card policy requires a single own Play-use actor operation");
         var awaitedDyingExit = window == SkillProgramTriggerWindow.DyingExited &&
-            effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice or SkillProgramEffectOp.ResolveMouJiangWeiFuzhan }];
+            (effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice or SkillProgramEffectOp.ResolveMouJiangWeiFuzhan }] ||
+             !optional && subject == SkillProgramTriggerSubject.Owner && condition.Kind == SkillProgramTriggerConditionKind.Always &&
+             effects is [{ Op: SkillProgramEffectOp.ResolveWushuangCombatTactic, Amount: 2174 or 2175 }] &&
+             skillId == $"wushuang:tactic-{effects[0].Amount}");
         if (window is SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited && !awaitedDyingExit &&
             (optional || effects.Any(effect => effect.Op != SkillProgramEffectOp.Draw || effect.Target != SkillProgramEffectTarget.Owner ||
                 effect.NumberExpression is not null || effect.Condition.Kind != SkillProgramConditionKind.Always)))
@@ -5366,6 +5452,7 @@ public sealed class SkillProgramCatalog
             cardCategories: cardCategories, damageCardKinds: damageCardKinds, turnOwnerScope: turnOwnerScope)
         {
             DynamicUsageLimit = dynamicLimit, NamedUsageGroup = namedUsage, GainPhaseQualification = gainPhase, RequireDamageSource = requireDamageSource,
+            IsSkillInvocation = !node.TryGetProperty("isSkillInvocation", out _) || RequiredBool(node, "isSkillInvocation", path),
             RequireNoCardConversion = requireNoCardConversion,
             RequiredPolarity = requiredPolarity,
             OrderGroup = orderGroup,

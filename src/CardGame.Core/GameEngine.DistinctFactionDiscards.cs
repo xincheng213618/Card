@@ -86,7 +86,7 @@ public sealed partial class GameEngine
         // Capture the source owner's effective suit before the entity leaves its original HE zone.
         if(IsForeignEquipmentDiscardPrevented(f.OwnerSeat,card,source,OwnedCardMoveIntent.Discard)){CancelOrSkipDistinctFactionPayment(f,d);return;}
         var suit=EffectiveSuit(_players[owner],card);
-        var paidDestination=NormalizeDiouCarrierDestination(card, source, card.IsGeneralWeapon&&source.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:CardLocation.DiscardPile);
+        var paidDestination=NormalizeEphemeralCardDestination(card, source, card.IsGeneralWeapon&&source.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:CardLocation.DiscardPile);
         var paidReason=new CardMoveReason("skill-program."+f.SkillId+".participant-discard");ClearPendingDecision();
         ReplaceRuntimeTop(f with{DistinctFactionDiscards=d with{Stage="discard-children",ParticipantIndex=d.ParticipantIndex+1},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
         var beforeMovement=_cardMovements.Count;
@@ -169,7 +169,7 @@ public sealed partial class GameEngine
         if(paused.Op!=SkillProgramEffectOp.DiscardDistinctFactionParticipants||f.WindowContext is not null||d.Stage is not("select" or "discard" or "discard-children" or "reward" or "reward-children")||
            d.SelectedSeats.Distinct().Count()!=d.SelectedSeats.Count||d.SelectedSeats.Any(s=>!IsValidPlayerSeat(s)||s==f.OwnerSeat)||
            d.ParticipantSeats.Distinct().Count()!=d.ParticipantSeats.Count||d.ParticipantSeats.Any(s=>!IsValidPlayerSeat(s))||d.ParticipantIndex<0||d.ParticipantIndex>d.ParticipantSeats.Count||
-           d.Receipts.Select(p=>p.OwnerSeat).Distinct().Count()!=d.Receipts.Count||d.Receipts.Any(p=>!d.ParticipantSeats.Contains(p.OwnerSeat)||p.Source.OwnerSeat!=p.OwnerSeat||p.Source.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)||!Enum.IsDefined(p.EffectiveSuit)||p.MovementSequence<=0||p.Destination is{} dest&&!(dest==CardLocation.OutsideGame&&p.Source.Zone==CardZoneKind.Equipment&&(_cardZones.CardsAt(_cardZones.GetLocation(p.CardId)).Single(c=>c.Id==p.CardId).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(p.CardId,p.Source,CardLocation.OutsideGame))))||d.RewardIndex<0||d.RewardIndex>d.Receipts.Count(p=>p.EffectiveSuit==Suit.Spade))
+           d.Receipts.Select(p=>p.OwnerSeat).Distinct().Count()!=d.Receipts.Count||d.Receipts.Any(p=>!d.ParticipantSeats.Contains(p.OwnerSeat)||p.Source.OwnerSeat!=p.OwnerSeat||p.Source.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)||!Enum.IsDefined(p.EffectiveSuit)||p.MovementSequence<=0||p.Destination is{} dest&&!(dest==CardLocation.OutsideGame&&p.Source.Zone==CardZoneKind.Equipment&&(_cardZones.CardsAt(_cardZones.GetLocation(p.CardId)).Single(c=>c.Id==p.CardId).IsGeneralWeapon || IsEphemeralCardDestroyedMaterial(p.CardId,p.Source,CardLocation.OutsideGame))))||d.RewardIndex<0||d.RewardIndex>d.Receipts.Count(p=>p.EffectiveSuit==Suit.Spade))
             throw new InvalidOperationException("Participant discard lost its owning paid plan/cursor/receipt.");
         if(d.Stage=="select")
         {

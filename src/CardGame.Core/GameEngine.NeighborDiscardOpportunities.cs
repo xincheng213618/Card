@@ -9,7 +9,7 @@ public sealed partial class GameEngine
     {
         for (var offset = 1; offset < _players.Count; offset++)
         {
-            var seat = (owner - offset + _players.Count) % _players.Count;
+            var seat = TableStepSeat(owner, -offset);
             if (_players[seat].IsAlive) return seat;
         }
         return owner;

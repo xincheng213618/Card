@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     private const string MouXuHuangGiveReason = "skill-program.mou-mobile:shipo.give", MouXuHuangTransferReason = "skill-program.mou-mobile:shipo.redistribute";
     private int[] MouXuHuangShipoEligible(int owner, bool all) => _players.Where(p => p.IsAlive && p.Seat != owner &&
         (all ? HasJudgmentEffectiveCard(p, CardKind.SupplyShortage) : p.Hp < _players[owner].Hp))
-        .OrderBy(p => (p.Seat - owner + _players.Count) % _players.Count).Select(p => p.Seat).ToArray();
+        .OrderBy(p => RelativeTableOrder(owner, p.Seat)).Select(p => p.Seat).ToArray();
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 29501, SkillProgramEffectOp.ResolveMouXuHuangShipo)]
     private bool CanOfferMouXuHuangShipo(ProgramTriggerLegalityContext c) => c.Owner.IsAlive && MouXuHuangComposition.IsShipo(c.Program) &&
         c.Context.Window == SkillProgramTriggerWindow.TurnEnding && c.Context.SourceSeat == c.OwnerSeat &&

@@ -2516,6 +2516,10 @@ public sealed partial class SimpleAiBrain
                     : $"从距离 1 的目标获得公开{publicTargetZone}【{publicTarget.DisplayName}】；只读取公开{publicTargetZone}和身份敌对值，不读取目标暗牌。");
         }
 
+        if (action.Kind == LegalActionKind.QizhengXiangsheng)
+            return (cardProfile.AiPlayValue + hostility + (target.Hp <= 1 ? 12d : 0d) + Math.Min(target.HandCount, 3) * 2d,
+                "以奇正相生争取伤害或获得牌；只按公开体力、手牌数和身份关系选择目标。");
+
         if (action.Kind == LegalActionKind.UnexpectedAssault)
             return (cardProfile.AiPlayValue + hostility + (target.Hp <= 1 ? 20d : 0d),
                 "选择目标不透明手牌位展示，按不同花色评估普通伤害；只使用公开体力和手牌数量。");

@@ -26,7 +26,7 @@ public sealed partial class GameEngine
   if(op==SkillProgramEffectOp.UseHejiAtCompletedSingleTarget)return actor==f.OwnerSeat&&IsWuJingHejiRequest(f);
   if(op==SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)return actor==f.OwnerSeat&&f.WindowContext?.Window==SkillProgramTriggerWindow.TurnEnding&&f.WindowContext.TargetSeat==_currentSeat&&f.FixedTargetSlash is {} fixedDraft&&fixedDraft.TargetSeat==_currentSeat&&fixedDraft.TargetSeat!=actor;
   if(op==SkillProgramEffectOp.RequestSlashByNearest)
-  {var cursors=f.NumberBindings.Where(b=>b.Name=="participant-cursor-"+(f.InstructionIndex-1)).ToArray();return f.ReexecuteParticipantInstruction&&cursors is [var cursor]&&cursor.Value>=1&&cursor.Value<_playerCount&&actor==(f.OwnerSeat+cursor.Value)%_playerCount;}
+  {var cursors=f.NumberBindings.Where(b=>b.Name=="participant-cursor-"+(f.InstructionIndex-1)).ToArray();return f.ReexecuteParticipantInstruction&&cursors is [var cursor]&&cursor.Value>=1&&cursor.Value<_playerCount&&actor==TableStepSeat(f.OwnerSeat, cursor.Value);}
   return (op is SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or SkillProgramEffectOp.RequestLegalSlashByNearest)&&f.SelectedTargetSeats.SequenceEqual(new[]{actor});
  }
  private int[] RoundOnceCardlessProgramTargets(ProgramSkillFrame f,int actor,SkillProgramEffectOp op)

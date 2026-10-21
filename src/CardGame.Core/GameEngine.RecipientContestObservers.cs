@@ -41,7 +41,7 @@ public sealed partial class GameEngine
                     (draw ? m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(actor) && m.Reason.Value == reason :
                      f.RecipientContest is { } g ? g.GiftCardIds.Contains(m.CardId) && m.From == CardLocation.Hand(f.OwnerSeat) && m.To == CardLocation.Hand(g.RecipientSeat) && m.Reason.Value == reason :
                      invoice!.CardIds.Select((id, n) => (id, from: invoice.SourceLocations[n])).Any(p => p.id == m.CardId && p.from == m.From &&
-                         m.Reason.Value == reason && (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAdvancedCard(m.CardId).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m))))) ||
+                         m.Reason.Value == reason && (m.To == CardLocation.DiscardPile || m.To == CardLocation.OutsideGame && (GetAdvancedCard(m.CardId).IsGeneralWeapon || IsEphemeralCardDestroyedMaterial(m))))) ||
                      !draw && invoice is not null && m.Sequence > after && m.From == CardLocation.WoodenOxGrain(actor) &&
                      m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.WoodenOxGrainDiscard &&
                      invoice.CardIds.Select((id, n) => (id, from: invoice.SourceLocations[n])).Any(p => p.from == CardLocation.Equipment(actor) &&

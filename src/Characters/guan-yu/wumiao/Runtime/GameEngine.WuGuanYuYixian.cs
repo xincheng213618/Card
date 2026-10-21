@@ -100,7 +100,7 @@ public sealed partial class GameEngine
                 });
         f = GetActiveProgramFrame(f.Id); var r = f.Yixian!;
         var recipients = r.Entities.Where(e => e.From.Zone == CardZoneKind.Equipment && e.From.OwnerSeat is not null && e.To == CardLocation.Hand(f.OwnerSeat))
-            .GroupBy(e => e.From.OwnerSeat!.Value).OrderBy(g => (g.Key - r.TurnOwner + _players.Count) % _players.Count)
+            .GroupBy(e => e.From.OwnerSeat!.Value).OrderBy(g => RelativeTableOrder(r.TurnOwner, g.Key))
             .Select(g => new YixianRecipient(g.Key, g.Count())).ToArray();
         ReplaceRuntimeTop(f = f with { Yixian = r = r with { SequenceAfter = _movementSequence, Recipients = recipients } });
         AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(f.OwnerSeat, f.SkillId, WuYixianUsage, SkillUsageScope.Game, 1));

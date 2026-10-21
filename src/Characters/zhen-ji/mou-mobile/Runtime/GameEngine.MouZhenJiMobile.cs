@@ -54,7 +54,7 @@ public sealed partial class GameEngine
         if (r.Stage == MouZhenJiLuoshenStage.StartingSeat)
         {
             var start = selected.Targets.Single(); var count = (_players.Count(p => p.IsAlive) + 1) / 2;
-            var seats = Enumerable.Range(0, _players.Count).Select(i => (start + i) % _players.Count).Where(s => s != f.OwnerSeat && _players[s].IsAlive).Take(count).ToArray();
+            var seats = Enumerable.Range(0, _players.Count).Select(i => TableStepSeat(start, i)).Where(s => s != f.OwnerSeat && _players[s].IsAlive).Take(count).ToArray();
             ReplaceRuntimeTop(f = f with { MouZhenJiLuoshen = r with { StartingSeat = start, Seats = seats, Stage = MouZhenJiLuoshenStage.RevealChoice } });
             AdvanceEventRulesAndQueueFact(new MouZhenJiLuoshenStartedEvent(f.Id, r.Source, r.TurnNumber, r.TurnOwnerSeat, start, seats.Length));
             for (var i = 0; i < seats.Length; i++) AdvanceEventRulesAndQueueFact(new MouZhenJiLuoshenSeatQueuedEvent(f.Id, i, seats[i]));

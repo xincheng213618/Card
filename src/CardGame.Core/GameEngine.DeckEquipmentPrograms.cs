@@ -18,7 +18,8 @@ public sealed partial class GameEngine
 
     private bool IsShieldedRescueSelection(CharacterState owner, ProgramMultiCardViewAsSelection selection) =>
         ActiveDying is { } dying && HasBeneficiarySuitShield(owner.Seat, dying.VictimSeat,
-            selection.Cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray() is [var suit] ? suit : null);
+            IsWushuangJinzhiSelection(selection) ? Suit.None :
+                selection.Cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray() is [var suit] ? suit : null);
 
     private bool HasBeneficiarySuitShield(int actor, int target, Suit? suit) => actor != target && suit is { } actual &&
         (_beneficiarySuitShields.Any(s => s.BeneficiarySeat == target && s.Suit == actual) ||
@@ -90,6 +91,7 @@ public sealed partial class GameEngine
 
     private bool RandomEquipmentFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath)
     {
+        if (IsShouliStartingEquipmentRide(ride, beneath)) return true;
         if (IsXiangChongGuyingEquipmentRide(ride, beneath) || IsSuyiEquipmentRide(ride, beneath)) return true;
         if (IsHuoJunFenruiNativeEquipment(ride, beneath)) return true;
         if (FriendXuanjianFrameRidesOn(ride, beneath)) return true;

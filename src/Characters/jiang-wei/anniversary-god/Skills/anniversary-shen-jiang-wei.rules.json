@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:tianren", "revision": 1, "triggers": [
+      { "id": "nonuse-discard", "window": "discardPileReceived", "subject": "owner", "optional": false, "effects": [{ "op": "resolveShenJiangWeiTianren", "target": "owner" }] },
+      { "id": "maximum-threshold", "window": "afterHealthChanged", "subject": "owner", "optional": false, "condition": { "kind": "healthChangeKindIs", "hpChangeKind": "maximumHp" }, "effects": [{ "op": "resolveShenJiangWeiTianren", "target": "owner" }] }
+    ] },
+    { "id": "anniversary:jiufa", "revision": 1, "triggers": [
+      { "id": "completed-use-name", "window": "cardUseCompleted", "ownerRelation": "actor", "singleActionInstance": true, "optional": false, "effects": [{ "op": "resolveShenJiangWeiJiufa", "target": "owner" }] },
+      { "id": "completed-response-name", "window": "cardResponseCompleted", "ownerRelation": "actor", "optional": false, "effects": [{ "op": "resolveShenJiangWeiJiufa", "target": "owner" }] }
+    ] },
+    { "id": "anniversary:pingxiang", "revision": 1, "activations": [{ "id": "nine-fire-slashes", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1, "effects": [{ "op": "resolveShenJiangWeiPingxiang", "target": "owner" }] }] }
+  ]
+}

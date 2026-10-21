@@ -64,6 +64,7 @@ public sealed partial class GameEngine
         };
         if (targets.Distinct().Count() != targets.Count || targets.Any(seat => !IsValidPlayerSeat(seat)))
             throw new InvalidOperationException("An armor grant requires distinct actual recipients.");
+        if (IsWushuangMode) return;
         var payments = targets.Where(seat => _players[seat].IsAlive).Select(seat =>
             (Seat: seat, Before: _players[seat].Armor, After: checked(_players[seat].Armor + effect.Amount))).ToArray();
         var source = CreateProgramTurnEffectSource(active);

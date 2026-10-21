@@ -44,7 +44,7 @@
       ],
       "triggers": [
         {
-          "id": "initialize",
+          "id": "initialize", "isSkillInvocation": false,
           "window": "gameStarting",
           "subject": "owner",
           "optional": false,

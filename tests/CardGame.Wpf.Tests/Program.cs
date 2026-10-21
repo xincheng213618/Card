@@ -77,6 +77,7 @@ internal static class Program
             Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
             Check("skill quantity activation and effect choices share the lower action dock", () => DockSkillChoiceUiChecks.QuantityActivationAndEffectsUseSameDock(output));
+            Check("skill rail counts preserve order and align the unpaired last skill beside the portrait", () => SkillRailLayoutChecks.CountsKeepOrderAndAlignLastSkill(output));
             Check("recorded general selection saves load without replacing their source", RecordedSelectionSaveChecks.LoadHistoricalFingerprintWithoutReplacingSource);
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
             Check("custom general roster categories search within eligible series and reset across modes", () => GeneralRosterCategoryChecks.SeriesSearchAndModeBoundaries(output));
@@ -87,6 +88,9 @@ internal static class Program
             Check("Wu Guan Yu Wuyou UI: foreign contribution issuer and private return", () => WuGuanYuWuyouUiChecks.ForeignContributionUsesIssuerAndKeepsPrivateReturn(output));
             Check("Mo Diao Chan UI: forced hand selection waits for confirmation", () => MoDiaoChanUiChecks.LockedHandStillRequiresConfirmation(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
+            Check("God editions UI: mobile and anniversary official portraits and complete details", () => MobileGodGalleryChecks.GodSeriesPortraitsAndDetails(output));
+            Check("Benevolence public pile UI: shared faces and read-only inspection", () => BenevolencePileUiChecks.SharedPublicCardsOpenReadOnly(output));
+            Check("Table order UI: public moved positions change panels and seat numbers", () => TableOrderUiChecks.MovedPositionsUpdatePanelsAndNumbers(output));
             Check("Le Diao Chan UI: original marks and whole Hand exchange", () => LeDiaoChanUiChecks.OriginalMarksAndWholeHandSwapUseNativeChoices(output));
             Check("Le Da Qiao Qin UI: original judgment subslots and native choices", () => LeDaQiaoJudgmentUiChecks.QinSubslotsKeepOriginalCardsAndNativeChoices(output));
             Check("Native public pile UI: original grain play rail and response faces", NativePublicPileUiChecks.OriginalGrainPlayRailAndResponseFaces);
@@ -99,7 +103,11 @@ internal static class Program
             Check("general selection switches related editions without consuming candidate slots", () => GeneralSelectionChecks.RelatedVariants(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("Wushuang UI: entry shop and independent cold restore", () => WushuangUiChecks.EntryShopAndIndependentColdRestore(output));
+            Check("Wushuang UI: Mo Lu Bu opening and normal initiative are visible", () => WushuangUiChecks.MoLuBuOpeningAndNormalInitiativeAreVisible(output));
+            Check("Wushuang UI: mixed shop equipment shows its native purchase", () => WushuangUiChecks.MixedShopEquipmentShowsItsNativePurchase(output));
             Check("Wushuang UI: full skill slots require visible replacement", () => WushuangUiChecks.FullSkillSlotsRequireVisibleReplacement(output));
+            Check("Wushuang UI: free refresh and expanded slots follow native snapshot", () => WushuangUiChecks.FreeRefreshAndExpandedSlotsFollowNativeSnapshot(output));
+            Check("Wushuang UI: active tactic keeps an executable entry", () => WushuangUiChecks.ActiveTacticKeepsAnExecutableEntry(output));
             Check("Jiange activity UI: faction tier rules AI teammate and real setup", () => CheckJiangeActivity(output));
             Check("Shanhe campaign UI: story map choices and independent cold restore", () => ShanheCampaignUiChecks.StoryMapChoicesAndIndependentColdRestore(output));
             Check("Shanhe campaign UI: actual encounter save routing and stale map choices", () => ShanheCampaignUiChecks.ActualEncounterSaveRoutingAndStaleMapChoices(output));
@@ -157,7 +165,8 @@ internal static class Program
             Check("invalid preferences remain recoverable and slider writes coalesce safely", () => PreferencesChecks.FailuresAndDebounce(output));
             Check("playback batches internal steps while preserving human boundaries and replay", PlaybackChecks.AutomaticStepsPreserveCommittedBoundaries);
             Check("opaque target-card slots render privately and commit through WPF commands", () => TargetCardChecks.Controls(output));
-            Check("Target card UI: single hidden hand card resolves once without second picker", () => TargetCardChecks.OnlyHandCard(output));
+            Check("Target card UI: concrete hand slots resolve without second picker", () => TargetCardChecks.OnlyHandCard(output));
+            Check("Target card UI: multiple taken cards require one confirmation", () => TargetCardChecks.MultiTakeConfirmsOnce(output));
             Check("dual portraits protect hidden slots and retain legacy skill semantics", () => NationalSeatChecks.PrivacyAndReveal(output));
             Check("saved UI boundaries restore and continue through actual files", () => PersistenceChecks.RoundTrips(output));
             Check("failed writes preserve saves and failed reads initialize a new game", () => PersistenceChecks.FailedWritesPreserveSavesAndFailedLoadsInitializeGame(output));

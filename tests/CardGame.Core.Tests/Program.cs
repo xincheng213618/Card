@@ -41,8 +41,37 @@ var tests = new (string Name, Action Body)[]
 {
     ("Bagua response: failed judgment hand Dodge and cold replay", BaguaResponseChecks.FailedJudgmentReturnsToDodgeAndColdReplay),
     ("Bagua response: decline armor and red judgment retain hand Dodge", BaguaResponseChecks.DeclineAndRedJudgmentKeepHandDodgeOptional),
+    ("Wushuang shop: mixed goods no mounts and ephemeral equipment", WushuangModeChecks.MixedShopNoMountsAndEphemeralEquipment),
     ("Wushuang mode: native shop growth acquired skills replacement and replay", WushuangModeChecks.NativeShopGrowthAcquiredSkillsReplacementAndReplay),
     ("Wushuang mode: explicit clock expires paid child and cold replay", WushuangModeChecks.ExplicitClockExpiresPaidChildAndColdReplay),
+    ("Wushuang skills B: OfficialFuqiNonTargetResponseAndGuanchaoTrueUse", WushuangSkillsBChecks.OfficialFuqiNonTargetResponseAndGuanchaoTrueUse),
+    ("Wushuang skills B: OfficialGuzhengAndDuwuVersionDifferences", WushuangSkillsBChecks.OfficialGuzhengAndDuwuVersionDifferences),
+    ("Wushuang skills A: YashiSuppressesItsActualSelfSourceUntilTheNextStart", WushuangOfficialSkillsAChecks.YashiSuppressesItsActualSelfSourceUntilTheNextStart),
+    ("Wushuang skills A: TiaoxinExpandsOnlyAfterItsRequestedSlashFailsToDamage", WushuangOfficialSkillsAChecks.TiaoxinExpandsOnlyAfterItsRequestedSlashFailsToDamage),
+    ("Wushuang skills A: OfficialAuditKeepsSelfGiftsPublicEquipmentCostsAndPhaseLimits", WushuangOfficialSkillsAChecks.OfficialAuditKeepsSelfGiftsPublicEquipmentCostsAndPhaseLimits),
+    ("Wushuang skills A: OriginalYijiAndGuanxuKeepPrivatePhysicalEntitiesAcrossColdReplay", WushuangOfficialSkillsAChecks.OriginalYijiAndGuanxuKeepPrivatePhysicalEntitiesAcrossColdReplay),
+    ("Wushuang skills A: ChoufaRewritesOnlyFrozenHandEntitiesWithoutInspectingTheirNames", WushuangOfficialSkillsAChecks.ChoufaRewritesOnlyFrozenHandEntitiesWithoutInspectingTheirNames),
+    ("Wushuang skills A: TairanRepaysActualRecoveredHpAndOnlyItsStillHeldDrawnCards", WushuangOfficialSkillsAChecks.TairanRepaysActualRecoveredHpAndOnlyItsStillHeldDrawnCards),
+    ("Wushuang skills A: LingrenBindsItsDamageToTheGuessedUseAndCiweiCancelsOnlySecondUse", WushuangOfficialSkillsAChecks.LingrenBindsItsDamageToTheGuessedUseAndCiweiCancelsOnlySecondUse),
+    ("Wushuang skills A: JinzhiPaysIncreasingSameColorCountsAndDrawsBeforeNativeBasicEffects", WushuangOfficialSkillsAChecks.JinzhiPaysIncreasingSameColorCountsAndDrawsBeforeNativeBasicEffects),
+    ("Wushuang combat: NoArmorFixedDamageAndFiniteReduction", WushuangCombatChecks.NoArmorFixedDamageAndFiniteReduction),
+    ("Wushuang combat: DrawTwoAndAdditionalDismantlementKeepNativePaymentsCold", WushuangCombatChecks.DrawTwoAndAdditionalDismantlementKeepNativePaymentsCold),
+    ("Wushuang combat: RecastAndActualDrawThresholdResumeTheirPaidInstruction", WushuangCombatChecks.RecastAndActualDrawThresholdResumeTheirPaidInstruction),
+    ("Wushuang combat: LightningJudgmentsUseNativeReplacementAndSourcelessDamage", WushuangCombatChecks.LightningJudgmentsUseNativeReplacementAndSourcelessDamage),
+    ("Wushuang combat: DyingExitDamageWaitsForItsNativePaidChildCold", WushuangCombatChecks.DyingExitDamageWaitsForItsNativePaidChildCold),
+    ("Wushuang audit combat: JieyingClaimsOnlyAfterNativeTurnEndedAndResumesGainChildCold", WushuangAuditCombatChecks.JieyingClaimsOnlyAfterNativeTurnEndedAndResumesGainChildCold),
+    ("Wushuang audit combat: WangongKeepsLastActualBasicAcrossTurnsAndCapturesAcceptedSlash", WushuangAuditCombatChecks.WangongKeepsLastActualBasicAcrossTurnsAndCapturesAcceptedSlash),
+    ("Wushuang pools: OfficialPoolsPricesVersionsAndAcquisitionRecovery", WushuangModeChecks.OfficialPoolsPricesVersionsAndAcquisitionRecovery),
+    ("Wushuang pools: FreeRefreshCapacityAndOriginalReplacement", WushuangModeChecks.FreeRefreshCapacityAndOriginalReplacement),
+    ("Wushuang pools: OriginalQimouAndHunZiVersions", WushuangModeChecks.OriginalQimouAndHunZiVersions),
+    ("Wushuang pools: TacticQuotaFloorsAndEmptySlotsUseActualRules", WushuangModeChecks.TacticQuotaFloorsAndEmptySlotsUseActualRules),
+    ("Wushuang skills B: WeiyiYinglueAndZhendanNativeRules", WushuangSkillsBChecks.WeiyiYinglueAndZhendanNativeRules),
+    ("Wushuang skills B: LiantaoAndXiaojieNativeUsesReplay", WushuangSkillsBChecks.LiantaoAndXiaojieNativeUsesReplay),
+    ("Wushuang skills B: BianyuIdentityAndChunlaoAnyHpLoss", WushuangSkillsBChecks.BianyuIdentityAndChunlaoAnyHpLoss),
+    ("Wushuang skills B: DinganSecondNameAndLargestHandDiscard", WushuangSkillsBChecks.DinganSecondNameAndLargestHandDiscard),
+    ("Wushuang skills B: OfficialJiushiActiveAlcoholAndDamageFace", WushuangSkillsBChecks.OfficialJiushiActiveAlcoholAndDamageFace),
+    ("Wushuang skills B: OfficialQiangzhiDingcuoAndLonghunRules", WushuangSkillsBChecks.OfficialQiangzhiDingcuoAndLonghunRules),
+    ("Wushuang skills B: OfficialZengouFirstDodgeMultiTargetAndDyingCost", WushuangSkillsBChecks.OfficialZengouFirstDodgeMultiTargetAndDyingCost),
     ("Guandu mode: frozen roster private rotating draft tier five military deck", GuanduModeChecks.RealPackageFreezesRosterRotatesPrivateDraftAndDealsTierFiveMilitaryDeck),
     ("Guandu mode: scoped options and historical checkpoint shape", GuanduModeChecks.GuanduOptionsRemainScopedAndOldCheckpointShapeStaysUnchanged),
     ("Guandu mode: enemy hand friendly penalty and native commander victory", GuanduModeChecks.NativeKillsTransferEnemyHandPunishFriendlyKillsAndDeferCommanderVictory),
@@ -497,6 +526,7 @@ var tests = new (string Name, Action Body)[]
     ("Mou Cheng Yu OL: stacked targets and actual next-Use native rewards Cold", CardGame.Core.Tests.MouChengYuOlChecks.StackedTargetsAndActualNextUseNativeRewardsCold),
     ("OL Mo Zhang Fei: mandatory identity mixed native targets and counterspell Cold", CardGame.Core.Tests.OlMoZhangFeiChecks.MandatoryIdentityMixedNativeTargetsAndCounterspellCold),
     ("OL Mo Zhang Fei: native three damage modification colors and issued green Cold", CardGame.Core.Tests.OlMoZhangFeiChecks.NativeThreeDamageModificationColorsAndIssuedGreenCold),
+    ("OL Mo Lu Bu: Wushuang opening before either normal first seat", CardGame.Core.Tests.OlMoLuBuChecks.WushuangOpeningBeforeEitherNormalFirstSeat),
     ("Mou Han Dang Mobile: native color responses and range aid", CardGame.Core.Tests.MouHanDangMobileChecks.NativeColorResponsesAndRangeAid),
     ("Wu Huangfu Song: Chaozhen real minimum first turn Dying recovery cold", CardGame.Core.Tests.WuHuangFuSongChecks.ChaozhenRealMinimumFirstTurnDyingRecoveryAndCold),
     ("Wu Zhuge Liang: complete opening HP ordering Qingshi branches copied Use cold", CardGame.Core.Tests.WuZhugeLiangChecks.CompleteOpeningHpOrderingQingshiBranchesAndCopiedUseCold),
@@ -770,6 +800,36 @@ var tests = new (string Name, Action Body)[]
     ("program rule observer registration preserves ordered recursive boundaries", ProgramRuleObserverChecks.RegistrationPreservesOrderReentrancyAndIsolation),
     ("program rule observer registration rejects invalid metadata", ProgramRuleObserverChecks.InvalidRegistrationsFailBeforeDispatch),
     ("program legality registration preserves ordered capability gates", ProgramLegalityChecks.RegistrationAndDispatchPreserveBoundaries),
+    ("shen sun ce native yingba fuhai death growth", ShenSunCeChecks.NativeYingbaFuhaiAndDeathGrowth),
+    ("Table order: moved participant ring preserves damage and judgment trigger priorities", TableOrderChecks.TriggerPrioritiesUseMovedParticipantOrder),
+    ("Table order: native move changes distance cold replay and next normal turn", TableOrderChecks.NativeMoveChangesDistanceAndNextNormalTurn),
+    ("shen jiang wei native tianren discards and maximum threshold", ShenJiangWeiChecks.NativeTianrenDiscardsAndMaximumThreshold),
+    ("shen jiang wei native jiufa ranks and pingxiang fire slashes", ShenJiangWeiChecks.NativeJiufaRanksAndPingxiangFireSlashes),
+    ("Shen Xun Yu Tianzuo eight entities Dinghan and Lingce cold", ShenXunYuChecks.TianzuoEightEntitiesDinghanAndLingceCold),
+    ("Qizheng wrong response pays then obtains cold", ShenXunYuChecks.QizhengWrongResponsePaysThenObtainsCold),
+    ("Qizheng ambush native damage and replay", ShenXunYuChecks.QizhengAmbushUsesRealDamageAndReplay),
+    ("shen deng ai develop allocate awaken and use issued domains", CardGame.Core.Tests.ShenDengAiChecks.DevelopAllocateAwakenAndUseIssuedDomains),
+    ("shen deng ai cuixin completed use native child and delayed carrier", CardGame.Core.Tests.ShenDengAiChecks.CuixinRestoresCompletedUseAfterNativeChildAndDelayedCarrier),
+    ("Mobile Shen Hua Tuo: Wuling ordered entries equipment and native draw cold", MobileShenHuaTuoChecks.WulingOrdersEntriesEquipmentAndNativeDrawCold),
+    ("Mobile Shen Hua Tuo: Youyi shared Ren payment recovery cold", MobileShenHuaTuoChecks.YouyiSharedRenPaysWholeAreaBeforeRecoveryCold),
+    ("Shen Lu Su native table order Dingzhou paid cold", ShenLuSuChecks.NativeTableOrderAndDingzhouPaidCold),
+    ("Shen Lu Su native Zhimeng random division cold", ShenLuSuChecks.NativeZhimengRandomDivisionCold),
+    ("Shen Xu Chu actual turn maximum marked Duel and cold", ShenXuChuChecks.ZhengqingActualTurnsAndMarkedDuelCold),
+    ("Shen Xu Chu self draw cap paid Zhuangpo discard cold", ShenXuChuChecks.ZhengqingSelfCapAndZhuangpoPaidDiscardCold),
+    ("shen zhang fei native judgment overwrite and persistent punishments", ShenZhangFeiChecks.NativeJudgmentOverwriteAndPersistentPunishments),
+    ("shen zhang fei native colorless targets quota and direct death", ShenZhangFeiChecks.NativeColorlessTargetsQuotaAndDirectDeath),
+    ("Shen Hua Tuo: Luxin true invocation HP children cold and Jingyu per name", CardGame.Core.Tests.ShenHuaTuoChecks.LuxinInterruptsNextTrueInvocationAndJingyuCountsEachNameOnce),
+    ("Shen Hua Tuo: Huandao restore two-stage random recipient loss cold", CardGame.Core.Tests.ShenHuaTuoChecks.HuandaoRestoresThenSamplesGeneralAndSkillBeforeRecipientLoss),
+    ("Skill invocation: actual converted materials and native equipment cold", CardGame.Core.Tests.ShenHuaTuoChecks.ActualConvertedMaterialsAndNativeEquipmentCold),
+    ("Shen Guo Jia Huishi native repeated judgment gift and cold restore", ShenGuoJiaChecks.HuishiNativeRepeatedJudgmentGiftAndColdRestore),
+    ("Shen Guo Jia Hui Shi fallback four native draws", ShenGuoJiaChecks.HuiShiFourDrawFallbackUsesNativeAttempt),
+    ("Shen Guo Jia Hui Shi Tianyi and native Zuoxing cold", ShenGuoJiaChecks.HuiShiAwakensAtPreparationAndZuoxingUsesRealTrickCold),
+    ("Shen Guo Jia Hui Shi forced Dujiang actual zero Armor cold", ShenGuoJiaChecks.HuiShiForcesActualDujiangWithoutInventingArmorCold),
+    ("shen guo jia real huishi baijia paid maximum cold", ShenGuoJiaCrossAwakeningChecks.RealHuiShiWaivesBaijiaHistoryAndKeepsPaidMaximumCold),
+    ("shen sun ce native fenghe paid gift cold restore", ShenSunCeChecks.NativeFenghePaidGiftColdRestore),
+    ("ShenTaishiCi: paid discard opaque take original turn and rotate cold", CardGame.Core.Tests.ShenTaishiCiChecks.PaidDiscardAndOpaqueTakeResumeOriginalTurnAndRotate),
+    ("ShenTaishiCi: mission success physical Slash choice and dying failure cold", CardGame.Core.Tests.ShenTaishiCiChecks.MissionSuccessPhysicalSlashChoiceAndFailedDyingRecovery),
+    ("ShenTaishiCi: higher HP Slash final Heart judgment cancels target cold", CardGame.Core.Tests.ShenTaishiCiChecks.HigherHpSlashDulieUsesFinalHeartJudgment),
     ("program interaction registration preserves dispatch boundaries", ProgramInteractionChecks.RegistrationAndDispatchPreserveBoundaries),
     ("program interaction AI preserves published choices and conditional policies", ProgramInteractionChecks.AiSelectionPreservesPublishedOrderAndConditionalPolicies),
     ("SP Pang Tong: ActualOpaqueRevealOptionalExchangeAndEqualRanksCold", SpPangTongChecks.ActualOpaqueRevealOptionalExchangeAndEqualRanksCold),
@@ -1256,6 +1316,7 @@ var tests = new (string Name, Action Body)[]
     ("PeachGarden resolves a paused multi-target recovery", PeachGardenFlow),
     ("FiveGrains reveals public cards with private draft prompts", FiveGrainsFlow),
     ("target-card prompts expose opaque slots and replay without hidden identities", TargetCardChecks.OpaqueSlotFlow),
+    ("target-card preselection survives native nullification and replay without second picker", TargetCardChecks.PreselectedSlotSurvivesNullificationAndReplay),
     ("FireAttack reveals privately then resolves typed fire damage", FireAttackFlow),
     ("dying response can pause and recover with a private Peach", DyingResponseFlow),
     ("throwing observers are isolated after commit", ObserverFailuresAreIsolated),
@@ -1708,7 +1769,7 @@ static void StandardContentRegistryBuilds()
     Equal("standard", registry.Packages[0].Id);
     TrueWithMessage(!string.IsNullOrWhiteSpace(registry.ContentHash), "registry exposes a content hash");
     Equal(registry.ContentHash, secondRegistry.ContentHash);
-    Equal(32, registry.Cards.Count);
+    Equal(33, registry.Cards.Count);
     Equal(13, registry.Skills.Count);
     Equal(
         "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。",
@@ -1722,6 +1783,7 @@ static void StandardContentRegistryBuilds()
     Equal(1, registry.Decks.Count);
     Equal(2, registry.Modes.Count);
     Equal(CardKind.Slash, registry.GetCard("standard:slash").LegacyKind);
+    Equal(CardKind.QizhengXiangsheng, registry.GetCard("mobile:qizheng-xiangsheng").LegacyKind);
     Equal("standard:jianxiong", registry.Generals["standard:cao-cao"].SkillId);
     Equal("standard:wusheng", registry.Generals["standard:guan-yu"].SkillId);
     Equal("standard:longdan", registry.Generals["standard:zhao-yun"].SkillId);

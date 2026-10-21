@@ -87,7 +87,7 @@ public sealed partial class GameEngine
         { CancelProgramBindingAndCleanup(f,"付款前技能来源或伤害目标已失效。"); return; }
         var source = new CardLocation(Enum.Parse<CardZoneKind>(choice.Parameters["source-zone"]), draft.TargetSeat);
         var card = _cardZones.CardsAt(source)[int.Parse(choice.Parameters["slot-index"],CultureInfo.InvariantCulture)];
-        var destination = NormalizeDiouCarrierDestination(card, source, card.IsGeneralWeapon && source.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile);
+        var destination = NormalizeEphemeralCardDestination(card, source, card.IsGeneralWeapon && source.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile);
         var reason = new CardMoveReason("skill-program.damage-target-mount.discard");
         ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat,0,null) });
         var discardInvocation = CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat,
@@ -133,7 +133,7 @@ public sealed partial class GameEngine
         return actual is not null && actual.CardId==r.CardId && actual.CardKind==r.PrintedKind && actual.From==r.From && actual.To==r.To &&
             actual.Reason.Value==r.Reason && r.Reason=="skill-program.damage-target-mount.discard" &&
             r.From.OwnerSeat==d.TargetSeat && DamageTargetMountZones.Contains(r.From.Zone) &&
-            r.To==NormalizeDiouCarrierDestination(GetAdvancedCard(r.CardId), r.From, r.PrintedKind==CardKind.GeneralWeapon && r.From.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:CardLocation.DiscardPile) &&
+            r.To==NormalizeEphemeralCardDestination(GetAdvancedCard(r.CardId), r.From, r.PrintedKind==CardKind.GeneralWeapon && r.From.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:CardLocation.DiscardPile) &&
             r.IsMount==IsPrintedMount(r.PrintedKind) &&
             (d.ClaimMovementSequence is null ? !d.ClaimIssued : d.ClaimIssued && _cardMovements.Any(m=>
                 m.Sequence==d.ClaimMovementSequence && m.CardId==r.CardId && m.CardKind==r.PrintedKind &&

@@ -446,6 +446,7 @@ internal static class RuntimeRules_Core_CommonRules
                 LegalActionKind.Dismantlement => "dismantlement",
                 LegalActionKind.Snatch => "snatch",
                 LegalActionKind.FireAttack => "fire-attack",
+                LegalActionKind.QizhengXiangsheng => "qizheng-xiangsheng",
                 LegalActionKind.WumiaoFlood => "wumiao-flood",
                 LegalActionKind.UnexpectedAssault => "unexpected-assault",
                 LegalActionKind.Alcohol => "alcohol",

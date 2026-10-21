@@ -31,10 +31,14 @@ public sealed partial class GameEngine
         t.Effects is not[{Op:SkillProgramEffectOp.ResolveQingyaBetweenHandDiscards}]||QingyaQualifiedUse(c,context)is not null;
     private IReadOnlyList<QingyaArc> QingyaArcs(int owner,int target,IReadOnlyList<int> living)
     {
+        // The supplied ring is the original frozen geometry, including its order.
+        // Continuations must not substitute the table's later order or living roster.
+        var ring=living.ToArray();var ownerIndex=Array.IndexOf(ring,owner);
+        if(ownerIndex<0||!ring.Contains(target))throw new InvalidOperationException("Qingya requires both endpoints in its frozen living ring.");
         IReadOnlyList<int> Arc(int step)
         {
-            var seats=new List<int>();var cursor=owner;
-            for(var i=0;i<_players.Count;i++){cursor=(cursor+step+_players.Count)%_players.Count;if(cursor==target)break;if(living.Contains(cursor))seats.Add(cursor);}
+            var seats=new List<int>();var cursor=ownerIndex;
+            for(var i=0;i<ring.Length;i++){cursor=(cursor+step+ring.Length)%ring.Length;var seat=ring[cursor];if(seat==target)break;seats.Add(seat);}
             return Array.AsReadOnly(seats.ToArray());
         }
         var left=new QingyaArc(1,Arc(1));var right=new QingyaArc(-1,Arc(-1));

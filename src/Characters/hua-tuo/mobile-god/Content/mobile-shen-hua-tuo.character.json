@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hua-tuo",
+  "skills": [
+    { "registrationOrder": 31100, "programBundle": "mobile-shen-hua-tuo", "includeProgramPresentation": true, "definition": { "id": "mobile-god:wuling", "name": "五灵", "description": "出牌阶段限两次，你可以选择一名未拥有“五灵”标记的角色，按照你指定的顺序向其传授“五禽戏”。拥有“五灵”标记的角色拥有按照你指定的效果，并在准备阶段切换为下一种。虎灵：若你使用的牌仅指定唯一目标，则此牌对目标角色造成伤害时，此伤害+1。鹤灵：拥有“鹤”标记的角色获得“鹤”标记时，摸三张牌。熊灵：每回合限一次，你受到伤害时，此伤害-1。猿灵：拥有“猿”标记的角色获得“猿”标记时，选择另一名角色，获得其装备区的一张牌。鹿灵：你获得“鹿”标记时，回复1点体力，移除判定区所有牌。你不能成为延时锦囊目标。", "actionForms": "Active" } },
+    { "registrationOrder": 31101, "programBundle": "mobile-shen-hua-tuo", "includeProgramPresentation": true, "definition": { "id": "mobile-god:youyi", "name": "游医", "description": "弃牌阶段结束时，你可以将此阶段弃置的牌置入“仁”区。出牌阶段限一次，你可以弃置所有“仁”区的牌，令所有角色回复1点体力。", "actionForms": "Active", "executionForms": "Trigger" } },
+    { "registrationOrder": 31102, "programBundle": "mobile-shen-hua-tuo", "includeProgramPresentation": true, "definition": { "id": "mobile-god:wuling-effects", "name": "五灵", "description": "按照传授时指定的五禽顺序，在准备阶段切换下一种效果。熊灵：每回合限一次，你受到伤害时，此伤害-1。", "executionForms": "Trigger" } },
+    { "registrationOrder": 31103, "programBundle": "mobile-shen-hua-tuo", "includeProgramPresentation": true, "definition": { "id": "mobile-god:wuling-deer", "name": "鹿灵", "description": "你不能成为延时锦囊目标。", "executionForms": "State" } }
+  ],
+  "generals": [{ "registrationOrder": 31104, "pools": { "current": 31104 }, "definition": {
+    "id": "mobile:shen-hua-tuo", "name": "神华佗", "portraitKey": "mobile-shen-hua-tuo", "skillId": "mobile-god:wuling", "additionalSkillIds": ["mobile-god:youyi"], "factionId": "god", "baseHp": 3, "gender": "Male", "characterId": "character:hua-tuo", "variantId": "mobile-god", "rulesetId": "sanguosha-mobile"
+  } }]
+}

@@ -12,9 +12,9 @@ public sealed partial class GameEngine
     {
         // A just-dead damaged participant still anchors the two directions;
         // its former seat is not silently removed from the after-damage rule.
-        var living = _players.Where(p => p.IsAlive || p.Seat == seat).Select(p => p.Seat).Order().ToArray();
+        var living = CurrentTableOrder().Where(id => _players[id].IsAlive || id == seat).ToArray();
         var index = Array.IndexOf(living, seat);
-        return index < 0 || living.Length < 2 ? [] : new[] { living[(index + living.Length - 1) % living.Length], living[(index + 1) % living.Length] }.Distinct().OrderBy(s => (s - seat + _playerCount) % _playerCount).ToArray();
+        return index < 0 || living.Length < 2 ? [] : new[] { living[(index + living.Length - 1) % living.Length], living[(index + 1) % living.Length] }.Distinct().OrderBy(s => RelativeTableOrder(seat, s)).ToArray();
     }
     private bool ZhouQunParent(ProgramTriggerCandidate c, ProgramSkillWindowContext context)
     {

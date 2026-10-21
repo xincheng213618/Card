@@ -45,6 +45,9 @@ public sealed partial class GameEngine
     private bool IsNearbyTargetResponseProhibited(int sourceSeat, int responderSeat,
         CardKind incomingKind, IReadOnlyList<int> targetSeats)
     {
+        if (ShenZfCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
+        if (ShenSunCeCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
+        if (WushuangFuqiCannotRespond(sourceSeat, responderSeat)) return true;
         if (MouCaoPiCannotRespondTo(responderSeat, sourceSeat)) return true;
         if (MouLzCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
         if ((!IsSlashCard(incomingKind) && !IsOrdinaryTrick(incomingKind)) ||
@@ -99,6 +102,7 @@ public sealed partial class GameEngine
 
     private Suit GetProgramEffectiveSuit(CharacterState owner, Card card)
     {
+        if (ShenZfIdentitySuit(owner, card) is { } shenZfSuit) return shenZfSuit;
         if (GetSkillBindingShard(owner).GetCardPolicies(SkillProgramCardPolicyKind.RewriteSuit).Count == 0)
             return card.Suit;
         var suit = card.Suit;

@@ -19,7 +19,7 @@ public sealed partial class GameEngine
         CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } p && p.ActorSeat == owner.Seat &&
         IsRecordedActualDiscardRecoveryPhase(p) && MouHanDangPhaseUses(owner.Seat, p) == 0;
     private IReadOnlyList<int> MouHanDangRangeSeats(int target, int first) => Array.AsReadOnly(_players.Where(p => p.IsAlive && p.Seat != target && IsWithinAttackRange(p.Seat, target))
-        .OrderBy(p => (p.Seat - first + _playerCount) % _playerCount).Select(p => p.Seat).ToArray());
+        .OrderBy(p => RelativeTableOrder(first, p.Seat)).Select(p => p.Seat).ToArray());
     [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveMouHanDangJiefan)]
     private void ReturnMouHanDangDraw(ProgramSkillFrame f, NativeDrawOutcome d)
     {

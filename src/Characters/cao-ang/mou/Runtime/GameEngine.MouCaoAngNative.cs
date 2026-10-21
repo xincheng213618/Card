@@ -27,7 +27,7 @@ public sealed partial class GameEngine
         var a=n.Action;var actor=_players[n.Actor];var card=ApplyProgramUseAppearance(actor,GetAdvancedCard(n.CardId),null);
         if(GuanduExpectedNativeTargets(actor,card,a)is{}guandu)return guandu;if(DragonBoatExpectedNativeTargets(actor,card,a)is{}dragon)return dragon;
         if(a.Kind is not(LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage))return GetImplicitSelfCardUseTargets(n.Kind,n.Actor,a.TargetSeats);
-        return Array.AsReadOnly(Enumerable.Range(1,_playerCount-1).Select(offset=>_players[(n.Actor+offset)%_playerCount]).Where(p=>p.IsAlive&&!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,n.Kind)&&!IsCardTargetProhibited(p,n.Kind,card.Suit,SuitColor(EffectiveSuit(actor,card)))&&!HasBeneficiarySuitShield(n.Actor,p.Seat,EffectiveSuit(actor,card))&&!TargetRules.IsDeclaredGlobalProhibited(new(n.Actor,p.Seat,n.Kind))).Select(p=>p.Seat).ToArray());
+        return Array.AsReadOnly(Enumerable.Range(1,_playerCount-1).Select(offset=>_players[TableStepSeat(n.Actor, offset)]).Where(p=>p.IsAlive&&!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,n.Kind)&&!IsCardTargetProhibited(p,n.Kind,card.Suit,SuitColor(EffectiveSuit(actor,card)))&&!HasBeneficiarySuitShield(n.Actor,p.Seat,EffectiveSuit(actor,card))&&!TargetRules.IsDeclaredGlobalProhibited(new(n.Actor,p.Seat,n.Kind))).Select(p=>p.Seat).ToArray());
     }
     private void IssueMouCaUse(ProgramSkillFrame f)
     {

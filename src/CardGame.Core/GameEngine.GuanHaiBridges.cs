@@ -15,8 +15,8 @@ public sealed partial class GameEngine
         materials.All(id => IsXieweiRemovedMaterial(use.Id, id)) && processing.Count == 0;
 
     private Suit? ProgramMultiCardSuit(CharacterState owner, ProgramMultiCardViewAsSelection selection) =>
-        IsXieweiSelection(selection) ? Suit.None : PhysicalGroupSuit(owner, selection.Cards);
+        IsXieweiSelection(selection) || IsWushuangJinzhiSelection(selection) ? Suit.None : PhysicalGroupSuit(owner, selection.Cards);
 
     private bool? ProgramMultiCardColor(CharacterState owner, ProgramMultiCardViewAsSelection selection) =>
-        IsXieweiSelection(selection) ? null : PhysicalGroupColor(owner, selection.Cards);
+        IsXieweiSelection(selection) || IsWushuangJinzhiSelection(selection) ? null : PhysicalGroupColor(owner, selection.Cards);
 }

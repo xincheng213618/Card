@@ -170,7 +170,7 @@ public sealed partial class GameEngine
             participants = new System.Collections.ObjectModel.ReadOnlyDictionary<int, SkillProgramTriggerFacts>(participantFacts);
             candidates = Array.AsReadOnly(_players.Where(p => p.IsAlive).SelectMany(p =>
                 CollectEligibleProgramTriggerCandidates(p, window, participantFacts[p.Seat]))
-                .OrderBy(c => (c.OwnerSeat - frame.OwnerSeat + _playerCount) % _playerCount).ThenByDescending(c => c.Priority)
+                .OrderBy(c => RelativeTableOrder(frame.OwnerSeat, c.OwnerSeat)).ThenByDescending(c => c.Priority)
                 .ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.BindingId, StringComparer.Ordinal).ToArray());
         }
         else

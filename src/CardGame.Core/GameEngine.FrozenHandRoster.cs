@@ -21,7 +21,7 @@ public sealed partial class GameEngine
         if(f.FrozenHandRoster is not null || !FrozenHandRosterEndingParentMatches(f))
             throw new InvalidOperationException("Frozen ending roster lost its exact initial lifecycle parent.");
         var hand=GetHand(_players[f.OwnerSeat]).Count;
-        var seats=_players.Where(p=>p.IsAlive && GetHand(p).Count>=hand).OrderBy(p=>(p.Seat-_currentSeat+_players.Count)%_players.Count).Select(p=>p.Seat).ToArray();
+        var seats=_players.Where(p=>p.IsAlive && GetHand(p).Count>=hand).OrderBy(p=>RelativeTableOrder(_currentSeat, p.Seat)).Select(p=>p.Seat).ToArray();
         var r=new FrozenHandRosterReceipt{Source=new(f.SkillId,f.TriggerId!,f.OwnerSeat,f.SkillInstanceId),GameplayHash=f.GameplayHash,
             ParentFrameId=f.WindowContext!.ParentFrameId,Turn=_turnNumber,InstructionIndex=f.InstructionIndex,InitialOwnerHandCount=hand,Seats=seats};
         ReplaceRuntimeTop(f=f with{FrozenHandRoster=r});
@@ -135,7 +135,7 @@ public sealed partial class GameEngine
             r.Turn!=_turnNumber || r.ParentFrameId!=f.WindowContext?.ParentFrameId || r.InstructionIndex!=f.InstructionIndex ||
             FrozenHandRosterPausedEffect(f)?.Op!=SkillProgramEffectOp.ResolveFrozenHandRosterEndingExchange || !FrozenHandRosterEndingParentMatches(f) ||
             r.Cursor<0 || r.Cursor>r.Seats.Count || r.Seats.Distinct().Count()!=r.Seats.Count || !r.Seats.Contains(f.OwnerSeat) || r.Seats.Any(s=>!IsValidPlayerSeat(s)) ||
-            !r.Seats.SequenceEqual(r.Seats.OrderBy(s=>(s-f.OwnerSeat+_players.Count)%_players.Count)) ||
+            !r.Seats.SequenceEqual(r.Seats.OrderBy(s=>RelativeTableOrder(f.OwnerSeat, s))) ||
             r.Stage is not ("participant" or "damage" or "damage-issued" or "reward" or "movement" or "complete"))return false;
         var events=CompleteProgramEventHistory().ToArray();
         if(events.OfType<FrozenHandRosterStartedEvent>().Where(e=>e.FrameId==f.Id).ToArray() is not [var started] || started.Source!=r.Source ||

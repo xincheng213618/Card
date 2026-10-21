@@ -163,7 +163,7 @@ public sealed partial class GameEngine
         if (slot < 0 || slot >= pool.Count || IsForeignEquipmentDiscardPrevented(f.OwnerSeat, pool[slot], from,
                 r.Obtain ? OwnedCardMoveIntent.Obtain : OwnedCardMoveIntent.Discard))
             throw new InvalidOperationException("The selected paired-color card is no longer payable.");
-        var card = pool[slot]; var to = NormalizeDiouCarrierDestination(card, from, zone == CardZoneKind.Equipment && card.IsGeneralWeapon ? CardLocation.OutsideGame :
+        var card = pool[slot]; var to = NormalizeEphemeralCardDestination(card, from, zone == CardZoneKind.Equipment && card.IsGeneralWeapon ? CardLocation.OutsideGame :
             r.Obtain ? CardLocation.Hand(f.OwnerSeat) : CardLocation.DiscardPile);
         ClearPendingDecision();
         ReplaceRuntimeTop(f = f with { PairedColorDisposition = r with { Stage = PairedColorDispositionStage.MovementChildren,

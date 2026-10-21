@@ -22,7 +22,7 @@ public sealed partial class MainViewModel
     public bool IsWushuangTable => _game?.IsWushuangMode == true;
     public bool IsWushuangModeSelection => SelectedTableMode?.ModeId == WushuangMode.ModeId;
     public bool IsWushuangGuide => IsNewGameSetupOpen ? IsWushuangModeSelection : IsWushuangTable;
-    public string WushuangRulesText => "单机 1v1，对手由 AI 操控。开局免费从三个战法中选一个；战法不占额外技能槽。单局限时15分钟，暂停自动推进、浏览指南和商店仍然计时。\n\n虎符是本模式货币：每个自然回合开始双方各获得1枚，新一轮开始另获得1枚。没有经验和商店升级。每个自然回合结束后进入购买阶段，商品包含技能、实体卡牌和战法。回合中仅可预览下次商品；购买、刷新、锁定只在购买阶段开放。花1虎符刷新；锁定后保留整页，已购买的商品不会补货。购买阶段20秒，结束后继续牌局。\n\n原武将技能保留，最多同时拥有两个额外技能，满槽后先选择替换。击败AI获胜；时间到按本地体力比例、体力值、手牌数依次计分。独立存档保存在本机。";
+    public string WushuangRulesText => "单机 1v1，对手由 AI 操控。开局免费从三个战法中选一个；战法不占额外技能槽。单局限时15分钟，暂停自动推进、浏览指南和商店仍然计时。\n\n虎符是本模式货币：每个自然回合开始双方各获得1枚，新一轮开始另获得1枚。没有经验和商店升级。每个自然回合结束后进入购买阶段，商品包含技能、实体卡牌和战法。回合中仅可预览下次商品；购买、刷新、锁定只在购买阶段开放。优先消耗免费刷新次数，否则花1虎符刷新；锁定后保留整页，已购买的商品不会补货。购买阶段20秒，结束后继续牌局。\n\n初始有两个额外技能槽，战法可增加槽位；满槽后选择替换。持有一忘皆空时也可替换武将初始技能。击败AI获胜；时间到按本地体力比例、体力值、手牌数依次计分。独立存档保存在本机。";
     public bool IsWushuangShopOpen { get => _isWushuangShopOpen; private set => SetProperty(ref _isWushuangShopOpen, value); }
     public bool HasWushuangSave { get => _hasWushuangSave; private set => SetProperty(ref _hasWushuangSave, value); }
     public bool HasWushuangManualSave { get => _hasWushuangManualSave; private set => SetProperty(ref _hasWushuangManualSave, value); }
@@ -32,7 +32,7 @@ public sealed partial class MainViewModel
     public string WushuangProgressText => _game?.CreateWushuangSnapshot(0) is { } state
         ? $"虎符 {state.Tokens}" : "虎符商店 · 15 分钟 1v1";
     public bool IsWushuangOpening => _game?.CreateWushuangSnapshot(0)?.Phase == WushuangShopPhase.OpeningTactic;
-    public int WushuangOfferColumns => IsWushuangOpening ? 3 : 4;
+    public int WushuangOfferColumns => _game?.CreateWushuangSnapshot(0) is { } state ? Math.Max(1, state.Offers.Count + state.PurchasedOffers.Count) : 4;
     public bool IsWushuangShopInteractive => _game?.CreateWushuangSnapshot(0)?.CanShop == true;
     public int WushuangShopWindowSeconds => IsWushuangOpening ? 15 : 20;
     public string WushuangCloseText => IsWushuangShopInteractive ? "结束" : "返回";
@@ -41,14 +41,17 @@ public sealed partial class MainViewModel
     public string WushuangLockText => _game?.CreateWushuangSnapshot(0)?.IsLocked == true ? "已锁定，下次保留本页" : "锁定本页";
     public string WushuangPromptText => !IsWushuangShopInteractive ? "暂时无法购买商品" : IsWushuangOpening ? "请选择一个初始奖励" : "请选择购买商品";
     public string WushuangTacticsText => _game?.CreateWushuangSnapshot(0) is { } state ? string.Join("　", state.TacticIds.Select(id => WushuangTactics.ById[id].Name)) : string.Empty;
-    public string WushuangSkillSlotsText => $"额外技能 {WushuangSkillSlots.Count(slot => slot.SkillId is not null)}/2 · 原武将技能保留";
+    public string WushuangSkillSlotsText => _game?.CreateWushuangSnapshot(0) is { } state
+        ? $"额外技能 {state.ExtraSkillIds.Count}/{state.ExtraSkillCapacity}" : "额外技能 0/2";
     public string WushuangUpgradeText => _game?.CreateWushuangSnapshot(0) is { } state
         ? state.LevelUpCost > 0 ? $"提升等级 · {state.LevelUpCost} 虎符" : "等级已满" : "提升等级";
     public string WushuangRerollText => _game?.CreateWushuangSnapshot(0) is { } state
-        ? $"刷新商店 · {state.RerollCost} 虎符" : "刷新商店";
+        ? state.FreeRerolls > 0 ? $"免费刷新 · 剩余 {state.FreeRerolls} 次" : $"刷新商店 · {state.RerollCost} 虎符" : "刷新商店";
+    public string WushuangRerollPriceText => _game?.CreateWushuangSnapshot(0)?.RerollCost == 0 ? "免费" : "1";
+    public bool WushuangRerollShowsToken => _game?.CreateWushuangSnapshot(0)?.RerollCost != 0;
     public bool IsWushuangReplacementPending => _wushuangPendingOfferId is not null;
     public string WushuangReplacementTitle => _wushuangPendingOfferId is { } id && WushuangOffers.FirstOrDefault(offer => offer.Id == id) is { } offer
-        ? $"习得「{offer.Name}」：两个额外技能槽已满，选择要替换的技能" : string.Empty;
+        ? $"习得「{offer.Name}」：选择技能槽或要替换的技能" : string.Empty;
     public ObservableCollection<WushuangShopOfferViewModel> WushuangOffers { get; } = [];
     public ObservableCollection<WushuangSkillSlotViewModel> WushuangSkillSlots { get; } = [];
     public ICommand OpenWushuangModeCommand { get; private set; } = null!;
@@ -92,7 +95,7 @@ public sealed partial class MainViewModel
         { _wushuangPendingOfferId = null; RefreshWushuangPresentation(); });
         BuyWushuangOfferCommand = new RelayCommand<WushuangShopOfferViewModel>(BuyWushuangOffer, IsCurrentWushuangOffer);
         ReplaceWushuangSkillCommand = new RelayCommand<WushuangSkillSlotViewModel>(ReplaceWushuangSkill,
-            slot => slot?.SkillId is not null && WushuangSkillSlots.Contains(slot) && IsWushuangReplacementPending);
+            slot => slot is not null && WushuangSkillSlots.Contains(slot) && IsWushuangReplacementPending);
         RerollWushuangShopCommand = new RelayCommand(() => ApplyWushuangShopCommand(new RerollWushuangShopCommand(0, _game.Revision)),
             () => _game?.CreateWushuangSnapshot(0) is { CanShop: true, Phase: WushuangShopPhase.Shopping } state && state.Tokens >= state.RerollCost);
         ToggleWushuangShopLockCommand = new RelayCommand(() => ApplyWushuangShopCommand(new ToggleWushuangShopLockCommand(0, _game.Revision)),
@@ -124,7 +127,8 @@ public sealed partial class MainViewModel
     private void BuyWushuangOffer(WushuangShopOfferViewModel offer)
     {
         if (!IsCurrentWushuangOffer(offer)) return;
-        if (offer.SkillId is not null && WushuangSkillSlots.Count(slot => slot.SkillId is not null) == 2)
+        if (offer.SkillId is not null && _game.CreateWushuangSnapshot(0) is { } state &&
+            (state.ExtraSkillIds.Count >= state.ExtraSkillCapacity || state.ReplaceableOriginalSkillIds.Count > 0))
         {
             _wushuangPendingOfferId = offer.Id;
             RefreshWushuangPresentation();
@@ -135,7 +139,7 @@ public sealed partial class MainViewModel
 
     private void ReplaceWushuangSkill(WushuangSkillSlotViewModel slot)
     {
-        if (!WushuangSkillSlots.Contains(slot) || slot.SkillId is null || _wushuangPendingOfferId is not { } id ||
+        if (!WushuangSkillSlots.Contains(slot) || _wushuangPendingOfferId is not { } id ||
             WushuangOffers.FirstOrDefault(offer => offer.Id == id && offer.IsEnabled) is not { } current) return;
         ApplyWushuangShopCommand(new BuyWushuangOfferCommand(0, current.Id, slot.SkillId, current.Revision));
     }
@@ -161,18 +165,24 @@ public sealed partial class MainViewModel
             foreach (var offer in state.Offers.Concat(state.PurchasedOffers).OrderBy(offer => int.Parse(offer.Id.Split(':')[3])))
                 WushuangOffers.Add(new(offer.Id, offer.Name, offer.Description, offer.Cost, offer.SkillId,
                     state.CanShop && state.Tokens >= offer.Cost && !state.PurchasedOffers.Any(p => p.Id == offer.Id), state.Revision)
-                { Quality = offer.Quality, Kind = offer.Kind, TacticId = offer.TacticId, CardKind = offer.CardKind,
+                { Quality = offer.Quality, Kind = offer.Kind, TacticId = offer.TacticId, CardKind = offer.CardKind, CardOfferId = offer.CardOfferId,
                     IsPurchased = state.PurchasedOffers.Any(p => p.Id == offer.Id), IsOpening = state.Phase == WushuangShopPhase.OpeningTactic,
                     IsAffordable = state.Tokens >= offer.Cost, IsPurchasingPhase = state.CanShop,
-                    RequiresReplacement = offer.SkillId is not null && state.ExtraSkillIds.Count == 2 && !state.PurchasedOffers.Any(p => p.Id == offer.Id) });
-            for (var slot = 0; slot < 2; slot++)
+                    RequiresReplacement = offer.SkillId is not null && state.ExtraSkillIds.Count >= state.ExtraSkillCapacity && !state.PurchasedOffers.Any(p => p.Id == offer.Id) });
+            for (var slot = 0; slot < state.ExtraSkillCapacity; slot++)
             {
                 var id = state.ExtraSkillIds.ElementAtOrDefault(slot);
                 var skill = id is not null ? _game!.ContentRegistry?.GetSkill(id) : null;
                 WushuangSkillSlots.Add(new(id, id is null ? $"额外技能槽 {slot + 1} · 空" : skill?.Name ?? id,
-                    skill?.Description ?? "在虎符商店习得技能。最多同时拥有两个额外技能。"));
+                    skill?.Description ?? $"在虎符商店习得技能。当前可用额外技能槽：{state.ExtraSkillCapacity}。"));
             }
         }
+        if (state is not null && IsWushuangReplacementPending)
+            foreach (var id in state.ReplaceableOriginalSkillIds)
+            {
+                var skill = _game!.ContentRegistry!.GetSkill(id);
+                WushuangSkillSlots.Add(new(id, $"武将技能 · {skill.Name}", skill.Description));
+            }
         if (state is { CanShop: true })
         {
             _isWushuangShopPreview = false;
@@ -190,7 +200,7 @@ public sealed partial class MainViewModel
             _wushuangPendingOfferId = null;
         if (!IsWushuangTable || _game?.IsWushuangClockRunning != true) CloseWushuangShop();
         foreach (var name in new[] { nameof(IsWushuangTable), nameof(IsWushuangModeSelection), nameof(WushuangProgressText),
-            nameof(WushuangSkillSlotsText), nameof(WushuangUpgradeText), nameof(WushuangRerollText),
+            nameof(WushuangSkillSlotsText), nameof(WushuangUpgradeText), nameof(WushuangRerollText), nameof(WushuangRerollPriceText), nameof(WushuangRerollShowsToken),
             nameof(IsWushuangReplacementPending), nameof(WushuangReplacementTitle), nameof(WushuangClockText), nameof(WushuangClockCaption), nameof(WushuangShopTimeoutText) })
             RaisePropertyChanged(name);
         foreach (var name in new[] { nameof(IsWushuangOpening), nameof(WushuangOfferColumns), nameof(WushuangShopTitleImage), nameof(WushuangLockImage), nameof(WushuangLockText), nameof(WushuangPromptText), nameof(WushuangTacticsText), nameof(WushuangShopSecondsRemaining) }) RaisePropertyChanged(name);
@@ -221,6 +231,8 @@ public sealed record WushuangShopOfferViewModel(string Id, string Name, string D
     public int Quality { get; init; } = 1;
     public int? TacticId { get; init; }
     public CardKind? CardKind { get; init; }
+    public int? CardOfferId { get; init; }
+    public bool IsEquipment => CardKind is { } kind && EquipmentCatalog.IsEquipment(kind);
     public bool IsPurchased { get; init; }
     public bool IsOpening { get; init; }
     public bool IsAffordable { get; init; }
@@ -234,8 +246,8 @@ public sealed record WushuangShopOfferViewModel(string Id, string Name, string D
     public string PriceText => IsOpening ? "选择" : Cost == 0 ? "免费" : Cost.ToString();
     public string PriceForeground => IsAffordable || IsOpening ? "#F7E8A8" : "#F04436";
     public System.Windows.Media.ImageSource PurchaseButtonImage => WushuangArt.Get(Cost == 0 && !IsOpening ? "rg1v1_btn_green0.png" : "rg1v1_btn_red0.png");
-    public string TypeText => IsTactic ? "战法" : IsSkill ? "技能" : "卡牌";
-    public string DetailText => IsCard ? "获得卡牌" : Description;
+    public string TypeText => IsTactic ? "战法" : IsSkill ? "技能" : IsEquipment ? "装备" : "卡牌";
+    public string DetailText => IsEquipment ? "立即装备\n离开装备区后销毁" : IsCard ? "获得卡牌" : Description;
     public string DisplayName => Name.Replace("传习 · ", "", StringComparison.Ordinal);
     public System.Windows.Media.ImageSource FrameImage => WushuangArt.Get($"rogue_award_quality_bg_{Math.Clamp(Quality, 1, 4)}.png");
     public System.Windows.Media.ImageSource NameImage => WushuangArt.Get($"rogue_award_name_bg_{Math.Clamp(Quality, 1, 4)}.png");

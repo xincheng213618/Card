@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     /// <summary>Recovers the owned source of a discard completed through Processing without rewriting the movement ledger.</summary>
     private CardLocation? GetProgramDiscardSource(CardMovementRecord movement)
     {
+        if (WushuangJinzhiDiscardSource(movement) is { } jinzhi) return jinzhi;
         if (movement.CardKind == CardKind.ThunderChariot && movement.To == CardLocation.OutsideGame &&
             movement.From.Zone == CardZoneKind.Equipment && _cardMovements.Contains(movement) &&
             IsProgramDiscardOriginReason(movement.Reason)) return movement.From;

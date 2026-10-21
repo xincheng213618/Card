@@ -1,4 +1,4 @@
-﻿{
+{
   "schemaVersion": 62,
   "skills": [
     {
@@ -1159,6 +1159,72 @@
           "inputCount": 0,
           "sourceZones": [],
           "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "qizhengXiangsheng",
           "forPlay": true,
           "forResponse": false,
           "useOnly": true,

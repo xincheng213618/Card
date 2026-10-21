@@ -58,7 +58,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Yixian's actual obtained/destroyed equipment identities or original locations changed.");
         var expected = r.Entities.Where(e => e.From.Zone == CardZoneKind.Equipment && e.From.OwnerSeat is not null &&
                 e.To == CardLocation.Hand(f.OwnerSeat)).GroupBy(e => e.From.OwnerSeat!.Value)
-            .OrderBy(g => (g.Key - r.TurnOwner + _players.Count) % _players.Count).Select(g => new YixianRecipient(g.Key, g.Count())).ToArray();
+            .OrderBy(g => RelativeTableOrder(r.TurnOwner, g.Key)).Select(g => new YixianRecipient(g.Key, g.Count())).ToArray();
         var recipients = ProgramEventHistory<YixianRecipientFrozenEvent>().Where(e => e.FrameId == f.Id).ToArray();
         if (!r.Recipients.SequenceEqual(expected) || recipients.Length != expected.Length ||
             !recipients.Select((e, i) => e == new YixianRecipientFrozenEvent(f.Id, i, expected[i].Seat, expected[i].ObtainedCount)).All(v => v))

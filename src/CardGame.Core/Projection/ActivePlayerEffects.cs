@@ -27,8 +27,8 @@ public sealed partial class GameEngine
         if (!player.IsAlive) return null;
         List<ActivePlayerEffectSnapshot>? effects = null;
         var lordSeat = _players.FirstOrDefault(item => item.Role == Role.Lord)?.Seat ?? 0;
-        int SeatNumber(int seat) => IsTeamMode || IsNationalWarMode ? seat + 1
-            : (seat - lordSeat + _players.Count) % _players.Count + 1;
+        int SeatNumber(int seat) => IsTeamMode || IsNationalWarMode ? IndexOfTableSeat(CurrentTableOrder(), seat) + 1
+            : RelativeTableOrder(lordSeat, seat) + 1;
         string SeatName(int seat) => $"第{SeatNumber(seat)}席";
         void Add(string skillId, int source, string description,
             ActivePlayerEffectExpiry expiry = ActivePlayerEffectExpiry.CurrentTurnEnd, int? uses = null)

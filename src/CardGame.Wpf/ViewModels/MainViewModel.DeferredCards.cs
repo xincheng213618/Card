@@ -69,8 +69,14 @@ public sealed partial class MainViewModel
     private void RebuildDeferredCardViews()
     {
         RebuildNamedPrivatePileViews();
+        RaisePropertyChanged(nameof(HasBenevolenceCards));
+        RaisePropertyChanged(nameof(BenevolencePileText));
+        (OpenBenevolencePileCommand as RelayCommand)?.NotifyCanExecuteChanged();
         PrivatelyViewedCards.Clear();
-        foreach (var card in _snapshot.PrivateRevealedCards ?? [])
+        var choosingHandIds = _snapshot.PendingDecision?.Choices
+            .Where(choice => choice.Parameters.GetValueOrDefault("program-action") == "private-hand-take")
+            .SelectMany(choice => choice.Cards).ToHashSet() ?? [];
+        foreach (var card in (_snapshot.PrivateRevealedCards ?? []).Where(card => !choosingHandIds.Contains(card.Id)))
             PrivatelyViewedCards.Add(CreateViewedCard(card, privateView: true));
         RaisePropertyChanged(nameof(HasPrivatelyViewedCards));
         RaisePropertyChanged(nameof(PrivateRevealTitle));

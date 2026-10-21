@@ -33,7 +33,7 @@ public sealed partial class GameEngine
                 action.Kind == LegalActionKind.AllianceFeast && action.CardId == card.Id && action.TargetSeat is null))
             throw new InvalidOperationException("Alliance feast became illegal before native resolution.");
         var targets = ApplyTurnCardGroupTargetRestrictions(source, Enumerable.Range(0, _playerCount)
-            .Select(offset => _players[(source.Seat + offset) % _playerCount])
+            .Select(offset => _players[TableStepSeat(source.Seat, offset)])
             .Where(target => target.IsAlive &&
                 !IsShenwuRobeTargetProhibited(source.Seat, target.Seat, CardKind.AllianceFeast) &&
                 !HasCardPolicy(target, SkillProgramCardPolicyKind.ExcludeGlobalTarget, CardKind.AllianceFeast) &&

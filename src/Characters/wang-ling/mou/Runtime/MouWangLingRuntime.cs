@@ -33,7 +33,7 @@ internal interface IMouWangLingOperations : IProgramRuntimeOperations
 [ProgramRuntimeModule, ProgramCapability]
 internal sealed partial class MouWangLingRuntime(IMouWangLingFacts facts, IMouWangLingOperations operations,
     IProgramRuntimeFrames frames, IProgramRuntimeEvents events, IProgramRuntimePrompts prompts,
-    IProgramOperationDraws draws, IProgramHealthChildQueries health, IProgramHealthChildOperations healthOperations) : IMouWangLingRuntime
+    IProgramOperationDraws draws, IProgramHealthChildQueries health, IProgramHealthChildOperations healthOperations, IProgramAwakeningOverrideQuery awakeningConditions) : IMouWangLingRuntime
 {
     internal const string GiftReason="skill-program.mou:jichou.give", JichouDrawReason="skill-program.mou:jichou.draw",
         ZifuDrawReason="skill-program.mou:zifu.draw", DiscardReason="skill-program.mou:zifu.discard";
@@ -61,7 +61,7 @@ internal sealed partial class MouWangLingRuntime(IMouWangLingFacts facts, IMouWa
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,34500)]
     internal bool Qualifies(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext context)=>c.SkillId switch {
         MouWangLingComposition.Jichou=>c.OwnerSeat==facts.CurrentSeat&&GiftMaterials(c.OwnerSeat).Count>0,
-        MouWangLingComposition.Mouli=>GivenNames(c.OwnerSeat)>=5&&!facts.History<MouWangLingAwakeningAcceptedEvent>().Any(e=>e.OwnerSeat==c.OwnerSeat),
+        MouWangLingComposition.Mouli=>(GivenNames(c.OwnerSeat)>=5||awakeningConditions.Granted(c.OwnerSeat,c.SkillId,c.BindingId))&&!facts.History<MouWangLingAwakeningAcceptedEvent>().Any(e=>e.OwnerSeat==c.OwnerSeat),
         _=>true };
     public SkillProgramStepOutcome Resolve(ProgramSkillFrame supplied,SkillProgramEffectOp operation)
     {
@@ -70,7 +70,7 @@ internal sealed partial class MouWangLingRuntime(IMouWangLingFacts facts, IMouWa
         if(f.InstructionIndex!=1||!facts.ParentMatches(f))throw new InvalidOperationException("Wang Ling lost his actual native lifecycle entry.");
         var zifu=operation==SkillProgramEffectOp.ResolveMouWangLingZifu;
         var awakening=operation==SkillProgramEffectOp.PrepareMouWangLingMouli;
-        if(awakening&&GivenNames(f.OwnerSeat)<5||!awakening&&!zifu&&!UniqueTurn(f.OwnerSeat))throw new InvalidOperationException("Wang Ling lost his actual name qualification.");
+        if(awakening&&GivenNames(f.OwnerSeat)<5&&!awakeningConditions.Granted(f.OwnerSeat,f.SkillId,f.TriggerId)||!awakening&&!zifu&&!UniqueTurn(f.OwnerSeat))throw new InvalidOperationException("Wang Ling lost his actual name qualification.");
         var r=new MouWangLingReceipt(Source(f),f.GameplayHash,operation,facts.Turn,frames.ParentOf(f.Id)!.Id){
             Stage=awakening?MouWangLingStage.Awakening:zifu?MouWangLingStage.Drawing:MouWangLingStage.GiftCards,
             Paid=awakening||zifu,Before=facts.MovementSequence,After=facts.MovementSequence,

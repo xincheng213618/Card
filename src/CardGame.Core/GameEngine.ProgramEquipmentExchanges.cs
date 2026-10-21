@@ -45,7 +45,7 @@ public sealed partial class GameEngine
                 CardLocation.Equipment(item.Source), CardLocation.Equipment(item.Recipient)) ? CardLocation.OutsideGame :
                 count < _players[item.Recipient].EquipmentSlotCapacity(slot)
                     ? CardLocation.Equipment(item.Recipient) : CardLocation.DiscardPile;
-            destination = NormalizeDiouCarrierDestination(item.Card, CardLocation.Equipment(item.Source), destination);
+            destination = NormalizeEphemeralCardDestination(item.Card, CardLocation.Equipment(item.Source), destination);
             if (destination.Zone == CardZoneKind.Equipment) occupied[key] = count + 1;
             return (item.Card, From: CardLocation.Equipment(item.Source), To: destination);
         }).ToArray();

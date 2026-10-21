@@ -10,7 +10,7 @@ public sealed partial class GameEngine
  {
   if(action.Kind is not(LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage))return GetImplicitSelfCardUseTargets(action.PlayedCardKind??AdvancedEffectiveHandKind(_players[actor],GetAdvancedCard(action.CardId!.Value)),actor,action.TargetSeats);
   var card=ApplyProgramUseAppearance(_players[actor],GetAdvancedCard(action.CardId!.Value),action.ConversionSource);var kind=action.PlayedCardKind??card.Kind;var suit=EffectiveSuit(_players[actor],card);
-  return Array.AsReadOnly(Enumerable.Range(1,_playerCount-1).Select(offset=>_players[(actor+offset)%_playerCount]).Where(p=>p.IsAlive&&!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,kind)&&!IsCardTargetProhibited(p,kind,card.Suit,SuitColor(suit))&&!HasBeneficiarySuitShield(actor,p.Seat,suit)&&!TargetRules.IsDeclaredGlobalProhibited(new(actor,p.Seat,kind))).Select(p=>p.Seat).ToArray());
+  return Array.AsReadOnly(Enumerable.Range(1,_playerCount-1).Select(offset=>_players[TableStepSeat(actor, offset)]).Where(p=>p.IsAlive&&!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,kind)&&!IsCardTargetProhibited(p,kind,card.Suit,SuitColor(suit))&&!HasBeneficiarySuitShield(actor,p.Seat,suit)&&!TargetRules.IsDeclaredGlobalProhibited(new(actor,p.Seat,kind))).Select(p=>p.Seat).ToArray());
  }
  private IReadOnlyList<LegalAction> MouZyUseOptions(ProgramSkillFrame f)
  {

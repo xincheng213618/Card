@@ -66,10 +66,10 @@ public sealed partial class GameEngine
         if (escalating)
         {
             var cursor = draft.Cursor;
-            while (cursor < _playerCount - 1 && !_players[(frame.OwnerSeat + cursor + 1) % _playerCount].IsAlive) cursor++;
+            while (cursor < _playerCount - 1 && !_players[TableStepSeat(frame.OwnerSeat, cursor + 1)].IsAlive) cursor++;
             if (cursor >= _playerCount - 1)
             { ReplaceRuntimeTop(frame with { DiscardChallenge = null }); return SkillProgramStepOutcome.Continue; }
-            draft = draft with { Cursor = cursor, ChooserSeat = (frame.OwnerSeat + cursor + 1) % _playerCount };
+            draft = draft with { Cursor = cursor, ChooserSeat = TableStepSeat(frame.OwnerSeat, cursor + 1) };
         }
         else if (draft.Remaining == 0 || !_players[draft.ChooserSeat].IsAlive)
         { frame = CompleteFrameNativeLogicalDiscard(frame); ReplaceRuntimeTop(frame with { DiscardChallenge = null }); return SkillProgramStepOutcome.Continue; }

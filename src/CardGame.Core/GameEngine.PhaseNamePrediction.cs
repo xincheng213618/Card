@@ -293,7 +293,7 @@ public sealed partial class GameEngine
                 r.SequenceBefore < 0 || r.SequenceAfter <= r.SequenceBefore || r.SequenceAfter > _movementSequence ||
                 r.Selected.Any(id => _cardMovements.Count(m => m.Sequence > r.SequenceBefore && m.Sequence <= r.SequenceAfter && m.CardId == id &&
                     m.From == r.Eligible.Single(x => x.CardId == id).From && (m.To == destination ||
-                        r.Stage == PhaseNamePredictionStage.CostChildren && m.To == CardLocation.OutsideGame && (GetAttackCard(id).IsGeneralWeapon || IsDiouCarrierDestroyedMaterial(m))) && m.Reason.Value == reason) != 1))
+                        r.Stage == PhaseNamePredictionStage.CostChildren && m.To == CardLocation.OutsideGame && (GetAttackCard(id).IsGeneralWeapon || IsEphemeralCardDestroyedMaterial(m))) && m.Reason.Value == reason) != 1))
                 throw new InvalidOperationException("Prediction movement lost its one exact paid interval.");
         }
     }

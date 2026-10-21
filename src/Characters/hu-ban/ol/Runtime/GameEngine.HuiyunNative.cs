@@ -19,7 +19,7 @@ public sealed partial class GameEngine
         if(a.Kind==LegalActionKind.Peach)return [n.ActorSeat];
         if(a.Kind is not(LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage or LegalActionKind.PeachGarden or LegalActionKind.FiveGrains))return GetImplicitSelfCardUseTargets(kind,n.ActorSeat,a.TargetSeats);
         var offensive=a.Kind is LegalActionKind.BarbarianAssault or LegalActionKind.ArrowBarrage;
-        var seats=Enumerable.Range(offensive?1:0,_playerCount-(offensive?1:0)).Select(i=>_players[(n.ActorSeat+i)%_playerCount]).Where(p=>p.IsAlive&&(!offensive||!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,kind))&&!IsCardTargetProhibited(p,kind,card.Suit,SuitColor(EffectiveSuit(actor,card)))&&!HasBeneficiarySuitShield(actor.Seat,p.Seat,EffectiveSuit(actor,card))).Select(p=>p.Seat).ToArray();
+        var seats=Enumerable.Range(offensive?1:0,_playerCount-(offensive?1:0)).Select(i=>_players[TableStepSeat(n.ActorSeat, i)]).Where(p=>p.IsAlive&&(!offensive||!HasCardPolicy(p,SkillProgramCardPolicyKind.ExcludeGlobalTarget,kind))&&!IsCardTargetProhibited(p,kind,card.Suit,SuitColor(EffectiveSuit(actor,card)))&&!HasBeneficiarySuitShield(actor.Seat,p.Seat,EffectiveSuit(actor,card))).Select(p=>p.Seat).ToArray();
         if(!offensive)seats=ApplyTurnCardGroupTargetRestrictions(actor,seats).ToArray();if(a.Kind==LegalActionKind.FiveGrains)seats=seats.Take(_cardZones.Count(CardLocation.DrawPile)+_cardZones.Count(CardLocation.DiscardPile)).ToArray();return Array.AsReadOnly(seats);
     }
     private void BindHuiyunFollowupUse(CardUseFrame use)

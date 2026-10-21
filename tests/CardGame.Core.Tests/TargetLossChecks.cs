@@ -37,7 +37,8 @@ internal static class TargetLossChecks
             Require(selected is not null && chosen is not null, $"Could not deal a legal {kind} + counter-Nullification fixture.");
             var match = selected!;
             var play = chosen!;
-            Require(match.Submit(new PlayCardCommand(0, play.CardId!.Value, play.TargetSeats, match.Revision, match.PendingDecision!.PromptId)).Accepted, "Targeted play failed.");
+            Require(match.Submit(new PlayCardCommand(0, play.CardId!.Value, play.TargetSeats, match.Revision, match.PendingDecision!.PromptId)
+                { TargetHandSlot = kind is CardKind.Dismantlement or CardKind.Snatch ? 0 : null }).Accepted, "Targeted play failed.");
             for (var step = 0; step < 40 && match.ResolutionStack.Count > 0; step++)
             {
                 GameCommand command;

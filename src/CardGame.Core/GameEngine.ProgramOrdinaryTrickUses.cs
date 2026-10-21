@@ -118,7 +118,8 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false, Suit? beneficiaryShieldSuit = null, bool? actualEffectiveColor = null, bool hasActualColor = false, IReadOnlyList<int>? physicalCardIds = null, bool includeNextActualUseAdjustment = false, CardConversionSource? conversionSource = null)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
-        bool Wants(CardKind kind) => outputKind is null ? IsActivityOrdinaryTrickNameAvailable(kind) : outputKind == kind;
+        bool Wants(CardKind kind) => (!IsWushuangMode || WushuangCatalogue.IsCardAllowed(kind)) &&
+            (outputKind is null ? IsActivityOrdinaryTrickNameAvailable(kind) : outputKind == kind);
         var effectiveColor = hasActualColor ? actualEffectiveColor : PhysicalGroupColor(source, GetHand(source));
         // A multi-card virtual card only carries a suit while every physical card
         // shares it; mixed-suit combinations are colorless and pass suit shields.
@@ -169,7 +170,7 @@ public sealed partial class GameEngine
                 Add(kind, GuanduCardAction(kind), $"当【{CardCatalog.Get(kind).DisplayName}】使用", targets);
         foreach (var kind in DragonBoatOrdinaryTrickKinds.Where(kind => (_modeDefinition.DragonBoatActivity is not null || outputKind == kind) && Wants(kind)))
         {
-            var seats = Enumerable.Range(0, _playerCount).Select(offset => _players[(source.Seat + offset) % _playerCount])
+            var seats = Enumerable.Range(0, _playerCount).Select(offset => _players[TableStepSeat(source.Seat, offset)])
                 .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat) &&
                     (kind == CardKind.StriveUpstream || (kind == CardKind.SameBoat) == DragonBoatCardAllies(source.Seat, player.Seat)) &&
                     !IsDirectedCardTargetProhibited(source.Seat, player.Seat, kind) &&
@@ -181,6 +182,12 @@ public sealed partial class GameEngine
             { if (seats.Length > 0) Add(kind, DragonBoatCardAction(kind), "当【力争上游】使用", seats); }
             else foreach (var seat in seats) Add(kind, DragonBoatCardAction(kind), $"当【{CardCatalog.Get(kind).DisplayName}】对 {_players[seat].Name} 使用", [seat]);
         }
+        if (Wants(CardKind.QizhengXiangsheng))
+            foreach (var target in _players.Where(player => player.IsAlive && player.Seat != source.Seat &&
+                !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.QizhengXiangsheng) &&
+                !IsCardTargetProhibited(player, CardKind.QizhengXiangsheng, virtualSuit, effectiveColor) &&
+                !IsShenwuRobeTargetProhibited(source.Seat, player.Seat, CardKind.QizhengXiangsheng)))
+                Add(CardKind.QizhengXiangsheng, LegalActionKind.QizhengXiangsheng, $"当【奇正相生】对 {target.Name} 使用", [target.Seat]);
         if (outputKind == CardKind.WumiaoFlood)
         {
             var eligible = _players.Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat) &&
@@ -227,7 +234,7 @@ public sealed partial class GameEngine
         if ((_modeDefinition.HulaoActivity is not null || outputKind == CardKind.AllianceFeast) && Wants(CardKind.AllianceFeast) &&
             CanUseGlobalCard(source, CardKind.AllianceFeast, excludeOwner))
         {
-            var feastTargets = Enumerable.Range(0, _playerCount).Select(offset => _players[(source.Seat + offset) % _playerCount])
+            var feastTargets = Enumerable.Range(0, _playerCount).Select(offset => _players[TableStepSeat(source.Seat, offset)])
                 .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat) &&
                     !HasCardPolicy(player, SkillProgramCardPolicyKind.ExcludeGlobalTarget, CardKind.AllianceFeast) &&
                     !IsCardTargetProhibited(player, CardKind.AllianceFeast, virtualSuit, effectiveColor)).Select(player => player.Seat).ToArray();
@@ -238,7 +245,7 @@ public sealed partial class GameEngine
             Wants(CardKind.ArrowBarrage) && CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner))
         {
             var otherSeats = Enumerable.Range(1, _playerCount - 1)
-                .Select(offset => _players[(source.Seat + offset) % _playerCount])
+                .Select(offset => _players[TableStepSeat(source.Seat, offset)])
                 .Where(player => player.IsAlive)
                 .Select(player => player.Seat)
                 .ToArray();
@@ -261,7 +268,7 @@ public sealed partial class GameEngine
         }
 
         var allAliveSeats = !Wants(CardKind.PeachGarden) && !Wants(CardKind.FiveGrains) ? [] : Enumerable.Range(0, _playerCount)
-            .Select(offset => _players[(source.Seat + offset) % _playerCount])
+            .Select(offset => _players[TableStepSeat(source.Seat, offset)])
             .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat))
             .Select(player => player.Seat)
             .ToArray();

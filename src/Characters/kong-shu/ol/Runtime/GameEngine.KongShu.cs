@@ -39,7 +39,7 @@ public sealed partial class GameEngine
         }
         ContinueKongShu(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
-    private IReadOnlyList<int> KongShuLivingChained() => _players.Where(p => p.IsAlive && p.IsChained).OrderBy(p => (p.Seat - _turnProgression.OwnerSeat + _players.Count) % _players.Count).Select(p => p.Seat).ToArray();
+    private IReadOnlyList<int> KongShuLivingChained() => _players.Where(p => p.IsAlive && p.IsChained).OrderBy(p => RelativeTableOrder(_turnProgression.OwnerSeat, p.Seat)).Select(p => p.Seat).ToArray();
     private IReadOnlyList<PromptChoice> KongShuChoices(ProgramSkillFrame f)
     {
         var r = f.KongShu!;

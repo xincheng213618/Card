@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "wushuang:skill-3230",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "receive-camp",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "globalMarkerCount",
+              "marker": "camp"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "setMarkerAmount",
+              "target": "owner",
+              "marker": "camp",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "give-camp",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "ownerAttributedMarkerCount",
+              "marker": "camp"
+            },
+            "operator": "greaterThan",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "moveUniqueMarker",
+              "target": "selectedTarget",
+              "marker": "camp"
+            }
+          ]
+        },
+        {
+          "id": "claim-camp-hand",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "claimWushuangEndedCampHand",
+              "target": "owner"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": [],
+      "cardPolicies": [
+        {
+          "id": "camp-bonuses",
+          "kind": "markerTurnBonuses",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wushuang:skill-3263",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "capture-previous-actual-basic",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "captureWushuangWangongUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

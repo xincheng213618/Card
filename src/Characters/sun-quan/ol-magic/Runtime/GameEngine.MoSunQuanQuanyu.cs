@@ -63,7 +63,7 @@ public sealed partial class GameEngine
             !CanOfferMoQuanyuRound(new(f.OwnerSeat, f.SkillId, f.TriggerId, f.SkillInstanceId,
                 f.GameplayHash, GetProgramTrigger(f).Priority, context.OccurrenceIndex), context))
             throw new InvalidOperationException("Quanyu requires one genuine first normal turn boundary for this actual round.");
-        var participants = _players.Where(p => p.IsAlive).OrderBy(p => (p.Seat - _currentSeat + _playerCount) % _playerCount)
+        var participants = _players.Where(p => p.IsAlive).OrderBy(p => RelativeTableOrder(_currentSeat, p.Seat))
             .Select((p, i) => FreezeMoQuanyuParticipant(f.OwnerSeat, p.Seat, i)).ToArray();
         var r = new MoQuanyuReceipt(MoQuanyuSource(f), f.GameplayHash, MoQuanyuInvocationKind.Round,
             _roundNumber, _turnNumber, _turnProgression.OwnerSeat, MoQuanyuEffect.None)

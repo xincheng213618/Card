@@ -20,6 +20,9 @@ public sealed partial class GameEngine
     private RuleQueryEvaluation CalculateDistance(CharacterState source, CharacterState target,
         int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
     {
+        if (IsWushuangMode)
+            return RuleQueryService.EvaluateDirectionalDistance(
+                [new($"mode:{WushuangMode.ModeId}:no-distance", 1)], [], []);
         var baseTerms = new List<RuleQueryBaseTerm>
         {
             new($"mode:{_modeDefinition.Id}:alive-seat-distance", GetAliveSeatDistance(source.Seat, target.Seat))
@@ -104,11 +107,11 @@ public sealed partial class GameEngine
         if (TracksFengjiRoundLedger)
             AddFiniteContribution(contributions, $"state:{player.Seat}:olfengji:round-draw",
                 GetFengjiRoundAdjustment(player.Seat, SkillRuleQuery.DrawCount));
-        return RuleQueryService.Evaluate(
+        return ApplyWushuangEnemyQuota(player, RuleQueryService.Evaluate(
             SkillRuleQuery.DrawCount,
             new RuleQueryBounds(0, int.MaxValue),
             baseTerms,
-            contributions);
+            contributions), SkillRuleQuery.DrawCount);
     }
 
     private RuleQueryEvaluation EvaluateSlashUseLimit(CharacterState player, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null)
@@ -146,11 +149,11 @@ public sealed partial class GameEngine
         if (TracksFengjiRoundLedger)
             AddFiniteContribution(contributions, $"state:{player.Seat}:olfengji:round-slash",
                 GetFengjiRoundAdjustment(player.Seat, SkillRuleQuery.SlashLimit));
-        return RuleQueryService.Evaluate(
+        return ApplyWushuangEnemyQuota(player, RuleQueryService.Evaluate(
             SkillRuleQuery.SlashLimit,
             new RuleQueryBounds(0, int.MaxValue),
             baseTerms,
-            contributions);
+            contributions), SkillRuleQuery.SlashLimit);
     }
 
     private RuleQueryEvaluation EvaluateHandLimit(CharacterState player)
@@ -174,6 +177,8 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"state:{player.Seat}:mou-mobile:keji:armor-hand-limit", MouLuMengArmorHandLimit(player));
         contributions.AddRange(ProgramDamageHandLimitContributions(player));
         contributions.AddRange(PersistentHandLimitContributions(player));
+        contributions.AddRange(ShenJiangWeiPingxiangHandLimitContributions(player));
+        contributions.AddRange(ShenZfHandLimitContributions(player));
         if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ApplyLiushiEffect))
             AddFiniteContribution(contributions, $"state:{player.Seat}:liushi:hand-limit", -player.Markers.GetValueOrDefault(PlayerMarkerKind.LiuShi));
         contributions.AddRange(ActorHandLimitPenaltyContributions(player));
@@ -229,6 +234,8 @@ public sealed partial class GameEngine
                 !_contentRegistry.GetSkill(binding.Source.SkillId).Tags.HasFlag(SkillTag.Lord) ||
                 HasSkillRoleQualification(player, binding.Source.SkillId, binding.Source.SkillInstanceId, Role.Lord)).ToArray();
         if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query)
+            .Concat(WushuangSkillsBNumericContributions(player, query))
+            .Concat(WushuangNumericRuleContributions(player, query))
             .Concat(ActivityRuleContributions(player, query))
             .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query)).ToArray();
         var context = new SkillProgramRuleContext(
@@ -263,6 +270,8 @@ public sealed partial class GameEngine
             context,
             bindings);
         return programContributions.Concat(CollectStrategicRuleContributions(player, query))
+            .Concat(WushuangSkillsBNumericContributions(player, query))
+            .Concat(WushuangNumericRuleContributions(player, query))
             .Concat(ActivityRuleContributions(player, query))
             .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query)).ToArray();
     }

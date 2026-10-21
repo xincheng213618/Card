@@ -218,6 +218,19 @@
           ],
           "extendedUse": true,
           "outputKind": "supplyShortage"
+        },
+        {
+          "singleCardTrickUse": true,
+          "forResponse": false,
+          "inputSuits": [],
+          "id": "random-as-qizhengxiangsheng",
+          "inputKinds": [],
+          "forPlay": true,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "qizhengXiangsheng"
         }
       ],
       "id": "ol:jingong",

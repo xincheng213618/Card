@@ -10,7 +10,7 @@ public sealed partial class GameEngine
             CollectProgramTriggerCandidates(p, SkillProgramTriggerWindow.DrawPhaseStarting)).Where(c =>
                 GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.GiveCardSkipDrawForEnding }]);
         return Array.AsReadOnly(existing.Concat(extra).Distinct().OrderByDescending(c => c.Priority)
-            .ThenBy(c => (c.OwnerSeat - subject.Seat + _playerCount) % _playerCount).ThenBy(c => c.SkillId, StringComparer.Ordinal).ToArray());
+            .ThenBy(c => RelativeTableOrder(subject.Seat, c.OwnerSeat)).ThenBy(c => c.SkillId, StringComparer.Ordinal).ToArray());
     }
     private bool YanPuRoundUsed(int seat, string skill) => ProgramEventHistory<YanPuHuantuIssuedEvent>()
         .Any(e => e.Promise.Source.OwnerSeat == seat && e.Promise.Source.SkillId == skill && e.Promise.ActualRound == _roundNumber);
@@ -76,11 +76,11 @@ public sealed partial class GameEngine
     {
         if (!survived || _winner != Winner.None || !_players[dying.VictimSeat].IsAlive || _players[dying.VictimSeat].Hp <= 0 ||
             !(_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawDyingExitRoundDistance) ||
-              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouJiangWeiFuzhan))) return false;
+              _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouJiangWeiFuzhan) || IsWushuangMode)) return false;
         var facts = _players.Where(p => p.IsAlive).ToDictionary(p => p.Seat, CaptureProgramTriggerFacts);
         var candidates = _players.Where(p => p.IsAlive).SelectMany(p => CollectProgramTriggerCandidates(p, SkillProgramTriggerWindow.DyingExited))
-            .Where(c => GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice or SkillProgramEffectOp.ResolveMouJiangWeiFuzhan }])
-            .OrderBy(c => (c.OwnerSeat - _currentSeat + _playerCount) % _playerCount).ThenByDescending(c => c.Priority).ToArray();
+            .Where(c => GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice or SkillProgramEffectOp.ResolveMouJiangWeiFuzhan }] || IsWushuangDyingExitCandidate(c, dying.VictimSeat))
+            .OrderBy(c => RelativeTableOrder(_currentSeat, c.OwnerSeat)).ThenByDescending(c => c.Priority).ToArray();
         if (candidates.Length == 0) return false;
         var ret = new YanPuDyingExitReturn(dying.FrameId, dying.ParentFrameId, dying.VictimSeat, dying.Continuation, _roundNumber, _turnNumber, _currentSeat);
         PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, dying.VictimSeat, SkillProgramTriggerWindow.DyingExited,

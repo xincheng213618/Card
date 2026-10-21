@@ -19,17 +19,18 @@ public sealed partial class GameEngine
     // Prior uses of this phase, in order, deduplicated per accepted action; a
     // use without a rank (virtual declarations, multi-card conversions) stays
     // null and breaks the pattern instead of silently comparing as zero.
-    private IReadOnlyList<int?> GuanchaoPhaseUseRanks(int ownerSeat, int phaseEventIndex, long currentActionId)
+    private IReadOnlyList<int?> GuanchaoPhaseUseRanks(int ownerSeat, int phaseEventIndex, long currentActionId, bool includeResponseUses = false)
     {
         var ranks = new List<int?>();
         var seen = new HashSet<long>();
         foreach (var accepted in CompleteProgramEventHistory().Skip(phaseEventIndex + 1).OfType<CardActionAcceptedEvent>())
         {
             var action = accepted.Action;
-            if (action.Type != CardActionType.Use || action.ActorSeat != ownerSeat || !seen.Add(action.ActionId) ||
+            if ((action.Type != CardActionType.Use && !(includeResponseUses && ProgramEventHistory<WushuangCardUseNameRecordedEvent>().Any(e => e.CardActionId == action.ActionId))) || action.ActorSeat != ownerSeat || !seen.Add(action.ActionId) ||
                 action.ActionId == currentActionId)
                 continue;
-            ranks.Add(action.EffectiveRank ?? (action.PhysicalCards.Count == 1 ? GetAdvancedCard(action.PhysicalCards[0].CardId).Rank : null));
+            var rank = action.EffectiveRank ?? (action.PhysicalCards.Count == 1 ? GetAdvancedCard(action.PhysicalCards[0].CardId).Rank : (int?)null);
+            ranks.Add(includeResponseUses && rank is <= 0 ? null : rank);
         }
         return ranks;
     }
@@ -103,14 +104,15 @@ public sealed partial class GameEngine
         var active = GetActiveProgramFrame(frame.Id);
         var owner = _players[active.OwnerSeat];
         if (!owner.IsAlive || _winner != Winner.None) return SkillProgramStepOutcome.Continue;
-        var pattern = CurrentGuanchaoPattern(owner.Seat);
+        var pattern = active.SkillId == BGuanchao ? WushuangGuanchaoPattern(owner.Seat) : CurrentGuanchaoPattern(owner.Seat);
         if (pattern is null) return SkillProgramStepOutcome.Continue;
         var context = frame.WindowContext?.CardUse;
         var action = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault()?.Action ??
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault(item => item.Action?.ActionId == context?.CardActionId)?.Action;
         if (action is null || action.ActorSeat != owner.Seat) return SkillProgramStepOutcome.Continue;
         var currentRank = action.EffectiveRank ?? (action.PhysicalCards.Count == 1 ? GetAdvancedCard(action.PhysicalCards[0].CardId).Rank : (int?)null);
-        var ranks = GuanchaoPhaseUseRanks(owner.Seat, pattern.Value.PhaseEventIndex, action.ActionId).Append(currentRank).ToArray();
+        if (active.SkillId == BGuanchao && currentRank is <= 0) currentRank = null;
+        var ranks = GuanchaoPhaseUseRanks(owner.Seat, pattern.Value.PhaseEventIndex, action.ActionId, active.SkillId == BGuanchao).Append(currentRank).ToArray();
         var drew = MatchesGuanchaoPattern(ranks, pattern.Value.Ascending);
         if (drew)
             DrawCards(owner, 1, true, new($"skill-program.{active.SkillId}.guanchao-draw"));

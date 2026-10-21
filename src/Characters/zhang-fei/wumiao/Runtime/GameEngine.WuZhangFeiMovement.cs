@@ -97,7 +97,7 @@ public sealed partial class GameEngine
                 qualified.Add((source, victim, new(move.CardId, move.CardKind, original.Value, move.Sequence, false)));
         }
         var list = qualified.GroupBy(e => (e.Source, e.Victim)).OrderBy(g => g.Key.Source.Source.OwnerSeat)
-            .ThenBy(g => (g.Key.Victim - _currentSeat + _players.Count) % _players.Count)
+            .ThenBy(g => RelativeTableOrder(_currentSeat, g.Key.Victim))
             .ThenBy(g => g.Key.Source.Source.SkillInstanceId, StringComparer.Ordinal)
             .Select(g => new WuZishengMovementQualification(g.Key.Source, batch.Id, g.Key.Victim)
             { Materials = g.Select(e => e.Material).GroupBy(m => m.CardId).Select(g => g.OrderBy(m => m.TerminalSequence).First()).ToArray() }).ToArray();

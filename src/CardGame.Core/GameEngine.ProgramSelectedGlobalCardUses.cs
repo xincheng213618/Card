@@ -18,7 +18,7 @@ public sealed partial class GameEngine
                 "A global selected-card use requires two legal same-suit owner hand cards.");
 
         var targets = Enumerable.Range(1, _playerCount - 1)
-            .Select(offset => _players[(owner.Seat + offset) % _playerCount])
+            .Select(offset => _players[TableStepSeat(owner.Seat, offset)])
             .Where(player => player.IsAlive &&
                 !IsCardTargetProhibited(player, CardKind.ArrowBarrage, PhysicalGroupSuit(owner, selection.Cards), PhysicalGroupColor(owner, selection.Cards)) &&
                 !HasBeneficiarySuitShield(owner.Seat, player.Seat, PhysicalGroupSuit(owner, selection.Cards)))

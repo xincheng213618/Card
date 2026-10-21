@@ -69,7 +69,7 @@ public sealed partial class GameEngine
         var previouslyAnnounced = use.UniqueHpAnnouncedTargets?.Count ?? 0;
         AppendUnannouncedUniqueHpTargets(use, id, entries);
         if (entries.Count == 0 && (LifecycleCardUse(use.Id)?.UniqueHpAnnouncedTargets?.Count ?? 0) == previouslyAnnounced) return false;
-        entries = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => e.Candidate.OwnerSeat)
+        entries = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => RelativeTableOrder(0, e.Candidate.OwnerSeat))
             .ThenBy(e => e.Candidate.SkillId, StringComparer.Ordinal).ToList();
         _resolutionSequence = id;
         PushRuntimeFrame(new ActualUseTargetWindowFrame(id, use.Id, kind,

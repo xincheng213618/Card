@@ -19,6 +19,7 @@ public static class CardCatalog
     private static readonly IReadOnlyDictionary<CardKind, CardDefinition> Definitions =
         new Dictionary<CardKind, CardDefinition>
         {
+            [CardKind.QizhengXiangsheng] = new(CardKind.QizhengXiangsheng, "奇正相生", "锦囊牌", "出牌阶段，对一名其他角色使用，暗中指定奇兵或正兵。目标可打出一张杀或闪。奇兵未打出杀则受到你造成的1点伤害；正兵未打出闪则你获得其一张牌。", 38, 0, 42),
             [CardKind.QiBaoDao] = new(CardKind.QiBaoDao, "七宝刀", "装备牌", "攻击范围2。锁定技，你使用【杀】无视防具；你使用【杀】对未受伤目标造成伤害+1。", 32, 0, 42),
             [CardKind.BaiBiDao] = new(CardKind.BaiBiDao, "百辟刀", "装备牌", "攻击范围2。当你使用杀造成伤害后，可以获得目标一张手牌。", 32, 0, 42),
             [CardKind.WumiaoFlood] = new(CardKind.WumiaoFlood, "水淹七军", "锦囊牌",

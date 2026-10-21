@@ -4,7 +4,8 @@ public sealed partial class GameEngine
 {
     private const string ForeignTurnContestClaimReason = "program.foreign-turn-contest.claim";
     private bool HasForeignTurnContests =>
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveForeignTurnPindian);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveForeignTurnPindian) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShenTaishiCiPowei);
     private CardConversionSource ForeignContestSource(ProgramSkillFrame f) =>
         new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
 
@@ -21,7 +22,7 @@ public sealed partial class GameEngine
                 SkillProgramTriggerWindow.OtherActualTurnStarted, frozen).Select(c => (c, frozen)));
         }
         if (entries.Count == 0) return false;
-        var sorted = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => e.Candidate.OwnerSeat)
+        var sorted = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => RelativeTableOrder(0, e.Candidate.OwnerSeat))
             .ThenBy(e => e.Candidate.SkillId, StringComparer.Ordinal).ThenBy(e => e.Candidate.SkillInstanceId).ToArray();
         var id = ++_resolutionSequence;
         PushRuntimeFrame(new ForeignActualTurnStartWindowFrame(id, _turnNumber, turnOwner.Seat,
@@ -51,6 +52,7 @@ public sealed partial class GameEngine
             }
             var candidate = parent.Candidates[parent.CandidateIndex]; var context = parent.Contexts[parent.CandidateIndex];
             if (!CanRunProgramTrigger(candidate, context)) { AdvanceForeignActualTurnStartCandidate(parent, false, false); continue; }
+            if (!GetProgramTrigger(candidate).Optional) { BeginProgramBinding(candidate, context); return; }
             ReplaceRuntimeTop(parent with { Step = ResolutionFrameStep.AwaitingResponse });
             ExposeProgramTriggerDecision(candidate, context); return;
         }
@@ -86,10 +88,10 @@ public sealed partial class GameEngine
     {
         var owner = _players[candidate.OwnerSeat];
         return context.Window == SkillProgramTriggerWindow.OtherActualTurnStarted &&
-            owner.IsAlive && owner.Hp > 0 && IsRuleWounded(owner) &&
+            owner.IsAlive && (candidate.SkillId == "mobile-god:powei" || owner.Hp > 0 && IsRuleWounded(owner)) &&
             context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat && owner.Seat != _currentSeat &&
-            _players[_currentSeat].IsAlive && HasWuLuKangPindianInput(owner) && HasWuLuKangPindianInput(_players[_currentSeat]) &&
-            CanBePindianTarget(owner.Seat, _currentSeat) &&
+            _players[_currentSeat].IsAlive && (candidate.SkillId == "mobile-god:powei" ||
+                HasWuLuKangPindianInput(owner) && HasWuLuKangPindianInput(_players[_currentSeat]) && CanBePindianTarget(owner.Seat, _currentSeat)) &&
             _resolutionStack.OfType<ForeignActualTurnStartWindowFrame>().LastOrDefault() is { } parent &&
             parent.Id == context.ParentFrameId && parent.OwnerSeat == _currentSeat && parent.ActualTurnNumber == _turnNumber &&
             parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count &&

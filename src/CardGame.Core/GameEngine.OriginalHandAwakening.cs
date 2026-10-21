@@ -63,7 +63,7 @@ public sealed partial class GameEngine
             r.HpAfter != Math.Min(r.HpBefore, r.MaximumAfter) || f.PendingMovementContinuation is not null ||
             !_originalHandEntityStates.TryGetValue(new(f.OwnerSeat, r.SourceSkillId, r.StateId), out var state) ||
             state.InitializationFrameId != r.InitializationFrameId || state.Entities.Count != r.OriginalCount ||
-            state.Entities.Any(e => e.FirstLossSequence is null) ||
+            state.Entities.Any(e => e.FirstLossSequence is null) && !HasShenGuoJiaAwakeningReceipt(f) ||
             GetProgramTrigger(f).Effects is not [{ Op: SkillProgramEffectOp.AwakenWhenOriginalHandEmpty } effect] ||
             effect.SourceBind != r.SourceSkillId || effect.StateId != r.StateId || !effect.SkillIds.SequenceEqual(r.SkillIds) ||
             r.SkillIds.Count == 0 || r.SkillIds.Distinct(StringComparer.Ordinal).Count() != r.SkillIds.Count) return false;

@@ -19,7 +19,7 @@ public sealed partial class GameEngine
     private CardKind[] MoDcModeDamageKinds() => LeCaoZhiModeNamePool().Where(IsMoDcSingleDamageKind).ToArray();
     private void StartMoDcCohort(ProgramSkillFrame f)
     {
-        var r = f.MoDiaoChan!; var recipients = _players.Where(p => p.IsAlive).OrderBy(p => (p.Seat - f.OwnerSeat + _playerCount) % _playerCount).Select(p => p.Seat).ToArray();
+        var r = f.MoDiaoChan!; var recipients = _players.Where(p => p.IsAlive).OrderBy(p => RelativeTableOrder(f.OwnerSeat, p.Seat)).Select(p => p.Seat).ToArray();
         var cohort = ProgramEventHistory<MoDiaoChanCohortStartedEvent>().Select(e => e.CohortId).DefaultIfEmpty().Max() + 1;
         ReplaceRuntimeTop(f = f with { MoDiaoChan = r with { Paid = true, Stage = MoDiaoChanStage.Obtaining, CohortId = cohort, Targets = recipients, Cursor = 0 } });
         AdvanceEventRulesAndQueueFact(new MoDiaoChanCohortStartedEvent(cohort, f.Id, r.Source, r.GameplayHash, _turnNumber, recipients.Length));

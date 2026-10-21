@@ -121,7 +121,8 @@ public sealed partial class GameEngine
             var card = _cardZones.CardsAt(CardLocation.Hand(draft.SourceSeat)).Single(c => c.Id == id);
             return new PromptChoice(new ChoiceId($"private-hand-take.{frame.Id}.{draft.SelectedCardIds.Count}.{id}"),
                 $"获得【{card.DisplayName}】（{card.Suit} {card.RankText}）", [id], [],
-                new Dictionary<string, string> { ["program-action"] = "private-hand-take", ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) });
+                new Dictionary<string, string> { ["program-action"] = "private-hand-take", ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["source-zone"] = "Hand", ["card-owner-seat"] = draft.SourceSeat.ToString(System.Globalization.CultureInfo.InvariantCulture) });
         }).ToArray());
     }
 
@@ -155,7 +156,9 @@ public sealed partial class GameEngine
     {
         var skill = _contentRegistry.GetSkill(frame.SkillId);
         _pendingDecision = new(DecisionKind.ProgramTrigger, chooser, text, Array.AsReadOnly(choices.SelectMany(c => c.Cards).Distinct().ToArray()), [], frame.OwnerSeat)
-        { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = target, Choices = choices, SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
+        { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = target, Choices = choices,
+            RequiredCardCount = frame.PrivateHandTake is { Paid: false } take ? take.RequiredCount - take.SelectedCardIds.Count : 0,
+            SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[chooser].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 

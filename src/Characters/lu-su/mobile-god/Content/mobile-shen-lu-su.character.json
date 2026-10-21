@@ -1,0 +1,9 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:lu-su",
+  "skills":[
+    {"registrationOrder":30900,"programBundle":"mobile-shen-lu-su","includeProgramPresentation":true,"definition":{"id":"mobile:tamo","name":"榻谟","description":"（身份场）游戏开始时，你可以重新分配除主公外每名角色的座次。（斗地主）游戏开始时，你可以重新分配三号位以外的角色的座次。（团战类）游戏开始时，你可以重新分配每名角色的座次。","executionForms":"Trigger"}},
+    {"registrationOrder":30901,"programBundle":"mobile-shen-lu-su","includeProgramPresentation":true,"definition":{"id":"mobile:dingzhou","name":"定州","description":"出牌阶段限一次，你交给一名角色X张牌（X为其场上牌的张数），然后你获得其场上的所有牌。","actionForms":"Active"}},
+    {"registrationOrder":30902,"programBundle":"mobile-shen-lu-su","includeProgramPresentation":true,"definition":{"id":"mobile:zhimeng","name":"智盟","description":"（身份场）你的回合结束后，你可以选择一名其他角色，你与其随机平均分配双方手牌（若为奇数则你分配较多张数）。（斗地主、团战类）你的回合结束后，你可选择一名手牌数不大于X的其他角色（X为你的手牌数+1），你与其随机平均分配双方手牌（若为奇数则你分配较多张数）。","executionForms":"Trigger"}}
+  ],
+  "generals":[{"registrationOrder":30903,"pools":{"current":30903},"definition":{"id":"mobile:shen-lu-su","name":"神鲁肃","portraitKey":"mobile-shen-lu-su","skillId":"mobile:tamo","additionalSkillIds":["mobile:dingzhou","mobile:zhimeng"],"factionId":"god","gender":"Male","baseHp":3,"characterId":"character:lu-su","variantId":"mobile-god","rulesetId":"sanguosha-mobile"}}]
+}

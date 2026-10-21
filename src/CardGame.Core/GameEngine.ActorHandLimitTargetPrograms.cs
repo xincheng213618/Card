@@ -113,7 +113,7 @@ public sealed partial class GameEngine
                 old.TriggerId == candidate.TriggerId && old.OpponentSeat == candidate.OpponentSeat))
             .Where(candidate => !HasIssuedActorHandLimitTargetCandidate(use, candidate))
             .OrderByDescending(candidate => candidate.Priority)
-            .ThenBy(candidate => candidate.OwnerSeat)
+            .ThenBy(candidate => RelativeTableOrder(0, candidate.OwnerSeat))
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.TriggerId, StringComparer.Ordinal)

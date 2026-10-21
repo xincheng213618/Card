@@ -103,7 +103,7 @@ public sealed partial class GameEngine
                 { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow } context ||
                 frame.OwnerSeat != _currentSeat || context.SourceSeat != frame.OwnerSeat)
                 throw new InvalidOperationException("Bufo requires its exact actual own turn start.");
-            var targets = Enumerable.Range(1, _playerCount - 1).Select(offset => (frame.OwnerSeat + offset) % _playerCount)
+            var targets = Enumerable.Range(1, _playerCount - 1).Select(offset => TableStepSeat(frame.OwnerSeat, offset))
                 .Where(seat => _players[seat].IsAlive && GetCombatDistance(frame.OwnerSeat, seat) == 1).ToArray();
             ReplaceRuntimeTop(frame = frame with { HellBufo = new(HellDizangSource(frame), frame.GameplayHash,
                 frame.InstructionIndex, _turnNumber, 0) { Targets = targets } });

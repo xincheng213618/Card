@@ -81,7 +81,7 @@ public sealed partial class GameEngine
             var candidate = new ProgramTriggerCandidate(promise.Source.OwnerSeat, promise.Source.SkillId, t.Id, promise.Source.SkillInstanceId, promise.GameplayHash, t.Priority);
             if (!result.Any(c => c.OwnerSeat == candidate.OwnerSeat && c.SkillId == candidate.SkillId && c.BindingId == candidate.BindingId && c.SkillInstanceId == candidate.SkillInstanceId)) result.Add(candidate);
         }
-        return Array.AsReadOnly(result.OrderBy(c => (c.OwnerSeat - turnOwner.Seat + _playerCount) % _playerCount).ThenByDescending(c => c.Priority)
+        return Array.AsReadOnly(result.OrderBy(c => RelativeTableOrder(turnOwner.Seat, c.OwnerSeat)).ThenByDescending(c => c.Priority)
             .ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.BindingId, StringComparer.Ordinal).ToArray());
     }
     private bool HasIssuedHongjiCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context)

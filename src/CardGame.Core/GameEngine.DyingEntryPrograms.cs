@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.DyingEntering, facts[player.Seat])
             .Where(candidate => GetProgramTrigger(candidate).Subject != SkillProgramTriggerSubject.Owner ||
                 player.Seat == dying.VictimSeat)).OrderBy(candidate =>
-            (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count).ThenByDescending(candidate => candidate.Priority)
+            RelativeTableOrder(_currentSeat, candidate.OwnerSeat)).ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal).ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return false;
         UpdateDyingFrame(dying.Id, current => current with

@@ -32,7 +32,9 @@ public sealed partial class GameEngine
         CardKind.BarbarianAssault => CardKind.AgainstCurrent, CardKind.ArrowBarrage => null,
         _ => kind
     } : kind;
-    private bool IsActivityOrdinaryTrickNameAvailable(CardKind kind) => !HasActivityOrdinaryTrickProjection || ActivityOrdinaryTrickReplacement(kind) == kind;
+    private bool IsActivityOrdinaryTrickNameAvailable(CardKind kind) =>
+        (!IsWushuangMode || WushuangCatalogue.IsCardAllowed(kind)) &&
+        (!HasActivityOrdinaryTrickProjection || ActivityOrdinaryTrickReplacement(kind) == kind);
 
     /// <summary>Returns immutable rule metadata for a published conversion source in this match's mode.</summary>
     public SkillProgramViewAs? GetCardConversionDefinition(CardConversionSource source) =>

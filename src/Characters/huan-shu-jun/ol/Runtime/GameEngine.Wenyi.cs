@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     {
         if (!HasHuanShuJunCapability || !WenyiActualTurnOpen || change.HpBefore == 1 || change.HpAfter != 1 || !IsValidPlayerSeat(change.TargetSeat) || !_players[change.TargetSeat].IsAlive) return [];
         var result = new List<ProgramTriggerCandidate>();
-        foreach (var owner in _players.Where(p => p.IsAlive && WenyiRemaining(p.Seat) > 0).OrderBy(p => (p.Seat - _turnProgression.OwnerSeat + _players.Count) % _players.Count))
+        foreach (var owner in _players.Where(p => p.IsAlive && WenyiRemaining(p.Seat) > 0).OrderBy(p => RelativeTableOrder(_turnProgression.OwnerSeat, p.Seat)))
             foreach (var i in GetSkillBindingShard(owner).ProgramInstances)
                 foreach (var t in i.Program.Triggers.Where(IsWenyiHpTrigger))
                     if (HasRuntimeSkillInstance(owner, i.SkillId, i.SkillInstanceId)) result.Add(new(owner.Seat, i.SkillId, t.Id, i.SkillInstanceId, i.Program.GameplayHash, t.Priority));

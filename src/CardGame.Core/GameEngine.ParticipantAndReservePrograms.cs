@@ -117,7 +117,7 @@ public sealed partial class GameEngine
         var seats = frame.WenheChaos is { } wenhe && IsExactWenheChaos(frame) ? wenhe.ActorSeats.ToArray() :
             effect.Op is SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestLegalSlashByNearest
             ? Enumerable.Range(1, _playerCount - 1)
-                .Select(offset => _players[(owner.Seat + offset) % _playerCount].Seat).ToArray()
+                .Select(offset => _players[TableStepSeat(owner.Seat, offset)].Seat).ToArray()
             : effect.TargetKind is { } kind ? _players.Where(player =>
             (kind != SkillProgramTargetKind.OtherLiving || player.Seat != owner.Seat)).Select(player => player.Seat).ToArray()
             : frame.SelectedTargetSeats.ToArray();

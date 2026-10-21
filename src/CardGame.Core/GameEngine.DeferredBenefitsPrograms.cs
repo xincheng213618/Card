@@ -125,7 +125,7 @@ public sealed partial class GameEngine
         if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.DyingEntering } context ||
             context.ParentFrameId != _resolutionStack[^2].Id || dying.VictimSeat != frame.OwnerSeat)
             throw new InvalidOperationException("Faction recovery lost its entering dying owner.");
-        var responders = Enumerable.Range(1, _playerCount - 1).Select(offset => (frame.OwnerSeat + offset) % _playerCount)
+        var responders = Enumerable.Range(1, _playerCount - 1).Select(offset => TableStepSeat(frame.OwnerSeat, offset))
             .Where(seat => _players[seat].IsAlive && GetEffectiveFactionId(_players[seat]) == factionId).ToArray();
         if (responders.Length == 0) return SkillProgramStepOutcome.Continue;
         ReplaceRuntimeTop(frame with { FactionRecoveryDraft = new(dying.FrameId, responders, 0, []) });

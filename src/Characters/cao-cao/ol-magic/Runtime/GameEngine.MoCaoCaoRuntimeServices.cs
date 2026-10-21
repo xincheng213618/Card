@@ -12,7 +12,7 @@ public sealed partial class GameEngine
     private sealed class MoCaoCaoFacts(GameEngine engine) : IMoCaoCaoFacts
     {
         public bool Enabled => engine._contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.InitializeMoCaoCaoFuzai);
-        public IReadOnlyList<int> Seats => Array.AsReadOnly(engine._players.Select(p => p.Seat).ToArray());
+        public IReadOnlyList<int> Seats => engine.CurrentTableOrder();
         public MoCaoCaoParticipant Participant(int seat)
         {
             var p = engine._players[seat];

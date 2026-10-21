@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse, ChainedStateBasic, SoleIncomingRangeDraw = 1243, NativeCardEffectDraw = 27578, WenheCardEffect = 550, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000 }
+public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse, ChainedStateBasic, SoleIncomingRangeDraw = 1243, SkillInvocation = 38700, NativeCardEffectDraw = 27578, WenheCardEffect = 550, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000 }
 public sealed record CharacterStateChangeContext(long Id, long? ParentFrameId, int TargetSeat, SkillProgramTriggerWindow Window)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -40,7 +40,7 @@ public sealed partial class GameEngine
                 CollectEligibleProgramTriggerCandidates(player, change.Window, facts[player.Seat])
                     .Where(candidate => GetProgramTrigger(candidate).Subject == SkillProgramTriggerSubject.Any || player.Seat == change.TargetSeat))
                 .Where(candidate => !IsIssuedDiciChainTrigger(GetProgramTrigger(candidate)))
-                .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _playerCount) % _playerCount)
+                .OrderBy(candidate => RelativeTableOrder(_currentSeat, candidate.OwnerSeat))
                 .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
                 .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal)
                 .ThenBy(candidate => candidate.OccurrenceIndex)
@@ -69,6 +69,10 @@ public sealed partial class GameEngine
         switch (continuation)
         {
             case CharacterStateContinuation.Program: AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value); break;
+            case CharacterStateContinuation.SkillInvocation:
+                if (_resolutionStack.LastOrDefault() is not SkillInvocationFrame invocation || invocation.Id != frame.ResumeProgramFrameId)
+                    throw new InvalidOperationException("A skill invocation lost its exact character-state return.");
+                AdvanceRuntimeFrame(invocation.Id); break;
             case CharacterStateContinuation.SoleIncomingRangeDraw: ContinueSoleIncomingRangeDraw(frame.ResumeProgramFrameId!.Value); break;
             case CharacterStateContinuation.NativeCardEffectDraw: ContinueNativeDrawTwo(frame.ResumeProgramFrameId!.Value); break;
             case CharacterStateContinuation.WenheCardEffect: ContinueWenheCardEffect(frame.ResumeProgramFrameId!.Value); break;
@@ -92,7 +96,7 @@ public sealed partial class GameEngine
             CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.JudgmentPhaseStarting, facts[player.Seat])
                 .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
                     (player.Seat == turnOwner.Seat ? SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving)))
-            .OrderBy(candidate => (candidate.OwnerSeat - turnOwner.Seat + _playerCount) % _playerCount)
+            .OrderBy(candidate => RelativeTableOrder(turnOwner.Seat, candidate.OwnerSeat))
             .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return false;

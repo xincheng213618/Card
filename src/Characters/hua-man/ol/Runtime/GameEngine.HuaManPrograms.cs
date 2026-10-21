@@ -12,7 +12,7 @@ public sealed partial class GameEngine
   }
   if(op==SkillProgramEffectOp.AwakenZhanyuanAndOfferXili)
   {
-   if(owner.HuaManProgress is not{MansiCards:>7,Awakened:false}progress||CurrentActualDiscardRecoveryPhase()is not{Kind:ActualDiscardRecoveryPhaseKind.Preparation}phase||phase.ActorSeat!=f.OwnerSeat||f.OwnerSeat!=_currentSeat)throw new InvalidOperationException("Zhanyuan requires actual preparation and more than seven actually obtained Mansi cards.");owner.HuaManProgress=progress with{Awakened=true};BeginHuaMan(f,HuaManStage.MaximumChildren,op,true);ChangeProgramMaximumHp(GetActiveProgramFrame(f.Id),1);AdvanceRuntimeProgram(f.Id);return SkillProgramStepOutcome.AwaitChild;
+   var progress=owner.HuaManProgress??new HuaManProgress(0);if(progress.Awakened||progress.MansiCards<=7&&!HasShenGuoJiaAwakeningCondition(f.OwnerSeat,f.SkillId,f.TriggerId)||CurrentActualDiscardRecoveryPhase()is not{Kind:ActualDiscardRecoveryPhaseKind.Preparation}phase||phase.ActorSeat!=f.OwnerSeat||f.OwnerSeat!=_currentSeat)throw new InvalidOperationException("Zhanyuan requires actual preparation and its natural or issued awakening condition.");owner.HuaManProgress=progress with{Awakened=true};BeginHuaMan(f,HuaManStage.MaximumChildren,op,true);ChangeProgramMaximumHp(GetActiveProgramFrame(f.Id),1);AdvanceRuntimeProgram(f.Id);return SkillProgramStepOutcome.AwaitChild;
   }
   if(op==SkillProgramEffectOp.PaySouyingDirectionalSoleTarget)
   {

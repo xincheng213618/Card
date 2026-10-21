@@ -44,12 +44,15 @@ internal abstract class PaidHpLossOperationDescriptor : ProgramOperationDescript
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         var producer = Op == SkillProgramEffectOp.ChooseOwnerHpLoss;
-        r.AllowOnly("op", "target", producer ? "resultBind" : "sourceBind", "condition");
+        if (Op == SkillProgramEffectOp.DrawPaidHpLoss)
+            r.AllowOnly("op", "target", "sourceBind", "condition", "drawCards");
+        else r.AllowOnly("op", "target", producer ? "resultBind" : "sourceBind", "condition");
         if (r.RequiredEnum<SkillProgramEffectTarget>("target") != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException("Paid HP loss is owner-only.");
         var effect = new SkillProgramEffect(Op, SkillProgramEffectTarget.Owner, 0, r.Condition(),
             sourceBind: producer ? null : r.RequiredIdentifier("sourceBind"),
-            resultBind: producer ? r.RequiredIdentifier("resultBind") : null);
+            resultBind: producer ? r.RequiredIdentifier("resultBind") : null)
+        { PaidHpLossDrawCards = r.Has("drawCards") ? r.RequiredBool("drawCards") : null };
         RequireAlways(effect, r.Path); return effect;
     }
     // The finite chain is validated as one exact owned resource contract.

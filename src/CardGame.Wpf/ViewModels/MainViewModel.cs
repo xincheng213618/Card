@@ -790,8 +790,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 Seat = player.Seat,
                 DisplaySeatNumber = IsTeamSnapshot || IsNationalSnapshot
-                    ? player.Seat + 1
-                    : (player.Seat - lordSeat + seatPlayers.Count) % seatPlayers.Count + 1,
+                    ? TableSeatOffset(_snapshot.TableOrder?.FirstOrDefault() ?? 0, player.Seat) + 1
+                    : TableSeatOffset(lordSeat, player.Seat) + 1,
+                TurnOrderText = _snapshot.Wushuang is { } duel ? player.Seat == duel.FirstNormalSeat ? "先手" : "后手" : string.Empty,
                 GeneralId = player.GeneralId,
                 Portrait = GetGeneralPortrait(player.GeneralId),
                 GeneralName = player.GeneralName,
@@ -993,7 +994,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             HumanSummary = "全 AI 演示";
         }
 
-        RoundText = IsGuanduActivitySnapshot ? $"{GuanduRoundText} · 行动回合 {_snapshot.TurnNumber}" : IsDragonBoatActivitySnapshot ? $"{DragonBoatRoundText} · 行动回合 {_snapshot.TurnNumber}"
+        RoundText = _game.IsMoLuBuOpeningPhase ? "夺炁 · 额外出牌" : IsGuanduActivitySnapshot ? $"{GuanduRoundText} · 行动回合 {_snapshot.TurnNumber}" : IsDragonBoatActivitySnapshot ? $"{DragonBoatRoundText} · 行动回合 {_snapshot.TurnNumber}"
             : IsWenheActivitySnapshot ? $"{WenheRoundText} · 行动回合 {_snapshot.TurnNumber}" : $"回合 {_snapshot.TurnNumber}";
         PhaseText = GetPhaseName(_snapshot.Phase);
         var current = _snapshot.Players.FirstOrDefault(player => player.Seat == _snapshot.CurrentSeat);
@@ -1168,7 +1169,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (TrySelectPlayConversionMode(choice) || choice.Cards.Count != 1) return;
         var cardId = choice.Cards[0];
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var regionalCard = human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).SingleOrDefault(card => card.Id == cardId);
+        var regionalCard = human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).Concat(ForeignFieldPlayMaterials(human)).SingleOrDefault(card => card.Id == cardId);
         if (regionalCard is null)
         {
             return;
@@ -1240,10 +1241,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             .Select(action => action.CardId!.Value)
             .ToHashSet();
         // Equipped materials use the equipment rail; other regions still need their own entry.
-        foreach (var equipment in human.Judgment.Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).Where(card => playableEquipmentIds.Contains(card.Id)))
+        foreach (var equipment in human.Judgment.Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).Concat(ForeignFieldPlayMaterials(human)).Where(card => playableEquipmentIds.Contains(card.Id)))
         {
             var isJudgment = human.Judgment.Any(card => card.Id == equipment.Id);
-            var zoneName = isJudgment ? "判定牌" : human.AuthorityCards?.Any(card => card.Id == equipment.Id) == true
+            var foreignOwner = _snapshot.Players.FirstOrDefault(player => player.Seat != human.Seat &&
+                player.Equipment.Concat(player.Judgment).Any(card => card.Id == equipment.Id));
+            var zoneName = foreignOwner is not null ? foreignOwner.Name + "的" +
+                (foreignOwner.Judgment.Any(card => card.Id == equipment.Id) ? "判定牌" : "装备") :
+                isJudgment ? "判定牌" : human.AuthorityCards?.Any(card => card.Id == equipment.Id) == true
                 ? human.AuthorityName ?? "牌堆牌" : OwnPublicPileMaterials(human).Any(card => card.Id == equipment.Id)
                     ? PublicPersistentOwnedPiles(human).First(pile => pile.Cards.Any(card => card.Id == equipment.Id)).Name : "装备";
             var selected = _selectedCardId == equipment.Id;

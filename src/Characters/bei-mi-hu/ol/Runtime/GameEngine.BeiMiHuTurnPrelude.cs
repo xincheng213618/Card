@@ -42,7 +42,11 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.MarkLowestHpUnmarkedOtherAtRoundStart)) &&
             !(_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) &&
                 HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
-                    SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) && SimaHuiOwnTurns(owner.Seat) == 0)) return false;
+                    SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) && SimaHuiOwnTurns(owner.Seat) == 0) &&
+            !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
+                SkillProgramEffectOp.ResolveShenTaishiCiPowei) &&
+            !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
+                SkillProgramEffectOp.EditDinghanNames)) return false;
         if (_pendingDecision is not null || _resolutionStack.Count != 0 || owner.Seat != _currentSeat)
             throw new InvalidOperationException("Before-turn work requires a clean actual turn boundary.");
         var oldRound = _roundNumber;
@@ -125,8 +129,10 @@ public sealed partial class GameEngine
                 var candidates = participants.SelectMany(player => CollectEligibleProgramTriggerCandidates(player, window, facts[player.Seat]))
                     .Where(candidate => ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(operation) ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) &&
-                        SimaHuiOwnTurns(candidate.OwnerSeat) == 0)
-                    .OrderBy(candidate => (candidate.OwnerSeat - parent.Proof.UpcomingOwnerSeat + _players.Count) % _players.Count)
+                        SimaHuiOwnTurns(candidate.OwnerSeat) == 0 ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveShenTaishiCiPowei) ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.EditDinghanNames))
+                    .OrderBy(candidate => RelativeTableOrder(parent.Proof.UpcomingOwnerSeat, candidate.OwnerSeat))
                     .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
                     .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
                 if (candidates.Length != 0)

@@ -29,7 +29,7 @@ public sealed partial class GameEngine
                 ProgramInstructionResolver.Default.Features(binding.Trigger).HasOperation(SkillProgramEffectOp.GiveHandAndGrantCategoryMark)))
             .SelectMany(p => CollectEligibleProgramTriggerCandidates(p, SkillProgramTriggerWindow.DrawPhaseEnded, CaptureProgramTriggerFacts(p)))
             .Where(c => GetProgramTrigger(c).Effects.Any(e => e.Op == SkillProgramEffectOp.GiveHandAndGrantCategoryMark));
-        return Array.AsReadOnly(existing.Concat(added).Distinct().OrderBy(c => (c.OwnerSeat - drawOwner.Seat + _playerCount) % _playerCount)
+        return Array.AsReadOnly(existing.Concat(added).Distinct().OrderBy(c => RelativeTableOrder(drawOwner.Seat, c.OwnerSeat))
             .ThenByDescending(c => c.Priority).ThenBy(c => c.SkillId, StringComparer.Ordinal).ThenBy(c => c.BindingId, StringComparer.Ordinal).ToArray());
     }
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 1030)]

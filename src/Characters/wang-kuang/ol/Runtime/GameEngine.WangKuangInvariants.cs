@@ -47,7 +47,7 @@ public sealed partial class GameEngine
                 if (cards.Length != p.ActualCount || cards.Select(c => c.CardId).Distinct().Count() != cards.Length || cards.Any(c => c.From.OwnerSeat != f.OwnerSeat ||
                     c.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) || c.Sequence <= p.Before || c.Sequence > p.After ||
                     _cardMovements.Count(m => m.Sequence == c.Sequence && m.CardId == c.CardId && m.From == c.From && m.Reason.Value == RenxiaDiscardReason &&
-                        m.To == NormalizeDiouCarrierDestination(GetAttackCard(c.CardId), c.From, (c.From.Zone == CardZoneKind.Equipment && GetAttackCard(c.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) != 1)) return false;
+                        m.To == NormalizeEphemeralCardDestination(GetAttackCard(c.CardId), c.From, (c.From.Zone == CardZoneKind.Equipment && GetAttackCard(c.CardId).IsGeneralWeapon ? CardLocation.OutsideGame : CardLocation.DiscardPile))) != 1)) return false;
             }
         }
         if (r.Stage == WangKuangRenxiaStage.DiscardChoice) return chosen == WangKuangRenxiaBranch.Discard && r.RequiredCount is >= 1 and <= 2 && r.Selected.Count < r.RequiredCount &&

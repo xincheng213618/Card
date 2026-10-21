@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -19,7 +19,7 @@ public sealed partial class GameEngine
     private IEnumerable<ProgramTriggerCandidate> CollectFirstDomainCandidates(CardMovementBatchContext batch)
     {
         foreach(var fact in CompleteProgramEventHistory().OfType<FirstGameDomainCrossingEvent>().Where(e=>e.BatchId==batch.Id).OrderBy(e=>e.MovementOrdinal))
-        foreach(var owner in _players.Where(p=>p.IsAlive).OrderBy(p=>(p.Seat-_currentSeat+_players.Count)%_players.Count))
+        foreach(var owner in _players.Where(p=>p.IsAlive).OrderBy(p=>RelativeTableOrder(_currentSeat, p.Seat)))
         foreach(var group in CollectProgramTriggerCandidates(owner,SkillProgramTriggerWindow.FirstGameDomainCrossing).GroupBy(c=>c.SkillId,StringComparer.Ordinal))
             yield return group.OrderByDescending(c=>c.Priority).ThenBy(c=>c.SkillInstanceId,StringComparer.Ordinal).First() with{OccurrenceIndex=fact.MovedOut?0:1};
     }

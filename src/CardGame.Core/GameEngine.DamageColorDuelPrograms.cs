@@ -39,6 +39,7 @@ public sealed partial class GameEngine
         cardId==0 && IsMouDcZeroUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsMouZyZeroFireUse(frameId) ? new Card(0,CardKind.FireAttack,Suit.None,0) :
         cardId==0 && IsMouDongZhuoOlWine(frameId) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
+        cardId==0 && IsWushuangBZeroUse(frameId) ? new Card(0,LifecycleCardUse(frameId)!.CardKind,Suit.None,0) :
         cardId==0 && IsMouXuHuangZeroUse(frameId) ? MouXuHuangRepresentation(frameId) :
         cardId==0 && IsMouLiuChengUse(frameId) ? MouLiuChengRepresentation(frameId) :
         cardId==0 && IsMouXqJueyanUse(frameId) ? MouXqJueyanRepresentation(frameId) :

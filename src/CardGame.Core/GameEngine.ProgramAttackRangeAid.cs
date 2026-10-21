@@ -16,7 +16,7 @@ public sealed partial class GameEngine
         var responders = _players
             .Where(player => player.IsAlive && player.Seat != targetSeat &&
                              IsWithinAttackRange(player.Seat, targetSeat))
-            .OrderBy(player => (player.Seat - active.OwnerSeat + _playerCount) % _playerCount)
+            .OrderBy(player => RelativeTableOrder(active.OwnerSeat, player.Seat))
             .Select(player => player.Seat)
             .ToArray();
 

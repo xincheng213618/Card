@@ -6,7 +6,7 @@
       "revision": 1,
       "triggers": [
         {
-          "id": "mark-initial-entities",
+          "id": "mark-initial-entities", "isSkillInvocation": false,
           "window": "gameStarting",
           "subject": "owner",
           "optional": false,
@@ -367,6 +367,22 @@
           "forPlay": true,
           "forResponse": false,
           "allowSameKind": true
+        },
+        {
+          "id": "fu-alias-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true,
+          "singleCardTrickUse": true
         }
       ]
     },

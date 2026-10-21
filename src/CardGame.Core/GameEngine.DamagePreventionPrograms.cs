@@ -4,6 +4,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasRangePreventionPrograms =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShenSunCeFenghe) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventCurrentDamage) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventShenwuNitaiOwnTurnDamage) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PreventHulaoArmoredLargeDamage) ||
@@ -123,7 +124,7 @@ public sealed partial class GameEngine
             .Where(item => !IsMouChenGongZhichiBeforeCandidate(item.Candidate))
             .Concat(CollectIssuedMouChenGongZhichiCandidates(sourceSeat, targetSeat, rangeChainOnly))
             .OrderByDescending(item => item.Candidate.Priority)
-            .ThenBy(item => (item.Candidate.OwnerSeat - targetSeat + _playerCount) % _playerCount)
+            .ThenBy(item => RelativeTableOrder(targetSeat, item.Candidate.OwnerSeat))
             .ThenBy(item => item.Candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(item => item.Candidate.SkillInstanceId, StringComparer.Ordinal)
             .ThenBy(item => item.Candidate.BindingId, StringComparer.Ordinal)

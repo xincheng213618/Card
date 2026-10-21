@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary-god:luxin", "revision": 1, "activations": [
+      { "id": "give-and-filter", "usesPerTurn": null, "usesPerPhase": 1, "minCards": 1, "maxCards": 1, "sourceZones": ["hand"], "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "effects": [
+        { "op": "giveSelected", "target": "selectedTarget" },
+        { "op": "resolveShenHuaTuoLuxin", "target": "owner" }
+      ] }
+    ] },
+    { "id": "anniversary-god:huandao", "revision": 1, "activations": [
+      { "id": "restore-and-exchange", "usesPerTurn": null, "usesPerGame": 1, "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "effects": [
+        { "op": "resolveShenHuaTuoHuandao", "target": "owner" }
+      ] }
+    ] }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:jiang-wei",
+  "skills": [
+    { "registrationOrder": 30400, "programBundle": "anniversary-shen-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "anniversary:tianren", "name": "天任", "description": "锁定技，当有基本牌或普通锦囊牌不是因使用而进入弃牌堆后，你获得一个“天任”标记。当你的“天任”标记大于等于你的体力上限时，你移除等量的“天任”然后增加1点体力上限并摸两张牌。", "tags": "Locked", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 30401, "programBundle": "anniversary-shen-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "anniversary:jiufa", "name": "九伐", "description": "你每次使用或打出九张不同牌名的牌后，你可以亮出牌堆顶的九张牌，你选择并获得其中点数重复的牌各一张，其余的牌置入弃牌堆。", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 30402, "programBundle": "anniversary-shen-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "anniversary:pingxiang", "name": "平襄", "description": "限定技，出牌阶段，你可以减9点体力上限。若如此做，你视为使用至多九张火【杀】。然后你失去“九伐”且本局游戏你的手牌上限改为体力上限。", "tags": "Limited", "actionForms": "Active", "executionForms": "State" } }
+  ],
+  "generals": [{ "registrationOrder": 30403, "pools": { "current": 30403 }, "definition": { "id": "anniversary:shen-jiang-wei", "name": "神姜维", "portraitKey": "anniversary-shen-jiang-wei", "skillId": "anniversary:tianren", "additionalSkillIds": ["anniversary:jiufa", "anniversary:pingxiang"], "factionId": "god", "gender": "Male", "baseHp": 4, "characterId": "character:jiang-wei", "variantId": "anniversary-god", "rulesetId": "sanguosha-anniversary" } }]
+}

@@ -17,7 +17,7 @@ public sealed partial class GameEngine
         var frozen = ProgramEventHistory<TianChouShandaoTargetsFrozenEvent>().Where(e => e.FrameId == f.Id).ToArray();
         if (r.TargetsFrozen ? frozen is not [var freeze] || freeze.Count != r.Targets.Count || r.Targets.Count == 0 || r.Stage == TianChouShandaoStage.Targets ||
             !ProgramEventHistory<TianChouShandaoTargetOrderedEvent>().Where(e => e.FrameId == f.Id).OrderBy(e => e.Index).Select(e => e.Seat).SequenceEqual(r.Targets) ||
-            !Enumerable.Range(0, _playerCount).Select(i => (f.OwnerSeat + i) % _playerCount).Where(r.Targets.Contains).SequenceEqual(r.Targets) :
+            !Enumerable.Range(0, _playerCount).Select(i => TableStepSeat(f.OwnerSeat, i)).Where(r.Targets.Contains).SequenceEqual(r.Targets) :
             frozen.Length != 0 || r.Stage != TianChouShandaoStage.Targets || r.Cursor != 0 || r.Tops.Count != 0 || r.TrickIndex != 0) return false;
         var tops = ProgramEventHistory<TianChouShandaoTopPaidEvent>().Where(e => e.FrameId == f.Id).ToArray();
         var skipped = ProgramEventHistory<TianChouShandaoSkippedEvent>().Where(e => e.FrameId == f.Id).ToArray();

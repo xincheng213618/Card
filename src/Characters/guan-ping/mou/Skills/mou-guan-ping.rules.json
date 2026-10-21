@@ -5,7 +5,7 @@
     "viewAs": [{ "id": "whole-color-slash", "inputKinds": [], "inputSuits": [], "inputCount": null, "sourceZones": ["hand"], "outputKind": "slash", "forPlay": true, "forResponse": false, "allowSameKind": true, "distanceUnlimited": true }],
     "activations": [{ "id": "color-hand-slash", "minCards": 1, "maxCards": null, "sourceZones": ["hand"], "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null,
       "effects": [{ "op": "useSelectedCardsAs", "target": "selectedTarget", "sourceBind": "whole-color-slash", "outputKind": "slash" }] }],
-    "triggers": [{ "id": "paid-color-options", "window": "cardUseCommitted", "ownerRelation": "conversionSource", "sourceSkillId": "mou:wuwei", "sourceViewAsId": "whole-color-slash", "optional": false,
+    "triggers": [{ "id": "paid-color-options", "isSkillInvocation": false, "window": "cardUseCommitted", "ownerRelation": "conversionSource", "sourceSkillId": "mou:wuwei", "sourceViewAsId": "whole-color-slash", "optional": false,
       "effects": [{ "op": "resolveMouGuanPingWuwei", "target": "owner" }] }]
   }]
 }

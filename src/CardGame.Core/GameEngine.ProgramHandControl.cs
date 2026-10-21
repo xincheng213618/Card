@@ -285,7 +285,7 @@ public sealed partial class GameEngine
                 ReplaceRuntimeTop(frame with { HandControlDraft = draft with { ParticipantSeats = [.. draft.ParticipantSeats, choice.Targets.Single()] } });
                 PublishProgramHandControlChoice(GetActiveProgramFrame(frame.Id)); return;
             }
-            var ordered = draft.ParticipantSeats.OrderBy(seat => (seat - frame.OwnerSeat + _playerCount) % _playerCount).ToArray();
+            var ordered = draft.ParticipantSeats.OrderBy(seat => RelativeTableOrder(frame.OwnerSeat, seat)).ToArray();
             ReplaceRuntimeTop(frame with { HandControlDraft = draft with { Stage = "participant-draw", ParticipantSeats = ordered }, ReexecuteParticipantInstruction = true });
             AdvanceRuntimeProgram(frame.Id); return;
         }

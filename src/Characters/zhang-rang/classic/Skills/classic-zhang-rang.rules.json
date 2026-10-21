@@ -439,11 +439,35 @@
             "stateId": "taoluan-disabled",
             "expectedValue": false
           }
+        },
+        {
+          "id": "use-qizhengXiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
         }
       ],
       "triggers": [
         {
-          "id": "after-use",
+          "id": "after-use", "isSkillInvocation": false,
           "window": "cardUseCompleted",
           "ownerRelation": "conversionSource",
           "singleActionInstance": true,

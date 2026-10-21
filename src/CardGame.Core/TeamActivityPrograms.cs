@@ -89,8 +89,9 @@ public sealed record AutomaticExtraCardEffectIssuedEvent(long ProgramFrameId, Ca
 
 public sealed partial class GameEngine
 {
-    private bool PublicTeamEnemy(int owner, CharacterState target) => _players[owner].TeamId is { } team &&
-        target.TeamId is { } other && team != other;
+    private bool PublicTeamEnemy(int owner, CharacterState target) => IsWushuangMode
+        ? target.IsAlive && target.Seat != owner
+        : _players[owner].TeamId is { } team && target.TeamId is { } other && team != other;
 
     private bool OtherRevealedPublicTeamAlly(CharacterState owner, CharacterState target) =>
         owner.IsAlive && owner.Seat != target.Seat && owner.TeamRevealed && target.TeamRevealed && SamePublicTeam(owner, target);

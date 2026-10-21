@@ -86,7 +86,7 @@ public sealed partial class GameEngine
                 var target = selected.Targets.Single(); var targets = r.Targets.Contains(target) ? r.Targets.Where(s => s != target).ToArray() : r.Targets.Append(target).ToArray();
                 ReplaceRuntimeTop(f = f with { MouXiahouDunMobile = r with { Targets = targets } }); PublishMouXiahouDun(f); return;
             }
-            var roster = r.Targets.OrderBy(s => (s - f.OwnerSeat + _playerCount) % _playerCount).ToArray();
+            var roster = r.Targets.OrderBy(s => RelativeTableOrder(f.OwnerSeat, s)).ToArray();
             ReplaceRuntimeTop(f = f with { MouXiahouDunMobile = r with { Targets = roster, Stage = MouXiahouDunMobileStage.Damaging } });
             for (var i = 0; i < roster.Length; i++) AdvanceEventRulesAndQueueFact(new MouXiahouDunMobileGanglieSpentEvent(f.Id, f.OwnerSeat, roster[i], i));
             IssueMouXiahouDunDamage(f); return;

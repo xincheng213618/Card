@@ -401,6 +401,7 @@ public sealed partial class GameEngine
         var issuer = new CardConversionSource(parent.SkillId, GetProgramBindingId(parent), parent.OwnerSeat, parent.SkillInstanceId);
         var exactProducer = effect.Op switch
         {
+            SkillProgramEffectOp.RepeatShenDengAiCuixin => IsShenDaCuixinUse(use.Id) && parent.OwnerSeat == use.SourceSeat && action.ConversionChain.Count == 0,
             SkillProgramEffectOp.ResolveMouChengYuDanchi => IsMouDanchiUse(use.Id) && parent.OwnerSeat == use.SourceSeat && action.ConversionChain.Count == 0,
             SkillProgramEffectOp.UseVirtualSlash => parent.OwnerSeat == use.SourceSeat && action.ConversionChain.SequenceEqual([issuer]) &&
                 (effect.TargetReference is null ? parent.SelectedTargetSeats is [var selected] && selected == declared.TargetSeats[0]

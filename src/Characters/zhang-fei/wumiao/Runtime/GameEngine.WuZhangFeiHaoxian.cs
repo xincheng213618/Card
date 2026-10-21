@@ -66,7 +66,7 @@ public sealed partial class GameEngine
             f = GetActiveProgramFrame(id); r = f.WuHaoxian!;
             if (!_players[f.OwnerSeat].IsAlive || _winner != Winner.None) { CompleteWuHaoxian(f); return; }
             var materials = _players.Where(p => p.IsAlive && p.Seat != f.OwnerSeat)
-                .OrderBy(p => (p.Seat - _currentSeat + _players.Count) % _players.Count)
+                .OrderBy(p => RelativeTableOrder(_currentSeat, p.Seat))
                 .SelectMany(p => GetHand(p).Where(c => EffectiveOwnedCardRank(p, c) == 3)
                     .Select(c => new WuHaoxianMaterial(c.Id, c.Kind, CardLocation.Hand(p.Seat), EffectiveOwnedCardRank(p, c)))).ToArray();
             ReplaceRuntimeTop(f = f with { WuHaoxian = r with { Stage = WuHaoxianStage.Obtain, ObtainMaterials = materials, Before = _movementSequence } });

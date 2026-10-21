@@ -38,7 +38,7 @@
       ],
       "triggers": [
         {
-          "id": "opening-state",
+          "id": "opening-state", "isSkillInvocation": false,
           "window": "gameStarting",
           "subject": "owner",
           "optional": false,

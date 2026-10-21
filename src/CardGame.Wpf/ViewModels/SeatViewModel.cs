@@ -12,6 +12,7 @@ public sealed partial class SeatViewModel : ObservableObject
 
     public required int Seat { get; init; }
     public int DisplaySeatNumber { get; set; }
+    public string TurnOrderText { get; set; } = string.Empty;
     public string GeneralId { get; set; } = string.Empty;
     public string GeneralName { get; set; } = string.Empty;
     public string SecondaryGeneralText { get; set; } = string.Empty;
@@ -90,10 +91,10 @@ public sealed partial class SeatViewModel : ObservableObject
     public bool HasDecisionRole => DecisionRoleLabel.Length > 0;
     public string ResponseStatusText { get; set; } = string.Empty;
     public bool HasResponseStatus => ResponseStatusText.Length > 0;
-    public string SeatLabel => IsHuman ? $"你 · {DisplaySeatNumber:00} 号位"
+    public string SeatLabel => (IsHuman ? $"你 · {DisplaySeatNumber:00} 号位"
         : IsNationalSeat ? $"{DisplaySeatNumber:00} 号位 · {RelationshipLabel}"
         : TeamId is not null ? $"{DisplaySeatNumber:00} 号位 · {(IsTeammate ? "队友" : "对手")}"
-        : $"{DisplaySeatNumber:00} 号位";
+        : $"{DisplaySeatNumber:00} 号位") + (TurnOrderText.Length == 0 ? string.Empty : $" · {TurnOrderText}");
     public string VerticalName => string.Join("\n", GeneralName.ToCharArray());
     public bool IdentityConcealed { get; set; }
     public bool HpUndefined { get; set; }
@@ -192,6 +193,7 @@ public sealed partial class SeatViewModel : ObservableObject
         if (HasGale != source.HasGale) { HasGale = source.HasGale; changed = true; }
         if (HasMist != source.HasMist) { HasMist = source.HasMist; changed = true; }
         if (DisplaySeatNumber != source.DisplaySeatNumber) { DisplaySeatNumber = source.DisplaySeatNumber; changed = true; }
+        if (TurnOrderText != source.TurnOrderText) { TurnOrderText = source.TurnOrderText; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(GeneralId, source.GeneralId)) { GeneralId = source.GeneralId; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(GeneralName, source.GeneralName)) { GeneralName = source.GeneralName; changed = true; }
         if (!EqualityComparer<string>.Default.Equals(SecondaryGeneralText, source.SecondaryGeneralText)) { SecondaryGeneralText = source.SecondaryGeneralText; changed = true; }

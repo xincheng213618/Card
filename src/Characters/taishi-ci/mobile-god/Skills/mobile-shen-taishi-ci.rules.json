@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile-god:dulie", "revision": 1,
+      "triggers": [{ "id": "higher-hp-slash-heart", "window": "cardUseTargetsFinalized", "ownerRelation": "target",
+        "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false,
+        "effects": [
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "skill.mobile-god.dulie", "resultBind": "dulie-judgment", "outcomeBind": "dulie-outcome", "visibility": "public" },
+          { "op": "cancelShenTaishiCiDulie", "target": "owner" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "dulie-judgment", "destination": "discardPile" }
+        ] }]
+    },
+    { "id": "mobile-god:powei", "revision": 1,
+      "triggers": [
+        { "id": "initialize", "window": "gameStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveShenTaishiCiPowei", "target": "owner" }] },
+        { "id": "rotate", "window": "turnBeforeStart", "subject": "owner", "optional": false, "priority": 1,
+          "effects": [{ "op": "resolveShenTaishiCiPowei", "target": "owner" }] },
+        { "id": "success", "window": "turnBeforeStart", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveShenTaishiCiPowei", "target": "owner" }, { "op": "grantSkills", "target": "owner", "skillIds": ["mobile-god:shenzhu"] }] },
+        { "id": "damage-removes-wei", "window": "afterDamageApplied", "subject": "any", "optional": false, "damageOccurrence": "perDamage",
+          "effects": [{ "op": "resolveShenTaishiCiPowei", "target": "owner" }] },
+        { "id": "marked-turn", "window": "otherActualTurnStarted", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveShenTaishiCiPowei", "target": "owner" }] },
+        { "id": "failure", "window": "dyingEntering", "subject": "owner", "optional": false,
+          "effects": [
+            { "op": "resolveShenTaishiCiPowei", "target": "owner" },
+            { "op": "recoverTo", "target": "owner", "numberExpression": "integerConstant", "minimumValue": 1, "clampToMaxHp": true },
+            { "op": "resolveShenTaishiCiPowei", "target": "owner" },
+            { "op": "discardOwnedZoneCards", "target": "owner", "zones": ["equipment"] }
+          ] }
+      ]
+    },
+    { "id": "mobile-god:shenzhu", "revision": 1,
+      "triggers": [{ "id": "physical-slash-choice", "window": "cardUseCompleted", "ownerRelation": "actor", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false,
+        "effects": [
+          { "op": "chooseOption", "target": "owner", "resultBind": "shenzhu-choice", "options": [{ "id": "draw-one" }, { "id": "draw-three" }] },
+          { "op": "draw", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "shenzhu-choice", "optionId": "draw-one" } },
+          { "op": "grantTurnRuleModifier", "target": "owner", "ruleQuery": "slashLimit", "ruleOperation": "add", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "shenzhu-choice", "optionId": "draw-one" } },
+          { "op": "draw", "target": "owner", "amount": 3, "condition": { "kind": "choiceIs", "sourceBind": "shenzhu-choice", "optionId": "draw-three" } },
+          { "op": "grantTurnCardActionProhibition", "target": "owner", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "actionTypes": ["use"], "condition": { "kind": "choiceIs", "sourceBind": "shenzhu-choice", "optionId": "draw-three" } }
+        ] }]
+    }
+  ]
+}

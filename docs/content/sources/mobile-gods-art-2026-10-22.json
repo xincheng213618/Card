@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀移动版",
+  "verifiedOn": "2026-10-22",
+  "scope": "神郭嘉、神孙策、神太史慈的官方默认立绘与本地图鉴绑定。技能规则分别见各人物来源档案。",
+  "portraits": [
+    {
+      "key": "mobile-shen-guo-jia",
+      "characterName": "神郭嘉",
+      "defaultSkinId": "22000",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-336.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22000.jpg",
+          "sha256": "0744f2c360e025126badc6f34e662b6aca5bb85cf9eaefb4b4fb86ce2c2d7547",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-guo-jia.jpg",
+          "id": "22000",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-sun-ce",
+      "characterName": "神孙策",
+      "defaultSkinId": "22300",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-338.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22300.jpg",
+          "sha256": "6432a5e6b9796b2cf885e9e2d5efd30af55a3b0996d2a0160396c6bf7f86bc41",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-sun-ce.jpg",
+          "id": "22300",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-taishi-ci",
+      "characterName": "神太史慈",
+      "defaultSkinId": "22100",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-332.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22100.jpg",
+          "sha256": "59b44f9f814e69e31627475e057b85f8ce20136f1847b1e2855478e20400ab43",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-taishi-ci.jpg",
+          "id": "22100",
+          "name": "经典形象"
+        }
+      ]
+    }
+  ]
+}

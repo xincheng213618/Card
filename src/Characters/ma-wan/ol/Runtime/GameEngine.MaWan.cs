@@ -18,7 +18,7 @@ public sealed partial class GameEngine
             f.SelectedTargetSeats.Any(s => !IsValidPlayerSeat(s) || s == f.OwnerSeat || !_players[s].IsAlive || !IsWithinAttackRange(f.OwnerSeat, s)))
             throw new InvalidOperationException("Hunjiang requires its exact once-per-Play in-range living participants before any private commitment.");
         var r = new MaWanHunjiangReceipt(MaWanSource(f), f.GameplayHash, f.InstructionIndex, _turnNumber, _cardUseDebitPhaseInstanceId, MaWanHunjiangStage.PrivateVotes)
-        { Participants = f.SelectedTargetSeats.OrderBy(s => (s - f.OwnerSeat + _playerCount) % _playerCount).ToArray() };
+        { Participants = f.SelectedTargetSeats.OrderBy(s => RelativeTableOrder(f.OwnerSeat, s)).ToArray() };
         ReplaceRuntimeTop(f = f with { MaWanHunjiang = r });
         AdvanceEventRulesAndQueueFact(new MaWanHunjiangStartedEvent(f.Id, r.Source, r.GameplayHash, r.ActualTurnNumber, r.PhaseInstanceId, r.Participants.Count));
         for (var i = 0; i < r.Participants.Count; i++) AdvanceEventRulesAndQueueFact(new MaWanHunjiangParticipantFrozenEvent(f.Id, i, r.Participants[i]));

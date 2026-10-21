@@ -17,7 +17,7 @@ public sealed partial class GameEngine
  {
   var extra=_players.Where(p=>p.IsAlive&&p.Seat!=subject.Seat).SelectMany(p=>CollectProgramTriggerCandidates(p,SkillProgramTriggerWindow.DrawPhaseStarting)).Where(c=>ProgramInstructionResolver.Default.Features(GetProgramTrigger(c)).HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw));
   var observers=extra.ToArray();if(observers.Length==0)return existing;
-  return existing.Concat(observers).Select((candidate,index)=>(candidate,index)).OrderByDescending(x=>x.candidate.Priority).ThenBy(x=>(x.candidate.OwnerSeat-subject.Seat+_playerCount)%_playerCount).ThenBy(x=>x.index).Select(x=>x.candidate).ToArray();
+  return existing.Concat(observers).Select((candidate,index)=>(candidate,index)).OrderByDescending(x=>x.candidate.Priority).ThenBy(x=>RelativeTableOrder(subject.Seat, x.candidate.OwnerSeat)).ThenBy(x=>x.index).Select(x=>x.candidate).ToArray();
  }
  private void MutateParticipantMarker(ProgramSkillFrame frame,int seat,PlayerMarkerKind marker,int delta,bool activeOnly=false)
  {

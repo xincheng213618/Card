@@ -34,7 +34,7 @@ internal sealed class MouLiuXieRuntime(IMouLiuXieFacts facts, IMouLiuXieNative n
         var f = frames.ActiveProgram(supplied.Id);
         if (f.MouLiuXie is not null || !facts.ExactStart(f) || facts.Phase is not { } phase)
             throw new InvalidOperationException("Zhanban requires its original actual Play activation.");
-        var participants = Enumerable.Range(1, facts.PlayerCount - 1).Select(n => (f.OwnerSeat + n) % facts.PlayerCount).Where(facts.Alive).ToArray();
+        var participants = Enumerable.Range(1, facts.PlayerCount - 1).Select(n => facts.TableStepSeat(f.OwnerSeat, n)).Where(facts.Alive).ToArray();
         var lordCandidates = facts.LordQualified(f.OwnerSeat) ? participants.Where(facts.Qun).ToArray() : [];
         var receipt = new MouLiuXieReceipt(Source(f), f.GameplayHash, f.InstructionIndex, facts.Turn, phase)
         {

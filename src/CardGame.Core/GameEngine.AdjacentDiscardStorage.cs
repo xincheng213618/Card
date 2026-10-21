@@ -38,7 +38,7 @@ public sealed partial class GameEngine
             move.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment) ||
             move.To != CardLocation.DiscardPile && move.To != CardLocation.Processing ||
             !IsProgramDiscardOriginReason(move.Reason) || frozenIdentity is not { } kind || !SlashKinds.Contains(kind)) return;
-        var living = _players.Where(p => p.IsAlive).Select(p => p.Seat).OrderBy(s => s).ToArray();
+        var living = CurrentTableOrder().Where(seat => _players[seat].IsAlive).ToArray();
         var index = Array.IndexOf(living, source);
         if (index < 0) return;
         var previousSeat = living[(index + living.Length - 1) % living.Length];

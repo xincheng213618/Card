@@ -6,7 +6,7 @@
       "revision": 1,
       "triggers": [
         {
-          "id": "mark-initial-entities",
+          "id": "mark-initial-entities", "isSkillInvocation": false,
           "window": "gameStarting",
           "subject": "owner",
           "optional": false,

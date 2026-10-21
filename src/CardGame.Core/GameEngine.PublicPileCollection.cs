@@ -79,7 +79,7 @@ public sealed partial class GameEngine
             var zone = Enum.Parse<CardZoneKind>(selected.Parameters[$"{index}.source-zone"]);
             var from = new CardLocation(zone, seat);
             var card = _cardZones.CardsAt(from)[int.Parse(selected.Parameters[$"{index}.slot-index"])];
-            return (Card: card, From: from, To: NormalizeDiouCarrierDestination(card, from, card.IsGeneralWeapon && zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : destination));
+            return (Card: card, From: from, To: NormalizeEphemeralCardDestination(card, from, card.IsGeneralWeapon && zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : destination));
         }).ToArray();
         ClearPendingDecision();
         ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });

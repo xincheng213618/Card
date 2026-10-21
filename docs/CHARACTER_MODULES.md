@@ -4,6 +4,8 @@
 
 开发先让完整技能的主流程尽早编译、运行；纯复用配置沿用共享加载与机制检查，新机制只补未覆盖的行为和真实回归。不要逐人物重建隐私、伪造输入、集合冻结和所有暂停点的重放矩阵；新待决状态保留代表性的恢复检查，跨技能组合留给独立机制批次。并行扩充按独立人物分工，共享文件整合与批次验证统一进行。
 
+玩家的 `Seat` 是稳定参与者标识，移动座次不改写角色、手牌所有者、命令和帧上的身份。`GameEngine.TableOrder.cs` 从公开的标量移动事实派生顺时针排列，`GameSnapshot.TableOrder` 提供冻结视图；距离、上下家、正常回合、群体牌、救援和同优先级触发使用这个排列。新规则通过 `TableStepSeat`、`RelativeTableOrder` 和 `GetAdjacentLivingSeat` 查询，不能再用参与者编号加减推算桌面位置。已捕获的原生目标列表仍在原帧上按原顺序完成。
+
 ## 内容声明
 
 目录先按人物身份分组，再按版本分组。例如：
@@ -57,6 +59,8 @@ descriptor 的 `FactRequirements` 按 `Triggered`、`Activated` 分别声明逻�
 事件规则在实现方法旁使用 `[ProgramRuleObserver(phase, order)]` 注册。`BeforeEvent` 在事实进入输出队列前运行，`AfterEvent` 在入队后运行，`BeforeStatePublish` 在打开原有状态窗口前运行。无参数方法用于同步状态；单个事件参数会按事件类型过滤。递归产生的事实仍先完整处理后返回父调用。
 
 激活与触发资格分别通过 `[ProgramActivationLegality]` 和 `[ProgramTriggerLegality]` 声明阶段、顺序和适用操作。资格方法与原能力放在一起；多个阶段对应通用条件、次数限制和支付检查的原有位置，不能随意合并或重排。未限定操作的检查对该阶段全部程序适用。
+
+`AwakeningConditionOverride` 是觉醒条件的许可查询：按顺序读取注册者，任一返回真时可免除该次觉醒的条件。它不替代技能实例、触发时机、存活、费用和次数检查，也不自动放行同技能内的觉醒后奖励。人物自定义的觉醒门槛与后续回执必须同样识别实际授予的许可，不能伪造原门槛的历史事实。
 
 私有选择与 AI 策略继续使用已有 `[ProgramAnswer]`、`[ProgramAiChoice]`，子帧返回继续使用 `[ProgramContinuation]`。新增能力应在自己的模块声明相应入口，不修改集中人物分派表。
 

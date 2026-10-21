@@ -24,7 +24,7 @@ public sealed partial class GameEngine
   }
   if(op==SkillProgramEffectOp.CollectQiaiLivingContributions)
   {
-   var seats=Enumerable.Range(1,_players.Count-1).Select(i=>(f.OwnerSeat+i)%_players.Count).Where(s=>_players[s].IsAlive).ToArray();ReplaceRuntimeTop(f=f with{WangCan=r with{Seats=seats,DyingFrameId=ActiveDying!.Id}});ContinueQiai(f);return SkillProgramStepOutcome.AwaitChoice;
+   var seats=Enumerable.Range(1,_players.Count-1).Select(i=>TableStepSeat(f.OwnerSeat, i)).Where(s=>_players[s].IsAlive).ToArray();ReplaceRuntimeTop(f=f with{WangCan=r with{Seats=seats,DyingFrameId=ActiveDying!.Id}});ContinueQiai(f);return SkillProgramStepOutcome.AwaitChoice;
   }
   BeginDenglouLease(f);return SkillProgramStepOutcome.AwaitChild;
  }

@@ -9,6 +9,7 @@ public sealed partial class GameEngine
         public int Turn => e._turnNumber;
         public int CurrentSeat => e._currentSeat;
         public int PlayerCount => e._playerCount;
+        public int TableStepSeat(int from, int offset) => e.TableStepSeat(from, offset);
         public long MovementSequence => e._movementSequence;
         public bool Finished => e._winner != Winner.None;
         public ActualDiscardRecoveryPhaseKey? Phase => e.CurrentActualDiscardRecoveryPhase();

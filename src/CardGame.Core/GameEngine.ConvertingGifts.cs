@@ -164,7 +164,7 @@ public sealed partial class GameEngine
         if(frame is null || frame.Items.Any(item=>item.RetentionId==due.Id))return;
         // Keep the running item and completed prefix stable while its child adds a new due.
         var suffix=frame.Items.Skip(frame.ItemIndex+1).Append(CreateGiftRetentionEndingItem(due))
-            .OrderBy(item=>(((item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value)-frame.OwnerSeat+_players.Count)%_players.Count))
+            .OrderBy(item=>RelativeTableOrder(frame.OwnerSeat, item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value))
             .ThenByDescending(item=>item.Priority).ThenBy(item=>item.StableIdentity,StringComparer.Ordinal);
         var items=Array.AsReadOnly(frame.Items.Take(frame.ItemIndex+1).Concat(suffix).ToArray());
         ReplaceRuntimeFrame(frame.Id,frame with{Items=items});

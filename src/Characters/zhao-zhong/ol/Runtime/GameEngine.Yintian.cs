@@ -24,7 +24,7 @@ public sealed partial class GameEngine
             change.HpBefore, change.HpAfter);
         AdvanceEventRulesAndQueueFact(first);
         foreach (var owner in _players.Where(p => p.IsAlive)
-                     .OrderBy(p => (p.Seat - first.TurnOwner + _players.Count) % _players.Count))
+                     .OrderBy(p => RelativeTableOrder(first.TurnOwner, p.Seat)))
         {
             var sources = GetSkillBindingShard(owner).ProgramInstances.SelectMany(instance =>
                 instance.Program.Triggers.Where(IsYintianRecoveryTrigger).Select(trigger =>
@@ -63,7 +63,7 @@ public sealed partial class GameEngine
                 e.Source.SkillInstanceId, e.GameplayHash,
                 _contentRegistry.GetSkill(e.Source.SkillId).Program!.Triggers.Single(t => t.Id == e.Source.BindingId).Priority))
             .Where(c => IsYintianRecoveryTrigger(GetProgramTrigger(c)))
-            .OrderBy(c => (c.OwnerSeat - first.TurnOwner + _players.Count) % _players.Count).ToArray());
+            .OrderBy(c => RelativeTableOrder(first.TurnOwner, c.OwnerSeat)).ToArray());
     }
 
     private ProgramSkillWindowContext CreateYintianRecoveryContext(HpChangeContext change, ProgramTriggerCandidate candidate)
