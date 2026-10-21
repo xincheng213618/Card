@@ -12591,6 +12591,7 @@ public sealed partial class GameEngine
 
     private bool ApplyAttackDamage(IDamageAttempt attack)
     {
+        PrepareMouCaDamageSource(attack);
         if (IsXinPiRemainingCardDamageIneffective(attack)) return false;
         if (TryPauseRecoveryPaidCardUse(attack.ResolutionId, new(RecoveryPaidCardUseKind.AttackDamage, attack.SourceSeat))) return true;
         var source = _players[attack.SourceSeat];
@@ -14130,6 +14131,7 @@ public sealed partial class GameEngine
                 effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: false));
         if (actionContext is not null) actionContext = PrepareMouDanchiAction(actionContext);
         if (actionContext is not null) actionContext = PrepareHuanpeiAction(PrepareZonghuAction(PrepareWeijieAction(actionContext, weijieOrigin), zonghuOrigin), huanpeiOrigin);
+        if (actionContext is not null) actionContext = PrepareMouZhangXiuAnniversarySlashAction(actionContext);
         if (actionContext is not null) actionContext = PrepareMouHuCheErSlashAction(PrepareWuLuKangKegouSlashAction(PrepareZongluanSlashAction(PrepareYouqueSlashAction(PrepareXieweiAction(actionContext)))));
         if (actionContext is not null) actionContext = PrepareMouWenChouAction(PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareMouXqJueyanAction(PrepareDiouAction(actionContext)))));
         var colorFireAttack = FreezeColorFireAttackPolicy(sourceSeat, actionContext);
@@ -14168,6 +14170,7 @@ public sealed partial class GameEngine
         BindYouqueSlashUse(LifecycleCardUse(resolutionId)!);
         BindWuLuKangKegouSlashUse(LifecycleCardUse(resolutionId)!);
         BindMouHuCheErSlashUse(LifecycleCardUse(resolutionId)!);
+        BindMouZhangXiuAnniversarySlashUse(LifecycleCardUse(resolutionId)!);
         BindZongluanSlashUse(resolutionId);
         PrepareXieweiNativeUse(LifecycleCardUse(resolutionId)!);
         PrepareNativePublicPileUse(LifecycleCardUse(resolutionId)!);
@@ -14210,6 +14213,8 @@ public sealed partial class GameEngine
         BindJianjiNativeUse(LifecycleCardUse(resolutionId)!);
         BindMouZyNativeUse(LifecycleCardUse(resolutionId)!);
         BindMouJjNativeUse(LifecycleCardUse(resolutionId)!);
+        BindMouCaNativeUse(LifecycleCardUse(resolutionId)!);
+        BindMouJxNativeUse(LifecycleCardUse(resolutionId)!);
         BindCaoChunNativeUse(LifecycleCardUse(resolutionId)!);
         BindQigongNativeUse(resolutionId);
         BindZhangYanSujiUse(resolutionId);
@@ -14625,14 +14630,14 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<LegalAction> BuildLegalActions(CharacterState actor, bool includeProgramActions = true,
         int? selectedPhysicalCardId = null) =>
-        BuildLegalActionsCore(actor, includeProgramActions, selectedPhysicalCardId, null);
+        BuildLegalActionsCore(actor, includeProgramActions, selectedPhysicalCardId, MouCaQueryOriginalCard(actor, selectedPhysicalCardId));
 
     private IReadOnlyList<LegalAction> BuildLegalActionsCore(CharacterState actor, bool includeProgramActions,
         int? selectedPhysicalCardId, Card? nativeOriginalCard, bool ignoreForcedHandSelection = false)
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor) && !IsMouKrLiwenUseQuery(actor) && !IsMouLuSuUseQuery(actor) && !IsMouZyExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJjExactCardQuery(actor, selectedPhysicalCardId))
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor) && !IsMouKrLiwenUseQuery(actor) && !IsMouLuSuUseQuery(actor) && !IsMouZyExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJjExactCardQuery(actor, selectedPhysicalCardId) && !IsMouCaExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJxExactCardQuery(actor, selectedPhysicalCardId))
         {
             return actions;
         }
@@ -14668,7 +14673,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || IsMouKrLiwenUseQuery(actor) || IsMouLuSuUseQuery(actor) || IsMouZyExactCardQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsMouJjExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || IsMouKrLiwenUseQuery(actor) || IsMouLuSuUseQuery(actor) || IsMouZyExactCardQuery(actor, selectedPhysicalCardId) || IsMouJxExactCardQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsMouJjExactCardQuery(actor, selectedPhysicalCardId) || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && IsMouCaExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {
@@ -15630,6 +15635,7 @@ public sealed partial class GameEngine
                FindOwnPublicPileConversionCard(actor, requestedCardId) ??
                FindNativePublicPileOriginalCard(actor, requestedCardId) ??
                FindLastZoneJudgmentConversionCard(actor, requestedCardId) ??
+               MouCaQueryOriginalCard(actor, requestedCardId) ??
                FindFuRongDiscardCard(actor, requestedCardId) ??
                FindQingyaDiscardCard(actor, requestedCardId) ??
                FindDuanJiongSaoguDiscardCard(actor, requestedCardId);
@@ -15643,7 +15649,7 @@ public sealed partial class GameEngine
     {
         if (TryNativePublicPilePaymentLocation(actor, card, out var originalPile)) return originalPile;
         if (IsMouGszHuCard(actor, card.Id)) return _cardZones.GetLocation(card.Id);
-        if (IsFuRongSelectedDiscard(actor.Seat, card.Id) || IsQingyaSelectedDiscard(actor.Seat, card.Id) || IsDuanJiongSaoguSelectedDiscard(actor.Seat, card.Id)) return CardLocation.DiscardPile;
+        if (IsMouCaExactCardQuery(actor, card.Id) || IsFuRongSelectedDiscard(actor.Seat, card.Id) || IsQingyaSelectedDiscard(actor.Seat, card.Id) || IsDuanJiongSaoguSelectedDiscard(actor.Seat, card.Id)) return CardLocation.DiscardPile;
         if (IsSelectedRequestedDeckBasicMaterial(actor.Seat, card.Id)) return CardLocation.DrawPile;
         if (UnclaimedDeclarationPayment(actor.Seat, card.Id) is { } paid) return paid.Cost.From;
         if (GetHand(actor).Any(candidate => candidate.Id == card.Id))

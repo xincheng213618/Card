@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:sushen",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "record-and-enter",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "recordMouJiaXuSushen",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:fumou",
+      "revision": 1,
+      "states": [
+        {
+          "id": "yin",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "opening-state",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMouJiaXuFumou",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "activations": [
+        {
+          "id": "view-show-and-use",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouJiaXuFumou",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:rushi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "restore-recorded-values",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "restoreMouJiaXuRushi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

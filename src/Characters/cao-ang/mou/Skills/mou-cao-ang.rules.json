@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:fengmin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "any-equipment-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "sourceZones": ["equipment"],
+          "movementOccurrence": "perBatch",
+          "effects": [{ "op": "resolveMouCaoAngFengmin", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "mou:zhiwang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-discard-and-use",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [{ "op": "resolveMouCaoAngZhiwang", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-zhang-xiu",
+      "characterName": "谋张绣",
+      "defaultSkinId": "1166101",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1661.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1166101.png",
+          "sha256": "433b24687c292b12c88b03114ff2c90b05b80d619a8b8f23680619a3d276f8ef",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhang-xiu.png",
+          "id": "1166101",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-cao-ang",
+      "characterName": "谋曹昂",
+      "defaultSkinId": "1166001",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1660.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1166001.png",
+          "sha256": "5cf504262f35ad316155c4abf97296173cc65d83720ddb4e1c8c4de284ce92be",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-cao-ang.png",
+          "id": "1166001",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-jia-xu",
+      "characterName": "谋贾诩",
+      "defaultSkinId": "1163401",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1634.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163401.png",
+          "sha256": "7ed0e49999a6796881a8ec3cc0a74332f338a6844227fe194467da330cbed393",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-jia-xu.png",
+          "id": "1163401",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-sima-shi",
       "characterName": "谋司马师",
       "defaultSkinId": "1164201",

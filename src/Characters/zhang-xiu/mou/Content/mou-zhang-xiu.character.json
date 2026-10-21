@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-xiu",
+  "skills": [
+    {
+      "registrationOrder": 2840,
+      "programBundle": "mou-zhang-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:fuxi",
+        "name": "附袭",
+        "description": "其他角色出牌阶段开始时，若其手牌数为全场最多你可选择一项执行：1.交给其一张牌，你摸两张牌。2.弃置其一张牌，视为对其使用一张【杀】。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2841,
+      "programBundle": "mou-zhang-xiu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:haoyi",
+        "name": "豪义",
+        "description": "结束阶段，你可获得本回合未造成伤害且进入弃牌堆的伤害牌，并可分配给任意其他角色。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2842,
+      "pools": {
+        "current": 588
+      },
+      "definition": {
+        "id": "mou:zhang-xiu",
+        "name": "谋张绣",
+        "portraitKey": "mou-zhang-xiu",
+        "skillId": "mou:fuxi",
+        "additionalSkillIds": [
+          "mou:haoyi"
+        ],
+        "factionId": "qun",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:zhang-xiu",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

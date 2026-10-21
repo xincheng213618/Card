@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:fuxi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-largest-hand",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouZhangXiuFuxi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:haoyi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "turn-damage-card-claim",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouZhangXiuHaoyi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

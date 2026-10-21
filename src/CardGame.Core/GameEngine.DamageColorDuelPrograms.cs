@@ -46,6 +46,7 @@ public sealed partial class GameEngine
         cardId==0 && IsWeijieUse(frameId) ? WeijieRepresentation(frameId) :
         cardId == 0 && IsWuLuKangKegouUse(frameId) ? WuLuKangKegouRepresentation(frameId) :
         cardId == 0 && IsMouHuCheErUse(frameId) ? MouHuCheErRepresentation(frameId) :
+        cardId == 0 && IsMouZhangXiuAnniversaryUse(frameId) ? MouZhangXiuAnniversaryRepresentation(frameId) :
         cardId==0 && IsYouqueUse(frameId) ? YouqueRepresentation(frameId) :
         cardId==0 && IsZongluanUse(frameId) ? ZongluanRepresentation(frameId) :
         cardId==0 && (IsLiuYanLegacyAlcoholUse(frameId) || IsCuiYanLegacyAlcoholUse(frameId) || IsMouBingcaiLegacyAlcoholUse(frameId)) ? new Card(0,CardKind.Alcohol,Suit.None,0) :

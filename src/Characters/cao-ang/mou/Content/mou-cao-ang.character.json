@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-ang",
+  "skills": [
+    {
+      "registrationOrder": 2850,
+      "programBundle": "mou-cao-ang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:fengmin",
+        "name": "丰愍",
+        "description": "锁定技，每回合限一次，有角色失去装备区的牌后，你摸其装备区空位数张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "None",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2851,
+      "programBundle": "mou-cao-ang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:zhiwang",
+        "name": "质亡",
+        "description": "锁定技，结束阶段，你弃置装备区所有牌。若你以此法弃牌，选择弃牌堆中一张伤害牌并令一名其他角色使用之（此牌对你造成的伤害视为无来源）。",
+        "executionForms": "Trigger",
+        "actionForms": "None",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2852,
+      "pools": { "current": 589 },
+      "definition": {
+        "id": "mou:cao-ang",
+        "name": "谋曹昂",
+        "portraitKey": "mou-cao-ang",
+        "skillId": "mou:fengmin",
+        "additionalSkillIds": ["mou:zhiwang"],
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:cao-ang",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

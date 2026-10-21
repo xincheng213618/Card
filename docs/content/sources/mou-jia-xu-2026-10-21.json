@@ -1,0 +1,98 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:jia-xu",
+  "characterId": "character:jia-xu",
+  "displayName": "谋贾诩",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "initialHp": 3,
+    "maximumHp": 3,
+    "officialHeroId": 1634
+  },
+  "selectedVersion": {
+    "publishedAt": "2024-07-12 21:17:09",
+    "availableFrom": "2024-07-13",
+    "url": "https://www.sanguosha.com/news/20240711_7303_0918"
+  },
+  "sourceAgreement": "现行官方武将页1634经典和权倾龙廷皮肤列出的肃身、覆谋完整正文与2024年7月12日正式首发公告一致。武将页提到获得入世但未单列派生正文；正式公告完整给出入世。采用这组一致的官方来源，不混入普通、界、SP或其他服贾诩正文。初始仅有肃身/覆谋；入世真正由肃身授予，其完整正文嵌在肃身展示说明中。",
+  "skills": [
+    {
+      "id": "mou:sushen",
+      "name": "肃身",
+      "initial": true,
+      "officialSelectedText": "限定技，出牌阶段，你可以记录你当前体力值，手牌数和“覆谋”技能状态，然后获得技能“入世”。"
+    },
+    {
+      "id": "mou:fumou",
+      "name": "覆谋",
+      "initial": true,
+      "officialSelectedText": "转换技，游戏开始时可自选阴阳状态，出牌阶段限一次，你可以观看一名其他角色所有手牌并展示至多一半数量（向上取整）张，阳：令另一名其他角色获得展示牌，然后你与失去牌的角色各摸等量张牌；阴：令其依次使用展示牌（无距离限制且不可响应）。"
+    },
+    {
+      "id": "mou:rushi",
+      "name": "入世",
+      "initial": false,
+      "derivedFrom": "mou:sushen",
+      "officialSelectedText": "限定技，出牌阶段，你将体力值，手牌数和“覆谋”技能状态调整为记录值。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1634.html",
+      "bytes": 18855,
+      "sha256": "2cedf941f70b846bedc9743ca3f79a7c6c6cb017d4cbcccf578ee27ad54330be",
+      "role": "current Sushen/Fumou full text"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240711_7303_0918",
+      "bytes": 601608,
+      "sha256": "c8cb50427fcc4a9a7b4ff45e2e7267a4033513033d259c464709ad03eb7d0b86",
+      "role": "formal full initial skills and derived Rushi"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "selectedEntry": {
+        "gid": 1634,
+        "prefix": "谋",
+        "name": "贾诩",
+        "resource": 1163401,
+        "country": "群",
+        "gender": "男",
+        "hp": 3
+      }
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1634.html",
+    "selectedDomLabel": "经典形象*谋贾诩",
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163401.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-jia-xu.png",
+    "width": 574,
+    "height": 761,
+    "bytes": 613779,
+    "sha256": "7ed0e49999a6796881a8ec3cc0a74332f338a6844227fe194467da330cbed393",
+    "verification": "主代理依实际经典DOM链接下载并查看原图。当前经典yin-img src为空，未以另一皮肤6163401代替。"
+  },
+  "engineeringInterpretationsNotOfficialFaq": [
+    "有限官方FAQ检索未找到对以下细节的额外说明。以下为按当前正文、现有原生通则和已通过的实体使用/调整能力采用的工程解释，不是官方FAQ，也不是用户另行裁定。",
+    "肃身记录本人当时的真实体力值、手牌数量和覆谋阴阳状态，然后以真实动态来源授予入世。记录数值而非具体手牌实体，不建立整局快照。两项限定技分别使用原生游戏次数合同。",
+    "入世按正文所列顺序处理：原生HP Setting（受结算时当前最大体力通则封顶）及其观察子窗，读取当时手牌数并通过差额原生Draw或真正逻辑弃手牌调整，然后恢复覆谋状态。不能替换为回复/失去体力，不能直接改测试状态或保存数据。每次子窗和实际替代/支付返回后继续下一步。",
+    "入世恢复记录的数值与转换状态，不恢复历史手牌实体，不回滚其他角色或已完成事件，不退还覆谋本阶段次数和其他技能次数。派生入世初始不授予。",
+    "覆谋可以选择空手牌的其他存活角色；至多一半按观看时真实Hand数量向上取整，允许展示0张。阳需要另一名同时不同于本人、原手牌持有者的存活第三人。阴仍需有其他存活角色。",
+    "私下观看的全部Hand实体只投影给发动者；承诺后仅公开所展示的实体及牌面。阳取得这些仍在原持有者Hand中的准确实体，沿原生Obtain尽量执行，不把获得伪装为Give，不从其他区域补造展示牌。",
+    "阳以本次承诺展示数量N冻结双方分别摸牌数量，先完成真实转移及子窗，再本人、原失牌者各执行一次原生DrawN。不是按实际净手牌差猜N；保留真实Draw、替代和移动回执。",
+    "阴冻结展示实体，由真实持有者从当前合法的展示牌Use中选择使用次序；每次原生子链完成后重算剩余冻结实体。只使用仍由其持有的准确Hand材料，已离Hand或当前无合法Use的牌跳过。支持可合法使用的基本、普通/延时锦囊和装备，不缩成仅杀或伤害锦囊。",
+    "无距离限制与不可响应只颁给本次已接受的准确actor/card/source/parent请求。原生目标禁止、目标组、提供者、转化、无懈策略和真实材料支付仍保留；不可响应沿原生IssuedCardNoResponse。外国强制杀沿准确原生请求的次数合同，酒沿现有实际回合配额与到期处理。",
+    "所有私有观看、展示选择、冻结队列、已完成摸牌/弃置/HP变化和当前真实Use均保留在各自所属ProgramSkillFrame或CardUseFrame，按typed返回推进。冷恢复不能重复展示、转移、摸牌、支付或使用已完成实体。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouJiaXuAnniversaryChecks.cs",
+    "method": "PrivateFumouNativeQueueAndRecordedRushiCold",
+    "scope": "单个固定四席真实山河流程：阴私看并展示实体杀/无中/装备，真实外国无距离且不可响应逐张Use；肃身记录HP/Hand/阴阳并真grant；下一实际回合阳转移展示牌并双方各Draw；入世真实HP Setting后，在私有部分Hand弃置处代表Cold，再准确恢复记录数量/状态且不退还次数。"
+  }
+}

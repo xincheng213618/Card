@@ -2475,6 +2475,7 @@ public sealed partial class GameEngine
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
                 (features.HasOperation(SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick)
                     ? MatchingLiJueUseDiscardIndexes(batch, candidate).Length > 0
+                    : IsMouCaFengmin(trigger) ? CanRunMouCaEquipment(candidate, context)
                     : IsHellZhiwangTrigger(trigger) ? CanRunHellZhiwangCandidate(candidate, context)
                     : IsNianJingjueTrigger(trigger) ? CanRunNianJingjueCandidate(candidate, context)
                     : IsSunRuOlChishiTrigger(trigger) ? CanRunSunRuOlChishiCandidate(candidate, context)

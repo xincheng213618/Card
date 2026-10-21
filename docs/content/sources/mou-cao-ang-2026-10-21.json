@@ -1,0 +1,32 @@
+{
+  "generalId": "mou:cao-ang",
+  "characterId": "character:cao-ang",
+  "rulesetId": "sanguosha-anniversary",
+  "variantId": "mou",
+  "checkedAt": "2026-10-21",
+  "identity": { "factionId": "wei", "gender": "Male", "baseHp": 4 },
+  "sources": [
+    { "url": "https://x.sanguosha.com/hero/1660.html", "kind": "current-official-full-skill-text", "sha256": "33111df3a0d775bac125d8a89bfe9e7727da82b2f15d6747a2b298f8b95b2d40" },
+    { "url": "https://x.sanguosha.com/news/20250820_6340_5315.html", "kind": "formal-launch-full-skill-text", "title": "8.24-8.31 七夕活动 新将吴质&谋曹昂 夏侯徽限定&谋曹昂传说 消费送宝玉", "publishedAt": "2025-08-23", "availableFrom": "2025-08-24", "sha256": "275fe685040562aa7859c9f943fd3307ca241de52169ef825c6b3a2a5577430e" }
+  ],
+  "versionBoundary": "当前官方hero1660两皮肤的丰愍、质亡完整正文与2025-08-23正式上线公告一致。丰愍为每回合限一次，质亡为结束阶段弃装使用弃牌堆伤害牌；不采用旧测试濒死稿或仅本人回合稿。经典曹昂慷忾保留为独立变体。",
+  "skills": [
+    { "id": "mou:fengmin", "name": "丰愍", "text": "锁定技，每回合限一次，有角色失去装备区的牌后，你摸其装备区空位数张牌。" },
+    { "id": "mou:zhiwang", "name": "质亡", "text": "锁定技，结束阶段，你弃置装备区所有牌。若你以此法弃牌，选择弃牌堆中一张伤害牌并令一名其他角色使用之（此牌对你造成的伤害视为无来源）。" }
+  ],
+  "engineeringInterpretations": [
+    { "topic": "强制原生使用", "authority": "主代理按正文与项目原生强制Use通则确定的工程解释；非官网FAQ，非用户另行裁定", "decision": "曹昂选择当前弃牌堆确有合法其他使用者的伤害实体及该使用者，由实际使用者为此牌选择合法目标。保持原生牌的使用限制、距离与目标约束；若没有合法实体、使用者或目标组合，正常收尾，不伪造Use或伤害。按单实体原牌入口使用该牌，不额外提供将其转化为另一牌的主动选项，原生朱雀羽扇等原牌使用变化保留。" },
+    { "topic": "装备空位", "authority": "项目有效装备槽模型映射，非独立官方FAQ", "decision": "对原失装备者各装备槽求max(0,有效容量-当前实际同槽装备数)并求和，含废除与扩容。丰愍按技能持有人实际回合一次计次，任意角色失装均可触发；空位为零仍消费这次锁定触发。" },
+    { "topic": "无来源边界", "authority": "官方技能正文的逐受害者实现", "decision": "精确绑定质亡产生的原生Use及实体，只将该牌实际对本次曹昂的伤害设为无来源；其他实际受害者保留原生来源。原生闪电本来具有的无来源规则保留。" }
+  ],
+  "runtimeContract": "所有选择、已支付实体、原生Use凭据及返回游标保留在独立ProgramRuntimeModule与owning frame；真实逻辑弃装及其失装、回复观察返回后再选择弃牌实体，实际使用者获得自己的原生目标选择。弃牌实体不先移入手牌，不改全局phase/currentSeat，不制造虚拟替代牌。",
+  "portrait": {
+    "asset": "src/CardGame.Wpf/Assets/official-mou-cao-ang.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1660.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1166001.png",
+    "sha256": "5cf504262f35ad316155c4abf97296173cc65d83720ddb4e1c8c4de284ce92be",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "bytes": 630289
+  }
+}

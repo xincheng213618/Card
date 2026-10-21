@@ -1,0 +1,44 @@
+{
+  "generalId": "mou:zhang-xiu",
+  "rulesetId": "sanguosha-anniversary",
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1661.html",
+      "kind": "current-official-general",
+      "sha256": "ff4df7bfebf97000240390945c481c45f1d9684449a7e51c7927bc7992bc1042"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240711_7303_0918",
+      "publishedAt": "2024-07-12 21:17:09",
+      "availableFrom": "2024-07-13",
+      "kind": "formal-initial-announcement",
+      "sha256": "c8cb50427fcc4a9a7b4ff45e2e7267a4033513033d259c464709ad03eb7d0b86"
+    }
+  ],
+  "versionSelection": "当前hero1661四皮肤全文与2024-07-12正式上线公告一致。",
+  "skills": {
+    "mou:fuxi": {
+      "name": "附袭",
+      "description": "其他角色出牌阶段开始时，若其手牌数为全场最多你可选择一项执行：1.交给其一张牌，你摸两张牌。2.弃置其一张牌，视为对其使用一张【杀】。"
+    },
+    "mou:haoyi": {
+      "name": "豪义",
+      "description": "结束阶段，你可获得本回合未造成伤害且进入弃牌堆的伤害牌，并可分配给任意其他角色。"
+    }
+  },
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-mou-zhang-xiu.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1661.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1166101.png",
+    "bytes": 620036,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "sha256": "433b24687c292b12c88b03114ff2c90b05b80d619a8b8f23680619a3d276f8ef"
+  },
+  "engineeringInterpretations": [
+    "豪义以当前弃牌堆实体的实际牌名类别判断伤害牌；转化后未保留牌名的素材回其当前实体名。此为项目工程解释，不是官方FAQ或用户裁决。",
+    "同一实体在本实际回合任一次真实使用造成伤害即排除；闪电通过实际延时判定实体和原生伤害因果记录，不漏掉延时伤害牌。此为项目工程解释，不是官方FAQ或用户裁决。",
+    "豪义仅本次实际移动至本人手牌且目前仍在本人手牌的实体可以分配，允许保留全部或剩余牌；不按数量泛选其他手牌或装备。",
+    "附袭的对方手牌沿原生匿名手牌随机选取合同，仅公开装备显示实体。给牌和弃牌均为真实HE转移/逻辑弃置，视为杀为独立原生Use，只有该发行使用拥有不限次数/距离许可。"
+  ]
+}

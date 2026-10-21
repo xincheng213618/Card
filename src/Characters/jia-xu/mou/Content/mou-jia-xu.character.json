@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jia-xu",
+  "skills": [
+    {
+      "registrationOrder": 2830,
+      "programBundle": "mou-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:sushen",
+        "name": "肃身",
+        "description": "限定技，出牌阶段，你可以记录你当前体力值，手牌数和“覆谋”技能状态，然后获得技能“入世”。【入世】限定技，出牌阶段，你将体力值，手牌数和“覆谋”技能状态调整为记录值。",
+        "executionForms": "Trigger, State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2831,
+      "programBundle": "mou-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:fumou",
+        "name": "覆谋",
+        "description": "转换技，游戏开始时可自选阴阳状态，出牌阶段限一次，你可以观看一名其他角色所有手牌并展示至多一半数量（向上取整）张，阳：令另一名其他角色获得展示牌，然后你与失去牌的角色各摸等量张牌；阴：令其依次使用展示牌（无距离限制且不可响应）。",
+        "executionForms": "Trigger, State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2832,
+      "programBundle": "mou-jia-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:rushi",
+        "name": "入世",
+        "description": "限定技，出牌阶段，你将体力值，手牌数和“覆谋”技能状态调整为记录值。",
+        "executionForms": "Trigger, State",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2833,
+      "pools": {
+        "current": 587
+      },
+      "definition": {
+        "id": "mou:jia-xu",
+        "name": "谋贾诩",
+        "portraitKey": "mou-jia-xu",
+        "skillId": "mou:sushen",
+        "additionalSkillIds": [
+          "mou:fumou"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:jia-xu",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}
