@@ -90,18 +90,19 @@ public sealed partial class GameEngine
         var pending = ActiveNullificationWindow!;
         var policy = FreezeUnrespondableCounterspellSource(actor, []);
         ConsumeTieredRoundConversion(source); ClearPendingDecision();
-        pending = ReplaceNullificationWindowFrame(pending with { EffectNullified = !pending.EffectNullified,
+        pending = HasMouCyMatchingName(actor.Seat, CardKind.Nullification) ? PrepareNamedAmbushCounterspell(pending, actor.Seat, 0) : ReplaceNullificationWindowFrame(pending with { EffectNullified = !pending.EffectNullified,
             ChainDepth = pending.ChainDepth + 1, CandidateSeats = BuildNullificationCandidateSeats(actor.Seat), CandidateIndex = 0,
             Step = ResolutionFrameStep.AwaitingResponse });
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, NullificationParentActionId(pending),
             CardActionType.Response, actor.Seat, actor.Seat, null, actor.Seat, pending.SourceSeat, CardKind.Nullification,
             [], [], [source], effectiveSuit: Suit.None, effectiveRank: 0));
         IssueTieredRoundResponse(pending, action, source);
+        if (pending.NamedAmbushResponse is not null) BindNamedAmbushCounterspell(pending.Id, action);
         AdvanceEventRulesAndQueueFact(new CardRespondedEvent(0, actor.Seat, pending.SourceSeat, CardKind.Nullification));
-        AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind,
+        if (pending.NamedAmbushResponse is null) AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind,
             actor.Seat, 0, pending.EffectNullified, pending.ChainDepth));
         RecordActualPlayPhaseUse(action); AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
-        CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: false);
+        if (pending.NamedAmbushResponse is null) CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: false);
         pending = (NullificationWindowFrame)_resolutionStack.Single(f => f.Id == pending.Id);
         if (TryBeginPolicyCounterspellPayment(pending, action, policy, [])) return;
         if (TryBeginCommittedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse)) return;

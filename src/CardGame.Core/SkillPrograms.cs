@@ -249,6 +249,9 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveMouChengYuAnniversaryShizha = 36800,
+    ConsumeMouChengYuAnniversaryShizha = 36801,
+    ResolveMouChengYuAnniversaryGaojian = 36802,
     ResolveMouZhangXiuFuxi = 36600,
     ResolveMouZhangXiuHaoyi = 36601,
     ResolveMouCaoAngFengmin = 36700, ResolveMouCaoAngZhiwang = 36701,

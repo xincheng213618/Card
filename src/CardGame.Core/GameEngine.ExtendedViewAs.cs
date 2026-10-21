@@ -76,8 +76,8 @@ public sealed partial class GameEngine
             var unrespondableSource = FreezeUnrespondableCounterspellSource(owner, selection.Cards.Select(card => card.Id).ToArray());
             var action = MoveProgramMultiCardResponse(owner, selection, pending.ParentFrameId, pending.SourceSeat);
             FinishProgramMultiCardResponse(selection);
-            pending = action.PhysicalCards.Count > 0 && action.ActorSeat == action.ProviderSeat &&
-                action.PhysicalCards.All(c => c.From == CardLocation.Hand(owner.Seat)) && HasEnabledMatchingNamedAmbush(owner.Seat, CardKind.Nullification)
+            pending = (action.PhysicalCards.Count > 0 && action.ActorSeat == action.ProviderSeat &&
+                action.PhysicalCards.All(c => c.From == CardLocation.Hand(owner.Seat)) && HasEnabledMatchingNamedAmbush(owner.Seat, CardKind.Nullification)) || HasMouCyMatchingName(owner.Seat, CardKind.Nullification)
                 ? PrepareNamedAmbushCounterspell(pending, owner.Seat, selection.Cards[0].Id) : ReplaceNullificationWindowFrame(pending with
             {
                 EffectNullified = !pending.EffectNullified,

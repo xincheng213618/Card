@@ -1,0 +1,94 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:cheng-yu",
+  "characterId": "character:cheng-yu",
+  "displayName": "谋程昱",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "initialHp": 3,
+    "maximumHp": 3,
+    "officialHeroId": 1681
+  },
+  "selectedVersion": {
+    "publishedAt": "2026-03-11",
+    "availableFrom": "2026-03-12",
+    "version": "6.3.5",
+    "url": "https://x.sanguosha.com/news/20260309_7109_3517.html"
+  },
+  "sourceAgreement": "现行官方武将页1681两皮肤完整正文与6.3.5正式调整后正文一致。选择现行识诈、告谏；2024首发旧技能均已重做，不混入旧句。另已实现OL戾断/胆持属于不同服版本。",
+  "skills": [
+    {
+      "id": "mou:shizha",
+      "name": "识诈",
+      "initial": true,
+      "officialSelectedText": "每回合限一次，有角色体力变化后，你可观看牌堆顶三张牌并选择其中一张牌获得并秘密记录此牌名，直至本轮结束该牌名牌被使用时移除记录牌名，你可令此牌无效"
+    },
+    {
+      "id": "mou:gaojian",
+      "name": "告谏",
+      "initial": true,
+      "officialSelectedText": "出牌阶段限一次，你可令一名角色亮出牌堆顶一张牌，若为伤害牌其受到X点火焰伤害，若不为伤害牌，其选择一项执行：1.获得此牌并再次亮牌（次数不能超过存活人数）；2.直至其回合结束其攻击范围-X。（X为因此亮出的牌数）"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1681.html",
+      "bytes": 19525,
+      "sha256": "d1e0a7a6edf39dbfdd5310cd6f6783892decbaaf62096f261ae66410088fda6d",
+      "role": "current full text, identity and classic portrait DOM"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260309_7109_3517.html",
+      "bytes": 12743,
+      "sha256": "abe96bb88399b101ce8073411a4af743df81bcd2e7197adf29f58922a71ee151",
+      "role": "6.3.5 formal replacement text"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240731_7055_5313",
+      "bytes": 128036,
+      "sha256": "ab70ee53968eb8d5dc0874a2aa2daccb5ca6bda066fb84fac5f9a1a943061485",
+      "role": "superseded 2024 initial text, conflict provenance only"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "selectedEntry": {
+        "gid": 1681,
+        "resource": 1168101,
+        "prefix": "谋",
+        "name": "程昱",
+        "country": "魏",
+        "gender": "男",
+        "hp": 3
+      }
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1681.html",
+    "selectedDomLabel": "经典形象*谋程昱",
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1168101.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-cheng-yu.png",
+    "width": 574,
+    "height": 761,
+    "bytes": 759567,
+    "sha256": "a07a74c4ec8a2f4210a4fc28cf748d8653f230e5c58a94fc0ed263a59ea00c06",
+    "verification": "主代理依据实际经典DOM链接下载并查看，不以另一皮肤5168101替代。"
+  },
+  "engineeringInterpretationsNotOfficialFaq": [
+    "以下为正式正文配合现有原生通则采用的工程解释，不是官方FAQ，也不是该武将的用户裁定。有限主源FAQ核对未找到独立补充。",
+    "识诈同名记录按技能拥有者及实际技能实例的集合处理；本轮匹配真正使用时先移除记录，再可选择令整次用牌无效，不因拒绝无效而保留。取得同名牌不会让一个名字在同次使用触发多次作废。",
+    "牌名沿项目已有通用记录名合同：按取得实体牌名记录，使用时按原生冻结有效外观匹配，火杀/雷杀统一为杀；不以实体后来转移、普通打出或对方展示猜测真正使用。",
+    "体力变化按每次真实HP变更事件计，不按伤害每点拆分。每实际回合限一次由原生计次执行，允许其他角色的真实HP变化触发。",
+    "观看牌顶三张仅私看，选中的准确牌堆实体经原生获得移动；未选中的牌不离开牌堆且保序。取得的替代结果以真实物理移动回执为准，不凭手牌净数。",
+    "告谏目标包含本人；火焰伤害按项目技能拥有者默认伤害来源，走实际ProgramDamage、护甲、濒死与连环处理。伤害牌沿已有原生类别，补齐普通伤害锦囊和闪电，不将非伤害牌归入。",
+    "再次亮牌沿同句式已采用的原生通则：首张之外至多再亮当时存活人数张；每次选择是否继续时读取当前存活数，X始终是本次所有实际亮出的张数。上限时最后一张非伤害牌仍可选择获得，获得后停止。",
+    "未获得的非伤害展示牌、已结算火伤的伤害展示牌均由真实Processing实体结束到弃牌堆。获得的牌不重复弃置。",
+    "攻击范围-X至目标本人当前或下一个实际TurnEnded，不因当前轮转角色变化而提前取消，不因跳过某阶段而额外延后。",
+    "响应牌仅沿真正Use门控：Slash所需的实际Dodge和原生Nullification含已支付的零材料转换；群体响应纯Played和Duel索杀打出均不被伪造为Use。装备只在存在本次匹配记录时沿原生EquipmentPlacement开启committed-once，并保持原始实体与正常返回。",
+    "秘密记录沿现有可信规则事件账本保存；EventEnvelope及引擎Events、通知是trusted-host诊断边界，不发送给普通玩家。玩家只能通过CreateSnapshot(viewer)得到自己的牌名和牌顶私看；观察者只见记录数。"
+  ]
+}

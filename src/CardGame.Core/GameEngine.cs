@@ -4687,7 +4687,7 @@ public sealed partial class GameEngine
             CardLocation.DiscardPile,
             CardMoveReasons.NullificationFinished);
         pending = (NullificationWindowFrame)_resolutionStack.Single(frame => frame.Id == pending.Id);
-        pending = responseFrom == CardLocation.Hand(responder.Seat) && HasEnabledMatchingNamedAmbush(responder.Seat, CardKind.Nullification)
+        pending = (responseFrom == CardLocation.Hand(responder.Seat) && HasEnabledMatchingNamedAmbush(responder.Seat, CardKind.Nullification)) || HasMouCyMatchingName(responder.Seat, CardKind.Nullification)
             ? PrepareNamedAmbushCounterspell(pending, responder.Seat, card.Id) : ReplaceNullificationWindowFrame(pending with
         {
             EffectNullified = !pending.EffectNullified,

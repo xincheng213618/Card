@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-cheng-yu",
+      "characterName": "谋程昱",
+      "defaultSkinId": "1168101",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1681.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1168101.png",
+          "sha256": "a07a74c4ec8a2f4210a4fc28cf748d8653f230e5c58a94fc0ed263a59ea00c06",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-cheng-yu.png",
+          "id": "1168101",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-zhang-xiu",
       "characterName": "谋张绣",
       "defaultSkinId": "1166101",

@@ -1,0 +1,10 @@
+{
+ "schemaVersion":62,
+ "skills":[
+  {"id":"mou:shizha","revision":1,"triggers":[
+   {"id":"hp-change","window":"afterHealthChanged","subject":"owner","hpChangeOccurrence":"perEvent","optional":true,"usageScope":"turn","usageLimit":1,"effects":[{"op":"resolveMouChengYuAnniversaryShizha","target":"owner"}]},
+   {"id":"consume-name","window":"cardUseCommitted","ownerRelation":"observer","includeResponseUses":true,"optional":false,"effects":[{"op":"consumeMouChengYuAnniversaryShizha","target":"owner"}]}
+  ]},
+  {"id":"mou:gaojian","revision":1,"activations":[{"id":"reveal-and-advise","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveMouChengYuAnniversaryGaojian","target":"owner"}]}]}
+ ]
+}

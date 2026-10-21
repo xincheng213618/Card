@@ -533,6 +533,7 @@ var tests = new (string Name, Action Body)[]
     ("Mou Zhou Yu anniversary: additive fire targets and both native Yingmou branches Cold", CardGame.Core.Tests.MouZhouYuAnniversaryChecks.AdditiveFireTargetsAndBothNativeYingmouBranchesCold),
     ("Mou Jiang Ji anniversary: per-Play gifts and selected-target native effects Cold", CardGame.Core.Tests.MouJiangJiAnniversaryChecks.PerPlayGiftsAndSelectedTargetNativeEffectsCold),
     ("Mou Jia Xu anniversary: private Fumou native queue and recorded Rushi Cold", CardGame.Core.Tests.MouJiaXuAnniversaryChecks.PrivateFumouNativeQueueAndRecordedRushiCold),
+    ("Mou Cheng Yu anniversary: actual health secret names native responses and Gaojian Cold", CardGame.Core.Tests.MouChengYuAnniversaryChecks.ActualHealthSecretNamesNativeResponsesAndGaojianCold),
     ("Mou Cao Hong anniversary: native range debt and bilateral distance Hand exchange Cold", CardGame.Core.Tests.MouCaoHongAnniversaryChecks.NativeRangeDebtAndBilateralDistanceHandExchangeCold),
     ("Mou Dong Zhuo OL: actual Xiongni Fengshang Wine Cold and repeated Preparing", CardGame.Core.Tests.MouDongZhuoOlChecks.ActualXiongniFengshangWineColdAndRepeatedPreparing),
     ("Numeric rules: marker-count directional modifiers lose actual source", CardGame.Core.Tests.MouDongZhuoOlChecks.MarkerCountDirectionalModifierSourceRemoval),

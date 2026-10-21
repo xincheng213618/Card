@@ -111,6 +111,7 @@ public sealed partial class GameEngine
 
     private void ContinueSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
+        if (ContinueMouCyIneffectiveSimple(frameId, continuation)) return;
         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
         if (TryBeginCaoChunSimpleDebt(frameId, continuation)) return;
         if (TryBeginSimpleBeforeTargetPrograms(frameId, continuation)) return;

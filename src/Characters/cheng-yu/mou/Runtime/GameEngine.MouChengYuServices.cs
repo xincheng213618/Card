@@ -1,0 +1,48 @@
+namespace CardGame.Core;
+public sealed partial class GameEngine
+{
+ private MouChengYuAnniversaryRuntime MouChengYuAnniversary=>GetRuntimeModule<MouChengYuAnniversaryRuntime>();
+ private bool HasMouChengYuAnniversary=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeMouChengYuAnniversaryShizha);
+ private bool IsMouCyForeignHealthCandidate(ProgramTriggerCandidate candidate,ProgramSkillWindowContext context)
+ {
+  if(candidate.SkillId!=MouChengYuAnniversaryRuntime.Shizha||candidate.BindingId!="hp-change"||candidate.OccurrenceIndex!=0||context.Window!=SkillProgramTriggerWindow.AfterHealthChanged||context.HpChange is not{Amount:>0}change||context.OwnerSeat!=candidate.OwnerSeat||context.TargetSeat!=change.TargetSeat||context.SourceSeat!=change.SourceSeat||context.Amount!=change.Amount||change.HpBefore==change.HpAfter||GetProgramTrigger(candidate).Effects is not[{Op:SkillProgramEffectOp.ResolveMouChengYuAnniversaryShizha}]||_resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault()is not{}hp||hp.Id!=context.ParentFrameId||hp.Change.Id!=change.Id||hp.Change!=change||hp.CandidateIndex<0||hp.CandidateIndex>=hp.Candidates.Count||hp.Candidates[hp.CandidateIndex]!=candidate)return false;
+  return true;
+ }
+ [ProgramCapability]private sealed class MouChengYuAnniversaryFacts(GameEngine e):IMouChengYuAnniversaryFacts
+ {
+  public int Turn=>e._turnNumber;public int Round=>e._roundNumber;public long Sequence=>e._movementSequence;public int LivingCount=>e._players.Count(p=>p.IsAlive);public bool Finished=>e._winner!=Winner.None;public bool Enabled=>e.HasMouChengYuAnniversary;
+  public bool Alive(int s)=>e.IsValidPlayerSeat(s)&&e._players[s].IsAlive;public bool Human(int s)=>e._players[s].IsHuman;public bool OwnPlay(int s)=>s==e._currentSeat&&e._phase==TurnPhase.Play;public string Name(int s)=>e._players[s].Name;public CardKind CardName(CardKind k)=>AmbushCardName(k);public SkillProgram? Program(string id)=>e._contentRegistry.Skills.GetValueOrDefault(id)?.Program;public IEnumerable<T> History<T>()where T:IGameEvent=>e.ProgramEventHistory<T>();
+  public IReadOnlyList<int> Living()=>Array.AsReadOnly(e._players.Where(p=>p.IsAlive).Select(p=>p.Seat).ToArray());public IReadOnlyList<ProgramTriggerCandidate> Candidates(int owner,SkillProgramTriggerWindow window)=>e.CollectProgramTriggerCandidates(e._players[owner],window);
+  public bool Parent(ProgramSkillFrame f)
+  {
+   if(f.TriggerId is null)return f.SkillId==MouChengYuAnniversaryRuntime.Gaojian&&f.ActivationId=="reveal-and-advise"&&f.WindowContext is null&&History<ProgramSkillStartedEvent>().Count(s=>s.FrameId==f.Id&&s.OwnerSeat==f.OwnerSeat&&s.SkillId==f.SkillId&&s.ActivationId==f.ActivationId)==1;
+   var at=e._resolutionStack.FindIndex(x=>x.Id==f.Id);if(at<1||f.SkillId!=MouChengYuAnniversaryRuntime.Shizha||f.ActivationId!=f.TriggerId||f.WindowContext is not{}w||w.OwnerSeat!=f.OwnerSeat)return false;
+   if(f.TriggerId=="hp-change"&&e._resolutionStack[at-1]is HpChangedTriggerWindowFrame hp&&w.Window==SkillProgramTriggerWindow.AfterHealthChanged&&w.HpChange is{}change&&hp.Id==w.ParentFrameId&&(hp.Change.Id,hp.Change.ParentFrameId,hp.Change.SourceSeat,hp.Change.TargetSeat,hp.Change.Kind,hp.Change.Amount,hp.Change.HpBefore,hp.Change.HpAfter)==(change.Id,change.ParentFrameId,change.SourceSeat,change.TargetSeat,change.Kind,change.Amount,change.HpBefore,change.HpAfter)&&hp.CandidateIndex>=0&&hp.CandidateIndex<hp.Candidates.Count){var c=hp.Candidates[hp.CandidateIndex];return c.OwnerSeat==f.OwnerSeat&&c.SkillId==f.SkillId&&c.BindingId==f.TriggerId&&c.SkillInstanceId==f.SkillInstanceId&&c.GameplayHash==f.GameplayHash;}
+   if(f.TriggerId=="consume-name"&&e._resolutionStack[at-1]is ProgramCardTriggerWindowFrame p&&p.Id==w.ParentFrameId&&p.CandidateIndex>=0&&p.CandidateIndex<p.Candidates.Count&&e.MouCyUse(w)is not null){var c=p.Candidates[p.CandidateIndex];return c.OwnerSeat==f.OwnerSeat&&c.SkillId==f.SkillId&&c.TriggerId==f.TriggerId&&c.SkillInstanceId==f.SkillInstanceId&&c.GameplayHash==f.GameplayHash;}return false;
+  }
+  public MouCyUse? Use(ProgramSkillWindowContext c)=>e.MouCyUse(c);public bool At(int id,CardLocation location)=>e._cardZones.GetLocation(id)==location;public bool SameChoice(PromptChoice a,PromptChoice b)=>AssistedChoicesEqual([a],[b]);
+  public bool DamageCard(CardKind k)=>IsDamageCardKind(k)||IsCompletedUndamagedDamageUse(k)||k==CardKind.Lightning;
+  public SkillPromptPresentation Presentation(string id){var s=e._contentRegistry.GetSkill(id);return new(s.Id,s.Name,s.Name,s.Description);}
+ }
+ [ProgramCapability]private sealed class MouChengYuAnniversaryNative(GameEngine e):IMouChengYuAnniversaryNative
+ {
+  public IReadOnlyList<MouCyCard> Peek(ProgramSkillFrame f){if(!e.MouChengYuAnniversary.Valid(f)||f.MouChengYuAnniversary!.Stage!=MouCyStage.Peek)throw new InvalidOperationException("Shizha requires its paid HP window before privately viewing the real deck.");_ = e.EnsureDrawPile();return Array.AsReadOnly(e._cardZones.CardsAt(CardLocation.DrawPile).TakeLast(3).Reverse().Select(c=>new MouCyCard(c.Id,c.Kind,c.DisplayName)).ToArray());}
+  public MouCyCard? Reveal(ProgramSkillFrame f)
+  {
+   if(!e.MouChengYuAnniversary.Valid(f)||f.MouChengYuAnniversary is not{Stage:MouCyStage.RevealChildren,Target:>=0}r||!e._players[r.Target].IsAlive)throw new InvalidOperationException("Gaojian requires its current living target and own reveal slot.");var bind="gaojian-"+r.RevealCount.ToString(System.Globalization.CultureInfo.InvariantCulture);e.RevealProgramTopCards(f.Id,r.Target,1,null,bind,SkillProgramCardSetVisibility.Public);f=e.GetActiveProgramFrame(f.Id);var set=e.GetProgramCardSet(f,bind);if(set.CardIds.Count==0)return null;var id=set.CardIds.Single();var move=e._cardMovements.Single(m=>m.CardId==id&&m.Sequence>r.Before&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Processing);return new(id,move.CardKind,e.GetAdvancedCard(id).DisplayName);
+  }
+  public void Move(ProgramSkillFrame f,int id,CardLocation from,CardLocation to)
+  {
+   if(!e.MouChengYuAnniversary.Valid(f)||f.MouChengYuAnniversary is not{}r||r.CardId!=id||e._cardZones.GetLocation(id)!=from||(r.Stage switch{MouCyStage.ObtainChildren=>from!=CardLocation.DrawPile||to!=CardLocation.Hand(f.OwnerSeat)||!r.View.Any(c=>c.Id==id),MouCyStage.GainChildren=>from!=CardLocation.Processing||to!=CardLocation.Hand(r.Target),MouCyStage.DiscardChildren=>from!=CardLocation.Processing||to!=CardLocation.DiscardPile,_=>true}))throw new InvalidOperationException("Mou Cheng Yu can move only his exact current viewed or revealed physical card.");
+   e.MoveProgramCardsFromMultipleSources([id],to,new("skill-program.mou-cheng-yu."+r.Stage),(_,moves)=>{if(moves.Any(m=>m.From!=from||m.To!=to&&m.To!=CardLocation.OutsideGame))throw new InvalidOperationException("Mou Cheng Yu lost the native movement replacement receipt.");e.MouChengYuAnniversary.Moved(f.Id,moves);},disclosure:r.Stage==MouCyStage.ObtainChildren?CardMovementDisclosure.Unspecified:CardMovementDisclosure.FaceUp);
+  }
+  public void Invalidate(ProgramSkillFrame f,MouCyUseInvalidatedEvent proof)=>e.ApplyMouCyInvalidation(f,proof);
+  public void Damage(ProgramSkillFrame f,int target,int amount){if(!e.MouChengYuAnniversary.Valid(f)||f.MouChengYuAnniversary is not{Stage:MouCyStage.Damage,DamageCard:true}r||r.Target!=target||r.RevealCount!=amount)throw new InvalidOperationException("Gaojian damage requires the actual revealed damage card and total count.");e.BeginProgramSkillDamage(f,target,amount,nature:DamageNature.Fire);}
+  public bool Drain(ProgramSkillFrame f)=>e.TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement)||e.TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||e.TryBeginAdvancedSkillsChanged(f.Id)||e.TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.AwaitedProgramMovement)||e.TryBeginCardsMovedProgramWindow(f.Id);
+  public void Finish(ProgramSkillFrame f)=>e.FinishProgramSkill(f,true);public void Publish()=>e.AdvanceRulesAndPublishState();
+ }
+ [ProgramViewContributor(ProgramViewContribution.PrivateCards,36800)]private CardSnapshot[] MouCyPrivateTop(int viewer)=>_resolutionStack.OfType<ProgramSkillFrame>().Where(f=>f.OwnerSeat==viewer&&f.MouChengYuAnniversary is{Stage:MouCyStage.Peek}&&MouChengYuAnniversary.Valid(f)).SelectMany(f=>f.MouChengYuAnniversary!.View).Where(c=>_cardZones.GetLocation(c.Id)==CardLocation.DrawPile).DistinctBy(c=>c.Id).Select(c=>ToSnapshot(GetAdvancedCard(c.Id))).ToArray();
+ [ProgramViewContributor(ProgramViewContribution.NamedAmbushPiles,36800)]private IReadOnlyList<NamedAmbushPileSnapshot>? MouCyNamesView(IReadOnlyList<NamedAmbushPileSnapshot>? existing,int holder,int viewer,bool revealAll)
+ {if(!HasMouChengYuAnniversary)return existing;var records=MouChengYuAnniversary.Names(holder);if(records.Count==0)return existing;IReadOnlyList<NamedAmbushPrivateEntrySnapshot>? entries=viewer==holder||revealAll?Array.AsReadOnly(records.Select(r=>new NamedAmbushPrivateEntrySnapshot(ToSnapshot(GetAdvancedCard(r.CardId)),r.Name)).ToArray()):null;return Array.AsReadOnly((existing??[]).Append(new NamedAmbushPileSnapshot(MouChengYuAnniversaryRuntime.Shizha,"识诈",records.Count,entries)).ToArray());}
+ [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments,36800)]private bool MouCyMovement(ProgramSkillFrame f,SkillProgramEffect? effect,ProgramMovementContinuation movement)=>f.MouChengYuAnniversary is{Stage:MouCyStage.ObtainChildren or MouCyStage.RevealChildren or MouCyStage.GainChildren or MouCyStage.DiscardChildren}&&MouChengYuAnniversary.Valid(f)&&effect?.Op==f.MouChengYuAnniversary.Operation&&movement==f.PendingMovementContinuation&&movement.BeforeCount==0&&movement.CoverageResultBind is null;
+}

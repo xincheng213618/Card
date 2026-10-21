@@ -217,14 +217,27 @@ internal static class NianActivityUiChecks
                 "Pausing automatic AI progression must not pause the active thirty-minute Nian clock.");
             var submit = typeof(MainViewModel).GetMethod("SubmitCommand", BindingFlags.Instance | BindingFlags.NonPublic)!;
             CommandResult Submit(GameCommand command) => (CommandResult)submit.Invoke(vm, [command])!;
-            // Expanded rosters can stop setup at a published human response.
-            // Decline only known optional responses before testing the play clock.
-            for (var step = 0; step < 24 &&
-                Program.SetupResponseDeclineCommand(vm) is { } decline; step++)
+            // Expanded rosters can stop setup at an optional response or a mandatory Quanyu secret choice.
+            for (var step = 0; step < 24; step++)
             {
-                Program.Assert(decline.CanExecute(null),
-                    "An optional response before the first human turn must expose its real decline command.");
-                decline.Execute(null);
+                if (Program.SetupResponseDeclineCommand(vm) is { } decline)
+                {
+                    Program.Assert(decline.CanExecute(null),
+                        "An optional response before the first human turn must expose its real decline command.");
+                    decline.Execute(null);
+                }
+                else if (game.CreateSnapshot(0).PendingDecision is
+                    { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, IsPrivate: true,
+                      SkillPrompt: { SkillId: "ol:mo-quanyu" } } quanyu &&
+                    vm.SkillChoices.FirstOrDefault(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "mo-quanyu-choice" &&
+                        quanyu.Choices.Any(current => current.Id == choice.Id)) is { } effect)
+                {
+                    Program.Assert(vm.IsSkillSelectionPending && vm.SelectSkillChoiceCommand.CanExecute(effect),
+                        "The mandatory Quanyu setup choice must use its current published WPF skill choice command.");
+                    vm.SelectSkillChoiceCommand.Execute(effect);
+                }
+                else break;
                 if (vm.RunToHumanCommand.CanExecute(null)) vm.RunToHumanCommand.Execute(null);
             }
             var beforeNative = game.CreateSnapshot(0);
