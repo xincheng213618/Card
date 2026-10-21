@@ -1,0 +1,100 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:cheng-yu-ol",
+  "characterId": "character:cheng-yu",
+  "displayName": "谋程昱·OL",
+  "edition": "mou-ol",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "factionId": "wei",
+    "baseHp": 3,
+    "gender": "Male",
+    "initialHpApi": 0,
+    "initialHpMeaning": "Default full-HP sentinel; hero OpenGraph incorrectly says zero, rejected in favor of API hp=3 and formal identity table."
+  },
+  "skills": [
+    {
+      "id": "mou-ol:lidan",
+      "name": "戾断",
+      "officialText": "你使用【杀】后，令你使用的下一张锦囊牌可以多指定一个目标；你使用锦囊牌后，令你使用的下一张【杀】可以多指定一个目标。",
+      "currentHeroText": "你使用【杀】后，令你使用的下一张锦囊牌可以多指定一个目标；你使用锦囊牌后，令你使用的下一张【杀】可以多指定一个目标。"
+    },
+    {
+      "id": "mou-ol:danchi",
+      "name": "胆持",
+      "officialText": "每回合限一次，与你距离1以内的角色受到伤害后，你可令受到伤害的角色选择一个类型。然后伤害来源本回合使用下一张牌后，你视为使用一张【无中生有】，若与“胆持”选择的类型不同，你可额外视为使用一张【杀】。",
+      "currentHeroText": "每回合限一次，距离1以内的角色受到伤害后，你可令受到伤害的角色选择一个类型。然后伤害来源本回合使用下一张牌后，你视为使用一张【无中生有】，若与“胆持”选择的类型不同，你可额外视为使用一张【杀】。"
+    }
+  ],
+  "primarySources": [
+    {
+      "key": "hero",
+      "url": "https://www.sanguosha.com/hero/734",
+      "sha256": "A62CB51AF4EF7AB8F11A6F95BE0B0492B8D2690E80417F4AF5BCDAC2EFC8E4FD",
+      "bytes": 24206
+    },
+    {
+      "key": "api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=734",
+      "sha256": "EFB6A3A418ABB379A6D1EFE07EC24BF333B8F4E4A5A367C9B821945EFA61C56B",
+      "bytes": 732
+    },
+    {
+      "key": "release",
+      "url": "https://www.sanguosha.com/news/20260902_7781_1913",
+      "sha256": "8D8A58217E42EB252DECF8098009125AD03BFEFD82A5C352A5BA396FF60395FA",
+      "bytes": 316360
+    }
+  ],
+  "firstRelease": {
+    "publishedAt": "2026-09-04 17:01:15 +08:00",
+    "permanentAvailabilityFrom": "2026-09-05 00:15:00 +08:00",
+    "initialWindowUntil": "2026-09-11 24:00:00 +08:00",
+    "method": "限时祈福 or 传世玉玺兑换",
+    "noClaimCurrentSaleStillOpen": true
+  },
+  "versionAudit": {
+    "currentHeroAndFormalAgree": true,
+    "minorPresentationDifference": "Current hero omits 与你 before 距离1以内; formal release explicitly supplies the owner-relative distance. It is not a different skill implementation.",
+    "boundedSearchQueries": [
+      "site:www.sanguosha.com \"戾断\" 调整",
+      "site:www.sanguosha.com \"胆持\" 更新",
+      "site:www.sanguosha.com \"谋程昱\" \"戾断\" -\"20260902\" -\"十周年\" -site:x.sanguosha.com"
+    ],
+    "boundedResult": "Only original OL full release, its official probability notice and current hero/roster were found for these two exact skill names; no replacing official adjustment found. This is not proof that no unseen announcement can exist.",
+    "doNotMixWithTenthAnniversary": {
+      "officialHero": "https://x.sanguosha.com/hero/1681.html",
+      "differentSkills": [
+        "识诈",
+        "告谏"
+      ],
+      "differentRelease": "https://sanguosha.com/news/20240731_7055_5313",
+      "laterOtherEditionUpdate": "https://x.sanguosha.com/news/20260309_7109_3517.html",
+      "classification": "Same display name, different official product/general identity; those rules do not revise OL hero734."
+    }
+  },
+  "officialArt": {
+    "sourcePage": "https://www.sanguosha.com/hero/734",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/73400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-cheng-yu-ol.png",
+    "sha256": "67357B89793173E4C4F88464E879012C4F5C2903324FBEC6125690A4477170A1",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "bytes": 1068973,
+    "visualReview": "Original image downloaded and visually reviewed by the integration owner."
+  },
+  "implementationContract": {
+    "classification": "The following are explicit project engineering readings, not an official FAQ or a user ruling.",
+    "alternatingPermissions": "Each completed true Slash or Trick Use issues one permission for the next matching other category. All unconsumed matching permissions are frozen and consumed by that next accepted Use, including a true counterspell; no invented turn expiry. Pure Played actions do not issue or consume a Use permission.",
+    "nativeTargets": "Extra targets are chosen in the actual finalized native target window. BorrowedSword adds a complete legal weapon-holder/victim pair; elemental Slash names remain Slash. All native intrinsic target prohibitions and material payment remain. Delayed Trick names still match the complete Trick category and consume the permission; the native single physical entity has only one Judgment destination, so no duplicate carrier is manufactured and no illegal additional placement is published.",
+    "danchiDamage": "One accepted use of Danchi per owner and actual turn, without refreshing the named-skill receipt on reacquisition. The real victim within native distance one privately selects Basic, Trick (including delayed), or Equipment. Freeze the actual source and the causing parent Use; never credit that already ongoing damage card as the next Use.",
+    "danchiNextUse": "The first later true Use by the frozen source in the same whole actual turn is signed at its real declaration or real response acceptance. Compare that signed card category to the victim choice. The complete Use must return before rewards; subsequent uses cannot replace it.",
+    "danchiRewards": "The owner genuinely uses a neutral zero-material DrawTwo through native targets, Nullification, real draw/replacement and completion. A differing source-card category then permits an optional genuine Slash with native targets, defense, prohibitions and damage. This triggered extra Slash does not spend an ordinary Play Slash debit. The original source, action and promise remain attached to the owning frames through native child return; accepted obligations survive skill loss while native death/game-over cutoffs remain.",
+    "nativeMotherReturn": "The completed source Use retains its actual attack, Duel, group-response and FireAttack selection state on that original owning frame. A signed child receipt freezes the exact Use/action, target cursor and original active bits, suspends only those active bits while the reward subtree runs, and restores them once before returning. FireAttack selection remains on its mother and already has native top-frame activation. The representative behavior check exercises a real two-target Duel completion, both native rewards and exact restoration of the original Duel/attack cursors."
+  },
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouChengYuOlChecks.cs",
+    "method": "StackedTargetsAndActualNextUseNativeRewardsCold",
+    "filter": "Mou Cheng Yu OL:"
+  }
+}

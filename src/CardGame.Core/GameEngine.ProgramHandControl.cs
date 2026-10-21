@@ -73,6 +73,7 @@ public sealed partial class GameEngine
             if (maximum == 0) return SkillProgramStepOutcome.Continue;
             frame = frame with { HandControlDraft = new(effect.Op, stage, maximum, [], RevealedCardIds: stage == "color" ? hand.Select(card => card.Id).ToArray() : null) };
             ReplaceRuntimeTop(frame);
+            if(stage=="color"&&TryBeginPublicHandRevealWindow(frame.Id,"hand-color-whole-hand"))return SkillProgramStepOutcome.AwaitChild;
         }
         var draft = frame.HandControlDraft!;
         if (draft.Stage == "response-draw")
@@ -393,6 +394,14 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Hand-control prompt lost its fresh choices or private chooser.");
         }
     }
+    [PublicHandRevealReturn("hand-color-whole-hand")]
+    private void ReturnHandColorPublicHand(ProgramSkillFrame frame)
+    {
+        if(frame.HandControlDraft is not{Stage:"color"})throw new InvalidOperationException("Hand color control lost its original displayed roster.");
+        var effect=ProgramInstructionResolver.Default.Resolve(frame,_contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
+        ExecuteProgramHandControl(effect,frame);
+    }
+
 }
 
 public sealed record ProgramOwnerSkillsReplacedEvent(long ResolutionId, string SkillId,

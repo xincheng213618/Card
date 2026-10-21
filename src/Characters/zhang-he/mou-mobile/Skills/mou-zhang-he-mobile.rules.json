@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-mobile:qiaobian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "plan-skips",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "prepareMouZhangHeQiaobian",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "actual-skipped-phase",
+          "window": "actualPhaseSkipped",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouZhangHeSkippedPhase",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "ending-extra-play",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouZhangHeEnding",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-mobile:liaoshi",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "qiaobian-slash",
+          "inputCount": 1,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true
+        },
+        {
+          "id": "qiaobian-dodge",
+          "inputCount": 1,
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ]
+    }
+  ]
+}

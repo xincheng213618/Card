@@ -72,15 +72,15 @@ public sealed partial class GameEngine
     private PendingDecision? _pendingDecision
     {
         get => _pendingDecisionBacking;
-        set => _pendingDecisionBacking = AddHuanpeiRequestChoices(AddZonghuRequestChoices(AddWeijieRequestChoices(AddChainedStateBasicChoices(AddRequestedDeckBasicChoices(AddDrawFundedDistinctBasicChoices(value))))));
+        set => _pendingDecisionBacking = AddMouXqJueyanRequestChoices(AddHuanpeiRequestChoices(AddZonghuRequestChoices(AddWeijieRequestChoices(AddChainedStateBasicChoices(AddRequestedDeckBasicChoices(AddDrawFundedDistinctBasicChoices(value)))))));
     }
     private CardAttackHandle? ActiveCardAttack
     {
         get => _resolutionStack.LastOrDefault(frame => frame switch
         {
-            CardUseFrame use => use.CardAttack?.Active == true && !IsSuspendedGuoSiCompletedParent(use) && !IsDiouSuspendedRescueAttack(use) && !IsDiouSuspendedCompletedAttack(use) && !IsMouLiuChengSuspendedCompletedAttack(use),
-            ProgramSkillFrame program => program.CardAttack?.Active == true && !IsDiouSuspendedRescueAttack(program),
-            JudgmentFrame judgment => judgment.CardAttack?.Active == true && !IsDiouSuspendedRescueAttack(judgment),
+            CardUseFrame use => use.CardAttack?.Active == true && !MouXiaoQiaoOl.PublicRevealSuspends(use.Id) && !IsSuspendedGuoSiCompletedParent(use) && !IsDiouSuspendedRescueAttack(use) && !IsDiouSuspendedCompletedAttack(use) && !IsMouLiuChengSuspendedCompletedAttack(use),
+            ProgramSkillFrame program => program.CardAttack?.Active == true && !MouXiaoQiaoOl.PublicRevealSuspends(program.Id) && !IsDiouSuspendedRescueAttack(program),
+            JudgmentFrame judgment => judgment.CardAttack?.Active == true && !MouXiaoQiaoOl.PublicRevealSuspends(judgment.Id) && !IsDiouSuspendedRescueAttack(judgment),
             _ => false
         }) is { } owner ? new CardAttackHandle(this, owner.Id) : null;
         set
@@ -228,7 +228,7 @@ public sealed partial class GameEngine
     private TargetCardSelectionFrame? ActiveTargetCardSelection =>
         _resolutionStack.OfType<TargetCardSelectionFrame>().LastOrDefault();
     private NullificationWindowFrame? ActiveNullificationWindow =>
-        _resolutionStack.OfType<NullificationWindowFrame>().LastOrDefault(window => !IsDiouSuspendedCounterspell(window) && !IsMouLiuChengSuspendedCounterspell(window));
+        _resolutionStack.OfType<NullificationWindowFrame>().LastOrDefault(window => !MouXiaoQiaoOl.PublicRevealSuspends(window.Id) && !IsDiouSuspendedCounterspell(window) && !IsMouLiuChengSuspendedCounterspell(window));
     private CardUseFrame? ActiveFireAttack =>
         _resolutionStack.LastOrDefault() is CardUseFrame { FireAttackSelection: not null } frame
             ? frame
@@ -254,7 +254,7 @@ public sealed partial class GameEngine
                     !IsOriginalDyingSuspendedByDeathGrowth(frame) && !IsOriginalDyingSuspendedByHeJinYanhuo(frame) &&
                     !IsOriginalDyingSuspendedByHellKing(frame) && !IsOriginalDyingSuspendedByWenhePoison(frame) &&
                     !IsOriginalDyingSuspendedByRecoveryDamage(frame) && !IsOriginalDyingSuspendedByDiou(frame) &&
-                    !IsOriginalDyingSuspendedByWuZishengMovement(frame)) return frame;
+                    !IsOriginalDyingSuspendedByWuZishengMovement(frame) && !MouXiaoQiaoOl.PublicRevealSuspends(frame.Id)) return frame;
             return null;
         }
     }
@@ -1038,6 +1038,8 @@ public sealed partial class GameEngine
             return Accept(() => { AnswerCardDeclaration(selected); AdvanceRulesAndPublishState(); });
         if (selected.Parameters.GetValueOrDefault("response") == "round-once-cardless-basic")
             return Accept(() => TryResolveRoundOnceCardlessResponse(selected, _options.AdvanceAfterHumanCommands));
+        if (selected.Parameters.GetValueOrDefault("response") == "mou-xiao-qiao-jueyan")
+            return Accept(() => { BeginMouXqJueyanResponse(selected); AdvanceRulesAndPublishState(); if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary(); });
         if (selected.Parameters.GetValueOrDefault("response") == "tiered-round-zero-use")
             return Accept(() => ResolveTieredRoundZeroResponse(selected, _options.AdvanceAfterHumanCommands));
         if (selected.Parameters.GetValueOrDefault("response") == "extended-view-as")
@@ -1407,6 +1409,8 @@ public sealed partial class GameEngine
                 Accept(() => TryBeginTousuiQinglongSlash(ActiveQinglongCrescentBlade!, selected)),
             "kenshang-request-open" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
                 Accept(() => TryBeginKenshangQinglongSlash(ActiveQinglongCrescentBlade!, selected)),
+            "mou-xiao-qiao-forced-slash" when selected.Cards.Count == 1 && selected.Targets.Count == 1 =>
+                Accept(() => { BeginMouXqForcedSlash(selected); AdvanceRulesAndPublishState(); if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary(); }),
             "round-once-cardless-forced-slash" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
                 Accept(() => TryResolveRoundOnceCardlessForcedSlash(selected, _options.AdvanceAfterHumanCommands)),
             "tiered-round-zero-forced-slash" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
@@ -1532,6 +1536,8 @@ public sealed partial class GameEngine
             return Accept(() => TryBeginTousuiBorrowedSlash(ActiveBorrowedSword!, selected));
         if (selected.Parameters.GetValueOrDefault("response") == "kenshang-request-open")
             return Accept(() => TryBeginKenshangBorrowedSlash(ActiveBorrowedSword!, selected));
+        if (selected.Parameters.GetValueOrDefault("response") == "mou-xiao-qiao-forced-slash")
+            return Accept(() => { BeginMouXqForcedSlash(selected); AdvanceRulesAndPublishState(); if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary(); });
         if (selected.Parameters.GetValueOrDefault("response") == "round-once-cardless-forced-slash")
             return Accept(() => TryResolveRoundOnceCardlessForcedSlash(selected, _options.AdvanceAfterHumanCommands));
         if (selected.Parameters.GetValueOrDefault("response") == "tiered-round-zero-forced-slash")
@@ -3472,6 +3478,9 @@ public sealed partial class GameEngine
     {
         RecordNianActualPhaseSkips(current.Seat, delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase),
             delayedEffects.HasFlag(DelayedTurnEffects.SkipPlayPhase));
+        if (delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase) &&
+            _programPipelineHooks.TryBeginPhaseSkipped(new(current.Seat, _turnNumber, SkillProgramTurnPhase.Draw,
+                (int)delayedEffects, afterNormalDrawProgramsCompleted, drawPhaseEndedProgramsCompleted, actualDrawCompletionCompleted))) return;
         if (!drawPhaseEndedProgramsCompleted && !actualDrawCompletionCompleted && TryBeginActualDrawCompletion(current, delayedEffects)) return;
         if (!drawPhaseEndedProgramsCompleted && !delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase) && TryBeginDrawPhaseEndedProgramWindow(current, delayedEffects)) return;
         if (!delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase) && TryBeginActualPhaseEnd(ActualDiscardRecoveryPhaseKind.Draw,
@@ -3484,6 +3493,8 @@ public sealed partial class GameEngine
         if (_programPhaseSchedule?.Phase == TurnPhase.Draw && ResumeScheduledProgramPhase()) return;
         if (delayedEffects.HasFlag(DelayedTurnEffects.SkipPlayPhase))
         {
+            if (_programPipelineHooks.TryBeginPhaseSkipped(new(current.Seat, _turnNumber, SkillProgramTurnPhase.Play,
+                    (int)delayedEffects, afterNormalDrawProgramsCompleted, drawPhaseEndedProgramsCompleted, actualDrawCompletionCompleted))) return;
             ObserveLiuQiPlayBoundary(current.Seat, _cardUseDebitPhaseInstanceId, skipped: true);
             BeginDiscardPhase();
             AddLog("DelayedCardEffect", $"{current.Name} 跳过出牌阶段。", current.Seat);
@@ -4479,7 +4490,7 @@ public sealed partial class GameEngine
                             pending.EffectCardKind, pending.TargetSeats)
                 ? []
                 : GetNullificationCards(responder);
-            if (cards.Count == 0 && TieredRoundZeroResponseChoices(responder, CardKind.Nullification).Count == 0)
+            if (cards.Count == 0 && TieredRoundZeroResponseChoices(responder, CardKind.Nullification).Count == 0 && MouXqJueyanResponseChoices(responder, CardKind.Nullification).Count == 0)
             {
                 pending = ReplaceNullificationWindowFrame(pending with
                 {
@@ -4560,6 +4571,7 @@ public sealed partial class GameEngine
             .ToList();
         choices.AddRange(ExtendedViewAsResponseChoices(responder, CardKind.Nullification));
         choices.AddRange(TieredRoundZeroResponseChoices(responder, CardKind.Nullification));
+        choices.AddRange(MouXqJueyanResponseChoices(responder, CardKind.Nullification));
         choices.Add(new PromptChoice(
             new ChoiceId($"nullification.pass.depth-{pending.ChainDepth}"),
             "不使用【无懈可击】。",
@@ -5429,7 +5441,7 @@ public sealed partial class GameEngine
             source.Seat);
         var finishedIronChain = GetNullificationEffectCard(pending);
         if (!HasUnstartedExtraCardEffect(pending.ParentFrameId) &&
-            !SkipTieredRoundZeroFinishedMovement(pending.ParentFrameId, finishedIronChain) && !SkipDiouFinishedMovement(pending.ParentFrameId, finishedIronChain) &&
+            !SkipTieredRoundZeroFinishedMovement(pending.ParentFrameId, finishedIronChain) && !SkipDiouFinishedMovement(pending.ParentFrameId, finishedIronChain) && !SkipMouXqJueyanFinishedMovement(pending.ParentFrameId, finishedIronChain) &&
             !IsProgramVirtualOrdinaryTrickUse(pending.ParentFrameId) &&
             !(IsSiruiOutsideGeneralWeaponMaterial(pending.ParentFrameId,finishedIronChain.Id) || IsMouLixianRemovedMaterial(pending.ParentFrameId,finishedIronChain.Id)))
             MoveCard(finishedIronChain, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.IronChainFinished);
@@ -5988,6 +6000,7 @@ public sealed partial class GameEngine
             $"{target.Name} 展示了【{revealed.DisplayName}】（{revealed.Suit}），等待攻击者弃置同花色手牌。",
             target.Seat,
             pending.SourceSeat);
+        if (TryBeginPublicHandRevealWindow(pending.Id, PublicHandRevealReturnKind.FireAttack)) return;
         BeginFireAttackDiscard(ActiveFireAttack ??
             throw new InvalidOperationException("FireAttack lost its revealed selection."), revealed);
     }
@@ -6132,7 +6145,7 @@ public sealed partial class GameEngine
             pending.Id,
             source.Seat,
             target.Seat,
-            (IsProgramVirtualOrdinaryTrickUse(pending.Id) || IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsDiouZeroUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
+            (IsProgramVirtualOrdinaryTrickUse(pending.Id) || IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsDiouZeroUse(pending.Id) || IsMouXqJueyanUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
             damageAmount: 1,
             playedCardKind: CardKind.FireAttack,
             physicalCards: GetCardUsePhysicalCards(pending.Id));
@@ -6306,7 +6319,7 @@ public sealed partial class GameEngine
 
         if (TryBeginExtraCardEffectRound(group.ResolutionId)) return;
 
-        if (!IsTianChouShandaoUse(group.ResolutionId) && !SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card) && !SkipDiouFinishedMovement(group.ResolutionId, group.Card) &&
+        if (!IsTianChouShandaoUse(group.ResolutionId) && !SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card) && !SkipDiouFinishedMovement(group.ResolutionId, group.Card) && !SkipMouXqJueyanFinishedMovement(group.ResolutionId, group.Card) &&
             !IsProgramVirtualOrdinaryTrickUse(group.ResolutionId) &&
             !IsClaimedUseCardEntity(group.ResolutionId, group.Card.Id) && !IsSiruiOutsideGeneralWeaponMaterial(group.ResolutionId,group.Card.Id))
         {
@@ -6575,7 +6588,7 @@ public sealed partial class GameEngine
             .Where(card =>
             {
                 var baseKind = PhysicalSlashUseBaseKind(weaponOwner, card);
-                if (!GetSlashUseVariants(weaponOwner, baseKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card).Concat(MoGuifuPhysicalSlashVariants(weaponOwner, card)))).DistinctBy(v=>v.EffectiveKind).Any(variant =>
+                if (!GetSlashUseVariants(weaponOwner, baseKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card).Concat(CardLegality.NativeSlashVariants(new(weaponOwner, card))))).DistinctBy(v=>v.EffectiveKind).Any(variant =>
                         (DistanceRules.AllowsSlashDistance(ProgramDistanceStage.BorrowedPhysicalSlash,
                             new(weaponOwner, slashTarget, variant.EffectiveKind, card))) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
                     return false;
@@ -6644,7 +6657,7 @@ public sealed partial class GameEngine
             .Where(selection => !HasBeneficiarySuitShield(weaponOwner.Seat, slashTarget.Seat, selection.Cards.Select(card => EffectiveSuit(weaponOwner, card)).Distinct().ToArray() is [var suit] ? suit : null)).ToArray();
         var canRequestFactionSlash = includeFactionSlash && CanRequestBorrowedSwordFactionSlash(pending);
         if (!keepCurrentRequest && slashes.Count == 0 && zhangbaPairs.Length == 0 && programMultiCardUses.Length == 0 && !canRequestFactionSlash &&
-            TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
+            TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 && MouXqForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
             KenshangBorrowedSlashChoices(pending).Count == 0 && TousuiBorrowedSlashChoices(pending).Count == 0 &&
             RoundOnceCardlessForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
             !ChainedStateBasicForcedSlashRules(weaponOwner, slashTarget, false).Any() &&
@@ -6665,7 +6678,7 @@ public sealed partial class GameEngine
         var choices = slashes.SelectMany(card =>
         {
             var baseEffectiveKind = PhysicalSlashUseBaseKind(weaponOwner, card);
-            return GetSlashUseKinds(weaponOwner, baseEffectiveKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card).Concat(MoGuifuPhysicalSlashVariants(weaponOwner, card))).Select(v=>v.EffectiveKind)).Distinct()
+            return GetSlashUseKinds(weaponOwner, baseEffectiveKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card).Concat(CardLegality.NativeSlashVariants(new(weaponOwner, card)))).Select(v=>v.EffectiveKind)).Distinct()
                 .Where(effectiveKind => effectiveKind == baseEffectiveKind ||
                                         IsNativeResponseCard(card, CardKind.Slash) || IsOwnPublicPileSlashMaterial(weaponOwner, card) || (IsSiruiPhysicalSlashKind(weaponOwner,card,effectiveKind) || IsFulePhysicalSlashKind(weaponOwner, card, effectiveKind)))
                 .SelectMany(effectiveKind =>
@@ -6800,7 +6813,7 @@ public sealed partial class GameEngine
         var selected = GetBorrowedSwordSlashCards(weaponOwner, slashTarget)
             .SingleOrDefault(card => card.Id == slash.Id) ??
             throw new InvalidOperationException("The selected Borrowed Sword Slash is no longer legal.");
-        var baseEffectiveKind = MoGuifuSelectedSlashKind(weaponOwner, selected, JuewuSelectedSlashKind(weaponOwner, selected, SiruiSelectedSlashKind(weaponOwner,selected,PhysicalSlashUseBaseKind(weaponOwner, selected))));
+        var baseEffectiveKind = CardLegality.SelectNativeSlashKind(new(weaponOwner, selected, FuleSelectedSlashKind(weaponOwner, selected, JuewuSelectedSlashKind(weaponOwner, selected, SiruiSelectedSlashKind(weaponOwner,selected,PhysicalSlashUseBaseKind(weaponOwner, selected)))), null));
         var effectiveKind = requestedEffectiveKind ?? baseEffectiveKind;
         var usesZhuqueFan = IsZhuqueFanConversion(
             weaponOwner,
@@ -8749,7 +8762,7 @@ public sealed partial class GameEngine
         CharacterState target) =>
         CanUseQinglongCrescentBladeTarget(source, target)
             ? GetSlashUseCards(source).Where(card =>
-                GetSlashUseVariants(source, PhysicalSlashUseBaseKind(source, card)).Concat(SiruiPhysicalSlashVariants(source,card).Concat(JuewuPhysicalSlashVariants(source,card)).Concat(FulePhysicalSlashVariants(source, card).Concat(MoGuifuPhysicalSlashVariants(source, card)))).DistinctBy(v=>v.EffectiveKind)
+                GetSlashUseVariants(source, PhysicalSlashUseBaseKind(source, card)).Concat(SiruiPhysicalSlashVariants(source,card).Concat(JuewuPhysicalSlashVariants(source,card)).Concat(FulePhysicalSlashVariants(source, card).Concat(CardLegality.NativeSlashVariants(new(source, card))))).DistinctBy(v=>v.EffectiveKind)
                     .Any(variant => CanUseQinglongCrescentBladeTarget(
                         source, target, variant.EffectiveKind,SuitColor(EffectiveSuit(source,card)),allowAnyColor:false,physicalSuit:EffectiveSuit(source,card),effectiveRank:SpecificSlashRank(source,card,variant.EffectiveKind),physicalCardIds:[card.Id]))).ToArray()
             : [];
@@ -8786,7 +8799,7 @@ public sealed partial class GameEngine
         SuspendFactionRequestForQinglongChoice(attack);
         var slashes = GetQinglongCrescentBladeSlashCards(source, target);
         if (slashes.Count == 0 && !CanRequestQinglongCrescentBladeFactionSlash(pending) &&
-            !TieredRoundZeroForcedSlashRules(source, target, true).Any() &&
+            !TieredRoundZeroForcedSlashRules(source, target, true).Any() && !HasProspectiveMouXqQinglong(source,target,attack) &&
             !ChainedStateBasicForcedSlashRules(source, target, true).Any() &&
             !DrawFundedDistinctBasicForcedSlashRules(source, target, true).Any() && !HasRequestedDeckBasicSource(source, CardKind.Slash) && !HasSiruiForcedSlash(source,target,pending) && !(HasWeijieForcedSlash(source, target, pending) || (HasZonghuForcedSlash(source, target, pending) || HasHuanpeiForcedSlash(source, target, pending))) &&
             KenshangQinglongSlashChoices(pending).Count == 0 && TousuiQinglongSlashChoices(pending).Count == 0)
@@ -8810,7 +8823,7 @@ public sealed partial class GameEngine
         var target = _players[attack.TargetSeat];
         return slashes.SelectMany(card =>
             new[] { PhysicalSlashUseBaseKind(source, card) }
-                .Concat(SiruiPhysicalSlashVariants(source, card).Concat(JuewuPhysicalSlashVariants(source, card)).Concat(FulePhysicalSlashVariants(source, card).Concat(MoGuifuPhysicalSlashVariants(source, card))).Select(variant => variant.EffectiveKind))
+                .Concat(SiruiPhysicalSlashVariants(source, card).Concat(JuewuPhysicalSlashVariants(source, card)).Concat(FulePhysicalSlashVariants(source, card).Concat(CardLegality.NativeSlashVariants(new(source, card)))).Select(variant => variant.EffectiveKind))
                 .Distinct()
                 .SelectMany(followupKind =>
                 {
@@ -8903,6 +8916,7 @@ public sealed partial class GameEngine
 
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
+        if(selected.Parameters.GetValueOrDefault("action")=="mou-xiao-qiao-forced-slash"){BeginMouXqForcedSlash(selected);return;}
         if (TryBeginTousuiQinglongSlash(pending, selected)) return;
         if (TryBeginKenshangQinglongSlash(pending, selected)) return;
         if (TryResolveRoundOnceCardlessForcedSlash(selected, false)) return;
@@ -8924,7 +8938,7 @@ public sealed partial class GameEngine
             slash = GetQinglongCrescentBladeSlashCards(source, target)
                 .SingleOrDefault(card => card.Id == selected.Cards[0]) ??
                 throw new InvalidOperationException("The selected Qinglong Crescent Blade Slash is no longer available.");
-            effectiveSlashKind = MoGuifuSelectedSlashKind(source, slash, JuewuSelectedSlashKind(source, slash, SiruiSelectedSlashKind(source,slash,PhysicalSlashUseBaseKind(source, slash),TryReadConversionSource(selected.Parameters,out var siruiSelectedSource)?siruiSelectedSource:null), siruiSelectedSource), siruiSelectedSource);
+            effectiveSlashKind = CardLegality.SelectNativeSlashKind(new(source, slash, FuleSelectedSlashKind(source, slash, JuewuSelectedSlashKind(source, slash, SiruiSelectedSlashKind(source,slash,PhysicalSlashUseBaseKind(source, slash),TryReadConversionSource(selected.Parameters,out var siruiSelectedSource)?siruiSelectedSource:null), siruiSelectedSource), siruiSelectedSource), siruiSelectedSource));
             if (!CanUseQinglongCrescentBladeTarget(source, target, effectiveSlashKind, SuitColor(EffectiveSuit(source,slash)), false, EffectiveSuit(source,slash), SpecificSlashRank(source,slash,effectiveSlashKind ?? CardKind.Slash),[slash.Id]))
                 throw new InvalidOperationException(
                     "The selected Qinglong Crescent Blade Slash kind is prohibited for its target.");
@@ -10730,6 +10744,8 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (useSlash && decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("response") == "mou-xiao-qiao-forced-slash") is { } jueyanForced)
+        { BeginMouXqForcedSlash(jueyanForced); return; }
         if (useSlash && decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("response") == "round-once-cardless-forced-slash") is { } roundForced)
         { TryResolveRoundOnceCardlessForcedSlash(roundForced, false); return; }
         if (useSlash && decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("response") == "tiered-round-zero-forced-slash") is { } zeroForced)
@@ -10740,7 +10756,7 @@ public sealed partial class GameEngine
         if (selectedSlash is not null)
         {
             CaptureAiCardResponseChoice(decision, selectedSlash,
-                MoGuifuAiSlashKind(decision, selectedSlash, PhysicalSlashUseBaseKind(owner, selectedSlash)));
+                CardLegality.SelectAiNativeSlashKind(new(decision, selectedSlash, FuleForcedAiSlashKind(decision, selectedSlash, PhysicalSlashUseBaseKind(owner, selectedSlash)))));
             ResolveBorrowedSwordSlashChoice(pending, selectedSlash);
         }
         else if (useSlash && GetZhangbaSlashPairs(owner).FirstOrDefault() is { } pair)
@@ -10885,6 +10901,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A human Nullification prompt cannot be resolved as AI.");
         }
 
+        if (TryMouXqJueyanAiResponse(CardKind.Nullification)) return;
         if (TryResolveTieredRoundZeroAiCounterspell()) return;
         var view = CreateSnapshot(responder.Seat);
         var (cardId, thought) = _aiBrains[responder.Seat].ChooseNullification(
@@ -11219,6 +11236,7 @@ public sealed partial class GameEngine
     private void ResolvePendingAiDodge()
     {
         if (TryResolveRoundOnceCardlessAiDodge()) return;
+        if (TryMouXqJueyanAiResponse(CardKind.Dodge)) return;
         if (TryResolveTieredRoundZeroAiDodge()) return;
         var attack = ActiveCardAttack ??
             throw new InvalidOperationException("AI Dodge continuation has no pending Slash.");
@@ -13046,7 +13064,7 @@ public sealed partial class GameEngine
         if (responder.IsHuman)
         {
             if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || (HasTieredRoundZeroDyingResponse(responder) || HasHuanpeiDyingResponse(responder)) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach) || HasWeijieRequiredBasic(responder, CardKind.Peach))
+                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || (HasTieredRoundZeroDyingResponse(responder) || HasMouXqJueyanDyingResponse(responder) || HasHuanpeiDyingResponse(responder)) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach) || HasWeijieRequiredBasic(responder, CardKind.Peach))
             {
                 RequestHumanDyingResponse(responder, peaches, alcohols);
                 return;
@@ -13089,6 +13107,7 @@ public sealed partial class GameEngine
         if (!skipRequestedDeckBasic && HasRequestedDeckBasicSource(responder, CardKind.Peach))
         { RequestHumanDyingResponse(responder, peaches, alcohols); AdvanceRulesAndPublishState(); return; }
         if (TryResolveDrawFundedDistinctBasicAiDying()) return;
+        if (TryMouXqJueyanAiResponse(CardKind.Peach, true) || TryMouXqJueyanAiResponse(CardKind.Alcohol, true)) return;
         if (TryResolveTieredRoundZeroAiDying()) return;
         var view = CreateSnapshot(responder.Seat);
         if (peaches.Length == 0 && CanUsePeachToRescue(responder.Seat, dying.VictimSeat) &&
@@ -13156,7 +13175,7 @@ public sealed partial class GameEngine
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
         var programCandidates = GetDyingProgramCandidates(responder, dying);
         if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || (HasTieredRoundZeroDyingResponse(responder) || HasHuanpeiDyingResponse(responder)) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach) || HasWeijieRequiredBasic(responder, CardKind.Peach))
+            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || ExtendedViewAsResponseChoices(responder, CardKind.Alcohol).Count > 0 || (HasTieredRoundZeroDyingResponse(responder) || HasMouXqJueyanDyingResponse(responder) || HasHuanpeiDyingResponse(responder)) || HasDrawFundedDistinctBasicDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach) || HasWeijieRequiredBasic(responder, CardKind.Peach))
         {
             RequestHumanDyingResponse(responder, peaches, alcohols);
         }
@@ -13207,6 +13226,8 @@ public sealed partial class GameEngine
         choices.AddRange(ExtendedViewAsResponseChoices(responder, CardKind.Peach));
         choices.AddRange(ExtendedViewAsResponseChoices(responder, CardKind.Alcohol));
         choices.AddRange(TieredRoundZeroResponseChoices(responder, CardKind.Peach, true));
+        choices.AddRange(MouXqJueyanResponseChoices(responder, CardKind.Peach, true));
+        choices.AddRange(MouXqJueyanResponseChoices(responder, CardKind.Alcohol, true));
         choices.AddRange(TieredRoundZeroResponseChoices(responder, CardKind.Alcohol, true));
         foreach (var candidate in programCandidates)
         {
@@ -13891,7 +13912,7 @@ public sealed partial class GameEngine
 
         if (TryBeginExtraCardEffectRound(group.ResolutionId)) return;
 
-        if (!IsTianChouShandaoUse(group.ResolutionId) && !SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card) && !SkipDiouFinishedMovement(group.ResolutionId, group.Card) &&
+        if (!IsTianChouShandaoUse(group.ResolutionId) && !SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card) && !SkipDiouFinishedMovement(group.ResolutionId, group.Card) && !SkipMouXqJueyanFinishedMovement(group.ResolutionId, group.Card) &&
             !IsProgramVirtualOrdinaryTrickUse(group.ResolutionId) &&
             !IsClaimedUseCardEntity(group.ResolutionId, group.Card.Id) && !IsSiruiOutsideGeneralWeaponMaterial(group.ResolutionId,group.Card.Id))
         {
@@ -14103,9 +14124,10 @@ public sealed partial class GameEngine
             actionContext = CaptureFactionAction(new CardActionContext(actionContext!.ActionId, actionContext.ParentActionId,
                 CardActionType.Use, sourceSeat, sourceSeat, null, null, null, aHuiNanJueman is null && qinLangXianying is null && tianChouShandao is null && virtualOrdinaryTrickOrigin is null && chosenAssault is null && heJinMouzhu is null ? CardKind.Duel : effectiveCardKind, targets, [], [], designated,
                 effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: false));
+        if (actionContext is not null) actionContext = PrepareMouDanchiAction(actionContext);
         if (actionContext is not null) actionContext = PrepareHuanpeiAction(PrepareZonghuAction(PrepareWeijieAction(actionContext, weijieOrigin), zonghuOrigin), huanpeiOrigin);
         if (actionContext is not null) actionContext = PrepareWuLuKangKegouSlashAction(PrepareZongluanSlashAction(PrepareYouqueSlashAction(PrepareXieweiAction(actionContext))));
-        if (actionContext is not null) actionContext = PrepareMouWenChouAction(PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareDiouAction(actionContext))));
+        if (actionContext is not null) actionContext = PrepareMouWenChouAction(PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareMouXqJueyanAction(PrepareDiouAction(actionContext)))));
         var colorFireAttack = FreezeColorFireAttackPolicy(sourceSeat, actionContext);
         var firstUseDistance = actionContext is not null && HasFirstActualPlayUseDistance(_players[sourceSeat]);
         if (actionContext is not null) RecordActualPlayPhaseUse(actionContext);
@@ -16386,6 +16408,8 @@ public sealed partial class GameEngine
     {
         if (_pendingTurnDelayedEffects.HasFlag(DelayedTurnEffects.SkipDiscardPhase))
         {
+            if (_programPipelineHooks.TryBeginPhaseSkipped(new(current.Seat, _turnNumber, SkillProgramTurnPhase.Discard,
+                    (int)_pendingTurnDelayedEffects))) return;
             AddLog("DelayedCardEffect", $"{current.Name} 跳过弃牌阶段。", current.Seat);
             EndTurn();
             return;
@@ -17125,7 +17149,7 @@ public sealed partial class GameEngine
         _cardZones.CardsAt(CardLocation.Judgment(seat));
 
     private bool HasBagua(CharacterState player) =>
-        IsProgramNativeResponseAllowed(player, CardKind.Dodge, []) && !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation) || MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.BaguaFormation ||
+        IsProgramNativeResponseAllowed(player, CardKind.Dodge, []) && !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.BaguaFormation ||
         HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.BaguaFormation) &&
         !GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor));
 
@@ -17134,12 +17158,12 @@ public sealed partial class GameEngine
             item.Policy.CardKinds.Contains(CardKind.BaguaFormation) && item.Policy.Condition.ContainsEquipmentPresence());
 
     private bool HasTengjia(CharacterState player) =>
-        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia) || MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.Tengjia ||
+        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.Tengjia ||
         HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.Tengjia) &&
         !GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor));
 
     private bool HasSilverLion(CharacterState player) =>
-        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.SilverLion) || MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.SilverLion);
+        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.SilverLion) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.SilverLion);
 
     private bool CanRequestFactionDefense(CharacterState owner, CardAttackHandle attack) =>
         !attack.FactionDefenseAttempted &&
@@ -17219,7 +17243,7 @@ public sealed partial class GameEngine
 
     private bool HasBlackSlashBarrier(CharacterState player) =>
         GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).BlocksBlackSlash) ||
-        !IsArmorIneffectiveForTurn(player) && MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.RenwangShield ||
+        !IsArmorIneffectiveForTurn(player) && ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.RenwangShield ||
         !HasArmor(player) && !IsArmorIneffectiveForTurn(player) && HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.RenwangShield);
 
     private bool HasArmor(CharacterState player) =>
@@ -17897,7 +17921,7 @@ public sealed partial class GameEngine
         }
 
         IReadOnlyList<Card> groupProcessing = ActiveGroupCard is { } nativeGroup &&
-            DiouNativeAncestorProcessing(nativeGroup.ResolutionId) is { } diouGroupAncestors
+            (MouXqNativeAncestorProcessing(nativeGroup.ResolutionId) ?? DiouNativeAncestorProcessing(nativeGroup.ResolutionId)) is { } diouGroupAncestors
             ? processing.Where(card => !diouGroupAncestors.Contains(card.Id)).ToArray() : processing;
         if (ActiveGroupCard is { Effect: GroupCardEffect.Recovery } recoveryGroup &&
             (IsZeroEntityUse(recoveryGroup.ResolutionId) || IsClaimedUseCardEntity(recoveryGroup.ResolutionId, recoveryGroup.Card.Id) ? groupProcessing.Count != 0 :
@@ -17922,7 +17946,7 @@ public sealed partial class GameEngine
                 !IsClaimedUseCardEntity(fireAttack.Id, fireAttack.CardId) &&
                 (!IsHellDestroyedSoulMaterial(fireAttack.Id, fireAttack.CardId) && !(IsHuiyunOutsideGeneralWeaponMaterial(fireAttack.Id, fireAttack.CardId) || IsSiruiOutsideGeneralWeaponMaterial(fireAttack.Id, fireAttack.CardId)) && !(IsGuanduDestroyedChariotMaterial(fireAttack.Id, fireAttack.CardId) || IsDiouCarrierDestroyedMaterial(fireAttack.Id, fireAttack.CardId)));
             var expectedProcessingCount = retainedFireAttack ? 1 : 0;
-            IReadOnlyList<Card> fireProcessing = DiouNativeAncestorProcessing(fireAttack.Id) is { } diouFireAncestors
+            IReadOnlyList<Card> fireProcessing = (MouXqNativeAncestorProcessing(fireAttack.Id) ?? DiouNativeAncestorProcessing(fireAttack.Id)) is { } diouFireAncestors
                 ? processing.Where(card => !diouFireAncestors.Contains(card.Id)).ToArray() : processing;
             if (fireProcessing.Count != expectedProcessingCount ||
                 retainedFireAttack && fireProcessing.All(card => card.Id != fireAttack.CardId) ||
@@ -17992,7 +18016,7 @@ public sealed partial class GameEngine
             var expectedPhysicalCardIds = nullification.DelayedReturn is not null || IsZeroEntityUse(nullification.ParentFrameId) || IsNativeSlashTargetDuelZeroUse(nullification.ParentFrameId) || IsProgramVirtualOrdinaryTrickUse(nullification.ParentFrameId) ? Array.Empty<int>() : IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId) || IsConditionalDiscardDuelUse(nullification.ParentFrameId) || IsFriendRecastDuelUse(nullification.ParentFrameId) || IsZhenyingDuelUse(nullification.ParentFrameId) || IsHeJinMouzhuDuelUse(nullification.ParentFrameId) || IsWuAnGuoLiyongDuelUse(nullification.ParentFrameId) || IsJueshengDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
                 ? physicalCardIds
                 : [nullification.EffectCardId];
-            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(nullification.ParentFrameId) ?? DiouNativeAncestorProcessing(nullification.ParentFrameId) ?? MouLiuChengNativeAncestorProcessing(nullification.ParentFrameId);
+            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(nullification.ParentFrameId) ?? (MouXqNativeAncestorProcessing(nullification.ParentFrameId) ?? DiouNativeAncestorProcessing(nullification.ParentFrameId)) ?? MouLiuChengNativeAncestorProcessing(nullification.ParentFrameId) ?? MouDanchiAncestorProcessing(nullification.ParentFrameId);
             expectedPhysicalCardIds = expectedPhysicalCardIds.Where(id => !IsClaimedUseCardEntity(nullification.ParentFrameId,id) &&
                 (!IsHellDestroyedSoulMaterial(nullification.ParentFrameId, id) && !(IsHuiyunOutsideGeneralWeaponMaterial(nullification.ParentFrameId, id) || (IsSiruiOutsideGeneralWeaponMaterial(nullification.ParentFrameId, id) || IsMouLixianRemovedMaterial(nullification.ParentFrameId, id))) && !(IsGuanduDestroyedChariotMaterial(nullification.ParentFrameId, id) || IsDiouCarrierDestroyedMaterial(nullification.ParentFrameId, id)))).ToArray();
             if (!processing.Select(card => card.Id).Order().SequenceEqual(expectedPhysicalCardIds.Concat(rescueCosts).Concat(lixianParentProcessing ?? []).Order()))
@@ -18054,7 +18078,7 @@ public sealed partial class GameEngine
         {
             var target = _players[targetCardSelection.TargetSeat];
             var expectedSlots = Enumerable.Range(0, targetCardSelection.CandidateSlots.Count).ToArray();
-            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(targetCardSelection.ParentFrameId) ?? DiouNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? MouLiuChengNativeAncestorProcessing(targetCardSelection.ParentFrameId);
+            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(targetCardSelection.ParentFrameId) ?? (MouXqNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? DiouNativeAncestorProcessing(targetCardSelection.ParentFrameId)) ?? MouLiuChengNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? MouDanchiAncestorProcessing(targetCardSelection.ParentFrameId);
             var expectedSelectionProcessing = IsZeroEntityProcessingParent(targetCardSelection.ParentFrameId, targetCardSelection.EffectCardId) ||
                 targetCardSelection.EffectCardId == 0 && IsProgramVirtualOrdinaryTrickUse(targetCardSelection.ParentFrameId) ||
                 IsClaimedUseCardEntity(targetCardSelection.ParentFrameId, targetCardSelection.EffectCardId) ||
@@ -18209,6 +18233,7 @@ public sealed partial class GameEngine
             paidQinglongPaused |= HasWeijieQinglongPaymentRide(qinglongAttack);
             paidQinglongPaused |= HasZonghuQinglongPaymentRide(qinglongAttack);
             paidQinglongPaused |= HasHuanpeiQinglongPaymentRide(qinglongAttack);
+            paidQinglongPaused |= HasMouXqJueyanResponseContinuation(qinglongAttack.ResolutionId);
             if (!paidQinglongPaused)
             {
                 var currentSlashCards = GetQinglongCrescentBladeSlashCards(source, target);
@@ -18231,7 +18256,7 @@ public sealed partial class GameEngine
                     !decision.ValidCardIds.SequenceEqual(currentCandidates) ||
                     !decision.ValidTargetSeats.SequenceEqual([target.Seat]) ||
                     decision.Choices.Count != physicalSlashChoices.Count + 1 + (canRequestFactionSlash ? 1 : 0) +
-                        TieredRoundZeroForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true).Count +
+                        TieredRoundZeroForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true).Count + MouXqForcedSlashChoices(source,target,qinglongAttack.ResolutionId,true).Count +
                         RoundOnceCardlessForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true).Count +
                         KenshangQinglongSlashChoices(qinglong).Count + TousuiQinglongSlashChoices(qinglong).Count ||
                     !AssistedChoicesEqual(decision.Choices.Where(c => c.Parameters.GetValueOrDefault("action") == "kenshang-request-open").ToArray(),
@@ -18704,7 +18729,7 @@ public sealed partial class GameEngine
             {
                 if ((coreTop is not ResponseWindowFrame response ||
                     response.ParentFrameId != pendingAttack.ResolutionId) &&
-                    !HasProgramDodgeResponseContinuation(pendingAttack))
+                    !HasProgramDodgeResponseContinuation(pendingAttack) && !HasMouXqJueyanResponseContinuation(pendingAttack.ResolutionId))
                 {
                     throw new InvalidOperationException(
                         "An active Slash must retain its response window as the stack top.");
@@ -19377,14 +19402,14 @@ public sealed partial class GameEngine
         var awaitingNullificationProgram = _resolutionStack
             .OfType<ProgramCardTriggerWindowFrame>()
             .Any(frame => IsNullificationResponseProgramWindow(frame) &&
-                ActiveNullificationWindow?.Id == frame.ParentFrameId);
+                ActiveNullificationWindow?.Id == frame.ParentFrameId) || ActiveNullificationWindow is { } jueyanNullification && HasMouXqJueyanResponseContinuation(jueyanNullification.Id);
         var awaitingNullificationPayment = ActiveNullificationWindow is { } paymentWindow &&
             (TryGetPolicyCounterspellPaymentRide(paymentWindow, out _) || HasWoLongFengChuUseObserver(paymentWindow.ParentFrameId));
         if (!HasLeChengyanBorrowedPrompt() && !HasExactWenhePoisonResponseContinuation() && !HasHulaoAllianceFeastPrompt() && !HasShenwuTrickPrompt() && !HasHellSoulPrompt() && !HasWenheChaosPrompt() && !HasWumiaoFloodDiscardPrompt() && !HasDragonBoatDiscardPrompt() && !_resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() && CurrentDamageAttempt is null &&
             ActiveNullificationWindow is null &&
             ActiveJudgment is null &&
             _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
-                .All(frame => !IsExactFinalizedDelayedPlacementWindow(frame) &&
+                .All(frame => !IsExactFinalizedDelayedPlacementWindow(frame) && !HasMouDanchiSuspendedCompletedParent(frame) &&
                     !(LifecycleCardUse(frame.ParentFrameId) is { } diouParent && (IsDiouSuspendedCompletedAttack(diouParent, frame.Id) || IsMouLiuChengSuspendedCompletedAttack(diouParent, frame.Id))) && frame.Continuation is not
                     (ProgramCardContinuation.DelayedCard or ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.BeforeSimpleTargetEffects or ProgramCardContinuation.FinalizedTrick or ProgramCardContinuation.FinalizedSimpleCard or
                      ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.CommittedSimpleCard or
@@ -19423,7 +19448,7 @@ public sealed partial class GameEngine
             ActiveCardAttack is not null &&
             awaitingHumanResponse == awaitingAiResponse &&
             !HasIdentityAppearanceAttack(ActiveCardAttack) &&
-            !HasProgramDodgeResponseContinuation(ActiveCardAttack) &&
+            !HasProgramDodgeResponseContinuation(ActiveCardAttack) && !HasMouXqJueyanResponseContinuation(ActiveCardAttack.ResolutionId) &&
             !HasActualUseTargetObserver(ActiveCardAttack.ResolutionId) &&
             !HasLvKuangLvXiangCardObserver(ActiveCardAttack.ResolutionId) &&
             !HasXinPiCardObserver(ActiveCardAttack.ResolutionId) &&
@@ -19489,7 +19514,7 @@ public sealed partial class GameEngine
             borrowedAction.ParentActionId == LifecycleCardUse(diouBorrowed.ResolutionId)?.Action?.ActionId &&
             borrowedAction.ProviderSeat == diouBorrowed.WeaponOwnerSeat && borrowedChild.SourceSeat == borrowedAction.ActorSeat &&
             borrowedAction.EffectiveKind == attack.EffectiveCardKind &&
-            DiouNativeAncestorProcessing(diouBorrowed.ResolutionId) is { } diouBorrowedAncestors)
+            (MouXqNativeAncestorProcessing(diouBorrowed.ResolutionId) ?? DiouNativeAncestorProcessing(diouBorrowed.ResolutionId)) is { } diouBorrowedAncestors)
             processing = processing.Where(card => !diouBorrowedAncestors.Contains(card.Id)).ToArray();
         var qinglongAncestors = QinglongAncestorProcessing(attack.ResolutionId);
         processing = processing.Where(card => !qinglongAncestors.Contains(card.Id)).ToArray();
@@ -19548,7 +19573,7 @@ public sealed partial class GameEngine
         if (IsRoundOnceCardlessProgramRequestAttackConsistent(attack, processing)) return true;
         if (IsWeijieProgramRequestAttackConsistent(attack, processing)) return true;
         if (IsZonghuProgramRequestAttackConsistent(attack, processing)) return true;
-        if (IsMouWenChouDuelAttackConsistent(attack, processing) || IsMouXuHuangDuelAttackConsistent(attack, processing) || IsMouLiuChengAttackConsistent(attack, processing) || IsDiouAttackConsistent(attack, processing) || IsHuanpeiAttackConsistent(attack, processing)) return true;
+        if (IsMouWenChouDuelAttackConsistent(attack, processing) || IsMouXuHuangDuelAttackConsistent(attack, processing) || (IsMouDanchiAttackConsistent(attack, processing) || IsMouLiuChengAttackConsistent(attack, processing)) || IsDiouAttackConsistent(attack, processing) || IsMouXqJueyanAttackConsistent(attack, processing) || IsHuanpeiAttackConsistent(attack, processing)) return true;
         if (IsSoleTargetQuarantinedAttackConsistent(attack, processing)) return true;
         if (IsAHuiNanJuemanAttackConsistent(attack, processing) || IsQinLangXianyingAttackConsistent(attack, processing) || IsQinLangXianyingBorrowedAttackConsistent(attack, processing) || IsTianChouShandaoAttackConsistent(attack, processing) || IsChosenAssaultAttackConsistent(attack, processing) || IsMouZhijueZeroAttackConsistent(attack, processing) || IsMouZhijueBorrowedAttackConsistent(attack, processing) || IsPaidZeroMaterialAttackConsistent(attack, processing) || IsTieredRoundZeroBorrowedAttackConsistent(attack, processing)) return true;
         if (IsChainedStateBasicAttackConsistent(attack, processing)) return true;

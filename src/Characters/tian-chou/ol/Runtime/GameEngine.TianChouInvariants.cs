@@ -34,8 +34,9 @@ public sealed partial class GameEngine
                 _cardMovements.Where(m => m.Sequence > t.Before && m.Sequence <= t.After).Any(m => !IsTianChouTopMovement(t, m))) return false;
         }
         var processed = r.Tops.Select(t => t.Index).Concat(skipped.Select(t => t.Index)).Order().ToArray();
-        var processedCount = r.Cursor + (r.Stage == TianChouShandaoStage.TopChildren ? 1 : 0);
-        if (!processed.SequenceEqual(Enumerable.Range(0, processedCount)) || r.Stage == TianChouShandaoStage.TopChildren && (r.Tops.Count == 0 || r.Tops[^1].Index != r.Cursor)) return false;
+        var revealing=IsPublicHandRevealProducerSuspended(f.Id,"shandao-hand-top")&&f.PublicHandRevealSelection is{ReturnKey:"shandao-hand-top"}selectedCard&&selectedCard.InstructionIndex==f.InstructionIndex&&r.Stage==TianChouShandaoStage.TopChildren;
+        var processedCount = r.Cursor + (r.Stage == TianChouShandaoStage.TopChildren&&!revealing ? 1 : 0);
+        if (!processed.SequenceEqual(Enumerable.Range(0, processedCount)) || r.Stage == TianChouShandaoStage.TopChildren && !revealing && (r.Tops.Count == 0 || r.Tops[^1].Index != r.Cursor)) return false;
         var issued = ProgramEventHistory<TianChouShandaoNativeIssuedEvent>().Where(e => e.FrameId == f.Id).ToArray();
         var returned = ProgramEventHistory<TianChouShandaoNativeReturnedEvent>().Where(e => e.FrameId == f.Id).ToArray();
         var noTargets = ProgramEventHistory<TianChouShandaoTrickSkippedEvent>().Where(e => e.FrameId == f.Id).ToArray();

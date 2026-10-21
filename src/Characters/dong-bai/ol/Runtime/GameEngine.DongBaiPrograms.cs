@@ -20,12 +20,8 @@ public sealed partial class GameEngine
             { GiftFrom = dynamic ? from : null };
         ReplaceRuntimeTop(f with { LianZhu = r, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id, [ToSnapshot(card)]));
-        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(LianZhuReason(r.Stage)), (_, records) =>
-        {
-            var active = GetActiveProgramFrame(f.Id); var paid = r with { GiftAfter = records.Single().Sequence, After = records.Single().Sequence };
-            ReplaceRuntimeTop(active with { LianZhu = paid }); IssueLianZhuSegment(active.Id, paid, f.OwnerSeat);
-        });
-        AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
+        if(TryBeginPublicHandRevealWindow(f.Id,"lianzhu-gift-hand"))return SkillProgramStepOutcome.AwaitChild;
+        ContinueLianzhuAfterPublicReveal(GetActiveProgramFrame(f.Id));return SkillProgramStepOutcome.AwaitChild;
     }
     private void IssueLianZhuSegment(long id, LianZhuReceipt r, int actor) => AdvanceEventRulesAndQueueFact(new LianZhuSegmentPaidEvent(id, r.Source, r.GameplayHash, r.Stage, actor, r.Before, r.After, r.Count));
     private IReadOnlyList<PromptChoice> LianZhuDiscardOptions(ProgramSkillFrame f) => BuildOwnedCardPaymentChoices(f.Id, f.LianZhu!.RecipientSeat, f.LianZhu.RecipientSeat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard, canSelect: (_, c) => !f.LianZhu.Selected.Contains(c.Id));
@@ -92,6 +88,12 @@ public sealed partial class GameEngine
     private bool IsLianZhuMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) => f.LianZhu is { Stage: LianZhuStage.GiftChildren or LianZhuStage.DiscardChildren or LianZhuStage.DrawChildren } && effect?.Op == SkillProgramEffectOp.RevealHandGiftAndResolveRecipientChoice && CanContinueLianZhu(f) && p.BeforeCount == 0 && p.CoverageResultBind is null && p.SubjectSeat == (f.LianZhu!.Stage == LianZhuStage.DiscardChildren ? f.LianZhu.RecipientSeat : f.OwnerSeat);
     private void RequireLianZhu(ProgramSkillFrame f)
     {
+        if (f.LianZhu is { Stage:LianZhuStage.GiftChildren } revealing && IsPublicHandRevealProducerSuspended(f.Id,"lianzhu-gift-hand") &&
+            revealing.Source==LianZhuSource(f)&&revealing.GameplayHash==f.GameplayHash&&revealing.InstructionIndex==f.InstructionIndex&&
+            f.SelectedCardIds.SequenceEqual([revealing.GiftCardId])&&f.SelectedTargetSeats.SequenceEqual([revealing.RecipientSeat])&&
+            revealing.GiftBefore==revealing.GiftAfter&&revealing.Before==revealing.After&&
+            ProgramEventHistory<CardsRevealedEvent>().Any(e=>e.ResolutionId==f.Id&&e.Cards.Select(c=>c.Id).SequenceEqual([revealing.GiftCardId]))&&
+            !ProgramEventHistory<LianZhuSegmentPaidEvent>().Any(e=>e.FrameId==f.Id))return;
         if (f.LianZhu is not { } r || r.Source != LianZhuSource(f) || r.GameplayHash != f.GameplayHash || r.InstructionIndex != f.InstructionIndex || r.TurnNumber != _turnNumber || r.TurnOwnerSeat != f.OwnerSeat || f.SelectedCardIds is not [var id] || id != r.GiftCardId || f.SelectedTargetSeats is not [var seat] || seat != r.RecipientSeat || r.GiftAfter <= r.GiftBefore || r.Before > r.After || r.After > _movementSequence || r.Selected.Distinct().Count() != r.Selected.Count || r.Selected.Count > LianZhuChoiceAmount(r)) throw new InvalidOperationException("LianZhu lost its frozen source, recipient or exact gift invoice.");
         RequireLianZhuChoiceAmount(f, r);
         if (_cardMovements.Count(m => m.Sequence > r.GiftBefore && m.Sequence <= r.GiftAfter && m.CardId == r.GiftCardId && m.From == (r.GiftFrom ?? CardLocation.Hand(f.OwnerSeat)) && m.To == CardLocation.Hand(r.RecipientSeat) && m.Reason.Value == LianZhuReason(LianZhuStage.GiftChildren)) != 1) throw new InvalidOperationException("LianZhu gift was not paid exactly once.");
@@ -116,4 +118,19 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class DongBaiProgramCapability(GameEngine engine) : IDongBaiProgramHost
     { public SkillProgramStepOutcome BeginLianZhu(ProgramSkillFrame f, int recipient) => engine.BeginLianZhu(f, recipient); }
+    [PublicHandRevealReturn("lianzhu-gift-hand")]
+    private void ContinueLianzhuAfterPublicReveal(ProgramSkillFrame f)
+    {
+        var r=f.LianZhu??throw new InvalidOperationException("LianZhu lost its original selected real gift.");
+        var id=f.SelectedCardIds.Single();var recipient=r.RecipientSeat;
+        if(!_players[recipient].IsAlive||_cardZones.GetLocation(id)!=(r.GiftFrom??CardLocation.Hand(f.OwnerSeat))){FinishLianZhu(f);return;}
+        var before=_movementSequence;r=r with{GiftBefore=before,GiftAfter=before,Before=before,After=before};ReplaceRuntimeTop(f=f with{LianZhu=r});
+        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(LianZhuReason(r.Stage)), (_, records) =>
+        {
+            var active = GetActiveProgramFrame(f.Id); var paid = r with { GiftAfter = records.Single().Sequence, After = records.Single().Sequence };
+            ReplaceRuntimeTop(active with { LianZhu = paid }); IssueLianZhuSegment(active.Id, paid, f.OwnerSeat);
+        });
+        AdvanceRuntimeProgram(f.Id); return;
+    }
+
 }

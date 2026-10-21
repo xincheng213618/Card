@@ -119,13 +119,8 @@ public sealed partial class GameEngine
                 ShownKind = card.Kind, ShownSuit = suit, Before = _movementSequence, After = _movementSequence } });
             AdvanceEventRulesAndQueueFact(new MouZuifengShownEvent(f.Id, f.OwnerSeat, r.TargetSeat, card.Id, card.Kind, suit, same));
             AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id, Array.AsReadOnly(new[] { ToSnapshot(card) })));
-            if (same && _players[r.TargetSeat].IsAlive && _winner == Winner.None)
-            {
-                ReplaceRuntimeTop(f = f with { MouZuifeng = f.MouZuifeng! with { FireIssued = true } });
-                AdvanceEventRulesAndQueueFact(new MouZuifengFireIssuedEvent(f.Id, f.OwnerSeat, r.TargetSeat, card.Id));
-                BeginProgramSkillDamage(f, r.TargetSeat, 1, nature: DamageNature.Fire); return;
-            }
-            ContinueMouZuifeng(f.Id); return;
+            if(TryBeginPublicHandRevealWindow(f.Id,"zuifeng-selected-hand"))return;
+            ContinueZuifengAfterPublicReveal(GetActiveProgramFrame(f.Id));return;
         }
         if (branch is "alcohol" or "decline")
         {
@@ -222,4 +217,18 @@ public sealed partial class GameEngine
         }
         return p.Choices.First(c => c.Parameters["branch"] != "cancel");
     }
+    [PublicHandRevealReturn("zuifeng-selected-hand")]
+    private void ContinueZuifengAfterPublicReveal(ProgramSkillFrame f)
+    {
+        var r=f.MouZuifeng??throw new InvalidOperationException("Zuifeng lost its paid cost and shown entity.");
+        var same=r.ShownSuit==r.CostSuit;var card=GetAdvancedCard(r.ShownId!.Value);
+            if (same && _players[r.TargetSeat].IsAlive && _winner == Winner.None)
+            {
+                ReplaceRuntimeTop(f = f with { MouZuifeng = f.MouZuifeng! with { FireIssued = true } });
+                AdvanceEventRulesAndQueueFact(new MouZuifengFireIssuedEvent(f.Id, f.OwnerSeat, r.TargetSeat, card.Id));
+                BeginProgramSkillDamage(f, r.TargetSeat, 1, nature: DamageNature.Fire); return;
+            }
+            ContinueMouZuifeng(f.Id); return;
+    }
+
 }

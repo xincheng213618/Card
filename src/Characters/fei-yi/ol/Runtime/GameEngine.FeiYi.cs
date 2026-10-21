@@ -63,7 +63,7 @@ public sealed partial class GameEngine
             var greater=branch=="greater";if(branch is not("greater" or "less")||!FeiYiDirectionAvailable(f.OwnerSeat,greater)||!FeiYiSourceCurrent(f))throw new InvalidOperationException("Hezhong direction was already spent.");
             AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,[ToSnapshot(GetAdvancedCard(r.RevealedCard!.Value))]));
             AdvanceEventRulesAndQueueFact(new FeiYiHezhongPaidEvent(f.Id,r.Source,r.GameplayHash,r.Turn,r.TurnOwner,r.BatchId!.Value,r.RevealedCard.Value,r.RevealedRank!.Value,greater));
-            ReplaceRuntimeTop(f=f with{FeiYi=r with{Greater=greater,Paid=true}});BeginFeiYiDraw(f,true);return;
+            ReplaceRuntimeTop(f=GetActiveProgramFrame(f.Id) with{FeiYi=r with{Greater=greater,Paid=true}});if(TryBeginPublicHandRevealWindow(f.Id,"hezhong-direction-hand"))return;BeginFeiYiDraw(GetActiveProgramFrame(f.Id),true);return;
         }
         if(branch=="finish"){PayFeiYiDiscard(f);return;}
         var id=choice.Cards.Single();var selected=branch=="pick"?r.Selected.Append(id).ToArray():r.Selected.Where(x=>x!=id).ToArray();

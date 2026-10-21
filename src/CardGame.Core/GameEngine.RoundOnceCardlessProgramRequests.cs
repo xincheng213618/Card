@@ -45,7 +45,7 @@ public sealed partial class GameEngine
    _=>[]
   };
  }
- private bool HasRoundOnceCardlessProgramSlash(CharacterState actor,IEnumerable<int> targets)=>targets.Any(target=>IsValidPlayerSeat(target)&&_players[target].IsAlive&&RoundOnceCardlessRules(actor,CardKind.Slash).Any(entry=>RoundOnceCardlessProgramTargetLegal(actor,target,entry.Source)));
+ private bool HasRoundOnceCardlessProgramSlash(CharacterState actor,IEnumerable<int> targets)=>HasMouXqProgramSlash(actor,targets)||targets.Any(target=>IsValidPlayerSeat(target)&&_players[target].IsAlive&&RoundOnceCardlessRules(actor,CardKind.Slash).Any(entry=>RoundOnceCardlessProgramTargetLegal(actor,target,entry.Source)));
  private bool RoundOnceCardlessProgramTargetLegal(CharacterState actor,int target,CardConversionSource source,bool ignoreDistance=false)=>IsValidPlayerSeat(target)&&actor.Seat!=target&&_players[target].IsAlive&&!HasBeneficiarySuitShield(actor.Seat,target,Suit.None)&&!IsCardTargetProhibited(_players[target],CardKind.Slash,Suit.None)&&CanUseSlashTarget(actor,_players[target],new(0,CardKind.Slash,Suit.None,0),source,CardKind.Slash,ignoreDistance:ignoreDistance,noEffectiveRank:true,physicalCardIds:[]);
  private IReadOnlyList<PromptChoice> RoundOnceCardlessProgramSlashChoices(ProgramSkillFrame frame,int actorSeat,IReadOnlyList<int> targets,string? resultBind=null)
  {
@@ -60,7 +60,7 @@ public sealed partial class GameEngine
   }
   return Array.AsReadOnly(result.ToArray());
  }
- private PendingDecision RoundOnceCardlessProgramNativeDecision(PendingDecision p)=>ZonghuNativeDecision(p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")==RoundOnceCardlessProgramMarker)?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>c.Parameters.GetValueOrDefault("program-action")!=RoundOnceCardlessProgramMarker).ToArray())}:p);
+ private PendingDecision RoundOnceCardlessProgramNativeDecision(PendingDecision p)=>MouXqProgramNativeDecision(ZonghuNativeDecision(p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")==RoundOnceCardlessProgramMarker)?p with{Choices=Array.AsReadOnly(p.Choices.Where(c=>c.Parameters.GetValueOrDefault("program-action")!=RoundOnceCardlessProgramMarker).ToArray())}:p));
  private bool TryResolveRoundOnceCardlessProgramSlash(PromptChoice choice,bool advance)
  {
   if(choice.Parameters.GetValueOrDefault("program-action")!=RoundOnceCardlessProgramMarker)return false;

@@ -22,7 +22,13 @@ internal enum ProgramCardLegalityStage
     SubmittedUseValidation,
     HandPhysicalBan,
     EntityPhysicalBan,
-    NativeResponseBan
+    NativeResponseBan,
+    NativeSlashAliasAllowance,
+    NativeSlashVariants,
+    NativeSlashOutputBan,
+    UnspecifiedNativeSlashBan,
+    SelectedNativeSlashKind,
+    AiNativeSlashKind
 }
 
 internal readonly record struct ProgramCardUseQuery(
@@ -44,6 +50,15 @@ internal readonly record struct ProgramSubmittedUseQuery(
 internal readonly record struct ProgramNativeResponseQuery(
     CharacterState Provider, CardKind Kind, IReadOnlyList<int> CardIds,
     CardConversionSource? Source = null, bool DyingUse = false);
+internal readonly record struct ProgramNativeSlashAliasQuery(
+    CharacterState Owner, IndexedSkillProgramInstance Instance, SkillProgramViewAs Rule,
+    CardKind RequestedKind, bool ForResponse);
+internal readonly record struct ProgramNativeSlashMaterialQuery(CharacterState Owner, Card Card);
+internal readonly record struct ProgramNativeSlashConversionQuery(
+    CharacterState Owner, Card Card, CardKind Kind, CardConversionSource? Source = null);
+internal readonly record struct ProgramSelectedNativeSlashQuery(
+    CharacterState Owner, Card Card, CardKind Fallback, CardConversionSource? Source);
+internal readonly record struct ProgramAiNativeSlashQuery(PendingDecision Decision, Card Card, CardKind Fallback);
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
 internal sealed class ProgramCardLegalityAttribute(ProgramCardLegalityStage stage, int order) : Attribute
@@ -101,6 +116,12 @@ internal sealed class ProgramCardLegalityCatalog
         ProgramCardLegalityStage.SubmittedUseValidation => typeof(Action<ProgramSubmittedUseQuery>),
         ProgramCardLegalityStage.HandPhysicalBan or ProgramCardLegalityStage.EntityPhysicalBan => typeof(Func<int, int, bool>),
         ProgramCardLegalityStage.NativeResponseBan => typeof(Func<ProgramNativeResponseQuery, bool>),
+        ProgramCardLegalityStage.NativeSlashAliasAllowance => typeof(Func<ProgramNativeSlashAliasQuery, bool>),
+        ProgramCardLegalityStage.NativeSlashVariants => typeof(Func<ProgramNativeSlashMaterialQuery, IReadOnlyList<SlashUseVariant>>),
+        ProgramCardLegalityStage.NativeSlashOutputBan or ProgramCardLegalityStage.UnspecifiedNativeSlashBan =>
+            typeof(Func<ProgramNativeSlashConversionQuery, bool>),
+        ProgramCardLegalityStage.SelectedNativeSlashKind => typeof(Func<ProgramSelectedNativeSlashQuery, CardKind>),
+        ProgramCardLegalityStage.AiNativeSlashKind => typeof(Func<ProgramAiNativeSlashQuery, CardKind>),
         _ => throw new ArgumentOutOfRangeException(nameof(stage))
     };
 }
@@ -200,6 +221,49 @@ internal sealed class ProgramCardLegality
         foreach (var callback in _callbacks[ProgramCardLegalityStage.NativeResponseBan])
             if (((Func<ProgramNativeResponseQuery, bool>)callback)(query)) return true;
         return false;
+    }
+
+    internal bool AllowsNativeSlashAlias(ProgramNativeSlashAliasQuery query)
+    {
+        foreach (var callback in _callbacks[ProgramCardLegalityStage.NativeSlashAliasAllowance])
+            if (((Func<ProgramNativeSlashAliasQuery, bool>)callback)(query)) return true;
+        return false;
+    }
+
+    internal IReadOnlyList<SlashUseVariant> NativeSlashVariants(ProgramNativeSlashMaterialQuery query)
+    {
+        var variants = new List<SlashUseVariant>();
+        foreach (var callback in _callbacks[ProgramCardLegalityStage.NativeSlashVariants])
+            variants.AddRange(((Func<ProgramNativeSlashMaterialQuery, IReadOnlyList<SlashUseVariant>>)callback)(query));
+        return Array.AsReadOnly(variants.ToArray());
+    }
+
+    internal bool IsNativeSlashOutputForbidden(ProgramNativeSlashConversionQuery query)
+    {
+        foreach (var callback in _callbacks[ProgramCardLegalityStage.NativeSlashOutputBan])
+            if (((Func<ProgramNativeSlashConversionQuery, bool>)callback)(query)) return true;
+        return false;
+    }
+
+    internal bool IsUnspecifiedNativeSlashForbidden(ProgramNativeSlashConversionQuery query)
+    {
+        foreach (var callback in _callbacks[ProgramCardLegalityStage.UnspecifiedNativeSlashBan])
+            if (((Func<ProgramNativeSlashConversionQuery, bool>)callback)(query)) return true;
+        return false;
+    }
+
+    internal CardKind SelectNativeSlashKind(ProgramSelectedNativeSlashQuery query)
+    {
+        foreach (var callback in _callbacks[ProgramCardLegalityStage.SelectedNativeSlashKind])
+            query = query with { Fallback = ((Func<ProgramSelectedNativeSlashQuery, CardKind>)callback)(query) };
+        return query.Fallback;
+    }
+
+    internal CardKind SelectAiNativeSlashKind(ProgramAiNativeSlashQuery query)
+    {
+        foreach (var callback in _callbacks[ProgramCardLegalityStage.AiNativeSlashKind])
+            query = query with { Fallback = ((Func<ProgramAiNativeSlashQuery, CardKind>)callback)(query) };
+        return query.Fallback;
     }
 }
 

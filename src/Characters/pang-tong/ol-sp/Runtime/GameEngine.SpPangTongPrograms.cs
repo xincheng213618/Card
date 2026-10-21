@@ -71,7 +71,7 @@ public sealed partial class GameEngine
   if(branch=="reveal")
   {
    var slot=int.Parse(selected.Parameters["slot-index"],CultureInfo.InvariantCulture);var hand=GetHand(_players[r.Target]);if(slot<0||slot>=hand.Count||!hand.Select(c=>c.Id).SequenceEqual(r.OriginalHand))throw new InvalidOperationException("Guolun opaque hand slot changed before its actual reveal.");
-   var card=hand[slot];ReplaceRuntimeTop(f=f with{SpPangTong=r with{Stage="exchange",RevealedCard=card.Id}});AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,[ToSnapshot(card)]));AdvanceEventRulesAndQueueFact(new GuolunRevealedEvent(f.Id,r.Source,r.Target,card.Id));PublishSpPangTong(f);return;
+   var card=hand[slot];ReplaceRuntimeTop(f=f with{SpPangTong=r with{Stage="exchange",RevealedCard=card.Id}});AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,[ToSnapshot(card)]));AdvanceEventRulesAndQueueFact(new GuolunRevealedEvent(f.Id,r.Source,r.Target,card.Id));if(TryBeginPublicHandRevealWindow(f.Id,"guolun-foreign-hand"))return;PublishSpPangTong(GetActiveProgramFrame(f.Id));return;
   }
   var own=GetAdvancedCard(int.Parse(selected.Parameters["card-id"],CultureInfo.InvariantCulture));var foreign=GetAdvancedCard(r.RevealedCard!.Value);var from=_cardZones.GetLocation(own.Id);var before=_movementSequence;
   r=r with{Stage="exchange-children",OwnCard=own.Id,OwnFrom=from,OwnRank=EffectiveOwnedCardRank(_players[f.OwnerSeat],own),TargetRank=EffectiveOwnedCardRank(_players[r.Target],foreign),Before=before,After=before};r=r with{RewardSeat=r.OwnRank<r.TargetRank?f.OwnerSeat:r.TargetRank<r.OwnRank?r.Target:null};ReplaceRuntimeTop(f=f with{SpPangTong=r,PendingMovementContinuation=new(f.OwnerSeat,0,null)});

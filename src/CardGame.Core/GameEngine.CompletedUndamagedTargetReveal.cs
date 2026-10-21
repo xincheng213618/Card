@@ -275,29 +275,14 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { CompletedUndamagedTargetReveal = r with { SelectionIssued = true,
             RevealedMaterials = revealed, SameColor = same, PaidMaterials = paid, SequenceBefore = before, SequenceAfter = before,
             Stage = paid.Length > 0 ? CompletedUndamagedTargetRevealStage.MovementChildren : CompletedUndamagedTargetRevealStage.Complete },
-            PendingMovementContinuation = paid.Length > 0 ? new(target, 0, null) : null });
+            PendingMovementContinuation = null });
         AdvanceEventRulesAndQueueFact(new CompletedUndamagedTargetRevealSelectionIssuedEvent(f.Id, target, selected.Length, revealed.Length, same));
         if (cards.Length > 0)
             AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, GetProgramBindingId(f), f.OwnerSeat,
                 CompletedUndamagedRevealBind, Array.AsReadOnly(cards.Select(c => ToSnapshot(c) with {
                     Suit = revealed.Single(m => m.CardId == c.Id).EffectiveSuit }).ToArray())));
-        if (paid.Length == 0)
-        { CompleteCompletedUndamagedTargetReveal(f); return; }
-        MoveProgramLogicalDiscard(f, f.OwnerSeat, paid.Select(m => m.CardId).ToArray(),
-            new(CompletedUndamagedDiscardReason(f)), (batch, records) =>
-            {
-                foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
-                if (records.Count != paid.Length || !records.Select(m => m.CardId).SequenceEqual(paid.Select(m => m.CardId)) ||
-                    records.Any(m => m.From != from || m.To != CardLocation.DiscardPile ||
-                        paid.Single(c => c.CardId == m.CardId).PrintedKind != m.CardKind))
-                    throw new InvalidOperationException("Completed-target reveal did not discard its exact revealed original Hand batch.");
-                var current = GetActiveProgramFrame(f.Id);
-                ReplaceRuntimeTop(current with { CompletedUndamagedTargetReveal = current.CompletedUndamagedTargetReveal! with {
-                    MovementIssued = true, SequenceAfter = records[^1].Sequence, BatchId = batch } });
-                AdvanceEventRulesAndQueueFact(new CompletedUndamagedTargetRevealMovementIssuedEvent(f.Id, target, records.Count,
-                    before, records[^1].Sequence, batch));
-            });
-        AdvanceRuntimeProgram(f.Id);
+        if(TryBeginPublicHandRevealWindow(f.Id,"completed-target-hand-reveal"))return;
+        ContinueCompletedTargetPublicReveal(GetActiveProgramFrame(f.Id));
     }
     private void CompleteCompletedUndamagedTargetReveal(ProgramSkillFrame f)
     {
@@ -344,4 +329,29 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome CompletedUndamagedTargetReveal(ProgramSkillFrame f) => engine.BeginCompletedUndamagedTargetReveal(f);
     }
+    [PublicHandRevealReturn("completed-target-hand-reveal")]
+    private void ContinueCompletedTargetPublicReveal(ProgramSkillFrame f)
+    {
+        var r=f.CompletedUndamagedTargetReveal??throw new InvalidOperationException("Completed-target reveal lost its original native roster.");
+        var target=r.TargetSeat!.Value;var from=CardLocation.Hand(target);var paid=r.PaidMaterials.Where(m=>_cardZones.GetLocation(m.CardId)==from).ToArray();var before=_movementSequence;
+        ReplaceRuntimeTop(f=f with{CompletedUndamagedTargetReveal=r with{PaidMaterials=paid,SequenceBefore=before,SequenceAfter=before},PendingMovementContinuation=paid.Length>0?new(target,0,null):null});
+        if (paid.Length == 0)
+        { CompleteCompletedUndamagedTargetReveal(f); return; }
+        MoveProgramLogicalDiscard(f, f.OwnerSeat, paid.Select(m => m.CardId).ToArray(),
+            new(CompletedUndamagedDiscardReason(f)), (batch, records) =>
+            {
+                foreach (var movement in records) RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);
+                if (records.Count != paid.Length || !records.Select(m => m.CardId).SequenceEqual(paid.Select(m => m.CardId)) ||
+                    records.Any(m => m.From != from || m.To != CardLocation.DiscardPile ||
+                        paid.Single(c => c.CardId == m.CardId).PrintedKind != m.CardKind))
+                    throw new InvalidOperationException("Completed-target reveal did not discard its exact revealed original Hand batch.");
+                var current = GetActiveProgramFrame(f.Id);
+                ReplaceRuntimeTop(current with { CompletedUndamagedTargetReveal = current.CompletedUndamagedTargetReveal! with {
+                    MovementIssued = true, SequenceAfter = records[^1].Sequence, BatchId = batch } });
+                AdvanceEventRulesAndQueueFact(new CompletedUndamagedTargetRevealMovementIssuedEvent(f.Id, target, records.Count,
+                    before, records[^1].Sequence, batch));
+            });
+        AdvanceRuntimeProgram(f.Id);
+    }
+
 }

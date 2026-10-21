@@ -10,7 +10,9 @@ internal static class ProgramCardLegalityChecks
         supplied.Clear();
         Need(catalog.Registrations is IDictionary<ProgramCardLegalityStage, IReadOnlyList<ProgramCardLegalityRegistration>> { IsReadOnly: true } &&
             catalog.Registrations.All(pair => pair.Value is IList<ProgramCardLegalityRegistration> { IsReadOnly: true } &&
-                pair.Value.Select(row => row.Order).SequenceEqual(pair.Key == ProgramCardLegalityStage.EntityPhysicalBan ? [10] : [10, 20])),
+                pair.Value.Select(row => row.Order).SequenceEqual(pair.Value.Select(row => row.Order).Distinct().Order())) &&
+            catalog.Registrations[ProgramCardLegalityStage.BeforeTurnUseBan].Select(row => row.Order).SequenceEqual([10, 20]) &&
+            catalog.Registrations[ProgramCardLegalityStage.EntityPhysicalBan].Select(row => row.Order).SequenceEqual([10]),
             "Each native stage retains its own frozen explicit order and admission set.");
         try { ((IList<ProgramCardLegalityRegistration>)catalog.Registrations[ProgramCardLegalityStage.BeforeTurnUseBan]).Clear(); throw new Exception("Expected frozen metadata."); }
         catch (NotSupportedException) { }
@@ -31,7 +33,10 @@ internal static class ProgramCardLegalityChecks
             fixture => fixture.Legality.IsConversionSourceForbidden(ProgramCardLegalityStage.DyingConversionBan, fixture.Source),
             fixture => fixture.Legality.IsConversionSourceForbidden(ProgramCardLegalityStage.ConversionSourceBan, fixture.Source),
             fixture => fixture.Legality.IsPhysicalForbidden(ProgramCardLegalityStage.HandPhysicalBan, 2, 7),
-            fixture => fixture.Legality.IsNativeResponseForbidden(fixture.NativeResponse)
+            fixture => fixture.Legality.IsNativeResponseForbidden(fixture.NativeResponse),
+            fixture => fixture.Legality.AllowsNativeSlashAlias(fixture.NativeSlashAlias),
+            fixture => fixture.Legality.IsNativeSlashOutputForbidden(fixture.NativeSlashConversion),
+            fixture => fixture.Legality.IsUnspecifiedNativeSlashForbidden(fixture.NativeSlashConversion)
         };
         foreach (var call in calls)
         foreach (var first in new[] { false, true })
@@ -60,6 +65,24 @@ internal static class ProgramCardLegalityChecks
         Need(a.Bound.Distinct(StringComparer.Ordinal).Count() == a.Bound.Count && a.Bound.Count == b.Bound.Count,
             "Methods registered at multiple native stages bind once per engine, not once per query.");
 
+        a.Trace.Clear();
+        var nativeVariants = a.Legality.NativeSlashVariants(a.NativeSlashMaterial);
+        Need(a.Trace.SequenceEqual(["variants-first", "variants-last"]) &&
+            nativeVariants.Select(v => v.EffectiveKind).SequenceEqual([CardKind.Slash, CardKind.FireSlash]) &&
+            nativeVariants is IList<SlashUseVariant> { IsReadOnly: true },
+            "Native Slash variants concatenate in explicit order and expose a frozen result.");
+        a.FirstVariants.Clear(); a.LastVariants.Clear();
+        Need(nativeVariants.Select(v => v.EffectiveKind).SequenceEqual([CardKind.Slash, CardKind.FireSlash]),
+            "A module's mutable temporary result cannot later change published native variants.");
+        a.Trace.Clear();
+        Need(a.Legality.SelectNativeSlashKind(a.SelectedSlash) == CardKind.ThunderSlash &&
+            a.Trace.SequenceEqual(["select-first", "select-last"]),
+            "Each selected native Slash policy receives the previous kind while preserving the original entity and source.");
+        a.Trace.Clear();
+        Need(a.Legality.SelectAiNativeSlashKind(a.AiSlash) == CardKind.ThunderSlash &&
+            a.Trace.SequenceEqual(["ai-first", "ai-last"]),
+            "AI native Slash kind selection preserves its published decision and ordered fallback.");
+
         a.Trace.Clear(); a.DropProjection = false;
         Need(a.Legality.ProjectAction(a.Action) is { Description: "fixture:first:last" } &&
             a.Trace.SequenceEqual(["project-first", "project-last"]), "Action projections receive the previous action and retain native context.");
@@ -86,6 +109,11 @@ internal static class ProgramCardLegalityChecks
             !empty.IsPhysicalForbidden(ProgramCardLegalityStage.HandPhysicalBan, 2, 7) &&
             !empty.IsPhysicalForbidden(ProgramCardLegalityStage.EntityPhysicalBan, 2, 7) &&
             !empty.IsNativeResponseForbidden(a.NativeResponse) &&
+            !empty.AllowsNativeSlashAlias(a.NativeSlashAlias) &&
+            empty.NativeSlashVariants(a.NativeSlashMaterial) is { Count: 0 } emptyVariants && emptyVariants is IList<SlashUseVariant> { IsReadOnly: true } &&
+            !empty.IsNativeSlashOutputForbidden(a.NativeSlashConversion) && !empty.IsUnspecifiedNativeSlashForbidden(a.NativeSlashConversion) &&
+            empty.SelectNativeSlashKind(a.SelectedSlash) == a.SelectedSlash.Fallback &&
+            empty.SelectAiNativeSlashKind(a.AiSlash) == a.AiSlash.Fallback &&
             ReferenceEquals(empty.ProjectAction(a.Action), a.Action.Action), "Empty policies preserve native legality and action identity.");
         empty.ValidateSubmittedUse(a.Submitted);
         var staticCatalog = ProgramCardLegalityCatalog.Discover(Methods(typeof(StaticQuery)));
@@ -99,7 +127,8 @@ internal static class ProgramCardLegalityChecks
         Reject(typeof(GenericQuery), "invalid handler signature");
         Reject(typeof(RefArgument), "invalid handler signature");
         var production = ProgramCardLegalityCatalog.Discover(ProgramRuntimeModuleCatalog.Default.Methods);
-        Need(production.Registrations.Values.All(rows => rows.Count > 0), "Every production native stage retains its module-owned policies.");
+        Need(catalog.Registrations.Where(pair => pair.Value.Count > 0).All(pair => production.Registrations[pair.Key].Count > 0),
+            "Every exercised production native stage retains its module-owned policies; unregistered stages remain valid.");
 
         static void Reject(Type type, string expected)
         {
@@ -131,6 +160,13 @@ internal static class ProgramCardLegalityChecks
         internal ProgramViewAsSourceQuery Source { get; }
         internal ProgramSubmittedUseQuery Submitted { get; }
         internal ProgramNativeResponseQuery NativeResponse { get; set; }
+        internal ProgramNativeSlashAliasQuery NativeSlashAlias { get; }
+        internal ProgramNativeSlashMaterialQuery NativeSlashMaterial { get; }
+        internal ProgramNativeSlashConversionQuery NativeSlashConversion { get; }
+        internal ProgramSelectedNativeSlashQuery SelectedSlash { get; }
+        internal ProgramAiNativeSlashQuery AiSlash { get; }
+        internal List<SlashUseVariant> FirstVariants { get; } = [new(CardKind.Slash, null, false)];
+        internal List<SlashUseVariant> LastVariants { get; } = [new(CardKind.FireSlash, null, true)];
 
         internal Fixture(ProgramCardLegalityCatalog catalog)
         {
@@ -151,6 +187,11 @@ internal static class ProgramCardLegalityChecks
             Source = new(owner, card, source, true, false);
             Submitted = new(2, CardKind.FireSlash, [7, 8], [source]);
             NativeResponse = new(owner, CardKind.Dodge, [7, 8]);
+            NativeSlashAlias = new(owner, Configured.Instance, Configured.Rule, CardKind.ThunderSlash, true);
+            NativeSlashMaterial = new(owner, card);
+            NativeSlashConversion = new(owner, card, CardKind.FireSlash, source);
+            SelectedSlash = new(owner, card, CardKind.Slash, source);
+            AiSlash = new(new(DecisionKind.RespondSlash, 2, "native fixture", [7], []), card, CardKind.Slash);
             Legality = new(catalog, (method, type) =>
             {
                 Bound.Add(method.Name);
@@ -212,6 +253,38 @@ internal static class ProgramCardLegalityChecks
         [ProgramCardLegality(ProgramCardLegalityStage.NativeResponseBan, 20)]
         private bool ResponseLast(ProgramNativeResponseQuery query)
         { Need(query == NativeResponse, "Native response parameters changed."); return Visit(false); }
+        [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashAliasAllowance, 10)]
+        private bool AliasFirst(ProgramNativeSlashAliasQuery query)
+        { Need(query == NativeSlashAlias, "Native Slash alias parameters changed."); return Visit(true); }
+        [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashAliasAllowance, 20)]
+        private bool AliasLast(ProgramNativeSlashAliasQuery query)
+        { Need(query == NativeSlashAlias, "Native Slash alias parameters changed."); return Visit(false); }
+        [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashVariants, 10)]
+        private IReadOnlyList<SlashUseVariant> VariantsFirst(ProgramNativeSlashMaterialQuery query)
+        { Need(query == NativeSlashMaterial, "Native Slash variant material changed."); Trace.Add("variants-first"); return FirstVariants; }
+        [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashVariants, 20)]
+        private IReadOnlyList<SlashUseVariant> VariantsLast(ProgramNativeSlashMaterialQuery query)
+        { Need(query == NativeSlashMaterial, "Native Slash variant material changed."); Trace.Add("variants-last"); return LastVariants; }
+        [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashOutputBan, 10)]
+        [ProgramCardLegality(ProgramCardLegalityStage.UnspecifiedNativeSlashBan, 10)]
+        private bool SlashConversionFirst(ProgramNativeSlashConversionQuery query)
+        { Need(query == NativeSlashConversion, "Native Slash conversion parameters changed."); return Visit(true); }
+        [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashOutputBan, 20)]
+        [ProgramCardLegality(ProgramCardLegalityStage.UnspecifiedNativeSlashBan, 20)]
+        private bool SlashConversionLast(ProgramNativeSlashConversionQuery query)
+        { Need(query == NativeSlashConversion, "Native Slash conversion parameters changed."); return Visit(false); }
+        [ProgramCardLegality(ProgramCardLegalityStage.SelectedNativeSlashKind, 10)]
+        private CardKind SelectFirst(ProgramSelectedNativeSlashQuery query)
+        { Need(query == SelectedSlash, "Selected native Slash initial context changed."); Trace.Add("select-first"); return CardKind.FireSlash; }
+        [ProgramCardLegality(ProgramCardLegalityStage.SelectedNativeSlashKind, 20)]
+        private CardKind SelectLast(ProgramSelectedNativeSlashQuery query)
+        { Need(query == (SelectedSlash with { Fallback = CardKind.FireSlash }), "Selected native Slash lost its previous kind."); Trace.Add("select-last"); return CardKind.ThunderSlash; }
+        [ProgramCardLegality(ProgramCardLegalityStage.AiNativeSlashKind, 10)]
+        private CardKind AiFirst(ProgramAiNativeSlashQuery query)
+        { Need(query == AiSlash, "AI native Slash initial decision changed."); Trace.Add("ai-first"); return CardKind.FireSlash; }
+        [ProgramCardLegality(ProgramCardLegalityStage.AiNativeSlashKind, 20)]
+        private CardKind AiLast(ProgramAiNativeSlashQuery query)
+        { Need(query == (AiSlash with { Fallback = CardKind.FireSlash }), "AI native Slash lost its previous kind."); Trace.Add("ai-last"); return CardKind.ThunderSlash; }
         [ProgramCardLegality(ProgramCardLegalityStage.LegalActionProjection, 10)]
         private LegalAction? ProjectFirst(ProgramLegalActionQuery query)
         {

@@ -82,6 +82,7 @@ public sealed partial class GameEngine
         }
 
         public bool TryStartPostInstructionWindow(long frameId) =>
+            engine.TryBeginPublicHandRevealWindow(frameId, PublicHandRevealReturnKind.Program) ||
             engine.TryBeginQueuedRecoveryReplacement(frameId, PostEventContinuation.Program) ||
             engine.TryBeginCharacterStateProgramWindow(frameId, CharacterStateContinuation.Program) ||
             engine.TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.Program) ||

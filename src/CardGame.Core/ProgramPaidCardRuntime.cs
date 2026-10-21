@@ -54,6 +54,7 @@ internal interface IProgramPaidCardOperations : IProgramRuntimeOperations
     void Move(Card card, CardLocation source, CardLocation destination, CardMoveReason reason,
         CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified);
     bool BeginMovementWindow();
+    bool BeginPublicHandReveal(long frameId, string returnKey);
     void ReturnMovement(long frameId);
     void Log(string type, string message, int? actor = null);
 }
@@ -149,6 +150,7 @@ public sealed partial class GameEngine
             CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified) =>
             engine.MoveCard(card, source, destination, reason, disclosure: disclosure);
         public bool BeginMovementWindow() => engine.TryBeginCardsMovedProgramWindow();
+        public bool BeginPublicHandReveal(long frameId, string returnKey) => engine.TryBeginPublicHandRevealWindow(frameId, returnKey);
         public void ReturnMovement(long frameId) => engine.ReturnRuntimeProgramMovement(frameId);
         public void Log(string type, string message, int? actor = null) => engine.AddLog(type, message, actor);
     }

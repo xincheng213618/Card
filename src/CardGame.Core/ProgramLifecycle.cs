@@ -323,6 +323,7 @@ public sealed record ProgramPhaseSchedule(
 
 public enum ProgramLifecycleContinuation
 {
+    CompleteActualSkippedPhase = 34200,
     MouGuoHuaiActualStart = 32000,
     ResumeHellAppearance = 40110,
     ResumeNativeDrawAttempt = 27570,

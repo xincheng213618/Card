@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:lidan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "alternating-use-permit",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [{ "op": "resolveMouChengYuLidan", "target": "owner" }]
+        },
+        {
+          "id": "next-matching-targets",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [{ "op": "resolveMouChengYuLidan", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:danchi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "nearby-damage-type",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [{ "op": "resolveMouChengYuDanchi", "target": "owner" }]
+        },
+        {
+          "id": "source-next-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [{ "op": "resolveMouChengYuDanchi", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

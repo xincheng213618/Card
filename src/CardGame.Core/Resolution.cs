@@ -18,6 +18,7 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    PublicHandRevealWindow = 34003,
     WushuangIntermission = 61000,
     WuLuKangPindian = 29700,
     NativeDrawAttempt = 27570,
@@ -89,6 +90,7 @@ internal interface IProgramChildResolutionFrame
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(PublicHandRevealWindowFrame), "public-hand-reveal-window")]
 [JsonDerivedType(typeof(WushuangIntermissionFrame), "wushuang-intermission")]
 [JsonDerivedType(typeof(NativeDrawAttemptFrame), "native-draw-attempt")]
 [JsonDerivedType(typeof(RoundEndingBoundaryFrame), "round-ending-boundary")]

@@ -103,7 +103,8 @@ public sealed partial class GameEngine
             r = r with { GuessedMask = r.GuessedMask | 1 << Array.IndexOf(MouGnSuits, suit), Wrong = r.Wrong + (correct ? 0 : 1), Stage = correct ? MouGanNingStage.Discard : MouGanNingStage.Repeat };
             ReplaceRuntimeTop(f = f with { MouGanNing = r }); AdvanceEventRulesAndQueueFact(new MouGanNingGuessedEvent(f.Id, r.TargetSeat, suit, correct, r.Wrong, r.Phase!));
             if (correct) AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, f.ActivationId, f.OwnerSeat, "qixi-hand", Array.AsReadOnly(hand.Select(c => ProjectHandCard(_players[f.OwnerSeat], c)).ToArray())));
-            PublishMouGn(f); return;
+            if (correct && TryBeginPublicHandRevealWindow(f.Id, "qixi-guessed-hand")) return;
+            PublishMouGn(GetActiveProgramFrame(f.Id)); return;
         }
         if (branch is "continue" or "stop")
         { AdvanceEventRulesAndQueueFact(new MouGanNingRepeatEvent(f.Id, branch == "continue")); ReplaceRuntimeTop(f = f with { MouGanNing = r with { Stage = branch == "continue" ? MouGanNingStage.Guess : MouGanNingStage.Discard } }); PublishMouGn(f); return; }

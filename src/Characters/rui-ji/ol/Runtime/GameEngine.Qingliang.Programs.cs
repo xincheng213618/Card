@@ -29,6 +29,7 @@ public sealed partial class GameEngine
         {
             RuiJiQingliang = new RuiJiQingliangState(parent.Id, action.ActorSeat, "option")
         });
+        if (TryBeginPublicHandRevealWindow(active.Id, "qingliang-hand")) return SkillProgramStepOutcome.AwaitChild;
         PresentQingliangOptionPrompt(GetActiveProgramFrame(active.Id));
         return SkillProgramStepOutcome.AwaitChoice;
     }

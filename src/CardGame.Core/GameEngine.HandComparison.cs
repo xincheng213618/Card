@@ -84,7 +84,7 @@ public sealed partial class GameEngine
   if(f.TriggerId is not null||f.SelectedCardIds is not [var source]||f.SelectedTargetSeats is not [var target]||target==f.OwnerSeat||_cardZones.GetLocation(source)!=CardLocation.Hand(f.OwnerSeat)||!_players[target].IsAlive||_players[target].Hp<=0||GetHand(_players[target]).Count==0)throw new InvalidOperationException("A hand comparison requires one own hand card and another living positive-HP nonempty hand.");
   var cards=GetHand(_players[target]).Select(c=>c.Id).ToArray();
   ReplaceRuntimeTop(f=f with{HandComparisonDraft=new(target,source,cards,Math.Min(_players[target].Hp,cards.Length),[],"reveal")});
-  AdvanceEventRulesAndQueueFact(new ProgramHandComparisonSourceRevealedEvent(f.Id,f.OwnerSeat,source));PublishHandComparison(f);return SkillProgramStepOutcome.AwaitChoice;
+  AdvanceEventRulesAndQueueFact(new ProgramHandComparisonSourceRevealedEvent(f.Id,f.OwnerSeat,source));if(TryBeginPublicHandRevealWindow(f.Id,"hand-comparison-source"))return SkillProgramStepOutcome.AwaitChild;PublishHandComparison(GetActiveProgramFrame(f.Id));return SkillProgramStepOutcome.AwaitChoice;
  }
  private void PublishHandComparison(ProgramSkillFrame f)
  {
@@ -118,13 +118,8 @@ public sealed partial class GameEngine
    var slot=int.Parse(token,System.Globalization.CultureInfo.InvariantCulture);if(slot<0||slot>=d.CandidateIds.Count)throw new InvalidOperationException("Invalid hand slot.");var id=d.CandidateIds[slot];if(d.Stage!="reveal"||!d.CandidateIds.Contains(id)||d.RevealedIds.Contains(id)||_cardZones.GetLocation(id)!=CardLocation.Hand(d.TargetSeat))throw new InvalidOperationException("Invalid concealed hand reveal.");
    ClearPendingDecision();d=d with{RevealedIds=d.RevealedIds.Append(id).ToArray()};ReplaceRuntimeTop(f=f with{HandComparisonDraft=d});
    AdvanceEventRulesAndQueueFact(new ProgramHandComparisonCardRevealedEvent(f.Id,d.TargetSeat,id));
-   if(d.RevealedIds.Count<d.Required){PublishHandComparison(f);return;}
-   var own=GetHand(_players[f.OwnerSeat]).Single(c=>c.Id==d.SourceCardId);var revealed=GetHand(_players[d.TargetSeat]).Where(c=>d.RevealedIds.Contains(c.Id)).ToArray();
-   var color=revealed.Any(c=>IsRedSuit(EffectiveSuit(_players[d.TargetSeat],c))==IsRedSuit(EffectiveSuit(_players[f.OwnerSeat],own)));var rank=revealed.Any(c=>(JuewuForeignHandRank(_players[d.TargetSeat],c)??c.Rank)==(JuewuForeignHandRank(_players[f.OwnerSeat],own)??own.Rank));
-   AdvanceEventRulesAndQueueFact(new ProgramHandComparisonResolvedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,effect.StateId!,_turnNumber,d.SourceCardId,d.TargetSeat,d.RevealedIds,color,rank));
-   if(!color&&!rank)AdjustPersistentHandLimit(f,f.OwnerSeat,-1,effect.StateId!);
-   if(color){ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="benefit"}});PublishHandComparison(f);return;}
-   ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="complete"}});PublishHandComparison(f);return;
+if(TryBeginPublicHandRevealWindow(f.Id,"hand-comparison-target")){return;}ContinueHandComparisonAfterPublicReveal(GetActiveProgramFrame(f.Id));return;
+
   }
   if(branch=="complete"){if(d.Stage!="complete")throw new InvalidOperationException("Invalid completion choice.");FinishHandComparison(f);return;}
   if(branch=="target")
@@ -149,6 +144,20 @@ public sealed partial class GameEngine
   if(op?.Op!=SkillProgramEffectOp.CompareSelectedHandWithHpHand||f.TriggerId is not null||f.SelectedCardIds is not[var source]||source!=d.SourceCardId||f.SelectedTargetSeats is not[var target]||target!=d.TargetSeat||target==f.OwnerSeat||d.Required<=0||d.Required>d.CandidateIds.Count||d.CandidateIds.Distinct().Count()!=d.CandidateIds.Count||d.RevealedIds.Distinct().Count()!=d.RevealedIds.Count||d.RevealedIds.Count>d.Required||d.RevealedIds.Any(id=>!d.CandidateIds.Contains(id))||d.CandidateIds.Any(id=>_cardZones.GetLocation(id)!=CardLocation.Hand(target))||_cardZones.GetLocation(source)!=CardLocation.Hand(f.OwnerSeat)||d.Stage!="reveal"&&d.Stage!="complete"&&d.Stage!="benefit"&&!d.Stage.StartsWith("discard:",StringComparison.Ordinal))throw new InvalidOperationException("Invalid serialized hand comparison.");
   if(ReferenceEquals(f,_resolutionStack.LastOrDefault())&&(_pendingDecision is not{Kind:DecisionKind.ProgramTrigger,IsPrivate:false}p||p.PlayerSeat!=f.OwnerSeat))throw new InvalidOperationException("Comparison lost its public chooser.");
  }
+ [PublicHandRevealReturn("hand-comparison-target")]
+ private void ContinueHandComparisonAfterPublicReveal(ProgramSkillFrame f)
+ {
+  var d=f.HandComparisonDraft??throw new InvalidOperationException("Hand comparison lost its public reveal draft.");
+  var effect=ProgramInstructionResolver.Default.Resolve(f,_contentRegistry.GetSkill(f.SkillId).Program!).GetPausedInstruction(f.InstructionIndex).Effect;
+   if(d.RevealedIds.Count<d.Required){PublishHandComparison(f);return;}
+   var own=GetHand(_players[f.OwnerSeat]).Single(c=>c.Id==d.SourceCardId);var revealed=GetHand(_players[d.TargetSeat]).Where(c=>d.RevealedIds.Contains(c.Id)).ToArray();
+   var color=revealed.Any(c=>IsRedSuit(EffectiveSuit(_players[d.TargetSeat],c))==IsRedSuit(EffectiveSuit(_players[f.OwnerSeat],own)));var rank=revealed.Any(c=>(JuewuForeignHandRank(_players[d.TargetSeat],c)??c.Rank)==(JuewuForeignHandRank(_players[f.OwnerSeat],own)??own.Rank));
+   AdvanceEventRulesAndQueueFact(new ProgramHandComparisonResolvedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,effect.StateId!,_turnNumber,d.SourceCardId,d.TargetSeat,d.RevealedIds,color,rank));
+   if(!color&&!rank)AdjustPersistentHandLimit(f,f.OwnerSeat,-1,effect.StateId!);
+   if(color){ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="benefit"}});PublishHandComparison(f);return;}
+   ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="complete"}});PublishHandComparison(f);return;
+ }
+
 }
 public sealed record ProgramHandComparisonSourceRevealedEvent(long FrameId,int OwnerSeat,int CardId):IGameEvent;
 public sealed record ProgramHandComparisonCardRevealedEvent(long FrameId,int TargetSeat,int CardId):IGameEvent;

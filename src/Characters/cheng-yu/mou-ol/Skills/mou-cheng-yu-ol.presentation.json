@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou-ol:lidan": {
+      "name": "戾断",
+      "description": "你使用【杀】后，令你使用的下一张锦囊牌可以多指定一个目标；你使用锦囊牌后，令你使用的下一张【杀】可以多指定一个目标。",
+      "triggerLabels": {
+        "alternating-use-permit": "戾断：签发下一张对应牌的额外目标许可",
+        "next-matching-targets": "戾断：选择合法额外目标"
+      }
+    },
+    "mou-ol:danchi": {
+      "name": "胆持",
+      "description": "每回合限一次，与你距离1以内的角色受到伤害后，你可令受到伤害的角色选择一个类型。然后伤害来源本回合使用下一张牌后，你视为使用一张【无中生有】，若与“胆持”选择的类型不同，你可额外视为使用一张【杀】。",
+      "triggerLabels": {
+        "nearby-damage-type": "胆持：令受伤角色选择类型",
+        "source-next-use": "胆持：结算已签发的用牌奖励"
+      }
+    }
+  }
+}

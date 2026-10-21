@@ -195,8 +195,8 @@ public sealed partial class GameEngine
             if (selected.Length < draft.RecipientSeats.Count) { PublishPublicDraftSelection(frame); return; }
             ReplaceRuntimeTop(frame = frame with { PublicHandDraft = frame.PublicHandDraft! with { Stage = 2 } });
             AdvanceEventRulesAndQueueFact(new ProgramHandDraftRevealedEvent(frame.Id, frame.SkillId, frame.OwnerSeat, draft.RecipientSeats, selected));
-            PublishNamedDraftPrompt(frame, frame.OwnerSeat, "选择顺时针分配的起始角色。", _players.Where(player => player.IsAlive)
-                .Select(player => NamedDraftChoice(frame, "public-draft-start", player.Name, seat: player.Seat)).ToArray(), false); return;
+            if (TryBeginPublicHandRevealWindow(frame.Id, "public-hand-draft-roster")) return;
+            ReturnPublicHandDraftReveal(GetActiveProgramFrame(frame.Id)); return;
         }
         if (draft.Stage == 2 && action == "public-draft-start")
         {
@@ -220,6 +220,13 @@ public sealed partial class GameEngine
         throw new InvalidOperationException("The public hand draft has an invalid stage/choice.");
     }
 
+    [PublicHandRevealReturn("public-hand-draft-roster")]
+    private void ReturnPublicHandDraftReveal(ProgramSkillFrame frame)
+    {
+        if(frame.PublicHandDraft is not{Stage:2}) throw new InvalidOperationException("A public Hand draft lost its complete shown roster.");
+        PublishNamedDraftPrompt(frame, frame.OwnerSeat, "选择顺时针分配的起始角色。", _players.Where(player => player.IsAlive)
+            .Select(player => NamedDraftChoice(frame, "public-draft-start", player.Name, seat: player.Seat)).ToArray(), false);
+    }
     private IEnumerable<int> GetPublicHandDraftCardIds() => _resolutionStack.OfType<ProgramSkillFrame>()
         .Where(frame => frame.PublicHandDraft is { Stage: >= 2 }).SelectMany(frame => frame.PublicHandDraft!.CardIds
             .Where(id => _cardZones.GetLocation(id) == CardLocation.Hand(frame.OwnerSeat)));

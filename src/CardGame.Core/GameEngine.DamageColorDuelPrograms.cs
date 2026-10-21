@@ -37,6 +37,7 @@ public sealed partial class GameEngine
     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
         cardId==0 && IsMouXuHuangZeroUse(frameId) ? MouXuHuangRepresentation(frameId) :
         cardId==0 && IsMouLiuChengUse(frameId) ? MouLiuChengRepresentation(frameId) :
+        cardId==0 && IsMouXqJueyanUse(frameId) ? MouXqJueyanRepresentation(frameId) :
         cardId==0 && IsDiouUse(frameId) ? DiouRepresentation(frameId) :
         cardId==0 && IsHuanpeiUse(frameId) ? HuanpeiRepresentation(frameId) :
         cardId==0 && IsZonghuUse(frameId) ? ZonghuRepresentation(frameId) :

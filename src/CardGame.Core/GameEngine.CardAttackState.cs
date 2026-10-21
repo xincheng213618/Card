@@ -90,10 +90,10 @@ public sealed partial class GameEngine
     private long? FindCardContinuationOwner(Func<CardResolutionContinuations, bool> matches) =>
         _resolutionStack.LastOrDefault(frame => frame switch
         {
-            CardUseFrame use => matches(use.Continuations) && !IsSuspendedGuoSiCompletedParent(use) &&
+            CardUseFrame use => matches(use.Continuations) && !MouXiaoQiaoOl.PublicRevealSuspends(use.Id) && !IsSuspendedGuoSiCompletedParent(use) &&
                 !IsDiouSuspendedCompletedAttack(use) && !IsMouLiuChengSuspendedCompletedAttack(use) && !IsDiouSuspendedRescueAttack(use),
-            ProgramSkillFrame program => matches(program.Continuations) && !IsDiouSuspendedRescueAttack(program),
-            JudgmentFrame judgment => matches(judgment.Continuations) && !IsDiouSuspendedRescueAttack(judgment),
+            ProgramSkillFrame program => matches(program.Continuations) && !MouXiaoQiaoOl.PublicRevealSuspends(program.Id) && !IsDiouSuspendedRescueAttack(program),
+            JudgmentFrame judgment => matches(judgment.Continuations) && !MouXiaoQiaoOl.PublicRevealSuspends(judgment.Id) && !IsDiouSuspendedRescueAttack(judgment),
             _ => false
         })?.Id;
 

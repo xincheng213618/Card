@@ -70,14 +70,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Yishi retains exactly one current owned Hand entity of every frozen suit.");
             if (r.Selected.Count > 0) AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,
                 Array.AsReadOnly(r.Selected.Select(id => ToSnapshot(GetAdvancedCard(id))).ToArray())));
-            var remainder = r.Hand.Where(c => !r.Selected.Contains(c.CardId)).Select(c => GetAdvancedCard(c.CardId)).ToArray();
-            ReplaceRuntimeTop(f = f with { MouDongZhao = r with { LostHand = remainder.Length > 0 } });
-            MutateMouDongZhao(f, MouDongZhaoStage.DiscardChildren, () =>
-            {
-                if (remainder.Length > 0) MoveCards(remainder, CardLocation.Hand(f.OwnerSeat), CardLocation.DiscardPile,
-                    new("skill-program.mou-ol:yishi.place-rest"), disclosure: CardMovementDisclosure.FaceUp);
-            });
-            return;
+if(TryBeginPublicHandRevealWindow(f.Id,"yishi-kept-hand")){return;}ContinueYishiAfterPublicReveal(GetActiveProgramFrame(f.Id));return;
+
         }
         if (r.Stage != MouDongZhaoStage.ChoosingMove || verb != "field") throw new InvalidOperationException("Yishi lost its field-move choice.");
         var moving = GetAdvancedCard(selected.Cards.Single()); var from = _cardZones.GetLocation(moving.Id);
@@ -105,4 +99,18 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new MouDongZhaoYishiGrantedEvent(f.Id, r.Source, r.GameplayHash, suit,
                 ProgramEventHistory<TurnStartedEvent>().Count(e => e.ActorSeat == f.OwnerSeat), _movementSequence));
     }
+ [PublicHandRevealReturn("yishi-kept-hand")]
+ private void ContinueYishiAfterPublicReveal(ProgramSkillFrame f)
+ {
+        var r=f.MouDongZhao??throw new InvalidOperationException("Yishi lost its original Hand selection.");
+            var remainder = r.Hand.Where(c => !r.Selected.Contains(c.CardId) && _cardZones.GetLocation(c.CardId)==CardLocation.Hand(f.OwnerSeat)).Select(c => GetAdvancedCard(c.CardId)).ToArray();
+            ReplaceRuntimeTop(f = f with { MouDongZhao = r with { LostHand = remainder.Length > 0 } });
+            MutateMouDongZhao(f, MouDongZhaoStage.DiscardChildren, () =>
+            {
+                if (remainder.Length > 0) MoveCards(remainder, CardLocation.Hand(f.OwnerSeat), CardLocation.DiscardPile,
+                    new("skill-program.mou-ol:yishi.place-rest"), disclosure: CardMovementDisclosure.FaceUp);
+            });
+            return;
+ }
+
 }

@@ -117,7 +117,7 @@ public sealed partial class GameEngine
             (frame.Continuation != ProgramLifecycleContinuation.RoundProgramsTurnStart || _roundNumber <= 0 ||
              _turnProgression.Kind == ActualTurnKind.Extra))
             throw new InvalidOperationException("A round-starting boundary requires its normal turn continuation and actual round.");
-        if (frame.Window is not (SkillProgramTriggerWindow.RoundStarting or SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+        if (frame.Window is not (SkillProgramTriggerWindow.ActualPhaseSkipped or SkillProgramTriggerWindow.RoundStarting or SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
             SkillProgramTriggerWindow.PlayEnding or
@@ -332,6 +332,7 @@ public sealed partial class GameEngine
 
     private bool ResumeScheduledProgramPhase()
     {
+        if (_programPipelineHooks.ResumeScheduledPhase()) return true;
         if (TryResumeZhangShiPingHongjiPhase()) return true;
         if (_programPhaseSchedule is not { } schedule) return false;
         var frame = FreezeGrantedEntityPhaseEnd(schedule.Frame);
@@ -382,6 +383,7 @@ public sealed partial class GameEngine
 
     private void CancelScheduledProgramPhase()
     {
+        if (_programPipelineHooks.CancelScheduledPhase()) return;
         if (TryCancelZhangShiPingHongjiPhase()) return;
         if (_programPhaseSchedule is not { } schedule) return;
         _programPhaseSchedule = null;
@@ -3283,6 +3285,7 @@ public sealed partial class GameEngine
         AppendRuanYuXingzuoEndingItems(items);
         AppendQushiEndingItems(items);
         AppendLianjuEndingItems(items);
+        _programPipelineHooks.AppendTurnEndingItems(items);
         var ordered = items
             .OrderBy(item => (((item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value) - owner.Seat + _players.Count) % _players.Count))
             .ThenByDescending(item => item.Priority)
@@ -3468,6 +3471,7 @@ public sealed partial class GameEngine
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow);
         if (frame.ResumeDrawPhaseObligationFrameId is not null)
         { ReturnDrawPhaseObligationWindow(frame); return; }
+        if (_programPipelineHooks.LifecycleWindowCompleted(frame)) return;
         switch (frame.Continuation)
         {
             case ProgramLifecycleContinuation.ResumeHellAppearance:

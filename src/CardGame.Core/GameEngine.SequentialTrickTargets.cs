@@ -49,7 +49,7 @@ public sealed partial class GameEngine
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
             throw new InvalidOperationException("A trick must finish its child before the next target.");
         var card = IsTieredRoundZeroUse(use.Id) ? TieredRoundZeroRepresentation(use.Id) :
-            (IsProgramVirtualOrdinaryTrickUse(use.Id) || IsDiouZeroUse(use.Id)) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
+            (IsProgramVirtualOrdinaryTrickUse(use.Id) || IsDiouZeroUse(use.Id) || IsMouXqJueyanUse(use.Id)) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             IsMouWenChouZeroDuel(use.Id) || IsMouXuHuangZeroUse(use.Id) || IsJueshengDuelUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
             ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)
@@ -76,7 +76,7 @@ public sealed partial class GameEngine
                 LeChengyanNativeTargets(use).Any(seat => !IsValidPlayerSeat(seat)) ||
                 use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
                 !IsTieredRoundZeroUse(use.Id) &&
-                !IsProgramVirtualOrdinaryTrickUse(use.Id) && !IsDiouZeroUse(use.Id) &&
+                !IsProgramVirtualOrdinaryTrickUse(use.Id) && !IsDiouZeroUse(use.Id) && !IsMouXqJueyanUse(use.Id) &&
                 !IsMouWenChouZeroDuel(use.Id) && !IsMouXuHuangZeroUse(use.Id) && !IsJueshengDuelUse(use.Id) &&
                 !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) &&
                     (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use))) &&

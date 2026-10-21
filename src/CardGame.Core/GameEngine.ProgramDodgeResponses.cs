@@ -8,6 +8,7 @@ public sealed partial class GameEngine
         foreach (var choice in ChainedStateBasicDodgeChoices(owner)) yield return choice;
         foreach (var choice in RoundOnceCardlessResponseChoices(owner, CardKind.Dodge)) yield return choice;
         foreach (var choice in TieredRoundZeroResponseChoices(owner, CardKind.Dodge)) yield return choice;
+        foreach (var choice in MouXqJueyanResponseChoices(owner, CardKind.Dodge)) yield return choice;
         foreach (var program in EnabledActivationPrograms(owner))
             foreach (var activation in program.Activations.Where(item => item.Effects is
                 [{ Op: SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge }]))

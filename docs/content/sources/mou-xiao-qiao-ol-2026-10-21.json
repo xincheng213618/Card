@@ -1,0 +1,78 @@
+{
+  "generalId": "mou:xiao-qiao-ol",
+  "name": "谋小乔·OL",
+  "ruleset": "sanguosha-ol",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "faction": "wu",
+    "gender": "Female",
+    "initialHp": 3,
+    "maximumHp": 3
+  },
+  "skills": [
+    {
+      "name": "迷落",
+      "proposedId": "mou-ol:miluo",
+      "text": "出牌阶段限一次，你可展示并交给至多两名其他角色各一张牌，这些牌本轮称为“迷落”牌。每轮结束时，你可令其中一名手牌中没有“迷落”牌的角色失去1点体力，或令其中一名手牌中有“迷落”牌的角色回复1点体力。"
+    },
+    {
+      "name": "绝颜",
+      "proposedId": "mou-ol:jueyan",
+      "text": "每轮各限一次，当你需要使用手牌中一张普通锦囊牌或红色基本牌时，可改为展示并视为使用之；你每轮首次展示一种花色的手牌后摸一张牌。"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/705",
+      "role": "current official complete skills"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250826_4219_3410",
+      "role": "official first-release identity and complete skill table",
+      "publishedAt": "2025-08-28 17:05:17",
+      "availableFrom": "2025-08-29 00:15:00"
+    }
+  ],
+  "versionSeparation": "Do not import mobile hero578 Tianxiang/Hongyan, the mobile 2023/2024 adjustment/compensation notices, or the existing classic/boundary/Le editions. The OL identity is Miluo/Jueyan, not damage-transfer Tianxiang.",
+  "laterRevisionSearch": "Official-site searches for 谋小乔/绝颜/迷落 with 调整/修复/修改 located no applicable OL replacement. The 2026-04 return announcement confirms continued OL availability but does not change her skills. This is a bounded search, not an exhaustive proof that no later notice exists.",
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/70500.png",
+    "localAsset": "src/CardGame.Wpf/Assets/official-mou-xiao-qiao-ol.png",
+    "width": 750,
+    "height": 950,
+    "bytes": 1220895,
+    "sha256": "9849AF3BB239FD90E024E0FDEC1689E2C29B869F5A794FC38CA6077A22BDEB6F",
+    "visuallyInspected": true,
+    "inspection": "Root viewed the actual downloaded official portrait: long black hair, white flower ornament, green dress, flower-vine harp, blue night interior."
+  },
+  "engineeringInterpretations": [
+    {
+      "topic": "Two Jueyan branches",
+      "recommendation": "Each actual Round allows one ordinary-trick replacement and one red-basic replacement, independent from the four first-suit Draw1 claims. Source loss and regrant do not refresh spent owner-named Round budgets.",
+      "officialFaq": false
+    },
+    {
+      "topic": "Miluo eligible material and zero selection",
+      "recommendation": "Use the project's ordinary owned-card gift boundary: actual Hand/Equipment, not Judgment or unrelated private piles. The source does not explicitly require Hand for Miluo; only a card actually revealed from Hand may qualify the separate Jueyan reveal reward. Up to2 permits0, consuming the actual Play activation but creating no imaginary entity or recipient.",
+      "officialFaq": false
+    },
+    {
+      "topic": "Miluo current Hand predicate",
+      "recommendation": "Record actual original recipients for this issuer and Round across inserted Play activations, deduplicate recipients, and evaluate their actual current Hand at Round-ending offer/acceptance. A card moved out of Hand does not count as retained in Hand; a real marked entity later returned to Hand counts again until its Round expires. Do not infer this predicate from net HandCount.",
+      "officialFaq": false
+    },
+    {
+      "topic": "Jueyan effective identity and appearance",
+      "recommendation": "Reuse the selected actual card's current native effective identity and existing genuine virtual-card representation; do not silently broaden to delayed tricks/equipment, do not fabricate a physical cost, and do not apply a special distance/quota exemption. Red-basic admission is checked from the selected real Hand's effective color before neutral virtual transport. Suit/rank representation should follow one explicit existing engine contract during implementation rather than guessing from retained physical cost after the reveal.",
+      "officialFaq": false
+    },
+    {
+      "topic": "Paid lifetime",
+      "recommendation": "An accepted revealed/gifted or native-issued tail retains its exact proof through children and source loss. New opportunities require the live actual source; terminal/death cutoff follows the native parent. No full Round or pending sidecar reset on source regrant.",
+      "officialFaq": false
+    }
+  ],
+  "neutralVirtualCardContract": "Jueyan freezes the selected Hand entity effective kind and red admission before showing. It then issues a real Use with no physical materials, Suit.None, effective rank0 and neutral intrinsic color, following the existing Diou native transport. The original entity is retained rather than paid, and never supplies the virtual action appearance. Basic and ordinary-trick budgets are independent; true response Uses qualify and pure Played does not.",
+  "behaviorCheck": "tests/CardGame.Core.Tests/MouXiaoQiaoOlChecks.cs",
+  "publicHandRevealContract": "A genuine public Hand reveal creates an immutable claim on its actual native producer. At that producer's safe boundary the first-suit Draw subtree completes before its original continuation, payment or movement resumes. Ordinary DSL instructions share their native post-instruction boundary; progressive native producers retain an exact typed return. Notification-only results, deck/Processing reveals and concealed covers do not manufacture Hand-reveal rewards. Optional mode producers can register the same typed-return protocol alongside their own module; the general does not require those unrelated modules. An ordinary FireAttack matching-card discard is a payment, not a Hand reveal; its target's genuine public Hand reveal remains a distinct qualifying event."
+}

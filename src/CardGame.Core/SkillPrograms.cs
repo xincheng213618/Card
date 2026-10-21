@@ -249,6 +249,11 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveMouXiaoQiaoMiluo = 34000,
+    ResolveMouXiaoQiaoMiluoRoundEnd = 34001,
+    ResolveMouXiaoQiaoJueyan = 34002,
+    ResolveMouXiaoQiaoJueyanReveal = 34003,
+    PrepareMouZhangHeQiaobian = 34200, ResolveMouZhangHeSkippedPhase = 34201, ResolveMouZhangHeEnding = 34202,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,
@@ -1173,6 +1178,8 @@ public enum SkillProgramEffectOp
     ResolveMoSimaYiZhouxi = 33902,
     ResolveMoSimaYiRetaliation = 33903,
     ResolveMoSimaYiLieshi = 33904,
+    ResolveMouChengYuLidan = 34100,
+    ResolveMouChengYuDanchi = 34101,
     ResolveMouSunJianYipo = 32500,
     OfferMouSunJianHulieDamage = 32501,
     ResolveMouSunJianHulieCounter = 32502,
@@ -1230,6 +1237,8 @@ public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTar
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
 public enum SkillProgramTriggerWindow
 {
+    PublicHandRevealed = 34003,
+    ActualPhaseSkipped = 34200,
     WuLuKangPindian = 29700,
     ActualPhaseEnded = 27269,
     CardUseTargetsFinalized = 0,
@@ -4428,7 +4437,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window == SkillProgramTriggerWindow.WuLuKangPindian || window is SkillProgramTriggerWindow.WuLuKangPindian or SkillProgramTriggerWindow.PindianBeforeReveal or SkillProgramTriggerWindow.PindianResultDetermined || window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.IdentityGeneralAppeared || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window == SkillProgramTriggerWindow.PublicHandRevealed || window == SkillProgramTriggerWindow.WuLuKangPindian || window is SkillProgramTriggerWindow.WuLuKangPindian or SkillProgramTriggerWindow.PindianBeforeReveal or SkillProgramTriggerWindow.PindianResultDetermined || window == SkillProgramTriggerWindow.ActualPhaseSkipped || window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.IdentityGeneralAppeared || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
@@ -4446,7 +4455,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CharacterDied or
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain;
-        var supportsTriggerCondition = window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var supportsTriggerCondition = window == SkillProgramTriggerWindow.PublicHandRevealed || window == SkillProgramTriggerWindow.ActualPhaseSkipped || window == SkillProgramTriggerWindow.NativeDrawStarting || window == SkillProgramTriggerWindow.ActualPhaseEnded || window == SkillProgramTriggerWindow.TurnBeforeStart || window == SkillProgramTriggerWindow.RoundEnding || window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.PindianCardsRevealed or SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or

@@ -5,6 +5,7 @@ public sealed partial class GameEngine
 {
     private MoCaoCaoFuzaiRuntime MoCaoCaoEquipment => GetRuntimeModule<MoCaoCaoFuzaiRuntime>();
     private MoCaoCaoBachaoRuntime MoCaoCaoBachao => GetRuntimeModule<MoCaoCaoBachaoRuntime>();
+    [ProgramPipelineHook(ProgramPipelinePhase.VirtualEquipment,33800)]
     private CardKind? MoCaoCaoVirtualEquipment(int seat, EquipmentSlot slot) => MoCaoCaoEquipment.VirtualKind(seat,slot);
 
     [ProgramCapability]

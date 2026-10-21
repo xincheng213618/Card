@@ -60,10 +60,8 @@ public sealed partial class GameEngine
         var shown=r.Candidates.Where(m=>r.Revealed.Contains(m.CardId)).ToArray();
         if(shown.Any(m=>_cardZones.GetLocation(m.CardId)!=m.From))throw new InvalidOperationException("A revealed physical card left its actual hand before the reveal.");
         AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,shown.Select(m=>ToSnapshot(GetAdvancedCard(m.CardId))).ToArray()));
-        var dodges=shown.Where(m=>AdvancedEffectiveHandKind(_players[m.From.OwnerSeat!.Value],GetAdvancedCard(m.CardId))==CardKind.Dodge && !IsForeignEquipmentDiscardPrevented(f.OwnerSeat,GetAdvancedCard(m.CardId),m.From,OwnedCardMoveIntent.Discard)).ToArray();
-        if(dodges.Length==0){FinishHeQi(f);return;}
-        r=r with{Stage=HeQiStage.DiscardChildren,Paid=dodges,Before=_movementSequence,After=_movementSequence};ReplaceRuntimeTop(f with{HeQi=r,PendingMovementContinuation=new(f.OwnerSeat,0,null),Step=ResolutionFrameStep.ResolvingEffect});
-        MoveProgramLogicalDiscard(f,f.OwnerSeat,dodges.Select(m=>m.CardId).ToArray(),new(HeQiReason(r.Stage)),(_,records)=>{foreach(var movement in records)RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);var active=GetActiveProgramFrame(f.Id);var paid=r with{After=_movementSequence};ReplaceRuntimeTop(active with{HeQi=paid});IssueHeQiSegment(f.Id,paid);});AdvanceRuntimeProgram(f.Id);
+if(TryBeginPublicHandRevealWindow(f.Id,"joint-hands-dodges")){return;}ContinueHeQiAfterPublicReveal(GetActiveProgramFrame(f.Id));return;
+
     }
     private void IssueHeQiSegment(long id,HeQiReceipt r)=>AdvanceEventRulesAndQueueFact(new HeQiSegmentPaidEvent(id,r.Source,r.GameplayHash,r.Stage,r.Before,r.After,r.Paid.Count));
     private void FinishHeQi(ProgramSkillFrame f){ReplaceRuntimeTop(f=f with{HeQi=null,PendingMovementContinuation=null});FinishProgramSkill(f,true);}
@@ -101,4 +99,15 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class HeQiProgramCapability(GameEngine engine) : IHeQiProgramHost
     {public SkillProgramStepOutcome BeginHeQi(ProgramSkillFrame f,int target)=>engine.BeginHeQi(f,target);}
+ [PublicHandRevealReturn("joint-hands-dodges")]
+ private void ContinueHeQiAfterPublicReveal(ProgramSkillFrame f)
+ {
+        var r=f.HeQi??throw new InvalidOperationException("Joint reveal lost its exact two-hand selection.");
+        var shown=r.Candidates.Where(m=>r.Revealed.Contains(m.CardId)&&_cardZones.GetLocation(m.CardId)==m.From).ToArray();
+        var dodges=shown.Where(m=>AdvancedEffectiveHandKind(_players[m.From.OwnerSeat!.Value],GetAdvancedCard(m.CardId))==CardKind.Dodge && !IsForeignEquipmentDiscardPrevented(f.OwnerSeat,GetAdvancedCard(m.CardId),m.From,OwnedCardMoveIntent.Discard)).ToArray();
+        if(dodges.Length==0){FinishHeQi(f);return;}
+        r=r with{Stage=HeQiStage.DiscardChildren,Paid=dodges,Before=_movementSequence,After=_movementSequence};ReplaceRuntimeTop(f with{HeQi=r,PendingMovementContinuation=new(f.OwnerSeat,0,null),Step=ResolutionFrameStep.ResolvingEffect});
+        MoveProgramLogicalDiscard(f,f.OwnerSeat,dodges.Select(m=>m.CardId).ToArray(),new(HeQiReason(r.Stage)),(_,records)=>{foreach(var movement in records)RecordBianFuRenForeignDiscardProducer(movement,f.OwnerSeat,f.Id);var active=GetActiveProgramFrame(f.Id);var paid=r with{After=_movementSequence};ReplaceRuntimeTop(active with{HeQi=paid});IssueHeQiSegment(f.Id,paid);});AdvanceRuntimeProgram(f.Id);
+ }
+
 }

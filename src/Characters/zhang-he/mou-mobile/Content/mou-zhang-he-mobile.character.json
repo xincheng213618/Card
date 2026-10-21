@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-he",
+  "skills": [
+    {
+      "registrationOrder": 2600,
+      "programBundle": "mou-zhang-he-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:qiaobian",
+        "name": "巧变",
+        "description": "准备阶段，你可弃置任意区域内各一张牌，跳过等量个阶段，并于对应阶段跳过后执行相应效果。若你以此法跳过：1.摸牌阶段：你可获得至多两名其他角色各一张手牌；2.出牌阶段：你可移动场上一张牌，然后若你牌数未增加，你可令因此场上牌数增加的角色摸两张牌；3.弃牌阶段：你摸一张牌，结束阶段，若你手牌数大于等于场上角色数，你于之后执行一个额外的出牌阶段。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2601,
+      "programBundle": "mou-zhang-he-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-mobile:liaoshi",
+        "name": "料势",
+        "description": "每回合限一次，你可将因“巧变”获得的牌当【杀】或【闪】使用或打出。",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2602,
+      "pools": {
+        "current": 564
+      },
+      "definition": {
+        "id": "mou:zhang-he-mobile",
+        "name": "谋张郃·移动版",
+        "portraitKey": "mou-zhang-he-mobile",
+        "skillId": "mou-mobile:qiaobian",
+        "additionalSkillIds": [
+          "mou-mobile:liaoshi"
+        ],
+        "factionId": "wei",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:zhang-he",
+        "variantId": "mou-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

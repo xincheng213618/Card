@@ -2,11 +2,6 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed record SlashUseVariant(
-        CardKind EffectiveKind,
-        CardConversionSource? AdditionalConversionSource,
-        bool UsesZhuqueFan);
-
     private IReadOnlyList<SlashUseVariant> GetSlashUseVariants(
         CharacterState actor,
         CardKind baseEffectiveKind)

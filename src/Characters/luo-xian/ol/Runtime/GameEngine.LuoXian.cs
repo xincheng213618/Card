@@ -57,10 +57,18 @@ public sealed partial class GameEngine
             ? DailiDrawnMovements(frame).Where(m => CurrentHandEntry(frame.OwnerSeat, m.CardId) == m.Sequence).Select(m => ToSnapshot(GetAdvancedCard(m.CardId))).ToArray()
             : [];
         if (reveals.Length > 0) AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(frame.Id, Array.AsReadOnly(reveals)));
-        AdvanceEventRulesAndQueueFact(new DailiTurnEndCompletedEvent(id, pending.Count, reveals.Length));
+        if (TryBeginPublicHandRevealWindow(frame.Id, "daili-drawn-hand")) return true;
+        CompleteDailiAfterPublicReveal(GetActiveProgramFrame(frame.Id));
+        return true;
+    }
+    [PublicHandRevealReturn("daili-drawn-hand")]
+    private void CompleteDailiAfterPublicReveal(ProgramSkillFrame frame)
+    {
+        var pending = frame.Daili ?? throw new InvalidOperationException("Daili lost its issued Draw/reveal receipt.");
+        var count = CompleteProgramEventHistory().OfType<CardsRevealedEvent>().LastOrDefault(e => e.ResolutionId == frame.Id)?.Cards.Count ?? 0;
+        AdvanceEventRulesAndQueueFact(new DailiTurnEndCompletedEvent(frame.Id, pending.Count, count));
         ReplaceRuntimeTop(frame = frame with { Daili = null, PendingMovementContinuation = null });
         FinishProgramSkill(frame, true);
-        return true;
     }
     private IEnumerable<CardMovementRecord> DailiDrawnMovements(ProgramSkillFrame frame) =>
         CompleteProgramEventHistory().OfType<DailiCardDrawnEvent>().Where(e => e.FrameId == frame.Id)

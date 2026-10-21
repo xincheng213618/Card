@@ -29,7 +29,13 @@ internal enum ProgramPipelinePhase
     IssuedTriggerCandidate,
     AdmitTurnSuppression,
     RumoEntry,
-    RumoOrigin
+    RumoOrigin,
+    VirtualEquipment,
+    ActualPhaseSkipped,
+    LifecycleWindowCompleted,
+    AppendTurnEndingItems,
+    ResumeScheduledPhase,
+    CancelScheduledPhase
 }
 
 // Register next to the owning implementation with an explicit order; orders are
@@ -66,6 +72,7 @@ internal delegate bool ProgramIssuedTriggerCandidate(ProgramTriggerCandidate can
 internal delegate bool ProgramTurnSuppressionClaim(ProgramSkillFrame frame, int targetSeat);
 internal delegate bool ProgramRumoEntryClaim(ProgramSkillFrame frame);
 internal delegate bool ProgramRumoOriginClaim(long id, CardConversionSource source, string hash);
+internal delegate CardKind? ProgramVirtualEquipmentProvider(int seat, EquipmentSlot slot);
 
 // Static metadata only; delegates are bound once per engine and never shared.
 internal sealed class ProgramPipelineHookCatalog
@@ -116,10 +123,20 @@ internal sealed class ProgramPipelineHookCatalog
                 [typeof(ProgramTriggerCandidate), typeof(ProgramSkillWindowContext)], typeof(bool)),
             [ProgramPipelinePhase.AdmitTurnSuppression] = (typeof(ProgramTurnSuppressionClaim),
                 [typeof(ProgramSkillFrame), typeof(int)], typeof(bool)),
+            [ProgramPipelinePhase.ActualPhaseSkipped] = (typeof(Func<ProgramActualPhaseSkipContext, bool>),
+                [typeof(ProgramActualPhaseSkipContext)], typeof(bool)),
+            [ProgramPipelinePhase.LifecycleWindowCompleted] = (typeof(Func<ProgramLifecycleTriggerWindowFrame, bool>),
+                [typeof(ProgramLifecycleTriggerWindowFrame)], typeof(bool)),
+            [ProgramPipelinePhase.AppendTurnEndingItems] = (typeof(Action<List<TurnEndingBoundaryItem>>),
+                [typeof(List<TurnEndingBoundaryItem>)], typeof(void)),
+            [ProgramPipelinePhase.ResumeScheduledPhase] = (typeof(Func<bool>), [], typeof(bool)),
+            [ProgramPipelinePhase.CancelScheduledPhase] = (typeof(Func<bool>), [], typeof(bool)),
             [ProgramPipelinePhase.RumoEntry] = (typeof(ProgramRumoEntryClaim),
                 [typeof(ProgramSkillFrame)], typeof(bool)),
             [ProgramPipelinePhase.RumoOrigin] = (typeof(ProgramRumoOriginClaim),
-                [typeof(long), typeof(CardConversionSource), typeof(string)], typeof(bool))
+                [typeof(long), typeof(CardConversionSource), typeof(string)], typeof(bool)),
+            [ProgramPipelinePhase.VirtualEquipment] = (typeof(ProgramVirtualEquipmentProvider),
+                [typeof(int), typeof(EquipmentSlot)], typeof(CardKind?))
         };
 
     internal IReadOnlyDictionary<ProgramPipelinePhase, IReadOnlyList<Registration>> Phases { get; }
@@ -151,7 +168,7 @@ internal sealed class ProgramPipelineHookCatalog
             }
         }
         foreach (var (phase, registrations) in phases)
-            if (registrations.Count == 0)
+            if (registrations.Count == 0 && phase != ProgramPipelinePhase.VirtualEquipment)
                 throw new InvalidOperationException($"Pipeline hook phase '{phase}' has no registrations.");
         return new(phases);
     }
@@ -201,6 +218,11 @@ internal sealed class ProgramPipelineHooks
     private readonly ProgramTurnSuppressionClaim[] _admitTurnSuppression;
     private readonly ProgramRumoEntryClaim[] _rumoEntry;
     private readonly ProgramRumoOriginClaim[] _rumoOrigin;
+    private readonly Func<ProgramActualPhaseSkipContext, bool>[] _actualPhaseSkipped;
+    private readonly Func<ProgramLifecycleTriggerWindowFrame, bool>[] _lifecycleWindowCompleted;
+    private readonly Action<List<TurnEndingBoundaryItem>>[] _appendTurnEndingItems;
+    private readonly Func<bool>[] _resumeScheduledPhase, _cancelScheduledPhase;
+    private readonly ProgramVirtualEquipmentProvider[] _virtualEquipment;
 
     internal ProgramPipelineHooks(ProgramPipelineHookCatalog catalog, GameEngine engine)
     {
@@ -229,6 +251,12 @@ internal sealed class ProgramPipelineHooks
         _admitTurnSuppression = Bind<ProgramTurnSuppressionClaim>(ProgramPipelinePhase.AdmitTurnSuppression);
         _rumoEntry = Bind<ProgramRumoEntryClaim>(ProgramPipelinePhase.RumoEntry);
         _rumoOrigin = Bind<ProgramRumoOriginClaim>(ProgramPipelinePhase.RumoOrigin);
+        _actualPhaseSkipped = Bind<Func<ProgramActualPhaseSkipContext, bool>>(ProgramPipelinePhase.ActualPhaseSkipped);
+        _lifecycleWindowCompleted = Bind<Func<ProgramLifecycleTriggerWindowFrame, bool>>(ProgramPipelinePhase.LifecycleWindowCompleted);
+        _appendTurnEndingItems = Bind<Action<List<TurnEndingBoundaryItem>>>(ProgramPipelinePhase.AppendTurnEndingItems);
+        _resumeScheduledPhase = Bind<Func<bool>>(ProgramPipelinePhase.ResumeScheduledPhase);
+        _cancelScheduledPhase = Bind<Func<bool>>(ProgramPipelinePhase.CancelScheduledPhase);
+        _virtualEquipment = Bind<ProgramVirtualEquipmentProvider>(ProgramPipelinePhase.VirtualEquipment);
 
     }
 
@@ -358,6 +386,31 @@ internal sealed class ProgramPipelineHooks
         return false;
     }
 
+    internal bool TryBeginPhaseSkipped(ProgramActualPhaseSkipContext context)
+    {
+        foreach (var hook in _actualPhaseSkipped) if (hook(context)) return true;
+        return false;
+    }
+    internal bool LifecycleWindowCompleted(ProgramLifecycleTriggerWindowFrame frame)
+    {
+        foreach (var hook in _lifecycleWindowCompleted) if (hook(frame)) return true;
+        return false;
+    }
+    internal void AppendTurnEndingItems(List<TurnEndingBoundaryItem> items)
+    {
+        foreach (var hook in _appendTurnEndingItems) hook(items);
+    }
+    internal bool ResumeScheduledPhase()
+    {
+        foreach (var hook in _resumeScheduledPhase) if (hook()) return true;
+        return false;
+    }
+    internal bool CancelScheduledPhase()
+    {
+        foreach (var hook in _cancelScheduledPhase) if (hook()) return true;
+        return false;
+    }
+
     internal bool RumoEntry(ProgramSkillFrame frame)
     {
         foreach (var hook in _rumoEntry)
@@ -371,4 +424,17 @@ internal sealed class ProgramPipelineHooks
             if (hook(id, source, hash)) return true;
         return false;
     }
+
+    internal CardKind? VirtualEquipment(int seat, EquipmentSlot slot)
+    {
+        foreach (var provider in _virtualEquipment)
+            if (provider(seat, slot) is { } kind) return kind;
+        return null;
+    }
+}
+
+public sealed partial class GameEngine
+{
+    private CardKind? ProgramVirtualEquipment(int seat, EquipmentSlot slot) =>
+        _programPipelineHooks.VirtualEquipment(seat, slot);
 }

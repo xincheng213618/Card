@@ -99,6 +99,7 @@ public sealed partial class GameEngine
             }
             else ReplaceRuntimeTop(f = f with { TangTang = r with { Peer = peer, Stage = TangTangStage.ShowChildren, Selected = [], Candidates = [], Viewed = [] } });
             AdvanceEventRulesAndQueueFact(new ZexingPeerChosenEvent(f.Id, f.OwnerSeat, r.ActualTurn, r.TurnOwner, peer, ProgramEventHistory<ZexingPeerChosenEvent>().Count(e => e.FrameId == f.Id)));
+            if(TryBeginPublicHandRevealWindow(f.Id,"zexing-shown-card"))return;
             ContinueTangTang(f.Id); return;
         }
         if (r.Stage == TangTangStage.PeerOption)
@@ -191,4 +192,11 @@ public sealed partial class GameEngine
     private bool ContinuePaidTangTang(ProgramSkillFrame f) { if (f.TangTang is not { Paid: true }) return false; AssertTangTang(f); return true; }
     [ProgramAiChoice(SkillProgramEffectOp.ResolveZexingShownCardChain, SkillProgramEffectOp.ResolveZhiyiGainColorBenefit)]
     private PromptChoice TangTangAi(PendingDecision p, ProgramSkillFrame f) => f.TangTang?.Stage == TangTangStage.PeerOption ? p.Choices.First() : p.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("branch") is not ("decline" or "unpick")) ?? p.Choices.Last();
+    [PublicHandRevealReturn("zexing-shown-card")]
+    private void ReturnZexingPublicHand(ProgramSkillFrame f)
+    {
+        if(f.TangTang is not{Paid:true,Stage:TangTangStage.ShowChildren})throw new InvalidOperationException("Zexing lost its accepted displayed material and peer.");
+        ContinueTangTang(f.Id);
+    }
+
 }

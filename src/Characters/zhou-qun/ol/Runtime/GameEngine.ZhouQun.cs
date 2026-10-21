@@ -114,6 +114,7 @@ public sealed partial class GameEngine
             var card = GetAdvancedCard(choice.Cards.Single()); var kind = AdvancedEffectiveHandKind(_players[r.Peer], card); var shown = new ZhouQunShownCard(card.Id, r.Peer, kind, GetProgramEffectiveSuit(_players[r.Peer], card), card.Rank, ZhouQunNameLength(kind));
             ReplaceRuntimeTop(f = f with { ZhouQun = r with { Shown = shown, ShownCards = r.ShownCards.Append(shown).ToArray(), Stage = ZhouQunStage.RevealChildren, Repeat = true } });
             AdvanceEventRulesAndQueueFact(new ChenshuoHandShownEvent(f.Id, r.Revealed.Count, shown)); AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, f.TriggerId!, r.Peer, "chenshuo-hand", [ToSnapshot(card)]));
+            if (TryBeginPublicHandRevealWindow(f.Id, "chenshuo-selected-hand")) return;
             ContinueZhouQun(f.Id); return;
         }
         if (branch == "hand") r = r with { SelectedHand = r.SelectedHand.Append(choice.Cards.Single()).ToArray() };
@@ -133,6 +134,13 @@ public sealed partial class GameEngine
         else if (branch == "weather-target") { GrantTianhouWeather(f, choice.Targets.Single()); ContinueZhouQun(f.Id); return; }
         else throw new InvalidOperationException("Unknown Zhou Qun choice.");
         ReplaceRuntimeTop(f = f with { ZhouQun = r }); PublishZhouQun(f);
+    }
+    [PublicHandRevealReturn("chenshuo-selected-hand")]
+    private void ReturnChenshuoPublicHand(ProgramSkillFrame f)
+    {
+        if (f.ZhouQun is not { Stage: ZhouQunStage.RevealChildren, Shown: not null })
+            throw new InvalidOperationException("Chenshuo lost its original displayed Hand identity.");
+        ContinueZhouQun(f.Id);
     }
     private void BeginZhouQunMovement(ref ProgramSkillFrame f, ZhouQunStage stage)
     {

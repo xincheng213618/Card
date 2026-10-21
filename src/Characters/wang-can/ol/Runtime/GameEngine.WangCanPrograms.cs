@@ -20,13 +20,20 @@ public sealed partial class GameEngine
   if(op==SkillProgramEffectOp.ResolveSanwenActualGainDuplicates)
   {
    var ids=SanwenPayable(r.Sanwen!);var names=r.Sanwen!.Incoming.Where(i=>ids.Contains(i.CardId)).Select(i=>i.Name).ToHashSet();var witnesses=r.Sanwen.Witnesses.Where(i=>names.Contains(i.Name)&&_cardZones.GetLocation(i.CardId)==CardLocation.Hand(f.OwnerSeat)).Select(i=>i.CardId).ToArray();
-   SetProgramCardSet(f.Id,"sanwen-witness",witnesses,SkillProgramCardSetVisibility.Public);AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id,f.SkillId,GetProgramBindingId(f),f.OwnerSeat,"sanwen-witness",Array.AsReadOnly(witnesses.Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray())));f=GetActiveProgramFrame(f.Id);PayWangCanMove(f,ids,CardLocation.DiscardPile,WangCanStage.SanwenDiscard);return SkillProgramStepOutcome.AwaitChild;
+   ReplaceRuntimeTop(f=f with{WangCan=r with{Entities=ids}});SetProgramCardSet(f.Id,"sanwen-witness",witnesses,SkillProgramCardSetVisibility.Public);AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id,f.SkillId,GetProgramBindingId(f),f.OwnerSeat,"sanwen-witness",Array.AsReadOnly(witnesses.Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray())));if(TryBeginPublicHandRevealWindow(f.Id,"sanwen-witness-hand"))return SkillProgramStepOutcome.AwaitChild;ContinueSanwenAfterPublicReveal(GetActiveProgramFrame(f.Id));return SkillProgramStepOutcome.AwaitChild;
   }
   if(op==SkillProgramEffectOp.CollectQiaiLivingContributions)
   {
    var seats=Enumerable.Range(1,_players.Count-1).Select(i=>(f.OwnerSeat+i)%_players.Count).Where(s=>_players[s].IsAlive).ToArray();ReplaceRuntimeTop(f=f with{WangCan=r with{Seats=seats,DyingFrameId=ActiveDying!.Id}});ContinueQiai(f);return SkillProgramStepOutcome.AwaitChoice;
   }
   BeginDenglouLease(f);return SkillProgramStepOutcome.AwaitChild;
+ }
+ [PublicHandRevealReturn("sanwen-witness-hand")]
+ private void ContinueSanwenAfterPublicReveal(ProgramSkillFrame f)
+ {
+  var r=f.WangCan??throw new InvalidOperationException("Sanwen lost its original duplicate gain receipt.");
+  var ids=r.Entities.Where(id=>_cardZones.GetLocation(id)==CardLocation.Hand(f.OwnerSeat)).ToArray();
+  PayWangCanMove(f,ids,CardLocation.DiscardPile,WangCanStage.SanwenDiscard);
  }
  private void PayWangCanMove(ProgramSkillFrame f,IReadOnlyList<int> ids,CardLocation destination,WangCanStage stage)
  {

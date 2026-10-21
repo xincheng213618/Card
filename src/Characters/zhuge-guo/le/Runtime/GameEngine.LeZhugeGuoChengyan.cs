@@ -61,19 +61,8 @@ public sealed partial class GameEngine
                 ReplaceRuntimeTop(f = f with { LeChengyan = r = r with { RevealedCardId = card.Id, RevealedKind = kind } });
                 AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, f.TriggerId!, f.OwnerSeat, "chengyan-shown", [ToSnapshot(card)]));
                 AdvanceEventRulesAndQueueFact(new LeChengyanRevealedEvent(f.Id, r.UseId, r.ActionId, card.Id, kind));
-                if (kind == CardKind.Nullification) { FinishLeChengyan(f, false); return; }
-                if (IsSlashCard(kind) || IsOrdinaryTrick(kind))
-                {
-                    var use = LifecycleCardUse(r.UseId)!;
-                    ReplaceRuntimeFrame(use.Id, use with { LeChengyanEffect = new(f.Id, r.Source, f.GameplayHash, r.ActionId, card.Id, kind) });
-                    AdvanceEventRulesAndQueueFact(new LeChengyanEffectIssuedEvent(f.Id, r.UseId, r.ActionId, r.Source, card.Id, kind));
-                    FinishLeChengyan(f, true); return;
-                }
-            }
-            if (card is not null && _players[f.OwnerSeat].IsAlive && _winner == Winner.None)
-            {
-                ReplaceRuntimeTop(f = f with { PendingMovementContinuation = null, LeChengyan = r with { Stage = LeChengyanStage.SecondDraw, Draw = null } });
-                BeginOperationProgramDraw(f, f.OwnerSeat, 1, new(LeChengyanDrawReason)); return;
+                if(TryBeginPublicHandRevealWindow(f.Id,"chengyan-drawn-hand"))return;
+                ContinueChengyanAfterPublicReveal(GetActiveProgramFrame(f.Id));return;
             }
         }
         FinishLeChengyan(f, false);
@@ -83,4 +72,24 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new LeChengyanCompletedEvent(f.Id, f.LeChengyan!.UseId, replaced));
         ReplaceRuntimeTop(f = f with { LeChengyan = null, PendingMovementContinuation = null }); FinishProgramSkill(f, true);
     }
+    [PublicHandRevealReturn("chengyan-drawn-hand")]
+    private void ContinueChengyanAfterPublicReveal(ProgramSkillFrame f)
+    {
+        var r=f.LeChengyan??throw new InvalidOperationException("Chengyan lost its native draw/reveal receipt.");
+        if(r.RevealedCardId is null||r.RevealedKind is not{}kind)throw new InvalidOperationException("Chengyan lost its frozen shown identity.");
+        if(kind==CardKind.Nullification){FinishLeChengyan(f,false);return;}
+        if(IsSlashCard(kind)||IsOrdinaryTrick(kind))
+        {
+            var use=LifecycleCardUse(r.UseId);if(use is null){FinishLeChengyan(f,false);return;}
+            ReplaceRuntimeFrame(use.Id,use with{LeChengyanEffect=new(f.Id,r.Source,f.GameplayHash,r.ActionId,r.RevealedCardId.Value,kind)});
+            AdvanceEventRulesAndQueueFact(new LeChengyanEffectIssuedEvent(f.Id,r.UseId,r.ActionId,r.Source,r.RevealedCardId.Value,kind));FinishLeChengyan(f,true);return;
+        }
+        if(_players[f.OwnerSeat].IsAlive&&_winner==Winner.None)
+        {
+            ReplaceRuntimeTop(f=f with{PendingMovementContinuation=null,LeChengyan=r with{Stage=LeChengyanStage.SecondDraw,Draw=null}});
+            BeginOperationProgramDraw(f,f.OwnerSeat,1,new(LeChengyanDrawReason));return;
+        }
+        FinishLeChengyan(f,false);
+    }
+
 }

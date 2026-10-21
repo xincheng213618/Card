@@ -95,6 +95,7 @@ public sealed partial class GameEngine
                 _turnNumber, _turnProgression.OwnerSeat, _movementSequence, first, same));
             AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, GetProgramBindingId(f),
                 f.OwnerSeat, "diou-retained-hand", [ToSnapshot(card)]));
+            if (TryBeginPublicHandRevealWindow(f.Id, "diou-retained-hand")) return;
             PublishDiou(GetActiveProgramFrame(f.Id)); return;
         }
         if (choice.Parameters["branch"] != "use" || r.Stage != DiouStage.UseChoice)

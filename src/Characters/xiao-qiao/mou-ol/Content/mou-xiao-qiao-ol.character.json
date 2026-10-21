@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiao-qiao",
+  "skills": [
+    { "registrationOrder": 2580, "programBundle": "mou-xiao-qiao-ol", "includeProgramPresentation": true,
+      "definition": { "id": "mou-ol:miluo", "name": "迷落", "description": "出牌阶段限一次，你可展示并交给至多两名其他角色各一张牌，这些牌本轮称为“迷落”牌。每轮结束时，你可令其中一名手牌中没有“迷落”牌的角色失去1点体力，或令其中一名手牌中有“迷落”牌的角色回复1点体力。", "actionForms": "Active", "executionForms": "State, Trigger" } },
+    { "registrationOrder": 2581, "programBundle": "mou-xiao-qiao-ol", "includeProgramPresentation": true,
+      "definition": { "id": "mou-ol:jueyan", "name": "绝颜", "description": "每轮各限一次，当你需要使用手牌中一张普通锦囊牌或红色基本牌时，可改为展示并视为使用之；你每轮首次展示一种花色的手牌后摸一张牌。", "actionForms": "Active", "executionForms": "State, Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 2582, "pools": { "current": 562 }, "definition": {
+    "id": "mou:xiao-qiao-ol", "name": "谋小乔·OL", "portraitKey": "mou-xiao-qiao-ol",
+    "skillId": "mou-ol:miluo", "additionalSkillIds": ["mou-ol:jueyan"], "factionId": "wu", "baseHp": 3,
+    "gender": "Female", "characterId": "character:xiao-qiao", "variantId": "mou-ol", "rulesetId": "sanguosha-ol" } } ]
+}

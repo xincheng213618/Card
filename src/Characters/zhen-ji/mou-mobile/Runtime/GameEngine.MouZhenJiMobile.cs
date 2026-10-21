@@ -66,25 +66,8 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { MouZhenJiLuoshen = r with { RevealedCardId = card.Id, RevealedSuit = suit, Stage = MouZhenJiLuoshenStage.MovementChildren, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, f.TriggerId!, f.OwnerSeat, "luoshen-reveal", [ToSnapshot(card)]));
         AdvanceEventRulesAndQueueFact(new MouZhenJiLuoshenRevealedEvent(f.Id, r.Cursor, chooser, card.Id, suit));
-        if (_cardZones.GetLocation(card.Id) == from && _players[f.OwnerSeat].IsAlive && _players[chooser].IsAlive && _winner == Winner.None)
-        {
-            if (red == false) MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(MouZhenJiObtainReason));
-            else if (red == true && !IsSelfHandCategoryDiscardForbidden(chooser, card, from, OwnedCardMoveIntent.Discard))
-                MoveLogicalDiscard(f.OwnerSeat, chooser, card, from, new(MouZhenJiDiscardReason));
-            var m = _cardMovements.SingleOrDefault(m => m.Sequence > before && m.CardId == card.Id && m.From == from && m.Reason.Value == (red == false ? MouZhenJiObtainReason : MouZhenJiDiscardReason));
-            if (m is not null)
-            {
-                AdvanceEventRulesAndQueueFact(new MouZhenJiLuoshenMovedEvent(f.Id, r.Cursor, card.Id, from, m.To, m.Sequence, red == false));
-                if (red == false && m.To == CardLocation.Hand(f.OwnerSeat) && !_turnCardUseEffects.GetHandLimitExemptCardIds(r.TurnNumber, r.TurnOwnerSeat, f.OwnerSeat).Contains(card.Id))
-                {
-                    var grant = _turnCardUseEffects.GrantHandLimitExemptCard(r.TurnNumber, r.TurnOwnerSeat, f.Id, f.InstructionIndex - 1, 0,
-                        CreateProgramTurnEffectSource(f), f.OwnerSeat, card.Id, m.Sequence);
-                    AdvanceEventRulesAndQueueFact(new TurnHandLimitExemptCardGrantedEvent(grant));
-                }
-            }
-        }
-        f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { MouZhenJiLuoshen = f.MouZhenJiLuoshen! with { After = _movementSequence } });
-        ContinueMouZhenJiLuoshen(f.Id);
+        if(TryBeginPublicHandRevealWindow(f.Id,"luoshen-selected-hand"))return;
+        ContinueLuoshenAfterPublicReveal(GetActiveProgramFrame(f.Id));
     }
     private bool DrainMouZhenJiLuoshen(ProgramSkillFrame f) => TryBeginQueuedRecoveryReplacement(f.Id, PostEventContinuation.AwaitedProgramMovement) ||
         TryBeginHpChangedProgramWindow(f.Id, PostEventContinuation.AwaitedProgramMovement) || TryBeginCardsMovedProgramWindow(f.Id) || TryBeginAdvancedSkillsChanged(f.Id);
@@ -115,4 +98,30 @@ public sealed partial class GameEngine
         : p.Choices.OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[p.PlayerSeat])).ThenBy(c => c.Cards.Single()).First();
     [ProgramCapability] private sealed class MouZhenJiLuoshenCapability(GameEngine engine) : IMouZhenJiLuoshenHost
     { public SkillProgramStepOutcome Start(ProgramSkillFrame f) => engine.StartMouZhenJiLuoshen(f); }
+    [PublicHandRevealReturn("luoshen-selected-hand")]
+    private void ContinueLuoshenAfterPublicReveal(ProgramSkillFrame f)
+    {
+        var r=f.MouZhenJiLuoshen??throw new InvalidOperationException("Luoshen lost its exact public Hand selection.");
+        var chooser=r.Seats[r.Cursor];var from=CardLocation.Hand(chooser);var card=GetAdvancedCard(r.RevealedCardId!.Value);var red=SuitColor(r.RevealedSuit!.Value);var before=_movementSequence;
+        if (_cardZones.GetLocation(card.Id) == from && _players[f.OwnerSeat].IsAlive && _players[chooser].IsAlive && _winner == Winner.None)
+        {
+            if (red == false) MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(MouZhenJiObtainReason));
+            else if (red == true && !IsSelfHandCategoryDiscardForbidden(chooser, card, from, OwnedCardMoveIntent.Discard))
+                MoveLogicalDiscard(f.OwnerSeat, chooser, card, from, new(MouZhenJiDiscardReason));
+            var m = _cardMovements.SingleOrDefault(m => m.Sequence > before && m.CardId == card.Id && m.From == from && m.Reason.Value == (red == false ? MouZhenJiObtainReason : MouZhenJiDiscardReason));
+            if (m is not null)
+            {
+                AdvanceEventRulesAndQueueFact(new MouZhenJiLuoshenMovedEvent(f.Id, r.Cursor, card.Id, from, m.To, m.Sequence, red == false));
+                if (red == false && m.To == CardLocation.Hand(f.OwnerSeat) && !_turnCardUseEffects.GetHandLimitExemptCardIds(r.TurnNumber, r.TurnOwnerSeat, f.OwnerSeat).Contains(card.Id))
+                {
+                    var grant = _turnCardUseEffects.GrantHandLimitExemptCard(r.TurnNumber, r.TurnOwnerSeat, f.Id, f.InstructionIndex - 1, 0,
+                        CreateProgramTurnEffectSource(f), f.OwnerSeat, card.Id, m.Sequence);
+                    AdvanceEventRulesAndQueueFact(new TurnHandLimitExemptCardGrantedEvent(grant));
+                }
+            }
+        }
+        f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { MouZhenJiLuoshen = f.MouZhenJiLuoshen! with { After = _movementSequence } });
+        ContinueMouZhenJiLuoshen(f.Id);
+    }
+
 }

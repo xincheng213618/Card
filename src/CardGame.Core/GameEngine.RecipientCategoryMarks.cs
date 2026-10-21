@@ -209,22 +209,11 @@ public sealed partial class GameEngine
         var kind = category switch { SkillProgramCardCategory.Trick => RecipientCategoryMarkKind.Rescue,
             SkillProgramCardCategory.Equipment => RecipientCategoryMarkKind.Discard, _ => RecipientCategoryMarkKind.ExtraTargets };
         var e = GetProgramTrigger(f).Effects.Single(); var before = RecipientMarkSequence;
+        ReplaceRuntimeTop(f=f with{PublicHandRevealSelection=new("recipient-category-hand-gift",f.InstructionIndex,0,id,card.Kind,CardLocation.Hand(r.HolderSeat),CardLocation.Hand(f.OwnerSeat),f.OwnerSeat,r.HolderSeat,EffectiveKind:card.Kind)});
         AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, GetProgramBindingId(f), r.HolderSeat, "category-mark-gift", Array.AsReadOnly(new[] { ToSnapshot(card) })));
-        ReplaceRuntimeTop(f = f with { RecipientCategoryMark = r with { Stage = RecipientCategoryMarkStage.GiftChildren, SelectedCardIds = [id], SequenceBefore = before, SequenceAfter = before },
-            PendingMovementContinuation = new(r.HolderSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(f.OwnerSeat), new(RecipientMarkReason(f, "gift")), (batch, records) =>
-        {
-            var token = new RecipientCategoryMarkToken(f.Id, r.HolderSeat, r.SourceSkillId, r.StateId, kind, e.SkillIds[(int)kind], r.Source, r.GameplayHash, records.Single().Sequence);
-            _recipientCategoryMarks.Add(new(r.HolderSeat, r.SourceSkillId, r.StateId), token);
-            var active = GetActiveProgramFrame(f.Id);
-            ReplaceRuntimeTop(active = active with { RecipientCategoryMark = active.RecipientCategoryMark! with { Token = token, BatchId = batch, SequenceAfter = token.GiftSequence } });
-            ChangeRecipientCategoryMarker(active, r.HolderSeat, kind, 1);
-            AdvanceEventRulesAndQueueFact(new RecipientCategoryMarkMovementPaidEvent(f.Id, r.HolderSeat, 1, before, token.GiftSequence, batch));
-            AdvanceEventRulesAndQueueFact(new RecipientCategoryMarkGrantedEvent(f.Id, token));
-            // The holder permanently owns this grant. Origin identity stays on the token, never on grant qualification.
-            AcquireRuntimeSkills(_players[r.HolderSeat], $"recipient-category:{r.HolderSeat}:{r.SourceSkillId}:{r.StateId}", [token.DerivedSkillId]);
-        });
-        AdvanceRuntimeProgram(f.Id);
+        if(TryBeginPublicHandRevealWindow(f.Id,"recipient-category-hand-gift"))return;
+        ContinueRecipientCategoryPublicReveal(GetActiveProgramFrame(f.Id));
+
     }
     private void PayRecipientCategoryAreaDiscard(ProgramSkillFrame f)
     {
@@ -297,4 +286,30 @@ public sealed partial class GameEngine
     {
         public SkillProgramStepOutcome ExecuteRecipientCategoryMark(ProgramSkillFrame f, SkillProgramEffect e) => engine.ExecuteRecipientCategoryMark(f, e);
     }
+    [PublicHandRevealReturn("recipient-category-hand-gift")]
+    private void ContinueRecipientCategoryPublicReveal(ProgramSkillFrame f)
+    {
+        var r=f.RecipientCategoryMark??throw new InvalidOperationException("Category gift lost its native owner.");var payment=f.PublicHandRevealSelection??throw new InvalidOperationException("Category gift lost its selected Hand entity.");
+        if(payment.ReturnKey!="recipient-category-hand-gift"||payment.InstructionIndex!=f.InstructionIndex||payment.From!=CardLocation.Hand(r.HolderSeat))throw new InvalidOperationException("Category gift changed its original holder.");
+        ReplaceRuntimeTop(f=f with{PublicHandRevealSelection=null});var id=payment.CardId;
+        if(_cardZones.GetLocation(id)!=payment.From||!_players[f.OwnerSeat].IsAlive){CompleteRecipientCategoryMark(f);return;}
+        var category=GetProgramCardCategory(payment.EffectiveKind!.Value);var kind=category switch{SkillProgramCardCategory.Trick=>RecipientCategoryMarkKind.Rescue,SkillProgramCardCategory.Equipment=>RecipientCategoryMarkKind.Discard,_=>RecipientCategoryMarkKind.ExtraTargets};
+        var e=GetProgramTrigger(f).Effects.Single();var before=RecipientMarkSequence;
+        ReplaceRuntimeTop(f = f with { RecipientCategoryMark = r with { Stage = RecipientCategoryMarkStage.GiftChildren, SelectedCardIds = [id], SequenceBefore = before, SequenceAfter = before },
+            PendingMovementContinuation = new(r.HolderSeat, 0, null) });
+        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(f.OwnerSeat), new(RecipientMarkReason(f, "gift")), (batch, records) =>
+        {
+            var token = new RecipientCategoryMarkToken(f.Id, r.HolderSeat, r.SourceSkillId, r.StateId, kind, e.SkillIds[(int)kind], r.Source, r.GameplayHash, records.Single().Sequence);
+            _recipientCategoryMarks.Add(new(r.HolderSeat, r.SourceSkillId, r.StateId), token);
+            var active = GetActiveProgramFrame(f.Id);
+            ReplaceRuntimeTop(active = active with { RecipientCategoryMark = active.RecipientCategoryMark! with { Token = token, BatchId = batch, SequenceAfter = token.GiftSequence } });
+            ChangeRecipientCategoryMarker(active, r.HolderSeat, kind, 1);
+            AdvanceEventRulesAndQueueFact(new RecipientCategoryMarkMovementPaidEvent(f.Id, r.HolderSeat, 1, before, token.GiftSequence, batch));
+            AdvanceEventRulesAndQueueFact(new RecipientCategoryMarkGrantedEvent(f.Id, token));
+            // The holder permanently owns this grant. Origin identity stays on the token, never on grant qualification.
+            AcquireRuntimeSkills(_players[r.HolderSeat], $"recipient-category:{r.HolderSeat}:{r.SourceSkillId}:{r.StateId}", [token.DerivedSkillId]);
+        });
+        AdvanceRuntimeProgram(f.Id);
+    }
+
 }

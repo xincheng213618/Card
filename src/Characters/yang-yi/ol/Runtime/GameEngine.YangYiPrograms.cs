@@ -389,6 +389,8 @@ public sealed partial class GameEngine
                 Stage = JuanxiaStage.Fire
             }
         });
+        AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(active.Id,[ToSnapshot(revealed)]));
+        if(TryBeginPublicHandRevealWindow(active.Id,"juanxia-fire-shown-hand"))return;
         PresentJuanxiaFirePaymentPrompt(GetActiveProgramFrame(active.Id), revealed);
     }
 
@@ -753,4 +755,12 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome JuanxiaRetaliation(ProgramSkillFrame frame, SkillProgramEffect effect) =>
             engine.JuanxiaProgramRetaliation(frame, effect);
     }
+    [PublicHandRevealReturn("juanxia-fire-shown-hand")]
+    private void ReturnJuanxiaPublicHand(ProgramSkillFrame frame)
+    {
+        if(frame.JuanxiaLaunch is not{Stage:JuanxiaStage.Fire,RevealedCardId:>0}state)throw new InvalidOperationException("Juanxia lost its original FireAttack Hand reveal.");
+        if(_cardZones.GetLocation(state.RevealedCardId)!=CardLocation.Hand(state.TargetSeat)){CancelJuanxiaTrick(frame,state,CardKind.FireAttack,"狷狭：展示牌已离开手牌，取消此次火攻。");return;}
+        PresentJuanxiaFirePaymentPrompt(frame,GetAdvancedCard(state.RevealedCardId));
+    }
+
 }

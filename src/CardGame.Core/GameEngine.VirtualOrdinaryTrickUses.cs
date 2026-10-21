@@ -258,10 +258,11 @@ public sealed partial class GameEngine
     }
 
     private bool IsProgramVirtualOrdinaryTrickUse(long frameId) =>
-        LifecycleCardUse(frameId) is { } use && ValidProgramVirtualOrdinaryTrickUse(use);
+        IsMouDanchiDrawTwo(frameId) || LifecycleCardUse(frameId) is { } use && ValidProgramVirtualOrdinaryTrickUse(use);
 
     private Card ReadVirtualOrdinaryTrickUseAppearance(long ownerId, CardAppearanceReference appearance)
     {
+        if (IsMouDanchiDrawTwo(ownerId)) return ReadMouDanchiAppearance(ownerId, appearance);
         if (LifecycleCardUse(ownerId) is not { VirtualOrdinaryTrickOrigin: not null } use)
             return ReadMouWenChouUseAppearance(ownerId, appearance);
         if (!ValidProgramVirtualOrdinaryTrickUse(use) || appearance.Id != 0 ||

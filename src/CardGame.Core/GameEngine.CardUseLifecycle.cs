@@ -117,7 +117,7 @@ public sealed partial class GameEngine
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         if (ContinueGuanduIntoxicationUse(frameId, continuation)) return;
         if (ContinueDyingSuitsPeach(frameId, continuation)) return;
-        if (ContinueHuanpeiSimpleUse(frameId, continuation) || ContinueDiouSimpleUse(frameId, continuation)) return;
+        if (ContinueHuanpeiSimpleUse(frameId, continuation) || ContinueDiouSimpleUse(frameId, continuation) || ContinueMouXqJueyanSimpleUse(frameId, continuation)) return;
         if (ContinueMouZuifengAlcoholUse(frameId, continuation)) return;
         if (ContinueWeijieSimpleUse(frameId, continuation)) return;
         if (ContinueTieredRoundZeroSimpleUse(frameId, continuation)) return;

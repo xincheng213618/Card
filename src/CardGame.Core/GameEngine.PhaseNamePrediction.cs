@@ -116,7 +116,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The blind reveal lost its frozen target-hand entity.");
             ReplaceRuntimeTop(f = f with { PhaseNamePrediction = r with { Stage = PhaseNamePredictionStage.Guessing, RevealedCardId = id } });
             AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id, Array.AsReadOnly(new[] { ToSnapshot(GetAttackCard(id)) })));
-            PublishPredictionChoice(f); return;
+            if (TryBeginPublicHandRevealWindow(f.Id, "phase-name-hand")) return;
+            PublishPredictionChoice(GetActiveProgramFrame(f.Id)); return;
         }
         if (r.Stage != PhaseNamePredictionStage.Guessing || r.RevealedCardId is not { } shown)
             throw new InvalidOperationException("Prediction has no exact shown entity.");

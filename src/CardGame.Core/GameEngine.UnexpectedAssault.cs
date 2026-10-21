@@ -77,19 +77,8 @@ public sealed partial class GameEngine
         AddLog("CardRevealed", $"{_players[sourceSeat].Name} 展示了 { _players[targetSeat].Name } 的【{targetCard.DisplayName}】（{GetSuitDisplayName(receipt.EffectiveRevealedSuit)}）。",
             sourceSeat, targetSeat);
 
-        if (!receipt.CanCauseDamage)
-        {
-            MoveFinishedTrickCard(use.Id, effectCard);
-            FinishCardUse(use.Id, effectCard, effectiveCardKind);
-            return true;
-        }
-
-        var attack = new CardAttackHandle(this, use.Id, sourceSeat, targetSeat, effectCard,
-            playedCardKind: effectiveCardKind, damageNatureOverride: DamageNature.Normal,
-            physicalCards: GetCardUsePhysicalCards(use.Id));
-        ActiveCardAttack = attack;
-        if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
-        return true;
+        if(TryBeginPublicHandRevealWindow(use.Id,"unexpected-assault-hand"))return true;
+        ContinueUnexpectedAssaultPublicReveal(LifecycleCardUse(use.Id)!);return true;
     }
 
     private void AssertUnexpectedAssaultReceipts()
@@ -112,4 +101,25 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Unexpected Assault lost its one actual public reveal and frozen scalar comparison.");
         }
     }
+    [PublicHandRevealReturn("unexpected-assault-hand")]
+    private void ContinueUnexpectedAssaultPublicReveal(CardUseFrame use)
+    {
+        var receipt=use.UnexpectedAssaultReveal??throw new InvalidOperationException("Unexpected Assault lost its selected Hand reveal.");
+        if(receipt.CardUseFrameId!=use.Id||receipt.ActionId!=use.Action?.ActionId||receipt.TargetIndex!=use.TargetIndex)throw new InvalidOperationException("Unexpected Assault changed its original native cursor.");
+        var sourceSeat=receipt.SourceSeat;var targetSeat=receipt.TargetSeat;var effectiveCardKind=CardKind.UnexpectedAssault;var effectCard=GetTrickRepresentation(use.Id,use.CardId,requireProcessing:true);
+        if (!receipt.CanCauseDamage)
+        {
+            MoveFinishedTrickCard(use.Id, effectCard);
+            FinishCardUse(use.Id, effectCard, effectiveCardKind);
+            return;
+        }
+
+        var attack = new CardAttackHandle(this, use.Id, sourceSeat, targetSeat, effectCard,
+            playedCardKind: effectiveCardKind, damageNatureOverride: DamageNature.Normal,
+            physicalCards: GetCardUsePhysicalCards(use.Id));
+        ActiveCardAttack = attack;
+        if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
+        return;
+    }
+
 }

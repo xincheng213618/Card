@@ -1,0 +1,103 @@
+{
+  "generalId": "mou:zhang-he-mobile",
+  "name": "谋张郃·移动版",
+  "edition": "三国杀移动版·谋攻篇",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "faction": "wei",
+    "gender": "Male",
+    "maximumHp": 4,
+    "initialHp": 4
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.cn/api/generals?from=2&perPage=1000&page=1&label_id=",
+      "sha256": "49BAEF742F69B5BED7241AB9F420E3E4875B6DEDC9FD79F1F7D6C6BDF02B8F27",
+      "bytes": 1820041,
+      "authority": "Current complete hero/API skill text and identity."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/hero-detail-654.html",
+      "sha256": "E98089437D24CA569DA827BFEA0A48A241CAE4D3C3934B7894BBF105BD5B6006",
+      "bytes": 20683,
+      "authority": "Current complete hero/API skill text and identity."
+    },
+    {
+      "url": "https://www.sanguosha.cn/pc/news-detail-2285.html",
+      "sha256": "4C671E73FEF509F7630CC9DBB5EE461FBA63B1E7B1FB62F5AA4D9263C883C253",
+      "bytes": 87941,
+      "authority": "Formal first release date and edition; the announcement does not reproduce Zhang He full skills."
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.cn/pc/news-detail-2285.html",
+    "publishedAt": "2026-04-03 17:30:00",
+    "availableFrom": "2026-04-04"
+  },
+  "skills": [
+    {
+      "id": "mou-mobile:qiaobian",
+      "name": "巧变",
+      "text": "准备阶段，你可弃置任意区域内各一张牌，跳过等量个阶段，并于对应阶段跳过后执行相应效果。若你以此法跳过：1.摸牌阶段：你可获得至多两名其他角色各一张手牌；2.出牌阶段：你可移动场上一张牌，然后若你牌数未增加，你可令因此场上牌数增加的角色摸两张牌；3.弃牌阶段：你摸一张牌，结束阶段，若你手牌数大于等于场上角色数，你于之后执行一个额外的出牌阶段。"
+    },
+    {
+      "id": "mou-mobile:liaoshi",
+      "name": "料势",
+      "text": "每回合限一次，你可将因“巧变”获得的牌当【杀】或【闪】使用或打出。"
+    }
+  ],
+  "currentVersion": {
+    "heroAndApiFullTextExact": true,
+    "notMixedWithOldPreview": "Current hero/API LiaoShi expressly says Slash or Dodge once per turn; community summaries claiming any basic card and the discarded2023 design are not substituted.",
+    "nonRuleWebsiteError": "The brief_play paragraph discusses equipment-zone Slash and an unrelated general. It conflicts with the actual displayed skill paragraphs/API; only the two full skill rows are adopted.",
+    "officialAdjustmentSearch": "Bounded searches of official-domain 料势, 谋张郃调整, 谋张郃判定 found no later complete official replacement text or FAQ. This is not a claim that no private/in-client FAQ exists."
+  },
+  "portrait": {
+    "observedOfficialDomUrl": "https://www.sanguosha.cn/storage/uploads/images/87800.jpg",
+    "productionArtIntegratedByRoot": true
+  },
+  "engineeringInterpretations": [
+    {
+      "topic": "Payment and selectable phases",
+      "decision": "At actual own Preparation, discard at most one real card from each own Hand, Equipment, Judgment zone, then skip an equal number of distinct Judgment/Draw/Play/Discard phases. Zero cards declines. Private piles are excluded.",
+      "authority": "Project interpretation; not official FAQ or user ruling."
+    },
+    {
+      "topic": "Native payment and reward timing",
+      "decision": "Pay actual logical discards and all resulting native children before issuing phase obligations. Rewards occur only after each corresponding actual phase skip; no fictitious phase-end is emitted. Paid obligations preserve their issuer and content through ordinary source loss.",
+      "authority": "Project interpretation; not official FAQ."
+    },
+    {
+      "topic": "Draw-skip obtain",
+      "decision": "Choose up to two distinct living others and one actual opaque Hand card from each, using native obtain/movement and normalization. Do not expose unchosen hidden identities.",
+      "authority": "Native implementation interpretation."
+    },
+    {
+      "topic": "Play-skip field movement",
+      "decision": "Move one native-legal Equipment/Judgment card between distinct living corresponding areas. Compare the owner’s actual HEJ count before movement against its count after all children. A recipient whose field count actually increases may then really Draw2.",
+      "authority": "Project interpretation; not official FAQ."
+    },
+    {
+      "topic": "Discard-skip and automatic extra Play",
+      "decision": "The actual Discard skip issues native Draw1. At that actual Ending, if current Hand count is at least current living player count, insert Play automatically with no extra confirmation. It remains within the same whole actual turn and returns to its original Ending parent.",
+      "authority": "Project interpretation preserving the compulsory printed clause."
+    },
+    {
+      "topic": "Liaoshi entity lineage",
+      "decision": "Record only the original beneficiary’s real Qiaobian own-obtain movement or ActualDraw materials. Replacement gains and unrelated skill children are not qualified. The record has no invented expiry; transfer does not qualify the new holder, and return to the original beneficiary’s Hand restores eligibility.",
+      "authority": "Project interpretation; not official FAQ."
+    },
+    {
+      "topic": "Liaoshi shared budget",
+      "decision": "One accepted genuine Use or pure Played consumes a single owner+named-skill whole-actual-turn budget shared by Slash and Dodge. Losing/regranting the skill or entering an extra Play does not reset it. Normal native distance, targets, payment and response rules remain applicable.",
+      "authority": "Project interpretation; not official FAQ."
+    }
+  ],
+  "behaviorChecks": [
+    {
+      "path": "tests/CardGame.Core.Tests/MouZhangHeMobileChecks.cs",
+      "method": "NativeSkippedPhasesAndLiaoshi",
+      "filter": "Mou Zhang He Mobile: actual skipped phases and Liaoshi"
+    }
+  ]
+}

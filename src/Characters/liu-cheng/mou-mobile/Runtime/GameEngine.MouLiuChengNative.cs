@@ -141,7 +141,7 @@ public sealed partial class GameEngine
         throw new InvalidOperationException("MouLiuCheng lost its zero-material native card representation.");
     private Card ReadMouLiuChengUseAppearance(long id, CardAppearanceReference appearance)
     {
-        if (!IsMouLiuChengZeroUse(id)) return ReadDiouUseAppearance(id, appearance);
+        if (!IsMouLiuChengZeroUse(id)) return ReadMouXqJueyanAppearance(id, appearance);
         if (appearance.Id != 0 || appearance.Kind != LifecycleCardUse(id)!.CardKind ||
             appearance.Suit != Suit.None || appearance.Rank != 0)
             throw new InvalidOperationException("MouLiuCheng's native continuation changed its exact neutral zero-material appearance.");

@@ -325,7 +325,7 @@ public sealed partial class GameEngine
     }
 
     private bool HasDesignatedExtraTargetTail(CardUseFrame use) =>
-        HasMoQuanyuAddedTargetTail(use) || HasPijingTargetTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
+        HasMouLidanTargetTail(use) || HasMoQuanyuAddedTargetTail(use) || HasPijingTargetTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use) ||
         use.BeiMiHuTargetMutation is { Kind: "append" } && ValidBeiMiHuTargetMutation(use) ||
         CompleteProgramEventHistory().OfType<DesignatedExtraTargetResolvedEvent>().Any(e =>
             IsDesignatedExtraTargetFact(use, e, e.OriginalTargetSeats) && use.Action!.TargetSeats.Count >= e.ResultTargetSeats.Count &&
@@ -401,6 +401,7 @@ public sealed partial class GameEngine
         var issuer = new CardConversionSource(parent.SkillId, GetProgramBindingId(parent), parent.OwnerSeat, parent.SkillInstanceId);
         var exactProducer = effect.Op switch
         {
+            SkillProgramEffectOp.ResolveMouChengYuDanchi => IsMouDanchiUse(use.Id) && parent.OwnerSeat == use.SourceSeat && action.ConversionChain.Count == 0,
             SkillProgramEffectOp.UseVirtualSlash => parent.OwnerSeat == use.SourceSeat && action.ConversionChain.SequenceEqual([issuer]) &&
                 (effect.TargetReference is null ? parent.SelectedTargetSeats is [var selected] && selected == declared.TargetSeats[0]
                     : effect.TargetReference.Kind == ProgramParticipantRef.EventTarget && parent.WindowContext?.TargetSeat == declared.TargetSeats[0]),

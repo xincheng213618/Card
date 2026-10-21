@@ -79,13 +79,11 @@ public sealed partial class GameEngine
         var grain = card.Kind == CardKind.WoodenOx && zone == CardZoneKind.Equipment ? GetWoodenOxGrain(_players[owner]).Select(c => c.Id).ToArray() : [];
         ReplaceRuntimeTop(f = f with { TianChouShandao = r with { Stage = TianChouShandaoStage.TopChildren } });
         // A selected foreign hand remains hidden until this real card is revealed and moved.
+        ReplaceRuntimeTop(f=f with{PublicHandRevealSelection=new("shandao-hand-top",f.InstructionIndex,0,card.Id,card.Kind,from,CardLocation.DrawPile,f.OwnerSeat,f.OwnerSeat)});
         AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id, Array.AsReadOnly(new[] { ToSnapshot(card) })));
-        MoveCard(card, from, CardLocation.DrawPile, new(TianChouTopReason));
-        var after = _movementSequence; var move = _cardMovements.Single(m => m.Sequence > before && m.Sequence <= after && m.CardId == card.Id && m.From == from && m.Reason.Value == TianChouTopReason);
-        var top = new TianChouShandaoTop(r.Cursor, owner, card.Id, card.Kind, from, move.To, before, after, move.Sequence) { WoodenOxGrainIds = grain };
-        f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { TianChouShandao = f.TianChouShandao! with { Tops = r.Tops.Append(top).ToArray() } });
-        AdvanceEventRulesAndQueueFact(new TianChouShandaoTopPaidEvent(f.Id, r.Cursor, owner, card.Id, card.Kind, from, move.To, before, after, move.Sequence));
-        ContinueTianChou(f.Id);
+        if(TryBeginPublicHandRevealWindow(f.Id,"shandao-hand-top"))return;
+        ContinueShandaoAfterPublicReveal(GetActiveProgramFrame(f.Id));
+
     }
     private bool DrainTianChou(long id) => TryBeginQueuedRecoveryReplacement(id, PostEventContinuation.Program) ||
         TryBeginCharacterStateProgramWindow(id, CharacterStateContinuation.Program) || TryBeginHpChangedProgramWindow(id, PostEventContinuation.Program) || TryBeginCardsMovedProgramWindow(id) || TryBeginAdvancedSkillsChanged(id);
@@ -163,4 +161,22 @@ public sealed partial class GameEngine
         // Visible equipment can deliberately be stripped; a foreign hand is only a blind slot.
         return p.Choices.OrderBy(c => c.Cards is [var id] ? GetKeepValue(GetAdvancedCard(id), _players[r.Targets[r.Cursor]]) : 0).ThenBy(c => c.Id.Value, StringComparer.Ordinal).First();
     }
+    [PublicHandRevealReturn("shandao-hand-top")]
+    private void ContinueShandaoAfterPublicReveal(ProgramSkillFrame f)
+    {
+        var r=f.TianChouShandao??throw new InvalidOperationException("Shandao lost its actual selection cursor.");
+        var payment=f.PublicHandRevealSelection??throw new InvalidOperationException("Shandao lost its selected entity.");
+        if(payment.ReturnKey!="shandao-hand-top"||payment.InstructionIndex!=f.InstructionIndex||r.Stage!=TianChouShandaoStage.TopChildren)throw new InvalidOperationException("Shandao changed its selected-source obligation.");
+        ReplaceRuntimeTop(f=f with{PublicHandRevealSelection=null});
+        var card=GetAdvancedCard(payment.CardId);var from=payment.From;var owner=from.OwnerSeat!.Value;var before=_movementSequence;
+        if(_cardZones.GetLocation(card.Id)!=from){AdvanceEventRulesAndQueueFact(new TianChouShandaoSkippedEvent(f.Id,r.Cursor,owner));ReplaceRuntimeTop(f with{TianChouShandao=r with{Stage=TianChouShandaoStage.Card,Cursor=r.Cursor+1}});ContinueTianChou(f.Id);return;}
+        var grain=card.Kind==CardKind.WoodenOx&&from.Zone==CardZoneKind.Equipment?GetWoodenOxGrain(_players[owner]).Select(c=>c.Id).ToArray():[];
+        MoveCard(card, from, CardLocation.DrawPile, new(TianChouTopReason));
+        var after = _movementSequence; var move = _cardMovements.Single(m => m.Sequence > before && m.Sequence <= after && m.CardId == card.Id && m.From == from && m.Reason.Value == TianChouTopReason);
+        var top = new TianChouShandaoTop(r.Cursor, owner, card.Id, card.Kind, from, move.To, before, after, move.Sequence) { WoodenOxGrainIds = grain };
+        f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { TianChouShandao = f.TianChouShandao! with { Tops = r.Tops.Append(top).ToArray() } });
+        AdvanceEventRulesAndQueueFact(new TianChouShandaoTopPaidEvent(f.Id, r.Cursor, owner, card.Id, card.Kind, from, move.To, before, after, move.Sequence));
+        ContinueTianChou(f.Id);
+    }
+
 }

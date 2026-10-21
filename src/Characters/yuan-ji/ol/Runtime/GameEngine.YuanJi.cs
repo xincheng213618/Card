@@ -25,8 +25,14 @@ public sealed partial class GameEngine
   var before=_movementSequence;var top=pair?r.Cursor==0:!HasCardPolicy(_players[seat],SkillProgramCardPolicyKind.DrawFromBottom);var requested=pair?1:2;ReplaceRuntimeTop(f=f with{YuanJi=r with{Stage=YuanJiStage.DrawChildren,Before=before,After=before},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
   var ids=pair?DrawYuanJiEnd(seat,top,r.Source):DrawCards(_players[seat],2,true,new(r.Op==SkillProgramEffectOp.ResolveJinghuaRoundDraw?YuanJiJinghuaReason:YuanJiShuiyueReason),r.Source);var after=_movementSequence;var card=pair&&ids.Count==1?GetAdvancedCard(ids[0]):null;var step=new YuanJiDrawStep(r.Cursor,seat,top,requested,ids.Count,before,after,card?.Id,card?.Suit);
   f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{YuanJi=f.YuanJi! with{After=after,Draws=f.YuanJi!.Draws.Append(step).ToArray()}});AdvanceEventRulesAndQueueFact(new YuanJiDrawCompletedEvent(f.Id,r.Cursor,seat,top,requested,ids.Count,before,after));
-  if(pair&&card is not null){var move=_cardMovements.Single(m=>m.Sequence>before&&m.Sequence<=after&&m.CardId==card.Id&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(seat)&&m.Reason.Value==YuanJiPairReason);AdvanceEventRulesAndQueueFact(new YuanJiShownEvent(f.Id,r.Cursor,seat,card.Id,card.Suit,card.Rank,move.Sequence));AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,[ToSnapshot(card)]));}
+  if(pair&&card is not null){var move=_cardMovements.Single(m=>m.Sequence>before&&m.Sequence<=after&&m.CardId==card.Id&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(seat)&&m.Reason.Value==YuanJiPairReason);AdvanceEventRulesAndQueueFact(new YuanJiShownEvent(f.Id,r.Cursor,seat,card.Id,card.Suit,card.Rank,move.Sequence));AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,[ToSnapshot(card)]));if(TryBeginPublicHandRevealWindow(f.Id,"yuan-ji-drawn-hand"))return;}
   else if(!pair)for(var i=0;i<ids.Count;i++){var move=_cardMovements.Single(m=>m.Sequence>before&&m.Sequence<=after&&m.CardId==ids[i]&&m.From==CardLocation.DrawPile&&m.To==CardLocation.Hand(seat)&&m.Reason.Value==(r.Op==SkillProgramEffectOp.ResolveJinghuaRoundDraw?YuanJiJinghuaReason:YuanJiShuiyueReason));AdvanceEventRulesAndQueueFact(new YuanJiAcquiredEvent(f.Id,i,ids[i],move.Sequence));}
+ }
+ [PublicHandRevealReturn("yuan-ji-drawn-hand")]
+ private void ReturnYuanJiPublicHand(ProgramSkillFrame f)
+ {
+  if(f.YuanJi is not{Stage:YuanJiStage.DrawChildren})throw new InvalidOperationException("YuanJi lost its native draw/reveal cursor.");
+  ContinueYuanJi(f.Id);
  }
  private void ContinueYuanJi(long id)
  {

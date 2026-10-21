@@ -110,6 +110,16 @@ public sealed partial class GameEngine
                     !IsPijingAppliedTargetFact(use, pijing, preceding, out var resultTargets)) return false;
                 designated = resultTargets.ToList(); actual = resultTargets.ToList();
             }
+            else if (fact is MouLidanTargetsAppliedEvent lidan && lidan.UseId == use.Id && lidan.AddedCount > 0)
+            {
+                IReadOnlyList<int> originalTargets = designated;
+                if (kind == CardKind.DrawTwo && designated.Count == 0 && actual.Count == 0 &&
+                    use.MouLidan?.Original is [var self] && self == actor)
+                    originalTargets = [actor];
+                if (!actual.SequenceEqual(designated) || lidan.Source.OwnerSeat != actor ||
+                    !IsMouLidanAppliedTargetFact(use, lidan, originalTargets, out var resultTargets)) return false;
+                designated = resultTargets.ToList(); actual = resultTargets.ToList();
+            }
             else if (fact is OverflowUseTargetsCanceledEvent canceled && canceled.Receipt.CardUseFrameId == use.Id)
             {
                 if (canceled.Receipt.Source.OwnerSeat != actor || !IsOverflowTargetCancellationFact(use, canceled, actual)) return false;
@@ -119,6 +129,7 @@ public sealed partial class GameEngine
             {
                 // These producers also emit a typed issuance proof; consume that
                 // proof once instead of counting its public summary a second time.
+                if (IsMouLidanTargetSummary(use, added)) continue;
                 if (history.OfType<ShortRangeSlashTargetResolvedEvent>().Any(e => e.CardUseFrameId == use.Id && e.Added &&
                         e.Receipt is { } issued && issued.ProgramFrameId == added.FrameId && issued.AddedTargetSeat == added.TargetSeat) ||
                     history.OfType<SameTypeAidTargetAddedEvent>().Any(e => e.Use.CardUseFrameId == use.Id &&

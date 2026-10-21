@@ -140,26 +140,8 @@ public sealed partial class GameEngine
     }
     private bool IsFuleAliasSource(CardConversionSource? source) => source is { SkillId: LeCaoZhiFuleSkill } &&
         _contentRegistry.GetSkill(source.SkillId).Program is { } p && LeCaoZhiComposition.IsFuleProgram(p) && ViewAsRule(source) is not null;
-    private bool FulePureProviderFrontier(int actor)
-    {
-        var top = _resolutionStack.LastOrDefault();
-        bool At(long id) => top?.Id == id || top is ResponseWindowFrame response && response.ParentFrameId == id;
-        return ActiveFactionCardRequest is { AwaitingProviders: true } f && f.CurrentCandidateSeat == actor && At(f.OwnerFrameId) ||
-            ActiveFactionDefense is { } d && d.CurrentCandidateSeat == actor && At(d.Attack.ResolutionId);
-    }
-    private bool FuleTrueSlashUseFrontier(CharacterState owner)
-    {
-        if (FulePureProviderFrontier(owner.Seat)) return false;
-        var top = _resolutionStack.LastOrDefault();
-        bool At(long id) => top?.Id == id || top is ResponseWindowFrame response && response.ParentFrameId == id;
-        if (ActiveBorrowedSword is { ActiveAttack: null } borrowed && borrowed.WeaponOwnerSeat == owner.Seat && At(borrowed.ResolutionId)) return true;
-        if (ActiveQinglongCrescentBlade is { } qinglong && qinglong.Attack.SourceSeat == owner.Seat &&
-            SameAttackOwner(qinglong.Attack, ActiveCardAttack) && At(qinglong.Attack.ResolutionId)) return true;
-        if (top is not ProgramSkillFrame f || GetPausedPrivateOfferEffect(f) is not { } effect) return false;
-        if (IsQigongRequest(f)) return f.LvKuangLvXiang!.Actor == owner.Seat;
-        if (IsCaoChunInitialRequest(f) || IsWuJingHejiRequest(f)) return f.OwnerSeat == owner.Seat;
-        return RoundOnceCardlessProgramActor(f, effect.Op, owner.Seat);
-    }
+    private bool FulePureProviderFrontier(int actor) => IsNativePureProviderFrontier(actor);
+    private bool FuleTrueSlashUseFrontier(CharacterState owner) => IsNativeForcedSlashUseFrontier(owner);
     private bool FuleSlashAliasAllowed(CharacterState owner, bool forResponse) => FuleTrueSlashUseFrontier(owner);
     private IReadOnlyList<SlashUseVariant> FulePhysicalSlashVariants(CharacterState owner, Card card) => SlashKinds
         .Where(kind => IsFulePhysicalSlashKind(owner, card, kind)).Select(kind => new SlashUseVariant(kind, null, false)).ToArray();

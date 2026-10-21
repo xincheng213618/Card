@@ -54,7 +54,7 @@ public sealed partial class GameEngine
    if(choice.Parameters["branch"]!="finish"){var ids=r.SelectedReveal.Append(choice.Cards.Single()).ToArray();ReplaceRuntimeTop(f=f with{XiashuPaid=r with{SelectedReveal=ids}});PublishXiashuDecision(f);return;}
    var shown=r.SelectedReveal.Where(id=>_cardZones.GetLocation(id)==CardLocation.Hand(r.Invoice.RecipientSeat)).ToArray();SetProgramCardSet(f.Id,XiashuShownBind,shown,SkillProgramCardSetVisibility.Public);
    AdvanceEventRulesAndQueueFact(new CardsRevealedEvent(f.Id,Array.AsReadOnly(shown.Select(id=>ToSnapshot(GetAdvancedCard(id))).ToArray())));
-   ReplaceRuntimeTop(f=GetActiveProgramFrame(f.Id)with{XiashuPaid=r with{Stage=XiashuStage.OwnerClaim}});if(!_players[f.OwnerSeat].IsAlive||!_players[r.Invoice.RecipientSeat].IsAlive){FinishXiashu(f);return;}PublishXiashuDecision(f);return;
+   ReplaceRuntimeTop(f=GetActiveProgramFrame(f.Id)with{XiashuPaid=r with{Stage=XiashuStage.OwnerClaim}});if(TryBeginPublicHandRevealWindow(f.Id,"xiashu-selected-hand"))return;if(!_players[f.OwnerSeat].IsAlive||!_players[r.Invoice.RecipientSeat].IsAlive){FinishXiashu(f);return;}PublishXiashuDecision(f);return;
   }
   var isShown=choice.Parameters["branch"]=="shown";var visible=GetProgramCardSet(f,XiashuShownBind).CardIds;
   var take=_players[f.OwnerSeat].IsAlive&&_players[r.Invoice.RecipientSeat].IsAlive?_cardZones.CardsAt(CardLocation.Hand(r.Invoice.RecipientSeat)).Where(c=>visible.Contains(c.Id)==isShown).Select(c=>c.Id).ToArray():[];

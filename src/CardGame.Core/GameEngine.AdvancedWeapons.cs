@@ -96,7 +96,7 @@ public sealed partial class GameEngine
         GetEquipment(player).Any(card => !card.IsGeneralWeapon && GetWeaponAbilityKinds(card).Contains(kind)) ||
         (_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? []).Contains(kind) ||
         kind == CardKind.StoneAxe && HasLiYiVirtualStoneAxe(player) ||
-        MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Weapon) == kind;
+        ProgramVirtualEquipment(player.Seat, EquipmentSlot.Weapon) == kind;
     private IReadOnlyList<Card> GetEquipmentRuleCards(CharacterState player, EquipmentSlot? excludedEquipmentSlot = null)
     {
         IReadOnlyList<Card> physical = GetEquipment(player);
@@ -104,7 +104,7 @@ public sealed partial class GameEngine
             physical = physical.Where(card => EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot).ToArray();
         var kinds = physical.Where(card => !card.IsGeneralWeapon).SelectMany(GetWeaponAbilityKinds)
             .Concat(_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? [])
-            .Concat(MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Weapon) is { } virtualWeapon ? new[] { virtualWeapon } : []).Distinct().ToArray();
+            .Concat(ProgramVirtualEquipment(player.Seat, EquipmentSlot.Weapon) is { } virtualWeapon ? new[] { virtualWeapon } : []).Distinct().ToArray();
         return physical.Where(card => !card.IsGeneralWeapon).Concat(kinds.Where(kind => !physical.Any(card => card.Kind == kind))
             .Select((kind, index) => new Card(-500 - index, kind, Suit.None, 0))).ToArray();
     }

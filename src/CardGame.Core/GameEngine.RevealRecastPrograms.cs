@@ -107,6 +107,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame), owner.Seat,
             effect.ResultBind!, [ToSnapshot(ownerCard), ToSnapshot(targetCard)]));
         CommitProgramChoiceResult(frame.Id, effect.ResultBind!, outcome, target.Seat, "双方同时公开实体手牌。");
+        if (TryBeginPublicHandRevealWindow(frame.Id, PublicHandRevealReturnKind.Program)) return;
         AdvanceRuntimeProgram(frame.Id);
     }
 

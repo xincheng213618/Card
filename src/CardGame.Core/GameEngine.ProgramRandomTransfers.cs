@@ -37,9 +37,25 @@ public sealed partial class GameEngine
         {
             PendingMovementContinuation = new ProgramMovementContinuation(targetSeat, 0, null)
         });
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { PendingMovementContinuation = null, PublicHandRevealSelection = new("random-hand-transfer", frame.InstructionIndex, 0,
+            card.Id, card.Kind, CardLocation.Hand(frame.OwnerSeat), CardLocation.Hand(targetSeat), frame.OwnerSeat, frame.OwnerSeat, resultBind, card.Suit) });
         AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
             GetProgramBindingId(frame), frame.OwnerSeat, resultBind,
             Array.AsReadOnly(new[] { snapshot })));
+        if(TryBeginPublicHandRevealWindow(frame.Id,"random-hand-transfer"))return SkillProgramStepOutcome.AwaitChild;
+        ContinueRandomTransferAfterPublicReveal(GetActiveProgramFrame(frame.Id));return SkillProgramStepOutcome.AwaitChild;
+
+    }
+    [PublicHandRevealReturn("random-hand-transfer")]
+    private void ContinueRandomTransferAfterPublicReveal(ProgramSkillFrame frame)
+    {
+        var r=frame.PublicHandRevealSelection??throw new InvalidOperationException("Random transfer lost its accepted original entity.");
+        if(r.ReturnKey!="random-hand-transfer"||r.InstructionIndex!=frame.InstructionIndex||r.ActorSeat!=frame.OwnerSeat||r.From!=CardLocation.Hand(frame.OwnerSeat))throw new InvalidOperationException("Random transfer changed its native payment owner.");
+        ReplaceRuntimeTop(frame=frame with{PublicHandRevealSelection=null});
+        if(_cardZones.GetLocation(r.CardId)!=r.From||!_players[r.To.OwnerSeat!.Value].IsAlive){CancelProgramBindingAndCleanup(frame,"展示后原赠牌或受赠人已失效。");return;}
+        var card=GetAdvancedCard(r.CardId);var targetSeat=r.To.OwnerSeat.Value;var resultBind=r.ResultBind!;
+        var reason=new CardMoveReason($"skill-program.{frame.SkillId}.transferRandomOwnedCard");
+        ReplaceRuntimeTop(frame=frame with{PendingMovementContinuation=new(targetSeat,0,null)});
         MoveCard(card, CardLocation.Hand(frame.OwnerSeat), CardLocation.Processing, reason,
             disclosure: CardMovementDisclosure.FaceUp);
         MoveCard(card, CardLocation.Processing, CardLocation.Hand(targetSeat), reason);
@@ -47,6 +63,7 @@ public sealed partial class GameEngine
             [CardLocation.Hand(targetSeat)], card.Suit);
         if (!TryBeginCardsMovedProgramWindow())
             ReturnRuntimeProgramMovement(frame.Id);
-        return SkillProgramStepOutcome.AwaitChild;
+
     }
+
 }

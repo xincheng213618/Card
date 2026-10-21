@@ -29,14 +29,14 @@ public sealed partial class GameEngine
         if (q.Instance.SkillId != MoSimaYiComposition.Guifu) return false;
         if (!q.Owner.IsAlive || !HasRuntimeSkillInstance(q.Owner, q.Instance.SkillId, q.Instance.SkillInstanceId) ||
             !MoGuifuMaterial(q.Owner, q.Card.Id, q.Rule.OutputKind) || !IsOwnedPlayableLocation(q.Owner, _cardZones.GetLocation(q.Card.Id)) ||
-            FulePureProviderFrontier(q.Owner.Seat)) return true;
+            IsNativePureProviderFrontier(q.Owner.Seat)) return true;
         if (q.RequestedUseTarget is not null)
             return q.Rule.OutputKind != CardKind.Peach || q.ForResponse || q.DyingUse || !IsWenyiPeachSupplyQuery(q.Owner, q.RequestedUseTarget.Value);
         if (q.DyingUse || q.ForResponse && q.Rule.OutputKind is CardKind.Peach or CardKind.Alcohol)
             return ActiveDying is not { } dying || dying.ResponderSeat != q.Owner.Seat ||
                 q.Rule.OutputKind == CardKind.Alcohol && dying.VictimSeat != q.Owner.Seat;
         if (!q.ForResponse) return false;
-        if (IsSlashCard(q.Rule.OutputKind)) return !FuleTrueSlashUseFrontier(q.Owner);
+        if (IsSlashCard(q.Rule.OutputKind)) return !IsNativeForcedSlashUseFrontier(q.Owner);
         return q.Rule.OutputKind != CardKind.Nullification &&
             !(q.Rule.OutputKind == CardKind.Dodge && IsProgramResponseCardUse(q.Owner, CardKind.Dodge));
     }
@@ -78,25 +78,40 @@ public sealed partial class GameEngine
         ProgramEventHistory<MoSimaYiNameUsedEvent>().Any(e => e.ActionId == a.ActionId && e.ActorSeat == actor);
 
 
-    private IReadOnlyList<SlashUseVariant> MoGuifuPhysicalSlashVariants(CharacterState owner, Card card) => SlashKinds
-        .Where(kind => GetProgramViewAsConversions(owner, card, kind, false).Any(s => IsMoGuifuSource(s) && ViewAsRule(s)!.OutputKind == kind))
+    [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashAliasAllowance, 33900)]
+    private bool MoGuifuNativeSlashAlias(ProgramNativeSlashAliasQuery q) =>
+        q.Instance.SkillId == MoSimaYiComposition.Guifu && q.RequestedKind == CardKind.Slash &&
+        IsSlashCard(q.Rule.OutputKind) && IsNativeForcedSlashUseFrontier(q.Owner);
+
+    [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashVariants, 33900)]
+    private IReadOnlyList<SlashUseVariant> MoGuifuPhysicalSlashVariants(ProgramNativeSlashMaterialQuery q) => SlashKinds
+        .Where(kind => GetProgramViewAsConversions(q.Owner, q.Card, kind, false).Any(s => IsMoGuifuSource(s) && ViewAsRule(s)!.OutputKind == kind))
         .Select(kind => new SlashUseVariant(kind, null, false)).ToArray();
-    private bool MoGuifuNativeMatchesOutput(CharacterState owner, CardConversionSource s, CardKind kind) =>
-        !IsMoGuifuSource(s) || !FuleTrueSlashUseFrontier(owner) || ViewAsRule(s)!.OutputKind == kind;
-    private bool MoGuifuUnspecifiedForcedSlash(CharacterState owner, Card card, CardKind kind) =>
-        !IsSlashCard(kind) || !FuleTrueSlashUseFrontier(owner) || IsNativeResponseCard(card, kind) || MoGuifuPhysicalSlashVariants(owner, card).Count == 0;
-    private CardKind MoGuifuSelectedSlashKind(CharacterState owner, Card card, CardKind fallback, CardConversionSource? explicitSource = null)
+
+    [ProgramCardLegality(ProgramCardLegalityStage.NativeSlashOutputBan, 33900)]
+    private bool MoGuifuNativeOutputBan(ProgramNativeSlashConversionQuery q) =>
+        IsMoGuifuSource(q.Source) && IsNativeForcedSlashUseFrontier(q.Owner) && ViewAsRule(q.Source!)!.OutputKind != q.Kind;
+
+    [ProgramCardLegality(ProgramCardLegalityStage.UnspecifiedNativeSlashBan, 33900)]
+    private bool MoGuifuUnspecifiedForcedSlashBan(ProgramNativeSlashConversionQuery q) =>
+        IsSlashCard(q.Kind) && IsNativeForcedSlashUseFrontier(q.Owner) && !IsNativeResponseCard(q.Card, q.Kind) &&
+        MoGuifuPhysicalSlashVariants(new(q.Owner, q.Card)).Count != 0;
+
+    [ProgramCardLegality(ProgramCardLegalityStage.SelectedNativeSlashKind, 33900)]
+    private CardKind MoGuifuSelectedSlashKind(ProgramSelectedNativeSlashQuery q)
     {
-        var source = explicitSource ?? _selectedUseConversion ?? _selectedResponseConversion;
+        var source = q.Source ?? _selectedUseConversion ?? _selectedResponseConversion;
         return source is not null && IsMoGuifuSource(source) && ViewAsRule(source) is { } rule && IsSlashCard(rule.OutputKind) &&
-            GetProgramViewAsConversions(owner, card, rule.OutputKind, false).Contains(source) ? rule.OutputKind : FuleSelectedSlashKind(owner, card, fallback, explicitSource);
+            GetProgramViewAsConversions(q.Owner, q.Card, rule.OutputKind, false).Contains(source) ? rule.OutputKind : q.Fallback;
     }
-    private CardKind MoGuifuAiSlashKind(PendingDecision d, Card card, CardKind fallback)
+
+    [ProgramCardLegality(ProgramCardLegalityStage.AiNativeSlashKind, 33900)]
+    private CardKind MoGuifuAiSlashKind(ProgramAiNativeSlashQuery q)
     {
-        var choice = d.Choices.FirstOrDefault(c => c.Cards is [var id] && id == card.Id &&
+        var choice = q.Decision.Choices.FirstOrDefault(c => c.Cards is [var id] && id == q.Card.Id &&
             c.Parameters.GetValueOrDefault("conversion-skill-id") == MoSimaYiComposition.Guifu);
         return choice is not null && Enum.TryParse<CardKind>(choice.Parameters.GetValueOrDefault("response-card-kind"), out var kind)
-            ? kind : FuleForcedAiSlashKind(d, card, fallback);
+            ? kind : q.Fallback;
     }
 
     [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 33900)]
