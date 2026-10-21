@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-cao",
+  "skills": [
+    {
+      "registrationOrder": 2560,
+      "programBundle": "ol-mo-cao-cao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-fuzai",
+        "name": "覆载",
+        "description": "锁定技，你的装备牌只能当【借刀】或【无中生有】使用。若你的装备区里没有牌，你视为装备着一张武器牌和防具牌。",
+        "executionForms": "State, Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2561,
+      "programBundle": "ol-mo-cao-cao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-bachao",
+        "name": "霸朝",
+        "description": "出牌阶段开始时，你可以令所有其他角色同时选择是否交给你一张牌，然后你可对未以此法交给你非基本牌的一名角色造成1点伤害，若你选择自己，本阶段你使用当前手牌无次数和距离限制并入魔。【入魔】每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2562,
+      "programBundle": "ol-mo-cao-cao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "equipment:baibi-dao",
+        "name": "百辟刀",
+        "description": "当你使用【杀】造成伤害后，你可以获得目标角色一张手牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2563,
+      "pools": {
+        "current": 560
+      },
+      "definition": {
+        "id": "ol:mo-cao-cao",
+        "name": "魔曹操·OL",
+        "portraitKey": "mo-cao-cao",
+        "skillId": "ol:mo-fuzai",
+        "additionalSkillIds": [
+          "ol:mo-bachao"
+        ],
+        "factionId": "wei",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:cao-cao",
+        "variantId": "ol-magic",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

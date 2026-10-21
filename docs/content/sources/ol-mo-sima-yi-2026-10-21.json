@@ -1,0 +1,215 @@
+{
+  "formatVersion": 1,
+  "status": "source-verified-and-implemented",
+  "generalId": "ol:mo-sima-yi",
+  "characterId": "character:sima-yi",
+  "displayName": "魔司马懿·OL",
+  "edition": "magic-ol",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 3,
+    "officialHeroId": 710,
+    "apiInitialHp": 0,
+    "apiInitialHpMeaning": "Default full-HP sentinel, not a zero-HP starting character."
+  },
+  "skills": [
+    {
+      "id": "ol:mo-guifu",
+      "name": "诡伏",
+      "officialText": "每轮开始时或你体力值变化后，你获得一张不计入手牌上限的【闪】。技能或牌造成伤害后，你记录此技能或牌名。你可将因此技能获得的【闪】当做记录的牌名使用（不计入次数限制，每回合每种牌名限一次）。",
+      "initial": true
+    },
+    {
+      "id": "ol:mo-moubian",
+      "name": "谋变",
+      "officialText": "准备阶段，若你“诡伏”记录数至少为3，你可入魔，获得你“诡伏”记录的技能，并获得“骤袭”。",
+      "initial": true
+    },
+    {
+      "id": "ol:mo-zhouxi",
+      "name": "骤袭",
+      "officialText": "准备阶段，你从三个可造成伤害的技能中选择一个获得至你的下回合开始。受到你伤害的角色于本轮结束时视为对你使用一张【杀】。",
+      "initial": false
+    }
+  ],
+  "gainableCompleteDefinition": {
+    "id": "ol:mo-lieshi",
+    "officialSpellId": 3223,
+    "name": "烈誓",
+    "officialText": "出牌阶段，你可以选择一项：1.废除判定区并受到你的1点火焰伤害；2.弃置所有【闪】；3.弃置所有【杀】。然后令一名角色选择另一项。",
+    "notAnAddedGeneral": "This complete gainable skill is registered for Zhouxi; the whole clan Xun Cai general is not thereby claimed implemented."
+  },
+  "sharedDerivedSkill": {
+    "id": "ol:mo-rumo",
+    "officialSpellId": 3712,
+    "name": "入魔",
+    "officialText": "每轮结束时，若本轮你未造成过伤害，你失去1点体力",
+    "reuse": "The existing irreversible shared entry and round-end native HP-loss protocol; no second penalty ledger."
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/710",
+      "sha256": "4306D6A5D904E613B38B4652F2AA734E0B1A60E7C4DB0A8602AD7CD307129212",
+      "bytes": 26031
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=710",
+      "sha256": "EDA186C51F4CFF7937E0602471EA1D91C0732F2AEF78D0CF43C5042C562EA4BB",
+      "bytes": 1485
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250427_5050_5013",
+      "sha256": "292C1233C4BF2F909334AC6FB002EF27F88E6C088B98155CE592A04914B18FAC",
+      "bytes": 485038
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250701_2459_2017",
+      "sha256": "37488205D6D8C782C9A31A781FF3CC6C4C89D0DCCB388F408711E4DDF9761773",
+      "bytes": 26320
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "9D2B017D7112C1D5999D61B48600945B4139FE237D840A38784623114706DE9F",
+      "bytes": 4153280
+    },
+    {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "E01E94A8C0866067169418488C4834259EE6670CA49936F2014A6D052C98101B",
+      "bytes": 5386498
+    }
+  ],
+  "release": {
+    "publishedAt": "2025-04-30 17:00:23 +08:00",
+    "availability": "2025-05-01 00:15 to 2025-05-10 24:00; prayer platform or 50 seals",
+    "currentSaleAvailabilityNotClaimed": true
+  },
+  "revisionAudit": {
+    "officialCorrection": {
+      "publishedAt": "2025-07-02 16:03:26 +08:00",
+      "effectiveFrom": "2025-07-03 maintenance",
+      "text": "②魔司马懿诡伏可转化闪电"
+    },
+    "oldGuideDifference": "The May guide prohibition of Lightning predates the July formal correction; implementation follows the current corrected skill.",
+    "moubian": "Current official/client text has no limited/awakening or once marker. Each eligible preparation may accept again; shared Rumo entry is independently once-issued."
+  },
+  "engineeringDecisions": [
+    {
+      "topic": "Exact causal recording",
+      "decision": "All actual direct-damage skill IDs or native effective card names are recorded, with elemental Slash names separate. A conversion or additive modifier ancestor is not the direct source. The sixteen-skill offered pool is not a recording whitelist."
+    },
+    {
+      "topic": "Real Dodge obtain",
+      "decision": "Actual DrawPile Dodge first, then actual DiscardPile Dodge; both absent means real zero, no generated card and no Draw invocation. The round-start binding requires the native roundTurnSeatCount equal to one; ordinary turns later in the same round do not issue another obtain. Actual HP-change obtains remain independent."
+    },
+    {
+      "topic": "Original-beneficiary entity entitlement",
+      "decision": "A real Guifu acquire issues its beneficiary a persistent entity Hand-limit exemption, surviving source loss. Merely transferring it to another character confers no entitlement. Original beneficiary reacquiring it into Hand regains the exemption. Conversion requires the same personal Guifu obtain proof, current own Hand, live Guifu and a personally recorded unused name."
+    },
+    {
+      "topic": "Moubian snapshot",
+      "decision": "Each accepted preparation freezes the then-recorded skill identities, permanently grants those skills and Zhouxi; later records are not automatically granted. Reaccepting does not stack the shared Rumo entry penalty."
+    },
+    {
+      "topic": "Sixteen offered mechanisms",
+      "decision": "The complete sixteen-entry operations guide pool is explicitly pinned to current official canonical skill definitions. The Jiang Gan heading 落井 is treated as a table typo because its full mechanism matches current 盗书952; current boundary 强袭3186 uses real damage, not obsolete LoseHp886."
+    },
+    {
+      "topic": "Round retaliation",
+      "decision": "Each living character actually damaged by the owner that round issues one forced native zero-material Slash in native seat order. This specific effect ignores distance and ordinary Use quota but preserves all other native prohibitions, response, damage and child-return protocols. Source and eligible participants freeze at accepted binding."
+    },
+    {
+      "topic": "Mode names",
+      "decision": "Guifu uses the exact recorded native effective name, including activity names and current Lightning. The complete recorded-name catalog does not obtain unrecorded aliases by mode-family replacement."
+    }
+  ],
+  "zhouxiPool": [
+    {
+      "skillId": "ol:zhendu",
+      "officialSpellId": 240
+    },
+    {
+      "skillId": "ol:tianjie",
+      "officialSpellId": 3241
+    },
+    {
+      "skillId": "boundary:juece-current",
+      "officialSpellId": 3617
+    },
+    {
+      "skillId": "boundary:leiji",
+      "officialSpellId": 882
+    },
+    {
+      "skillId": "ol:mo-lieshi",
+      "officialSpellId": 3223
+    },
+    {
+      "skillId": "classic:sanyao",
+      "officialSpellId": 236
+    },
+    {
+      "skillId": "ol:zhefu",
+      "officialSpellId": 3262
+    },
+    {
+      "skillId": "ol:jianhe",
+      "officialSpellId": 3253
+    },
+    {
+      "skillId": "ol:shuzi",
+      "officialSpellId": 3538
+    },
+    {
+      "skillId": "boundary:ganglie",
+      "officialSpellId": 720
+    },
+    {
+      "skillId": "boundary:qiangxi",
+      "officialSpellId": 3186
+    },
+    {
+      "skillId": "classic:kuizhu",
+      "officialSpellId": 807
+    },
+    {
+      "skillId": "ol:duwu",
+      "officialSpellId": 3306
+    },
+    {
+      "skillId": "boundary:quhu-current",
+      "officialSpellId": 92
+    },
+    {
+      "skillId": "ol:xuehen",
+      "officialSpellId": 215
+    },
+    {
+      "skillId": "ol:daoshu",
+      "officialSpellId": 952
+    }
+  ],
+  "art": {
+    "sourcePage": "https://www.sanguosha.com/hero/710",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71000.png",
+    "asset": "src/CardGame.Wpf/Assets/official-mo-sima-yi.png",
+    "sha256": "B6EB3469EFF5A2A537EB193DF4BFEBC23C0BAD9A73A1E40D96B8052965F8D374",
+    "width": 750,
+    "height": 950,
+    "bytes": 1218723,
+    "rootVisualInspectionConfirmed": true
+  },
+  "behaviorChecks": [
+    {
+      "file": "tests/CardGame.Core.Tests/OlMoSimaYiChecks.cs",
+      "method": "ActualDamageRecordsMarkedAliasesLearningAndRoundSlashReturn",
+      "name": "OL Mo Sima Yi: actual damage records marked aliases learning and round Slash return"
+    }
+  ],
+  "poolMembershipEvidence": {
+    "url": "https://bbs.4399.cn/thread-view-tid-49017679",
+    "publishedAt": "2025-05-17",
+    "classification": "Operations guide pool, not an official FAQ or public server guarantee. Current mechanism identities are cross-checked against official client records; membership is an explicit root engineering choice."
+  }
+}

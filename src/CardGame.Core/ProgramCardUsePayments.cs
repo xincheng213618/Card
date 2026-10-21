@@ -19,7 +19,8 @@ internal enum ProgramCardUsePaymentStage
     BeforeSlashDebit,
     AfterSlashDebitIdentity,
     SlashCountExemption,
-    AcceptedConversionCost
+    AcceptedConversionCost,
+    BeforeAlcoholDebit
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
@@ -79,7 +80,7 @@ internal sealed class ProgramCardUsePaymentCatalog
         ProgramCardUsePaymentStage.ProcessingAllowance => typeof(Func<IReadOnlyList<Card>, bool>),
         ProgramCardUsePaymentStage.SlashPaymentCompleted => typeof(Action<long>),
         ProgramCardUsePaymentStage.BeforeSlashDebit or ProgramCardUsePaymentStage.AfterSlashDebitIdentity or
-            ProgramCardUsePaymentStage.SlashCountExemption => typeof(Func<long, int, bool>),
+            ProgramCardUsePaymentStage.SlashCountExemption or ProgramCardUsePaymentStage.BeforeAlcoholDebit => typeof(Func<long, int, bool>),
         ProgramCardUsePaymentStage.AcceptedConversionCost => typeof(Action<CardActionContext>),
         _ => throw new ArgumentOutOfRangeException(nameof(stage))
     };
@@ -156,6 +157,12 @@ internal sealed class ProgramCardUsePayments
     internal bool ExemptsSlashDebit(ProgramCardUsePaymentStage stage, long useId, int actorSeat)
     {
         foreach (var exempts in Handlers<Func<long, int, bool>>(stage)) if (exempts(useId, actorSeat)) return true;
+        return false;
+    }
+
+    internal bool ExemptsAlcoholDebit(long useId, int actorSeat)
+    {
+        foreach (var exempts in Handlers<Func<long, int, bool>>(ProgramCardUsePaymentStage.BeforeAlcoholDebit)) if (exempts(useId, actorSeat)) return true;
         return false;
     }
 

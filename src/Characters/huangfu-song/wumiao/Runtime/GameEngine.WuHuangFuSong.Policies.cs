@@ -16,7 +16,8 @@ public sealed partial class GameEngine
     }
     private bool HasWuHfPotential(int owner) => HasWuHuangFuSongCapability && IsValidPlayerSeat(owner) && GetPlayableCards(_players[owner]).Any(c => HasWuHfMaterialPrivilege(_players[owner], [c.Id]));
     private bool HasWuHfOrDixianMaterialPrivilege(CharacterState actor, CardKind kind, IReadOnlyList<int>? ids, CardConversionSource? source = null) =>
-        HasWuHfMaterialPrivilege(actor, ids) || HasWuLuKangDixianMaterialPrivilege(actor, kind, ids, source);
+        HasWuHfMaterialPrivilege(actor, ids) || HasWuLuKangDixianMaterialPrivilege(actor, kind, ids, source) ||
+        TargetRules.HasMaterialPrivilege(new(actor.Seat, kind, Array.AsReadOnly((ids ?? []).ToArray()), source));
     private bool HasWuHfOrWuyouMaterialPrivilege(CharacterState actor, CardKind kind, IReadOnlyList<int>? ids, long? useId = null) =>
         (useId is { } id ? HasIssuedWuHfUse(id, actor.Seat) : HasWuHfMaterialPrivilege(actor, ids)) || HasWuyouMaterialPrivilege(actor, kind, ids, useId);
     private CardActionContext CaptureWuHfUseAction(CardActionContext a) => !HasWuHuangFuSongCapability || a.EffectiveRank is not null ? a :
@@ -25,7 +26,8 @@ public sealed partial class GameEngine
     [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 10)]
     [ProgramCardUsePayment(ProgramCardUsePaymentStage.SlashCountExemption, 20)]
     private bool HasWuHfOrDixianIssuedUse(long id, int actor) => HasIssuedWuHfUse(id, actor) || HasIssuedWuLuKangDixianUse(id, actor);
-    private bool HasWuHfOrDixianPotential(int actor) => HasWuHfPotential(actor) || HasWuLuKangDixianGrant(actor);
+    private bool HasWuHfOrDixianPotential(int actor) => HasWuHfPotential(actor) || HasWuLuKangDixianGrant(actor) ||
+        GetHand(_players[actor]).Any(card => TargetRules.HasMaterialPrivilege(new(actor, CardKind.Slash, Array.AsReadOnly(new[] { card.Id }))));
     private bool HasIssuedWuHfUse(long id, int actor) => LifecycleCardUse(id) is { WuHuangFuSongUse: { LianjieMaterials: true } r, Action: { } a } &&
         r.UseId == id && r.ActionId == a.ActionId && r.ActorSeat == actor && r.ProviderSeat == actor && a.ActorSeat == actor && a.ProviderSeat == actor &&
         r.MaterialCount == a.PhysicalCards.Count && r.MaterialCount > 0 && WuHfTurnOpen(r.Turn) &&

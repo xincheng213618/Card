@@ -6575,7 +6575,7 @@ public sealed partial class GameEngine
             .Where(card =>
             {
                 var baseKind = PhysicalSlashUseBaseKind(weaponOwner, card);
-                if (!GetSlashUseVariants(weaponOwner, baseKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card))).DistinctBy(v=>v.EffectiveKind).Any(variant =>
+                if (!GetSlashUseVariants(weaponOwner, baseKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card).Concat(MoGuifuPhysicalSlashVariants(weaponOwner, card)))).DistinctBy(v=>v.EffectiveKind).Any(variant =>
                         (DistanceRules.AllowsSlashDistance(ProgramDistanceStage.BorrowedPhysicalSlash,
                             new(weaponOwner, slashTarget, variant.EffectiveKind, card))) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind, EffectiveSuit(weaponOwner,card), false, SuitColor(EffectiveSuit(weaponOwner,card)), SpecificSlashRank(weaponOwner,card,variant.EffectiveKind), [card.Id], GetProgramViewAsConversions(weaponOwner,card,variant.EffectiveKind,false).FirstOrDefault(IsSiruiSource))))
                     return false;
@@ -6665,7 +6665,7 @@ public sealed partial class GameEngine
         var choices = slashes.SelectMany(card =>
         {
             var baseEffectiveKind = PhysicalSlashUseBaseKind(weaponOwner, card);
-            return GetSlashUseKinds(weaponOwner, baseEffectiveKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card)).Select(v=>v.EffectiveKind)).Distinct()
+            return GetSlashUseKinds(weaponOwner, baseEffectiveKind).Concat(SiruiPhysicalSlashVariants(weaponOwner,card).Concat(JuewuPhysicalSlashVariants(weaponOwner,card)).Concat(FulePhysicalSlashVariants(weaponOwner, card).Concat(MoGuifuPhysicalSlashVariants(weaponOwner, card))).Select(v=>v.EffectiveKind)).Distinct()
                 .Where(effectiveKind => effectiveKind == baseEffectiveKind ||
                                         IsNativeResponseCard(card, CardKind.Slash) || IsOwnPublicPileSlashMaterial(weaponOwner, card) || (IsSiruiPhysicalSlashKind(weaponOwner,card,effectiveKind) || IsFulePhysicalSlashKind(weaponOwner, card, effectiveKind)))
                 .SelectMany(effectiveKind =>
@@ -6800,7 +6800,7 @@ public sealed partial class GameEngine
         var selected = GetBorrowedSwordSlashCards(weaponOwner, slashTarget)
             .SingleOrDefault(card => card.Id == slash.Id) ??
             throw new InvalidOperationException("The selected Borrowed Sword Slash is no longer legal.");
-        var baseEffectiveKind = FuleSelectedSlashKind(weaponOwner, selected, JuewuSelectedSlashKind(weaponOwner, selected, SiruiSelectedSlashKind(weaponOwner,selected,PhysicalSlashUseBaseKind(weaponOwner, selected))));
+        var baseEffectiveKind = MoGuifuSelectedSlashKind(weaponOwner, selected, JuewuSelectedSlashKind(weaponOwner, selected, SiruiSelectedSlashKind(weaponOwner,selected,PhysicalSlashUseBaseKind(weaponOwner, selected))));
         var effectiveKind = requestedEffectiveKind ?? baseEffectiveKind;
         var usesZhuqueFan = IsZhuqueFanConversion(
             weaponOwner,
@@ -6810,7 +6810,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash conversion is no longer legal.");
         }
-        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind, EffectiveSuit(weaponOwner,selected), false, SuitColor(EffectiveSuit(weaponOwner,selected)), SpecificSlashRank(weaponOwner,selected,effectiveKind), [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || !(MoGangquanBorrowedDistance(weaponOwner, slashTarget, effectiveKind, [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || HasWuHfOrWuyouMaterialPrivilege(weaponOwner, effectiveKind, [selected.Id]) || HasSiruiSlashDistance(weaponOwner,effectiveKind,[selected.Id],_selectedUseConversion ?? _selectedResponseConversion) || HasRoundGainedBasicBonus(weaponOwner, effectiveKind, [selected.Id]) || HasSlashUseDistanceBySuit(weaponOwner,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,effectiveKind,SpecificSlashRank(weaponOwner,selected,effectiveKind))))
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind, EffectiveSuit(weaponOwner,selected), false, SuitColor(EffectiveSuit(weaponOwner,selected)), SpecificSlashRank(weaponOwner,selected,effectiveKind), [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || !(MoGangquanBorrowedDistance(weaponOwner, slashTarget, effectiveKind, [selected.Id], _selectedUseConversion ?? _selectedResponseConversion) || HasWuHfOrWuyouMaterialPrivilege(weaponOwner, effectiveKind, [selected.Id]) || HasSiruiSlashDistance(weaponOwner,effectiveKind,[selected.Id],_selectedUseConversion ?? _selectedResponseConversion) || HasRoundGainedBasicBonus(weaponOwner, effectiveKind, [selected.Id]) || HasSlashUseDistanceBySuit(weaponOwner,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind, physicalCardIds: [selected.Id]) || IsWithinSpecificSlashRange(weaponOwner,slashTarget,effectiveKind,SpecificSlashRank(weaponOwner,selected,effectiveKind))))
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash target is no longer legal.");
         }
@@ -8749,7 +8749,7 @@ public sealed partial class GameEngine
         CharacterState target) =>
         CanUseQinglongCrescentBladeTarget(source, target)
             ? GetSlashUseCards(source).Where(card =>
-                GetSlashUseVariants(source, PhysicalSlashUseBaseKind(source, card)).Concat(SiruiPhysicalSlashVariants(source,card).Concat(JuewuPhysicalSlashVariants(source,card)).Concat(FulePhysicalSlashVariants(source, card))).DistinctBy(v=>v.EffectiveKind)
+                GetSlashUseVariants(source, PhysicalSlashUseBaseKind(source, card)).Concat(SiruiPhysicalSlashVariants(source,card).Concat(JuewuPhysicalSlashVariants(source,card)).Concat(FulePhysicalSlashVariants(source, card).Concat(MoGuifuPhysicalSlashVariants(source, card)))).DistinctBy(v=>v.EffectiveKind)
                     .Any(variant => CanUseQinglongCrescentBladeTarget(
                         source, target, variant.EffectiveKind,SuitColor(EffectiveSuit(source,card)),allowAnyColor:false,physicalSuit:EffectiveSuit(source,card),effectiveRank:SpecificSlashRank(source,card,variant.EffectiveKind),physicalCardIds:[card.Id]))).ToArray()
             : [];
@@ -8810,7 +8810,7 @@ public sealed partial class GameEngine
         var target = _players[attack.TargetSeat];
         return slashes.SelectMany(card =>
             new[] { PhysicalSlashUseBaseKind(source, card) }
-                .Concat(SiruiPhysicalSlashVariants(source, card).Concat(JuewuPhysicalSlashVariants(source, card)).Concat(FulePhysicalSlashVariants(source, card)).Select(variant => variant.EffectiveKind))
+                .Concat(SiruiPhysicalSlashVariants(source, card).Concat(JuewuPhysicalSlashVariants(source, card)).Concat(FulePhysicalSlashVariants(source, card).Concat(MoGuifuPhysicalSlashVariants(source, card))).Select(variant => variant.EffectiveKind))
                 .Distinct()
                 .SelectMany(followupKind =>
                 {
@@ -8924,7 +8924,7 @@ public sealed partial class GameEngine
             slash = GetQinglongCrescentBladeSlashCards(source, target)
                 .SingleOrDefault(card => card.Id == selected.Cards[0]) ??
                 throw new InvalidOperationException("The selected Qinglong Crescent Blade Slash is no longer available.");
-            effectiveSlashKind = FuleSelectedSlashKind(source, slash, JuewuSelectedSlashKind(source, slash, SiruiSelectedSlashKind(source,slash,PhysicalSlashUseBaseKind(source, slash),TryReadConversionSource(selected.Parameters,out var siruiSelectedSource)?siruiSelectedSource:null), siruiSelectedSource), siruiSelectedSource);
+            effectiveSlashKind = MoGuifuSelectedSlashKind(source, slash, JuewuSelectedSlashKind(source, slash, SiruiSelectedSlashKind(source,slash,PhysicalSlashUseBaseKind(source, slash),TryReadConversionSource(selected.Parameters,out var siruiSelectedSource)?siruiSelectedSource:null), siruiSelectedSource), siruiSelectedSource);
             if (!CanUseQinglongCrescentBladeTarget(source, target, effectiveSlashKind, SuitColor(EffectiveSuit(source,slash)), false, EffectiveSuit(source,slash), SpecificSlashRank(source,slash,effectiveSlashKind ?? CardKind.Slash),[slash.Id]))
                 throw new InvalidOperationException(
                     "The selected Qinglong Crescent Blade Slash kind is prohibited for its target.");
@@ -10740,7 +10740,7 @@ public sealed partial class GameEngine
         if (selectedSlash is not null)
         {
             CaptureAiCardResponseChoice(decision, selectedSlash,
-                FuleForcedAiSlashKind(decision, selectedSlash, PhysicalSlashUseBaseKind(owner, selectedSlash)));
+                MoGuifuAiSlashKind(decision, selectedSlash, PhysicalSlashUseBaseKind(owner, selectedSlash)));
             ResolveBorrowedSwordSlashChoice(pending, selectedSlash);
         }
         else if (useSlash && GetZhangbaSlashPairs(owner).FirstOrDefault() is { } pair)
@@ -12880,8 +12880,8 @@ public sealed partial class GameEngine
 
         foreach (var programOwnerSeat in _players.Where(player => player.IsAlive)
                      .Select(player => player.Seat))
-            foreach (var candidate in CollectProgramTriggerCandidates(
-                         _players[programOwnerSeat], window))
+            foreach (var candidate in _programPipelineHooks.IncludeTriggerCandidate(_players[programOwnerSeat], window,
+                         CollectProgramTriggerCandidates(_players[programOwnerSeat], window)))
             {
                 var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
                     .Single(item => item.Id == candidate.BindingId);
@@ -15043,7 +15043,7 @@ public sealed partial class GameEngine
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
                          !player.JudgmentAreaAbolished &&
-                         ((GuanFirstRedDistance(actor,supplyShortage) || HasPhaseSuitAllowance(actor,supplyShortage) || HasCardDistanceExemption(actor, player, CardKind.SupplyShortage) ||
+                         ((GuanFirstRedDistance(actor,supplyShortage) || HasPhaseSuitAllowance(actor,supplyShortage) || HasCardDistanceExemption(actor, player, CardKind.SupplyShortage, physicalCardIds: [supplyShortage.Id]) ||
                                ignoresDistance ||
                                GetCombatDistance(actor.Seat, player.Seat) <= distanceLimit
 )) &&
@@ -15076,7 +15076,7 @@ public sealed partial class GameEngine
                                  player.IsAlive &&
                                  player.Seat != actor.Seat &&
                                  !player.JudgmentAreaAbolished &&
-                                 (GuanFirstRedDistance(actor,converted) || HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.SupplyShortage, excludedEquipmentId: converted.Id) ||
+                                 (GuanFirstRedDistance(actor,converted) || HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.SupplyShortage, excludedEquipmentId: converted.Id, physicalCardIds: [converted.Id]) ||
                                   HasWuHfOrDixianMaterialPrivilege(actor, CardKind.SupplyShortage, [converted.Id], conversionSource) ||
                                   HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance,
                                       CardKind.SupplyShortage) || HasProvenanceUseDistance(actor, converted) ||
@@ -15233,7 +15233,7 @@ public sealed partial class GameEngine
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
-                         (GuanFirstRedDistance(actor,snatch) || HasPhaseSuitAllowance(actor,snatch) || HasCardDistanceExemption(actor, player, CardKind.Snatch) ||
+                         (GuanFirstRedDistance(actor,snatch) || HasPhaseSuitAllowance(actor,snatch) || HasCardDistanceExemption(actor, player, CardKind.Snatch, physicalCardIds: [snatch.Id]) ||
                           ignoresDistance ||
                           GetCombatDistance(actor.Seat, player.Seat) == 1) &&
                          !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, CardKind.Snatch) &&
@@ -15266,7 +15266,7 @@ public sealed partial class GameEngine
                     foreach (var target in _players.Where(player =>
                                  player.IsAlive &&
                                  player.Seat != actor.Seat &&
-                                 (GuanFirstRedDistance(actor,converted) || HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.Snatch, excludedEquipmentId: converted.Id) ||
+                                 (GuanFirstRedDistance(actor,converted) || HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.Snatch, excludedEquipmentId: converted.Id, physicalCardIds: [converted.Id]) ||
                                   HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Snatch, [converted.Id], conversionSource) ||
                                   ignoresDistance ||
                                   GetCombatDistance(actor.Seat, player.Seat) == 1) &&
@@ -17125,7 +17125,7 @@ public sealed partial class GameEngine
         _cardZones.CardsAt(CardLocation.Judgment(seat));
 
     private bool HasBagua(CharacterState player) =>
-        IsProgramNativeResponseAllowed(player, CardKind.Dodge, []) && !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation) ||
+        IsProgramNativeResponseAllowed(player, CardKind.Dodge, []) && !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation) || MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.BaguaFormation ||
         HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.BaguaFormation) &&
         !GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor));
 
@@ -17134,12 +17134,12 @@ public sealed partial class GameEngine
             item.Policy.CardKinds.Contains(CardKind.BaguaFormation) && item.Policy.Condition.ContainsEquipmentPresence());
 
     private bool HasTengjia(CharacterState player) =>
-        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia) ||
+        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia) || MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.Tengjia ||
         HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.Tengjia) &&
         !GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor));
 
     private bool HasSilverLion(CharacterState player) =>
-        !IsArmorIneffectiveForTurn(player) && GetEquipment(player).Any(card => card.Kind == CardKind.SilverLion);
+        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.SilverLion) || MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.SilverLion);
 
     private bool CanRequestFactionDefense(CharacterState owner, CardAttackHandle attack) =>
         !attack.FactionDefenseAttempted &&
@@ -17219,6 +17219,7 @@ public sealed partial class GameEngine
 
     private bool HasBlackSlashBarrier(CharacterState player) =>
         GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).BlocksBlackSlash) ||
+        !IsArmorIneffectiveForTurn(player) && MoCaoCaoVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.RenwangShield ||
         !HasArmor(player) && !IsArmorIneffectiveForTurn(player) && HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.RenwangShield);
 
     private bool HasArmor(CharacterState player) =>

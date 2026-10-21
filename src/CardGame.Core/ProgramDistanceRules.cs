@@ -28,7 +28,11 @@ internal enum ProgramDistanceStage
 internal readonly record struct ProgramDistanceQuery(CharacterState Source, CharacterState Target);
 internal readonly record struct ProgramAttackRangeQuery(CharacterState Player, int? ExcludedEquipmentId, EquipmentSlot? ExcludedEquipmentSlot);
 internal readonly record struct ProgramCardDistanceQuery(CharacterState Actor, CharacterState Target, CardKind Kind,
-    long? CardUseFrameId, int? ExcludedEquipmentId, EquipmentSlot? ExcludedEquipmentSlot);
+    long? CardUseFrameId, int? ExcludedEquipmentId, EquipmentSlot? ExcludedEquipmentSlot)
+{
+    private readonly IReadOnlyList<int>? _physicalCardIds;
+    public IReadOnlyList<int>? PhysicalCardIds { get => _physicalCardIds; init => _physicalCardIds = value is null ? null : Array.AsReadOnly(value.ToArray()); }
+}
 internal readonly record struct ProgramSlashConversionDistanceQuery(CharacterState Owner, CardConversionSource Source);
 internal readonly record struct ProgramSlashDistanceQuery(CharacterState Actor, CharacterState Target, CardKind Kind,
     Card? PhysicalCard = null, CardConversionSource? Conversion = null, long? ExistingUseFrameId = null,

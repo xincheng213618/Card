@@ -5,8 +5,8 @@ public sealed partial class GameEngine
     private static readonly CardKind[] SlashKinds =
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
-    private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null) =>
-        DistanceRules.HasCardUseExemption(new(actor, target, kind, cardUseFrameId, excludedEquipmentId, excludedEquipmentSlot));
+    private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null, IReadOnlyList<int>? physicalCardIds = null) =>
+        DistanceRules.HasCardUseExemption(new(actor, target, kind, cardUseFrameId, excludedEquipmentId, excludedEquipmentSlot) { PhysicalCardIds = physicalCardIds });
 
     private bool HasCardArmorBypass(CharacterState actor, CharacterState target, CardKind kind) =>
         IsSlashCard(kind) && HasMouHuaXiongWei(actor.Seat) ||

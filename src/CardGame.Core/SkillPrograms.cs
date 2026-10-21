@@ -1165,6 +1165,14 @@ public enum SkillProgramEffectOp
     ResolveMoZhangFeiZhuohun = 33700,
     ResolveMoZhangFeiChenshi = 33701,
     ResolveMoZhangFeiGreenDraw = 33702,
+    InitializeMoCaoCaoFuzai = 33800,
+    ResolveMoCaoCaoBachao = 33801,
+    ResolveMoCaoCaoBaibi = 33802,
+    AcquireMoSimaYiGuifuDodge = 33900,
+    ResolveMoSimaYiMoubian = 33901,
+    ResolveMoSimaYiZhouxi = 33902,
+    ResolveMoSimaYiRetaliation = 33903,
+    ResolveMoSimaYiLieshi = 33904,
     ResolveMouSunJianYipo = 32500,
     OfferMouSunJianHulieDamage = 32501,
     ResolveMouSunJianHulieCounter = 32502,
@@ -3674,17 +3682,14 @@ public sealed class SkillProgramCatalog
             chainedStateCost.HasValue || tieredRound is not null || roundOnceCardless is not null || drawFunded is not null))
             Fail(path + ".sourcePileSkillId", "requires a single physical public-pile Slash or Dodge conversion");
         var fuleAlias = id.StartsWith("fu-alias-", StringComparison.Ordinal);
-        if (!fuleAlias && tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
+        if (!(extended && inputCount == 1 && CardUseCategoryCatalog.Get(output) is CardUseCategories.Basic or CardUseCategories.DelayedTrick) && !fuleAlias && tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
                 CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
                 CardKind.IronChain or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.Nullification or CardKind.Peach or
                 CardKind.ArrowBarrage or CardKind.Alcohol or CardKind.Snatch))
             Fail(path + ".outputKind", "this card kind has no configured viewAs use or response path");
         var forPlay = RequiredBool(node, "forPlay", path);
         var forResponse = RequiredBool(node, "forResponse", path);
-        if (tieredRound is null && singleTrick && (inputCount != 1 || !forPlay || forResponse || output is not
-            (CardKind.DrawTwo or CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or
-             CardKind.PeachGarden or CardKind.FiveGrains or CardKind.Dismantlement or CardKind.Snatch or
-             CardKind.FireAttack or CardKind.IronChain or CardKind.BorrowedSword or CardKind.WumiaoFlood)))
+        if (tieredRound is null && singleTrick && (inputCount != 1 || !forPlay || forResponse || CardUseCategoryCatalog.Get(output) != CardUseCategories.InstantTrick || output == CardKind.Nullification))
             Fail(path + ".singleCardTrickUse", "requires one physical source and an ordinary trick for play");
         if (!rankTwoDamageUse && !equalNameLengthUse && xieweiBaitBasicUse is null && leiluanBasicUse is null && tieredRound is null && drawFunded is null && roundDistinct is null && !chainedStateCost.HasValue && useOnly && !singleTrick && !((conversionState is not null || unusedName || lastInSourceZone == true) && output == CardKind.Nullification && !forPlay && forResponse && inputCount == 1) && (inputCount != 1 ||
             (output == CardKind.Dodge ? forPlay || !forResponse :
@@ -3746,7 +3751,7 @@ public sealed class SkillProgramCatalog
             Fail(path + ".forPlay", "nullification is only legal in the counterspell response window");
         if (!fuleAlias && output == CardKind.Peach && forPlay && usesPerPhase is null && !extended && !useOnly)
             Fail(path + ".forPlay", "proactive peach has no configured viewAs executor");
-        if (!fuleAlias && output == CardKind.ThunderSlash && usesPerPhase is null && !useOnly && declaration is null)
+        if (!fuleAlias && output == CardKind.ThunderSlash && usesPerPhase is null && !extended && !useOnly && declaration is null)
             Fail(path + ".outputKind", "thunderSlash requires phase-limited play viewAs");
         if (!fuleAlias && output == CardKind.FireSlash && usesPerPhase is null && !extended && !useOnly)
         {

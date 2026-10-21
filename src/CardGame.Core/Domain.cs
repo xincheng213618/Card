@@ -115,7 +115,9 @@ public enum CardKind
     DelusionCrown,
     Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
     Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623, ThunderChariot = 624,
-    WumiaoFlood = 700
+    WumiaoFlood = 700,
+    QiBaoDao = 33800,
+    BaiBiDao = 33801
 }
 
 public enum Suit

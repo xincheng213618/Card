@@ -177,6 +177,8 @@ public static partial class GeneralArt
             ["mou-dong-zhao-ol"] = "official-mou-dong-zhao-ol.png",
             ["mou-gongsun-zan-mobile"] = "official-mou-gongsun-zan-mobile.jpg",
             ["ol-mo-zhang-fei"] = "official-mo-zhang-fei.png",
+            ["ol-mo-cao-cao"] = "official-mo-cao-cao.png",
+            ["ol-mo-sima-yi"] = "official-mo-sima-yi.png",
             ["mou-gan-ning-mobile"] = "official-mou-gan-ning-mobile.jpg",
             ["mou-diao-chan-mobile"] = "official-mou-diao-chan-mobile.jpg",
             ["mou-da-qiao-mobile"] = "official-mou-da-qiao-mobile.jpg",

@@ -11,6 +11,7 @@ internal enum ProgramTargetRulePoint
     DeclaredGlobalProhibition,
     SlashQualification,
     NativeUseMaterialQualification,
+    MaterialPrivilegeAllowance,
     TargetCountContributions,
     ExtraSlashTargets,
     ExtraSlashTargetSource,
@@ -90,7 +91,7 @@ internal sealed class ProgramTargetRuleCatalog
         ProgramTargetRulePoint.DirectedProhibition or ProgramTargetRulePoint.DeclaredGlobalProhibition =>
             typeof(Func<ProgramDirectedTargetQuery, bool>),
         ProgramTargetRulePoint.SlashQualification => typeof(Func<ProgramSlashTargetQuery, bool>),
-        ProgramTargetRulePoint.NativeUseMaterialQualification => typeof(Func<ProgramNativeUseMaterialQuery, bool>),
+        ProgramTargetRulePoint.NativeUseMaterialQualification or ProgramTargetRulePoint.MaterialPrivilegeAllowance => typeof(Func<ProgramNativeUseMaterialQuery, bool>),
         ProgramTargetRulePoint.TargetCountContributions => typeof(Func<ProgramTargetCountQuery, RuleQueryContribution?>),
         ProgramTargetRulePoint.ExtraSlashTargets => typeof(Func<ProgramSlashTargetExpansionQuery, ProgramSlashTargetExpansion>),
         ProgramTargetRulePoint.ExtraSlashTargetSource => typeof(Func<ProgramSlashTargetSourceQuery, bool>),
@@ -107,6 +108,7 @@ internal sealed class ProgramTargetRules
     private readonly Func<ProgramDirectedTargetQuery, bool>[] _declaredGlobalProhibitions;
     private readonly Func<ProgramSlashTargetQuery, bool>[] _slashQualifications;
     private readonly Func<ProgramNativeUseMaterialQuery, bool>[] _nativeUseMaterialQualifications;
+    private readonly Func<ProgramNativeUseMaterialQuery, bool>[] _materialPrivilegeAllowances;
     private readonly Func<ProgramTargetCountQuery, RuleQueryContribution?>[] _targetCountContributions;
     private readonly Func<ProgramSlashTargetExpansionQuery, ProgramSlashTargetExpansion?>[] _extraSlashTargets;
     private readonly Func<ProgramSlashTargetSourceQuery, bool>[] _extraSlashTargetSources;
@@ -127,6 +129,7 @@ internal sealed class ProgramTargetRules
         _declaredGlobalProhibitions = Bind<Func<ProgramDirectedTargetQuery, bool>>(ProgramTargetRulePoint.DeclaredGlobalProhibition);
         _slashQualifications = Bind<Func<ProgramSlashTargetQuery, bool>>(ProgramTargetRulePoint.SlashQualification);
         _nativeUseMaterialQualifications = Bind<Func<ProgramNativeUseMaterialQuery, bool>>(ProgramTargetRulePoint.NativeUseMaterialQualification);
+        _materialPrivilegeAllowances = Bind<Func<ProgramNativeUseMaterialQuery, bool>>(ProgramTargetRulePoint.MaterialPrivilegeAllowance);
         _targetCountContributions = Bind<Func<ProgramTargetCountQuery, RuleQueryContribution?>>(ProgramTargetRulePoint.TargetCountContributions);
         _extraSlashTargets = Bind<Func<ProgramSlashTargetExpansionQuery, ProgramSlashTargetExpansion?>>(ProgramTargetRulePoint.ExtraSlashTargets);
         _extraSlashTargetSources = Bind<Func<ProgramSlashTargetSourceQuery, bool>>(ProgramTargetRulePoint.ExtraSlashTargetSource);
@@ -146,6 +149,8 @@ internal sealed class ProgramTargetRules
         foreach (var qualification in _slashQualifications) if (!qualification(query)) return false;
         return true;
     }
+
+    internal bool HasMaterialPrivilege(ProgramNativeUseMaterialQuery query) => Any(_materialPrivilegeAllowances, query);
 
     internal bool AllowsNativeUseMaterial(ProgramNativeUseMaterialQuery query)
     {

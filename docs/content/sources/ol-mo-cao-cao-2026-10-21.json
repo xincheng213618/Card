@@ -1,0 +1,253 @@
+{
+  "generalId": "ol:mo-cao-cao",
+  "name": "魔曹操·OL",
+  "edition": "三国杀OL·蚀心入魔",
+  "checkedAt": "2026-10-21",
+  "identity": {
+    "faction": "wei",
+    "gender": "Male",
+    "maximumHp": 4,
+    "initialHp": 4,
+    "explanation": "正式新品表为4体力；API initial_hp=0为未另列初始体力的哨兵值，不作0体力开局。"
+  },
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/713",
+      "bytes": 25838,
+      "sha256": "90EA203FA6567688F038B435A24F966322E78062B086408DC9822C77CECD6E8F",
+      "authority": "Direct current OL hero, full two printed skills; no expanded virtual-equipment table."
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=713",
+      "bytes": 1452,
+      "sha256": "5A99451D91BB1F5D818DFF2AA750C470F12BA836D2A9F4F268BB7ADF2BAE3663",
+      "authority": "Direct current OL identity API."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20251202_8548_4513",
+      "bytes": 363950,
+      "sha256": "8F81BD088535A28C9BA2EAD3E0AB2250F263EF191F061E1DAE382D327112244D",
+      "authority": "Direct formal first release, identity and complete printed skill bodies."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20250427_5050_5013",
+      "bytes": 485038,
+      "sha256": "292C1233C4BF2F909334AC6FB002EF27F88E6C088B98155CE592A04914B18FAC",
+      "authority": "Direct formal magic-series release establishes shared derived Rumo consequence."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20181122_9684_0018",
+      "bytes": 64380,
+      "sha256": "12D4561D9D6CF01D93864C155F920D2062A1E1480B35DD00A669BEF5519943C5",
+      "authority": "Direct OL mode announcement establishes full Seven Treasure Sword card rule, not its membership in Fuzai."
+    }
+  ],
+  "release": {
+    "url": "https://www.sanguosha.com/news/20251202_8548_4513",
+    "publishedAt": "2025-12-05 17:03:01",
+    "availableFrom": "2025-12-06 00:15:00"
+  },
+  "skills": [
+    {
+      "id": "ol:mo-fuzai",
+      "name": "覆载",
+      "text": "锁定技，你的装备牌只能当【借刀】或【无中生有】使用。若你的装备区里没有牌，你视为装备着一张武器牌和防具牌。"
+    },
+    {
+      "id": "ol:mo-bachao",
+      "name": "霸朝",
+      "text": "出牌阶段开始时，你可以令所有其他角色同时选择是否交给你一张牌，然后你可对未以此法交给你非基本牌的一名角色造成1点伤害，若你选择自己，本阶段你使用当前手牌无次数和距离限制并入魔。"
+    }
+  ],
+  "officialClient": {
+    "config": {
+      "url": "https://web.sanguosha.com/220/h5_2/res/config/Config.sgs",
+      "sha256": "9D2B017D7112C1D5999D61B48600945B4139FE237D840A38784623114706DE9F"
+    },
+    "bundle": {
+      "url": "https://web.sanguosha.com/220/h5_2/sgsGame_a.sgs",
+      "sha256": "E01E94A8C0866067169418488C4834259EE6670CA49936F2014A6D052C98101B"
+    },
+    "members": [
+      "character.sgs",
+      "cha_spell.sgs",
+      "sys_playcard.sgs"
+    ],
+    "currentCharacter": {
+      "id": 713,
+      "skills": [
+        3902,
+        3824
+      ]
+    },
+    "currentBachaoSpell": 3902,
+    "obsoleteBachaoSpellNotUsed": 3823,
+    "equipment": [
+      {
+        "cardKind": "Crossbow",
+        "spellId": 23,
+        "name": "诸葛连弩",
+        "fullRule": "攻击范围：1<br><font color='#00FF00'>技能</font><br>锁定技，你使用【杀】无次数限制。"
+      },
+      {
+        "cardKind": "QinggangSword",
+        "spellId": 25,
+        "name": "青釭剑",
+        "fullRule": "攻击范围：2<br><font color='#00FF00'>技能</font><br>锁定技，当你使用【杀】指定目标后，你令其防具对此【杀】无效。"
+      },
+      {
+        "cardKind": "StoneAxe",
+        "spellId": 28,
+        "name": "贯石斧",
+        "fullRule": "攻击范围：3<br><font color='#00FF00'>技能</font><br>当你使用的【杀】被目标角色使用的【闪】抵消后，你可以弃置两张牌。若如此做，此【杀】依然会造成伤害。"
+      },
+      {
+        "cardKind": "ZhangbaSerpentSpear",
+        "spellId": 27,
+        "name": "丈八蛇矛",
+        "fullRule": "攻击范围：3<br><font color='#00FF00'>技能</font><br>你可以将两张手牌当【杀】使用或打出。"
+      },
+      {
+        "cardKind": "CixiongDoubleSwords",
+        "spellId": 24,
+        "name": "雌雄双股剑",
+        "fullRule": "攻击范围：2<br><font color='#00FF00'>技能</font><br>当你使用【杀】指定与你性别不同的目标后，你可以令其选择一项：1.弃置一张手牌；2.令你摸一张牌。"
+      },
+      {
+        "cardKind": "QinglongCrescentBlade",
+        "spellId": 26,
+        "name": "青龙偃月刀",
+        "fullRule": "攻击范围：3<br><font color='#00FF00'>技能</font><br>当你使用的【杀】被目标角色使用的【闪】抵消后，你可以对其使用一张【杀】。"
+      },
+      {
+        "cardKind": "IceSword",
+        "spellId": 201,
+        "name": "寒冰剑",
+        "fullRule": "攻击范围：2<br><font color='#00FF00'>技能</font><br>当你使用【杀】对目标角色造成伤害时，若其有牌，你可以防止此伤害，然后你依次弃置其两张牌。"
+      },
+      {
+        "cardKind": "QilinBow",
+        "spellId": 30,
+        "name": "麒麟弓",
+        "fullRule": "攻击范围：5<br><font color='#00FF00'>技能</font><br>当你使用【杀】对目标角色造成伤害时，你可以弃置其装备区里的一张坐骑牌。"
+      },
+      {
+        "cardKind": "FangtianHalberd",
+        "spellId": 29,
+        "name": "方天画戟",
+        "fullRule": "攻击范围：4<br><font color='#00FF00'>技能</font><br>锁定技，若你使用的【杀】是你最后的手牌，则此【杀】能多指定两个目标。"
+      },
+      {
+        "cardKind": "GudingBlade",
+        "spellId": 86,
+        "name": "古锭刀",
+        "fullRule": "攻击范围：2<br><font color='#00FF00'>技能</font><br>锁定技，当你使用【杀】对目标角色造成伤害时，若该角色没有手牌，则此伤害+1。"
+      },
+      {
+        "cardKind": "ZhuqueFan",
+        "spellId": 87,
+        "name": "朱雀羽扇",
+        "fullRule": "攻击范围：4<br><font color='#00FF00'>技能</font><br>当你使用普通【杀】时，你可以将此【杀】改为火【杀】。"
+      },
+      {
+        "cardKind": "QiBaoDao",
+        "spellId": 5007,
+        "name": "七宝刀",
+        "fullRule": "攻击范围：2<br><font color='#00FF00'>技能</font><br>锁定技，你使用【杀】无视目标防具，若目标角色未损失体力值，此【杀】伤害+1。"
+      },
+      {
+        "cardKind": "BaiBiDao",
+        "spellId": 6007,
+        "name": "百辟刀",
+        "fullRule": "攻击范围：2<br><font color='#00FF00'>技能</font><br>当你使用【杀】造成伤害后，你可以获得目标角色一张手牌。"
+      },
+      {
+        "cardKind": "SilverLion",
+        "spellId": 89,
+        "name": "白银狮子",
+        "fullRule": "锁定技，当你受到伤害时，若伤害值大于1，将此伤害值改为1。当你失去装备区里的【白银狮子】时，你回复1点体力。"
+      },
+      {
+        "cardKind": "Tengjia",
+        "spellId": 88,
+        "name": "藤甲",
+        "fullRule": "锁定技，【南蛮入侵】【万箭齐发】和普通【杀】对你无效。当你受到火焰伤害时，此伤害+1。"
+      },
+      {
+        "cardKind": "RenwangShield",
+        "spellId": 200,
+        "name": "仁王盾",
+        "fullRule": "锁定技，黑色【杀】对你无效。"
+      },
+      {
+        "cardKind": "BaguaFormation",
+        "spellId": 16,
+        "name": "八卦阵",
+        "fullRule": "当你需要使用或打出【闪】时，你可以判定，若判定结果为红色，则你视为使用或打出一张【闪】。"
+      }
+    ],
+    "poolEvidence": "sys_playcard.sgs/GamePlayCards.card_H5 contains the exact thirteen named weapon and four named armor virtual representatives. The frontend renders server-issued Fuzai gear and does not disclose sampling weights. BaiBiDao spell6007 explicitly permits an optional Hand obtain after Slash damage; QiBaoDao spell5007 includes ignore-armor and full-HP target damage+1."
+  },
+  "attributedOperationalEvidence": [
+    {
+      "url": "https://www.taptap.cn/moment/757406492004452934",
+      "sha256": "03941F5AF83CF5F3D112EC38B6FFE49CD0522A44411E5D79A864AF18EF9D4086",
+      "authority": "Official-badged operator moderator 大乔 republishes explicitly credited player 何小媛 and links original; empirical guide, not formal FAQ."
+    },
+    {
+      "url": "https://bbs.4399.cn/thread-view-tid-51872266",
+      "sha256": "0523190A21F0821C0C10D79A32E33867BB7BFB1C6120D6EB744E091058489119",
+      "authority": "Official-moderator operational guide explicitly credits original player 鲱鱼喵丶; not direct formal FAQ."
+    }
+  ],
+  "engineeringDecisions": [
+    {
+      "status": "project-interpretation",
+      "officialFaqConfirmed": false,
+      "rule": "The thirteen weapons and four armors are independently uniformly sampled in the current-HP matching subset: weapon range equals HP, armor canonical Chinese name length equals HP; when no match exists, that equipment class uses its full pool. Operational empirical reports motivate the formula; first-party public resources do not prove its weights."
+    },
+    {
+      "status": "project-interpretation",
+      "officialFaqConfirmed": false,
+      "rule": "Sample once at genuine GameStarting and each true HP-value change in native event order. Pure queries, armor-only damage and unchanged HP do not resample. Physical equipment entry suspends the issued virtual pair, and departure restores that same pair without RNG."
+    },
+    {
+      "status": "project-interpretation",
+      "officialFaqConfirmed": false,
+      "rule": "Virtual equipment grants the full named native weapon/armor abilities but is not a physical entity. Rerolling or losing a virtual Silver Lion does not fabricate removal recovery. Borrowed Sword still requires a real transferable weapon for holder/transfer legality."
+    },
+    {
+      "status": "project-interpretation",
+      "officialFaqConfirmed": false,
+      "rule": "Current Bachao3902 lets all other living roles privately commit one HE entity or decline before any gift resolves. The accepted action-order roster is frozen. Real native movement and its children settle each gift; only actual nonbasic arrival protects the giver. OutsideGame normalization is not treated as an arrival."
+    },
+    {
+      "status": "project-interpretation",
+      "officialFaqConfirmed": false,
+      "rule": "After all gifts, the owner may decline damage or choose an eligible living role, including self. Accepted self native Damage1 and all children finish before freezing the then-current Hand and entering existing Rumo, without requiring positive actual damage. A paid tail survives source loss; native terminal rules still apply."
+    },
+    {
+      "status": "project-interpretation",
+      "officialFaqConfirmed": false,
+      "rule": "The frozen Hand entity set grants distance and use-count exemptions only in that actual Play. All physical materials of a converted/multiple-material use must come from the actor’s original Hand and all belong to that issued set. Zero materials and later gained entities do not inherit the privilege; ordinary targets, prohibitions, response and payment rules remain native."
+    },
+    {
+      "status": "native-reuse",
+      "rule": "BaiBiDao is optional and uses a precise real/virtual weapon ability authorization plus original native Slash damage/window/action proof. It does not fake a Fuzai or initial skill instance. All other fifteen equipment effects reuse their existing named native mechanisms; QiBaoDao has its full armor bypass and full-HP target Slash damage bonus."
+    }
+  ],
+  "portrait": {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71300.png",
+    "asset": "src/CardGame.Wpf/Assets/official-mo-cao-cao.png",
+    "sha256": "299B379C76B63FF214F07BB1842BD3C57B775AB9CA5B940A8F6899C50A84355F",
+    "width": 750,
+    "height": 950,
+    "bytes": 1292683,
+    "inspection": "Root inspected the actual official image: white hair and crown, black-red armor/robes, green vessel and long staff against a red magic-disc background."
+  },
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/OlMoCaoCaoChecks.cs",
+    "method": "NativeEquipmentAndBachao",
+    "filter": "OL Mo Cao Cao: native equipment and Bachao"
+  }
+}

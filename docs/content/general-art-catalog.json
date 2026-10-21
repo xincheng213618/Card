@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "ol-mo-cao-cao",
+      "characterName": "魔曹操",
+      "defaultSkinId": "71300",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/713",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mo-cao-cao.png",
+          "sha256": "299b379c76b63ff214f07bb1842bd3c57b775ab9ca5b940a8f6899c50a84355f",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "71300",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "ol-mo-sima-yi",
+      "characterName": "魔司马懿",
+      "defaultSkinId": "71000",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/710",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/71000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mo-sima-yi.png",
+          "sha256": "b6eb3469eff5a2a537eb193df4bfebc23c0bad9a73a1e40d96b8052965f8d374",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "71000",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "ol-mo-zhang-fei",
       "characterName": "魔张飞",
       "defaultSkinId": "75000",

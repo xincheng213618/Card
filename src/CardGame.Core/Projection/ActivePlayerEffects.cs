@@ -43,6 +43,11 @@ public sealed partial class GameEngine
             expiry == SkillProgramDamageModifierExpiration.NextOwnerTurnStart
                 ? ActivePlayerEffectExpiry.NextSourceTurnStart : ActivePlayerEffectExpiry.CurrentTurnEnd;
 
+        if (MoCaoCaoEquipmentDescription(player.Seat) is { } fuzai)
+            Add(MoCaoCaoComposition.Fuzai, player.Seat, fuzai, ActivePlayerEffectExpiry.RuleCleared);
+        if (MoCaoCaoHasHandPrivilege(player.Seat))
+            Add(MoCaoCaoComposition.Bachao, player.Seat, "霸朝结算后当时持有的手牌，本出牌阶段使用无次数和距离限制；后来获得的牌不继承。", ActivePlayerEffectExpiry.PlayPhaseEnd);
+
         foreach (var grant in ActiveMouGszBaojing(player.Seat))
             Add(MouGongsunZanComposition.Baojing, grant.Source.OwnerSeat,
                 $"攻击范围{grant.Amount:+0;-0}（减少至最少1），直到来源的下个实际出牌阶段开始。", ActivePlayerEffectExpiry.RuleCleared);
@@ -235,7 +240,7 @@ public sealed partial class GameEngine
             foreach (var issued in UnsettledPhaseHandSeizures().Where(item => item.Source.OwnerSeat == player.Seat))
                 if (CurrentPhaseHandSeizureDebt(player.Seat, issued.Source.SkillId, issued.Source.SkillInstanceId, issued.GameplayHash, issued.ContinuationId) == issued)
                     Add(issued.Source.SkillId, player.Seat, $"出牌阶段结束时，须按{SeatName(issued.TargetSeat)}届时的体力值归还牌。", ActivePlayerEffectExpiry.PlayPhaseEnd);
-        return effects?.AsReadOnly();
+        return AppendMoGuifuRecords(player, effects?.AsReadOnly());
     }
 
     private static string EffectCardNames(IReadOnlyList<CardKind> kinds) => kinds.Count == 0 ? "牌" :

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:mo-fuzai",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "equipment-as-draw-two",
+          "inputKinds": [],
+          "inputCategories": [
+            "equipment"
+          ],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "equipment-as-borrowed-sword",
+          "inputKinds": [],
+          "inputCategories": [
+            "equipment"
+          ],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "singleCardTrickUse": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "initialize",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMoCaoCaoFuzai",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-bachao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "simultaneous-gifts",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMoCaoCaoBachao",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "equipment:baibi-dao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-slash-damage",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "damageSource",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMoCaoCaoBaibi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

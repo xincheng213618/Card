@@ -1,0 +1,673 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:mo-guifu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "acquire-round",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "roundTurnSeatCount" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            {
+              "op": "acquireMoSimaYiGuifuDodge",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "acquire-health",
+          "window": "afterHealthChanged",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "acquireMoSimaYiGuifuDodge",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "recorded-WumiaoFlood",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "wumiaoFlood",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Intoxication",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "intoxication",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-StoreGrain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "storeGrain",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Reinforcements",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "reinforcements",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-UnitedEffort",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "unitedEffort",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Zong",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "zong",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-RealgarWine",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "realgarWine",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-SameBoat",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "sameBoat",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-StriveUpstream",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "striveUpstream",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-AgainstCurrent",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "againstCurrent",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-StarShift",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "starShift",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-BeamSwap",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "beamSwap",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-HandRedistribution",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "handRedistribution",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-WenheChaos",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "wenheChaos",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Poison",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "poison",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-ReturnSoul",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "returnSoul",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-SowBeans",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "sowBeans",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-TransplantWood",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "transplantWood",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-AllianceFeast",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "allianceFeast",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-FireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-ThunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-Alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-Dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-Peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-Duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-DrawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-BarbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-ArrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-PeachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-FiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-UnexpectedAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "unexpectedAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-FireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-BorrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-IronChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "recorded-Indulgence",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "indulgence",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-SupplyShortage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "supplyShortage",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "recorded-Lightning",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "lightning",
+          "forPlay": true,
+          "forResponse": false,
+          "extendedUse": true,
+          "allowSameKind": true
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-moubian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "learn-recorded",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMoSimaYiMoubian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-zhouxi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "sample-skill",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMoSimaYiZhouxi",
+              "target": "owner"
+            }
+          ],
+          "priority": -10
+        },
+        {
+          "id": "damaged-round-retaliation",
+          "window": "roundEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMoSimaYiRetaliation",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:mo-lieshi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "two-different-oaths",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveMoSimaYiLieshi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

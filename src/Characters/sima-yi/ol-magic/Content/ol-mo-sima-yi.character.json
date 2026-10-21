@@ -1,0 +1,75 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sima-yi",
+  "skills": [
+    {
+      "registrationOrder": 2570,
+      "programBundle": "ol-mo-sima-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-guifu",
+        "name": "诡伏",
+        "description": "每轮开始时或你体力值变化后，你获得一张不计入手牌上限的【闪】。技能或牌造成伤害后，你记录此技能或牌名。你可将因此技能获得的【闪】当做记录的牌名使用（不计入次数限制，每回合每种牌名限一次）。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2571,
+      "programBundle": "ol-mo-sima-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-moubian",
+        "name": "谋变",
+        "description": "准备阶段，若你“诡伏”记录数至少为3，你可入魔，获得你“诡伏”记录的技能，并获得“骤袭”。\n【骤袭】准备阶段，你从三个可造成伤害的技能中选择一个获得至你的下回合开始。受到你伤害的角色于本轮结束时视为对你使用一张【杀】。\n【入魔】每轮结束时，若本轮你未造成过伤害，你失去1点体力。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2572,
+      "programBundle": "ol-mo-sima-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-zhouxi",
+        "name": "骤袭",
+        "description": "准备阶段，你从三个可造成伤害的技能中选择一个获得至你的下回合开始。受到你伤害的角色于本轮结束时视为对你使用一张【杀】。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2573,
+      "programBundle": "ol-mo-sima-yi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "ol:mo-lieshi",
+        "name": "烈誓",
+        "description": "出牌阶段，你可以选择一项：1.废除判定区并受到你的1点火焰伤害；2.弃置所有【闪】；3.弃置所有【杀】。然后令一名角色选择另一项。",
+        "executionForms": "State, Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2574,
+      "pools": {
+        "current": 561
+      },
+      "definition": {
+        "id": "ol:mo-sima-yi",
+        "name": "魔司马懿",
+        "portraitKey": "mo-sima-yi",
+        "skillId": "ol:mo-guifu",
+        "additionalSkillIds": [
+          "ol:mo-moubian"
+        ],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:sima-yi",
+        "variantId": "magic-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

@@ -534,7 +534,7 @@ public sealed partial class GameEngine
             owner.MaxHp - previous,
             owner.MaxHp,
             sourceSkillId ?? frame.SkillId)
-        { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } || HasMouSunJianOlHpSubject(owner.Seat) ? hpBeforeClamp : null });
+        { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } || HasMouSunJianOlHpSubject(owner.Seat) || _programPipelineHooks.HealthChangeSubject(owner.Seat) ? hpBeforeClamp : null });
     }
 
     private void GrantProgramSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds)

@@ -50,7 +50,7 @@ public sealed partial class GameEngine
 
     private SkillProgram ActivityRuntimeProgram(SkillProgram original)
     {
-        if (!HasActivityOrdinaryTrickProjection) return original;
+        if (!HasActivityOrdinaryTrickProjection || original.Id == MoSimaYiComposition.Guifu) return original;
         if (_activityOrdinaryPrograms.TryGetValue(original, out var cached)) return cached;
         var families = original.ViewAs.Where(rule => TraditionalProactiveOrdinaryTricks.Contains(rule.OutputKind))
             .GroupBy(ActivityViewAsFamily, StringComparer.Ordinal)
