@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:cao-xian","skills":[
+ {"registrationOrder":2910,"programBundle":"ol-cao-xian","includeProgramPresentation":true,"definition":{"id":"ol:lingxi","name":"灵犀","description":"出牌阶段开始或结束时，你可以将至多体力上限张牌置于武将牌上称之为‘翼’。‘翼’被移去后，你将手牌调整至等于‘翼’花色数的两倍。","executionForms":"Trigger"}},
+ {"registrationOrder":2911,"programBundle":"ol-cao-xian","includeProgramPresentation":true,"definition":{"id":"ol:zhifou","name":"知否","description":"你使用牌结算完成后，你可移去至少X张‘翼’（X为你本回合发动此技能的次数）并令一名角色执行以下一项（每回合每项各限一次）：1.将一张牌置于‘翼’中；2.弃两张牌；3.失去1点体力。","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":2912,"pools":{"current":595},"definition":{"id":"ol:cao-xian","name":"曹宪","portraitKey":"ol-cao-xian","skillId":"ol:lingxi","additionalSkillIds":["ol:zhifou"],"factionId":"wei","baseHp":3,"gender":"Female","characterId":"character:cao-xian","variantId":"ordinary","rulesetId":"sanguosha-anniversary"}}]}

@@ -47,6 +47,10 @@ internal static class NativeLogicalDiscardChecks
             Need(paid.ActualCount==2&&paid.HandCount==1&&paid.SubjectSeat==0&&paid.ExecutorSeat==0&&
                 batch.Movements.Count==2&&batch.Movements.Select(m=>m.From).ToHashSet().SetEquals([CardLocation.Hand(0),CardLocation.Equipment(0)]),
                 "Generic MoveBound keeps the original single mixed-zone physical batch and one whole two-primary invocation, rather than a false Hand singleton.");
+            var primary=g.Events.Select(e=>e.Payload).OfType<NativeLogicalDiscardMaterialCompletedEvent>().Where(m=>m.InvocationId==paid.InvocationId).ToArray();
+            Need(primary.Length==2&&primary.Select(m=>m.CardId).ToHashSet().SetEquals(batch.Movements.Select(m=>m.CardId))&&
+                primary.All(m=>m.CompletionSequence>paid.SequenceBefore&&m.CompletionSequence<=paid.SequenceAfter&&batch.Movements.Any(actual=>actual.CardId==m.CardId&&actual.Sequence==m.CompletionSequence&&actual.From==m.From&&actual.To==m.To)),
+                "The one completed native invoice seals each exact primary entity, original source and true terminal movement sequence without including other batch or interval cards.");
             g=Cold(g,r);Answer(g,c=>c.Parameters.GetValueOrDefault("option-id")=="continue");Play(g);_=Cold(g,r);
         }
         {

@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "ol-cao-xian",
+      "characterName": "曹宪",
+      "defaultSkinId": "1116301",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1163.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1116301.png",
+          "sha256": "8f8a7addb735352b830510b456ae0d0c42002c5d16d4062795a57ce8c62a8307",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cao-xian.png",
+          "id": "1116301",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-xun-yu",
+      "characterName": "谋荀彧",
+      "defaultSkinId": "1163601",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1636.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163601.png",
+          "sha256": "8d473e0a7b0e217c8fe0829d3054bdb5805412ad98c1b6437596a809c791f0a4",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-xun-yu.png",
+          "id": "1163601",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-chen-lin",
       "characterName": "谋陈琳",
       "defaultSkinId": "1170101",

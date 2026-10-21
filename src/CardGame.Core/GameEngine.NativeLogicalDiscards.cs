@@ -13,6 +13,8 @@ public sealed record NativeLogicalDiscardInvocationRecordedEvent(long Invocation
 }
 
 public sealed record NativeLogicalDiscardMaterial(int CardId, CardLocation From);
+public sealed record NativeLogicalDiscardMaterialCompletedEvent(long InvocationId, int CardId,
+    CardLocation From, CardLocation To, long CompletionSequence) : IGameEvent;
 
 public sealed record NativeLogicalDiscardInvocationDraft
 {
@@ -80,14 +82,20 @@ public sealed partial class GameEngine
         if (ProgramEventHistory<NativeLogicalDiscardInvocationRecordedEvent>().Any(e => e.InvocationId == draft.InvocationId))
             throw new InvalidOperationException("A logical discard must finish exactly once.");
         CloseWuZishengNativeDiscard(draft);
-        var actual = draft.Materials.Where(material => _cardMovements.Any(move =>
-            move.CardId == material.CardId && move.Sequence > draft.SequenceBefore && move.Sequence <= _movementSequence &&
-            (move.From == material.From && move.To == CardLocation.DiscardPile && move.Reason == draft.Reason ||
-                GetProgramDiscardSource(move) == material.From &&
-                (move.Reason == draft.Reason || move.Reason.Value == draft.Reason.Value + "-finished" ||
-                    move.Reason.Value == draft.Reason.Value + "-discard") ||
-                move.From == material.From && move.To == CardLocation.OutsideGame &&
-                material.From.Zone == CardZoneKind.Equipment && move.Reason == draft.Reason))).ToArray();
+        var actual = draft.Materials.Select(material =>
+        {
+            var move = _cardMovements.FirstOrDefault(move =>
+                move.CardId == material.CardId && move.Sequence > draft.SequenceBefore && move.Sequence <= _movementSequence &&
+                (move.From == material.From && move.To == CardLocation.DiscardPile && move.Reason == draft.Reason ||
+                    GetProgramDiscardSource(move) == material.From &&
+                    (move.Reason == draft.Reason || move.Reason.Value == draft.Reason.Value + "-finished" ||
+                        move.Reason.Value == draft.Reason.Value + "-discard") ||
+                    move.From == material.From && move.To == CardLocation.OutsideGame &&
+                    material.From.Zone == CardZoneKind.Equipment && move.Reason == draft.Reason));
+            return move is null ? null : new NativeLogicalDiscardMaterialCompletedEvent(draft.InvocationId,
+                material.CardId, material.From, move.To, move.Sequence);
+        }).OfType<NativeLogicalDiscardMaterialCompletedEvent>().ToArray();
+        foreach (var material in actual) AdvanceEventRulesAndQueueFact(material);
         if (actual.Length == 0) return;
         var owners = actual.Select(m => m.From.OwnerSeat).Distinct().ToArray();
         AdvanceEventRulesAndQueueFact(new NativeLogicalDiscardInvocationRecordedEvent(draft.InvocationId,

@@ -224,6 +224,7 @@ public sealed partial class GameEngine
     }
     private bool ValidProgramVirtualOrdinaryTrickUse(CardUseFrame use)
     {
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == MouXunYuAnniversaryRuntime.Shimou) return IsMouXyVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin is not { } origin || use.CardId != 0 ||
             use.CardKind != origin.OutputKind || use.PhysicalCardIds is not { Count: 0 } ||
             use.SelectedActorDuelOrigin is not null || use.DamageTargetDuelOrigin is not null ||
@@ -351,6 +352,7 @@ public sealed partial class GameEngine
     private void ReturnProgramVirtualOrdinaryTrick(CardUseFrame use)
     {
         if (use.VirtualOrdinaryTrickOrigin is not { } origin) return;
+        if (ReturnMouXyVirtualUse(use)) return;
         if (ReturnMouLuXunNativeUse(use)) return;
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != origin.ParentProgramFrameId ||
             frame.InstructionIndex != origin.InstructionIndex || frame.OwnerSeat != origin.OwnerSeat ||

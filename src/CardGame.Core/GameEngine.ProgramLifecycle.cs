@@ -2207,7 +2207,7 @@ public sealed partial class GameEngine
         if (IsIssuedYuandiCandidate(candidate, context)) return true;
         if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;
         if (IsIssuedMouZhuRongLieren(candidate, context)) return true;
-        if (IsIssuedXumingCandidate(candidate, context)) return true;
+        if (IsIssuedMouXyAllocationCandidate(candidate, context) || IsIssuedXumingCandidate(candidate, context)) return true;
         if (IsIssuedWenYangQingjiaoEndingCandidate(candidate, context)) return true;
         if (IsIssuedTongduCandidate(candidate, context)) return true;
         if (IsIssuedMouCaoHongCandidate(candidate, context)) return true;

@@ -18,7 +18,7 @@ public sealed partial class GameEngine
         if (_winner == Winner.None && progress.PendingBeneficiarySeat is { } beneficiary && _players[beneficiary].IsAlive)
         {
             _currentSeat = beneficiary;
-            _turnProgression = new(ActualTurnKind.Extra, beneficiary, _turnNumber, NormalResumeSeat: resume);
+            _turnProgression = new(ActualTurnKind.Extra, beneficiary, _turnNumber, NormalResumeSeat: resume) { MouXyBizuoPending = progress.MouXyBizuoPending };
             AddLog("ExtraTurnStarted", $"{_players[beneficiary].Name} 的额外回合开始。", beneficiary);
         }
         else

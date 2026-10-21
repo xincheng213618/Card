@@ -33,7 +33,7 @@ public sealed partial class GameEngine
     private bool CanRunAfterTurnEndedCandidate(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context, SkillProgramTrigger trigger)
     {
         var parent = _resolutionStack.OfType<DeferredTurnEndFrame>().LastOrDefault();
-        if (IsIssuedXumingCandidate(candidate, context)) return true;
+        if (IsIssuedMouXyAllocationCandidate(candidate, context) || IsIssuedXumingCandidate(candidate, context)) return true;
         if (IsOrdinaryCaiFuRenQietingTrigger(trigger))
             return parent is not null && IsEligibleOrdinaryCaiFuRenQietingCandidate(parent, candidate, context);
         if (IsActualEndedEquipmentTrigger(trigger))
@@ -45,7 +45,7 @@ public sealed partial class GameEngine
             context.OccurrenceIndex == candidate.OccurrenceIndex && context.Facts == parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts &&
             (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own ? candidate.OwnerSeat == parent.OwnerSeat :
                 candidate.OwnerSeat != parent.OwnerSeat && (_players[parent.OwnerSeat].IsAlive || IsWenYangChoujueCandidate(candidate, context) || IsAHuiNanJuemanEndingCandidate(candidate, context) || IsIssuedQinLangXianyingCandidate(candidate, context) || IsIssuedXiangxuEndingCandidate(candidate, context) ||
-                    trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains or SkillProgramEffectOp.ResolveDailiTurnEnd or SkillProgramEffectOp.ResolveGoudeActualTurnEnd or SkillProgramEffectOp.ResolveZhijieActualTurnEnd or SkillProgramEffectOp.ResolveWuLuKangKegou or SkillProgramEffectOp.ResolveMouKongRongLiwen or SkillProgramEffectOp.PrepareMouLiuXieChensheng or SkillProgramEffectOp.ResolveMouGuoJiaXianmou ||
+                    trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains or SkillProgramEffectOp.ResolveDailiTurnEnd or SkillProgramEffectOp.ResolveGoudeActualTurnEnd or SkillProgramEffectOp.ResolveZhijieActualTurnEnd or SkillProgramEffectOp.ResolveWuLuKangKegou or SkillProgramEffectOp.ResolveMouKongRongLiwen or SkillProgramEffectOp.PrepareMouLiuXieChensheng or SkillProgramEffectOp.ResolveMouXunYuAnniversaryBizuo or SkillProgramEffectOp.ResolveMouGuoJiaXianmou ||
                         e.NumberExpression == SkillProgramNumberExpression.ActualTurnDeathBenefits)));
     }
 
@@ -70,11 +70,11 @@ public sealed partial class GameEngine
                         $"program:{c.SkillId}:{c.BindingId}:{c.SkillInstanceId}", c, facts));
             }).OrderBy(i => (i.Candidate!.OwnerSeat - parent.OwnerSeat + _players.Count) % _players.Count)
                 .ThenByDescending(i => i.Priority).ThenBy(i => i.StableIdentity, StringComparer.Ordinal).ToArray();
-            ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = new(IncludeXumingAfterTurnEndedItems(parent, IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, IncludeQinLangXianyingAfterTurnEndedItems(parent, Array.AsReadOnly(items)))))) });
+            ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = new(IncludeMouXyAfterTurnEndedItems(parent, IncludeXumingAfterTurnEndedItems(parent, IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, IncludeQinLangXianyingAfterTurnEndedItems(parent, Array.AsReadOnly(items))))))) });
         }
         if (parent.AfterTurnEnded.CurrentChild is null)
         {
-            var withLateXiangxu = IncludeXumingAfterTurnEndedItems(parent, IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, parent.AfterTurnEnded.Items)));
+            var withLateXiangxu = IncludeMouXyAfterTurnEndedItems(parent, IncludeXumingAfterTurnEndedItems(parent, IncludeWuHfEndingItems(parent, IncludeXiangxuAfterTurnEndedItems(parent, parent.AfterTurnEnded.Items))));
             if (!ReferenceEquals(withLateXiangxu, parent.AfterTurnEnded.Items))
                 ReplaceRuntimeTop(parent = parent with { AfterTurnEnded = parent.AfterTurnEnded with { Items = withLateXiangxu } });
         }

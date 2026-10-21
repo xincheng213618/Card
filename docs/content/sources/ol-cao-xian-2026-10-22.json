@@ -1,0 +1,61 @@
+{
+  "generalId": "ol:cao-xian",
+  "rulesetId": "sanguosha-anniversary",
+  "verifiedOn": "2026-10-22",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Female",
+    "initialHp": 3,
+    "maximumHp": 3,
+    "variantId": "ordinary",
+    "officialHeroId": 1163
+  },
+  "officialSkillTexts": {
+    "灵犀": "出牌阶段开始或结束时，你可以将至多体力上限张牌置于武将牌上称之为“翼”。“翼”被移去后，你将手牌调整至等于“翼”花色数的两倍。",
+    "知否": "你使用牌结算完成后，你可移去至少X张“翼”（X为你本回合发动此技能的次数）并令一名角色执行以下一项（每回合每项各限一次）：1.将一张牌置于“翼”中；2.弃两张牌；3.失去1点体力。"
+  },
+  "selectedVersion": {
+    "currentUrl": "https://x.sanguosha.com/hero/1163.html",
+    "formalUrl": "https://www.sanguosha.com/news/20231228_7953_3019",
+    "publishedAt": "2023-12-29 19:12:04",
+    "effectiveFrom": "2023-12-30",
+    "selection": "现行六皮肤正文与2023-12-30正式首发两技能一致，采用此完整同服文本；没有拼接曹宪曹华等其他武将。"
+  },
+  "officialSources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1163.html",
+      "role": "current full six-skin skill text",
+      "bytes": 32401,
+      "sha256": "1582015a915c9bcaee39bee6f055619d7ce589a139c4f352b2444b0dbcf6f54c"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20231228_7953_3019",
+      "role": "formal initial identity and complete skills",
+      "bytes": 328136,
+      "sha256": "49198906114895c25a1f6669dae010d203e29a4cc380c5637a144be57eca2255"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250807_8297_3914.html",
+      "role": "existing primary raw reused read-only; official Zhifou interaction fix",
+      "bytes": 10219,
+      "sha256": "5521c536e5e3d5794f07c3da0794dcc9d903c22097425839640db97bf79b314a"
+    }
+  ],
+  "engineeringMappings": [
+    "灵犀将牌置翼按现有“牌”的自有HE约定处理，每次选取上限为本次实际体力上限。正文未限制翼总数，不把原生公开牌堆容量误当每次存牌数量。翼使用精确owner/灵犀skill-instance的真实PublicPersistentPile来源，公开实体移动，不存牌ID侧表。",
+    "知否仅在本人真正Use结算完成后的原生完成窗口发动，包含原生标明的true response Use而不包含仅Played。X包含当前已接受且真实付款的这次发动，即本实际回合1、2、3；此为根代理采用正文“发动次数”的工程解释，并非用户另裁/官网FAQ。",
+    "知否移去真实翼实体通过原生PublicPersistentPile→OutsideGame移动。此引擎区域映射结合6.2.2明确谋荀彧应可取回知否移除牌及用户选择“当前弃牌堆+有确切知否来源的移出牌”。不会伪造先入弃牌堆，再从弃牌堆移出。",
+    "每张知否成功移出牌只在真实physical-record callback后发行scalar CaoXianZhifouRemovedEvent，带own frame/source/instance/hash/actualTurn/原completedUse及Action/pile/CardId/真实movementSequence；Paid事实在该批原生成功付款后发行。调用方不得只凭reason字符串或任意OutsideGame位置取得许可。",
+    "灵犀通过精确当前翼来源的真实cardsMoved perBatch观察移去，按实际剩余翼的不同花色数×2冻结目标手牌数，并以真实Draw typed return或本人Hand logical discard调整。原生移动/回复/濒死等子窗在原own帧返回，不直接改手牌列表。",
+    "知否由曹宪选择目标与要求执行的项；若选项需牌，由该牌主选择其可动HE；不足规定数量按实际可动数量尽量执行。正文未将后续选项付款当发动费用，故无牌角色不被静默禁选。每项本实际回合一次。"
+  ],
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-ol-cao-xian.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1163.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1116301.png",
+    "bytes": 646045,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "sha256": "8f8a7addb735352b830510b456ae0d0c42002c5d16d4062795a57ce8c62a8307"
+  }
+}

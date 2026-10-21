@@ -249,6 +249,13 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    StoreCaoXianLingxi = 37300,
+    ResolveCaoXianZhifou = 37301,
+    AdjustCaoXianLingxi = 37302,
+    InitializeMouXunYuAnniversaryShimou = 37200,
+    ResolveMouXunYuAnniversaryShimou = 37201,
+    ResolveMouXunYuAnniversaryBizuo = 37202,
+    SettleMouXunYuAnniversaryBizuo = 37203,
     ResolveMouChenLinZhuanwen = 37000,
     ResolveMouChenLinYaozuo = 37001,
     InitializeMouGuoJiaXianmou = 37100, ResolveMouGuoJiaXianmou = 37101, ResolveMouGuoJiaYiji = 37102,
@@ -4681,7 +4688,7 @@ public sealed class SkillProgramCatalog
                          CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.PrivatePersistentPile or
                          CardZoneKind.Chunlao) && !(isYisuanMovement && zone == CardZoneKind.Processing) && !(zone == CardZoneKind.PublicPersistentPile && node.TryGetProperty("effects", out var riceEffects) &&
                              riceEffects.ValueKind == JsonValueKind.Array && riceEffects.GetArrayLength() == 1 &&
-                             riceEffects[0].TryGetProperty("op", out var riceOp) && riceOp.GetString() == "recoverAfterLastPublicRice") &&
+                             riceEffects[0].TryGetProperty("op", out var riceOp) && (riceOp.GetString() is "recoverAfterLastPublicRice" or "adjustCaoXianLingxi")) &&
                          !(node.TryGetProperty("effects", out var rawEffects) && rawEffects.ValueKind == JsonValueKind.Array &&
                              rawEffects.EnumerateArray().Any(e => e.ValueKind == JsonValueKind.Object &&
                              e.TryGetProperty("op", out var op) && op.ValueKind == JsonValueKind.String && op.GetString() == "revealRedLossAndDraw") &&

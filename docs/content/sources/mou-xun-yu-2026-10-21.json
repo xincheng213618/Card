@@ -1,0 +1,101 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:xun-yu",
+  "characterId": "character:xun-yu",
+  "displayName": "谋荀彧",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "initialHp": 3,
+    "maximumHp": 3,
+    "officialHeroId": 1636
+  },
+  "selectedVersion": {
+    "publishedAt": "2025-04-30",
+    "availableFrom": "2025-05-01",
+    "url": "https://x.sanguosha.com/news/20250428_6442_0316.html"
+  },
+  "sourceAgreement": "现行官方武将页1636与2025年4月30日首发正式公告的两项完整技能正文一致；有限主源核对未发现后续改文，不拼接普通、界、国战、星或其他服版本。",
+  "skills": [
+    {
+      "id": "mou:bizuo",
+      "name": "弼佐",
+      "initial": true,
+      "officialSelectedText": "限定技，每名角色回合结束时，若一号位体力全场最低，你可令一名角色立即执行一个额外回合，直至该回合结束除你与该角色外，其余角色非锁定技能失效，该回合结束后你分配当前回合所有不因弃置而进入弃牌堆的牌。"
+    },
+    {
+      "id": "mou:shimou",
+      "name": "势谋",
+      "initial": true,
+      "officialSelectedText": "转换技，游戏开始时可自选阴阳状态，出牌阶段限一次，你可令 阳：手牌数全场最低的角色 阴：手牌数全场最高的角色 将手牌调整至体力上限（至多摸5）并视为使用一张普通锦囊牌（此牌的牌名与目标由你指定）。 若以此法摸牌，该锦囊可额外增加1个目标；若以此法弃牌，该锦囊可额外结算1次。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1636.html",
+      "bytes": 15596,
+      "sha256": "2797c5a53f09f252d77ccc0682c99b8f8c12fb3e4ccdf20a3c5dd4f2e400cd9e",
+      "role": "current full text, identity and classic portrait DOM"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250428_6442_0316.html",
+      "bytes": 371608,
+      "sha256": "0b757799e9a2de67e3c5f491077cf1823401c97daf1caef19d6509d0c3e2207e",
+      "role": "formal release with both complete skill texts"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250807_8297_3914.html",
+      "publishedAt": "2025-08-13",
+      "effectiveAt": "2025-08-14",
+      "version": "6.2.2",
+      "bytes": 10219,
+      "sha256": "5521c536e5e3d5794f07c3da0794dcc9d903c22097425839640db97bf79b314a",
+      "officialRelevantText": "修复谋荀彧不能拿回曹宪【知否】移除牌的问题",
+      "role": "explicit removed-card exception; does not specify a universal cross-zone retrieval rule"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "selectedEntry": {
+        "gid": 1636,
+        "resource": 1163601,
+        "prefix": "谋",
+        "name": "荀彧",
+        "country": "魏",
+        "gender": "男",
+        "hp": 3
+      }
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1636.html",
+    "selectedDomLabel": "经典形象*谋荀彧",
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163601.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-xun-yu.png",
+    "width": 574,
+    "height": 761,
+    "bytes": 845083,
+    "sha256": "8d473e0a7b0e217c8fe0829d3054bdb5805412ad98c1b6437596a809c791f0a4",
+    "verification": "主代理依据当前经典DOM userInfoStatic链接下载并查看；不以头像或其他皮肤替代。"
+  },
+  "engineeringInterpretationsNotOfficialFaq": [
+    "以下为正式正文配合项目现有原生通则采用的工程解释，不是官方FAQ，也不是该武将的用户裁定。",
+    "势谋极值比较包含本人及全部存活角色，允许并列极值；角色确定后依该角色当时体力上限与真实手牌数调整。阳的摸牌请求最多5，实际摸牌与替代获得分开记回执，不用手牌净差认定摸牌奖励。阴只选择当时该角色真实可弃置手牌，并沿原生逻辑弃牌回执记录实际支付。",
+    "锦囊的牌名及目标始终由谋荀彧选择，调整手牌的角色为真实使用者与提供者；零材料只表示没有实体材料，仍执行原生合法目标、无懈、响应、效果与完整用牌返回。新增目标最多一名，保留借刀等原生目标结构，不放宽本来无合法目标的牌。",
+    "弃牌收益沿同一次原生CardUse的额外结算状态执行，保留实际弃牌回执，不制造第二次使用，不重复支付或触发两次使用计次。",
+    "弼佐的一号位映射原生seat0，必须存活且体力不高于全部存活角色，允许并列最低；任一角色的实际回合结束均可判断。",
+    "额外回合只接受本技能已颁凭据与原生额外回合排程匹配的实际TurnStarted，不能将普通轮转或别的来源额外回合认成本次弼佐。非锁定失效在该实际回合开始颁给除拥有者及受益者外的其他角色，使用项目现有当前回合失效与到期机制，锁定技能保留。",
+    "正文当前回合映射本技能授予的额外实际回合；非弃置入弃记录按该实际回合的真实物理移动与原生逻辑弃置来源判断，不凭reason字符串或手牌净变化猜测。",
+    "CardMoved时的入弃记录仅为准确实体/sequence候选采样；分配时须再核完整原生NativeLogicalDiscardInvocationRecordedEvent及其MaterialCompleted主实体明细，剔除同CardId/终端sequence的真实逻辑弃置。原生发票按原材料与既有终端匹配封账，不能以票据尚未完成推断非弃置，也不把整个sequence区间内其他实体全部排除。"
+  ],
+  "explicitProjectDecision": {
+    "question": "弼佐分配时可取回哪些区域中的牌？",
+    "userSelectedAnswer": "当前弃牌堆，加有确切知否来源的移出牌（推荐）",
+    "application": "只分配本技能所颁额外实际回合中曾不因弃置进入弃牌堆、分配时仍在弃牌堆的准确实体；排除随后已进手牌、装备、判定、牌堆或私堆的实体。知否例外另须原实际知否移出回执、同一实体及本额外回合合格入弃因果，绝不能泛取任意移出游戏区牌。此项为用户明确选择；当前回合映射额外实际回合仍属于上列工程解释。"
+  },
+  "officialRemovedCardExceptionEngineeringMapping": "项目将曹宪知否实际从翼PublicPersistentPile直接移至Outside的实体作为6.2.2官宣特许候选；不要求、也不伪造先入弃牌堆。此为主代理依据官宣例外及用户区域选择采用的工程映射，非官方FAQ。候选须由真实CaoXianZhifouRemovedEvent及原paid回执证明在本lease额外实际回合移出，分配时仍在Outside，且该实体最后一条实际movement必须恰为发票的Sequence、原Pile.Location和Outside目的地。普通弃牌候选与此特许移出候选分开记来源；不使用reason字符串或显示名判资格。",
+  "integrationEvidenceLimit": "曹宪知否真实生产者由同批独立模块交付，弼佐消费其准确 typed native 付款与移出回执。已在同一原生主流程核实额外回合内真实翼牌移出、灵犀逻辑弃牌过滤、回合末当前弃牌堆牌与确切知否移出牌的实际分配，并保留势谋已付弃牌状态的代表性恢复检查。"
+}

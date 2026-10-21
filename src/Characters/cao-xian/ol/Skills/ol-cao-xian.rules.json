@@ -1,0 +1,8 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:lingxi","revision":1,"triggers":[
+   {"id":"play-start-wings","window":"playPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"storeCaoXianLingxi","target":"owner"}]},
+   {"id":"play-end-wings","window":"playEnding","subject":"owner","optional":true,"effects":[{"op":"storeCaoXianLingxi","target":"owner"}]},
+   {"id":"actual-wings-removed","window":"cardsMoved","subject":"owner","sourceZones":["publicPersistentPile"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"adjustCaoXianLingxi","target":"owner"}]}
+ ]},
+ {"id":"ol:zhifou","revision":1,"triggers":[{"id":"completed-use-remove-wings","window":"cardUseCompleted","ownerRelation":"actor","includeResponseUses":true,"singleActionInstance":true,"optional":true,"effects":[{"op":"resolveCaoXianZhifou","target":"owner"}]}]}
+]}
