@@ -192,7 +192,7 @@ public sealed partial class GameEngine
                 r.FrozenFirstHandCount, r.FrozenSecondHandCount, before, before, true, false));
             AdvanceRuntimeProgram(f.Id); return;
         }
-        MoveProgramCardsFromMultipleSources([r.CardId], CardLocation.Hand(target), new(PairBenefitMoveReason(f, true)), (_, records) =>
+        MoveProgramCardsFromMultipleSources([r.CardId], CardLocation.Hand(target), new(PairBenefitMoveReason(f, true)), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,target,[r.CardId],_movementSequence,(_, records) =>
         {
             var after = records.Max(m => m.Sequence); var delivered = records.Count(m => m.CardId == r.CardId &&
                 m.From == CardLocation.Hand(f.OwnerSeat) && m.To == CardLocation.Hand(target)) == 1;
@@ -200,7 +200,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(current with { ShownPairGift = current.ShownPairGift! with { SequenceAfter = after, Delivered = delivered } });
             AdvanceEventRulesAndQueueFact(new ShownPairGiftCommittedEvent(f.Id, r.SourceBind, r.CardId, r.FrozenSuit, target,
                 r.FrozenFirstHandCount, r.FrozenSecondHandCount, before, after, false, delivered));
-        });
+        }));
         if (AwaitPairBenefitChildren(f.Id) == SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(f.Id);
     }
     [ProgramContinuation(ProgramContinuationKind.MovementTail, 60)]

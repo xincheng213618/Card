@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:huang-quan",
+  "skills": [
+    {
+      "registrationOrder": 2750,
+      "programBundle": "mou-huang-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:qiaodui",
+        "name": "巧对",
+        "description": "每回合限一次，你使用牌指定其他角色为目标/成为其他角色使用牌的目标后，你可交给一名其他角色至多2张牌，你令此牌额外结算1次/失效。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2751,
+      "programBundle": "mou-huang-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:tuicheng",
+        "name": "推诚",
+        "description": "锁定技，你交给其他角色牌后，该角色须交给你等量张牌（无法选择你本回合交给其的牌），否则你摸等量张牌。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2752,
+      "pools": {
+        "current": 579
+      },
+      "definition": {
+        "id": "mou:huang-quan",
+        "name": "谋黄权",
+        "portraitKey": "mou-huang-quan",
+        "skillId": "mou:qiaodui",
+        "additionalSkillIds": [
+          "mou:tuicheng"
+        ],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:huang-quan",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

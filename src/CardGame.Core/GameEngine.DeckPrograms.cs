@@ -82,7 +82,7 @@ public sealed partial class GameEngine
                 var d = frame.DeckEndExchange;
                 var card = _cardZones.CardsAt(d.OriginalLocation).Single(c => c.Id == d.CardId);
                 ReplaceRuntimeTop(frame with { DeckEndExchange = d with { Stage = "choice" } });
-                MoveCard(card, d.OriginalLocation, CardLocation.Hand(frame.OwnerSeat), new("program.deck-end.gift"));
+                MoveCard(card, d.OriginalLocation, CardLocation.Hand(frame.OwnerSeat), new("program.deck-end.gift"), NativeGiveCompletion(frame.Id,d.OriginalLocation.OwnerSeat!.Value,frame.OwnerSeat,[d.CardId],_movementSequence,null));
                 AwaitDeckProgramMovement(frame.Id); return SkillProgramStepOutcome.AwaitChild;
             }
             ResumeDeckEndExchange(frame);

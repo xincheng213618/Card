@@ -173,7 +173,7 @@ public sealed partial class GameEngine
                 ClearPendingDecision();
                 ReplaceRuntimeTop(frame with { PublicPileDraft = draft with { RemainingIds = draft.RemainingIds.Where(cardId => cardId != id).ToArray() },
                     ReexecuteParticipantInstruction = true, PendingMovementContinuation = new(draft.OwnerSeat, 0, null) });
-                MoveCard(card, location, CardLocation.Hand(selected.Targets.Single()), new("skill-program.public-pile.distribute"));
+                MoveCard(card, location, CardLocation.Hand(selected.Targets.Single()), new("skill-program.public-pile.distribute"), NativeGiveCompletion(frame.Id,draft.OwnerSeat,selected.Targets.Single(),[id],_movementSequence,null));
                 if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
                 return;
             }

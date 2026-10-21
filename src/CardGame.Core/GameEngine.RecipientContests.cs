@@ -20,13 +20,13 @@ public sealed partial class GameEngine
         var r = new RecipientContestReceipt(1, RecipientContestSource(f), f.GameplayHash, _turnNumber, _currentSeat,
             recipient, bind, ids, before, before);
         ReplaceRuntimeTop(f with { RecipientContest = r, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(ids, CardLocation.Hand(recipient), new(RecipientContestGiftReason(f)), (_, records) =>
+        MoveProgramCardsFromMultipleSources(ids, CardLocation.Hand(recipient), new(RecipientContestGiftReason(f)), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,ids,_movementSequence,(_, records) =>
         {
             var current = GetActiveProgramFrame(f.Id); var paid = r with { SequenceAfter = records.Max(m => m.Sequence) };
             ReplaceRuntimeTop(current with { RecipientContest = paid });
             AdvanceEventRulesAndQueueFact(new RecipientContestGiftPaidEvent(f.Id, paid.Source, paid.GameplayHash,
                 paid.TurnNumber, paid.TurnOwnerSeat, recipient, bind, ids.Length, paid.SequenceBefore, paid.SequenceAfter));
-        });
+        }));
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
     private int[] RecipientContestThirds(ProgramSkillFrame f) => _players.Where(p => p.IsAlive && p.Seat != f.OwnerSeat &&

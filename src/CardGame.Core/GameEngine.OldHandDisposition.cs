@@ -109,7 +109,7 @@ public sealed partial class GameEngine
             TargetSeat = target, PaidIds = ids, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat,0,null) });
         var logicalDiscard = destination == CardLocation.DiscardPile
             ? CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat, ids, new(OldHandDispositionReason), f.Id) : null;
-        MoveProgramCardsFromMultipleSources(ids, destination, new(OldHandDispositionReason), (_,records) =>
+        MoveProgramCardsFromMultipleSources(ids, destination, new(OldHandDispositionReason), (next=="give" ? NativeGiveCompletionRecords(f.Id,f.OwnerSeat,target!.Value,ids,_movementSequence,(_,records) =>
         {
             var active = GetActiveProgramFrame(f.Id); var paid = active.OldHandDisposition!;
             var actual = records.Count(m=>m.To==destination || next=="foreign" && m.To==CardLocation.OutsideGame);
@@ -120,7 +120,18 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(active with { OldHandDisposition = paid });
             AdvanceEventRulesAndQueueFact(new OldHandDispositionPaymentEvent(f.Id,paid.Source,paid.GameplayHash,paid.ActualTurn,next,target,
                 ids,before,paid.After,actual));
-        });
+        }) : (_,records) =>
+        {
+            var active = GetActiveProgramFrame(f.Id); var paid = active.OldHandDisposition!;
+            var actual = records.Count(m=>m.To==destination || next=="foreign" && m.To==CardLocation.OutsideGame);
+            paid = paid with { After = _movementSequence,
+                DisposedIds = next is "give" or "target" ? paid.DisposedIds.Concat(ids).Distinct().ToArray() : paid.DisposedIds,
+                ActualDiscardCount = next == "target" ? actual : paid.ActualDiscardCount,
+                ForeignDiscardCount = next == "foreign" ? paid.ForeignDiscardCount + actual : paid.ForeignDiscardCount };
+            ReplaceRuntimeTop(active with { OldHandDisposition = paid });
+            AdvanceEventRulesAndQueueFact(new OldHandDispositionPaymentEvent(f.Id,paid.Source,paid.GameplayHash,paid.ActualTurn,next,target,
+                ids,before,paid.After,actual));
+        }));
         CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         if (!TryBeginCardsMovedProgramWindow(f.Id)) ReturnRuntimeProgramMovement(f.Id);
     }

@@ -15,10 +15,10 @@ public sealed partial class GameEngine
   if(!_players[f.OwnerSeat].IsAlive||!HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId)||!_players[seat].IsAlive){FinishLiuQi(f);return;}
   if(r.Stage==LiuQiStage.ChooseRecipient){if(!WenjiEligibleGiftRecipients(f.OwnerSeat,f.SkillId).Any(p=>p.Seat==choice.Targets.Single()))throw new InvalidOperationException("Wenji lost its legal gift recipient.");r=r with{RecipientSeat=choice.Targets.Single(),Stage=LiuQiStage.ChooseGift};ReplaceRuntimeTop(f=f with{LiuQi=r});PublishWenjiChoice(f);return;}
   var id=choice.Cards.Single();var card=GetAdvancedCard(id);r=r with{CardId=id,From=_cardZones.GetLocation(id),Name=card.Kind,Before=_movementSequence,After=_movementSequence,Stage=LiuQiStage.GiftChildren};ReplaceRuntimeTop(f with{LiuQi=r,PendingMovementContinuation=new(f.OwnerSeat,0,null),Step=ResolutionFrameStep.ResolvingEffect});
-  MoveProgramCardsFromMultipleSources([id],CardLocation.Hand(f.OwnerSeat),new(WenjiGiftReason),(_,records)=>
+  MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(f.OwnerSeat), new(WenjiGiftReason), NativeGiveCompletionRecords(f.Id,r.RecipientSeat!.Value,f.OwnerSeat,[id],_movementSequence,(_,records)=>
   {
    var paid=r with{After=records.Single().Sequence};ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{LiuQi=paid});AdvanceEventRulesAndQueueFact(new WenjiGiftPaidEvent(f.Id,paid.Source,paid.GameplayHash,paid.ActualTurn,paid.RecipientSeat!.Value,id,paid.From!.Value,paid.Name!.Value,paid.Before,paid.After));
    var grant=new WenjiTurnNameGrant(paid.Source,paid.GameplayHash,paid.ActualTurn,f.Id,paid.RecipientSeat.Value,id,paid.Name.Value,paid.After);_players[f.OwnerSeat].WenjiTurnNameGrants=(_players[f.OwnerSeat].WenjiTurnNameGrants??[]).Append(grant).ToArray();_hasIssuedLiuQi=true;AdvanceEventRulesAndQueueFact(new WenjiNameArmedEvent(grant));
-  });AdvanceRuntimeProgram(f.Id);
+  }));AdvanceRuntimeProgram(f.Id);
  }
 }

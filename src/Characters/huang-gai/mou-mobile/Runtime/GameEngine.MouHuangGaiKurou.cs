@@ -97,14 +97,14 @@ public sealed partial class GameEngine
         var loss = MouKurouGiftLoss(kind);
         ReplaceRuntimeTop(frame with { MouHuangGaiKurou = frame.MouHuangGaiKurou! with { Stage = MouHuangGaiKurouStage.GiftChildren },
             PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveCard(card, from, CardLocation.Hand(recipient), new(MouKurouGiftReason), movement =>
+        MoveCard(card, from, CardLocation.Hand(recipient), new(MouKurouGiftReason), NativeGiveCompletion(frame.Id,frame.OwnerSeat,recipient,[cardId],_movementSequence,movement =>
         {
             var current = GetActiveProgramFrame(frame.Id);
             var paid = new MouHuangGaiKurouGift(cardId, card.Kind, kind, from, movement.To, recipient, movement.Sequence, loss);
             ReplaceRuntimeTop(current with { MouHuangGaiKurou = current.MouHuangGaiKurou! with
                 { Gift = paid, GiftSequenceAfter = movement.Sequence } });
             AdvanceEventRulesAndQueueFact(new MouHuangGaiKurouGiftPaidEvent(frame.Id, MouKurouSource(frame), frame.GameplayHash, paid));
-        });
+        }));
         // Native equipment removal can queue recovery and spill real Ox grain.
         // Merge into the current owning frame after all physical removal hooks.
         frame = GetActiveProgramFrame(frame.Id);

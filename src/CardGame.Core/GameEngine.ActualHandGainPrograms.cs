@@ -257,7 +257,7 @@ public sealed partial class GameEngine
             if (ids.Length == 0) Paid();
             else MoveProgramCardsFromMultipleSources(ids, r.Operation == SkillProgramEffectOp.DiscardForeignTurnHandGains ?
                 CardLocation.DiscardPile : CardLocation.Hand(r.RecipientSeat), new(r.Operation == SkillProgramEffectOp.DiscardForeignTurnHandGains ?
-                    ForeignHandCleanupReason : SameCategoryDeckGiftReason), (_, _) => Paid());
+                    ForeignHandCleanupReason : SameCategoryDeckGiftReason), (r.Operation==SkillProgramEffectOp.GiveSameCategoryFromDeck ? NativeGiveCompletionRecords(f.Id,f.OwnerSeat,r.RecipientSeat,ids,_movementSequence,(_, _) => Paid()) : (_, _) => Paid()));
             CompleteNativeLogicalDiscardInvocation(logicalDiscard);
             f = GetActiveProgramFrame(f.Id);
         }

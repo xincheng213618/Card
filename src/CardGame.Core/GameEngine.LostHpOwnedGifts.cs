@@ -97,7 +97,7 @@ public sealed partial class GameEngine
         var before = PaidTargetMovementSequence;
         ClearPendingDecision();
         MoveCard(card, from, CardLocation.Processing, new(LostHpGiftMoveReason));
-        MoveProcessingCardUnlessDestroyed(card, CardLocation.Hand(target), new(LostHpGiftMoveReason));
+        MoveProcessingCardUnlessDestroyed(card, CardLocation.Hand(target), new(LostHpGiftMoveReason), NativeGiveCompletion(frame.Id,frame.OwnerSeat,target,[id],_movementSequence,null));
         // Native Silver Lion removal can append a queued recovery to this owning frame.
         // Merge the paid receipt into that current frame, never the pre-movement copy.
         frame = GetActiveProgramFrame(frame.Id);

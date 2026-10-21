@@ -85,8 +85,7 @@ public sealed partial class GameEngine
             return;
         }
         var card = _cardZones.CardsAt(CardLocation.DiscardPile).Single(item => item.Id == movement.CardId);
-        MoveCard(card, CardLocation.DiscardPile, CardLocation.Hand(recipient),
-            new($"skill-program.{active.SkillId}.xunxian-gift"));
+        MoveCard(card, CardLocation.DiscardPile, CardLocation.Hand(recipient), new($"skill-program.{active.SkillId}.xunxian-gift"), NativeGiveCompletion(active.Id,active.OwnerSeat,recipient,[card.Id],_movementSequence,null));
         AddLog("SkillTriggered",
             $"{owner.Name} 发动【{_contentRegistry.GetSkill(active.SkillId).Name}】，将 {card.DisplayName} 交给 {_players[recipient].Name}。",
             active.OwnerSeat, recipient);

@@ -188,8 +188,7 @@ public sealed partial class GameEngine
             ContinueZhaohuo(f.Id);
             return;
         }
-        MoveCard(card, CardLocation.Hand(r.VictimSeat), CardLocation.Hand(f.OwnerSeat), new(ZhaohuoGiftReason),
-            movement => RecordZhaohuoGift(f.Id, movement));
+        MoveCard(card, CardLocation.Hand(r.VictimSeat), CardLocation.Hand(f.OwnerSeat), new(ZhaohuoGiftReason), NativeGiveCompletion(f.Id,r.VictimSeat,f.OwnerSeat,[card.Id],_movementSequence,movement => RecordZhaohuoGift(f.Id, movement)));
         ContinueZhaohuo(f.Id);
     }
     private void RecordZhaohuoGift(long frameId, CardMovementRecord movement)

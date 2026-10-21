@@ -12,8 +12,7 @@ public sealed partial class GameEngine
         var cards = _cardZones.CardsAt(location);
         if (cards.Count == 0) return SkillProgramStepOutcome.Continue;
         ReplaceRuntimeTop(active with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveCards(cards.ToArray(), location, CardLocation.Hand(frame.OwnerSeat),
-            new CardMoveReason($"skill-program.{frame.SkillId}.luelve-gift"));
+        MoveCards(cards.ToArray(), location, CardLocation.Hand(frame.OwnerSeat), new CardMoveReason($"skill-program.{frame.SkillId}.luelve-gift"), NativeGiveCompletion(frame.Id,location.OwnerSeat!.Value,frame.OwnerSeat,cards.Select(c=>c.Id).ToArray(),_movementSequence,null));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }

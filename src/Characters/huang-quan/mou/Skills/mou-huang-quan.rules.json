@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:qiaodui",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "give-for-original-effect",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "observer",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouHuangQuanQiaodui",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:tuicheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-native-give",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "movementOccurrence": "perBatch",
+          "effects": [
+            {
+              "op": "resolveMouHuangQuanTuicheng",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

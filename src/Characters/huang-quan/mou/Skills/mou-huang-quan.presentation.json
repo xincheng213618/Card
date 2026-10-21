@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mou:qiaodui": {
+      "name": "巧对",
+      "description": "每回合限一次，你使用牌指定其他角色为目标/成为其他角色使用牌的目标后，你可交给一名其他角色至多2张牌，你令此牌额外结算1次/失效。",
+      "triggerLabels": {
+        "give-for-original-effect": "交牌后修改原牌结算"
+      }
+    },
+    "mou:tuicheng": {
+      "name": "推诚",
+      "description": "锁定技，你交给其他角色牌后，该角色须交给你等量张牌（无法选择你本回合交给其的牌），否则你摸等量张牌。",
+      "triggerLabels": {
+        "after-native-give": "交牌后等量回赠或摸牌"
+      }
+    }
+  }
+}

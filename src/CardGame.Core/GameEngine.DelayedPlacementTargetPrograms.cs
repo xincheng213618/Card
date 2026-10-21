@@ -12,7 +12,7 @@ public sealed partial class GameEngine
         // discarded-card and owned-card conversion producers. Their paid
         // movement children and committed-use observers have drained before
         // entering this method, including when protection will end the use.
-        if (!(HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
+        if (!(HasMouHuangQuan || HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
             LifecycleCardUse(frameId) is not { } use || !IsDelayedCard(use.CardKind) ||
             use.FinalizedTrickProgramsStarted) return false;
         if (_resolutionStack.LastOrDefault()?.Id != frameId ||
@@ -35,7 +35,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsExactFinalizedDelayedPlacementWindow(ProgramCardTriggerWindowFrame window) =>
-        (HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
+        (HasMouHuangQuan || HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
         window.TrickContinuation is { TargetCardId: null, RequiredCardKind: null } continuation &&
         window.SimpleContinuation is null && window.CompletedResponseReturn is null && window.AttackOwnerFrameId is null &&
         LifecycleCardUse(window.ParentFrameId) is
@@ -66,7 +66,7 @@ public sealed partial class GameEngine
         var card = GetTrickRepresentation(use.Id, continuation.EffectCardId, requireProcessing: true);
         var target = _players[targetSeat];
         var forbidden = HasCardPolicy(target, SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget);
-        if (_winner != Winner.None || IsNamedAmbushUseIneffective(use) || use.IneffectiveTargetSeats?.Contains(targetSeat) == true ||
+        if (_winner != Winner.None || IsProgramUseIneffective(use) || IsNamedAmbushUseIneffective(use) || use.IneffectiveTargetSeats?.Contains(targetSeat) == true ||
             !target.IsAlive || target.JudgmentAreaAbolished || forbidden ||
             HasJudgmentEffectiveCard(target, use.CardKind) ||
             use.CardKind != CardKind.Lightning && targetSeat == use.SourceSeat && !IsLiuYanLimuUse(use.Id))

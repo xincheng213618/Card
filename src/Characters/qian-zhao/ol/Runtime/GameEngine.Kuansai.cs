@@ -71,7 +71,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { Kuansai = r with { Stage = KuansaiStage.Children, Gift = gift, CardId = card?.Id, From = from, Before = _movementSequence, After = _movementSequence },
             PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         var before = _movementSequence;
-        if (card is not null) MoveCard(card, from!.Value, CardLocation.Hand(f.OwnerSeat), new(KuansaiGiftReason));
+        if (card is not null) MoveCard(card, from!.Value, CardLocation.Hand(f.OwnerSeat), new(KuansaiGiftReason), NativeGiveCompletion(f.Id,from!.Value.OwnerSeat!.Value,f.OwnerSeat,[card.Id],_movementSequence,null));
         else if (CanKuansaiRecover(f.OwnerSeat))
         {
             if (!TryQueueRecoveryReplacement(f.Id, f.OwnerSeat, f.OwnerSeat, 1, new(RecoveryAttemptProducer.Program, f.InstructionIndex)))

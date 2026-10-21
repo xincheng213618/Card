@@ -1,0 +1,83 @@
+{
+  "generalId": "mou:huang-quan",
+  "name": "谋黄权",
+  "edition": "三国杀十周年",
+  "identity": {
+    "faction": "wei",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1782.html",
+      "kind": "official-current-hero",
+      "sha256": "5a11ea3a40897af5c40aa17c51db2c8095a90a005ed2c7c4be1c459c0553ec7f"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20251106_6948_1114.html",
+      "kind": "official-formal-launch",
+      "publishedAt": "2025-11-06",
+      "availableFrom": "2025-11-07",
+      "sha256": "b9d10800a685631027c9a02295d6141267c34ecc050fd7278a92e554a6bab6bf"
+    }
+  ],
+  "skills": [
+    {
+      "id": "mou:qiaodui",
+      "text": "每回合限一次，你使用牌指定其他角色为目标/成为其他角色使用牌的目标后，你可交给一名其他角色至多2张牌，你令此牌额外结算1次/失效。"
+    },
+    {
+      "id": "mou:tuicheng",
+      "text": "锁定技，你交给其他角色牌后，该角色须交给你等量张牌（无法选择你本回合交给其的牌），否则你摸等量张牌。"
+    }
+  ],
+  "versionConflict": {
+    "previewUrl": "https://x.sanguosha.com/club/2144282.html",
+    "previewDifference": "早期预览推诚不交牌时摸1；预览明确以上线为准。正式公告及当前页均为摸等量，因此采用正式及现行全文。"
+  },
+  "interpretations": [
+    {
+      "topic": "巧对零张",
+      "decision": "至多2张允许0，仍须选择一名其他角色并消耗本实际回合一次；0张不产生Give事实，不触发推诚。",
+      "authority": "主代理依正文作工程解释；异步可选澄清尚无用户答复，不作为用户裁定或官方FAQ。"
+    },
+    {
+      "topic": "巧对失效范围",
+      "decision": "成为目标分支令整张原牌对所有目标失效；保留原Use与后续真实结算窗口，不创建新Use。",
+      "authority": "主代理依此牌失效作工程解释；异步可选澄清尚无用户答复，不作为用户裁定或官方FAQ。"
+    },
+    {
+      "topic": "推诚回赠",
+      "decision": "按实际给牌整组数量请求同量当前合法手牌/装备牌，排除本实际回合黄权交给该收牌者的全部实体；实际回赠也由原生Give机制记录。",
+      "authority": "正式及当前正文；HE沿项目原生交给牌支付范围。"
+    },
+    {
+      "topic": "延时牌额外放置",
+      "decision": "保留原Use的额外结算记录，首次已将唯一真实实体放入判定区时不复制该实体或创建第二张牌。",
+      "authority": "实体唯一归属合同下的工程解释。"
+    },
+    {
+      "topic": "推诚须等量回赠",
+      "decision": "当前有足额合法可给牌时须选足回赠；不足时黄权自动摸等量牌。不给有足额牌者额外的自由拒绝选项。确认时重新校验当前区域实体与本实际回合排除集合。",
+      "authority": "正式/当前正文“须”与主代理工程解释；无允许主动拒绝的官方补充。"
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1782.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1178201.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-huang-quan.png",
+    "sha256": "c45e59d386823fd84df01186b41c1ba6927f14b4f547b17f1e942a487c65d381",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "id": "1178201",
+    "name": "经典形象",
+    "bytes": 771915,
+    "identityEvidence": "Official hero 1782 actual DOM classic image and index resource 1178201; root downloaded and visually inspected complete portrait."
+  },
+  "nativeGiveScope": {
+    "deliveredBaseline": "8bc65c2be14b2cccdc007421f38acc97ba80845c",
+    "meaning": "本次原生给牌接点以已交付目录中真实交给或分配给的生产流程及明确的通用付款绑定为范围；纯获得、强夺、交换、放置和临时扣置归还不据移动方向自动算作给牌，不解析移动reason。",
+    "excludedUnpublishedPath": "src/CardGame.Core/GameEngine.WushuangOriginalSkillChoices.cs",
+    "excludedUnpublishedReason": "该路径未进入已交付提交基线，属于其他任务未发布工作；其独立Give接点留待该路径所有者集成，本次不纳入其代码或宣称已覆盖。"
+  }
+}

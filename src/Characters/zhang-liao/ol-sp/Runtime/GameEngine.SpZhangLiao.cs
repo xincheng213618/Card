@@ -201,7 +201,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f with { SpZhangLiao = f.SpZhangLiao! with { SequenceBefore = _movementSequence, SequenceAfter = _movementSequence } });
         if (destination == CardLocation.DiscardPile && reason == "skill-program.ol:mubing.DiscardSelected")
             MoveProgramLogicalDiscard(f, f.OwnerSeat, cards, new(reason));
-        else MoveProgramCardsFromMultipleSources(cards, destination, new(reason));
+        else MoveProgramCardsFromMultipleSources(cards, destination, new(reason), (f.SpZhangLiao!.Stage is SpZhangLiaoStage.HighestChildren or SpZhangLiaoStage.GiftChildren ? NativeGiveCompletionRecords(f.Id,f.SpZhangLiao!.Stage==SpZhangLiaoStage.HighestChildren?f.SpZhangLiao.VictimSeat!.Value:f.OwnerSeat,destination.OwnerSeat!.Value,cards,_movementSequence,null) : null));
         f = GetActiveProgramFrame(id);
         ReplaceRuntimeTop(f with { SpZhangLiao = f.SpZhangLiao! with { SequenceAfter = _movementSequence } });
     }

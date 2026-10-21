@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:cao-hong",
+  "skills": [
+    { "registrationOrder": 2770, "programBundle": "mou-cao-hong", "includeProgramPresentation": true, "definition": { "id": "mou:yingjia", "name": "迎驾", "description": "锁定技，你对其他角色使用牌后，本回合你与其计算距离为1，然后若你与所有其他角色距离均为1，可获得一名其他角色所有手牌，然后交给其等量的牌（每名角色每回合限一次）。", "executionForms": "Trigger, State", "tags": "Locked" } },
+    { "registrationOrder": 2771, "programBundle": "mou-cao-hong", "includeProgramPresentation": true, "definition": { "id": "mou:xianju", "name": "险拒", "description": "出牌阶段限一次，你可获得攻击范围内所有角色1张牌，若如此做，出牌阶段结束时，你弃置攻击范围外角色数张牌。", "executionForms": "Trigger", "actionForms": "Active" } }
+  ],
+  "generals": [{ "registrationOrder": 2772, "pools": { "current": 581 }, "definition": { "id": "mou:cao-hong", "name": "谋曹洪", "portraitKey": "mou-cao-hong", "skillId": "mou:yingjia", "additionalSkillIds": ["mou:xianju"], "factionId": "wei", "baseHp": 4, "gender": "Male", "characterId": "character:cao-hong", "variantId": "mou", "rulesetId": "sanguosha-anniversary" } }]
+}

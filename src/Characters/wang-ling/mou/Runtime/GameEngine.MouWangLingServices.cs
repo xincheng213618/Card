@@ -27,7 +27,7 @@ public sealed partial class GameEngine
     [ProgramCapability]
     private sealed class MouWangLingOperations(GameEngine engine) : IMouWangLingOperations
     {
-        public void Give(ProgramSkillFrame f,int id,int target)=>engine.MoveProgramCardsFromMultipleSources([id],CardLocation.Hand(target),new(MouWangLingRuntime.GiftReason),disclosure:CardMovementDisclosure.FaceUp);
+        public void Give(ProgramSkillFrame f,int id,int target)=>engine.MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(target), new CardMoveReason(MouWangLingRuntime.GiftReason), engine.NativeGiveCompletionRecords(f.Id,f.OwnerSeat,target,[id],engine._movementSequence,null), disclosure:CardMovementDisclosure.FaceUp);
         public void Discard(ProgramSkillFrame f,IReadOnlyList<int> ids)=>engine.MoveProgramLogicalDiscard(f,f.OwnerSeat,ids,new(MouWangLingRuntime.DiscardReason));
         public bool Drain(ProgramSkillFrame f)=>engine.TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.Program)||
             engine.TryBeginCharacterStateProgramWindow(f.Id,CharacterStateContinuation.Program)||engine.TryBeginHpChangedProgramWindow(f.Id,PostEventContinuation.Program)||

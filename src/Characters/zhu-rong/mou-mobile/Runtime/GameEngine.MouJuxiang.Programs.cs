@@ -28,7 +28,7 @@ public sealed partial class GameEngine
         var card = new Card(checked(CreateCardZoneDiagnostics().Select(c => c.CardId).DefaultIfEmpty(0).Max() + 1), CardKind.BarbarianAssault, template.Suit, template.Rank);
         _cardZones.AddGeneratedCard(card); _generatedPhysicalCardIds.Add(card.Id);
         AdvanceEventRulesAndQueueFact(new MouZhuRongAssaultGeneratedEvent(f.Id, MouZhuRongSource(f), recipient, card.Id, before, _random.State));
-        MoveCard(card, CardLocation.OutsideGame, CardLocation.Hand(recipient), new("skill-program.mou-mobile:juxiang.outside-gift"), disclosure: CardMovementDisclosure.FaceDown);
+        MoveCard(card, CardLocation.OutsideGame, CardLocation.Hand(recipient), new("skill-program.mou-mobile:juxiang.outside-gift"), NativeGiveCompletion(f.Id,f.OwnerSeat,recipient,[card.Id],_movementSequence,null), disclosure: CardMovementDisclosure.FaceDown);
         return AwaitProgramBoundCardMovements(f.Id, f.OwnerSeat);
     }
 

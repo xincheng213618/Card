@@ -62,7 +62,7 @@ public sealed partial class GameEngine
         if (ids.Length > 0)
         {
             if(stage==HanFuStage.DiscardChildren)MoveProgramLogicalDiscard(f,f.OwnerSeat,ids,new(reason));
-            else MoveProgramCardsFromMultipleSources(ids,destination,new(reason));
+            else MoveProgramCardsFromMultipleSources(ids, destination, new(reason), (stage is HanFuStage.GiftChildren or HanFuStage.ReturnChildren ? NativeGiveCompletionRecords(f.Id,stage==HanFuStage.ReturnChildren?f.HanFu!.TargetSeat:f.OwnerSeat,destination.OwnerSeat!.Value,ids,_movementSequence,null) : null));
         }
         for (var i = 0; i < cards.Count; i++)
         {

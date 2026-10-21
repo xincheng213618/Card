@@ -19,8 +19,8 @@ public sealed partial class GameEngine
         if(cards.Count==0){AdvanceEventRulesAndQueueFact(new PijingGiftSkippedEvent(f.Id,r.Index,donor));CompletePijingGift(f);return;}
         var card=cards[_random.Next(cards.Count)];var from=_cardZones.GetLocation(card.Id);var selected=new PijingGiftSelectedEvent(f.Id,r.Index,donor,card.Id,card.Kind,from);var before=_movementSequence;
         ReplaceRuntimeTop(f=f with{Pijing=r with{Stage=PijingStage.GiftChildren,Gift=selected,Before=before,After=before,Count=1},PendingMovementContinuation=new(donor,0,null)});AdvanceEventRulesAndQueueFact(selected);
-        MoveProgramCardsFromMultipleSources([card.Id],CardLocation.Hand(f.OwnerSeat),new(PijingGiftReason),(batch,moves)=>
-        {if(moves is not[var m]||m.CardId!=card.Id||m.From!=from||m.To!=CardLocation.Hand(f.OwnerSeat))throw new InvalidOperationException("Pijing lost its one actual random transferable HE entity.");AdvanceEventRulesAndQueueFact(new PijingGiftPaidEvent(f.Id,r.Index,donor,card.Id,from,f.OwnerSeat,batch,m.Sequence,before,m.Sequence));});
+        MoveProgramCardsFromMultipleSources([card.Id], CardLocation.Hand(f.OwnerSeat), new(PijingGiftReason), NativeGiveCompletionRecords(f.Id,donor,f.OwnerSeat,[card.Id],_movementSequence,(batch,moves)=>
+        {if(moves is not[var m]||m.CardId!=card.Id||m.From!=from||m.To!=CardLocation.Hand(f.OwnerSeat))throw new InvalidOperationException("Pijing lost its one actual random transferable HE entity.");AdvanceEventRulesAndQueueFact(new PijingGiftPaidEvent(f.Id,r.Index,donor,card.Id,from,f.OwnerSeat,batch,m.Sequence,before,m.Sequence));}));
         f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{Pijing=f.Pijing! with{After=_movementSequence}});AdvanceEventRulesAndQueueFact(new PijingMovementPaidEvent(f.Id,PijingStage.GiftChildren,r.Index,donor,before,_movementSequence,1));ContinuePijing(f.Id);
     }
     private void CompletePijingGift(ProgramSkillFrame f)

@@ -193,7 +193,7 @@ public sealed partial class GameEngine
         if (give)
         {
             var card = GetHand(_players[repayment.SourceSeat]).Single(c => c.Id == selected.Cards.Single());
-            MoveCard(card, CardLocation.Hand(repayment.SourceSeat), CardLocation.Hand(frame.OwnerSeat), new($"skill-program.{frame.SkillId}.hand-repayment"));
+            MoveCard(card, CardLocation.Hand(repayment.SourceSeat), CardLocation.Hand(frame.OwnerSeat), new($"skill-program.{frame.SkillId}.hand-repayment"), NativeGiveCompletion(frame.Id, repayment.SourceSeat, frame.OwnerSeat, [card.Id], _movementSequence));
             AdvanceRuntimeProgram(frame.Id);
         }
         else
@@ -220,8 +220,8 @@ public sealed partial class GameEngine
         if (frame.WindowContext is null && frame.TriggerId is null && !IsPindianHandReturn(frame))
             gift = gift with { RankSum = CaptureOwnedHandRankSumGift(frame, ids, reason) };
         ReplaceRuntimeTop(frame with { BoundParticipantGift = gift });
-        if (gift.RankSum is null) MoveProgramCardsFromMultipleSources(ids, target, reason);
-        else MoveProgramCardsFromMultipleSources(ids, target, reason, (batchId, records) => SealOwnedHandRankSumGift(frame.Id, batchId, records));
+        if (gift.RankSum is null) MoveProgramCardsFromMultipleSources(ids, target, reason, NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,target.OwnerSeat!.Value,ids,_movementSequence,null));
+        else MoveProgramCardsFromMultipleSources(ids, target, reason, NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,target.OwnerSeat!.Value,ids,_movementSequence,(batchId, records) => SealOwnedHandRankSumGift(frame.Id, batchId, records)));
         AdvanceRuntimeProgram(frame.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 

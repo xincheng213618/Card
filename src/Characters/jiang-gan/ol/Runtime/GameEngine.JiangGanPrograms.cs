@@ -242,8 +242,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Daoshu give-back card must differ from the taken card's suit.");
         ClearPendingDecision();
         ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { DaoshuGuess = null });
-        MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.Hand(state.TargetSeat),
-            new($"skill-program.{frame.SkillId}.daoshu-give"));
+        MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.Hand(state.TargetSeat), new($"skill-program.{frame.SkillId}.daoshu-give"), NativeGiveCompletion(frame.Id,owner.Seat,state.TargetSeat,[card.Id],_movementSequence,null));
         AddLog("SkillEffect",
             $"{owner.Name} 的【盗书】未猜中花色，交给 {target.Name} 【{card.DisplayName}】。",
             owner.Seat, state.TargetSeat);

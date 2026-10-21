@@ -164,7 +164,7 @@ public sealed partial class GameEngine
 
         ClearPendingDecision();
         MoveCard(card, from, CardLocation.Processing, expectedReason);
-        MoveProcessingCardUnlessDestroyed(card, CardLocation.Hand(targetSeat), expectedReason);
+        MoveProcessingCardUnlessDestroyed(card, CardLocation.Hand(targetSeat), expectedReason, NativeGiveCompletion(frame.Id,distribution.CardOwnerSeat,targetSeat,[cardId],_movementSequence,null));
         var givenIds = distribution.GivenCardIds.Append(cardId).ToArray();
         var targetSeats = distribution.TargetSeats.Append(targetSeat).ToArray();
         AdvanceEventRulesAndQueueFact(new ProgramOwnedCardDistributedEvent(

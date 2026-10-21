@@ -24,10 +24,10 @@ public sealed partial class GameEngine
         {
             new($"mode:{_modeDefinition.Id}:alive-seat-distance", GetAliveSeatDistance(source.Seat, target.Seat))
         };
-        baseTerms.AddRange(GetEquipment(source).Where(card => card.Id != excludedEquipmentId && (excludedEquipmentSlot is null || EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot)).Select(card => new RuleQueryBaseTerm(
+        baseTerms.AddRange(KongwuEffectiveEquipment(source).Where(card => card.Id != excludedEquipmentId && (excludedEquipmentSlot is null || EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot)).Select(card => new RuleQueryBaseTerm(
             $"equipment:{card.Id}:outgoing-distance",
             EquipmentCatalog.Get(card.Kind).OutgoingDistanceModifier)));
-        baseTerms.AddRange(GetEquipment(target).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
+        baseTerms.AddRange(KongwuEffectiveEquipment(target).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
             $"equipment:{card.Id}:incoming-distance",
             EquipmentCatalog.Get(card.Kind).IncomingDistanceModifier)));
 
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
         var baseTerms = new List<RuleQueryBaseTerm>();
         var minimumRange = 1;
         {
-            var weapon = GetEquipment(player).Where(card => card.Id != excludedEquipmentId && (excludedEquipmentSlot is null || EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot))
+            var weapon = KongwuEffectiveEquipment(player).Where(card => card.Id != excludedEquipmentId && (excludedEquipmentSlot is null || EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot))
                 .Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
                 .MaxBy(card => GetWeaponAttackRange(player, card));
             if (weapon is { Kind: CardKind.RedBloodBlade } && GetWeaponAttackRange(player, weapon) == 0)
@@ -87,7 +87,7 @@ public sealed partial class GameEngine
             new($"mode:{_modeDefinition.Id}:draw-count",
                 GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.DrawCount) ?? _drawPerTurn)
         };
-        baseTerms.AddRange(GetEquipment(player)
+        baseTerms.AddRange(KongwuEffectiveEquipment(player)
             .Where(card => EquipmentCatalog.Get(card.Kind).DrawCountBonus != 0)
             .Select(card => new RuleQueryBaseTerm(
                 $"equipment:{card.Id}:draw-count",
@@ -96,6 +96,7 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"state:{player.Seat}:cao-xi:gangshu:draw", CaoXiGangshuBonus(player, SkillRuleQuery.DrawCount));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:draw", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.DrawCount));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:kuangxiang:draw", -ChengGongYingDrawPenalty(player.Seat));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-kongwu:draw", -MouHuCheErDrawPenalty(player));
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:draw-count", GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.DrawCount));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:juguan:draw", JuguanActualDrawAdjustment(player));

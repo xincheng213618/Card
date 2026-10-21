@@ -3,10 +3,10 @@ public sealed partial class GameEngine
 {
     // This accessor preserves the old one-round protocol and only selects the
     // new owning extension after its own precise native round has started.
-    private ExtraCardEffectState? NativeExtraEffectState(CardUseFrame use)=>use.SoleIncomingEffects is {Active:true}incoming?incoming.Native:use.MouBingcaiRounds is {Active:true}bingcai?bingcai.Native:use.MoQuanyuExtraRound is {Started:true}mo?mo.Native:use.ZixiEffectRounds is {Started:>0}z?z.Native:use.FeiYiRounds is {Started:>0}r?r.Native:use.ExtraCardEffect??use.FeiYiRounds?.Native??use.ZixiEffectRounds?.Native??use.MoQuanyuExtraRound?.Native??use.MouBingcaiRounds?.Native??use.SoleIncomingEffects?.Native;
+    private ExtraCardEffectState? NativeExtraEffectState(CardUseFrame use)=>use.MouHqRounds is{Active:true}hq?hq.Native:use.SoleIncomingEffects is {Active:true}incoming?incoming.Native:use.MouBingcaiRounds is {Active:true}bingcai?bingcai.Native:use.MoQuanyuExtraRound is {Started:true}mo?mo.Native:use.ZixiEffectRounds is {Started:>0}z?z.Native:use.FeiYiRounds is {Started:>0}r?r.Native:use.ExtraCardEffect??use.FeiYiRounds?.Native??use.ZixiEffectRounds?.Native??use.MoQuanyuExtraRound?.Native??use.MouBingcaiRounds?.Native??use.SoleIncomingEffects?.Native??use.MouHqRounds?.Native;
     private void UpdateNativeExtraEffectState(long id,Func<ExtraCardEffectState,ExtraCardEffectState> update)
     {
-        UpdateLifecycleCardUse(id,use=>use.SoleIncomingEffects is{Active:true}incoming?use with{SoleIncomingEffects=incoming with{Native=update(incoming.Native)}}:use.MouBingcaiRounds is{Active:true}bingcai?use with{MouBingcaiRounds=bingcai with{Native=update(bingcai.Native)}}:
+        UpdateLifecycleCardUse(id,use=>use.MouHqRounds is{Active:true}hq?use with{MouHqRounds=hq with{Native=update(hq.Native)}}:use.SoleIncomingEffects is{Active:true}incoming?use with{SoleIncomingEffects=incoming with{Native=update(incoming.Native)}}:use.MouBingcaiRounds is{Active:true}bingcai?use with{MouBingcaiRounds=bingcai with{Native=update(bingcai.Native)}}:
             use.MoQuanyuExtraRound is{Started:true}mo?use with{MoQuanyuExtraRound=mo with{Native=update(mo.Native)}}:
             use.ZixiEffectRounds is{Started:>0}z?use with{ZixiEffectRounds=z with{Native=update(z.Native)}}:
             use.FeiYiRounds is{Started:>0}r?use with{FeiYiRounds=r with{Native=update(r.Native)}}:
@@ -15,7 +15,7 @@ public sealed partial class GameEngine
             use.ZixiEffectRounds is{}zixi?use with{ZixiEffectRounds=zixi with{Native=update(zixi.Native)}}:
             use.MoQuanyuExtraRound is{}pendingMo?use with{MoQuanyuExtraRound=pendingMo with{Native=update(pendingMo.Native)}}:
             use.SoleIncomingEffects is{}pendingIncoming?use with{SoleIncomingEffects=pendingIncoming with{Native=update(pendingIncoming.Native)}}:
-            use.MouBingcaiRounds is{}pendingBingcai?use with{MouBingcaiRounds=pendingBingcai with{Native=update(pendingBingcai.Native)}}:throw new InvalidOperationException("A native repeated effect needs its owning issued receipt."));
+            use.MouBingcaiRounds is{}pendingBingcai?use with{MouBingcaiRounds=pendingBingcai with{Native=update(pendingBingcai.Native)}}:use.MouHqRounds is{}pendingHq?use with{MouHqRounds=pendingHq with{Native=update(pendingHq.Native)}}:throw new InvalidOperationException("A native repeated effect needs its owning issued receipt."));
     }
     private void BindFeiYiRankEffects(long id,ProgramTrickContinuation trick)
     {
@@ -45,7 +45,7 @@ public sealed partial class GameEngine
     {
         var use=LifecycleCardUse(id);var old=use?.ExtraCardEffect?.WholeGroupRepeated==true?1:0;
         var feiyi=use?.FeiYiRounds is{Started:>0}r?r.Started:0;
-        return checked((use?.SoleIncomingEffects?.Started??0)+old+feiyi+(use?.ZixiEffectRounds?.Started??0)+(use?.MoQuanyuExtraRound?.Started==true?1:0)+(use?.MouBingcaiRounds?.Started??0));
+        return checked((use?.MouHqRounds?.Started??0)+(use?.SoleIncomingEffects?.Started??0)+old+feiyi+(use?.ZixiEffectRounds?.Started??0)+(use?.MoQuanyuExtraRound?.Started==true?1:0)+(use?.MouBingcaiRounds?.Started??0));
     }
     private bool TryBeginFeiYiExtraEffectRound(long id,bool afterAttack)
     {

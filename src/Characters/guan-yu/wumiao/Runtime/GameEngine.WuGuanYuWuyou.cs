@@ -120,15 +120,14 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new WuyouContributionPaidEvent(f.Id, r.DonorSeat, f.OwnerSeat,
                 r.ContributionCardId, r.ContributionPrintedKind, 0, r.Before, r.Before, true));
         }
-        else MoveProgramCardsFromMultipleSources([r.ContributionCardId], CardLocation.Hand(f.OwnerSeat),
-            new(WuyouContributionReason), (batch, moves) =>
+        else MoveProgramCardsFromMultipleSources([r.ContributionCardId], CardLocation.Hand(f.OwnerSeat), new(WuyouContributionReason), NativeGiveCompletionRecords(f.Id,r.DonorSeat,f.OwnerSeat,[r.ContributionCardId],_movementSequence,(batch, moves) =>
             {
                 var move = moves.Single(); var current = GetActiveProgramFrame(f.Id);
                 ReplaceRuntimeTop(current with { Wuyou = current.Wuyou! with
                     { ContributionPaid = true, ContributionBatchId = batch, ContributionSequence = move.Sequence, After = move.Sequence } });
                 AdvanceEventRulesAndQueueFact(new WuyouContributionPaidEvent(f.Id, r.DonorSeat, f.OwnerSeat,
                     move.CardId, move.CardKind, batch, r.Before, move.Sequence, false));
-            });
+            }));
         ContinueWuyou(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 
@@ -199,8 +198,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { Wuyou = r, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new WuyouReturnSelectedEvent(f.Id, card.Id, card.Kind, kind, before));
         if (f.OwnerSeat == r.DonorSeat) CommitWuyouReturn(f, 0, before, true);
-        else MoveProgramCardsFromMultipleSources([card.Id], CardLocation.Hand(r.DonorSeat), new(WuyouReturnReason),
-            (batch, moves) => CommitWuyouReturn(GetActiveProgramFrame(f.Id), batch, moves.Single().Sequence, false));
+        else MoveProgramCardsFromMultipleSources([card.Id], CardLocation.Hand(r.DonorSeat), new(WuyouReturnReason), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,r.DonorSeat,[card.Id],_movementSequence,(batch, moves) => CommitWuyouReturn(GetActiveProgramFrame(f.Id), batch, moves.Single().Sequence, false)));
         ContinueWuyou(f.Id);
     }
     private void CommitWuyouReturn(ProgramSkillFrame f, long batch, long sequence, bool self)

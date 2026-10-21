@@ -77,7 +77,7 @@ public sealed partial class GameEngine
         {
             var id = choice.Cards.Single(); var from = _cardZones.GetLocation(id); var before = _movementSequence;
             ReplaceRuntimeTop(f = f with { YanPu = r with { Stage = YanPuStage.GiftChildren }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(r.Target), new(YanPuGiftReason), (_, movements) =>
+            MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(r.Target), new(YanPuGiftReason), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,r.Target,[id],_movementSequence,(_, movements) =>
             {
                 var root = GetActiveProgramFrame(f.Id); var move = movements.Single(); var paid = root.YanPu!;
                 var promise = new YanPuHuantuPromise(root.Id, paid.Source, paid.GameplayHash, paid.WindowId, paid.Round, paid.Turn, paid.TurnOwner, paid.Target, id, from, move.Sequence);
@@ -89,7 +89,7 @@ public sealed partial class GameEngine
                 AdvanceEventRulesAndQueueFact(new YanPuHuantuIssuedEvent(promise));
                 AdvanceEventRulesAndQueueFact(new ProgramTurnPhaseSubstitutedEvent(root.Id, root.SkillId, root.TriggerId!, root.SkillInstanceId, paid.Target, paid.Turn, SkillProgramTriggerWindow.DrawPhaseStarting, SkillProgramTurnPhase.Draw));
                 CommitYanPuMovement(root.Id, new(0, root.OwnerSeat, YanPuGiftReason, before, move.Sequence, 1, id, from, CardLocation.Hand(paid.Target)));
-            });
+            }));
             // Equipment-removal recovery can have queued native children after the payment callback.
             ContinueYanPu(f.Id); return;
         }
@@ -108,8 +108,8 @@ public sealed partial class GameEngine
         if (selected.Length < r.RequiredGift) { PublishYanPuChoice(f); return; }
         var sequence = _movementSequence;
         ReplaceRuntimeTop(f = f with { YanPu = f.YanPu! with { Stage = YanPuStage.EndingGiftChildren }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(selected, CardLocation.Hand(r.Target), new("skill-program.yan-pu.huantu.ending-gift"), (_, movements) =>
-            CommitYanPuMovement(f.Id, new(r.Movements.Count, f.OwnerSeat, "skill-program.yan-pu.huantu.ending-gift", sequence, movements.Max(m => m.Sequence), movements.Count)));
+        MoveProgramCardsFromMultipleSources(selected, CardLocation.Hand(r.Target), new("skill-program.yan-pu.huantu.ending-gift"), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,r.Target,selected,_movementSequence,(_, movements) =>
+            CommitYanPuMovement(f.Id, new(r.Movements.Count, f.OwnerSeat, "skill-program.yan-pu.huantu.ending-gift", sequence, movements.Max(m => m.Sequence), movements.Count))));
         ContinueYanPu(f.Id);
     }
     private void CommitYanPuMovement(long id, YanPuMovement movement)

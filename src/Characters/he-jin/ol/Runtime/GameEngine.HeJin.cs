@@ -60,7 +60,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Mouzhu's original donor card moved before payment.");
             var before = _movementSequence;
             ReplaceRuntimeTop(f = f with { HeJinMouzhu = r with { Stage = HeJinMouzhuStage.GiftChildren, GiftId = id, Before = before, After = before } });
-            MoveCard(GetAttackCard(id), CardLocation.Hand(r.ActorSeat), CardLocation.Hand(f.OwnerSeat), new(HeJinGiftReason));
+            MoveCard(GetAttackCard(id), CardLocation.Hand(r.ActorSeat), CardLocation.Hand(f.OwnerSeat), new(HeJinGiftReason), NativeGiveCompletion(f.Id,r.ActorSeat,f.OwnerSeat,[id],_movementSequence,null));
             f = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(f = f with { HeJinMouzhu = f.HeJinMouzhu! with { After = _movementSequence } });
             AdvanceEventRulesAndQueueFact(new HeJinMouzhuGiftPaidEvent(f.Id, r.ActorSeat, f.OwnerSeat, before, _movementSequence));

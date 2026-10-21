@@ -159,12 +159,12 @@ public sealed partial class GameEngine
             GivenCards = r.GivenCards.Append(card).ToArray(), GivenTargets = r.GivenTargets.Append(target).ToArray(),
             PaymentFrom = from, PaymentCardId = card, PaymentTarget = target, Before = before, After = before },
             PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources([card], CardLocation.Hand(target), new("program.batch-gain.gift"), (_, records) =>
+        MoveProgramCardsFromMultipleSources([card], CardLocation.Hand(target), new("program.batch-gain.gift"), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,target,[card],_movementSequence,(_, records) =>
         {
             var current = GetActiveProgramFrame(f.Id); var paid = current.GainGiftReceipt! with { After = records.Single().Sequence };
             ReplaceRuntimeTop(current with { GainGiftReceipt = paid });
             AdvanceEventRulesAndQueueFact(new GainGiftPaidEvent(f.Id, card, from, target, before, paid.After));
-        });
+        }));
         f = GetActiveProgramFrame(f.Id);
         ReplaceRuntimeTop(f = f with { GainGiftReceipt = f.GainGiftReceipt! with { After = _movementSequence } });
         if (!TryDrainFireTargetMovement(f)) ReturnGainGiftMovement(f);

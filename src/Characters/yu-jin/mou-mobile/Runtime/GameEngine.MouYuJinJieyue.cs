@@ -107,13 +107,13 @@ public sealed partial class GameEngine
         var from = new CardLocation(zone, r.RecipientSeat); var cards = _cardZones.CardsAt(from);
         if (slot < 0 || slot >= cards.Count || selected.Cards is not [var id] || cards[slot].Id != id)
             throw new InvalidOperationException("Jieyue's published physical gift has changed.");
-        MoveCard(cards[slot], from, CardLocation.Hand(f.OwnerSeat), new(MouJieyueGiftReason), movement =>
+        MoveCard(cards[slot], from, CardLocation.Hand(f.OwnerSeat), new(MouJieyueGiftReason), NativeGiveCompletion(f.Id,r.RecipientSeat,f.OwnerSeat,[id],_movementSequence,movement =>
         {
             var current = GetActiveProgramFrame(f.Id); var old = current.MouYuJinJieyue!;
             ReplaceRuntimeTop(current with { MouYuJinJieyue = old with { Stage = MouYuJinJieyueStage.GiftChildren,
                 GiftCardId = id, GiftFrom = from, GiftTo = movement.To, GiftMovementSequence = movement.Sequence } });
             AdvanceEventRulesAndQueueFact(new MouYuJinJieyueGiftPaidEvent(f.Id, r.RecipientSeat, id, from, movement.To, movement.Sequence));
-        }, disclosure: zone == CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
+        }), disclosure: zone == CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
         ContinueMouJieyue(f.Id);
     }
     private void ContinueMouJieyue(long id)

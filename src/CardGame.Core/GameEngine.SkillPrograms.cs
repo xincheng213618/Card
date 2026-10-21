@@ -501,7 +501,7 @@ public sealed partial class GameEngine
         var actionId = ++_resolutionSequence;
         var reason = new CardMoveReason($"skill-program.{program.Id}.{contribution.Id}.contribute");
         MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing, reason, movement => RecordBianFuRenOwnedTransferProducer(movement,skillOwner.Seat,actionId));
-        MoveCard(card, CardLocation.Processing, CardLocation.Hand(skillOwner.Seat), reason);
+        MoveCard(card, CardLocation.Processing, CardLocation.Hand(skillOwner.Seat), reason, NativeGiveCompletion(actionId,provider.Seat,skillOwner.Seat,[card.Id],_movementSequence,null));
         AdvanceEventRulesAndQueueFact(new ProgramSkillContributionResolvedEvent(actionId, provider.Seat, skillOwner.Seat,
             program.Id, contribution.Id, card.Id, card.Kind, card.Suit, projectedInstanceId));
         AddLog("ActiveSkill",

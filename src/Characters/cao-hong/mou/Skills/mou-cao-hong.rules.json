@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou:yingjia", "revision": 1, "triggers": [{ "id": "used-other-targets", "window": "cardUseCompleted", "ownerRelation": "actor", "optional": false, "effects": [{ "op": "resolveMouCaoHongYingjia", "target": "owner" }] }] },
+    { "id": "mou:xianju", "revision": 1,
+      "activations": [{ "id": "obtain-in-range", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1, "effects": [{ "op": "resolveMouCaoHongXianju", "target": "owner" }] }],
+      "triggers": [{ "id": "issued-play-end", "window": "playEnding", "subject": "owner", "optional": false, "effects": [{ "op": "settleMouCaoHongXianju", "target": "owner" }] }]
+    }
+  ]
+}

@@ -249,6 +249,12 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveMouCaoHongYingjia = 35900,
+    ResolveMouCaoHongXianju = 35901,
+    SettleMouCaoHongXianju = 35902,
+    ResolveMouHuangQuanQiaodui = 35700,
+    ResolveMouHuangQuanTuicheng = 35701,
+    ResolveMouHuCheErKongwu = 35800,
     ResolveMouZhugeJinTaozhou = 35600,
     ResolveMouZhugeJinHoude = 35601,
     ResolveMouZhugeJinZijin = 35602,
@@ -4397,6 +4403,12 @@ public sealed class SkillProgramCatalog
             wuZishengEffects.GetArrayLength() == 1 && wuZishengEffects[0].ValueKind == JsonValueKind.Object &&
             wuZishengEffects[0].TryGetProperty("op", out var wuZishengOp) && wuZishengOp.ValueKind == JsonValueKind.String &&
             string.Equals(wuZishengOp.GetString(), "resolveWuZhangFeiMovementDamage", StringComparison.OrdinalIgnoreCase);
+        var isMouHqGiveMovement = skillId == "mou:tuicheng" && id == "after-native-give" &&
+            window == SkillProgramTriggerWindow.CardsMoved &&
+            node.TryGetProperty("effects", out var mouHqGiveEffects) && mouHqGiveEffects.ValueKind == JsonValueKind.Array &&
+            mouHqGiveEffects.GetArrayLength() == 1 && mouHqGiveEffects[0].ValueKind == JsonValueKind.Object &&
+            mouHqGiveEffects[0].TryGetProperty("op", out var mouHqGiveOp) && mouHqGiveOp.ValueKind == JsonValueKind.String &&
+            string.Equals(mouHqGiveOp.GetString(), "resolveMouHuangQuanTuicheng", StringComparison.OrdinalIgnoreCase);
         var isHpWindow = window is SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged;
         foreach (var field in new[] { "movementOccurrence", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements" })
             if (!isMovementWindow && node.TryGetProperty(field, out _))
@@ -4630,12 +4642,12 @@ public sealed class SkillProgramCatalog
                     if (!destinationZones.SequenceEqual([CardZoneKind.DiscardPile]))
                         Fail(path + ".destinationZones", "the exact global discard or used-Trick invoice requires discardPile");
                 }
-                sourceZones = isWuZishengMovement && !node.TryGetProperty("sourceZones", out _)
+                sourceZones = (isWuZishengMovement || isMouHqGiveMovement) && !node.TryGetProperty("sourceZones", out _)
                     ? [] : EnumArray<CardZoneKind>(node, "sourceZones", path);
                 movementOccurrence = EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path);
-                if (isYuandiMovement || isGuYinMovement || isWuZishengMovement
+                if (isYuandiMovement || isGuYinMovement || isWuZishengMovement || isMouHqGiveMovement
                     ? sourceZones.Count != 0 || movementOccurrence != SkillProgramMovementOccurrence.PerBatch ||
-                        subject != (isWuZishengMovement ? SkillProgramTriggerSubject.Owner : SkillProgramTriggerSubject.Any)
+                        subject != (isWuZishengMovement || isMouHqGiveMovement ? SkillProgramTriggerSubject.Owner : SkillProgramTriggerSubject.Any)
                     : sourceZones.Count == 0 || sourceZones.Distinct().Count() != sourceZones.Count ||
                     movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch && sourceZones.Count != 1 &&
                         !(movementOccurrence == SkillProgramMovementOccurrence.PerCard &&

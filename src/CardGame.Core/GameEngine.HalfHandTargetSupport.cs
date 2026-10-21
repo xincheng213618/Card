@@ -93,14 +93,14 @@ public sealed partial class GameEngine
         ClearPendingDecision(); var before = HalfHandDebtSequence;
         ReplaceRuntimeTop(f with { HalfHandSupport = paid with { CardId = cardId, SequenceBefore = before, Paid = true }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         var reason = new CardMoveReason($"skill-program.{f.SkillId}.{SkillProgramEffectOp.OfferHalfHandRecipientSupport}");
-        MoveProgramCardsFromMultipleSources([cardId], CardLocation.Hand(f.OwnerSeat), reason, (_, records) =>
+        MoveProgramCardsFromMultipleSources([cardId], CardLocation.Hand(f.OwnerSeat), reason, NativeGiveCompletionRecords(f.Id,paid.RecipientSeat,f.OwnerSeat,[cardId],_movementSequence,(_, records) =>
         {
             if (records is not [var movement] || movement.From != CardLocation.Hand(paid.RecipientSeat) || movement.CardId != cardId || movement.To != CardLocation.Hand(f.OwnerSeat))
                 throw new InvalidOperationException("Support cannot complete without its one real hand delivery.");
             ReplaceRuntimeTop(GetActiveProgramFrame(f.Id) with { HalfHandSupport = paid with { CardId = cardId, Paid = true, SequenceBefore = before, SequenceAfter = movement.Sequence } });
             AdvanceEventRulesAndQueueFact(new HalfHandSupportPaymentEvent(f.Id, paid.SupportProgramFrameId, paid.Use.CardUseFrameId, paid.Use.ActionId,
                 paid.Source, f.OwnerSeat, paid.RecipientSeat, true, false, before, movement.Sequence));
-        });
+        }));
         if (!TryBeginCardsMovedProgramWindow(f.Id)) ReturnRuntimeProgramMovement(f.Id);
     }
     [ProgramAiChoice(SkillProgramEffectOp.OfferHalfHandRecipientSupport)]

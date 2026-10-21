@@ -237,12 +237,12 @@ public sealed partial class GameEngine
             SequenceBefore = before, SequenceAfter = before };
         ReplaceRuntimeTop(frame = frame with { PhaseHandDebtReturn = receipt, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         if (moving.Length == 0) SettlePhaseHandDebt(due, frame.Id, "same-hand", receipt.RequiredCount, 0, before, before);
-        else MoveProgramCardsFromMultipleSources(moving, CardLocation.Hand(receipt.TargetSeat), new(PhaseHandDebtReturnReason(frame)), (_, records) =>
+        else MoveProgramCardsFromMultipleSources(moving, CardLocation.Hand(receipt.TargetSeat), new(PhaseHandDebtReturnReason(frame)), NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,receipt.TargetSeat,moving,_movementSequence,(_, records) =>
         {
             var current = GetActiveProgramFrame(frame.Id); var after = records.Max(m => m.Sequence);
             ReplaceRuntimeTop(current with { PhaseHandDebtReturn = receipt with { SequenceAfter = after } });
             SettlePhaseHandDebt(due, frame.Id, "returned", receipt.RequiredCount, records.Count, before, after);
-        });
+        }));
         DrainPhaseHandSeizureMovement(frame.Id);
     }
     private void SettlePhaseHandDebt(PhaseHandSeizureIssuedEvent due, long returnFrame, string reason, int required, int actual, long before, long after)

@@ -48,8 +48,7 @@ public sealed partial class GameEngine
     private sealed class MouSunShangxiangNative(GameEngine e):IMouSunShangxiangNative
     {
         public void Mark(ProgramSkillFrame f,int previous,int current,bool initial)=>e.ChangeMouSsxZhu(f,previous,current,initial);
-        public void Give(ProgramSkillFrame f,int payer,IReadOnlyList<int> ids)=>e.MoveProgramCardsFromMultipleSources(ids,CardLocation.Hand(f.OwnerSeat),new(MouSsxGiveReason),
-            (_,moves)=>{foreach(var move in moves)e.SealMouSsxMove(f.Id,move,false);},disclosure:CardMovementDisclosure.FaceDown);
+        public void Give(ProgramSkillFrame f,int payer,IReadOnlyList<int> ids)=>e.MoveProgramCardsFromMultipleSources(ids, CardLocation.Hand(f.OwnerSeat), new(MouSsxGiveReason), e.NativeGiveCompletionRecords(f.Id,payer,f.OwnerSeat,ids,e._movementSequence,(_,moves)=>{foreach(var move in moves)e.SealMouSsxMove(f.Id,move,false);}), disclosure:CardMovementDisclosure.FaceDown);
         public void Deposit(ProgramSkillFrame f,MouSsxEntity entity)
         {
             if(!new MouSunShangxiangFacts(e).Field(f.OwnerSeat,true).Contains(entity))throw new InvalidOperationException("Liangzhu lost its actual foreign Equipment entity or transfer permission.");

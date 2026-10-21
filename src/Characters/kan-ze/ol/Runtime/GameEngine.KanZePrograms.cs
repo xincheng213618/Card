@@ -25,7 +25,7 @@ public sealed partial class GameEngine
   SetProgramCardSet(f.Id,XiashuGiftBind,ids,SkillProgramCardSetVisibility.Private);
   var before=_movementSequence;var invoice=new XiashuInvoice(KanZeSource(f),f.GameplayHash,w.ParentFrameId,f.InstructionIndex,_turnNumber,recipient,before,before,ids.Length);
   ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{XiashuPaid=new(invoice,XiashuStage.GiftChildren,before,before,ids.Length),PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-  MoveProgramCardsFromMultipleSources(ids,CardLocation.Hand(recipient),new(XiashuGiftReason),(_,records)=>{var active=GetActiveProgramFrame(f.Id);var paid=invoice with{GiftAfter=records.Max(m=>m.Sequence)};ReplaceRuntimeTop(active with{XiashuPaid=active.XiashuPaid!with{Invoice=paid,After=paid.GiftAfter}});AdvanceEventRulesAndQueueFact(new XiashuGiftPaidEvent(f.Id,paid));});
+  MoveProgramCardsFromMultipleSources(ids, CardLocation.Hand(recipient), new(XiashuGiftReason), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,ids,_movementSequence,(_,records)=>{var active=GetActiveProgramFrame(f.Id);var paid=invoice with{GiftAfter=records.Max(m=>m.Sequence)};ReplaceRuntimeTop(active with{XiashuPaid=active.XiashuPaid!with{Invoice=paid,After=paid.GiftAfter}});AdvanceEventRulesAndQueueFact(new XiashuGiftPaidEvent(f.Id,paid));}));
   AdvanceRuntimeProgram(f.Id);return SkillProgramStepOutcome.AwaitChild;
  }
  private PromptChoice XiashuChoice(ProgramSkillFrame f,string branch,string label,IReadOnlyList<int>? cards=null)=>new(new($"xiashu.{f.Id}.{branch}"),label,cards??[],[],new Dictionary<string,string>{{"program-action","xiashu"},{"branch",branch}});

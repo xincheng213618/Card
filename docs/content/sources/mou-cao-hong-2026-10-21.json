@@ -1,0 +1,49 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:cao-hong",
+  "characterId": "character:cao-hong",
+  "displayName": "谋曹洪",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": { "factionId": "wei", "gender": "Male", "initialHp": 4, "maximumHp": 4, "officialHeroId": 2301 },
+  "firstRelease": { "publishedAt": "2025-05-30", "availableFrom": "2025-05-31", "url": "https://x.sanguosha.com/news/20250529_4419_4814.html", "title": "5.31-6.8 粽香端午 新将武皇甫嵩&夏侯玄&谋曹洪&向宠 徐馨端午限定动态 竞舟活跃福利" },
+  "sourceAgreement": "现行官方武将页2301与2025年5月30日正式新品公告的迎驾完整正文一致。险拒仅有“若如此做/如若此做”的语序差异，采用当前武将页正文。正式身份、实际索引均为魏男4；不与既有OL曹洪混同。",
+  "skills": [
+    { "id": "mou:yingjia", "name": "迎驾", "officialSelectedText": "锁定技，你对其他角色使用牌后，本回合你与其计算距离为1，然后若你与所有其他角色距离均为1，可获得一名其他角色所有手牌，然后交给其等量的牌（每名角色每回合限一次）。" },
+    { "id": "mou:xianju", "name": "险拒", "officialSelectedText": "出牌阶段限一次，你可获得攻击范围内所有角色1张牌，若如此做，出牌阶段结束时，你弃置攻击范围外角色数张牌。", "formalText": "出牌阶段限一次，你可获得攻击范围内所有角色1张牌，如若此做，出牌阶段结束时，你弃置攻击范围外角色数张牌。" }
+  ],
+  "primarySources": [
+    { "url": "https://x.sanguosha.com/hero/2301.html", "bytes": 18879, "sha256": "7091d9f98531b1820b2f6373d4f2518c718ba5727f11e27982731dde0277a8d0" },
+    { "url": "https://x.sanguosha.com/news/20250529_4419_4814.html", "bytes": 356989, "sha256": "c3b4f8829ffb97fed4fc10b68b0fc92e2bd59f162251b2e61cde1f2e29751727" },
+    { "url": "https://x.sanguosha.com/hero", "bytes": 187953, "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c", "selectedEntry": { "gid": 2301, "prefix": "谋", "name": "曹洪", "resource": 1230101, "country": "魏", "gender": "男", "hp": 4 } }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/2301.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1230101.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-cao-hong.png",
+    "id": "1230101", "name": "经典形象", "pixelWidth": 574, "pixelHeight": 761, "bytes": 686997,
+    "sha256": "58852f850b21623db38dcbcb337298cdb0823e6830d81fb0b65b27e54ea641cb",
+    "identityEvidence": "官方武将页实际DOM经典形象与官方索引gid2301/resource1230101一致；主代理已下载并查看完整经典立绘。DOM另有5230101洪天巨擘皮肤，未用其替换经典形象。"
+  },
+  "engineeringInterpretations": [
+    { "topic": "迎驾计算距离", "mapping": "按“你与其”的语法采用双向距离1；每个实际其他目标各发行自己的真实回合凭据，并在真正TurnEnded后失效。满足所有其他角色距离条件时，读取双方当前真实距离。", "provenance": "主代理确认的正文工程解释；有限官网FAQ检索未找到进一步展开，不标作官方FAQ或用户额外裁定。" },
+    { "topic": "险拒获得牌的区域", "mapping": "沿项目通用同类obtain解释为目标当前手牌、装备区，排除本人和已死亡角色；对方暗手牌仅提供匿名随机入口，公开装备可选。", "provenance": "主代理确认的项目通用原生获得牌映射，非官网FAQ；不能缩成只取手牌。" },
+    { "topic": "迎驾交回等量", "mapping": "从本人当前手牌和装备区真实给回，以本次主移动真正到达本人手牌的实体数记请求量；不足时按现有原生尽量执行，最多选择当前仍可给回的HE数量。请求量和实际交付量分别保留，不用最终净手牌变化替代。", "provenance": "主代理确认的原生HE给牌与不足支付工程映射，非官网FAQ。" },
+    { "topic": "险拒延后成本", "mapping": "发动时冻结本次攻击范围内的其他角色，逐一获得；本实际出牌阶段结束时才重新查询当前攻击范围外其他角色数，并走原生逻辑弃置。已发行的本Play成本不因来源技能失效而免除。", "provenance": "按正文结束时点及既有预付义务合同的工程映射，由主代理确认。" }
+  ],
+  "engineeringContracts": [
+    "独立注入的MouCaoHongRuntime拥有Resolve、Continue、选择、支出游标和私有帧状态；引擎只提供原生动作、查询、距离投影和精确原生父/延后债证明，不将整段规则循环移回GameEngine。",
+    "迎驾只接真正完成的原生Use及其最终实际目标，验证当前候选、动作、Use与父窗口的准确身份；普通打出及无其他角色目标的牌不能伪造触发。多目标逐一形成双向距离凭据，累计到本实际回合结束。",
+    "所有距离条件成立时可选本实际回合尚未交换过且当前有手牌的其他角色，先原生获得其全部真实手牌，完成各移动观察子窗，再按真正获得数量从当前HE私密选择交回；同一目标本实际回合once在正式选择时消费。",
+    "迎驾回给在MoveProgramCardsFromMultipleSources的afterPhysicalRecords回调内，所有主实体记录封账后、装备离区与cardsMoved观察开始前记录原生Give；完整手牌获得和险拒obtain分支不能误记为Give。",
+    "险拒用实际出牌阶段once预算，按座次逐一获得冻结范围中每名其他角色的一张当前HE；暗手牌选择在对方承诺前不提供实体ID或牌面，随机选择保留原生RNG前后审计。公开装备保持原生公开性。",
+    "险拒本Play末成本持有独立来源、技能实例、内容hash、真实回合与真实Play阶段凭据；候选发现仅补入这一既存债的typed issued candidate，并保留准确原生PlayEnding父窗口。伪造任意Use或不存在的债不能进入。",
+    "逻辑弃置调用原生生产者并保留实际HE来源及SilverLion等装备离区健康子窗；原生观察子帧必须完整返回后才继续下一角色、给回或结束。",
+    "目标列表、选牌与真实来源材料均复制为只读集合，待决状态只保留在所属ProgramSkillFrame。新增历史事件均为标量；冷恢复不能重复获得完整手牌、Give、匿名随机选择或已付阶段成本。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouCaoHongAnniversaryChecks.cs",
+    "method": "NativeRangeDebtAndBilateralDistanceHandExchangeCold",
+    "scope": "固定山河四席真实手牌与小牌堆，两次真实Play发动险拒。首次只获得邻席且本Play末从装备区真正弃一张；下一真实Play先险拒、再真实铁索对远席使用触发双向距离和全手牌交换，在私有HE回给选到两张尚未提交时做一次代表Cold，之后真正给回含装备实体并封原生Give。后续真实杀验证交换目标本回合once；第二Play末按当前全范围得零弃牌成本，真正TurnEnded使双向距离恢复。NPC才跳过出牌阶段。"
+  }
+}

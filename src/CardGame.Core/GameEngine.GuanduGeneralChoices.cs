@@ -152,7 +152,6 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A gift lost its exact living participants or physical card.");
         var from = _cardZones.GetLocation(id);
         if (from == CardLocation.Hand(target)) return;
-        MoveCard(GetAdvancedCard(id), from, CardLocation.Hand(target), new("activity.guandu." + f.SkillId + ".gift"),
-            disclosure: from.Zone == CardZoneKind.Equipment ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown);
+        MoveCard(GetAdvancedCard(id), from, CardLocation.Hand(target), new("activity.guandu." + f.SkillId + ".gift"), NativeGiveCompletion(f.Id,owner,target,[id],_movementSequence,null), disclosure: from.Zone == CardZoneKind.Equipment ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown);
     }
 }

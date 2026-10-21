@@ -1924,12 +1924,16 @@ public sealed partial class GameEngine
             CompleteNativeLogicalDiscardInvocation(logicalDiscard);
             return SkillProgramStepOutcome.Continue;
         }
+        var nativeBoundGiveBefore = _movementSequence;
+        var nativeBoundGiver = NativeGiveSemantics.BoundGiver(frame, sourceBind, selected.Select(x => x.Location).ToArray(), target);
         foreach (var group in selected.GroupBy(item => item.Location))
         {
             if (group.Key == target) continue;
             var cards = group.Select(item => _cardZones.CardsAt(group.Key)
                 .Single(card => card.Id == item.CardId)).ToArray();
-            MoveCards(cards, group.Key, target, reason, disclosure: destination == SkillProgramCardDestination.DiscardPile
+            MoveCards(cards, group.Key, target, reason,
+                nativeBoundGiver is { } giver ? NativeGiveCompletion(frame.Id, giver, target.OwnerSeat!.Value, selected.Select(x => x.CardId).ToArray(), nativeBoundGiveBefore) : null,
+                disclosure: destination == SkillProgramCardDestination.DiscardPile
                 ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.Unspecified);
             switch (destination)
             {
@@ -2202,6 +2206,7 @@ public sealed partial class GameEngine
         if (IsIssuedXumingCandidate(candidate, context)) return true;
         if (IsIssuedWenYangQingjiaoEndingCandidate(candidate, context)) return true;
         if (IsIssuedTongduCandidate(candidate, context)) return true;
+        if (IsIssuedMouCaoHongCandidate(candidate, context)) return true;
         if (IsXiangxuMinimumCandidate(candidate, context)) return true;
         if (IsIssuedXiangxuEndingCandidate(candidate, context)) return true;
         if (IsIssuedWuHfEnding(candidate, context)) return true;
@@ -3050,7 +3055,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
-        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0 && !IssuedZhuijiEndingCandidates(owner).Any() && !IssuedQingzhongEndingCandidates(owner).Any() && !IssuedWeiluEndingCandidates(owner).Any() && !HasOutstandingHongjiPhase(owner, SkillProgramTriggerWindow.PlayEnding) && !IssuedWangKuangRenxiaEndingCandidates(owner).Any() && !IssuedTongduPlayEndingCandidates(owner).Any())
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0 && !IssuedZhuijiEndingCandidates(owner).Any() && !IssuedQingzhongEndingCandidates(owner).Any() && !IssuedWeiluEndingCandidates(owner).Any() && !HasOutstandingHongjiPhase(owner, SkillProgramTriggerWindow.PlayEnding) && !IssuedWangKuangRenxiaEndingCandidates(owner).Any() && !IssuedTongduPlayEndingCandidates(owner).Any() && !IssuedMouCaoHongPlayEndingCandidates(owner).Any())
             return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
@@ -3071,6 +3076,8 @@ public sealed partial class GameEngine
         foreach (var issued in IssuedWangKuangRenxiaEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
         foreach (var issued in IssuedTongduPlayEndingCandidates(owner))
+            if (!candidates.Contains(issued)) candidates.Add(issued);
+        foreach (var issued in IssuedMouCaoHongPlayEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
         var orderedCandidates = candidates.OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
@@ -4184,7 +4191,8 @@ public sealed partial class GameEngine
                         card,
                         from,
                         CardLocation.Hand(targetSeat),
-                        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+                        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"),
+                        NativeGiveCompletion(frame.Id, frame.OwnerSeat, targetSeat, [cardId], _movementSequence));
                     AdvanceEventRulesAndQueueFact(new ProgramBoundCardGivenEvent(
                         frame.Id,
                         frame.SkillId,

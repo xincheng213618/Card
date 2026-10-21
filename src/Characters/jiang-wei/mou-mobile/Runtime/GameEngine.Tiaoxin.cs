@@ -95,7 +95,7 @@ public sealed partial class GameEngine
         var actor = r.Targets[r.Cursor]; var id = c.Cards.Single(); var from = _cardZones.GetLocation(id); var card = GetAdvancedCard(id);
         if (from.OwnerSeat != actor || from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)) throw new InvalidOperationException("Tiaoxin needs the responder's real HE entity.");
         ReplaceRuntimeTop(f = f with { MouJiangWei = r with { Stage = MouJiangWeiStage.GiftChildren, Before = _movementSequence, After = _movementSequence }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(MouJwGiftReason), disclosure: from.Zone == CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.Unspecified);
+        MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(MouJwGiftReason), NativeGiveCompletion(f.Id,actor,f.OwnerSeat,[id],_movementSequence,null), disclosure: from.Zone == CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.Unspecified);
         var moved = _cardMovements.Single(x => x.Sequence > r.After && x.CardId == id && x.From == from && x.Reason.Value == MouJwGiftReason);
         var paid = new MouJiangWeiPayment(id, card.Kind, from, moved.To, moved.Sequence);
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { MouJiangWei = f.MouJiangWei! with { After = _movementSequence, Payment = paid } }); AdvanceEventRulesAndQueueFact(new MouJiangWeiGiftPaidEvent(f.Id, r.Cursor, actor, paid)); ContinueMouJw(f.Id);

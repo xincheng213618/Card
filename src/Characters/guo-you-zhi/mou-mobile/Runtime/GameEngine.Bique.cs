@@ -96,7 +96,7 @@ public sealed partial class GameEngine
         var gifts = r.Selected.Select(id => new MouGuoYouZhiGift(id, AdvancedEffectiveHandKind(_players[f.OwnerSeat], GetAdvancedCard(id)))).ToArray();
         ReplaceRuntimeTop(f = f with { MouGuoYouZhi = r with { Stage = MouGuoYouZhiStage.GiftChildren, Gifts = gifts, Paid = true, Before = _movementSequence, After = _movementSequence }, PendingMovementContinuation = new(r.ActorSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new MouGuoYouZhiGiftAcceptedEvent(f.Id, r.ActorSeat, gifts.Length));
-        if (gifts.Length > 0) MoveProgramCardsFromMultipleSources(gifts.Select(g => g.CardId).ToArray(), CardLocation.Hand(r.ActorSeat), new(MouGyzGiftReason), disclosure: CardMovementDisclosure.FaceDown);
+        if (gifts.Length > 0) MoveProgramCardsFromMultipleSources(gifts.Select(g => g.CardId).ToArray(), CardLocation.Hand(r.ActorSeat), new(MouGyzGiftReason), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,r.ActorSeat,gifts.Select(g=>g.CardId).ToArray(),_movementSequence,null), disclosure: CardMovementDisclosure.FaceDown);
         SealMouGyz(f.Id); f = GetActiveProgramFrame(f.Id); r = f.MouGuoYouZhi!;
         var actual = _cardMovements.Where(m => m.Sequence > r.Before && m.Sequence <= r.After && m.To == CardLocation.Hand(r.ActorSeat) && m.Reason.Value == MouGyzGiftReason && gifts.Any(g => g.CardId == m.CardId)).Select(m => m.CardId).ToHashSet();
         var names = gifts.Where(g => actual.Contains(g.CardId)).Select(g => g.EffectiveKind).Distinct().Count();

@@ -148,7 +148,7 @@ public sealed partial class GameEngine
             if(frame.WindowContext?.ParentFrameId is not { } parent || _resolutionStack.Count<2 || _resolutionStack[^2] is not BeforeDamageProgramWindowFrame before || before.Id!=parent || before.Prevented) throw new InvalidOperationException("Private offer no longer has preventable damage.");
             var id=choice.Cards.Single();var index=set.CardIds.ToList().IndexOf(id);var from=set.SourceLocations[index];var card=_cardZones.CardsAt(from).Single(c=>c.Id==id);
             ClearPendingDecision();ReplaceRuntimeTop(frame with {DamageCardOffer=null});
-            MoveCard(card,from,CardLocation.Hand(draft.SourceSeat),new CardMoveReason($"skill-program.{frame.SkillId}.GiveSelected"));
+            MoveCard(card, from, CardLocation.Hand(draft.SourceSeat), new CardMoveReason($"skill-program.{frame.SkillId}.GiveSelected"), NativeGiveCompletion(frame.Id,frame.OwnerSeat,draft.SourceSeat,[id],_movementSequence,null));
             if(_cardZones.GetLocation(id)!=CardLocation.Hand(draft.SourceSeat)) throw new InvalidOperationException("Private offer gain was not committed.");
             PreventProgramCurrentDamage(GetActiveProgramFrame(frame.Id));
             if(!_skillRuntimeState.TryConsumeUsage(frame.OwnerSeat,frame.SkillId,DamageOfferPairKey(draft.SourceSeat),SkillUsageScope.Game,1)) throw new InvalidOperationException("Successful damage source pair was already consumed.");

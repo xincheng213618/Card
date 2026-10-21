@@ -97,7 +97,7 @@ public sealed partial class GameEngine
         if (!IsValidPlayerSeat(target) || !_players[target].IsAlive || choice.Cards is not [var chosen] || chosen != id ||
             _cardZones.GetLocation(id) != CardLocation.Hand(f.OwnerSeat)) throw new InvalidOperationException("Xianlue gift lost its actual drawn entity.");
         ReplaceRuntimeTop(f = f with { XianluePending = r with { Stage = XianlueStage.GiftChildren, CardIndex = r.CardIndex + 1, GiftBefore = _movementSequence, GiftAfter = _movementSequence, GiftCardId = id, GiftTargetSeat = target }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        if (target != f.OwnerSeat) MoveCards([GetHand(_players[f.OwnerSeat]).Single(c => c.Id == id)], CardLocation.Hand(f.OwnerSeat), CardLocation.Hand(target), new("program.xianlue.gift"));
+        if (target != f.OwnerSeat) MoveCards([GetHand(_players[f.OwnerSeat]).Single(c => c.Id == id)], CardLocation.Hand(f.OwnerSeat), CardLocation.Hand(target), new("program.xianlue.gift"), NativeGiveCompletion(f.Id,f.OwnerSeat,target,[id],_movementSequence,null));
         ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { XianluePending = f.XianluePending! with { GiftAfter = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new XianlueMovementIssuedEvent(f.Id, XianlueStage.GiftChildren, f.XianluePending!.GiftBefore, _movementSequence, id, target));
         AdvanceRuntimeProgram(f.Id);

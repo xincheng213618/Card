@@ -247,10 +247,10 @@ internal static class WenheActivityUiChecks
             {
                 if (ready()) return;
                 var boundary = Program.Engine(vm).CreateSnapshot(0);
-                if (boundary.PendingDecision is { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash, PlayerSeat: 0 } &&
-                    vm.DeclineResponseCommand.CanExecute(null))
+                if (Program.SetupResponseDeclineCommand(vm) is { } decline &&
+                    decline.CanExecute(null))
                 {
-                    vm.DeclineResponseCommand.Execute(null);
+                    decline.Execute(null);
                     continue;
                 }
                 Program.Assert(vm.StepAiCommand.CanExecute(null),

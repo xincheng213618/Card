@@ -125,11 +125,11 @@ public sealed partial class GameEngine
         var id=f.SelectedCardIds.Single();var recipient=r.RecipientSeat;
         if(!_players[recipient].IsAlive||_cardZones.GetLocation(id)!=(r.GiftFrom??CardLocation.Hand(f.OwnerSeat))){FinishLianZhu(f);return;}
         var before=_movementSequence;r=r with{GiftBefore=before,GiftAfter=before,Before=before,After=before};ReplaceRuntimeTop(f=f with{LianZhu=r});
-        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(LianZhuReason(r.Stage)), (_, records) =>
+        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(LianZhuReason(r.Stage)), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,[id],_movementSequence,(_, records) =>
         {
             var active = GetActiveProgramFrame(f.Id); var paid = r with { GiftAfter = records.Single().Sequence, After = records.Single().Sequence };
             ReplaceRuntimeTop(active with { LianZhu = paid }); IssueLianZhuSegment(active.Id, paid, f.OwnerSeat);
-        });
+        }));
         AdvanceRuntimeProgram(f.Id); return;
     }
 

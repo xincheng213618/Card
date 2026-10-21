@@ -107,6 +107,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new MouFaZhengMovementPaidEvent(f.Id, purpose, purpose == "gift" ? f.Id : paid.MarkId, from.OwnerSeat!.Value, target, move.Sequence));
             if (purpose == "gift") AdvanceEventRulesAndQueueFact(new MouFaZhengMarkEvent(f.Id, paid.Source, paid.GameplayHash, target, move.Sequence));
             if (purpose == "take") AdvanceEventRulesAndQueueFact(new MouFaZhengObtainedEvent(f.Id, paid.MarkId, from.OwnerSeat.Value, move.To == CardLocation.Hand(f.OwnerSeat) ? 1 : 0, move.Sequence));
+            if (purpose != "take") RecordNativeGivenCards(f.Id, from.OwnerSeat!.Value, target, [card.Id], f.MouFaZheng!.Before);
         }, disclosure: from.Zone == CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { MouFaZheng = f.MouFaZheng! with { After = _movementSequence } });
         ContinueMouFaZheng(f.Id);

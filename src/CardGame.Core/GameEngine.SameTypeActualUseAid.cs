@@ -210,14 +210,14 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Aid payment changed its exact type or card name.");
         ReplaceRuntimeTop(f = f with { SameTypeAid = r with { Stage = SameTypeAidStage.GiftChildren },
             PendingMovementContinuation = new(donor, 0, null) });
-        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(f.OwnerSeat), new(SameTypeAidGiftReason), (_, records) =>
+        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(f.OwnerSeat), new(SameTypeAidGiftReason), NativeGiveCompletionRecords(f.Id,donor,f.OwnerSeat,[id],_movementSequence,(_, records) =>
         {
             if (records is not [var moved] || moved.From != from || moved.To != CardLocation.Hand(f.OwnerSeat) || moved.CardId != id)
                 throw new InvalidOperationException("Aid cannot claim payment without its real HE delivery.");
             var current = GetActiveProgramFrame(f.Id);
             ReplaceRuntimeTop(current with { SameTypeAid = current.SameTypeAid! with
             { Payment = new(id, card.Kind, from, moved.Sequence, moved.Sequence, true) } });
-        });
+        }));
         // Removal hooks can replace the root with queued recovery attempts.
         f = GetActiveProgramFrame(f.Id);
         var paid = f.SameTypeAid!.Payment! with { SequenceAfter = _cardMovements.Last().Sequence };

@@ -1,0 +1,58 @@
+{
+  "generalId": "mou:hu-che-er",
+  "name": "谋胡车儿",
+  "rulesetId": "sanguosha-anniversary",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "heroId": 1663,
+    "faction": "qun",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4,
+    "formalPublishedAt": "2024-08-31",
+    "availableFrom": "2024-09-01",
+    "currentBalancePublishedAt": "2026-07-29",
+    "currentBalanceEffectiveFrom": "2026-07-30"
+  },
+  "officialSources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1663.html",
+      "kind": "current official general page",
+      "sha256": "d7923933bdcb02ca601fee8637cc7c439b3c2ff20b45dc43c28831b62233b536"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260727_8819_0810.html",
+      "kind": "formal6.4.1 balance announcement",
+      "publishedOn": "2026-07-29",
+      "effectiveFrom": "2026-07-30",
+      "sha256": "05a5308c9b134f392c929e4f547a8668bac6ace049cedf5fbfb581b396237e44"
+    }
+  ],
+  "officialSkillTexts": {
+    "孔武": "出牌阶段限一次，你可以选择一名其他角色并展示其一张手牌。该角色弃置手牌中所有与此牌花色相同的牌，然后你视为对其使用X张【杀】（X为该角色手牌和装备区里与此牌类别相同的牌数）。若其没有因此受到伤害，你将手牌摸至体力上限。此阶段结束时，若其手牌数和体力值均小于等于你，其装备区里的牌失效至其下回合结束且下回合摸牌阶段摸牌数减一。"
+  },
+  "sourceAgreement": "当前hero1663完整新版孔武与2026-07-30正式6.4.1调整后正文语义一致。2024首发为转换弃牌版本，是被正式替换的历史文本，不构成现行版本不明；不混用新旧孔武。",
+  "engineeringMappings": [
+    "Use the existing actor-selected opaque Hand-position contract. The skill actor chooses one current other-role Hand slot without seeing any unselected face; CardsRevealedEvent publicly shows exactly the selected actual entity. A role with no Hand cannot supply the required reveal.",
+    "Freeze the shown effective suit and physical basic/trick/equipment category. The affected role really discards its current legally discardable same-suit Hand entities in one native logical discard. Compute X only after those real movement children finish, from its current Hand and Equipment regions; no WoodenOx grain or other private pile counts.",
+    "Each counted ordinary Slash is a real zero-material native Use owned by the original skill frame, with a unique accepted action and typed whole-use return. The forced designated-target chain does not spend ordinary Slash allowance. Native targeting prohibitions, response, target rewrites, armor, damage, Dying and child returns remain active.",
+    "Only genuine damage applied to the chosen target by one of those exact native Uses counts as damage from this Kongwu chain. If none occurs, use the typed native draw producer for the current deficit to maximum HP; never synthesize a damage or draw receipt.",
+    "The comparison is delayed until the original actual Play has ended, after its native PlayEnding effects. It compares then-current Hand counts and numeric HP. The accepted delayed entitlement survives loss of Kongwu; skipped or inserted phases do not create a replacement phase identity.",
+    "When comparison qualifies, actual physical equipped-card effects stop immediately and remain stopped until the target ends its next actual turn. Physical equipment ownership, slots, payment eligibility, card movement, suit/category facts and private WoodenOx grain remain intact. This suppression does not remove character skills, virtual equipment or permanently inherited weapon ability.",
+    "All physical equipment effect entry points use the issued debt, including weapon/copy abilities, range/distance, native Slash quota, equipment draw bonuses, armor, SilverLion departure recovery, equipment-origin skill grants and WoodenOx actions or playable grain. Native source-grant qualification uses the existing binding cache dependency rather than changing stored grants.",
+    "Target next actual TurnStarted binds the debt to that turn. Native Draw-count query reduces each actual Draw phase of that turn by one, preserving bounds; real TurnEnded expires the effect even when Draw was skipped. Equipment re-enables through the same native queries. Pending entity choices and Slash/draw cursors stay on their owning immutable frame."
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1663.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1166301.png",
+    "sha256": "0cec3de483291f9f3d74d92f026795db6d4fbc51a6ab910fdc032e9d5519a5b8",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "id": "1166301",
+    "name": "经典形象",
+    "bytes": 577841,
+    "identityEvidence": "Official hero 1663 actual DOM classic image and index resource 1166301; root downloaded and visually inspected complete portrait.",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-hu-che-er.png",
+    "visuallyVerified": true
+  }
+}

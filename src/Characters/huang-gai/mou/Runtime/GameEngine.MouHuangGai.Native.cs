@@ -8,17 +8,10 @@ public sealed partial class GameEngine
         var card=GetAdvancedCard(shown.CardId);var actor=_players[f.OwnerSeat];
         return Array.AsReadOnly(_players.Where(t=>CanUseSlashTarget(actor,t,card,effectiveKind:shown.Kind)).Select(t=>t.Seat).ToArray());
     }
-    private void DiscardMouHgSlash(ProgramSkillFrame f)
-    {
-        var shown=f.MouHuangGai!.Reveals[^1];ReplaceRuntimeTop(f=f with{MouHuangGai=f.MouHuangGai with{Stage=MouHgStage.DiscardSlashChildren,Before=_movementSequence,After=_movementSequence},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-        if(_cardZones.GetLocation(shown.CardId)==CardLocation.Processing)MoveCard(GetAdvancedCard(shown.CardId),CardLocation.Processing,CardLocation.DiscardPile,new(MouHgDiscardReason),m=>SealMouHgMoves(f.Id,[m]));
-        f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f with{MouHuangGai=f.MouHuangGai! with{After=_movementSequence}});ContinueMouHg(f.Id);
-    }
     private void IssueMouHgSlash(ProgramSkillFrame f,int targetSeat)
     {
-        if(!ValidMouHg(f)||f.MouHuangGai is not{Stage:MouHgStage.Target}r||!MouHgTargets(f).Contains(targetSeat))throw new InvalidOperationException("Quzhou requires its actual revealed Slash and current legal target.");
+        if(!ValidMouHg(f)||f.MouHuangGai is not{Stage:MouHgStage.NativeUse,Native:null}r||!MouHgTargets(f).Contains(targetSeat))throw new InvalidOperationException("Quzhou requires its actual revealed Slash and current legal target.");
         var shown=r.Reveals[^1];var card=GetAdvancedCard(shown.CardId);var actor=_players[f.OwnerSeat];var target=_players[targetSeat];
-        ReplaceRuntimeTop(f=f with{MouHuangGai=r with{Stage=MouHgStage.NativeUse,Before=_movementSequence,After=_movementSequence}});
         var id=BeginCardUse(card,actor.Seat,[targetSeat],playedCardKind:shown.Kind,physicalCardIds:[card.Id],ignoresArmor:HasCardArmorBypass(actor,target,shown.Kind));var use=LifecycleCardUse(id)!;
         if(use.Action is not{Type:CardActionType.Use}a||a.PhysicalCards is not[{From:var from,CardId:var material}]||from!=CardLocation.Processing||material!=card.Id)throw new InvalidOperationException("Quzhou must use its real Processing entity.");
         var at=_resolutionStack.FindIndex(x=>x.Id==id);
@@ -43,18 +36,12 @@ public sealed partial class GameEngine
     {
         if(use.MouHgQuzhou is not{}o)return;var f=GetActiveProgramFrame(o.FrameId);var r=f.MouHuangGai!;
         if(!MouHgUseRidesOn(f,use)||r.NativeReturned||_resolutionStack.LastOrDefault()?.Id!=f.Id||LifecycleCardUse(use.Id)is not null||ProgramEventHistory<CardUseFinishedEvent>().Count(e=>e.ResolutionId==use.Id)!=1)throw new InvalidOperationException("Quzhou requires its once-completed original native Slash return.");
-        ReplaceRuntimeTop(f with{MouHuangGai=r with{NativeReturned=true}});if(use.CardAttack is not{Active:true})SettleMouHgUse(o);
+        MouHuangGaiRules.UseReturned(o,use.CardAttack is{Active:true});
     }
     [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword,35400)]private bool ReturnMouHgAttack(AttackCompletionReceipt completion)
     {
         if(_resolutionStack.LastOrDefault()is not ProgramSkillFrame{MouHuangGai:{Stage:MouHgStage.NativeUse,NativeReturned:true,Native:{}o}}f||completion.ResolutionId!=o.UseId)return false;
-        if(completion.ProgramFrameId!=f.Id)throw new InvalidOperationException("Quzhou attack lost its original parent.");SettleMouHgUse(o);return true;
-    }
-    private void SettleMouHgUse(MouHgNativeUse origin)
-    {
-        var f=GetActiveProgramFrame(origin.FrameId);var r=f.MouHuangGai!;
-        if(r.Native!=origin||!r.NativeReturned||LifecycleCardUse(origin.UseId)is not null||ProgramEventHistory<MouHgNativeReturnedEvent>().Any(e=>e.Origin==origin))throw new InvalidOperationException("Quzhou cannot return its original use twice.");
-        ReplaceRuntimeTop(f with{MouHuangGai=r with{Stage=MouHgStage.NativeChildren,After=_movementSequence},PendingMovementContinuation=new(f.OwnerSeat,0,null)});AdvanceEventRulesAndQueueFact(new MouHgNativeReturnedEvent(origin));ContinueMouHg(f.Id);
+        if(completion.ProgramFrameId!=f.Id)throw new InvalidOperationException("Quzhou attack lost its original parent.");MouHuangGaiRules.SettleUse(o);return true;
     }
     private bool MouHgFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {

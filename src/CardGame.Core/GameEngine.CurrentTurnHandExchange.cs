@@ -203,8 +203,7 @@ public sealed partial class GameEngine
                     frame.OwnerSeat, receipt.FrozenGivenCount, before, after));
             }
             if (cards.Length == 0) Commit(before);
-            else MoveProgramCardsFromMultipleSources(cards, CardLocation.Hand(frame.OwnerSeat), new(CurrentTurnHandExchangeReason(frame, "gift")),
-                (_, records) => Commit(records.Max(movement => movement.Sequence)));
+            else MoveProgramCardsFromMultipleSources(cards, CardLocation.Hand(frame.OwnerSeat), new(CurrentTurnHandExchangeReason(frame, "gift")), NativeGiveCompletionRecords(frame.Id,receipt.ParticipantSeat,frame.OwnerSeat,cards,_movementSequence,(_, records) => Commit(records.Max(movement => movement.Sequence))));
             DrainCurrentTurnHandExchangeMovement(frame.Id);
             return true;
         }
@@ -236,7 +235,7 @@ public sealed partial class GameEngine
         }
         if (receipt.RequiredReturnCount == 0) Commit(before);
         else MoveProgramCardsFromMultipleSources(receipt.SelectedCardIds, CardLocation.Hand(receipt.ParticipantSeat),
-            new(CurrentTurnHandExchangeReason(frame, "return")), (_, records) => Commit(records.Max(movement => movement.Sequence)));
+            new(CurrentTurnHandExchangeReason(frame, "return")), NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,receipt.ParticipantSeat,receipt.SelectedCardIds,before,(_, records) => Commit(records.Max(movement => movement.Sequence))));
         DrainCurrentTurnHandExchangeMovement(frame.Id);
     }
 

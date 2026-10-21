@@ -76,7 +76,7 @@ public sealed partial class GameEngine
         }
         public void Give(ProgramSkillFrame f,int id,int recipient)
         {
-            var before=e._movementSequence;e.MoveProgramCardsFromMultipleSources([id],CardLocation.Hand(recipient),new(MouDongZhuoOlRuntime.GiftReason),disclosure:CardMovementDisclosure.FaceUp);
+            var before=e._movementSequence;e.MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(MouDongZhuoOlRuntime.GiftReason), e.NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,[id],e._movementSequence,null), disclosure:CardMovementDisclosure.FaceUp);
             var parent=e._resolutionStack.OfType<ProgramSkillFrame>().Single(x=>x.Id==f.Id);var paid=parent.MouDongZhuoOl!;
             e.ReplaceRuntimeFrame(f.Id,parent with{MouDongZhuoOl=paid with{Before=before,After=e._movementSequence}});
             foreach(var m in e._cardMovements.Where(m=>m.Sequence>before&&m.CardId==id&&m.From==CardLocation.DiscardPile&&m.To==CardLocation.Hand(recipient)))

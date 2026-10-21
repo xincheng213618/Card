@@ -65,7 +65,7 @@ public sealed partial class GameEngine
         if(branch=="give")
         {
             if(!Enum.TryParse<CardZoneKind>(choice.Parameters.GetValueOrDefault("source-zone"),out var zone)||!int.TryParse(choice.Parameters.GetValueOrDefault("slot-index"),out var slot))throw new InvalidOperationException("Chenglie gift lost its original owned slot.");
-            var from=new CardLocation(zone,expected);var card=_cardZones.CardsAt(from)[slot];ReplaceRuntimeTop(f=f with{Chenglie=r with{GiftId=card.Id,GiftFrom=from}});StartChenglieMovement(ref f,ChenglieStage.GiftChildren,expected);MoveCard(card,from,CardLocation.Hand(f.OwnerSeat),new(ChenglieGiftReason),m=>RecordChenglieMove(f.Id,m));FinishChenglieMovement(f.Id);return;
+            var from=new CardLocation(zone,expected);var card=_cardZones.CardsAt(from)[slot];ReplaceRuntimeTop(f=f with{Chenglie=r with{GiftId=card.Id,GiftFrom=from}});StartChenglieMovement(ref f,ChenglieStage.GiftChildren,expected);MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(ChenglieGiftReason), NativeGiveCompletion(f.Id,expected,f.OwnerSeat,[card.Id],_movementSequence,m=>RecordChenglieMove(f.Id,m)));FinishChenglieMovement(f.Id);return;
         }
         throw new InvalidOperationException("Unknown Chenglie choice.");
     }

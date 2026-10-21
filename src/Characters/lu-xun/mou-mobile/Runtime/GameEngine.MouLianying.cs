@@ -25,8 +25,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Lianying can only give this exact privately viewed original entity to a living recipient.");
         ReplaceRuntimeTop(f = f with { MouLuXun = r with { Stage = MouLuXunStage.GiftChildren, Before = _movementSequence, After = _movementSequence },
             PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(EntityAtCurrentLocation(id), CardLocation.Processing, CardLocation.Hand(target), new("skill-program.mou-mobile:lianying.give"),
-            disclosure: CardMovementDisclosure.FaceDown);
+        MoveCard(EntityAtCurrentLocation(id), CardLocation.Processing, CardLocation.Hand(target), new("skill-program.mou-mobile:lianying.give"), NativeGiveCompletion(f.Id,f.OwnerSeat,target,[id],_movementSequence,null), disclosure: CardMovementDisclosure.FaceDown);
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f = f with { MouLuXun = f.MouLuXun! with { After = _movementSequence } });
         var move = _cardMovements.Last(m => m.CardId == id);
         AdvanceEventRulesAndQueueFact(new MouLuXunEntityMovedEvent(f.Id, r.Cursor, id, move.From, move.To, move.Sequence));

@@ -348,7 +348,9 @@ internal sealed partial class ProgramPaidCardRuntime
         }
         var disclosure = effect.RevealBeforeMove || destination.Zone is CardZoneKind.DiscardPile or CardZoneKind.Equipment or CardZoneKind.Judgment
             ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown;
-        if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
+        if (destination.Zone == CardZoneKind.Hand && NativeGiveSemantics.Selected(frame, effect))
+            _operations.Give(frame, ownerSeat, card, source, destination, reason, effect.Destination == SkillProgramCardDestination.SelectedTargetHand, disclosure);
+        else if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
         {
             _operations.Move(card, source, CardLocation.Processing, reason, disclosure: disclosure);
             _operations.Move(card, CardLocation.Processing, destination, reason, disclosure: disclosure);
@@ -462,7 +464,9 @@ internal sealed partial class ProgramPaidCardRuntime
         if(effect.AwaitMovementTriggers)_frames.ReplaceTop(frame=frame with{PendingMovementContinuation=new(ownerSeat,beforeCoverage,effect.CoverageResultBind)});
         var disclosure = effect.RevealBeforeMove || destination.Zone is CardZoneKind.DiscardPile or CardZoneKind.Equipment or CardZoneKind.Judgment
             ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown;
-        if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
+        if (destination.Zone == CardZoneKind.Hand && NativeGiveSemantics.Selected(frame, effect))
+            _operations.Give(frame, ownerSeat, card, source, destination, reason, effect.Destination == SkillProgramCardDestination.SelectedTargetHand, disclosure);
+        else if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
         {
             _operations.Move(card, source, CardLocation.Processing, reason, disclosure: disclosure);
             _operations.Move(card, CardLocation.Processing, destination, reason, disclosure: disclosure);

@@ -64,12 +64,12 @@ public sealed partial class GameEngine
         {
             if (!e.MouZhugeJin.Valid(f) || f.MouZhugeJin is not { Stage: MouZhugeJinStage.GiveChildren, Committed: true } r || r.Cards.Count == 0 || r.Cards.Any(id => e._cardZones.GetLocation(id) != CardLocation.Hand(r.Target)))
                 throw new InvalidOperationException("Taozhou requires the giver's committed current Hand entities.");
-            e.MoveProgramCardsFromMultipleSources(r.Cards, CardLocation.Hand(f.OwnerSeat), new(MouZhugeJinRuntime.GiveReason), (_, moves) => {
+            e.MoveProgramCardsFromMultipleSources(r.Cards, CardLocation.Hand(f.OwnerSeat), new(MouZhugeJinRuntime.GiveReason), e.NativeGiveCompletionRecords(f.Id,r.Target,f.OwnerSeat,r.Cards,e._movementSequence,(_, moves) => {
                 var current = e.GetActiveProgramFrame(f.Id); var paid = current.MouZhugeJin!;
                 if (!e.MouZhugeJin.Valid(current) || moves.Count != r.Cards.Count || moves.Any(m => !r.Cards.Contains(m.CardId) || m.From != CardLocation.Hand(r.Target) || m.Sequence <= paid.Before ||
                     m.To != CardLocation.Hand(f.OwnerSeat) && m.To != CardLocation.OutsideGame)) throw new InvalidOperationException("Taozhou cannot substitute a primary real gift receipt.");
                 e.ReplaceRuntimeFrame(f.Id, current with { MouZhugeJin = paid with { Given = moves.Count(m => m.To == CardLocation.Hand(f.OwnerSeat)), After = moves.Max(m => m.Sequence) } });
-                foreach (var m in moves.Where(m => m.To == CardLocation.Hand(f.OwnerSeat))) e.AdvanceEventRulesAndQueueFact(new MouZhugeJinGivenEvent(f.Id, r.Target, f.OwnerSeat, m.CardId, m.Sequence)); });
+                foreach (var m in moves.Where(m => m.To == CardLocation.Hand(f.OwnerSeat))) e.AdvanceEventRulesAndQueueFact(new MouZhugeJinGivenEvent(f.Id, r.Target, f.OwnerSeat, m.CardId, m.Sequence)); }));
         }
         public MouZhugeJinCard RandomHand(ProgramSkillFrame f, IReadOnlyList<MouZhugeJinCard> cards)
         {

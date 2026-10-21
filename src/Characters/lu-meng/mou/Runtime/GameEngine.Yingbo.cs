@@ -163,11 +163,7 @@ public sealed partial class GameEngine
             _players[selectedTarget].IsAlive)
         {
             targetSeat = selectedTarget;
-            MoveCard(
-                pending.Card,
-                CardLocation.Processing,
-                CardLocation.Hand(selectedTarget),
-                new CardMoveReason("skill.yingbo.gift"));
+            MoveCard(pending.Card, CardLocation.Processing, CardLocation.Hand(selectedTarget), new CardMoveReason("skill.yingbo.gift"), NativeGiveCompletion(pending.ResolutionId,pending.SourceSeat,selectedTarget,[pending.Card.Id],_movementSequence,null));
         }
         else if (action == "yingbo-skip" && selected.Cards.Count == 0 && selected.Targets.Count == 0)
         {

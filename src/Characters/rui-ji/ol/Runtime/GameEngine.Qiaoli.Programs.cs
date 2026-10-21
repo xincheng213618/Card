@@ -171,8 +171,7 @@ public sealed partial class GameEngine
         if (hasRecipient)
         {
             var card = _cardZones.CardsAt(CardLocation.Hand(state.OwnerSeat)).Single(item => item.Id == cardId);
-            MoveCard(card, CardLocation.Hand(state.OwnerSeat), CardLocation.Hand(recipient),
-                new($"skill-program.{active.SkillId}.{QiaoliWeaponBinding}-give"));
+            MoveCard(card, CardLocation.Hand(state.OwnerSeat), CardLocation.Hand(recipient), new($"skill-program.{active.SkillId}.{QiaoliWeaponBinding}-give"), NativeGiveCompletion(active.Id,state.OwnerSeat,recipient,[card.Id],_movementSequence,null));
             AddLog("SkillEffect", $"{owner.Name} 巧力：将【{card.DisplayName}】交给 {_players[recipient].Name}。",
                 state.OwnerSeat, recipient);
         }

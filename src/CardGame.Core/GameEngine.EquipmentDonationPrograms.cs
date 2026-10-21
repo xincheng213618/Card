@@ -50,7 +50,7 @@ public sealed partial class GameEngine
             var before = EquipmentDonationSequence;
             // One actual source batch, and one actual recipient batch. All entities are paid before any observer resumes.
             MoveCards(cards, CardLocation.Equipment(frame.OwnerSeat), CardLocation.Processing, new(EquipmentDonationMoveReason), movement => RecordBianFuRenOwnedTransferProducer(movement,recipient,frame.Id));
-            MoveCards(cards, CardLocation.Processing, CardLocation.Hand(recipient), new(EquipmentDonationMoveReason));
+            MoveCards(cards, CardLocation.Processing, CardLocation.Hand(recipient), new(EquipmentDonationMoveReason), NativeGiveCompletion(frame.Id,frame.OwnerSeat,recipient,cards.Select(c=>c.Id).ToArray(),_movementSequence,null));
             var after = EquipmentDonationSequence;
             var delivered = cards.Count(c => _cardMovements.Any(m => m.Sequence > before && m.Sequence <= after &&
                 m.CardId == c.Id && m.From == CardLocation.Processing && m.To == CardLocation.Hand(recipient) && m.Reason.Value == EquipmentDonationMoveReason));

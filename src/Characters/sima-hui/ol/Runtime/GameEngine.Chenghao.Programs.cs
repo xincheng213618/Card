@@ -14,7 +14,7 @@ public sealed partial class GameEngine
     {
         var r=f.SimaHui!;var id=r.OriginalCards[r.Cursor];if(!_players[recipient].IsAlive || _cardZones.GetLocation(id)!=CardLocation.Processing)throw new InvalidOperationException("Chenghao lost its original privately viewed card.");
         ReplaceRuntimeTop(f=f with{SimaHui=r with{Stage="gift-children",ChosenHolder=recipient,MovementBefore=_movementSequence,MovementAfter=_movementSequence},PendingMovementContinuation=new(f.OwnerSeat,0,null)});
-        MoveCard(_cardZones.CardsAt(CardLocation.Processing).Single(c=>c.Id==id),CardLocation.Processing,CardLocation.Hand(recipient),new(SimaHuiGiftReason));
+        MoveCard(_cardZones.CardsAt(CardLocation.Processing).Single(c=>c.Id==id), CardLocation.Processing, CardLocation.Hand(recipient), new(SimaHuiGiftReason), NativeGiveCompletion(f.Id,f.OwnerSeat,recipient,[id],_movementSequence,null));
         ReplaceRuntimeTop(f=f with{SimaHui=f.SimaHui! with{MovementAfter=_movementSequence}});AdvanceEventRulesAndQueueFact(new SimaHuiCardDistributedEvent(f.Id,r.Source,r.GameplayHash,r.ActualTurn,r.Cursor,id,recipient,f.SimaHui!.MovementBefore,_movementSequence));AdvanceRuntimeProgram(f.Id);
     }
     private bool ReturnSimaHuiUnassignedCards(ProgramSkillFrame f)

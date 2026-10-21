@@ -4,11 +4,11 @@ public sealed partial class GameEngine
     private readonly HashSet<int> _permanentlyRemovedWeapons = [];
     private readonly HashSet<int> _generatedPhysicalCardIds = [];
     private readonly HashSet<string> _usedGeneralWeaponSources = new(StringComparer.Ordinal);
-    private bool MoveProcessingCardUnlessDestroyed(Card card, CardLocation destination, CardMoveReason reason)
+    private bool MoveProcessingCardUnlessDestroyed(Card card, CardLocation destination, CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null)
     {
         if ((card.IsGeneralWeapon || IsDiouCarrier(card.Id)) && _cardZones.GetLocation(card.Id) == CardLocation.OutsideGame)
             return false;
-        MoveCard(card, CardLocation.Processing, destination, reason);
+        MoveCard(card, CardLocation.Processing, destination, reason, beforeFact);
         return true;
     }
     private void ResolveDynamicEquipmentSkillGrants(Card card, CardLocation from, CardLocation to)
@@ -93,13 +93,13 @@ public sealed partial class GameEngine
     private IEnumerable<CardKind> GetWeaponAbilityKinds(Card card) =>
         new[] { card.Kind }.Concat(_copiedWeaponAbilities.GetValueOrDefault(card.Id) ?? []);
     private bool HasWeaponAbility(CharacterState player, CardKind kind) =>
-        GetEquipment(player).Any(card => !card.IsGeneralWeapon && GetWeaponAbilityKinds(card).Contains(kind)) ||
+        KongwuEffectiveEquipment(player).Any(card => !card.IsGeneralWeapon && GetWeaponAbilityKinds(card).Contains(kind)) ||
         (_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? []).Contains(kind) ||
         kind == CardKind.StoneAxe && HasLiYiVirtualStoneAxe(player) ||
         ProgramVirtualEquipment(player.Seat, EquipmentSlot.Weapon) == kind;
     private IReadOnlyList<Card> GetEquipmentRuleCards(CharacterState player, EquipmentSlot? excludedEquipmentSlot = null)
     {
-        IReadOnlyList<Card> physical = GetEquipment(player);
+        IReadOnlyList<Card> physical = KongwuEffectiveEquipment(player);
         if (excludedEquipmentSlot is not null)
             physical = physical.Where(card => EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot).ToArray();
         var kinds = physical.Where(card => !card.IsGeneralWeapon).SelectMany(GetWeaponAbilityKinds)

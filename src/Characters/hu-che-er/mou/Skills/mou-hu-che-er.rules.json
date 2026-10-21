@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "mou:kongwu", "revision": 1, "activations": [
+    { "id": "show-hand", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1, "effects": [{ "op": "resolveMouHuCheErKongwu", "target": "owner" }] }
+  ] }]
+}

@@ -84,12 +84,12 @@ public sealed partial class GameEngine
         var cardId = choice.Cards.Single(); var recipient = choice.Targets.Single(); var from = _cardZones.GetLocation(cardId);
         ReplaceRuntimeTop(f = f with { DuFuRen = r with { Stage=DuFuRenStage.GiftChildren,RecipientSeat=recipient,CardId=cardId,From=from,Before=_movementSequence,After=_movementSequence },
             PendingMovementContinuation=new(f.OwnerSeat,0,null) });
-        MoveProgramCardsFromMultipleSources([cardId],CardLocation.Hand(recipient),new(DuFuRenGiftReason),(_,records) =>
+        MoveProgramCardsFromMultipleSources([cardId], CardLocation.Hand(recipient), new(DuFuRenGiftReason), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,[cardId],_movementSequence,(_,records) =>
         {
             var current = GetActiveProgramFrame(f.Id); var paid = current.DuFuRen!; var movement = records.Single();
             ReplaceRuntimeTop(current with { DuFuRen=paid with { GiftSequence=movement.Sequence,After=movement.Sequence } });
             AdvanceEventRulesAndQueueFact(new DuFuRenGiftIssuedEvent(f.Id,paid.Source,paid.GameplayHash,paid.Turn,paid.TurnOwner,recipient,cardId,from,movement.Sequence));
-        });
+        }));
         ContinueDuFuRen(f.Id);
     }
     private bool DrainDuFuRenChildren(ProgramSkillFrame f) => TryBeginQueuedRecoveryReplacement(f.Id,PostEventContinuation.AwaitedProgramMovement) ||

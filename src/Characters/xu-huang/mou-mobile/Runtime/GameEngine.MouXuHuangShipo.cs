@@ -108,12 +108,12 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Shipo can receive one actual Hand entity only from its current living participant.");
             var before = _movementSequence;
             ReplaceRuntimeTop(f = f with { MouXuHuangShipo = r with { Stage = MouXuHuangShipoStage.GiftChildren, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-            MoveCard(GetAdvancedCard(id), CardLocation.Hand(chooser), CardLocation.Hand(f.OwnerSeat), new(MouXuHuangGiveReason), m =>
+            MoveCard(GetAdvancedCard(id), CardLocation.Hand(chooser), CardLocation.Hand(f.OwnerSeat), new(MouXuHuangGiveReason), NativeGiveCompletion(f.Id,chooser,f.OwnerSeat,[id],_movementSequence,m =>
             {
                 var current = GetActiveProgramFrame(f.Id); var receipt = new MouXuHuangGiftReceipt(r.Cursor, chooser, m.CardId, m.From, m.To, m.Sequence);
                 ReplaceRuntimeTop(current with { MouXuHuangShipo = current.MouXuHuangShipo! with { Gifts = current.MouXuHuangShipo.Gifts.Append(receipt).ToArray() } });
                 AdvanceEventRulesAndQueueFact(new MouXuHuangShipoGiftPaidEvent(f.Id, r.Cursor, chooser, m.CardId, m.To, m.Sequence));
-            }, disclosure: CardMovementDisclosure.FaceDown);
+            }), disclosure: CardMovementDisclosure.FaceDown);
             SealMouXuHuangMovements(f.Id, before); ContinueMouXuHuangShipo(f.Id); return;
         }
         if (r.Stage == MouXuHuangShipoStage.TransferCards)
@@ -134,10 +134,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Shipo can redistribute only its still-owned original received subset to one living other.");
         var transferBefore = _movementSequence;
         ReplaceRuntimeTop(f = f with { MouXuHuangShipo = r with { Stage = MouXuHuangShipoStage.TransferChildren, TransferRecipient = target, Before = transferBefore, After = transferBefore }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(r.SelectedCardIds, CardLocation.Hand(target), new(MouXuHuangTransferReason), (batch, actual) =>
+        MoveProgramCardsFromMultipleSources(r.SelectedCardIds, CardLocation.Hand(target), new(MouXuHuangTransferReason), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,target,r.SelectedCardIds,transferBefore,(batch, actual) =>
         {
             AdvanceEventRulesAndQueueFact(new MouXuHuangShipoTransferPaidEvent(f.Id, target, batch, actual.Count, transferBefore, actual.Max(m => m.Sequence)));
-        });
+        }));
         SealMouXuHuangMovements(f.Id, transferBefore); ContinueMouXuHuangShipo(f.Id);
     }
     private void CompleteMouXuHuangRecipient(ProgramSkillFrame f, bool skipped)

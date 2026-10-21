@@ -60,8 +60,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A shown gift lost its exact public owned entities.");
         if(_turnProgression.OwnerSeat!=_currentSeat||_turnProgression.TurnNumber!=_turnNumber) throw new InvalidOperationException("A shown gift lost its actual turn.");
         ReplaceRuntimeTop(f with { PendingMovementContinuation=new(f.OwnerSeat,0,null) });
-        MoveProgramCardsFromMultipleSources(source.CardIds,CardLocation.Hand(recipient),new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveShownBoundCardsAndGrantTurnHandLimit}"),
-            (batchId,movements)=>
+        MoveProgramCardsFromMultipleSources(source.CardIds, CardLocation.Hand(recipient), new($"skill-program.{f.SkillId}.{SkillProgramEffectOp.GiveShownBoundCardsAndGrantTurnHandLimit}"), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,source.CardIds,_movementSequence,(batchId,movements)=>
             {
                 var actual=movements.Where(m=>m.To==CardLocation.Hand(recipient)&&m.From!=m.To)
                     .Select(m=>new ProgramShownGiftCard(m.CardId,GetProgramCardCategory(m.CardKind),m.Sequence,m.From,m.To)).ToArray();
@@ -77,7 +76,7 @@ public sealed partial class GameEngine
                     AdvanceEventRulesAndQueueFact(new TurnRuleModifierGrantedEvent(modifier));
                 }
                 AdvanceEventRulesAndQueueFact(new ShownBoundGiftCommittedEvent(f.Id,f.SkillId,f.OwnerSeat,recipient,receipt.ActualTurnNumber,receipt.ActualTurnOwnerSeat,actual.Length,x));
-            });
+            }));
         return AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat);
     }
 }

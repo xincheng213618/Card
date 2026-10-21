@@ -35,12 +35,28 @@ public sealed partial record CardUseFrame
 }
 public sealed partial class CharacterState
 {internal IReadOnlyList<MouHgLiejiGrant>? MouHgLiejiGrants{get;set;}}
-internal interface IMouHuangGaiHost
+internal sealed record MouHgUseFacts(long UseId,long ActionId,IReadOnlyList<int> Materials,IReadOnlyList<MouHgUseBonus>? Bonuses);
+internal interface IMouHuangGaiRuntime : IProgramRuntimeOperations
 {SkillProgramStepOutcome Resolve(ProgramSkillFrame frame,SkillProgramEffectOp op);}
+internal interface IMouHuangGaiFacts : IProgramSelectionQuery
+{
+    int Turn{get;} int TurnOwner{get;} long Sequence{get;} bool Finished{get;} int LivingCount{get;}
+    bool Alive(int seat); bool Human(int seat); bool OwnPlay(int seat); bool LiejiParent(ProgramSkillFrame frame); bool HasNativeUse(long id); bool SameChoice(PromptChoice left,PromptChoice right);
+    string Name(int seat); SkillProgram? Program(string skill); SkillPromptPresentation Presentation(string skill); double TargetScore(int owner,int target);
+    IReadOnlyList<int> Seats(); IReadOnlyList<int> DamageHand(int owner); IReadOnlyList<int> Targets(ProgramSkillFrame frame); IReadOnlyList<int> ProcessingReveals(ProgramSkillFrame frame);
+    IReadOnlyList<MouHgLiejiGrant> Grants(int owner); MouHgUseFacts? Use(long id);
+    IEnumerable<T> History<T>() where T:IGameEvent;
+}
+internal interface IMouHuangGaiNative : IProgramRuntimeOperations
+{
+    void SetGrants(int owner,IReadOnlyList<MouHgLiejiGrant>? grants); void SetUseBonuses(long useId,IReadOnlyList<MouHgUseBonus> bonuses);
+    MouHgReveal? Reveal(ProgramSkillFrame frame,string binding); void Obtain(ProgramSkillFrame frame,IReadOnlyList<int> ids); void DiscardSlash(ProgramSkillFrame frame); void Slash(ProgramSkillFrame frame,int target);
+    bool Drain(long frameId); void Publish(); void Finish(ProgramSkillFrame frame);
+}
 internal sealed class MouHuangGaiHandler(SkillProgramEffectOp op):ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op=>op;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<IMouHuangGaiHost>().Resolve(f,op);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int target,ISkillProgramEffectHost host)=>host.GetCapability<IMouHuangGaiRuntime>().Resolve(f,op);
 }
 internal abstract class MouHuangGaiDescriptor:ProgramOperationDescriptorBase
 {

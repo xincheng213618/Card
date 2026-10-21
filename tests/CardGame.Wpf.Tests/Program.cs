@@ -419,6 +419,16 @@ internal static class Program
     }
 
 
+    internal static ICommand? SetupResponseDeclineCommand(MainViewModel vm) =>
+        Engine(vm).PendingDecision is { PlayerSeat: 0 } response
+            ? response.Kind switch
+            {
+                DecisionKind.Nullification => vm.CancelActionCommand,
+                DecisionKind.RespondDodge or DecisionKind.RespondSlash => vm.DeclineResponseCommand,
+                _ => null
+            }
+            : null;
+
     internal static void AdvanceToDecision(MainViewModel vm)
     {
         for (var i = 0; i < 10000 && vm.CanStepAi; i++) vm.StepAiCommand.Execute(null);

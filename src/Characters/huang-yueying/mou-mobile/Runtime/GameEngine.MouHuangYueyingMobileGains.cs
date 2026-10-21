@@ -82,8 +82,8 @@ public sealed partial class GameEngine
             CardId: claim.CardId, From: from, Before: before, After: before, GrantId: claim.GrantId, ClaimSequence: claim.GainSequence), PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         if (_players[f.OwnerSeat].IsAlive && _players[claim.GainingSeat].IsAlive && _cardZones.GetLocation(claim.CardId) == from && _winner == Winner.None)
         {
-            MoveCard(GetAdvancedCard(claim.CardId), from, CardLocation.Hand(f.OwnerSeat), new("skill-program.mou-mobile:qicai.transfer"), m =>
-                AdvanceEventRulesAndQueueFact(new MouHuangYueyingQiTransferredEvent(f.Id, claim.GrantId, claim.GainSequence, claim.CardId, m.From, m.To, m.Sequence)), disclosure: CardMovementDisclosure.FaceDown);
+            MoveCard(GetAdvancedCard(claim.CardId), from, CardLocation.Hand(f.OwnerSeat), new("skill-program.mou-mobile:qicai.transfer"), NativeGiveCompletion(f.Id,claim.GainingSeat,f.OwnerSeat,[claim.CardId],before,m =>
+                AdvanceEventRulesAndQueueFact(new MouHuangYueyingQiTransferredEvent(f.Id, claim.GrantId, claim.GainSequence, claim.CardId, m.From, m.To, m.Sequence))), disclosure: CardMovementDisclosure.FaceDown);
         }
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f = f with { MouHuangYueyingMobile = f.MouHuangYueyingMobile! with { After = _movementSequence } });
         ContinueMouHy(f.Id); return SkillProgramStepOutcome.AwaitChild;

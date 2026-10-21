@@ -48,7 +48,7 @@ public sealed partial class GameEngine
     private void MoveConvertingGiftCard(ProgramSkillFrame f,int cardId)
     {
         var draft=f.ConvertingGift!;var from=_cardZones.GetLocation(cardId);var card=_cardZones.CardsAt(from).Single(c=>c.Id==cardId);
-        MoveCard(card,from,CardLocation.Hand(draft.RecipientSeat),new("skill-program.converting-gift.give"));
+        MoveCard(card, from, CardLocation.Hand(draft.RecipientSeat), new("skill-program.converting-gift.give"), NativeGiveCompletion(f.Id,from.OwnerSeat!.Value,draft.RecipientSeat,[cardId],_movementSequence,null));
         var ordinal=_cardMovements.LastOrDefault(m=>m.CardId==cardId && m.From==from && m.To==CardLocation.Hand(draft.RecipientSeat) && m.Reason.Value=="skill-program.converting-gift.give")?.Sequence;
         f=GetActiveProgramFrame(f.Id);ReplaceRuntimeTop(f=f with{ConvertingGift=f.ConvertingGift! with{GiftCardId=cardId,GiftOrdinal=ordinal}});
         if(draft.Observe && ordinal is {} moved)

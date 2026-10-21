@@ -16,8 +16,7 @@ public sealed partial class GameEngine
         AddLog("SkillEffect", $"{owner.Name} 观看牌堆底的一张牌并将其交给 {_players[recipient].Name}。",
             owner.Seat, recipient);
         ReplaceRuntimeTop(active with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveCards([bottom], CardLocation.DrawPile, CardLocation.Hand(recipient),
-            new CardMoveReason($"skill-program.{frame.SkillId}.jijie-give"));
+        MoveCards([bottom], CardLocation.DrawPile, CardLocation.Hand(recipient), new CardMoveReason($"skill-program.{frame.SkillId}.jijie-give"), NativeGiveCompletion(frame.Id,frame.OwnerSeat,recipient,[bottom.Id],_movementSequence,null));
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }

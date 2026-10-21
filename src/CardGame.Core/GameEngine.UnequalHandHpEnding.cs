@@ -113,7 +113,7 @@ public sealed partial class GameEngine
         var logicalDiscard = cardId is { } cost && to == CardLocation.DiscardPile
             ? CaptureNativeLogicalDiscardInvocation(f.OwnerSeat, f.OwnerSeat, [cost], reason, f.Id) : null;
         var count = cardId is null ? DrawCards(_players[subject], 1, true, reason).Count : 1;
-        if (cardId is { } paid) MoveProgramCardsFromMultipleSources([paid], to, reason);
+        if (cardId is { } paid) MoveProgramCardsFromMultipleSources([paid], to, reason, (step=="gift" ? NativeGiveCompletionRecords(f.Id,f.OwnerSeat,subject,[paid],_movementSequence,null) : null));
         CompleteNativeLogicalDiscardInvocation(logicalDiscard);
         var payment = new UnequalHandHpPayment(step, subject, before, _movementSequence, count, cardId, from, to);
         f = GetActiveProgramFrame(f.Id);

@@ -94,7 +94,7 @@ public sealed partial class GameEngine
         var id = r.Cards[r.Index]; var recipient = selected.Targets.Single(); var before = _movementSequence;
         if (_cardZones.GetLocation(id) != r.Pile!.Location) throw new InvalidOperationException("Qingjian distribution lost its current exact pile entity.");
         ReplaceRuntimeTop(f = f with { MouXiahouDunMobile = r with { Stage = MouXiahouDunMobileStage.MovementChildren, RecipientSeat = recipient, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(GetAdvancedCard(id), r.Pile.Location, CardLocation.Hand(recipient), new(MouXiahouDunGiftReason), disclosure: CardMovementDisclosure.FaceUp);
+        MoveCard(GetAdvancedCard(id), r.Pile.Location, CardLocation.Hand(recipient), new(MouXiahouDunGiftReason), NativeGiveCompletion(f.Id,f.OwnerSeat,recipient,[id],_movementSequence,null), disclosure: CardMovementDisclosure.FaceUp);
         AdvanceEventRulesAndQueueFact(new MouXiahouDunMobileGiftEvent(f.Id, r.Index, id, recipient, _movementSequence));
         SealMouXiahouDunMovements(f.Id, before); ContinueMouXiahouDunMovement(f.Id);
     }

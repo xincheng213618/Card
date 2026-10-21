@@ -57,7 +57,7 @@ public sealed partial class GameEngine
         var recipient=valid.Targets.Single();var to=CardLocation.Hand(recipient);var reward=EquipmentCatalog.IsEquipment(card.Kind)?2:1;
         ClearPendingDecision();ReplaceRuntimeTop(frame with{FinalTargetGift=draft with{Stage="gift-movement",RecipientSeat=recipient,CardId=card.Id,Reward=reward}});
         var beforeOrdinal=_movementSequence;
-        MoveCard(card,from,to,new("skill-program.final-target-gift.give"));
+        MoveCard(card, from, to, new("skill-program.final-target-gift.give"), NativeGiveCompletion(frame.Id,frame.OwnerSeat,recipient,[card.Id],_movementSequence,null));
         var ordinal=_cardMovements.LastOrDefault(m=>m.Sequence>beforeOrdinal && m.CardId==card.Id && m.From==from && m.To==to && m.Reason.Value=="skill-program.final-target-gift.give")?.Sequence;
         frame=GetActiveProgramFrame(frame.Id);ReplaceRuntimeTop(frame=frame with{FinalTargetGift=frame.FinalTargetGift! with{ReceiptOrdinal=ordinal}});
         AdvanceEventRulesAndQueueFact(new ProgramFinalTargetGiftCommittedEvent(frame.Id,draft.ActionId,frame.OwnerSeat,frame.SkillId,frame.SkillInstanceId,recipient,card.Id,reward,ordinal));

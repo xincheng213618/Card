@@ -31,7 +31,7 @@ public sealed partial class GameEngine
         var location = _cardZones.GetLocation(card.Id);
         return location == CardLocation.Hand(owner.Seat) ||
             location == CardLocation.WoodenOxGrain(owner.Seat) && UsesFormalWoodenOx &&
-            GetEquipment(owner).Any(e => e.Kind == CardKind.WoodenOx);
+            KongwuEffectiveEquipment(owner).Any(e => e.Kind == CardKind.WoodenOx);
     }
 
     private bool MatchesRoundDistinctBasicMaterials(CharacterState owner, SkillProgramViewAs rule,

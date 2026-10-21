@@ -72,8 +72,7 @@ public sealed partial class GameEngine
         public void Reveal(ProgramSkillFrame f, IReadOnlyList<int> ids) => e.AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(f.Id, f.SkillId, f.TriggerId ?? f.ActivationId,
             f.OwnerSeat, "mou-xiao-qiao-public-hand", Array.AsReadOnly(ids.Select(id => e.ProjectHandCard(e._players[f.OwnerSeat], e.GetAdvancedCard(id))).ToArray())));
         public bool BeginRevealChildren(long id) => e.TryBeginPublicHandRevealWindow(id, PublicHandRevealReturnKind.Program);
-        public void Gift(ProgramSkillFrame f, int id, int target) => e.MoveCard(e.GetAdvancedCard(id), e._cardZones.GetLocation(id),
-            CardLocation.Hand(target), new(MouXiaoQiaoOlRuntime.GiveReason), disclosure: CardMovementDisclosure.FaceUp);
+        public void Gift(ProgramSkillFrame f, int id, int target) => e.MoveCard(e.GetAdvancedCard(id), e._cardZones.GetLocation(id), CardLocation.Hand(target), new(MouXiaoQiaoOlRuntime.GiveReason), e.NativeGiveCompletion(f.Id,f.OwnerSeat,target,[id],e._movementSequence,null), disclosure: CardMovementDisclosure.FaceUp);
         public void Recover(ProgramSkillFrame f, int target) => new ProgramSkillHost(e).Recover(f.Id, f.OwnerSeat, target, 1, null, null);
         public void LoseHp(ProgramSkillFrame f, int target) => new ProgramSkillHost(e).LoseHp(f.Id, f.SkillId, target, 1);
         public bool BeginRecovery(long id) => e.TryBeginQueuedRecoveryReplacement(id, PostEventContinuation.Program);

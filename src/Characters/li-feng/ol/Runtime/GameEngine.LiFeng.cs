@@ -103,11 +103,11 @@ public sealed partial class GameEngine
         var card = selected.Cards.Single(); var target = selected.Targets.Single(); var from = r.Entities.Single(e => e.CardId == card).From;
         if (!r.Paid) { ReplaceRuntimeTop(f = f with { LiFeng = r = r with { Paid = true } }); AdvanceEventRulesAndQueueFact(new LiFengPaidEvent(f.Id, r.Op)); }
         ReplaceRuntimeTop(f = f with { LiFeng = r with { Stage = LiFengStage.DistributionChildren, ActiveCardId = card, ActiveRecipient = target, ActiveFrom = from, Before = _movementSequence, After = _movementSequence }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(GetAdvancedCard(card), from, CardLocation.Hand(target), new(ShuliangGiftReason), movement =>
+        MoveCard(GetAdvancedCard(card), from, CardLocation.Hand(target), new(ShuliangGiftReason), NativeGiveCompletion(f.Id,f.OwnerSeat,target,[card],_movementSequence,movement =>
         {
             var current = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(current with { LiFeng = current.LiFeng! with { After = movement.Sequence, DistributedIds = current.LiFeng.DistributedIds.Append(card).ToArray() } });
             AdvanceEventRulesAndQueueFact(new ShuliangGrainDistributedEvent(f.Id, card, target, from, movement.Sequence));
-        });
+        }));
         ContinueLiFeng(f.Id);
     }
     [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveJiyunPreparationDrawLeases)]

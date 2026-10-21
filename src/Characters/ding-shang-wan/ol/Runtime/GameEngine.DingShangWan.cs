@@ -115,7 +115,7 @@ public sealed partial class GameEngine
         if(r.Selected.Count>0)
         {
             var reason=new CardMoveReason(stage switch{DingShangWanStage.OpeningGiftChildren=>FudaoGiftReason,DingShangWanStage.OpeningDiscardChildren=>FudaoDiscardReason,DingShangWanStage.FengGiftChildren=>FengyanGiftReason,_=>FengyanDiscardReason});
-            if(gift)MoveProgramCardsFromMultipleSources(r.Selected,CardLocation.Hand(recipient!.Value),reason);
+            if(gift)MoveProgramCardsFromMultipleSources(r.Selected, CardLocation.Hand(recipient!.Value), reason, NativeGiveCompletionRecords(f.Id,r.Payer,recipient!.Value,r.Selected,_movementSequence,null));
             else MoveProgramLogicalDiscard(f,r.Payer,r.Selected,reason);
         }
         RecordDingShangWanMovement(f.Id);ContinueDingShangWan(f.Id);

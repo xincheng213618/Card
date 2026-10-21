@@ -146,7 +146,7 @@ public sealed partial class GameEngine
             var before = _movementSequence;
             ReplaceRuntimeTop(frame = frame with { CaoSongLilu = receipt with { Stage = CaoSongLiluStage.GiftChildren,
                 GiftCount = ids.Count, PreviousGiftCount = previous, Grows = grows, SequenceBefore = before, SequenceAfter = before }, Step = ResolutionFrameStep.ResolvingEffect });
-            MoveProgramCardsFromMultipleSources(ids, CardLocation.Hand(recipient), new(LiluGiftReason));
+            MoveProgramCardsFromMultipleSources(ids, CardLocation.Hand(recipient), new(LiluGiftReason), NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,recipient,ids,_movementSequence,null));
             frame = GetActiveProgramFrame(frame.Id); receipt = frame.CaoSongLilu! with { SequenceAfter = _movementSequence };
             ReplaceRuntimeTop(frame with { CaoSongLilu = receipt });
             AdvanceEventRulesAndQueueFact(new CaoSongLiluGiftCommittedEvent(frame.Id, receipt.Source, recipient, ids.Count,

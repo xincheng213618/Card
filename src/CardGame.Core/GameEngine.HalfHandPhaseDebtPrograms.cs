@@ -97,7 +97,7 @@ public sealed partial class GameEngine
         var payment = new ProgramHalfHandGiftPayment(2, drawn.ProgramFrameId, HalfHandDebtSource(frame), frame.GameplayHash,
             effect.StateId!, _turnNumber, frame.OwnerSeat, recipient, handCount, binding.CardIds, HalfHandDebtSequence, HalfHandDebtSequence);
         ReplaceRuntimeTop(frame with { HalfHandGift = payment, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources(binding.CardIds, CardLocation.Hand(recipient), reason, (_, records) =>
+        MoveProgramCardsFromMultipleSources(binding.CardIds, CardLocation.Hand(recipient), reason, NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,recipient,binding.CardIds,_movementSequence,(_, records) =>
         {
             if (records.Count != payment.CardIds.Count || records.Any(m => m.From != CardLocation.Hand(frame.OwnerSeat) || m.To != CardLocation.Hand(recipient)))
                 throw new InvalidOperationException("Only a full actual half-hand payment may issue its recipient qualification.");
@@ -105,7 +105,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(current with { HalfHandGift = payment with { SequenceAfter = after } });
             AdvanceEventRulesAndQueueFact(new HalfHandTargetSupportIssuedEvent(frame.Id, drawn.ProgramFrameId, payment.Source, frame.GameplayHash,
                 effect.StateId!, _turnNumber, frame.OwnerSeat, recipient, records.Count, payment.SequenceBefore, after));
-        });
+        }));
         if (!TryBeginCardsMovedProgramWindow(frame.Id)) ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }

@@ -38,12 +38,17 @@ public sealed partial class GameEngine
     private void MoveBaoXin(ProgramSkillFrame f,IReadOnlyList<BaoXinEntity> entities,BaoXinStage stage,CardLocation destination,string reason)
     {
         PrepareBaoXinMove(ref f,entities,stage);var step=f.BaoXin!.Step;
-        if(entities.Count>0)MoveProgramCardsFromMultipleSources(entities.Select(c=>c.CardId).ToArray(),destination,new(reason),(batch,records)=>
+        if(entities.Count>0)MoveProgramCardsFromMultipleSources(entities.Select(c=>c.CardId).ToArray(), destination, new(reason), (stage is BaoXinStage.GiftChildren or BaoXinStage.YimouGiftChildren ? NativeGiveCompletionRecords(f.Id,f.BaoXin!.Holder,destination.OwnerSeat??f.OwnerSeat,entities.Select(c=>c.CardId).ToArray(),_movementSequence,(batch,records)=>
         {
             foreach(var m in records)AdvanceEventRulesAndQueueFact(new BaoXinEntityMovedEvent(f.Id,step,batch,m.CardId,m.CardKind,m.From,m.To,m.Sequence));
             if(stage==BaoXinStage.GiftChildren&&records is[var moved])
             {var current=GetActiveProgramFrame(f.Id);var r=current.BaoXin!;ReplaceRuntimeTop(current with{BaoXin=r with{Consumed=r.Consumed.Append(moved.CardId).ToArray(),Cursor=r.Recipient,LastRecipient=r.Recipient}});AdvanceEventRulesAndQueueFact(new BaoXinMutaoGiftEvent(f.Id,r.GiftOrdinal,moved.CardId,r.Recipient,moved.Sequence));}
-        });
+        }) : (batch,records)=>
+        {
+            foreach(var m in records)AdvanceEventRulesAndQueueFact(new BaoXinEntityMovedEvent(f.Id,step,batch,m.CardId,m.CardKind,m.From,m.To,m.Sequence));
+            if(stage==BaoXinStage.GiftChildren&&records is[var moved])
+            {var current=GetActiveProgramFrame(f.Id);var r=current.BaoXin!;ReplaceRuntimeTop(current with{BaoXin=r with{Consumed=r.Consumed.Append(moved.CardId).ToArray(),Cursor=r.Recipient,LastRecipient=r.Recipient}});AdvanceEventRulesAndQueueFact(new BaoXinMutaoGiftEvent(f.Id,r.GiftOrdinal,moved.CardId,r.Recipient,moved.Sequence));}
+        }));
         CompleteBaoXinMove(f.Id,entities.Count);
     }
     private void RecordBaoXinRandom(ProgramSkillFrame f,int ordinal,int recipient)

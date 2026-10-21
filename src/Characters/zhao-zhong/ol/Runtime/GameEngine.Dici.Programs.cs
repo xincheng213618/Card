@@ -15,7 +15,7 @@ public sealed partial class GameEngine
         }
         else AdvanceEventRulesAndQueueFact(new DiciNextChoiceEvent(f.Id, r.LeaseId, "give"));
         ReplaceRuntimeTop(f = f with { ZhaoZhong = r with { Paid = true, CardId = card.Id, CardKind = card.Kind, From = from, Before = _movementSequence, After = _movementSequence, Stage = next ? ZhaoZhongStage.NextGiftChildren : ZhaoZhongStage.GiftChildren }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(next ? DiciNextGiveReason : DiciGiveReason), m => AdvanceEventRulesAndQueueFact(new DiciGiftEntityEvent(f.Id, r.LeaseId, m.CardId, m.CardKind, m.From, m.To, m.Sequence)));
+        MoveCard(card, from, CardLocation.Hand(f.OwnerSeat), new(next ? DiciNextGiveReason : DiciGiveReason), NativeGiveCompletion(f.Id,from.OwnerSeat!.Value,f.OwnerSeat,[card.Id],_movementSequence,m => AdvanceEventRulesAndQueueFact(new DiciGiftEntityEvent(f.Id, r.LeaseId, m.CardId, m.CardKind, m.From, m.To, m.Sequence))));
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { ZhaoZhong = f.ZhaoZhong! with { After = _movementSequence } }); ContinueZhaoZhong(f.Id);
     }
     private int[] DiciNeighbors(int target)

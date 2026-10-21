@@ -72,7 +72,7 @@ public sealed partial class GameEngine
         if (r.Paid || r.Stage != HuanShuJunStage.WenyiChoice || WenyiRemaining(f.OwnerSeat) == 0 || !owner.IsAlive || !HasRuntimeSkillInstance(owner, f.SkillId, f.SkillInstanceId) || r.TargetSeat == f.OwnerSeat || !_players[r.TargetSeat].IsAlive || from.OwnerSeat != f.OwnerSeat || from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) || !EquipmentCatalog.IsEquipment(card.Kind) || card.IsGeneralWeapon) throw new InvalidOperationException("Wenyi cannot give a changed or unowned equipment entity.");
         ReplaceRuntimeTop(f = f with { HuanShuJun = r = r with { Paid = true, Kind = card.Kind, Materials = [new(card.Id, card.Kind, from)], Stage = HuanShuJunStage.EquipmentGiftChildren, Before = _movementSequence, After = _movementSequence }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new WenyiPaidEvent(f.Id, f.OwnerSeat, r.TargetSeat, r.WindowId, "equipment"));
-        MoveCard(card, from, CardLocation.Hand(r.TargetSeat), new("skill-program.huan-shu-jun.wenyi.give"), m => AdvanceEventRulesAndQueueFact(new WenyiEquipmentGivenEvent(f.Id, card.Id, r.TargetSeat, m.Sequence)));
+        MoveCard(card, from, CardLocation.Hand(r.TargetSeat), new("skill-program.huan-shu-jun.wenyi.give"), NativeGiveCompletion(f.Id,f.OwnerSeat,r.TargetSeat,[card.Id],_movementSequence,m => AdvanceEventRulesAndQueueFact(new WenyiEquipmentGivenEvent(f.Id, card.Id, r.TargetSeat, m.Sequence))));
         f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f with { HuanShuJun = f.HuanShuJun! with { After = _movementSequence } }); ContinueHuanShuJun(f.Id);
     }
     private void IssueWenyiEquipmentUse(ProgramSkillFrame f)

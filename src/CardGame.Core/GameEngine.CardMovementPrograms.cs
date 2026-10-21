@@ -301,7 +301,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
-                if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
+                if (IsMouHqGiveTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
                 if (IsWuZishengMovementTrigger(trigger) || IsGuYinDiscardTrigger(trigger) || IsBeifenLossTrigger(trigger) || IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsLingkongGainTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
                     IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger) || IsBianFuRenWanweiTrigger(trigger) || IsSunRuOlChishiTrigger(trigger) || IsDuFuRenYiseTrigger(trigger) || IsFeiYiSingletonTrigger(trigger) || IsQingyuanGainTrigger(trigger) || IsMouFaZhengGainTrigger(trigger) || IsMouGuoHuaiGainTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
@@ -343,6 +343,7 @@ public sealed partial class GameEngine
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
         }
+        candidates.AddRange(CollectMouHqGiveCandidates(batch));
         candidates.AddRange(CollectNianJingjueCandidates(batch));
         candidates.AddRange(CollectHellZhiwangCandidates(batch));
         candidates.AddRange(CollectNeighborDiscardCandidates(batch));
@@ -601,6 +602,7 @@ public sealed partial class GameEngine
         if (GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair)) return CreateJieyanContext(frame, candidate);
         if (IsWuJingLiubingCandidate(candidate)) return CreateWuJingLiubingContext(frame, candidate);
         var trigger = GetProgramTrigger(candidate);
+        if (IsMouHqGiveTrigger(trigger)) return CreateMouHqGiveContext(frame, candidate);
         if (candidate.SkillId == MouDongZhaoComposition.Yishi && candidate.BindingId == "follow-suit-loss" && MouYishiCandidateGrant(candidate, frame.Batch) is not null)
             return CreateMouYishiContext(frame, candidate);
         var features = ProgramInstructionResolver.Default.Features(trigger);

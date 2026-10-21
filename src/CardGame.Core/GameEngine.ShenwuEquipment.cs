@@ -23,7 +23,7 @@ public sealed partial class GameEngine
         return true;
     }
     private bool HasShenwuArmor(CharacterState player, CardKind kind) =>
-        player.IsAlive && !IsArmorIneffectiveForTurn(player) && GetEquipment(player).Any(card => card.Kind == kind);
+        player.IsAlive && !IsArmorIneffectiveForTurn(player) && KongwuEffectiveEquipment(player).Any(card => card.Kind == kind);
     private bool IsShenwuRobeTargetProhibited(int actorSeat, int targetSeat, CardKind kind) =>
         actorSeat != targetSeat && IsOrdinaryTrick(kind) &&
         HasShenwuArmor(_players[targetSeat], CardKind.NationalStyleRobe);
@@ -49,7 +49,7 @@ public sealed partial class GameEngine
     private int ShenwuDustlessDistanceBonus(CharacterState source, CharacterState target) =>
         _players.Count(owner => owner.IsAlive && owner.Seat != target.Seat && owner.TeamId is { } team &&
             team == target.TeamId && source.TeamId != team &&
-            GetEquipment(owner).Any(card => card.Kind == CardKind.DustlessGoldenSpear));
+            KongwuEffectiveEquipment(owner).Any(card => card.Kind == CardKind.DustlessGoldenSpear));
 
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 27800)]
     private bool AllowsShenwuShuraRecovery(ProgramTriggerLegalityContext gate)

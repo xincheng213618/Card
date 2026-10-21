@@ -266,9 +266,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Yujue given card is no longer in the recipient hand.");
         ClearPendingDecision();
         var active = GetActiveProgramFrame(frame.Id);
-        MoveCard(_cardZones.CardsAt(CardLocation.Hand(targetSeat)).Single(card => card.Id == cardId),
-            CardLocation.Hand(targetSeat), CardLocation.Hand(active.OwnerSeat),
-            new($"skill-program.{active.SkillId}.yujue-give"));
+        MoveCard(_cardZones.CardsAt(CardLocation.Hand(targetSeat)).Single(card => card.Id == cardId), CardLocation.Hand(targetSeat), CardLocation.Hand(active.OwnerSeat), new($"skill-program.{active.SkillId}.yujue-give"), NativeGiveCompletion(frame.Id,targetSeat,active.OwnerSeat,[cardId],_movementSequence,null));
         AddLog("CardGained",
             $"{_players[targetSeat].Name} 交给 {_players[active.OwnerSeat].Name} 一张手牌。",
             targetSeat, active.OwnerSeat);

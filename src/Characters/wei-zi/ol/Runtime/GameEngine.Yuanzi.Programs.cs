@@ -21,8 +21,7 @@ public sealed partial class GameEngine
         if (hand.Length == 0)
             return SkillProgramStepOutcome.Continue;
         var presentation = _contentRegistry!.GetSkill(active.SkillId);
-        MoveCards(hand, CardLocation.Hand(active.OwnerSeat), CardLocation.Hand(boundarySeat),
-            new($"skill-program.{active.SkillId}.yuanzi-give"));
+        MoveCards(hand, CardLocation.Hand(active.OwnerSeat), CardLocation.Hand(boundarySeat), new($"skill-program.{active.SkillId}.yuanzi-give"), NativeGiveCompletion(active.Id,active.OwnerSeat,boundarySeat,hand.Select(c=>c.Id).ToArray(),_movementSequence,null));
         AddLog("SkillTriggered",
             $"{owner.Name} 发动【{presentation.Name}】，将所有手牌（{hand.Length}张）交给 {_players[boundarySeat].Name}。",
             active.OwnerSeat, boundarySeat);

@@ -63,7 +63,7 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(from)[int.Parse(selected.Parameters["slot-index"], CultureInfo.InvariantCulture)];
         ClearPendingDecision(); var before = _movementSequence;
         ReplaceRuntimeTop(f = f with { MouChenGongGift = r with { Stage = MouChenGongGiftStage.GiftChildren, Before = before, After = before }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(card, from, CardLocation.Hand(r.RecipientSeat), new(MouChenGongGiftReason), m =>
+        MoveCard(card, from, CardLocation.Hand(r.RecipientSeat), new(MouChenGongGiftReason), NativeGiveCompletion(f.Id,f.OwnerSeat,r.RecipientSeat,[card.Id],_movementSequence,m =>
         {
             var current = GetActiveProgramFrame(f.Id);
             if (!MouChenGongGiftRoot(current) || current.MouChenGongGift!.Gift is not null || m.CardId != card.Id || m.From != from)
@@ -71,7 +71,7 @@ public sealed partial class GameEngine
             var paid = new MouChenGongGiftPayment(m.CardId, m.CardKind, m.From, m.To, m.Sequence);
             ReplaceRuntimeTop(current with { MouChenGongGift = current.MouChenGongGift with { Gift = paid, After = m.Sequence } });
             AdvanceEventRulesAndQueueFact(new MouChenGongGiftPaidEvent(f.Id, r.RecipientSeat, m.CardId, m.CardKind, m.From, m.To, m.Sequence));
-        }, disclosure: from.Zone == CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
+        }), disclosure: from.Zone == CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
         SealMouChenGongMovements(f.Id, before); ContinueMouChenGongGift(f.Id);
     }
     private IReadOnlyList<PromptChoice> MouChenGongBranchChoices(ProgramSkillFrame f) => Array.AsReadOnly(new[] { ("lose-hp", "失去1点体力，令明策发动者摸两张牌并获得一个策"), ("draw", "摸一张牌") }

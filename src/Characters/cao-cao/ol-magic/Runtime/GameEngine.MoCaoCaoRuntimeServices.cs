@@ -116,6 +116,7 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("Magic Cao Cao payment lost its owning ancestor or actual movement.");
                 engine.ReplaceRuntimeFrame(parent.Id,parent.MoCaoCaoBachao is { } r ? parent with { MoCaoCaoBachao=r with { After=m.Sequence } } :
                     parent with { MoCaoCaoBaibi=parent.MoCaoCaoBaibi! with { After=m.Sequence } });
+                if (parent.MoCaoCaoBachao is not null) engine.RecordNativeGivenCards(f.Id,payer,f.OwnerSeat,[id],before);
             },disclosure:from.Zone==CardZoneKind.Hand ? CardMovementDisclosure.FaceDown : CardMovementDisclosure.FaceUp);
             var after=engine._movementSequence;
             return new(before,after,engine._cardMovements.Any(m=>m.CardId==id && m.From==from && m.To==CardLocation.Hand(f.OwnerSeat) && m.Reason.Value==reason && m.Sequence>before && m.Sequence<=after));

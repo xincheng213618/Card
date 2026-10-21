@@ -65,12 +65,12 @@ public sealed partial class GameEngine
         var receipt = new SharedSlashOfferReceipt(f.InstructionIndex, bind, SharedSlashSource(f), actorSeat,
             new(card.Id, card.Kind, cards.SourceLocations[0], CapturePhysicalCardColor(f.OwnerSeat, card)));
         ReplaceRuntimeTop(f with { SharedSlashOffer = receipt });
-        MoveProgramCardsFromMultipleSources([card.Id], CardLocation.Hand(actorSeat), new(SharedSlashGiftReason), (_, movements) =>
+        MoveProgramCardsFromMultipleSources([card.Id], CardLocation.Hand(actorSeat), new(SharedSlashGiftReason), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,actorSeat,[card.Id],_movementSequence,(_, movements) =>
         {
             var moved = movements.Single(); var current = GetActiveProgramFrame(frameId);
             ReplaceRuntimeFrame(frameId, current with { SharedSlashOffer = current.SharedSlashOffer! with { GiftMovementSequence = moved.Sequence } });
             AdvanceEventRulesAndQueueFact(new SharedSlashGiftCommittedEvent(frameId, receipt.Source, actorSeat, moved.Sequence));
-        });
+        }));
         AdvanceRuntimeProgram(frameId);
         return SkillProgramStepOutcome.AwaitChild;
     }

@@ -80,7 +80,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramActionCategoryGiftResolvedEvent(frame.Id, frame.SkillId, frame.OwnerSeat, provider, use.EffectiveKind, card?.Id));
         if (card is not null)
         {
-            MoveCard(card, location!.Value, CardLocation.Hand(frame.OwnerSeat), new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+            MoveCard(card, location!.Value, CardLocation.Hand(frame.OwnerSeat), new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), NativeGiveCompletion(frame.Id,provider,frame.OwnerSeat,[card.Id],_movementSequence,null));
             if (AwaitProgramBoundCardMovements(frame.Id, frame.OwnerSeat) == SkillProgramStepOutcome.AwaitChild) return;
         }
         AdvanceRuntimeProgram(frame.Id);

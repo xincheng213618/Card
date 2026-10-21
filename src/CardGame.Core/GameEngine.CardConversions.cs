@@ -250,6 +250,7 @@ public sealed partial class GameEngine
         }
 
         var location = _cardZones.GetLocation(card.Id);
+        if (location == CardLocation.WoodenOxGrain(owner.Seat) && MouHuCheErEquipmentDisabled(owner.Seat)) return [];
         var zone = location == CardLocation.Hand(owner.Seat) || IsMouGszHuCard(owner, card.Id)
             ? CardZoneKind.Hand
             : location == CardLocation.Equipment(owner.Seat)
@@ -349,7 +350,7 @@ public sealed partial class GameEngine
         var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
             ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
         var eligibleHand = GetHand(owner).Concat(MouGszHuCards(owner)).Concat(GetEquipment(owner))
-            .Concat(_cardZones.CardsAt(CardLocation.WoodenOxGrain(owner.Seat)))
+            .Concat(KongwuUsableWoodenOxGrain(owner))
             .Where(card => !IsTurnHandCardRestricted(owner, card) && !HasProgramCardIdentity(owner, card))
             .OrderBy(card => card.Id)
             .ToArray();

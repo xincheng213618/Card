@@ -50,7 +50,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(frame = frame with { GiftedSlashGiftReceipt = new(frame.InstructionIndex, policy, material, before, before),
             PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new GiftedSlashGiftStartedEvent(frame.Id, policy, material, before));
-        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(GiftedSlashGiftReason(frame.SkillId)), (batchId, records) =>
+        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(GiftedSlashGiftReason(frame.SkillId)), NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,recipient,[id],_movementSequence,(batchId, records) =>
         {
             var active = GetActiveProgramFrame(input.Id);
             var movement = records.Single();
@@ -58,7 +58,7 @@ public sealed partial class GameEngine
             { Policy = policy with { GiftMovementSequence = movement.Sequence, GiftBatchId = batchId }, After = movement.Sequence };
             ReplaceRuntimeTop(active with { GiftedSlashGiftReceipt = paid });
             AdvanceEventRulesAndQueueFact(new GiftedSlashHandPolicyGrantedEvent(paid.Policy, material));
-        });
+        }));
         AdvanceRuntimeProgram(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }

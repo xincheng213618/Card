@@ -341,9 +341,9 @@ public sealed partial class GameEngine
             ActivityRuntimeSkillDefinition,
             IsNationalWarMode,
             player => player.SkillGrants.HasEnabledSkill(contentRegistry.ProgramDependencies.HpSensitiveSkillIds),
-            (owner,grant)=>grant.IsModeRule || !owner.IdentityConcealed&&IsCurrentTurnSkillGrantQualified(owner,grant)&&GuanduGeneralGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant)&&IsHpConditionalGrantQualified(owner,grant)&&IsEquipmentSuitGrantQualified(owner,grant)&&IsDaQiaoXiaoQiaoLuoyanGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null,
-            derivedProjectionStamp: player => CaptureDaQiaoXiaoQiaoLuoyanQualificationStamp(player, player.IdentityConcealed ? long.MinValue : player.SkillGrants.HasProjectedGrants
-                ? CaptureCombinedProjectionDependencyStamp() : 0), dualGenerals: _modeDefinition.DualGenerals,
+            (owner,grant)=>grant.IsModeRule || !owner.IdentityConcealed&&IsCurrentTurnSkillGrantQualified(owner,grant)&&MouHuCheErEquipmentGrantQualified(owner,grant)&&GuanduGeneralGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant)&&IsHpConditionalGrantQualified(owner,grant)&&IsEquipmentSuitGrantQualified(owner,grant)&&IsDaQiaoXiaoQiaoLuoyanGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null,
+            derivedProjectionStamp: player => CaptureMouHuCheErEquipmentQualificationStamp(CaptureDaQiaoXiaoQiaoLuoyanQualificationStamp(player, player.IdentityConcealed ? long.MinValue : player.SkillGrants.HasProjectedGrants
+                ? CaptureCombinedProjectionDependencyStamp() : 0)), dualGenerals: _modeDefinition.DualGenerals,
             additionalPrintedLordQualification: HasShanhePrintedLordQualifications ? IsShanhePrintedLordGrantQualified : null);
         var deckDefinition = ResolveDeckDefinition(
             contentRegistry,
@@ -6939,7 +6939,7 @@ public sealed partial class GameEngine
             {
                 MoveCard(weapon, CardLocation.Equipment(weaponOwner.Seat), CardLocation.Processing,
                     CardMoveReasons.BorrowedSwordGive, movement => RecordBianFuRenOwnedTransferProducer(movement,source.Seat,pending.ResolutionId));
-                var obtained = MoveProcessingCardUnlessDestroyed(weapon, CardLocation.Hand(source.Seat), CardMoveReasons.BorrowedSwordGive);
+                var obtained = MoveProcessingCardUnlessDestroyed(weapon, CardLocation.Hand(source.Seat), CardMoveReasons.BorrowedSwordGive, NativeGiveCompletion(pending.ResolutionId,weaponOwner.Seat,source.Seat,[weapon.Id],_movementSequence,null));
                 if (obtained) transferred.Add(weapon);
                 AddLog("CardEffect",
                     obtained ? $"{weaponOwner.Name} 未使用【杀】，将【{weapon.DisplayName}】交给 {source.Name}。" :
@@ -14126,7 +14126,7 @@ public sealed partial class GameEngine
                 effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: false));
         if (actionContext is not null) actionContext = PrepareMouDanchiAction(actionContext);
         if (actionContext is not null) actionContext = PrepareHuanpeiAction(PrepareZonghuAction(PrepareWeijieAction(actionContext, weijieOrigin), zonghuOrigin), huanpeiOrigin);
-        if (actionContext is not null) actionContext = PrepareWuLuKangKegouSlashAction(PrepareZongluanSlashAction(PrepareYouqueSlashAction(PrepareXieweiAction(actionContext))));
+        if (actionContext is not null) actionContext = PrepareMouHuCheErSlashAction(PrepareWuLuKangKegouSlashAction(PrepareZongluanSlashAction(PrepareYouqueSlashAction(PrepareXieweiAction(actionContext)))));
         if (actionContext is not null) actionContext = PrepareMouWenChouAction(PrepareMouXuHuangAction(PrepareMouLiuChengAction(PrepareMouXqJueyanAction(PrepareDiouAction(actionContext)))));
         var colorFireAttack = FreezeColorFireAttackPolicy(sourceSeat, actionContext);
         var firstUseDistance = actionContext is not null && HasFirstActualPlayUseDistance(_players[sourceSeat]);
@@ -14162,6 +14162,7 @@ public sealed partial class GameEngine
         BindLeiluanNativeUse(LifecycleCardUse(resolutionId)!);
         BindYouqueSlashUse(LifecycleCardUse(resolutionId)!);
         BindWuLuKangKegouSlashUse(LifecycleCardUse(resolutionId)!);
+        BindMouHuCheErSlashUse(LifecycleCardUse(resolutionId)!);
         BindZongluanSlashUse(resolutionId);
         PrepareXieweiNativeUse(LifecycleCardUse(resolutionId)!);
         PrepareNativePublicPileUse(LifecycleCardUse(resolutionId)!);
@@ -15369,7 +15370,7 @@ public sealed partial class GameEngine
         if (selectedPhysicalCardId is null && UsesFormalWoodenOx &&
             !_woodenOxUsedThisTurn &&
             GetHand(actor).Count > 0 &&
-            GetEquipment(actor).Any(card => card.Kind == CardKind.WoodenOx))
+            KongwuEffectiveEquipment(actor).Any(card => card.Kind == CardKind.WoodenOx))
         {
             actions.Add(new LegalAction(
                 LegalActionKind.UseEquipmentEffect,
@@ -17111,7 +17112,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<Card> GetPlayableCards(CharacterState player) =>
         AppendMouGszHuPlayable(player, AppendQingyaDiscardCards(player, AppendDuanJiongSaoguDiscardCards(player, AppendFuRongDiscardCards(player, AppendRequestedDeckBasicCards(player, AvailableDeclarationCard(player) is {} declared ? GetHand(player).Append(declared).ToArray() :
-        UsesFormalWoodenOx && GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx)
+        UsesFormalWoodenOx && KongwuEffectiveEquipment(player).Any(card => card.Kind == CardKind.WoodenOx)
             ? GetHand(player).Concat(GetWoodenOxGrain(player)).ToArray()
             : GetHand(player))))));
 
@@ -17149,7 +17150,7 @@ public sealed partial class GameEngine
         _cardZones.CardsAt(CardLocation.Judgment(seat));
 
     private bool HasBagua(CharacterState player) =>
-        IsProgramNativeResponseAllowed(player, CardKind.Dodge, []) && !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.BaguaFormation ||
+        IsProgramNativeResponseAllowed(player, CardKind.Dodge, []) && !IsArmorIneffectiveForTurn(player) && (KongwuEffectiveEquipment(player).Any(card => card.Kind == CardKind.BaguaFormation) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.BaguaFormation ||
         HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.BaguaFormation) &&
         !GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor));
 
@@ -17158,12 +17159,12 @@ public sealed partial class GameEngine
             item.Policy.CardKinds.Contains(CardKind.BaguaFormation) && item.Policy.Condition.ContainsEquipmentPresence());
 
     private bool HasTengjia(CharacterState player) =>
-        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.Tengjia) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.Tengjia ||
+        !IsArmorIneffectiveForTurn(player) && (KongwuEffectiveEquipment(player).Any(card => card.Kind == CardKind.Tengjia) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.Tengjia ||
         HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.Tengjia) &&
         !GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor));
 
     private bool HasSilverLion(CharacterState player) =>
-        !IsArmorIneffectiveForTurn(player) && (GetEquipment(player).Any(card => card.Kind == CardKind.SilverLion) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.SilverLion);
+        !IsArmorIneffectiveForTurn(player) && (KongwuEffectiveEquipment(player).Any(card => card.Kind == CardKind.SilverLion) || ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.SilverLion);
 
     private bool CanRequestFactionDefense(CharacterState owner, CardAttackHandle attack) =>
         !attack.FactionDefenseAttempted &&
@@ -17242,7 +17243,7 @@ public sealed partial class GameEngine
             .ToArray();
 
     private bool HasBlackSlashBarrier(CharacterState player) =>
-        GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).BlocksBlackSlash) ||
+        KongwuEffectiveEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).BlocksBlackSlash) ||
         !IsArmorIneffectiveForTurn(player) && ProgramVirtualEquipment(player.Seat, EquipmentSlot.Armor) == CardKind.RenwangShield ||
         !HasArmor(player) && !IsArmorIneffectiveForTurn(player) && HasCardPolicy(player, SkillProgramCardPolicyKind.VirtualEquipment, CardKind.RenwangShield);
 
@@ -17531,7 +17532,7 @@ public sealed partial class GameEngine
         if (_players[targetSeat].EquipmentAreaAbolished)
             throw new InvalidOperationException("Wooden Ox cannot enter an abolished equipment area.");
 
-        var woodenOx = GetEquipment(actor).Single(card => card.Kind == CardKind.WoodenOx);
+        var woodenOx = KongwuEffectiveEquipment(actor).Single(card => card.Kind == CardKind.WoodenOx);
         MoveCard(woodenOx, CardLocation.Equipment(actor.Seat), CardLocation.Equipment(targetSeat), CardMoveReasons.WoodenOxTransfer);
         AddLog("EquipmentEffect", $"{actor.Name} 将【木牛流马】移动给 {_players[targetSeat].Name}。", actor.Seat);
     }
@@ -17570,7 +17571,7 @@ public sealed partial class GameEngine
         }
 
         var owner = _players[ownerSeat];
-        if (!owner.IsAlive || !owner.HasHpValue || owner.Hp >= owner.MaxHp || IsArmorIneffectiveForTurn(owner))
+        if (!owner.IsAlive || !owner.HasHpValue || owner.Hp >= owner.MaxHp || IsArmorIneffectiveForTurn(owner) || MouHuCheErEquipmentDisabled(ownerSeat))
         {
             return;
         }

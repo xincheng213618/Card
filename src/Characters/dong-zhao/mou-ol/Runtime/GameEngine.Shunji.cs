@@ -97,12 +97,11 @@ public sealed partial class GameEngine
             var moving = r.Selected.Where(id => _cardZones.GetLocation(id) != CardLocation.Hand(r.TargetSeat)).ToArray();
             MutateMouDongZhao(f, MouDongZhaoStage.GiftChildren, () =>
             {
-                if (moving.Length > 0) MoveProgramCardsFromMultipleSources(moving, CardLocation.Hand(r.TargetSeat), new("skill-program.mou-ol:shunji.gift"),
-                    (_, moves) =>
+                if (moving.Length > 0) MoveProgramCardsFromMultipleSources(moving, CardLocation.Hand(r.TargetSeat), new("skill-program.mou-ol:shunji.gift"), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,r.TargetSeat,moving,_movementSequence,(_, moves) =>
                     {
                         foreach (var m in moves) AdvanceEventRulesAndQueueFact(new MouDongZhaoGiftSignedEvent(f.Id, m.CardId, m.CardKind, m.From, m.To, m.Sequence));
                         SpendMouShunjiNames(GetActiveProgramFrame(f.Id));
-                    });
+                    }));
             });
             return;
         }

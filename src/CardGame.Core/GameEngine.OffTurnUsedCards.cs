@@ -219,14 +219,13 @@ public sealed partial class GameEngine
         var before = _cardMovements.LastOrDefault()?.Sequence ?? 0;
         ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null), OffTurnUsedCardGift = r with
             { Stage = OffTurnUsedCardGiftStage.GiftChildren, RecipientSeat = recipient, PaidCardIds = selected.Cards, Before = before } });
-        MoveProgramCardsFromMultipleSources(selected.Cards, CardLocation.Hand(recipient), new($"skill-program.{f.SkillId}.off-turn-used-card-gift"),
-            (batchId, moves) =>
+        MoveProgramCardsFromMultipleSources(selected.Cards, CardLocation.Hand(recipient), new($"skill-program.{f.SkillId}.off-turn-used-card-gift"), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,selected.Cards,_movementSequence,(batchId, moves) =>
             {
                 var active = GetActiveProgramFrame(f.Id);
                 ReplaceRuntimeTop(active with { OffTurnUsedCardGift = active.OffTurnUsedCardGift! with
                     { GiftBatchId = batchId, After = moves.Last().Sequence } });
                 AdvanceEventRulesAndQueueFact(new OffTurnUsedCardGiftPaidEvent(f.Id, r.ActionId, recipient, selected.Cards.Count, batchId, before, moves.Last().Sequence));
-            });
+            }));
         AdvanceRuntimeProgram(f.Id);
     }
 

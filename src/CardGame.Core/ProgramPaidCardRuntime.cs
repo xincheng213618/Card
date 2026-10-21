@@ -53,6 +53,7 @@ internal interface IProgramPaidCardOperations : IProgramRuntimeOperations
     void CompleteLogicalDiscard(NativeLogicalDiscardInvocationDraft? invocation);
     void Move(Card card, CardLocation source, CardLocation destination, CardMoveReason reason,
         CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified);
+    void Give(ProgramSkillFrame frame, int giver, Card card, CardLocation source, CardLocation destination, CardMoveReason reason, bool throughProcessing, CardMovementDisclosure disclosure);
     bool BeginMovementWindow();
     bool BeginPublicHandReveal(long frameId, string returnKey);
     void ReturnMovement(long frameId);
@@ -149,6 +150,13 @@ public sealed partial class GameEngine
         public void Move(Card card, CardLocation source, CardLocation destination, CardMoveReason reason,
             CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified) =>
             engine.MoveCard(card, source, destination, reason, disclosure: disclosure);
+        public void Give(ProgramSkillFrame frame, int giver, Card card, CardLocation source, CardLocation destination, CardMoveReason reason, bool throughProcessing, CardMovementDisclosure disclosure)
+        {
+            var before = engine._movementSequence;
+            if (throughProcessing) engine.MoveCard(card, source, CardLocation.Processing, reason, disclosure: disclosure);
+            engine.MoveCard(card, throughProcessing ? CardLocation.Processing : source, destination, reason,
+                engine.NativeGiveCompletion(frame.Id, giver, destination.OwnerSeat!.Value, [card.Id], before), disclosure: disclosure);
+        }
         public bool BeginMovementWindow() => engine.TryBeginCardsMovedProgramWindow();
         public bool BeginPublicHandReveal(long frameId, string returnKey) => engine.TryBeginPublicHandRevealWindow(frameId, returnKey);
         public void ReturnMovement(long frameId) => engine.ReturnRuntimeProgramMovement(frameId);

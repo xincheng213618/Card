@@ -316,7 +316,7 @@ public sealed partial class GameEngine
         { FinishDeclaredDeckCriterion(frame); return; }
         var card = _cardZones.CardsAt(CardLocation.Processing).Single(c => c.Id == cardId);
         ReplaceRuntimeTop(frame with { DeckCriterion = d with { Stage = "gift", RecipientSeat = recipient } });
-        MoveCard(card, CardLocation.Processing, CardLocation.Hand(recipient), new("program.declared-deck.give"));
+        MoveCard(card, CardLocation.Processing, CardLocation.Hand(recipient), new("program.declared-deck.give"), NativeGiveCompletion(frame.Id,frame.OwnerSeat,recipient,[cardId],_movementSequence,null));
         AwaitDeckProgramMovement(frame.Id);
     }
 

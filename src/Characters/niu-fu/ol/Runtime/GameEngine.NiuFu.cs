@@ -109,7 +109,7 @@ public sealed partial class GameEngine
         var destination = branch == "recast" ? CardLocation.DiscardPile : CardLocation.Hand(f.OwnerSeat); var before = _movementSequence;
         if (branch == "recast") f = BeginFrameNativeRecastInvocation(f, f.OwnerSeat, [id]);
         ReplaceRuntimeTop(f = f with { NiuFu = r with { Stage = stagePaid, Recast = branch == "recast" ? new(id, card.Kind, from, card.IsGeneralWeapon) : r.Recast }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveCard(card, from, destination, reason); var move = _cardMovements.Single(m => m.Sequence > before && m.CardId == id && m.Reason == reason);
+        MoveCard(card, from, destination, reason, (branch=="gift" ? NativeGiveCompletion(f.Id,from.OwnerSeat!.Value,f.OwnerSeat,[id],_movementSequence,null) : null)); var move = _cardMovements.Single(m => m.Sequence > before && m.CardId == id && m.Reason == reason);
         AddNiuFuStep(f.Id, stagePaid, reason.Value, before, 1, card, from, move.To); ContinueNiuFu(f.Id);
     }
     private void AddNiuFuStep(long id, NiuFuStage stage, string reason, long before, int count, Card? card = null, CardLocation? from = null, CardLocation? to = null)

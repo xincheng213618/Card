@@ -53,8 +53,7 @@ public sealed partial class GameEngine
             PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new XianshuGiftStartedEvent(frame.Id, receipt.Source, receipt.GameplayHash,
             phase, receipt.ActualTurn, receipt.TurnOwner, card.Id, card.Kind, receipt.GiftSuit, targetSeat, before));
-        MoveProgramCardsFromMultipleSources([card.Id], CardLocation.Hand(targetSeat), new(LeZhouFeiXianshuGiftReason),
-            (batchId, records) =>
+        MoveProgramCardsFromMultipleSources([card.Id], CardLocation.Hand(targetSeat), new(LeZhouFeiXianshuGiftReason), NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,targetSeat,[card.Id],_movementSequence,(batchId, records) =>
             {
                 var paid = records.Single();
                 var current = GetActiveProgramFrame(frame.Id);
@@ -62,7 +61,7 @@ public sealed partial class GameEngine
                     { GiftBatchId = batchId, GiftSequence = paid.Sequence, After = paid.Sequence } });
                 AdvanceEventRulesAndQueueFact(new XianshuGiftPaidEvent(frame.Id, batchId, paid.CardId,
                     paid.From, paid.To, paid.Sequence));
-            });
+            }));
         ContinueLeZhouFeiXianshu(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
