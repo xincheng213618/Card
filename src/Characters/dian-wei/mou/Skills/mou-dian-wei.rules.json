@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou:kuangzhan", "revision": 1, "activations": [
+      { "id": "draw-and-contest", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [ { "op": "resolveMouDianWeiKuangzhan", "target": "owner" } ] }
+    ] },
+    { "id": "mou:kangyong", "revision": 1, "triggers": [
+      { "id": "recover-actual-turn-start", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+        "effects": [ { "op": "resolveMouDianWeiKangyongStart", "target": "owner" } ] },
+      { "id": "repay-actual-turn-end", "window": "afterTurnEnded", "subject": "owner", "optional": false,
+        "effects": [ { "op": "resolveMouDianWeiKangyongEnd", "target": "owner" } ] }
+    ] }
+  ]
+}

@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-dian-wei",
+      "characterName": "谋典韦",
+      "defaultSkinId": "1166201",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1166201.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-dian-wei.png",
+          "sha256": "97265827b95df495c38068dc6ff1f0597edc08f5729b379026ec142fa7c398b8",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1166201",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-jiang-wei",
+      "characterName": "谋姜维",
+      "defaultSkinId": "1163701",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1637.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163701.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-jiang-wei.png",
+          "sha256": "178b4cfccbaeba63a189b008f116c364ee2d2972c58b79dde79150ff103efa9e",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1163701",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-sun-shangxiang-mobile",
       "characterName": "谋孙尚香",
       "defaultSkinId": "69100",

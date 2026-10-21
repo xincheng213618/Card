@@ -249,6 +249,11 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveMouDianWeiKuangzhan = 35300,
+    ResolveMouDianWeiKangyongStart = 35301,
+    ResolveMouDianWeiKangyongEnd = 35302,
+    InitializeMouJiangWeiJuemou = 35200, ResolveMouJiangWeiJuemou = 35201,
+    RestoreMouJiangWeiJuemou = 35202, ResolveMouJiangWeiFuzhan = 35203,
     ResolveMouSunShangxiangJieyin = 35100,
     ResolveMouSunShangxiangLiangzhu = 35101,
     ResolveMouSunShangxiangXiaoji = 35102,
@@ -4556,7 +4561,7 @@ public sealed class SkillProgramCatalog
                       node.TryGetProperty("effects", out var exitEffects) && exitEffects.ValueKind == JsonValueKind.Array &&
                       exitEffects.GetArrayLength() == 1 && exitEffects[0].ValueKind == JsonValueKind.Object &&
                       exitEffects[0].TryGetProperty("op", out var exitOp) && exitOp.ValueKind == JsonValueKind.String &&
-                      string.Equals(exitOp.GetString(), "drawDyingExitRoundDistance", StringComparison.OrdinalIgnoreCase)) &&
+                      (string.Equals(exitOp.GetString(), "drawDyingExitRoundDistance", StringComparison.OrdinalIgnoreCase) || string.Equals(exitOp.GetString(), "resolveMouJiangWeiFuzhan", StringComparison.OrdinalIgnoreCase))) &&
                     !(window == SkillProgramTriggerWindow.CharacterDied && subject == SkillProgramTriggerSubject.Any &&
                       node.TryGetProperty("effects", out var sealDeathEffects) && sealDeathEffects.ValueKind == JsonValueKind.Array &&
                       sealDeathEffects.GetArrayLength() == 1 && sealDeathEffects[0].ValueKind == JsonValueKind.Object &&
@@ -5008,7 +5013,7 @@ public sealed class SkillProgramCatalog
              !RequiresPositiveTriggerCondition(condition, SkillProgramTriggerConditionKind.CardActionPhaseIsPlay)))
             Fail(path, "issued card policy requires a single own Play-use actor operation");
         var awaitedDyingExit = window == SkillProgramTriggerWindow.DyingExited &&
-            effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice }];
+            effects is [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice or SkillProgramEffectOp.ResolveMouJiangWeiFuzhan }];
         if (window is SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited && !awaitedDyingExit &&
             (optional || effects.Any(effect => effect.Op != SkillProgramEffectOp.Draw || effect.Target != SkillProgramEffectTarget.Owner ||
                 effect.NumberExpression is not null || effect.Condition.Kind != SkillProgramConditionKind.Always)))

@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dian-wei",
+  "skills": [
+    { "registrationOrder": 2710, "programBundle": "mou-dian-wei", "includeProgramPresentation": true, "definition": {
+      "id": "mou:kuangzhan", "name": "狂战", "description": "出牌阶段限一次，将手牌摸至体力上限并进行X次拼点，若你赢视为对所有本回合拼点未赢的其他角色使用一张【杀】，若你未赢，其视为对你使用一张【杀】。（X为你以此法获得的牌数）", "executionForms": "Trigger", "actionForms": "Active" } },
+    { "registrationOrder": 2711, "programBundle": "mou-dian-wei", "includeProgramPresentation": true, "definition": {
+      "id": "mou:kangyong", "name": "亢勇", "description": "锁定技，回合开始时，将体力回满，回合结束时，失去等量体力（至少保留一点）", "executionForms": "Trigger", "tags": "Locked" } }
+  ],
+  "generals": [ { "registrationOrder": 2712, "pools": { "current": 575 }, "definition": {
+    "id": "mou:dian-wei", "name": "谋典韦", "portraitKey": "mou-dian-wei", "skillId": "mou:kuangzhan", "additionalSkillIds": ["mou:kangyong"],
+    "factionId": "wei", "baseHp": 5, "initialHp": 4, "gender": "Male", "characterId": "character:dian-wei", "variantId": "mou", "rulesetId": "sanguosha-anniversary" } } ]
+}

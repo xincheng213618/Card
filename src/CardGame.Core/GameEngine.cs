@@ -13527,7 +13527,7 @@ public sealed partial class GameEngine
             virtualUse = NormalizeActualTurnLegacyCompletedUse(virtualUse, attack.ProgramSkillCardUseFrameId);
             if (virtualUse.Action is { } virtualAction)
             {
-                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id) && !IsSuyiSlashUse(virtualUse.Id) && !HasIssuedChanshuangSlash(virtualUse.Id, virtualUse.SourceSeat))
+                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsMouDianWeiSlashUse(virtualUse.Id) && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id) && !IsSuyiSlashUse(virtualUse.Id) && !HasIssuedChanshuangSlash(virtualUse.Id, virtualUse.SourceSeat))
                 {
                     var parentIndex = _resolutionStack.FindIndex(frame => frame.Id == programParentId);
                     if (parentIndex < 0 || _resolutionStack[parentIndex] is not ProgramSkillFrame parent)

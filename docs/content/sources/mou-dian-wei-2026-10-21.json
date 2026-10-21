@@ -1,0 +1,45 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:dian-wei",
+  "characterId": "character:dian-wei",
+  "displayName": "谋典韦",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": { "factionId": "wei", "gender": "Male", "initialHp": 4, "maximumHp": 5, "officialHeroId": 1662 },
+  "firstRelease": { "publishedAt": "2024-07-05", "availableFrom": "2024-07-06", "url": "https://www.sanguosha.com/news/20240704_7716_4716", "fullIdentity": "SS / 魏 / 4/5 / 男 / 毒士鸩计 / 谋定天下" },
+  "sourceAgreement": "现行官方武将页1662与2024年7月5日正式上线公告两技全文一致。正式公告4/5表示初始4体力、体力上限5；索引hp5不代替初始体力依据。",
+  "skills": [
+    { "id": "mou:kuangzhan", "name": "狂战", "officialSelectedText": "出牌阶段限一次，将手牌摸至体力上限并进行X次拼点，若你赢视为对所有本回合拼点未赢的其他角色使用一张【杀】，若你未赢，其视为对你使用一张【杀】。（X为你以此法获得的牌数）" },
+    { "id": "mou:kangyong", "name": "亢勇", "officialSelectedText": "锁定技，回合开始时，将体力回满，回合结束时，失去等量体力（至少保留一点）" }
+  ],
+  "primarySources": [
+    { "url": "https://www.sanguosha.com/news/20240704_7716_4716", "bytes": 120478, "sha256": "7637590f9748f68281d354254ae85e8b5faa88da06b727fb19b0d165e18d921d" },
+    { "url": "https://x.sanguosha.com/hero/1662.html", "bytes": 18685, "sha256": "ee2e76ae1cecf1c57801d371295d0e9f22aeae8db46e4f859008dbfff3a35372" },
+    { "url": "https://x.sanguosha.com/hero", "bytes": 187953, "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c", "selectedEntry": { "gid": 1662, "prefix": "谋", "name": "典韦", "resource": 1166201, "country": "魏", "hp": 5 } }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1166201.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-dian-wei.png",
+    "id": "1166201", "name": "经典形象", "pixelWidth": 574, "pixelHeight": 761, "bytes": 648864,
+    "sha256": "97265827b95df495c38068dc6ff1f0597edc08f5729b379026ec142fa7c398b8",
+    "identityEvidence": "官方索引实际gid1662条目resource1166201；已下载并查看金甲武将持戟与盾、城墙烟火背景的完整经典立绘。"
+  },
+  "projectRulings": [
+    { "topic": "所有本回合拼点未赢的其他角色", "decision": "取本实际回合有过至少一次真实拼点比较未赢结果的其他角色。真实平局双方均未赢；未参与过拼点者排除；此前赢过但另一次未赢者仍纳入。", "provenance": "本次开发会话用户明确选择，2026-10-21由主代理转达。正式公告、现行武将页及有限官方定向FAQ检索未提供这一展开，不冒充官方FAQ。" },
+    { "topic": "亢勇等量体力", "decision": "按本次原生将体力回满实际回复到本人身上的量记债，不按原先缺血量或被替代而未实际回复的量记债。", "provenance": "将完整正文映射到既有原生Recovery回执的工程解释，由主代理确定；不是官方FAQ声明。" }
+  ],
+  "engineeringContracts": [
+    "狂战按真实出牌阶段限一次。补牌调用原生Draw至当前体力上限，并以原生此法实际获得的实体计X：真正摸到与替代获得实体取并集，不以请求数量、最终净手牌差或伪造Draw事实替代。",
+    "每次拼点使用原生PindianFrame的真实参与者与材料；父帧持有索引、唯一结果绑定和精确PindianFrameId。原生支付、公开结果与观察子窗返回后再处理本次杀或下一次拼点；动态无合法拼点对象或本人无原生拼点材料时结束尚未发行的拼点。",
+    "狂战赢后根据本实际回合的真实逐次比较结果计算未赢者集合，冻结本次合法目标并一次发行一张原生多目标杀。狂战未赢时由本次对方真实使用一张以本人为目标的杀；平局也属于本人未赢。两种杀都沿原生实体为零的真正使用、响应、伤害和完成返回协议，不把普通打出当作使用。",
+    "杀的使用者、原生动作、使用帧、来源技能与本次比较、原目标集合都保存于所属父子帧。后续原生改牌或合法目标变更按既有协议处理；不能将多目标杀拆成多张单目标杀。",
+    "亢勇在本人实际回合开始调用原生回满体力生产者，保存其真实ProgramRecoveryReceipt；真正替代回复时只记录原生实际回复量。本人该实际回合结束后，以这一来源和回合的债调用原生失去体力支付，最多失去当前体力减一。",
+    "所有待决状态保留在所属ProgramSkillFrame，杀保留在真实CardUseFrame；原目标集合复制为只读集合。新增公开事件均为标量，逐目标发行记录也各为独立标量；冷恢复不能重复摸牌、拼点材料支付、杀或亢勇债。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouDianWeiChecks.cs",
+    "method": "NativeThreeContestsMultiTargetSlashAndActualRecoveryDebtCold",
+    "scope": "固定山河真实受伤入场与小牌堆，原生回满记实际债、摸至5得X3，真实赢/未赢/赢三次拼点及对方反杀，最后一次用一张真正多目标杀包含先赢后未赢者并排除未参与者；下一次原生拼点待选材料时做一次代表性Cold，最后原生实际回合结束按债扣至至少1体力。NPC只用正常摸牌后跳过出牌的已有配置。"
+  }
+}

@@ -16,7 +16,7 @@ internal sealed class ProgramWindowReturnRuntime(
             !queries.IsCurrentYanPuDyingExitEdge() ||
             parent.CandidateIndex < 0 || parent.CandidateIndex >= parent.Candidates.Count ||
             !queries.MountObserverCandidateMatches(frame, parent.Candidates[parent.CandidateIndex]) ||
-            queries.GetProgramTrigger(frame).Effects is not [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice }])
+            queries.GetProgramTrigger(frame).Effects is not [{ Op: SkillProgramEffectOp.DrawDyingExitRoundDistance or SkillProgramEffectOp.ResolveQingliuFactionChoice or SkillProgramEffectOp.ResolveMouJiangWeiFuzhan }])
             throw new InvalidOperationException("A survived-Dying binding lost its exact completed-Dying parent and current candidate.");
         cursors.AdvanceProgramLifecycleCursor(parent);
         frames.AdvanceTop<ProgramLifecycleTriggerWindowFrame>();

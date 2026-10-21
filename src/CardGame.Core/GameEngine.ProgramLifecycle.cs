@@ -2368,7 +2368,7 @@ public sealed partial class GameEngine
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat ||
                  IsYanPuDrawContext(candidate, context) || IsGuanduForeignDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
-            SkillProgramTriggerWindow.DyingExited => IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context),
+            SkillProgramTriggerWindow.DyingExited => IsMouJiangWeiFuzhanExitContext(candidate, context) || IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context),
             SkillProgramTriggerWindow.CardEffectBeforeApply => CanRunCardEffectCandidate(candidate, context),
             SkillProgramTriggerWindow.AfterTurnEnded =>
                 CanRunAfterTurnEndedCandidate(candidate, context, trigger),

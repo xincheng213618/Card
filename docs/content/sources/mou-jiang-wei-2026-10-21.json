@@ -1,0 +1,25 @@
+{
+  "generalId": "mou:jiang-wei", "name": "谋姜维", "rulesetId": "sanguosha-anniversary", "verifiedOn": "2026-10-21",
+  "officialSources": [
+    { "url": "https://x.sanguosha.com/hero/1637.html", "kind": "current official general page", "sha256": "913e6231b8e773199e31f595f0767beb087340579d6717277af94db6ec43d70d" },
+    { "url": "https://x.sanguosha.com/news/20250904_3910_3309.html", "kind": "formal release announcement", "publishedOn": "2025-09-05", "availableFrom": "2025-09-06", "sha256": "3f42a2ef0f7dd089d8617e2808687eb3728dd3d1386d47f66b1a904fd9ee111d" }
+  ],
+  "identity": { "faction": "shu", "gender": "Male", "initialHp": 3, "maximumHp": 4, "authority": "Formal release explicitly prints 蜀 / 3/4 / 男; current official index prints max HP4." },
+  "officialSkillTexts": {
+    "绝谋": "转换技，游戏开始时可自选阴阳状态。你使用锦囊牌时，你可以：阳：对自己造成1点伤害并摸已损失体力值数张牌；阴：令一名角色弃置另一名角色1张牌并受到其造成的1点伤害。若你因此技能进入濒死，你将体力值回复至1点。",
+    "绝谋修改后": "转换技，游戏开始时可自选阴阳状态。你使用锦囊牌时，或回合开始和结束时，你可以：阳：对自己造成1点伤害并摸已损失体力值数张牌；阴：令一名角色弃置另一名角色1张牌并受到其造成的1点伤害。若你因此技能进入濒死，你将体力值回复至1点。",
+    "复盏": "限定技，有角色脱离濒死时，你可回复满体力值，然后修改“绝谋”。"
+  },
+  "sourceAgreement": "Current official page and formal announcement agree on unmodified Juemou and Fuzhan; the formal also provides the full modified body. This ruleset is distinct from the implemented mobile Tiaoxin/Zhiji variant.",
+  "userAdjudications": [
+    { "topic": "Yin holder without payable HE", "decision": "允许选择，无牌可弃仍造成伤害。弃牌是效果，不是后续伤害的费用。", "provenance": "Explicit user answer relayed by the coordinating agent on 2026-10-21; project adjudication, not an official FAQ." }
+  ],
+  "engineeringMappings": [
+    "The awaitable native window named DyingEntering is entered after the real PlayerDyingEvent. The causal rescue requires that exact native DyingFrame and its real DamageFrame from this owner's already accepted Juemou. The official text does not name program windows.",
+    "Restore HP to1 through the native recovery producer, preserving recovery replacement and HP-change children; never assign HP directly. Fuzhan uses the existing typed survived-Dying exit return, then native recovery to the current maximum and modification.",
+    "Freeze Yin/Yang on acceptance and toggle the native public boolean state once. Freeze the two different roles and the selected real discard entity on the owning frame. Hidden opposing Hand cards are selected anonymously, equipment faces remain public.",
+    "Yang computes missing HP after all real damage, Dying and recovery children finish. A nested Fuzhan that fully heals the owner can therefore make this draw zero.",
+    "Only true Trick Uses trigger the card branch, including native true response Uses such as Nullification. The modified owner-turn beginning and ending branches use native actual-turn boundaries."
+  ],
+  "portrait": { "sourcePage": "https://x.sanguosha.com/hero/1637.html", "domRole": "yang-img, 经典形象*谋姜维", "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163701.png", "asset": "src/CardGame.Wpf/Assets/official-mou-jiang-wei.png", "sha256": "178b4cfccbaeba63a189b008f116c364ee2d2972c58b79dde79150ff103efa9e", "pixelWidth": 574, "pixelHeight": 761, "bytes": 582513, "visuallyVerified": true }
+}

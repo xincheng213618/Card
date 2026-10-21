@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:jiang-wei",
+  "skills": [
+    { "registrationOrder": 2700, "programBundle": "mou-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "mou:juemou", "name": "绝谋", "description": "转换技，游戏开始时可自选阴阳状态。你使用锦囊牌时，你可以：阳：对自己造成1点伤害并摸已损失体力值数张牌；阴：令一名角色弃置另一名角色1张牌并受到其造成的1点伤害。若你因此技能进入濒死，你将体力值回复至1点。修改后：转换技，游戏开始时可自选阴阳状态。你使用锦囊牌时，或回合开始和结束时，你可以：阳：对自己造成1点伤害并摸已损失体力值数张牌；阴：令一名角色弃置另一名角色1张牌并受到其造成的1点伤害。若你因此技能进入濒死，你将体力值回复至1点。", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 2701, "programBundle": "mou-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "mou:fuzhan", "name": "复盏", "description": "限定技，有角色脱离濒死时，你可回复满体力值，然后修改“绝谋”。", "executionForms": "Trigger, State", "tags": "Limited" } }
+  ],
+  "generals": [{ "registrationOrder": 2702, "pools": { "current": 574 }, "definition": { "id": "mou:jiang-wei", "name": "谋姜维", "portraitKey": "mou-jiang-wei", "skillId": "mou:juemou", "additionalSkillIds": ["mou:fuzhan"], "factionId": "shu", "gender": "Male", "baseHp": 4, "initialHp": 3, "characterId": "character:jiang-wei", "variantId": "mou", "rulesetId": "sanguosha-anniversary" } }]
+}
