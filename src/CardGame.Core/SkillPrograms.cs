@@ -249,6 +249,13 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveMouLiuXieZhanban = 34800,
+    PrepareMouLiuXieChensheng = 34801,
+    InitializeMouDongZhuoGuanbian = 34700, RemoveMouDongZhuoGuanbian = 34701,
+    ResolveMouDongZhuoXiongni = 34702, ResolveMouDongZhuoFengshang = 34703, ResolveMouDongZhuoZhibing = 34704,
+    ResolveMouKongRongLiwen = 34600,
+    ResolveMouKongRongZhengyi = 34601,
+    PayMouKongRongZhengyi = 34602,
     ResolveMouWangLingJichou = 34500,
     PrepareMouWangLingMouli = 34501,
     ResolveMouWangLingZifu = 34502,
@@ -3521,6 +3528,7 @@ public sealed class SkillProgramCatalog
         if (valueExpression is not null && valueExpression is not (SkillRuleValueExpression.NegatedOwnedZoneCount or SkillRuleValueExpression.NegatedOwnerLostHp or SkillRuleValueExpression.NegatedLivingFemaleCount or SkillRuleValueExpression.NegatedCurrentRoundActualUseCount) &&
             (operation != SkillRuleOperation.Add || query != SkillRuleQuery.HandLimit &&
                 !(query == SkillRuleQuery.CardTargetCount && valueExpression == SkillRuleValueExpression.OwnerLostHp) &&
+                !(query is (SkillRuleQuery.IncomingDistance or SkillRuleQuery.OutgoingDistance) && valueExpression == SkillRuleValueExpression.OwnerMarkerCount) &&
                 !(query == SkillRuleQuery.DrawCount && valueExpression is (SkillRuleValueExpression.PublicTeamEnemyCount or SkillRuleValueExpression.OwnerLostHp)) &&
                 !(query == SkillRuleQuery.SlashLimit && valueExpression == SkillRuleValueExpression.OtherPublicTeamAllyCount) &&
                 !(query == SkillRuleQuery.InitialHandSize && valueExpression == SkillRuleValueExpression.OwnerMaxHp)))

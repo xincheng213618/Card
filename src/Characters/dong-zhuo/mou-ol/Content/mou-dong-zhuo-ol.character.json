@@ -1,0 +1,79 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dong-zhuo",
+  "skills": [
+    {
+      "registrationOrder": 2650,
+      "programBundle": "mou-dong-zhuo-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:guanbian",
+        "name": "观变",
+        "description": "锁定技，游戏开始时，你的手牌上限、其他角色与你的距离、你与其他角色的距离+X。首轮结束后或你发动“凶逆”或“封赏”后，你失去此技能。（X为游戏人数）",
+        "executionForms": "Trigger, State",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2651,
+      "programBundle": "mou-dong-zhuo-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:xiongni",
+        "name": "凶逆",
+        "description": "出牌阶段开始时，你可以弃置一张牌，其他每名角色需弃置一张与此牌花色相同的牌，否则受到你的1点伤害。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2652,
+      "programBundle": "mou-dong-zhuo-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:fengshang",
+        "name": "封赏",
+        "description": "出牌阶段限一次，或有角色进入濒死状态时（每回合限一次），你可以将本回合弃牌堆中两张花色相同牌分配给等量角色（每轮每花色的牌限一次）。若你未以此法获得牌，你视为使用一张不计入次数的【酒】。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2653,
+      "programBundle": "mou-dong-zhuo-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:zhibing",
+        "name": "执柄",
+        "description": "主公技，锁定技，准备阶段，若其他群雄势力角色累计使用黑色牌达到：3张，你增加1点体力上限并回复1体力；6张，你获得“焚城”；9张，你获得“崩坏”。【焚城】限定技，出牌阶段，你可以令所有其他角色依次选择一项：1.弃置任意张牌（须比上家弃置的牌多）；2.受到你造成的2点火焰伤害。【崩坏】锁定技，结束阶段，若有当前的体力值比你小的角色，你选择一项：1.失去1点体力；2.减1点体力上限。",
+        "executionForms": "Trigger",
+        "tags": "Lord, Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2654,
+      "pools": {
+        "current": 569
+      },
+      "definition": {
+        "id": "mou:dong-zhuo-ol",
+        "name": "谋董卓·OL",
+        "portraitKey": "mou-dong-zhuo-ol",
+        "skillId": "mou-ol:guanbian",
+        "additionalSkillIds": [
+          "mou-ol:xiongni",
+          "mou-ol:fengshang",
+          "mou-ol:zhibing"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:dong-zhuo",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-online"
+      }
+    }
+  ]
+}

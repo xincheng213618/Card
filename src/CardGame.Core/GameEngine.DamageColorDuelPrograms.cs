@@ -35,6 +35,7 @@ public sealed partial class GameEngine
 
     private bool IsSelectedActorDuelUse(long id) => LifecycleCardUse(id) is {SelectedActorDuelOrigin:not null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
+        cardId==0 && IsMouDongZhuoOlWine(frameId) ? new Card(0,CardKind.Alcohol,Suit.None,0) :
         cardId==0 && IsMouXuHuangZeroUse(frameId) ? MouXuHuangRepresentation(frameId) :
         cardId==0 && IsMouLiuChengUse(frameId) ? MouLiuChengRepresentation(frameId) :
         cardId==0 && IsMouXqJueyanUse(frameId) ? MouXqJueyanRepresentation(frameId) :

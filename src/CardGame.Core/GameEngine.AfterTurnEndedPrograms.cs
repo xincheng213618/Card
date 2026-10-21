@@ -45,7 +45,7 @@ public sealed partial class GameEngine
             context.OccurrenceIndex == candidate.OccurrenceIndex && context.Facts == parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts &&
             (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own ? candidate.OwnerSeat == parent.OwnerSeat :
                 candidate.OwnerSeat != parent.OwnerSeat && (_players[parent.OwnerSeat].IsAlive || IsWenYangChoujueCandidate(candidate, context) || IsAHuiNanJuemanEndingCandidate(candidate, context) || IsIssuedQinLangXianyingCandidate(candidate, context) || IsIssuedXiangxuEndingCandidate(candidate, context) ||
-                    trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains or SkillProgramEffectOp.ResolveDailiTurnEnd or SkillProgramEffectOp.ResolveGoudeActualTurnEnd or SkillProgramEffectOp.ResolveZhijieActualTurnEnd or SkillProgramEffectOp.ResolveWuLuKangKegou ||
+                    trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains or SkillProgramEffectOp.ResolveDailiTurnEnd or SkillProgramEffectOp.ResolveGoudeActualTurnEnd or SkillProgramEffectOp.ResolveZhijieActualTurnEnd or SkillProgramEffectOp.ResolveWuLuKangKegou or SkillProgramEffectOp.ResolveMouKongRongLiwen or SkillProgramEffectOp.PrepareMouLiuXieChensheng ||
                         e.NumberExpression == SkillProgramNumberExpression.ActualTurnDeathBenefits)));
     }
 

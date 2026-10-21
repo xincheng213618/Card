@@ -41,7 +41,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<LegalAction> DrawFundedDistinctBasicPlayActions(CharacterState actor)
     {
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat || _resolutionStack.Count != 0) && !IsKeBiNengPingduanBasicQuery(actor)) return [];
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat || _resolutionStack.Count != 0) && !IsKeBiNengPingduanBasicQuery(actor) && !IsMouKrLiwenUseQuery(actor)) return [];
         var actions = new List<LegalAction>();
         foreach (var (source, rule, _) in DrawFundedDistinctBasicRules(actor))
             actions.AddRange(DrawFundedDistinctBasicNativePlayActions(actor, source, rule.OutputKind));
@@ -53,7 +53,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<LegalAction> DrawFundedDistinctBasicNativePlayActions(CharacterState actor, CardConversionSource source, CardKind kind)
     {
         var result = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) return result;
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) && !IsMouKrLiwenUseQuery(actor) || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) return result;
         var card = new Card(0, kind, Suit.None, 0);
         if (IsSlashCard(kind))
         {

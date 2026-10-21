@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-xie",
+  "skills": [
+    {
+      "registrationOrder": 2660,
+      "programBundle": "mou-liu-xie",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:zhanban",
+        "name": "斩绊",
+        "description": "出牌阶段限一次，你可以摸或弃至多三张牌，然后令所有其他角色将手牌数调整至与你相同。以此法弃牌的角色摸三张牌；以此法摸牌的角色弃置三张牌；手牌数没变化的角色受到你造成的1点伤害。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2661,
+      "programBundle": "mou-liu-xie",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:chensheng",
+        "name": "沉声",
+        "description": "其他角色的回合结束时，若你和当前回合角色都不是手牌数唯一最多的角色，则你摸一张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2662,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "mou:tiancheng",
+        "name": "天承",
+        "description": "主公技，你发动“斩绊”时，可以选择任意群雄角色不成为“斩绊”的目标。",
+        "executionForms": "State",
+        "tags": "Lord"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2663,
+      "pools": {
+        "current": 570
+      },
+      "definition": {
+        "id": "mou:liu-xie",
+        "name": "谋刘协",
+        "portraitKey": "mou-liu-xie",
+        "skillId": "mou:zhanban",
+        "additionalSkillIds": [
+          "mou:chensheng",
+          "mou:tiancheng"
+        ],
+        "factionId": "qun",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:liu-xie",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

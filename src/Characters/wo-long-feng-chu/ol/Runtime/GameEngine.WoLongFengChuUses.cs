@@ -228,6 +228,7 @@ public sealed partial class GameEngine
                 _resolutionStack.LastOrDefault() is ProgramSkillFrame saying && saying.Id == sayingParent)
             { FinishSayingSuppliedSlashFailure(saying); return true; }
             if (draft.OriginalParentId is { } pingduanParent) TryCancelKeBiNengPingduanBasicPayment(pingduanParent);
+            if (draft.OriginalParentId is { } liwenParent) TryCancelMouKrLiwenPayment(liwenParent);
             return true;
         }
         if (draft.Intent is EquipmentSlotNamedUseIntent.DyingPeach or EquipmentSlotNamedUseIntent.DyingAlcohol &&
@@ -241,6 +242,7 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new EquipmentSlotNamedUseCancelledEvent(paid.FrameId));
             ClearPendingDecision(); _status = EngineStatus.Running;
             if (draft.OriginalParentId is { } pingduanParent && TryCancelKeBiNengPingduanBasicPayment(pingduanParent)) return true;
+            if (draft.OriginalParentId is { } liwenParent && TryCancelMouKrLiwenPayment(liwenParent)) return true;
             if (actor.IsHuman && _phase == TurnPhase.Play && _currentSeat == actor.Seat) RequestHumanPlay();
             return true;
         }

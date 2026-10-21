@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:guanbian",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "population-handLimit",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "ownerMarkerCount",
+          "valueMarker": "mouDongZhuoGuanbian",
+          "priority": 0
+        },
+        {
+          "id": "population-incomingDistance",
+          "query": "incomingDistance",
+          "operation": "add",
+          "valueExpression": "ownerMarkerCount",
+          "valueMarker": "mouDongZhuoGuanbian",
+          "priority": 0
+        },
+        {
+          "id": "population-outgoingDistance",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "valueExpression": "ownerMarkerCount",
+          "valueMarker": "mouDongZhuoGuanbian",
+          "priority": 0
+        }
+      ],
+      "triggers": [
+        {
+          "id": "freeze-game-population",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMouDongZhuoGuanbian",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "first-round-loss",
+          "window": "roundEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "removeMouDongZhuoGuanbian",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:xiongni",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "same-suit-walk",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouDongZhuoXiongni",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:fengshang",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "distribute-pair",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouDongZhuoFengshang",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "dying-distribute-pair",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouDongZhuoFengshang",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:zhibing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "cumulative-black-thresholds",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouDongZhuoZhibing",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou-ol:liwen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-xian",
+          "window": "gameStarting",
+          "optional": false,
+          "subject": "owner",
+          "effects": [
+            {
+              "op": "resolveMouKongRongLiwen",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "after-use",
+          "window": "cardUseCompleted",
+          "optional": false,
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "effects": [
+            {
+              "op": "resolveMouKongRongLiwen",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "after-played",
+          "window": "cardResponseCompleted",
+          "optional": false,
+          "ownerRelation": "actor",
+          "effects": [
+            {
+              "op": "resolveMouKongRongLiwen",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "distribute-own-turn",
+          "window": "afterTurnEnded",
+          "optional": false,
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "effects": [
+            {
+              "op": "resolveMouKongRongLiwen",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "distribute-other-turn",
+          "window": "afterTurnEnded",
+          "optional": false,
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "effects": [
+            {
+              "op": "resolveMouKongRongLiwen",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou-ol:zhengyi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "normal-damage-consent",
+          "window": "beforeDamageApplied",
+          "subject": "any",
+          "optional": false,
+          "condition": {
+            "kind": "damageNatureIs",
+            "damageNature": "normal"
+          },
+          "effects": [
+            {
+              "op": "resolveMouKongRongZhengyi",
+              "target": "owner"
+            },
+            {
+              "op": "payMouKongRongZhengyi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

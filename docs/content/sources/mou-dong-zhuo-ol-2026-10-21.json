@@ -1,0 +1,117 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:dong-zhuo-ol",
+  "characterId": "character:dong-zhuo",
+  "displayName": "谋董卓·OL",
+  "edition": "mou-ol",
+  "rulesetId": "sanguosha-online",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4,
+    "officialHeroId": 605
+  },
+  "firstRelease": {
+    "publishedAt": "2024-12-06 17:04:57",
+    "availableFrom": "2024-12-07 00:15:00",
+    "url": "https://www.sanguosha.com/news/20241203_9929_5914",
+    "currentHeroAgreement": "正式上线公告与当前武将页四技完整正文一致，仅标点及卡牌括号样式不同。"
+  },
+  "skills": [
+    {
+      "id": "mou-ol:guanbian",
+      "name": "观变",
+      "officialSelectedText": "锁定技，游戏开始时，你的手牌上限、其他角色与你的距离、你与其他角色的距离+X。首轮结束后或你发动“凶逆”或“封赏”后，你失去此技能。（X为游戏人数）"
+    },
+    {
+      "id": "mou-ol:xiongni",
+      "name": "凶逆",
+      "officialSelectedText": "出牌阶段开始时，你可以弃置一张牌，其他每名角色需弃置一张与此牌花色相同的牌，否则受到你的1点伤害。"
+    },
+    {
+      "id": "mou-ol:fengshang",
+      "name": "封赏",
+      "officialSelectedText": "出牌阶段限一次，或有角色进入濒死状态时（每回合限一次），你可以将本回合弃牌堆中两张花色相同牌分配给等量角色（每轮每花色的牌限一次）。若你未以此法获得牌，你视为使用一张不计入次数的【酒】。"
+    },
+    {
+      "id": "mou-ol:zhibing",
+      "name": "执柄",
+      "officialSelectedText": "主公技，锁定技，准备阶段，若其他群雄势力角色累计使用黑色牌达到：3张，你增加1点体力上限并回复1体力；6张，你获得“焚城”；9张，你获得“崩坏”。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/605",
+      "sha256": "3EF41BCEBE5A162CDC2ED5622A1C3F74D666F5707D57B5C56E8F6F9C629E77A5",
+      "bytes": 25228
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=605",
+      "sha256": "B3FEDEB37AFDBC033659A63F61A4BD790B8D73BB8097A866B9B7D54DC39ED21D",
+      "bytes": 945
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20241203_9929_5914",
+      "sha256": "6F38B1FFD465600893018827D96765A53738B3CFAC85AEB3CE35B930BFD97DD0",
+      "bytes": 445410
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://www.sanguosha.com/hero/605",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60500.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-dong-zhuo-ol.png",
+    "sha256": "7b47a25a1fb25d94731452a8c4744799467d72618194972ebde2f52bf408d02f",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "bytes": 917328,
+    "id": "60500",
+    "name": "经典形象",
+    "visuallyVerified": true
+  },
+  "derivedPrograms": [
+    {
+      "id": "classic:fencheng",
+      "name": "焚城",
+      "reusedExistingProgram": "src/Characters/li-ru/classic/Skills/classic-li-ru.rules.json",
+      "text": "限定技，出牌阶段，你可以令所有其他角色依次选择一项：1.弃置任意张牌（须比上家弃置的牌多）；2.受到你造成的2点火焰伤害。"
+    },
+    {
+      "id": "classic:benghuai",
+      "name": "崩坏",
+      "reusedExistingProgram": "src/Characters/dong-zhuo/classic/Skills/classic-dong-zhuo.rules.json",
+      "text": "锁定技，结束阶段，若有当前的体力值比你小的角色，你选择一项：1.失去1点体力；2.减1点体力上限。"
+    }
+  ],
+  "userDecisions": [
+    {
+      "subject": "执柄累计阈值",
+      "decision": "每个准备阶段按已达到的阈值结算。",
+      "implementation": "每次真实准备以累计黑牌数判断>=3、>=6、>=9；>=3均先原生加1上限并回复1。>=6/9沿用原生技能授予标准，已持有技能不凭空重置或叠副本。",
+      "authority": "本任务用户明确选择；不是官方FAQ。"
+    }
+  ],
+  "engineeringContracts": [
+    "以下是依据完整正文和现有原生协议确定的工程口径，不冒充官方FAQ。",
+    "观变在真实游戏开始冻结游戏人数，不随角色阵亡变动。原生公开标记提供手牌上限、双向距离增量；首次实际支付凶逆/封赏或首轮结束后实际失去观变，移除标记和所有启用的观变来源，停止其数值贡献。",
+    "凶逆由本人实际选择并弃置一张手牌或装备。费用原生结算完毕后，其他存活角色按本次行动顺序依次选择真实同花色手牌/装备，或受到原谋董卓造成的1点普通伤害。每张费用均保留真实来源区、花色及原生逻辑弃置凭据。",
+    "封赏只分配本实际回合进入且仍位于弃牌堆的两张同花色物理实体，给两名不同存活角色各一张，包含本人。出牌阶段一次和濒死进入时每回合一次分别计次，共用同一轮每花色一次限制。可以在原生可选技能窗不发动；实际进入分配后必须完成两牌两角色，不另设无付款退出分支吞掉出牌阶段额度。",
+    "封赏支付后逐张原生移动并等待实际得牌子结算；只有本次实际未给本人获得牌时，才依原生限制视为使用不计次数的酒。酒拥有真实Use帧、接受/声明、目标/提交/完成窗口以及原始分配的强类型返回；零实体不参与物理牌查找或移动。本人处于原生濒死时使用酒走实际回复，否则走原生酒效果，不凭空补普通酒次数或伪造使用。",
+    "执柄只累计其他角色以当时有效群势力身份实际使用的黑色牌。直接核真正CardUseDeclaredEvent所属Use帧及已冻结Action，涵盖GameStarting阶段尚无实际回合序号的真实使用；原生使用闪/无懈复用共享原生真Use事实，纯打出不计。按真实ActionId去重，零实体无色使用不制造黑色。每个实际准备重新按累计数结算，不消耗累计数或整局阈值。",
+    "所有新待决数据位于所属ProgramSkillFrame。原始来源、内容指纹、回合/轮、付款与分配游标及原生子结算返回均保留；集合在写入时复制为只读，新增事实为标量。重复恢复不重付费用、赠牌、酒或准备阶段效果。",
+    "图鉴在执柄正文末附完整焚城、崩坏正文，初始只授观变、凶逆、封赏、执柄，派生技只经真实阈值原生授予。",
+    "共享数值加载器仅加法OwnerMarkerCount允许应用于原生IncomingDistance与OutgoingDistance；沿用既有MarkerState evaluator与来源筛选，保持显式标记、Add及priority0限制，不提高schema或包版本。"
+  ],
+  "behaviorChecks": [
+    {
+      "path": "tests/CardGame.Core.Tests/MouDongZhuoOlChecks.cs",
+      "method": "ActualXiongniFengshangWineColdAndRepeatedPreparing",
+      "scope": "实际开局观变、凶逆付款/失技/逐人弃牌或伤害，当前回合弃牌堆两实体分配，真实不计次酒提交子窗冷恢复与原生酒杀；其他群角色GameStarting真实使用1黑装备加8张实际黑DrawTwo后，两个真实准备重复阈值并幂等授派生技。"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/MouDongZhuoOlChecks.cs",
+      "method": "MarkerCountDirectionalModifierSourceRemoval",
+      "scope": "共享数值加载器与原生方向reducer按标记计数产生双向增量，移除标记/活动来源后停止贡献，继续拒绝Set操作。"
+    }
+  ]
+}

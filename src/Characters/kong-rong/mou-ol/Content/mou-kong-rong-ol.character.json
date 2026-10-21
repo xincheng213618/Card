@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:kong-rong",
+  "skills": [
+    {
+      "registrationOrder": 2640,
+      "programBundle": "mou-kong-rong-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:liwen",
+        "name": "立文",
+        "description": "游戏开始时你获得3个“贤”标记。你每使用或打出一张花色或类型与前一张相同的牌后，你获得一个“贤”。回合结束时，你可将任意“贤”标记分配给等量角色（每名角色至多拥有5个标记），有“贤”的角色按照“贤”数量从高到低顺序依次使用一张牌，若其不使用，移去其“贤”，你摸等量的牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 2641,
+      "programBundle": "mou-kong-rong-ol",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou-ol:zhengyi",
+        "name": "争义",
+        "description": "当有“贤”的角色受到非属性伤害时，其他有“贤”的角色同时选择是否失去体力，然后若有角色选择同意，则防止此伤害，同意的角色中体力值最大的角色失去等同于此伤害值的体力。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2642,
+      "pools": {
+        "current": 568
+      },
+      "definition": {
+        "id": "mou:kong-rong-ol",
+        "name": "谋孔融·OL",
+        "portraitKey": "mou-kong-rong-ol",
+        "skillId": "mou-ol:liwen",
+        "additionalSkillIds": [
+          "mou-ol:zhengyi"
+        ],
+        "factionId": "qun",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:kong-rong",
+        "variantId": "mou-ol",
+        "rulesetId": "sanguosha-ol"
+      }
+    }
+  ]
+}

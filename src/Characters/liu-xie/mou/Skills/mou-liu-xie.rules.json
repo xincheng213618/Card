@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:zhanban",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "adjust-all-hands",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouLiuXieZhanban",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:chensheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-actual-turn-end",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            {
+              "op": "prepareMouLiuXieChensheng",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

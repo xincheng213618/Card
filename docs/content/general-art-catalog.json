@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-liu-xie",
+      "characterName": "谋刘协",
+      "defaultSkinId": "1230201",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/2302.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1230201.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-liu-xie.png",
+          "sha256": "8ebb3e329a2d2cc65e5d36b8311501f5c5c6ebec4909d5e324e3b300a5046f80",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1230201",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-dong-zhuo-ol",
+      "characterName": "谋董卓",
+      "defaultSkinId": "60500",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/605",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-dong-zhuo-ol.png",
+          "sha256": "7b47a25a1fb25d94731452a8c4744799467d72618194972ebde2f52bf408d02f",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "60500",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-kong-rong-ol",
+      "characterName": "谋孔融",
+      "defaultSkinId": "64300",
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.com/hero/643",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-kong-rong-ol.png",
+          "sha256": "abba2ecc1d00ad5181a387d847ed1f4c2269df7e84aa0ef22444109f2b7a84bb",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "id": "64300",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-wang-ling",
       "characterName": "谋王凌",
       "defaultSkinId": "1164101",

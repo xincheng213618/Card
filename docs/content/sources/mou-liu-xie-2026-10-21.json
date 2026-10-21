@@ -1,0 +1,77 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:liu-xie",
+  "characterId": "character:liu-xie",
+  "displayName": "谋刘协",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "initialHp": 3,
+    "maximumHp": 3,
+    "officialHeroId": 2302
+  },
+  "firstRelease": {
+    "publishedAt": "2025-04-30",
+    "availableFrom": "2025-05-01",
+    "url": "https://x.sanguosha.com/news/20250428_6442_0316.html",
+    "fullIdentity": "SS / 群 / 3 / 男 / 玉辂东归 / 王佐倡义"
+  },
+  "sourceAgreement": "当前官方武将页2302与2025年4月30日正式上线公告的三技完整正文一致，采用该完整版本。",
+  "skills": [
+    {
+      "id": "mou:zhanban",
+      "name": "斩绊",
+      "officialSelectedText": "出牌阶段限一次，你可以摸或弃至多三张牌，然后令所有其他角色将手牌数调整至与你相同。以此法弃牌的角色摸三张牌；以此法摸牌的角色弃置三张牌；手牌数没变化的角色受到你造成的1点伤害。"
+    },
+    {
+      "id": "mou:chensheng",
+      "name": "沉声",
+      "officialSelectedText": "其他角色的回合结束时，若你和当前回合角色都不是手牌数唯一最多的角色，则你摸一张牌。"
+    },
+    {
+      "id": "mou:tiancheng",
+      "name": "天承",
+      "officialSelectedText": "主公技，你发动“斩绊”时，可以选择任意群雄角色不成为“斩绊”的目标。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/2302.html",
+      "bytes": 16740,
+      "sha256": "0fcfa88c91dce047c47a2527bdd63534b7085716ff458afca7cb7d7e06882ecb"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20250428_6442_0316.html",
+      "bytes": 371608,
+      "sha256": "0b757799e9a2de67e3c5f491077cf1823401c97daf1caef19d6509d0c3e2207e"
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/2302.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1230201.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-liu-xie.png",
+    "sha256": "8ebb3e329a2d2cc65e5d36b8311501f5c5c6ebec4909d5e324e3b300a5046f80",
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "bytes": 656733,
+    "id": "1230201",
+    "name": "经典形象"
+  },
+  "engineeringContracts": [
+    "以下是结合完整正文与现有原生协议确定的工程解释，不冒充官方FAQ。",
+    "斩绊最初本人可选择不摸不弃、摸1至3张牌，或弃置1至3张实际可弃的手牌。本人前置摸弃只设置基准；后句以此法弃牌/摸牌/手牌未变化的角色承接相邻的所有其他角色，不把本人前置动作再次计入奖惩对象。",
+    "天承按原生有效技能来源及主公资格判断；在发动之初冻结其他存活群雄角色候选及最终排除名单。被动天承由本武将所属Runtime实际消费，没有伪造空程序或无意义开局触发。失效的主公来源不能提供新的排除资格。",
+    "本人前置真实调整及其全部子窗完成后冻结一个目标手牌数。按原生座次顺序调整所有其余未排除且仍存活的角色，全部调整完成后，才按同序结算各自后续奖惩，不随中间手牌变化重算基准。",
+    "每次补牌调用原生Draw生产者并保留NativeDrawOutcome；弃牌由该角色选择真实可弃手牌后，通过原生逻辑弃置与精确主移动回执付款。原始调整的实际Draw/Discard回执决定后续Draw3或弃3，替代获得不伪装为实际摸牌，不能以最终净手牌差推算付款；原本已等于基准的角色受到本人造成的普通伤害1。",
+    "每次真实摸牌、弃牌或伤害后都等待原生卡牌移动、恢复、濒死及其他观察子窗返回，再推进所属帧游标；已付款的动作在冷恢复后不会重复。",
+    "沉声只接原生其他实际回合结束窗口。若当前存活角色中手牌数最多者唯一，且该角色是本人或当前回合角色，则不触发；最多者并列时、或唯一最多者为第三方时，真正摸1张牌。",
+    "所有新待决状态保留在原ProgramSkillFrame。参与者、主公候选与排除、所选手牌、付款材料及调整回执集合在初始化时复制为只读集合；新事件只有标量。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouLiuXieChecks.cs",
+    "method": "NativeAllHandAdjustmentsAndOrderedRewardsCold",
+    "scope": "固定小牌堆的真实前置Draw2及其获得子窗Cold；其他角色真实弃2/摸2/不变后，先全调整再同序Draw3/弃3/Damage1；最后真实其他回合结束的沉声正负门槛。复用既有主公资格与集合冻结检查，不建立重复定义矩阵。"
+  }
+}

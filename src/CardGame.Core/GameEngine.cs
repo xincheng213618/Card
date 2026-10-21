@@ -14624,7 +14624,7 @@ public sealed partial class GameEngine
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor))
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor) && !IsMouKrLiwenUseQuery(actor))
         {
             return actions;
         }
@@ -14660,7 +14660,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || IsMouKrLiwenUseQuery(actor) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {

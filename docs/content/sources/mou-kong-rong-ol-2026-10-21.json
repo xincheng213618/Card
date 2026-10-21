@@ -1,0 +1,72 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:kong-rong-ol",
+  "characterId": "character:kong-rong",
+  "displayName": "谋孔融·OL",
+  "rulesetId": "sanguosha-ol",
+  "identity": {
+    "factionId": "qun",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4,
+    "officialHeroId": 643
+  },
+  "selectedRevision": {
+    "authority": "当前官方武将页完整技能正文",
+    "url": "https://www.sanguosha.com/hero/643",
+    "initialRelease": "2024-10-26",
+    "initialReleaseUrl": "https://www.sanguosha.com/news/20241022_5182_1613",
+    "versionDifference": "当前正文为使用一张牌；初次正式公告为使用一张手牌。本实现选当前完整正文，不人为缩窄手牌范围。"
+  },
+  "skills": [
+    {
+      "name": "立文",
+      "proposedId": "mou-ol:liwen",
+      "text": "游戏开始时你获得3个“贤”标记。你每使用或打出一张花色或类型与前一张相同的牌后，你获得一个“贤”。回合结束时，你可将任意“贤”标记分配给等量角色（每名角色至多拥有5个标记），有“贤”的角色按照“贤”数量从高到低顺序依次使用一张牌，若其不使用，移去其“贤”，你摸等量的牌。"
+    },
+    {
+      "name": "争义",
+      "proposedId": "mou-ol:zhengyi",
+      "text": "当有“贤”的角色受到非属性伤害时，其他有“贤”的角色同时选择是否失去体力，然后若有角色选择同意，则防止此伤害，同意的角色中体力值最大的角色失去等同于此伤害值的体力。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://www.sanguosha.com/hero/643",
+      "sha256": "EF40B64F97A4052CD204C91616208205F69EC5B067BD3C97171062627C5583AB"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=643",
+      "sha256": "1D987F70C52F50E71D9588673EA3605F4E64E9433D7EACF310A1561CDE32827D"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20241022_5182_1613",
+      "sha256": "E40A6674330FF447B8618A40D98FCDF5B020BD5D66101F59529A1F0F0986A9C0"
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://www.sanguosha.com/hero/643",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64300.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-kong-rong-ol.png",
+    "sha256": "ABBA2ECC1D00AD5181A387D847ED1F4C2269DF7E84AA0EF22444109F2B7A84BB",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "bytes": 1138165,
+    "id": "64300",
+    "name": "经典形象"
+  },
+  "engineeringContracts": [
+    "以下是正文结合现有原生协议的工程解释，不冒充官方FAQ。",
+    "贤是同名全局公开标记，每名角色合计上限5。立文开局获得3；自己相邻的真实使用或打出比较实际有效花色或基本/锦囊/装备三大类，首张无前张不增，其他角色的牌不重置自己的前张。",
+    "每个真实回合结束分配零至原有贤数量，每名存活接收者至多一枚且不超过5，可包含本人。分配完毕冻结有贤角色的数量降序，同数按原生座位顺序，每名执行一次真实使用或拒绝。拒绝移去其当前全部贤，原孔融真实摸实际移去数量的牌。",
+    "使用沿现有原生动作、真实素材、来源、目标和支付，不临时切换全局回合/阶段/当前角色。普通实体和当前合法的零素材来源保留各自实际native Use；零素材不伪造手牌。回合外受请求的杀不受出牌阶段次数限制，仍保留距离及目标限制。",
+    "争义只作用实际正数普通伤害。有贤的其他角色依次提交私密决定，只保留在同一拥有ProgramSkillFrame，所有人提交前不发布单票事件、同意人数或付款结果。全票齐后才公开scalar结果。至少一名同意即防止原伤害，不要求全体同意。",
+    "用户明确裁决：所有同意者中并列最高体力者各失去与原伤害等量体力。全票齐时一次冻结最高体力及全部并列付款者，不在首人付款后重算次人。先通过原生防伤函数防止原伤害，然后每人经真实LoseHp/体力变化/濒死救援子流程依次返回，非伤害且无伤害来源。",
+    "所有待决状态只在原拥有帧上，列表和LegalAction嵌套候选、接受的原始提示均复制为只读集合。完成的支付和实际使用保留单次凭据，Cold恢复不得重放投票或付款。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouKongRongOlChecks.cs",
+    "method": "ActualTurnEndZeroUseAndSealedTiedHpPaymentsCold",
+    "scope": "真实GameStart/相邻用牌积贤/实际回合结束分配与排序/卫境真实零素材杀/未齐私密票Cold/并列最高两人真实LoseHp/其他持贤者拒绝及原生摸牌。"
+  }
+}

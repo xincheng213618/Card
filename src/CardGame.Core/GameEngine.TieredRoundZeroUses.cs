@@ -18,7 +18,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<LegalAction> TieredRoundZeroPlayActions(CharacterState actor)
     {
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && !IsKeBiNengPingduanBasicQuery(actor)) return [];
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && !IsKeBiNengPingduanBasicQuery(actor) && !IsMouKrLiwenUseQuery(actor)) return [];
         var result = new List<LegalAction>();
         foreach (var (source, rule, _) in TieredRoundZeroRules(actor))
         {
