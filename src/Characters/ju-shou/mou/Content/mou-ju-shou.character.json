@@ -1,0 +1,6 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:ju-shou",
+ "skills":[{"registrationOrder":2870,"programBundle":"mou-ju-shou","includeProgramPresentation":true,"definition":{"id":"mou:zuojun","name":"佐军","description":"出牌阶段限一次，你可选择一名角色，令其摸三张牌并选择一项：1.这些牌无法使用且不计入手牌上限，直到其下回合结束；2.失去1点体力，再摸一张牌并使用其中任意张牌，然后弃置没使用的牌。","executionForms":"Trigger, State","actionForms":"Active"}},
+ {"registrationOrder":2871,"programBundle":"mou-ju-shou","includeProgramPresentation":true,"definition":{"id":"mou:muwang","name":"暮往","description":"锁定技，当你每回合第一次失去的一张基本牌或普通锦囊牌进入弃牌堆时，你将之收回手牌。你本回合再次失去此牌后弃置一张牌。","executionForms":"Trigger, State","tags":"Locked"}}],
+ "generals":[{"registrationOrder":2872,"pools":{"current":591},"definition":{"id":"mou:ju-shou","name":"谋沮授","portraitKey":"mou-ju-shou","skillId":"mou:zuojun","additionalSkillIds":["mou:muwang"],"factionId":"qun","baseHp":3,"gender":"Male","characterId":"character:ju-shou","variantId":"mou","rulesetId":"sanguosha-anniversary"}}]
+}

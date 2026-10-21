@@ -1,0 +1,75 @@
+{
+  "generalId": "mou:ju-shou",
+  "name": "谋沮授",
+  "verifiedAt": "2026-10-21",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "characterId": "character:ju-shou",
+    "factionId": "qun",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1700.html",
+      "role": "完整当前武将页",
+      "sha256": "9a703838d4f249f8bddd8162f7c6a329d2e80933280dc06f6204e98339ed9198"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240823_5991_1814",
+      "role": "完整正式初发公告",
+      "publishedAt": "2024-08-24 19:41:57",
+      "availableFrom": "2024-08-25",
+      "sha256": "95d3b128879fa49450589a2ec9cc7b2d8e85ce6d7e6a6d8f9dc7061c386267fe"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260421_4602_0917.html",
+      "role": "6.3.7正式调整：佐军仅规范编号标点",
+      "publishedAt": "2026-04-22",
+      "sha256": "39ac943f1e3893d324b3545099a81190a3191d372985cc67e59b1dea15231163"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260818_1894_1118.html",
+      "role": "6.4.2正式修复",
+      "publishedAt": "2026-08-19",
+      "sha256": "e08793f289cf3a81ed6cb1ef3b8e870c977ec5d95283bab06ca5711290642a4f",
+      "relevantText": "修复谋沮授打出【佐军】牌触发【暮往】效果后，【佐军】牌特性仍被保留的异常问题。"
+    }
+  ],
+  "officialSkills": [
+    {
+      "id": "mou:zuojun",
+      "name": "佐军",
+      "text": "出牌阶段限一次，你可选择一名角色，令其摸三张牌并选择一项：1.这些牌无法使用且不计入手牌上限，直到其下回合结束；2.失去1点体力，再摸一张牌并使用其中任意张牌，然后弃置没使用的牌。"
+    },
+    {
+      "id": "mou:muwang",
+      "name": "暮往",
+      "text": "锁定技，当你每回合第一次失去的一张基本牌或普通锦囊牌进入弃牌堆时，你将之收回手牌。你本回合再次失去此牌后弃置一张牌。"
+    }
+  ],
+  "implementationStatus": "完整佐军与暮往独立最小生产已注册，待主代理实际编译与原生主流程验收，不将实现接线等同测试已通过。",
+  "constraints": [
+    "当前与正式初发两技规则一致；2026调整只规范编号标点。",
+    "佐军使用精确本次原生摸牌所得实体；原生失去体力及濒死、声明成本和实际Use均各自返回原owning frame。",
+    "无法使用只限制真实Use，不限制真正Played；不以CardActionType.Response一概绕过使用闪、无懈、借刀、青龙和濒死用牌的禁用。",
+    "按8.19正式修复，真实离手立即释放佐军特性，暮往收回不恢复旧特性；到期为受益者下一个实际回合结束。",
+    "基本牌与普通锦囊两类合计本实际回合的首次合格失牌批次，为正文工程解释，不称官方FAQ。首批候选由完整原生物理batch冻结，选择待决留在所属ProgramSkillFrame；不能按RecordMovement枚举顺序替玩家自动选牌。",
+    "首次合格拥有区离开按原生Hand/Equip/Judge真实批次与实体sequence冻结。源自同一次Use/Played支付的Hand→Processing及Processing→Discard是同一首次失牌因果，后段不伪造第二次拥有者失牌；用户已选跟踪实体，因此其随后经他人拥有区或其他真实区域、本实际回合稍后入弃仍可沿原first-loss票据取回。",
+    "佐军实体离手即清原标记，暮往实际Discard→Hand收回不会重新授予佐军禁Use或手牌上限豁免；第一次收回及随后本人再次真实离区后的罚弃均依原生移动/逻辑弃置支付，不能把Processing搬运算作再次拥有者失牌。"
+  ],
+  "pendingInterpretations": [],
+  "portrait": {
+    "path": "src/CardGame.Wpf/Assets/official-mou-ju-shou.png",
+    "sourcePage": "https://x.sanguosha.com/hero/1700.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1170001.png",
+    "bytes": 621638,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "sha256": "c9ea3c14e123a777f29471c4ebc5de688244663817ecfcb0c1ee20f0e0532d25"
+  },
+  "explicitProjectDecisions": [
+    "用户明确：同一native批首次失去多张合格实体，由沮授选择1张。",
+    "用户明确：追踪首次失去的该实体，本实际回合先转移给他人、稍后进入弃牌堆仍可取回。"
+  ]
+}

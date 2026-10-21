@@ -2178,6 +2178,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsIssuedMouJsMovementCandidate(candidate, context)) return true;
         if (IsIssuedMouYishiCandidate(candidate, context)) return true;
         if (_programPipelineHooks.IssuedTriggerCandidate(candidate, context)) return true;
         if (IsIssuedMoDiaoChanCandidate(candidate, context)) return true;

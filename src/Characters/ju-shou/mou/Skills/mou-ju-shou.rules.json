@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"mou:zuojun","revision":1,"activations":[{"id":"draw-and-choose","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveMouJuShouZuoJun","target":"owner"}]}]},
+ {"id":"mou:muwang","revision":1,"triggers":[{"id":"first-loss","window":"cardsMoved","subject":"owner","sourceZones":["hand","equipment","judgment"],"movementOccurrence":"perOwnerBatch","optional":false,"effects":[{"op":"resolveMouJuShouMuwang","target":"owner"}]}]}
+]}

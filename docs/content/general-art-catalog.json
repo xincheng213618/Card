@@ -2,6 +2,23 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-ju-shou",
+      "characterName": "谋沮授",
+      "defaultSkinId": "1170001",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1700.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1170001.png",
+          "sha256": "c9ea3c14e123a777f29471c4ebc5de688244663817ecfcb0c1ee20f0e0532d25",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-ju-shou.png",
+          "id": "1170001",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "ol-cao-xian",
       "characterName": "曹宪",
       "defaultSkinId": "1116301",

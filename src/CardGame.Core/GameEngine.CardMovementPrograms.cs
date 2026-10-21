@@ -159,6 +159,7 @@ public sealed partial class GameEngine
         CaptureNativePublicPilePaymentBatch(completed);
         CaptureMouGszHuPaymentBatch(completed);
         CaptureNativeTrueUseProcessingEntries(completed);
+        CaptureMouJsMovementBatch(completed);
         CaptureMouSimaShiDiscardBatch(completed);
         CaptureMouZhangXiuAnniversaryDiscards(completed);
         RecordMouXiahouDunDiscardOrigins(completed);
@@ -303,7 +304,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
-                if (IsMouCaFengmin(trigger) || IsMouHqGiveTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
+                if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveMouJuShouMuwang) || IsMouCaFengmin(trigger) || IsMouHqGiveTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
                 if (IsWuZishengMovementTrigger(trigger) || IsGuYinDiscardTrigger(trigger) || IsBeifenLossTrigger(trigger) || IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsLingkongGainTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
                     IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger) || IsBianFuRenWanweiTrigger(trigger) || IsSunRuOlChishiTrigger(trigger) || IsDuFuRenYiseTrigger(trigger) || IsFeiYiSingletonTrigger(trigger) || IsQingyuanGainTrigger(trigger) || IsMouFaZhengGainTrigger(trigger) || IsMouLuSuGainTrigger(trigger) || IsMouGuoHuaiGainTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
@@ -345,6 +346,7 @@ public sealed partial class GameEngine
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
         }
+        candidates.AddRange(CollectMouJsMovementCandidates(batch));
         candidates.AddRange(CollectMouCaEquipmentCandidates(batch));
         candidates.AddRange(CollectMouHqGiveCandidates(batch));
         candidates.AddRange(CollectNianJingjueCandidates(batch));
@@ -579,6 +581,7 @@ public sealed partial class GameEngine
         CardsMovedTriggerWindowFrame frame,
         ProgramTriggerCandidate candidate)
     {
+        if (candidate.SkillId == MouJuShouRuntime.Muwang && candidate.BindingId == "first-loss") return CreateMouJsMovementContext(frame, candidate);
         if (IsMouCaFengmin(GetProgramTrigger(candidate))) return CreateMouCaEquipmentContext(frame, candidate);
         if (IsWuZishengMovementTrigger(GetProgramTrigger(candidate))) return CreateWuZishengMovementContext(frame, candidate);
         if (IsBiriTrigger(GetProgramTrigger(candidate))) return CreateBiriMovementContext(frame, candidate);
