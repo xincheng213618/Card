@@ -9,6 +9,7 @@ public sealed partial class GameEngine
 
     private NativePublicPileCardRequest NativePublicPileResponseRequest(CharacterState provider, CardKind kind)
     {
+        if (MouSmPublicPileRequest(provider, kind) is { } mouSmRequest) return mouSmRequest;
         long? ownerId = null;
         var actor = provider.Seat;
         int? requester = null;

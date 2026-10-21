@@ -1,0 +1,93 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:jiang-ji",
+  "characterId": "character:jiang-ji",
+  "displayName": "谋蒋济",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "initialHp": 3,
+    "maximumHp": 3,
+    "officialHeroId": 1640
+  },
+  "selectedVersion": {
+    "publishedAt": "2026-07-01",
+    "effectiveFrom": "2026-07-02",
+    "version": "6.4.0",
+    "url": "https://x.sanguosha.com/news/20260629_2301_5217.html"
+  },
+  "sourceAgreement": "现行官方武将页1640与6.4.0正式平衡公告完整正文实质一致，仅标点和X大小写不同。采用当前每名角色、任意交给牌可使用、装备或本次使用造成伤害双方摸2、应时弃装备数+1后本回合失效的版本。2024初版仅其他角色、仅装备可使用且替换装备才奖励，应时另有每项限次及弃牌令牌无效；不得混接旧句。",
+  "skills": [
+    {
+      "id": "mou:shiju",
+      "name": "势举",
+      "officialSelectedText": "每名角色的出牌阶段限一次，其可以交给你一张牌。你可以使用此牌，然后其本回合攻击范围+X（x为你装备区内牌的数量）。若此牌是装备牌或此牌造成了伤害，你与其各摸两张牌；"
+    },
+    {
+      "id": "mou:yingshi",
+      "name": "应时",
+      "officialSelectedText": "当你使用普通锦囊牌指定目标后，你可令其中一个目标选择一项：令此牌对其额外结算一次；弃置X张牌（X为你装备区内牌的数量+1），然后此技能本回合失效。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1640.html",
+      "bytes": 19155,
+      "sha256": "658a24deca70467cf60c2475dc304fdcb371f4bacaaa0cd7ded7373623fe9472"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260629_2301_5217.html",
+      "bytes": 29247,
+      "sha256": "0db86377ba94097747d59d71a98588764f30b5f6e26cddd51b1605ed163a4174"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240411_2999_4616",
+      "bytes": 119920,
+      "sha256": "a10da550e16d1061b616db4821560b0a7287913b26a922ca1d56edab1bc045e6",
+      "role": "initial-version-conflict-only"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "selectedEntry": {
+        "gid": 1640,
+        "prefix": "谋",
+        "name": "蒋济",
+        "resource": 1164001,
+        "country": "魏",
+        "gender": "男",
+        "hp": 3
+      }
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1640.html",
+    "selectedDomLabel": "经典形象*谋蒋济",
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164001.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-jiang-ji.png",
+    "width": 574,
+    "height": 761,
+    "bytes": 616158,
+    "sha256": "f49fb99fcef7836920f542737c0ffed99f63b508594ef132776380c2b7851d74",
+    "verification": "主代理依武将页实际DOM经典形象链接下载并查看原图。"
+  },
+  "engineeringInterpretationsNotOfficialFaq": [
+    "有限官方FAQ检索未找到对以下细节的独立说明。以下为按当前正文和现有原生合同作出的项目工程解释，不标为官方FAQ，也不冒充本条用户另行裁决。",
+    "每名角色包含谋蒋济本人；每位实际给牌者在其每个真实出牌阶段各一次，保留施技owner、当前actor和原生实际phase凭据。不是每回合全体共享一次。",
+    "交给一张牌沿同类Give的HE范围。别人给牌在真实物理移动完成而移动观察者尚未开始的callback封Give账；本人手牌交给自己只承诺准确现有实体，不制造移动或Give；本人装备交回自己手牌则真实移动。",
+    "可使用此牌保留收到的准确手牌实体、真实使用者/提供者、原生合法动作及目标、原生支付、完整结算和typed返回；可以不使用。不把赠予偷换为夺取，不再造实体。",
+    "赠予的原始实体是装备牌，即使本人选择不使用，也满足装备奖励条件；非装备牌必须本次真实Use造成正数伤害才奖励，不借本回合别的伤害。X在本次可选Use及其所有子窗完成后按当时本人装备区牌数确定，给实际给牌者的攻击范围增量至本实际回合原生TurnEnded。",
+    "你与其各摸两张按两个身份顺序各执行一次原生Draw2；给牌者就是本人时仍是本人先后两次Draw2，不去重成一次，也不把两个原生步骤合成Draw4。保留实际摸牌、替代获得与子窗回执。",
+    "应时只选择该次普通锦囊的一个真实目标；借刀以被要求使用杀的角色为主目标，保留对应受害者配对。额外结算同一Use的该目标一次，保留原实体、无懈、材料归属和所有原生目标效果，不再发第二次Use或重复支付。",
+    "应时目标选择弃牌时，以该项选择时本人当前装备数+1为X；允许不足X时选择并按当前可弃HE尽量真实支付，原生子窗完成后应时在本实际回合失效。此项沿项目既有不足尽量执行口径作工程映射，不是本条技能的另一次用户裁决。",
+    "所有私有选择、已承诺实体、给牌/弃置/摸牌回执及当前原生Use均归属自己的ProgramSkillFrame；额外结算凭据与游标归属原CardUseFrame。支付后原生子窗返回，不能因重新列举资格重复给牌、使用、摸牌或弃置。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouJiangJiAnniversaryChecks.cs",
+    "method": "PerPlayGiftsAndSelectedTargetNativeEffectsCold",
+    "scope": "固定四席山河真实主流程，串联本人实体赠用与原生两次Draw2、应时单目标额外效果与私有部分HE弃置的代表冷恢复、真实回合失效/刷新、他人赠牌及临时攻击范围、非装备真实Use伤害奖励。"
+  }
+}

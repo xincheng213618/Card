@@ -1,0 +1,51 @@
+{
+  "generalId": "mou:sima-yi",
+  "name": "谋司马懿",
+  "edition": "三国杀十周年",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 3,
+    "characterId": "character:sima-yi",
+    "variantId": "mou",
+    "rulesetId": "sanguosha-anniversary"
+  },
+  "sources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1632.html",
+      "kind": "official-current-complete-hero",
+      "sha256": "57d9e9b09b2e0cb8ba0f04988f8da4807bef4eef8b1c47cf72cb63117f588a13"
+    }
+  ],
+  "formalVerification": {
+    "status": "未在有限官方检索中找到可核首发技能全文；当前官网完整正文为本次规则来源，不虚报公告互证。"
+  },
+  "skills": [
+    {
+      "id": "mou:quanmou",
+      "name": "权谋",
+      "text": "转换技，游戏开始时可自选阴阳状态，出牌阶段每名角色限一次，你可以令攻击范围内一名其他角色交给你一张牌，阳：防止你此阶段下次对其造成的伤害；阴：此阶段你下次对其造成伤害后，可以对至多三名其他角色（该角色除外）各造成1点伤害。"
+    },
+    {
+      "id": "mou:pingliao",
+      "name": "平辽",
+      "text": "锁定技，当你使用【杀】指定目标时，不公开指定的目标。你攻击范围内的其他角色依次选择是否打出一张红色基本牌。若此【杀】的目标未打出基本牌，其本回合无法使用或打出手牌；若有至少一名非目标打出基本牌，你摸两张牌且此阶段出【杀】次数+1。"
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1632.html",
+    "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163201.png",
+    "bytes": 643110,
+    "pixelWidth": 574,
+    "pixelHeight": 761,
+    "sha256": "a32182c4544251912b8ffd86c699b329d37a219d5e357298a532cf88d88bde44",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-sima-yi.png"
+  },
+  "implementationInterpretations": [
+    {
+      "kind": "main-agent-literal-engineering-interpretation",
+      "topic": "权谋的空牌目标",
+      "text": "正文未列目标须有牌，允许攻击范围内空手牌及装备区的合法其他角色。当前有合法可给牌时须选择真实一张，无法给牌时不伪造给牌事实，仍结算本阶段效果并转换。此为主代理正文工程解释，不是用户另行裁定或官方FAQ。"
+    }
+  ]
+}

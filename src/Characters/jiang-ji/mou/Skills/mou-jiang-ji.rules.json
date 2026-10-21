@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:shiju",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "give-and-use",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMouJiangJiShiju",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:yingshi",
+      "revision": 1,
+      "states": [
+        {
+          "id": "disabled",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "turn",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "ordinary-trick-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "disabled",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "resolveMouJiangJiYingshi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

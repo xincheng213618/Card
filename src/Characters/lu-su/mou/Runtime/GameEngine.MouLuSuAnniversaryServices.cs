@@ -34,6 +34,7 @@ public sealed partial class GameEngine
         }
         public IReadOnlyList<LegalAction> Uses(ProgramSkillFrame f) => e.MouLuSuUseActions(f);
         public IReadOnlyList<MouLuSuAnniversaryPlayedPlan> Plays(ProgramSkillFrame f) => e.MouLuSuPlayedPlans(f);
+        public bool Declaration(MouLuSuAnniversaryPlayedPlan plan)=>plan.Source is{}source&&e.ViewAsRule(source)?.DeclarationValidation is not null;
     }
     [ProgramCapability] private sealed class MouLuSuAnniversaryNative(GameEngine e) : IMouLuSuAnniversaryNative
     {
@@ -55,6 +56,7 @@ public sealed partial class GameEngine
                 e.ReplaceRuntimeFrame(f.Id,parent with { MouLuSuAnniversary = parent.MouLuSuAnniversary! with { After = m.Sequence } }); e.AdvanceEventRulesAndQueueFact(new MouLuSuAnniversaryGiftEvent(f.Id,r.Other,card,m.Sequence)); },disclosure:CardMovementDisclosure.FaceUp);
         }
         public void Use(ProgramSkillFrame f) => e.IssueMouLuSuUse(f);
+        public void Declare(ProgramSkillFrame f)=>e.IssueMouLuSuPlayedDeclaration(f);
         public void Play(ProgramSkillFrame f) => e.IssueMouLuSuPlayed(f);
         public void CompletePlayed(ProgramSkillFrame f) => e.BeginMouLuSuPlayedCompleted(f);
         public void LoseHp(ProgramSkillFrame f,int target) => new ProgramSkillHost(e).LoseHp(f.Id,f.SkillId,target,1);

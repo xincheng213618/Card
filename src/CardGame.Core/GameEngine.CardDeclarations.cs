@@ -156,6 +156,7 @@ public sealed partial class GameEngine
         payment = CaptureMouGuquDeclaration(payment, parent);
         payment = CaptureDiouDeclaration(payment, parent);
         payment = CaptureMoQuanyuDeclarationQuota(payment, parent, targets);
+        payment = CaptureMouSmDeclaration(payment, parent);
         ClearPendingDecision();
         _selectedUseConversion = null; _selectedResponseConversion = null;
         _hasSelectedUseConversionChoice = false; _hasSelectedResponseConversionChoice = false;
@@ -266,7 +267,7 @@ public sealed partial class GameEngine
         {
             var cost = _cardZones.CardsAt(_cardZones.GetLocation(frame.Payment.Cost.CardId)).Single(card => card.Id == frame.Payment.Cost.CardId);
             return new CardDeclarationSnapshot(frame.Id, frame.OwnerSeat, frame.Return.ActorSeat, frame.Payment.DeclaredKind,
-                Array.AsReadOnly(frame.TargetSeats.ToArray()), frame.IsRevealed, frame.IsRevealed ? ToSnapshot(cost) : null,
+                MouSmDeclarationTargets(frame, viewer, revealAll), frame.IsRevealed, frame.IsRevealed ? ToSnapshot(cost) : null,
                 revealAll || viewer == frame.OwnerSeat ? ToSnapshot(cost) : null);
         }).ToArray();
         return values.Length == 0 ? null : Array.AsReadOnly(values);
@@ -336,6 +337,8 @@ public sealed partial class GameEngine
         if (TryReturnJianjiDeclaration(frame, success)) return;
         if (ReturnMouGyzDeclaration(frame, success)) return;
         if (TryReturnKeBiNengPingduanDeclaration(frame, success)) return;
+        if (ReturnMouSmPlayedDeclaration(frame, success)) return;
+        if (ReturnMouLuSuPlayedDeclaration(frame, success)) return;
         if (cancelled) return;
         if (success)
         {

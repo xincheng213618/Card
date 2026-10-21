@@ -125,6 +125,18 @@ internal static class FeedbackChecks
         Assert(cues[0].Label == "杀" && cues[0].TargetSeats.SequenceEqual([1]), "Declared card or detached public targets differ.");
         Assert(cues[0].CardKind == CardKind.Slash && cues[1].CardKind == CardKind.Slash && cues.Skip(2).All(cue => cue.CardKind is null),
             "Use and response artwork must come from their public effective kinds, never from private card IDs.");
+        var secretSlash = Envelope(new CardUseDeclaredEvent(138, 2468, CardKind.Slash, 0)) with { Revision = 2 };
+        var publicPlayed = Envelope(new CardRespondedEvent(1357, 1, 0, CardKind.Peach)) with { Revision = 2 };
+        var beforeDisclosure = BattleCueProjector.Project([secretSlash, publicPlayed], view);
+        Assert(beforeDisclosure.Single(cue => cue.Sequence == secretSlash.Sequence) is { Kind: BattleCueKind.Card, TargetSeats: [] } &&
+               beforeDisclosure.Single(cue => cue.Sequence == publicPlayed.Sequence) is { Kind: BattleCueKind.Response, SourceSeat: 1 },
+            "A secret original Slash exposes no early arrow while unrelated genuine Played feedback remains public.");
+        var targetDisclosure = Envelope(new MouSmTargetsDisclosedEvent(138, 1380, 0, 2468, CardKind.Slash) { Targets = [1], HeldEventSequences = [secretSlash.Sequence + 100], HeldLogSequences = [100] }) with { Revision = 3 };
+        var disclosedCue = BattleCueProjector.Project([targetDisclosure], Engine(vm).CreateSnapshot(1)).Single();
+        Assert(disclosedCue is { Kind: BattleCueKind.Card, SourceSeat: 0, TargetSeats: [1], CardKind: CardKind.Slash, Detail: "指定目标" } &&
+               targetDisclosure.Revision == 3 && disclosedCue.Sequence == targetDisclosure.Sequence && disclosedCue.Sequence > publicPlayed.Sequence &&
+               BattleCueProjector.ProjectCardPlays([targetDisclosure], view).Count == 0,
+            "The current committed disclosure supplies the arrow at its own increasing sequence without inventing a second played card or replaying an old envelope.");
         var recastCue = BattleCueProjector.Project([Envelope(new CardRecastEvent(0, 300, CardKind.IronChain, 1))], view).Single();
         Assert(recastCue is { CardKind: CardKind.IronChain, Detail: "重铸" }, "Recast lost its public card kind or action label.");
         Assert(cues[1].Label == "打出杀" && cues[2].Label == "−2" && cues[2].Nature == DamageNature.Fire && cues[3].Label == "+1", "Response, damage, or recovery feedback differs from committed events.");

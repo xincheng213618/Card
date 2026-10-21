@@ -129,10 +129,10 @@ public sealed partial class GameEngine
             return false;
 
         var facts = CaptureProgramTriggerFacts(owner);
-        var candidates = CollectEligibleProgramTriggerCandidates(
+        var candidates = IncludeMouSimaShiDeathCandidates(owner, CollectEligibleProgramTriggerCandidates(
             owner,
             SkillProgramTriggerWindow.OwnerDied,
-            facts);
+            facts));
         if (candidates.Count == 0)
             return false;
 

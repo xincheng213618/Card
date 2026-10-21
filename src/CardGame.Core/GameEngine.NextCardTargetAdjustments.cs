@@ -19,7 +19,7 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private bool HasRemainingAdjustedBorrowedSwordTargets(long frameId) => !IsTargetScopedZixiEffectRound(frameId) && _winner == Winner.None && (LifecycleCardUse(frameId)?.TargetsAdjusted == true) &&
+    private bool HasRemainingAdjustedBorrowedSwordTargets(long frameId) => !IsTargetScopedMouJjEffect(frameId) && !IsTargetScopedZixiEffectRound(frameId) && _winner == Winner.None && (LifecycleCardUse(frameId)?.TargetsAdjusted == true) &&
         _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.Id == frameId && frame.CardKind == CardKind.BorrowedSword &&
             frame.TargetSeats.Count >= 4 && frame.TargetSeats.Count % 2 == 0 && frame.TargetIndex + 2 < frame.TargetSeats.Count);
 

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:quanmou",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "in-range-give",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveMouSimaYiQuanmou",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "initial-polarity",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMouSimaYiQuanmou",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "prevent-next-phase-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "preventMouSimaYiQuanmouDamage",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "spread-next-phase-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "spreadMouSimaYiQuanmouDamage",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "mou:pingliao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "private-native-slash",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMouSimaYiPingliao",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

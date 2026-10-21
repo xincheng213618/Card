@@ -92,6 +92,7 @@ public static class BattleCueProjector
             {
                 CardRecastEvent recast => new(envelope.Sequence, BattleCueKind.Card, recast.ActorSeat, [],
                     $"重铸{CardCatalog.Get(recast.CardKind).DisplayName}", Name(recast.ActorSeat), Detail: "重铸") { CardKind = recast.CardKind },
+                MouSmTargetsDisclosedEvent revealed => new(envelope.Sequence, BattleCueKind.Card, revealed.Actor, Seats(revealed.Targets), CardCatalog.Get(revealed.Kind).DisplayName, Name(revealed.Actor), Detail: "指定目标") { CardKind = revealed.Kind },
                 CardUseDeclaredEvent card => new(envelope.Sequence, BattleCueKind.Card, card.SourceSeat,
                     Seats(targets.GetValueOrDefault(card.ResolutionId) ?? []), CardCatalog.Get(card.CardKind).DisplayName, Name(card.SourceSeat)) { CardKind = card.CardKind },
                 ResponseRequestedEvent request => new(envelope.Sequence, BattleCueKind.ResponseWindow, request.TargetSeat,

@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:jiang-ji",
+  "skills": [
+    {
+      "registrationOrder": 2810,
+      "programBundle": "mou-jiang-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:shiju",
+        "name": "势举",
+        "description": "每名角色的出牌阶段限一次，其可以交给你一张牌。你可以使用此牌，然后其本回合攻击范围+X（X为你装备区内牌的数量）。若此牌是装备牌或此牌造成了伤害，你与其各摸两张牌。",
+        "executionForms": "Trigger, State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 2811,
+      "programBundle": "mou-jiang-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:yingshi",
+        "name": "应时",
+        "description": "当你使用普通锦囊牌指定目标后，你可令其中一个目标选择一项：令此牌对其额外结算一次；弃置X张牌（X为你装备区内牌的数量+1），然后此技能本回合失效。",
+        "executionForms": "Trigger, State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2812,
+      "pools": {
+        "current": 585
+      },
+      "definition": {
+        "id": "mou:jiang-ji",
+        "name": "谋蒋济",
+        "portraitKey": "mou-jiang-ji",
+        "skillId": "mou:shiju",
+        "additionalSkillIds": [
+          "mou:yingshi"
+        ],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:jiang-ji",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

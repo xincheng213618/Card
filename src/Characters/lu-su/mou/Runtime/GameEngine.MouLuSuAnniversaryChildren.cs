@@ -5,6 +5,7 @@ public sealed partial class GameEngine
     private bool MouLuSuFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
         if (!MouLuSuAnniversary.Valid(f) || f.MouLuSuAnniversary is not { } r) return false;
+        if(child is CardDeclarationFrame declaration)return MatchesMouLuSuPlayedDeclaration(f,declaration);
         if (NativeDrawAttemptRidesOn(child,f)) return r.Stage == MouLuSuAnniversaryStage.Drawing && f.NativeDraw is not null;
         if (child is CardUseFrame use) return r.Stage == MouLuSuAnniversaryStage.NativeUse && use.Id == r.UseId && MouLuSuNativeMatches(use);
         if (child is DrawFundedDistinctBasicFrame funded) return IsMouLuSuPaymentFrame(funded);
@@ -23,7 +24,7 @@ public sealed partial class GameEngine
         }
         return child is ProgramLifecycleTriggerWindowFrame state && state.ResumeProgramFrameId == f.Id && (state.Window == SkillProgramTriggerWindow.SkillsChanged && state.Continuation == ProgramLifecycleContinuation.ResumeParentProgram || state.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange && ProgramEventHistory<CharacterStateChangedEvent>().Any(e => e.Change.Id == state.Id && e.Change.ParentFrameId == f.Id));
     }
-    private bool MouLuSuEdge(int i) => IsMovementObserverEdge(i) || IsSameNameHandObserverEdge(i) || IsYanPuDyingExitEdge(i) || TypedDamagePostEventEdge(_resolutionStack[i - 1],_resolutionStack[i]) || _resolutionStack[i - 1] is ProgramSkillFrame f && MouLuSuFirstChild(f,_resolutionStack[i]) || NativeDrawAttemptRidesOn(_resolutionStack[i],_resolutionStack[i - 1]) || RecoveryReplacementFrameRidesOn(_resolutionStack[i],_resolutionStack[i - 1]) || DyingSuitsStructuralEdge(_resolutionStack[i - 1],_resolutionStack[i]);
+    private bool MouLuSuEdge(int i) => MouLuSuPlayedDeclarationEdge(i) || IsMovementObserverEdge(i) || IsSameNameHandObserverEdge(i) || IsYanPuDyingExitEdge(i) || TypedDamagePostEventEdge(_resolutionStack[i - 1],_resolutionStack[i]) || _resolutionStack[i - 1] is ProgramSkillFrame f && MouLuSuFirstChild(f,_resolutionStack[i]) || NativeDrawAttemptRidesOn(_resolutionStack[i],_resolutionStack[i - 1]) || RecoveryReplacementFrameRidesOn(_resolutionStack[i],_resolutionStack[i - 1]) || DyingSuitsStructuralEdge(_resolutionStack[i - 1],_resolutionStack[i]);
     private bool MouLuSuSuffix(int n) => _resolutionStack[n + 1] is DyingFrame d && n + 2 < _resolutionStack.Count && IsSuspendedOrPaidRescueObserverSuffix(n + 1,d) || HasObserverSuffix(n,static(g,i) => g.MouLuSuEdge(i),static(g,i,d) => g.IsSuspendedOrPaidRescueObserverSuffix(i,d));
     private ProgramSkillFrame? MouLuSuRoot() => FindProgramObserverRoot(static(g,f,c) => g.MouLuSuFirstChild(f,c),static(g,n) => g.MouLuSuSuffix(n));
     [ProgramDyingProof(ProgramDyingProofPhase.Invariant,36100)] [ProgramDyingProof(ProgramDyingProofPhase.Runtime,36100)] private bool MouLuSuDying() => ActiveDying is { } d && MouLuSuRoot() is { } f && _resolutionStack.FindIndex(x => x.Id == d.Id) > _resolutionStack.FindIndex(x => x.Id == f.Id);

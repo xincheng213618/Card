@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou:sanshi", "revision": 1, "triggers": [
+      { "id": "mark-ranks", "window": "gameStarting", "subject": "owner", "optional": false, "effects": [{ "op": "initializeMouSimaShiSanshi", "target": "owner" }] },
+      { "id": "turn-discard-return", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": false, "effects": [{ "op": "recoverMouSimaShiSanshi", "target": "owner" }] },
+      { "id": "other-turn-discard-return", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false, "effects": [{ "op": "recoverMouSimaShiSanshi", "target": "owner" }] }
+    ] },
+    { "id": "mou:zhenrao", "revision": 1, "triggers": [
+      { "id": "use-other-targets", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": true, "effects": [{ "op": "resolveMouSimaShiZhenrao", "target": "owner" }] },
+      { "id": "targeted-by-other", "window": "cardUseTargetsFinalized", "ownerRelation": "target", "optional": true, "effects": [{ "op": "resolveMouSimaShiZhenrao", "target": "owner" }] }
+    ] },
+    { "id": "mou:chenlve", "revision": 1,
+      "activations": [{ "id": "claim-dead-soldiers", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1, "effects": [{ "op": "resolveMouSimaShiChenlve", "target": "owner" }] }],
+      "triggers": [
+        { "id": "remove-issued-entities", "window": "actualPhaseEnded", "subject": "owner", "optional": false, "effects": [{ "op": "removeMouSimaShiChenlve", "target": "owner" }] },
+        { "id": "death-return-shuffle", "window": "ownerDied", "subject": "owner", "optional": false, "effects": [{ "op": "returnMouSimaShiChenlve", "target": "owner" }] }
+      ]
+    }
+  ]
+}

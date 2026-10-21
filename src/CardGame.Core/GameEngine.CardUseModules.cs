@@ -7,7 +7,7 @@ public sealed partial class GameEngine
         if (IsProgramHandPhysicalRestricted(player.Seat, card.Id) || IsTurnHandCategoryRestricted(player, card) || IsResponseEntityRestricted(player.Seat, card.Id)) return true;
         if (IsPlayPhasePhysicalCardRestricted(player, card)) return true;
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
-        if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
+        if (!IsMouSmPlayedActor(player) && ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
             attack.TargetSeat == player.Seat && attack.CardUserSeat != player.Seat)
             return true;
         if (_turnCardUseEffects.HandColorRestrictions.Count == 0) return false;

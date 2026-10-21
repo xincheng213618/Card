@@ -74,6 +74,9 @@ public sealed partial class GameEngine
                 WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null
             };
             var preparedEvents = PrepareCommandEvents(nextRevision);
+            var mouSmProjection = PrepareMouSmPublicProjection();
+            var mouSmPublicEvents = mouSmProjection is null ? preparedEvents : preparedEvents.Select(item => MouSmPublicEvent(item.Event, mouSmProjection) is { } projected ? new EventNotification(projected) : null).ToArray();
+            var mouSmPublicIndex = 0;
 
             // Reserve every append before the commit point. Normal commands do
             // not copy the journal or rebuild a replay/checkpoint.
@@ -89,7 +92,7 @@ public sealed partial class GameEngine
             foreach (var item in preparedEvents)
             {
                 _events.Add(item.Event);
-                _pendingNotifications.Enqueue(item);
+                if (mouSmPublicEvents[mouSmPublicIndex++] is { } publicItem) _pendingNotifications.Enqueue(publicItem);
             }
             if (preparedEvents.Length > 0)
                 _eventSequence = preparedEvents[^1].Event.Sequence;

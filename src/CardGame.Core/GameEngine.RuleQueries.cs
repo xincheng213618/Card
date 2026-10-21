@@ -230,7 +230,7 @@ public sealed partial class GameEngine
                 HasSkillRoleQualification(player, binding.Source.SkillId, binding.Source.SkillInstanceId, Role.Lord)).ToArray();
         if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query)
             .Concat(ActivityRuleContributions(player, query))
-            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).ToArray();
+            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query)).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),
@@ -264,7 +264,7 @@ public sealed partial class GameEngine
             bindings);
         return programContributions.Concat(CollectStrategicRuleContributions(player, query))
             .Concat(ActivityRuleContributions(player, query))
-            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).ToArray();
+            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query)).ToArray();
     }
 
     private static void AddFiniteContribution(

@@ -1,0 +1,94 @@
+{
+  "generalId": "mou:sima-shi",
+  "characterId": "character:sima-shi",
+  "displayName": "谋司马师",
+  "variantId": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "verifiedOn": "2026-10-21",
+  "identity": {
+    "factionId": "wei",
+    "gender": "Male",
+    "baseHp": 3
+  },
+  "selectedVersion": "当前十周年hero1642完整三技能，与2024-04-03正式首发公告全文一致；未混入其他版本。",
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1642.html",
+      "title": null,
+      "publishedAt": null,
+      "availableFrom": null,
+      "sha256": "fe1aa36c9db2ba3b2680f126b8caad666a6a59c14b2cde49b5ee5e003dfdab74",
+      "bytes": 30655
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20240402_3422_2416",
+      "title": "[十周年]4.4-4.12 踏青寻春 新将曹芳&谋司马师&谋王凌 段巧笑限定 飞鸢赢好礼",
+      "publishedAt": "2024-04-03 18:55:21",
+      "availableFrom": "2024-04-04",
+      "sha256": "09482147e9f8fe59fed8f483d50c68f2ffe5791a2872bc7fd7fb2bc81f04845e",
+      "bytes": 534796
+    }
+  ],
+  "officialText": [
+    {
+      "skillId": "mou:sanshi",
+      "name": "散士",
+      "text": "锁定技，游戏开始时，你将牌堆中每个点数的随机一张牌标记为“死士”牌。每个回合结束时，若本回合有“死士”牌不因你使用或打出而进入弃牌堆，你获得弃牌堆中的这些牌。你使用“死士”牌不能被响应。"
+    },
+    {
+      "skillId": "mou:zhenrao",
+      "name": "震扰",
+      "text": "每回合每名角色限一次，你使用牌指定其他角色为目标后，或其他角色使用牌指定你为目标后，你可以选择手牌数大于你的其中一个目标或使用者，对其造成1点伤害。"
+    },
+    {
+      "skillId": "mou:chenlve",
+      "name": "沉略",
+      "text": "限定技，出牌阶段，你可以从牌堆、弃牌堆、场上或其他角色手牌中获得所有“死士”牌。出牌阶段结束时，将这些牌移出游戏直到你死亡。"
+    }
+  ],
+  "explicitUserDecisions": [
+    {
+      "topic": "沉略：本人死亡后被移出牌的返还去向",
+      "decision": "放回牌堆并洗牌",
+      "implementation": "只对本将实际移出且仍未离开该次OutsideGame隔离的实体进行原生回牌堆移动；相关移动子窗结算后，使用原生确定性RNG真实洗牌。",
+      "attribution": "用户在本次会话明确选择，非官方FAQ。"
+    }
+  ],
+  "engineeringInterpretations": [
+    {
+      "topic": "沉略冻结实体",
+      "interpretation": "仅冻结本次实际从牌堆、弃牌堆、场上或其他角色手牌获得至本人手牌的实体；不纳入发动前已在本人手牌且本次未获得的牌。",
+      "attribution": "根据正文获得区域与这些牌的指代制定的工程解释，非官方FAQ或用户裁决。"
+    },
+    {
+      "topic": "原实际出牌阶段尾",
+      "interpretation": "冻结真实ActualDiscardRecoveryPhaseKey。在该原实际Play尾结算逐实体移出，跨现所在Hand/Equipment/Judgment/DrawPile/DiscardPile追踪；已在OutsideGame或不可触达私堆不伪造移动，不因插入阶段而改派原义务。",
+      "attribution": "工程时序映射。"
+    },
+    {
+      "topic": "混合素材死士属性",
+      "interpretation": "实际使用的实体素材中任意一张为该散士持有者标记的死士时，本次使用继承不可响应；沿项目已有魔吕布any physical material口径。",
+      "attribution": "工程解释，非官方FAQ或用户裁决。"
+    },
+    {
+      "topic": "散士使用与打出归因",
+      "interpretation": "依据原生Accepted action的Actor、实体支付位置、Processing进入sequence和原生母帧，核对实际完成入弃。本人真实Use与Played均排除；普通弃置、重铸或其他角色使用不因此排除。仅取回本实际回合合格入弃且结算时仍在弃牌堆的实体。",
+      "attribution": "真实原生付款与移动合同映射。"
+    },
+    {
+      "topic": "震扰计次",
+      "interpretation": "按每实际回合、每选中角色计次，己方使用从实际目标中选一名，其他角色以本人为目标则只能选该实际使用者；选择时实时比较手牌数。",
+      "attribution": "对应正式全文每回合每名角色限一次。"
+    }
+  ],
+  "portrait": {
+    "primaryUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164201.png",
+    "asset": "src/CardGame.Wpf/Assets/official-mou-sima-shi.png",
+    "width": 574,
+    "height": 761,
+    "bytes": 600192,
+    "sha256": "eb521664e4c5ade66fcfc925158808e35770a4d257f4239726d52973ce499528",
+    "source": "hero1642真实classic yang-img link8；主代理已下载并实际查看。"
+  },
+  "runtime": "独立ProgramRuntimeModule注入窄facts/native/frames/events/prompts接口；原生支付、伤害、移动、阶段尾、死亡、洗牌与typed continuation保留在实际引擎链；无虚构牌实体、HP赋值或模拟替代。"
+}

@@ -88,7 +88,7 @@ internal sealed class MouLuSuAnniversaryRuntime(IMouLuSuAnniversaryFacts facts, 
         if (branch == "recipient") { frames.ReplaceTop(f with { MouLuSuAnniversary = r with { Other = supplied.Targets.Single(), Stage = MouLuSuAnniversaryStage.Gift } }); Continue(f.Id); return; }
         if (branch == "gift") { frames.ReplaceTop(f = f with { MouLuSuAnniversary = r with { Stage = MouLuSuAnniversaryStage.GiftChildren, Before = facts.Sequence, After = facts.Sequence }, PendingMovementContinuation = new(f.OwnerSeat,0,null) }); native.Gift(f, supplied.Cards.Single()); Continue(f.Id); return; }
         if (branch == "stop") { if (!r.Yin) { Complete(f); return; } frames.ReplaceTop(f with { MouLuSuAnniversary = r with { Stage = MouLuSuAnniversaryStage.MissingHp, Cursor = r.Index } }); Continue(f.Id); return; }
-        if (branch == "play") { var plan = facts.Plays(f)[int.Parse(supplied.Parameters["item"], CultureInfo.InvariantCulture)]; frames.ReplaceTop(f = f with { MouLuSuAnniversary = r with { Stage = MouLuSuAnniversaryStage.PlayedAccepted, Played = plan, Before = facts.Sequence, After = facts.Sequence, Response = null, ActionId = 0 } }); native.Play(f); return; }
+        if (branch == "play") { var plan = facts.Plays(f)[int.Parse(supplied.Parameters["item"], CultureInfo.InvariantCulture)]; var declaration=facts.Declaration(plan); frames.ReplaceTop(f = f with { MouLuSuAnniversary = r with { Stage = declaration?MouLuSuAnniversaryStage.PlayedDeclaration:MouLuSuAnniversaryStage.PlayedAccepted, Played = plan, Before = facts.Sequence, After = facts.Sequence, Response = null, ActionId = 0 } }); if(declaration)native.Declare(f);else native.Play(f); return; }
         if (branch == "action") { var a = facts.Uses(f)[int.Parse(supplied.Parameters["item"], CultureInfo.InvariantCulture)]; frames.ReplaceTop(f = f with { MouLuSuAnniversary = r with { Stage = MouLuSuAnniversaryStage.DraftCards, SelectedAction = a, OriginalDecision = original, Cards = [], Targets = [] } }); if (a.MaxCardCount == 0 && a.MaxTargetCount == 0) Issue(f); else Publish(f); return; }
         if (branch == "material") { frames.ReplaceTop(f with { MouLuSuAnniversary = r with { Cards = r.Cards.Append(supplied.Cards.Single()).ToArray() } }); Publish(frames.ActiveProgram(f.Id)); return; }
         if (branch == "target") { frames.ReplaceTop(f with { MouLuSuAnniversary = r with { Targets = r.Targets.Append(supplied.Targets.Single()).ToArray() } }); Publish(frames.ActiveProgram(f.Id)); return; }
@@ -135,6 +135,13 @@ internal sealed class MouLuSuAnniversaryRuntime(IMouLuSuAnniversaryFacts facts, 
             }
             return;
         }
+    }
+    internal void DeclarationReturned(ProgramSkillFrame f,long declarationId,bool succeeded)
+    {
+        if(!Valid(f)||f.MouLuSuAnniversary is not{Stage:MouLuSuAnniversaryStage.PlayedDeclaration,Played:{}plan,Response:null,ActionId:0}r||!facts.Declaration(plan)||facts.History<MouLuSuAnniversaryDeclarationReturnedEvent>().Any(e=>e.DeclarationId==declarationId))throw new InvalidOperationException("Mengmou requires the unique actual native declaration return.");
+        events.AdvanceFact(new MouLuSuAnniversaryDeclarationReturnedEvent(f.Id,r.Index,declarationId,succeeded));
+        frames.ReplaceTop(f=f with{MouLuSuAnniversary=r with{Stage=succeeded?MouLuSuAnniversaryStage.PlayedAccepted:MouLuSuAnniversaryStage.PlayedChildren,After=facts.Sequence},PendingMovementContinuation=succeeded?null:new(f.OwnerSeat,0,null)});
+        if(succeeded)native.Play(f);else Continue(f.Id);
     }
     [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveMouLuSuMingshi)] private void DrawReturned(ProgramSkillFrame f, NativeDrawOutcome outcome)
     {

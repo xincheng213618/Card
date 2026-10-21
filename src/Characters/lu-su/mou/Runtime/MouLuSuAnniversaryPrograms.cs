@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
-public enum MouLuSuAnniversaryStage { Opening, Show, Recipient, Gift, GiftChildren, Drawing, DrawChildren, Request, DraftCards, DraftTargets, Issuing, NativeUse, UseChildren, PlayedAccepted, PlayedCompleted, PlayedChildren, MissingHp, HpChildren, Recover, RecoveryChildren, PlayedCostChildren }
+public enum MouLuSuAnniversaryStage { Opening, Show, Recipient, Gift, GiftChildren, Drawing, DrawChildren, Request, DraftCards, DraftTargets, Issuing, NativeUse, UseChildren, PlayedAccepted, PlayedCompleted, PlayedChildren, MissingHp, HpChildren, Recover, RecoveryChildren, PlayedCostChildren, PlayedDeclaration }
 public sealed record MouLuSuAnniversaryPlayedPlan(CardKind Kind, CardConversionSource? Source, bool Zhangba)
 {
     private readonly IReadOnlyList<int> _cards = [];
@@ -38,6 +38,7 @@ public sealed record MouLuSuAnniversaryUseReturnedEvent(long FrameId, int Index,
 public sealed record MouLuSuAnniversaryPlayedEvent(long FrameId, int Index, long ActionId, bool Completed) : IGameEvent;
 public sealed record MouLuSuAnniversaryHpIssuedEvent(long FrameId, int Cursor, int Target, bool Recovery) : IGameEvent;
 public sealed record MouLuSuAnniversaryDamageRewardIssuedEvent(long FrameId, long DamageFrameId, long UseId, long ActionId) : IGameEvent;
+public sealed record MouLuSuAnniversaryDeclarationReturnedEvent(long FrameId,int Index,long DeclarationId,bool Succeeded):IGameEvent;
 public sealed record MouLuSuAnniversaryCompletedEvent(long FrameId) : IGameEvent;
 public sealed record MouLuSuAnniversaryTransferInvoiceEvent(long EntrySequence, string Producer, int Owner, int Recipient) : IGameEvent;
 internal interface IMouLuSuAnniversaryRuntime : IProgramRuntimeOperations { SkillProgramStepOutcome Resolve(ProgramSkillFrame f, SkillProgramEffectOp operation); }
@@ -48,12 +49,12 @@ internal interface IMouLuSuAnniversaryFacts : IProgramSelectionQuery
     IReadOnlyList<int> Living(); IReadOnlyList<CardSnapshot> Hand(int seat); bool InHand(int seat, int card); SkillProgram Program(string id); IEnumerable<T> History<T>() where T : IGameEvent;
     bool Yin(int owner, string instance); bool Parent(ProgramSkillFrame f); ActualDiscardRecoveryPhaseKey? Phase();
     int? Peer(ProgramTriggerCandidate c, ProgramSkillWindowContext w); (int Actor, int Amount, long UseId)? Damage(ProgramTriggerCandidate c, ProgramSkillWindowContext w);
-    IReadOnlyList<LegalAction> Uses(ProgramSkillFrame f); IReadOnlyList<MouLuSuAnniversaryPlayedPlan> Plays(ProgramSkillFrame f);
+    IReadOnlyList<LegalAction> Uses(ProgramSkillFrame f); IReadOnlyList<MouLuSuAnniversaryPlayedPlan> Plays(ProgramSkillFrame f); bool Declaration(MouLuSuAnniversaryPlayedPlan plan);
 }
 internal interface IMouLuSuAnniversaryNative : IProgramRuntimeOperations
 {
     void PublishState(); void Finish(ProgramSkillFrame f); bool Drain(ProgramSkillFrame f); void Yin(ProgramSkillFrame f, bool yin);
-    void Reveal(ProgramSkillFrame f); void Gift(ProgramSkillFrame f, int card); void Use(ProgramSkillFrame f); void Play(ProgramSkillFrame f); void CompletePlayed(ProgramSkillFrame f);
+    void Reveal(ProgramSkillFrame f); void Gift(ProgramSkillFrame f, int card); void Use(ProgramSkillFrame f); void Declare(ProgramSkillFrame f); void Play(ProgramSkillFrame f); void CompletePlayed(ProgramSkillFrame f);
     void LoseHp(ProgramSkillFrame f, int target); void Recover(ProgramSkillFrame f, int target);
 }
 internal abstract class MouLuSuAnniversaryDescriptor : ProgramOperationDescriptorBase

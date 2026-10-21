@@ -249,6 +249,10 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    InitializeMouSimaShiSanshi = 36400, RecoverMouSimaShiSanshi = 36401, ResolveMouSimaShiZhenrao = 36402, ResolveMouSimaShiChenlve = 36403, RemoveMouSimaShiChenlve = 36404, ReturnMouSimaShiChenlve = 36405,
+    ResolveMouJiangJiShiju = 36300,
+    ResolveMouJiangJiYingshi = 36301,
+    InitializeMouSimaYiQuanmou = 36200, ResolveMouSimaYiQuanmou = 36201, ResolveMouSimaYiPingliao = 36202, PreventMouSimaYiQuanmouDamage = 36203, SpreadMouSimaYiQuanmouDamage = 36204,
     InitializeMouLuSuMengmou = 36100, ScheduleMouLuSuMingshi = 36101, ResolveMouLuSuMingshi = 36102, ResolveMouLuSuMengmou = 36103, RecoverMouLuSuMengmouDamage = 36104,
     InitializeMouZhouYuYingmou = 36000,
     ResolveMouZhouYuYingmou = 36001,

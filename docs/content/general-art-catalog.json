@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-sima-shi",
+      "characterName": "谋司马师",
+      "defaultSkinId": "1164201",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1642.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164201.png",
+          "sha256": "eb521664e4c5ade66fcfc925158808e35770a4d257f4239726d52973ce499528",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-sima-shi.png",
+          "id": "1164201",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-jiang-ji",
+      "characterName": "谋蒋济",
+      "defaultSkinId": "1164001",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1640.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1164001.png",
+          "sha256": "f49fb99fcef7836920f542737c0ffed99f63b508594ef132776380c2b7851d74",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-jiang-ji.png",
+          "id": "1164001",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-sima-yi",
+      "characterName": "谋司马懿",
+      "defaultSkinId": "1163201",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1632.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163201.png",
+          "sha256": "a32182c4544251912b8ffd86c699b329d37a219d5e357298a532cf88d88bde44",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-sima-yi.png",
+          "id": "1163201",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-lu-su",
       "characterName": "谋鲁肃",
       "defaultSkinId": "1163101",

@@ -27,7 +27,7 @@ public sealed partial class GameEngine
         action.ConversionChain.Any(source => ViewAsRule(source)?.CostDestination is SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.DrawPileBottom);
 
     private bool IsProgramResponseCardUse(CharacterState responder, CardKind effectiveKind) =>
-        effectiveKind == CardKind.Dodge && ActiveFactionDefense is null &&
+        !IsMouSmPlayedActor(responder) && effectiveKind == CardKind.Dodge && ActiveFactionDefense is null &&
         ActiveCardAttack is { EffectiveCardKind: { } incomingKind } attack &&
         attack.TargetSeat == responder.Seat && IsSlashCard(incomingKind);
 
