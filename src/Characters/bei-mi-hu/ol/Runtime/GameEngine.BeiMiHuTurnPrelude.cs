@@ -46,7 +46,9 @@ public sealed partial class GameEngine
             !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
                 SkillProgramEffectOp.ResolveShenTaishiCiPowei) &&
             !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
-                SkillProgramEffectOp.EditDinghanNames)) return false;
+                SkillProgramEffectOp.EditDinghanNames) &&
+            !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
+                SkillProgramEffectOp.AwakenJianghuo)) return false;
         if (_pendingDecision is not null || _resolutionStack.Count != 0 || owner.Seat != _currentSeat)
             throw new InvalidOperationException("Before-turn work requires a clean actual turn boundary.");
         var oldRound = _roundNumber;
@@ -131,7 +133,9 @@ public sealed partial class GameEngine
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) &&
                         SimaHuiOwnTurns(candidate.OwnerSeat) == 0 ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveShenTaishiCiPowei) ||
-                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.EditDinghanNames))
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.EditDinghanNames) ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.AwakenJianghuo) ||
+                        isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveLinjieRound))
                     .OrderBy(candidate => RelativeTableOrder(parent.Proof.UpcomingOwnerSeat, candidate.OwnerSeat))
                     .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
                     .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();

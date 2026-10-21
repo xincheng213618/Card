@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="..\Shared\BaguaResponseScenario.cs" Link="BaguaResponseScenario.cs" />
     <Compile Include="..\Shared\CharacterFixtureContent.cs" Link="CharacterFixtureContent.cs" />
+    <Compile Include="..\CardGame.Core.Tests\ShenMaChaoChecks.cs" Link="ShenMaChaoScenario.cs" />
     <Compile Include="..\Shared\ActiveEffectScenario.cs" Link="ActiveEffectScenario.cs" />
     <Compile Include="..\Shared\BorrowedSwordScenario.cs" Link="BorrowedSwordScenario.cs" />
     <Compile Include="..\Shared\StoneAxeScenario.cs" Link="StoneAxeScenario.cs" />

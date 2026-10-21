@@ -1,0 +1,5 @@
+{"schemaVersion":62,"skills":[
+{"id":"anniversary:luansuo","revision":1,"cardIdentities":[{"id":"different-discard-suit-chain","zones":["hand"],"inputKinds":[],"inputSuits":["spade","heart","club","diamond","none"],"outputKind":"ironChain"}]},
+{"id":"anniversary:fengliao","revision":1,"triggers":[{"id":"unique-target","window":"cardUseBeforeTargetEffects","ownerRelation":"actor","optional":false,"effects":[{"op":"resolveShenPangTongFengliao","target":"owner"}]}]},
+{"id":"anniversary:kunyu","revision":1,"triggers":[{"id":"death-rebirth","window":"ownerDied","subject":"owner","optional":false,"priority":1000,"effects":[{"op":"resolveShenPangTongKunyu","target":"owner"}]}]}
+]}

@@ -3,6 +3,11 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasHengwuCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawHengwuFieldSuitEquipment);
+    private bool ShouliIgnoresSlashLimit(CharacterState owner, CardConversionSource? source) =>
+        source is { SkillId: ShenMaChaoComposition.Shouli, BindingId: ShenMaChaoComposition.Slash } && source.OwnerSeat == owner.Seat &&
+        GetSkillBindingShard(owner).GetSingleCardConversions(CardKind.Slash).Any(binding =>
+            binding.Source.SkillId == source.SkillId && binding.Source.SkillInstanceId == source.SkillInstanceId &&
+            binding.Rule.Id == source.BindingId && binding.Rule.FieldMountConversion == true);
     private static CardKind? ShouliMountOutput(Card card) => !EquipmentCatalog.IsEquipment(card.Kind) ? null : EquipmentCatalog.Get(card.Kind).Slot switch
     { EquipmentSlot.OffensiveHorse => CardKind.Slash, EquipmentSlot.DefensiveHorse => CardKind.Dodge, _ => null };
     private bool IsShouliFieldMaterial(CharacterState actor, Card card, out CardLocation location)
@@ -58,7 +63,10 @@ public sealed partial class GameEngine
     private CardLocation FindOwnedCardLocation(CharacterState actor, Card card, CardConversionSource? acceptedConversion) =>
         IsAcceptedShouliMaterial(actor, card, acceptedConversion, true) && IsShouliFieldMaterial(actor, card, out var from)
             ? from : FindOwnedCardLocation(actor, card);
-    [ProgramActionSource(ProgramActionSourcePhase.ProgramTail, 39000)] private IEnumerable<LegalAction> ShouliForeignSlashActions(CharacterState actor)
+    [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 39000)]
+    private void AddShouliForeignSlashActions(List<LegalAction> actions, CharacterState actor, int? selectedPhysicalCardId) =>
+        actions.AddRange(ShouliForeignSlashActions(actor).Where(action => selectedPhysicalCardId is null || action.CardId == selectedPhysicalCardId));
+    private IEnumerable<LegalAction> ShouliForeignSlashActions(CharacterState actor)
     {
         if (actor.Seat != _currentSeat || _phase != TurnPhase.Play || !actor.IsAlive) yield break;
         foreach (var card in ShouliFieldCards(actor).Where(c => _cardZones.GetLocation(c.Id) != CardLocation.Equipment(actor.Seat) && ShouliMountOutput(c) == CardKind.Slash))
@@ -89,7 +97,8 @@ public sealed partial class GameEngine
         _currentTurnSkillSuppressions.Add(fact); _currentTurnSkillSuppressionRevision++;
         AdvanceEventRulesAndQueueFact(new CurrentTurnNonLockedSkillSuppressionIssuedEvent(fact));
     }
-    private bool HasShouliDamageDebt(int target) => ProgramEventHistory<ShouliBorrowedMountEvent>().Any(e => e.TurnNumber == _turnNumber &&
+    private bool HasShouliDamageDebt(int target) => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DealShouliStartingMounts) &&
+        ProgramEventHistory<ShouliBorrowedMountEvent>().Any(e => e.TurnNumber == _turnNumber &&
         e.TurnOwnerSeat == _currentSeat && (e.Source.OwnerSeat == target || e.From.OwnerSeat == target));
     private DamageNature? ShouliThunderNature(IDamageAttempt attack) => HasShouliDamageDebt(attack.TargetSeat) ? DamageNature.Thunder : null;
     [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 39000)] private int ShouliReceivedDamageBonus(IDamageAttempt attack) => HasShouliDamageDebt(attack.TargetSeat) ? 1 : 0;

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CardGame.Core;
 using CardGame.Content.Standard;
@@ -95,6 +96,7 @@ internal static class TargetCardChecks
             window.Close();
         }
         RegionChoices(output);
+        JudgmentRegionChoices(output);
         SkillRegionChoices(output);
         NativeEquipmentRegionChoices(output);
         NativeEquipmentRegionChoices(output, equipmentOnly: true);
@@ -279,7 +281,8 @@ internal static class TargetCardChecks
             model.LoadManualGameCommand.Execute(null);
             var engine = Program.Engine(model);
             model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == action.CardId));
-            var window = new MainWindow(model);
+            var host = CreatePickerHost(model, 1120, 740);
+            var window = host.Window;
             try
             {
                 var root = (FrameworkElement)window.Content;
@@ -322,6 +325,7 @@ internal static class TargetCardChecks
                 var picker = Program.Find<TargetCardPicker>(root).Single();
                 var viewport = (ScrollViewer)window.FindName("ResponseViewport");
                 var equipmentButton = buttons.Single(button => ReferenceEquals(button.CommandParameter, armorChoice));
+                AssertCardHitArea(root, equipmentButton);
                 Program.Assert(equipmentButton.TransformToAncestor(viewport).Transform(new Point(0, equipmentButton.ActualHeight)).Y <= viewport.ActualHeight,
                     "The actual equipment face must fit in the visible two-region picker at the minimum table size.");
                 Program.Assert(((FrameworkElement)window.FindName("SupplementalActionBar")).Visibility == Visibility.Collapsed,
@@ -336,7 +340,7 @@ internal static class TargetCardChecks
                         engine.CreateSnapshot(0)).Face is null,
                     "Region grouping must preserve the published choices and never render the played card or a foreign hand face as equipment.");
                 var handBefore = engine.CreateSnapshot(0).Players[1].HandCount;
-                model.SelectPublicTargetChoiceCommand.Execute(chooseHand ? handChoice : armorChoice);
+                ClickCard(root, buttons.Single(button => ReferenceEquals(button.CommandParameter, chooseHand ? handChoice : armorChoice)));
                 Program.AdvanceToDecision(model);
                 Program.Assert(engine.AcceptedCommands.Last(command => command is PlayCardCommand) is PlayCardCommand paid &&
                     paid.CardId == action.CardId && paid.TargetSeats.SequenceEqual([1]) &&
@@ -353,7 +357,64 @@ internal static class TargetCardChecks
                 Program.Assert(SnapshotJson.Serialize(engine.CreateSnapshot(0)) == SnapshotJson.Serialize(restored.CreateSnapshot(0)),
                     "The explicit hand/armor choice must survive native replay.");
             }
-            finally { window.Content = null; window.Close(); }
+            finally { host.Dispose(); }
+        }
+    }
+
+    private static void JudgmentRegionChoices(string output)
+    {
+        foreach (var effect in new[] { "standard:dismantlement", "standard:snatch" })
+        {
+            var (game, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture(
+                [effect, "standard:supply_shortage"], "standard:bagua");
+            var delay = game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.SupplyShortage && action.TargetSeat == 1);
+            var result = game.Submit(new PlayCardCommand(0, delay.CardId!.Value, [1], game.Revision, game.PendingDecision!.PromptId));
+            Program.Assert(result.Accepted, result.Error?.Message ?? "Could not place the real judgment card.");
+            for (var step = 0; step < 48 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+                Program.Assert(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Could not resume the judgment fixture.");
+            var targetBefore = game.CreateSnapshot(0).Players[1];
+            var judgment = targetBefore.Judgment.Single();
+            var action = game.GetHumanLegalActions().First(candidate => candidate.TargetSeat == 1 &&
+                candidate.TargetCardId == judgment.Id);
+            var store = new MemorySaveStore();
+            store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+            using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry)
+                { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
+            model.LoadManualGameCommand.Execute(null);
+            game = Program.Engine(model);
+            model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == action.CardId));
+            model.SelectTargetCommand.Execute(model.Seats.Single(seat => seat.Seat == 1));
+            var host = CreatePickerHost(model, 1440, 920);
+            var window = host.Window;
+            try
+            {
+                var root = (FrameworkElement)window.Content;
+                Program.Render(root, 1440, 920, Path.Combine(output, $"target-judgment-{effect.Split(':')[1]}.png"));
+                Program.Assert(model.TargetCardRegions.Select(region => region.Zone)
+                        .SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment, CardZoneKind.Judgment]),
+                    "The trick picker must expose all three nonempty target zones.");
+                var choice = model.TargetCardRegions.Single(region => region.Zone == CardZoneKind.Judgment).Choices.Single();
+                var picker = Program.Find<TargetCardPicker>(root).Single();
+                foreach (var cardButton in Program.Find<Button>(picker)) AssertCardHitArea(root, cardButton);
+                var button = Program.Find<Button>(picker).Single(candidate => ReferenceEquals(candidate.CommandParameter, choice));
+                Program.Assert(Program.Find<ContentControl>(button).Any(content => content.Content is CardViewModel face && face.Id == judgment.Id),
+                    "The judgment choice must display its authorized public face.");
+                var commandsBefore = game.AcceptedCommands.Count;
+                ClickCard(root, button);
+                Program.AdvanceToDecision(model);
+                Program.Assert(game.AcceptedCommands.Skip(commandsBefore).OfType<PlayCardCommand>().Single().TargetCardId == judgment.Id &&
+                    game.CreateSnapshot(0).Players[1] is var targetAfter && targetAfter.Judgment.Count == 0 &&
+                    targetAfter.HandCount == targetBefore.HandCount &&
+                    targetAfter.Equipment.Select(card => card.Id).SequenceEqual(targetBefore.Equipment.Select(card => card.Id)) &&
+                    (effect == "standard:snatch"
+                        ? game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == judgment.Id)
+                        : game.CardMovements.Any(move => move.CardId == judgment.Id && move.To == CardLocation.DiscardPile)),
+                    "Clicking the judgment face must take or discard that exact card once, preserving the other zones.");
+                var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
+                Program.Assert(SnapshotJson.Serialize(game.CreateSnapshot(0)) == SnapshotJson.Serialize(restored.CreateSnapshot(0)),
+                    "The public judgment choice must replay exactly.");
+            }
+            finally { host.Dispose(); }
         }
     }
 
@@ -370,7 +431,8 @@ internal static class TargetCardChecks
         using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry) { IsMotionEnabled = false };
         model.LoadManualGameCommand.Execute(null);
         game = Program.Engine(model);
-        var window = new MainWindow(model);
+        var host = CreatePickerHost(model, 1440, 920);
+        var window = host.Window;
         try
         {
             var root = (FrameworkElement)window.Content;
@@ -404,7 +466,7 @@ internal static class TargetCardChecks
                         CardViewModel face && face.Id == choice.Cards[0] && content.ActualHeight > 0),
                         "A skill's equipment and judgment choices must show the actual authorized card face.");
                 var revision = game.Revision;
-                button.Command!.Execute(button.CommandParameter);
+                ClickCard(root, button);
                 Program.Assert(game.Revision == revision + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
                     answer.Choice == choice.Id, "The grouped native skill choice must commit exactly once.");
                 Program.AdvanceToDecision(model);
@@ -428,12 +490,12 @@ internal static class TargetCardChecks
             Program.Assert(game.CreateSnapshot(0).Players[1].HandCount == 0 && !model.HasTargetCardPicker &&
                 model.TargetCardRegions.Count == 0, "Completing the last choice must remove the whole empty picker.");
         }
-        finally { window.Content = null; window.Close(); }
+        finally { host.Dispose(); }
     }
 
     private static void NativeEquipmentRegionChoices(string output, bool equipmentOnly = false)
     {
-        var (game, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture("standard:slash", "classic:ice-sword", true,
+        var (game, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture(["standard:slash", "standard:supply_shortage"], "classic:ice-sword", true,
             new StandardActiveSkillExpansionPackage(includeJijiu: true), new StandardRescueSkillExpansionPackage(),
             new StandardClassicGeneralPackage());
         void Play(LegalAction action) => Program.Assert(game.Submit(new PlayCardCommand(0, action.CardId!.Value,
@@ -444,6 +506,9 @@ internal static class TargetCardChecks
                 Program.Assert(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Could not advance the native equipment fixture.");
             Program.Assert(game.PendingDecision?.Kind == kind, $"The native equipment fixture did not reach {kind}.");
         }
+        Play(game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.SupplyShortage && action.TargetSeat == 1));
+        Reach(DecisionKind.PlayCard);
+        var judgmentId = game.CreateSnapshot(0).Players[1].Judgment.Single().Id;
         if (equipmentOnly)
         {
             while (game.CreateSnapshot(0).Players[1].HandCount > 0)
@@ -468,7 +533,8 @@ internal static class TargetCardChecks
         using var model = new MainViewModel(false, game.Seed, true, store, contentRegistry: registry) { IsMotionEnabled = false };
         model.LoadManualGameCommand.Execute(null);
         game = Program.Engine(model);
-        var window = new MainWindow(model);
+        var host = CreatePickerHost(model, 1440, 920);
+        var window = host.Window;
         try
         {
             var root = (FrameworkElement)window.Content;
@@ -498,24 +564,56 @@ internal static class TargetCardChecks
                 Program.Assert(model.ChoiceSnapshot.PendingDecision is { Kind: DecisionKind.IceSword, SkillPrompt: null } &&
                     model.TargetCardRegions.Select(region => region.Zone).SequenceEqual(expectedRegions) &&
                     model.UngroupedCenterSkillChoices.Count == 0 && !model.HasDockSkillChoices,
-                    "An activated weapon must show only its mandatory card regions, without activation or decline buttons.");
+                    "Ice Sword must expose only Hand and Equipment choices even when the target also has a Judgment card.");
                 var choice = model.TargetCardRegions.Single(region => region.Zone == zone).Choices[0];
                 var button = Program.Find<Button>(Program.Find<TargetCardPicker>(root).Single())
                     .Single(button => ReferenceEquals(button.CommandParameter, choice));
                 var revision = game.Revision;
-                button.Command!.Execute(button.CommandParameter);
+                ClickCard(root, button);
                 Program.Assert(game.Revision == revision + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
                     answer.Choice == choice.Id, "The native equipment picker must submit its exact original choice once.");
             }
             Program.AdvanceToDecision(model);
             Program.Assert(game.CreateSnapshot(0).Players[1].Equipment.Count == 0 &&
+                game.CreateSnapshot(0).Players[1].Judgment.Single().Id == judgmentId &&
                 game.CardMovements.Count(move => move.Reason == CardMoveReasons.IceSwordDiscard) == expectedRegions.Length,
-                "Ice Sword must finish after exactly two cards, or its only remaining equipment card.");
+                "Ice Sword must finish after two cards, or its only remaining equipment card, preserving Judgment.");
             var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
             Program.Assert(SnapshotJson.Serialize(game.CreateSnapshot(0)) == SnapshotJson.Serialize(restored.CreateSnapshot(0)),
                 "Native equipment selection must retain the original replay boundary.");
         }
-        finally { window.Content = null; window.Close(); }
+        finally { host.Dispose(); }
+    }
+
+    private static NativeResponseStatusChecks.NativeHost CreatePickerHost(MainViewModel model, int width, int height)
+    {
+        var host = new NativeResponseStatusChecks.NativeHost(model);
+        host.Root.Width = width;
+        host.Root.Height = height;
+        host.Window.SizeToContent = SizeToContent.WidthAndHeight;
+        host.Window.UpdateLayout();
+        return host;
+    }
+
+    private static void AssertCardHitArea(FrameworkElement root, Button button)
+    {
+        Program.Assert(button.IsVisible && button.IsEnabled && button.IsHitTestVisible && button.ActualWidth > 0 && button.ActualHeight > 0,
+            "The region card must be an enabled, rendered input target.");
+        foreach (var (x, y) in new[] { (.5, .5), (.2, .2), (.8, .2), (.2, .8), (.8, .8) })
+        {
+            var point = button.TranslatePoint(new Point(button.ActualWidth * x, button.ActualHeight * y), root);
+            var hit = root.InputHitTest(point) as DependencyObject;
+            while (hit is not null && !ReferenceEquals(hit, button)) hit = VisualTreeHelper.GetParent(hit);
+            Program.Assert(ReferenceEquals(hit, button),
+                $"The full card face must hit its choice button, including ({x}, {y}): {button.ToolTip}");
+        }
+    }
+
+    private static void ClickCard(FrameworkElement root, Button button)
+    {
+        AssertCardHitArea(root, button);
+        typeof(System.Windows.Controls.Primitives.ButtonBase).GetMethod("OnClick",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(button, null);
     }
 
     private static (MainViewModel ViewModel, LegalAction Action) FindFixture()

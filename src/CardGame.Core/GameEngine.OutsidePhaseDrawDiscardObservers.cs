@@ -82,7 +82,7 @@ public sealed partial class GameEngine
                 material.From.OwnerSeat != participant || r.ActualCount != 1 || r.BatchId is null || movements is not [var paid] ||
                 paid.CardId != material.CardId || paid.CardKind != material.PrintedKind || paid.From != material.From ||
                 paid.To != NormalizeEphemeralCardDestination(GetAdvancedCard(material.CardId), material.From, (material.IsGeneralWeapon && material.From.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.DiscardPile)) &&
-                    !IsHellShiyouPaidDiscardMovement(paid, material.From, new(OutsidePhaseMovementReason(f, false))) ||
+                    !IsRedirectedPaidDiscardMovement(paid, material.From, new(OutsidePhaseMovementReason(f, false))) ||
                 paid.Reason.Value != OutsidePhaseMovementReason(f, false)) return false;
         }
         return r.Stage == OutsidePhaseDrawDiscardStage.Complete

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Core.Campaigns;
 namespace CardGame.Core.Tests;
@@ -7,7 +8,8 @@ internal static class MobileShenHuaTuoChecks
 {
     private const string Hero = "mobile:shen-hua-tuo", Ally = "fixture:mobile-ht-ally", Enemy = "fixture:mobile-ht-enemy",
         Driver = "fixture:mobile-ht-driver", Quiet = "fixture:mobile-ht-quiet", NoDraw = "fixture:mobile-ht-no-draw",
-        DrawHold = "fixture:mobile-ht-draw-hold", HpHold = "fixture:mobile-ht-hp-hold", Keep = "fixture:mobile-ht-keep", Deck = "fixture:mobile-ht-deck";
+        DrawHold = "fixture:mobile-ht-draw-hold", HpHold = "fixture:mobile-ht-hp-hold", Keep = "fixture:mobile-ht-keep",
+        ForeignDiscard = "fixture:mobile-ht-foreign-discard", Deck = "fixture:mobile-ht-deck";
     public static void WulingOrdersEntriesEquipmentAndNativeDrawCold()
     {
         var s = Scene.Start(); s.Play();
@@ -56,12 +58,14 @@ internal static class MobileShenHuaTuoChecks
     }
     public static void YouyiSharedRenPaysWholeAreaBeforeRecoveryCold()
     {
-        var s = Scene.Start(ren: true); s.Play(); s.End();
+        var s = Scene.Start(ren: true); s.Play(); var foreign = s.V(1).Hand.Single().Id; s.End();
         s.Reach(() => s.P?.SkillPrompt?.SkillId == "mobile-god:youyi");
         s.Answer(c => c.Parameters.GetValueOrDefault("program-action") == "activate"); s.Play();
         var first = s.G.CreateSnapshot(0).BenevolenceCards!.Select(c => c.Id).ToArray();
-        s.Need(first.Length == 6 && Enumerable.Range(0, 4).All(v => s.G.CreateSnapshot(v).BenevolenceCards!.Select(c => c.Id).SequenceEqual(first)),
-            "Only this actually executed discard phase's six real discarded entities enter the common face-up Ren area.");
+        s.Need(first.Length == 6 && Enumerable.Range(0, 4).All(v => s.G.CreateSnapshot(v).BenevolenceCards!.Select(c => c.Id).SequenceEqual(first)) &&
+            s.G.CardMovements.Any(m => m.CardId == foreign && m.From == CardLocation.Hand(1) && m.To == CardLocation.DiscardPile) &&
+            s.G.CardMovements.Any(m => m.CardId == foreign && m.From == CardLocation.DiscardPile && m.To == CardLocation.Benevolence),
+            "The actual discard phase admits real foreign-owner discards as well; the common face-up Ren area retains its six newest entities.");
         s.Use(Driver, "draw"); s.Play(); s.End(); s.Reach(() => s.P?.SkillPrompt?.SkillId == "mobile-god:youyi");
         s.Answer(c => c.Parameters.GetValueOrDefault("program-action") == "activate"); s.Play();
         var ren = s.G.CreateSnapshot(0).BenevolenceCards!.Select(c => c.Id).ToArray();
@@ -71,7 +75,7 @@ internal static class MobileShenHuaTuoChecks
         var hand = s.V(0).HandCount;
         s.Use("mobile-god:youyi", "clear-ren-and-heal"); s.Reach(() => s.P?.SkillPrompt?.SkillId == HpHold);
         var owner = s.G.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.MobileHuaTuo?.Op == SkillProgramEffectOp.RecoverMobileShenHuaTuoYouyi);
-        s.Need(s.G.CreateSnapshot(0).BenevolenceCards is { Count: 0 } && owner.MobileHuaTuo!.Cards.SequenceEqual(ren) &&
+        s.Need((s.G.CreateSnapshot(0).BenevolenceCards?.Count ?? 0) == 0 && owner.MobileHuaTuo!.Cards.SequenceEqual(ren) &&
             ren.All(id => s.G.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Benevolence && m.To == CardLocation.DiscardPile &&
                 m.Reason.Value == "skill.mobile-shen-hua-tuo.youyi.pay") == 1),
             "The original owner freezes and pays the entire actual shared area before the first recovery observer.");
@@ -81,9 +85,9 @@ internal static class MobileShenHuaTuoChecks
                 m.Reason.Value == "skill.mobile-shen-hua-tuo.youyi.pay") == 1),
             "A cold HP child return heals every frozen living participant once and never repeats the shared payment.");
     }
-    private sealed class Fixture : IContentPackage
+    private sealed class Fixture : IGameContentPackage
     {
-        public string PackageId => "fixture-mobile-shen-hua-tuo"; public string Version => "1";
+        public PackageManifest Manifest { get; } = new("fixture-mobile-shen-hua-tuo", new(1, 0, 0));
         public void Register(IContentRegistryBuilder b)
         {
             CharacterFixtureContent.Register(b, Hero);
@@ -97,9 +101,10 @@ internal static class MobileShenHuaTuoChecks
               {"id":"{{Quiet}}","revision":1,"triggers":[{"id":"quiet","isSkillInvocation":false,"window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
               {"id":"{{Keep}}","revision":1,"modifiers":[{"id":"keep","query":"handLimit","operation":"add","value":20,"priority":0}]},
               {"id":"{{DrawHold}}","revision":1,"triggers":[{"id":"hold","isSkillInvocation":false,"window":"nativeDrawStarting","subject":"owner","optional":true,"effects":[{"op":"setChainedState","target":"owner","chained":true}]}]},
-              {"id":"{{HpHold}}","revision":1,"triggers":[{"id":"hold","isSkillInvocation":false,"window":"afterHpRecovered","subject":"owner","optional":true,"effects":[{"op":"setChainedState","target":"owner","chained":true}]}]}]}
+              {"id":"{{HpHold}}","revision":1,"triggers":[{"id":"hold","isSkillInvocation":false,"window":"afterHpRecovered","subject":"owner","optional":true,"effects":[{"op":"setChainedState","target":"owner","chained":true}]}]},
+              {"id":"{{ForeignDiscard}}","revision":1,"triggers":[{"id":"discard","isSkillInvocation":false,"window":"discardPhaseStarting","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[{"op":"discardOwnedZoneCards","target":"owner","zones":["hand"]}]}]}]}
             """;
-            var labels = new[] { Driver, NoDraw, Quiet, Keep, DrawHold, HpHold }.ToDictionary(id => id, id => new { name = id, description = "移动神华佗真实引擎小夹具" });
+            var labels = new[] { Driver, NoDraw, Quiet, Keep, DrawHold, HpHold, ForeignDiscard }.ToDictionary(id => id, id => new { name = id, description = "移动神华佗真实引擎小夹具" });
             var catalog = SkillProgramCatalog.Load(rules, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = labels }));
             foreach (var (id, p) in catalog.Programs) b.AddSkill(new(id, catalog.Presentations[id].Name, catalog.Presentations[id].Description) { Program = p, ProgramPresentation = catalog.Presentations[id] });
             b.AddGeneral(new(Ally, "受教角色", "", Quiet, "wei", 12)); b.AddGeneral(new(Enemy, "其他角色", "", Quiet, "wei", 12));
@@ -153,8 +158,9 @@ internal static class MobileShenHuaTuoChecks
                 .Concat(ren ? [] : new[] { new ShanheStartingCard(CardKind.Crossbow, Suit.Club, 1) }).ToArray();
             var setup = new ShanheBattleSetup(37, 1, "mobile-ht", Hero, 2, 0, 0, 0, 0, extra, hand, [],
                 [new(Enemy, Hp: 8, ExtraSkillIds: [NoDraw]) { StartingHand = [] }, new(Enemy, Hp: 8, ExtraSkillIds: [NoDraw]) { StartingHand = [] }],
-                [new(Ally, Hp: 8, ExtraSkillIds: [NoDraw]) { StartingHand = [] }], new string('c', 64)) { DefaultGodFactionId = "wu" };
-            var g = GameEngine.CreateStandard(new GameOptions { Seed = setup.BattleSeed, PlayerCount = 4, HumanSeat = 0, HumanTeamId = ShanheBattleSetup.PlayerTeamId,
+                [new(Ally, Hp: 8, ExtraSkillIds: ren ? [NoDraw, ForeignDiscard] : [NoDraw])
+                    { StartingHand = ren ? [new(CardKind.Slash, Suit.Club, 4)] : [] }], new string('c', 64)) { DefaultGodFactionId = "wu" };
+            var g = GameEngine.CreateStandard(new GameOptions { Seed = setup.BattleSeed, PlayerCount = 4, HumanSeat = 0, HumanRole = null, HumanTeamId = ShanheBattleSetup.PlayerTeamId,
                 ModeId = ShanheBattleSetup.BattleModeId, ShanheBattle = setup, UseInteractiveSetup = false, UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false, MaxTurns = 28 }, registry);
             var s = new Scene(g, registry); s.Accept(new StartGameCommand());

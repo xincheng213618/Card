@@ -12,6 +12,7 @@
                     ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Description}">
                 <Border BorderThickness="1" CornerRadius="3" Padding="1">
                     <Border.Style><Style TargetType="Border"><Setter Property="BorderBrush" Value="#847555" />
+                        <Setter Property="Background" Value="Transparent" />
                         <Style.Triggers>
                             <DataTrigger Value="True"><DataTrigger.Binding><MultiBinding Converter="{StaticResource TargetRegionCardSelectionConverter}">
                                 <Binding /><Binding Path="DataContext.SelectedTargetCardIds" RelativeSource="{RelativeSource AncestorType=Window}" />

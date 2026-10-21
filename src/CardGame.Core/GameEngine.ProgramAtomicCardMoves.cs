@@ -15,6 +15,7 @@ public sealed partial class GameEngine
             var target = destinationForCard?.Invoke(card, source) ?? destination;
             if (source.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, source, target)) target = CardLocation.OutsideGame;
             target = NormalizeEphemeralCardDestination(card, source, target);
+            target = NormalizeLishiDiscardDestination(card, source, target, reason);
             return (Card: card, Source: source, Target: target);
         }).ToArray();
         if (entries.Length == 0) return;
@@ -61,4 +62,8 @@ public sealed partial class GameEngine
         finally { CompleteCardMovementBatch(batch, movements, committed); }
         foreach (var item in entries.Where(item => item.Card.Kind == CardKind.ReturnSoul)) DestroyHellReturnSoulIfDiscarded(item.Card, _cardZones.GetLocation(item.Card.Id));
     }
+
+    private bool IsRedirectedPaidDiscardMovement(CardMovementRecord move, CardLocation expectedSource, CardMoveReason expectedReason) =>
+        IsHellShiyouPaidDiscardMovement(move, expectedSource, expectedReason) ||
+        IsLishiPaidDiscardMovement(move, expectedSource, expectedReason);
 }

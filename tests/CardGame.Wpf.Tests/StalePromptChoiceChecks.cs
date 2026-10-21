@@ -434,11 +434,16 @@ internal static class StalePromptChoiceChecks
 
     internal static (GameEngine Game, ContentRegistry Registry) CreatePublicTargetFixture(
         string effectCardId = "standard:dismantlement", string equipmentCardId = "standard:crossbow",
+        bool useClassicRules = false, params IGameContentPackage[] additionalPackages) =>
+        CreatePublicTargetFixture([effectCardId], equipmentCardId, useClassicRules, additionalPackages);
+
+    internal static (GameEngine Game, ContentRegistry Registry) CreatePublicTargetFixture(
+        IReadOnlyList<string> effectCardIds, string equipmentCardId,
         bool useClassicRules = false, params IGameContentPackage[] additionalPackages)
     {
         var modeId = useClassicRules ? "identity:classic-published-play-choice" : PublicTargetFixture.Mode;
         var registry = ContentRegistry.Build([new StandardContentPackage(), .. additionalPackages,
-            new PublicTargetFixture(effectCardId, equipmentCardId, modeId)]);
+            new PublicTargetFixture(effectCardIds, equipmentCardId, modeId)]);
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
@@ -551,7 +556,7 @@ internal static class StalePromptChoiceChecks
         VerifyOpaqueSlotFocus(game.CreateCheckpoint(), registry);
     }
 
-    private sealed class PublicTargetFixture(string effectCardId, string equipmentCardId, string modeId) : IGameContentPackage
+    private sealed class PublicTargetFixture(IReadOnlyList<string> effectCardIds, string equipmentCardId, string modeId) : IGameContentPackage
     {
         internal const string Mode = "fixture:published-play-choice";
         internal const string Owner = "fixture:published-play-choice-owner";
@@ -580,7 +585,7 @@ internal static class StalePromptChoiceChecks
             builder.AddDeck(new("fixture:published-play-choice-deck", "公开装备目标", 4, 0, [])
             {
                 PhysicalCards = Enumerable.Range(0, 56).Select(index => new ContentDeckPhysicalCard(
-                    index < 20 ? effectCardId : equipmentCardId, Suit.Spade, index % 13 + 1)).ToArray()
+                    index < 20 * effectCardIds.Count ? effectCardIds[index / 20] : equipmentCardId, Suit.Spade, index % 13 + 1)).ToArray()
             });
             builder.AddMode(new(modeId, "公开装备目标", 4, 4,
                 new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },

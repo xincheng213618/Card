@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification\\bin",
+      "added_at": "2026-10-21T21:56:19.219844+00:00",
+      "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification",
+      "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+      "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification\\obj",
+      "added_at": "2026-10-21T21:56:19.219869+00:00",
+      "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification",
+      "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+      "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification"
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification\\renders",
+      "added_at": "2026-10-21T21:56:19.219873+00:00",
+      "root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification",
+      "reason": "Test-Changed verification output (passed); safe to clean after inspection.",
+      "lock_root": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\benchmarks\\dinghan-ui-verification"
+    }
+  ]
+}

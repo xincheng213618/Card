@@ -49,3 +49,33 @@ internal sealed class MobileHuaTuoHandler(SkillProgramEffectOp op) : ISkillProgr
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) => host.GetCapability<IMobileHuaTuoHost>().Resolve(f, op);
 }
+internal static class MobileHuaTuoComposition
+{
+    [ProgramCatalogValidation(39100)]
+    internal static void Validate(string path, SkillProgram p)
+    {
+        static bool Effect(IReadOnlyList<SkillProgramEffect> effects, SkillProgramEffectOp op) => effects is [{ Target: SkillProgramEffectTarget.Owner } e] &&
+            e.Op == op && e.Condition.Kind == SkillProgramConditionKind.Always;
+        static bool Activation(SkillProgram p, SkillProgramEffectOp op, int limit) => p.Activations is [var a] &&
+            a.MinCards == 0 && a.MaxCards == 0 && a.MinTargets == 0 && a.MaxTargets == 0 && a.UsesPerPhase == limit && Effect(a.Effects, op);
+        var own = p.Activations.SelectMany(a => a.Effects).Concat(p.Triggers.SelectMany(t => t.Effects)).Any(e => e.Op is
+            SkillProgramEffectOp.TeachMobileShenHuaTuoWuling or SkillProgramEffectOp.AdvanceMobileShenHuaTuoWuling or
+            SkillProgramEffectOp.DepositMobileShenHuaTuoYouyi or SkillProgramEffectOp.RecoverMobileShenHuaTuoYouyi);
+        if (!own && p.Id != "mobile-god:wuling-deer") return;
+        var valid = p.Modifiers.Count == 0 && p.ViewAs.Count == 0 && (p.Id switch
+        {
+            "mobile-god:wuling" => Activation(p, SkillProgramEffectOp.TeachMobileShenHuaTuoWuling, 2) && p.Triggers.Count == 0 && p.CardPolicies.Count == 0,
+            "mobile-god:youyi" => Activation(p, SkillProgramEffectOp.RecoverMobileShenHuaTuoYouyi, 1) && p.CardPolicies.Count == 0 &&
+                p.Triggers is [{ Window: SkillProgramTriggerWindow.DiscardPhaseEnded, Optional: true, AllowOwnDiscardPhaseEnded: true,
+                    TurnOwnerScope: SkillProgramTurnOwnerScope.Own } t] && Effect(t.Effects, SkillProgramEffectOp.DepositMobileShenHuaTuoYouyi),
+            "mobile-god:wuling-effects" => p.Activations.Count == 0 && p.CardPolicies.Count == 0 && p.Triggers.Count == 2 &&
+                p.Triggers.SingleOrDefault(t => t.Id == "next-spirit") is { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+                    Optional: false, IsSkillInvocation: false } cycle && Effect(cycle.Effects, SkillProgramEffectOp.AdvanceMobileShenHuaTuoWuling) &&
+                p.Triggers.SingleOrDefault(t => t.Id == "bear-first-damage") is { Window: SkillProgramTriggerWindow.BeforeDamageApplied,
+                    Optional: false, IsSkillInvocation: false, UsageScope: SkillUsageScope.Turn, UsageLimit: 1, Effects: [{ Op: SkillProgramEffectOp.ReduceCurrentDamage, Amount: 1 }] },
+            "mobile-god:wuling-deer" => p.Activations.Count == 0 && p.Triggers.Count == 0 && p.CardPolicies is [{ Kind: SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget }],
+            _ => false
+        });
+        if (!valid) throw new InvalidOperationException(path + ": Mobile Shen Hua Tuo requires its complete ordered teaching, phase discards, once-turn Bear and shared-area payment composition.");
+    }
+}

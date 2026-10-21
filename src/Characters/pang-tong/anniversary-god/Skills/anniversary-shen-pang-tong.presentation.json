@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"anniversary:luansuo":{"name":"鸾锁","description":"锁定技，你的回合内，所有角色不能弃置手牌且当前手牌与本回合进入弃牌堆的牌花色均不同的牌视为【铁索连环】。"},"anniversary:fengliao":{"name":"凤燎","description":"锁定技，转换技，当你使用牌指定唯一目标后，阳：你令其摸一张牌；阴：你对其造成一点火焰伤害。"},"anniversary:kunyu":{"name":"鹍浴","description":"锁定技，你的体力上限始终为1，当你死亡时，你将牌堆中的一张火属性伤害牌移出游戏，然后复活并将体力值回复至一点。"}}}

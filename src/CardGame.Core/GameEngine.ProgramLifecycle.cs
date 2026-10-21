@@ -620,6 +620,7 @@ public sealed partial class GameEngine
     private bool IsValidProgramJudgmentContinuation(JudgmentFrame pending,
         ProgramSkillFrame? frame)
     {
+        if (frame?.ShenZhongHui is not null) return IsLishiJudgment(pending, frame);
         if (frame?.ShenZhangFei is not null) return IsShenZfJudgment(pending, frame);
         if (frame?.ShenGuoJia is not null) return IsShenGuoJiaJudgment(pending, frame);
         if (frame?.WushuangCombat is { TacticId: 2019 })
@@ -652,6 +653,8 @@ public sealed partial class GameEngine
     private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
         string reason, string resultBind, SkillProgramCardSetVisibility visibility)
     {
+        if (frame.ShenZhongHui is not null)
+            return CanBeginLishiJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (frame.ShenZhangFei is not null)
             return CanBeginShenZfJudgment(frame, targetSeat, reason, resultBind, visibility);
         if (frame.ShenGuoJia is not null)
@@ -2422,7 +2425,7 @@ public sealed partial class GameEngine
                 starting.Id == context.ParentFrameId && starting.OwnerSeat == _currentSeat,
             SkillProgramTriggerWindow.TurnEnding =>
                 context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat &&
-                (IsWenheDeadOwnerEndingCandidate(candidate, _currentSeat) || (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.IssuedFixedDistanceEnding
+                (IsWenheDeadOwnerEndingCandidate(candidate, _currentSeat) || IsAnniversaryTianjieDeadOwnerEndingCandidate(candidate, _currentSeat) || (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.IssuedFixedDistanceEnding
                     ? MatchesFixedDistanceDebt(candidate, context, false)
                     : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.PaidPrepDiscardEnding
                     ? MatchesPrepDiscardEnding(candidate, context, false)
@@ -3280,7 +3283,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginTurnEndingBoundary(CharacterState owner)
     {
-        if ((!owner.IsAlive && !HasWenheDeadOwnerEnding(owner.Seat)) || owner.Seat != _currentSeat || _pendingDecision is not null ||
+        if ((!owner.IsAlive && !HasWenheDeadOwnerEnding(owner.Seat) && !HasAnniversaryTianjieDeadOwnerEnding(owner.Seat)) || owner.Seat != _currentSeat || _pendingDecision is not null ||
             _resolutionStack.Count != 0)
             return false;
 
@@ -3295,7 +3298,7 @@ public sealed partial class GameEngine
                     playerFacts = playerFacts with { EventTargetHandCount = GetHand(owner).Count };
                 return CollectEligibleProgramTriggerCandidates(
                         player, SkillProgramTriggerWindow.TurnEnding, playerFacts)
-                    .Where(candidate => owner.IsAlive || IsWenheDeadOwnerEndingCandidate(candidate, owner.Seat))
+                    .Where(candidate => owner.IsAlive || IsWenheDeadOwnerEndingCandidate(candidate, owner.Seat) || IsAnniversaryTianjieDeadOwnerEndingCandidate(candidate, owner.Seat))
                     .Where(candidate => !GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveXingzuoIssuedEndingExchange or SkillProgramEffectOp.ResolveQushiIssuedHolderEnding) && MatchesTurnEndingScope(candidate, owner.Seat))
                     .Select(candidate => new TurnEndingBoundaryItem(
                         TurnEndingBoundaryItemKind.Program,

@@ -52,7 +52,7 @@ public sealed partial class GameEngine
             if (amount <= 0) return false;
             if (TryBeginIdentityAppearanceForDamage(attack, amount)) { pending = true; return true; }
             var target = _players[attack.TargetSeat];
-            var afterMaximum = Math.Max(0, target.MaxHp - amount);
+            var afterMaximum = target.HasShenPangTongKunyu ? 1 : Math.Max(0, target.MaxHp - amount);
             var receipt = new CardDamageMaximumHpReplacementReceipt(new(binding.Source.SkillId, binding.Policy.Id,
                 attack.SourceSeat, binding.Source.SkillInstanceId), _roundNumber, attack.SourceSeat, target.Seat,
                 kind, amount, target.MaxHp, afterMaximum, target.Hp, Math.Min(target.Hp, afterMaximum));

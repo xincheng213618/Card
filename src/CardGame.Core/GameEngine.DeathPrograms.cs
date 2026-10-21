@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-/// <summary>Generic owner-death program boundary. It contains no character or skill ids.</summary>
+/// <summary>Native death cleanup, rewards, winner evaluation and typed program returns.</summary>
 public sealed partial class GameEngine
 {
     private void ChangeProgramAttributedMarker(
@@ -418,9 +418,94 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The killer-death program window lost its optional trigger prompt.");
     }
 
+    private void ContinueDeathOutcome(long deathFrameId)
+    {
+        var death = GetCurrentDeathFrame(deathFrameId);
+        var victim = _players[death.VictimSeat];
+        var killer = death.KillerSeat is { } killerSeat ? _players[killerSeat] : null;
+        if (killer is { } killerState && killerState.Seat == _currentSeat && _phase == TurnPhase.Play)
+            _playPhaseKillCountByCurrentPlayer++;
+        ResetHengyeAfterKill(killer);
+        if (!IsNationalWarMode)
+        {
+            NotifyAiOfDeath(killer, victim);
+        }
+
+        if (!IsTeamMode && !IsSurvivalMode && killer is { IsAlive: true })
+        {
+            if (victim.Role == Role.Rebel)
+            {
+                DrawCards(killer, 3, log: true);
+                AddLog("KillReward", $"{killer.Name} 击杀反贼，摸三张牌。", killer.Seat, victim.Seat);
+            }
+            else if (killer.Role == Role.Lord && victim.Role == Role.Loyalist)
+            {
+                var penalty = GetHand(killer).ToArray();
+                MoveLogicalDiscardCards(killer.Seat, killer.Seat,
+                    penalty,
+                    CardLocation.Hand(killer.Seat),
+                    CardMoveReasons.LordPenalty);
+
+                AddLog("LordPenalty", $"主公误杀忠臣，弃置全部 {penalty.Length} 张手牌。", killer.Seat, victim.Seat);
+            }
+        }
+
+        var previousWinner = _winner;
+        if (IsSurvivalMode)
+        {
+            RecordWenheDeathRank(deathFrameId, victim.Seat);
+        }
+        else if (IsDragonBoatActivity || IsGuanduActivity)
+        {
+            // The treasure race ranks four teams at its actual round end.
+        }
+        else if (IsTeamMode)
+        {
+            _winnerTeamId = _modeDefinition.ShenwuActivity is not null ? EvaluateShenwuWinner() :
+                _modeDefinition.BossActivity is not null ? EvaluateBossActivityWinner() :
+                EvaluateActivityWinner() ?? GameRules.EvaluateWinningTeam(_players.Select(player =>
+                    new TeamLifeState(player.TeamId!, player.IsAlive)));
+            _winner = _winnerTeamId is null
+                ? Winner.None
+                : GetWinnerForTeam(_winnerTeamId);
+        }
+        else if (IsNationalWarMode)
+        {
+            _winnerFactionId = GameRules.EvaluateWinningFaction(_players.Select(player =>
+                new FactionLifeState(player.NationalFactionId!, player.IsAlive)));
+            _winner = _winnerFactionId is null
+                ? Winner.None
+                : GetWinnerForFaction(_winnerFactionId);
+        }
+        else
+        {
+            _winnerTeamId = null;
+            _winnerFactionId = null;
+            _winner = GameRules.EvaluateWinner(_players.Select(player =>
+                new PlayerLifeState(player.Role, player.IsAlive)));
+            if (ZaowangRebelDeathWins(victim, killer)) _winner = Winner.LordAndLoyalists;
+        }
+
+        if (_winner != previousWinner && _winner != Winner.None)
+        {
+            AdvanceEventRulesAndQueueFact(new WinnerDeterminedEvent(
+                _winner,
+                IsTeamMode ? _winnerTeamId : null,
+                IsNationalWarMode ? _winnerFactionId : null));
+        }
+
+        ContinueDeathResolution(deathFrameId);
+    }
+
     private void ContinueDeathResolution(long deathFrameId)
     {
         var death = GetCurrentDeathFrame(deathFrameId);
+        if (death.ShenPangTongOutcomeDeferred && death.OwnerDiedProgramsResolved)
+        {
+            CompleteShenPangTongKunyuDeath(death);
+            ContinueDeathOutcome(deathFrameId);
+            return;
+        }
         var owner = _players[death.VictimSeat];
         if (!death.OwnerDiedProgramsResolved && TryBeginOwnerDiedProgramWindow(death, owner)) return;
         if (!death.OwnerDiedProgramsResolved)
@@ -440,7 +525,7 @@ public sealed partial class GameEngine
 
         // Death-trigger skills remain available through their original native
         // windows. End the interrupted phase only after those children return.
-        if (death.VictimSeat == _currentSeat && _phase == TurnPhase.Play)
+        if (!_players[death.VictimSeat].IsAlive && death.VictimSeat == _currentSeat && _phase == TurnPhase.Play)
             CloseCurrentPlayPhaseSkillGrants("phase-actor-died");
         ClearAttributedMarkerSources(_players[death.VictimSeat], death.Id);
         PopResolutionFrame(death.Id, ResolutionFrameKind.Death);
@@ -452,7 +537,7 @@ public sealed partial class GameEngine
             if (_resolutionStack[^1] is not DyingFrame ||
                 ActiveDying is not { } dying || dying.FrameId != death.ParentFrameId)
                 throw new InvalidOperationException("A death resolution lost its dying parent.");
-            CompleteDyingAfterDeath(dying, survived: false);
+            CompleteDyingAfterDeath(dying, survived: _players[death.VictimSeat].IsAlive);
             return;
         }
         if (death.ReturnKind == DeathReturnKind.ProgramSkill)

@@ -43,6 +43,7 @@ public sealed partial class GameEngine
         ShenwuFengdongQualifiesGrant(owner, grant) && MouCaoPiSkillsQualified(owner, grant) &&
         IsCurrentTurnOwnSkillGrantQualified(owner, grant) &&
         WushuangYashiGrantQualified(owner, grant) &&
+        (!IsLishiPhaseSuppressed(owner.Seat) || _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
         (!_currentTurnSkillSuppressions.Any(s => s.TurnNumber == _turnNumber &&
             s.TurnOwnerSeat == _currentSeat && s.TargetSeat == owner.Seat) ||
          _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&

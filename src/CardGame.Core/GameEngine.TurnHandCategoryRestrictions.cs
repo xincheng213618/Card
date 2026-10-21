@@ -32,7 +32,7 @@ public sealed partial class GameEngine
         _cardZones.GetLocation(id) is { Zone: CardZoneKind.Hand, OwnerSeat: { } owner } from &&
         (IsProgramHandPhysicalRestricted(owner, id) || IsTurnHandCategoryRestricted(_players[owner], _cardZones.CardsAt(from).Single(c => c.Id == id))));
     private bool IsSelfHandCategoryDiscardForbidden(int actor, Card card, CardLocation from, OwnedCardMoveIntent intent) =>
-        IsXiaHuiDiscardForbidden(actor,card,from,intent) || intent == OwnedCardMoveIntent.Discard && from == CardLocation.Hand(actor) && IsTurnHandCategoryRestricted(_players[actor], card);
+        IsShenPangTongHandDiscardForbidden(actor, card, from, intent) || IsXiaHuiDiscardForbidden(actor,card,from,intent) || intent == OwnedCardMoveIntent.Discard && from == CardLocation.Hand(actor) && IsTurnHandCategoryRestricted(_players[actor], card);
     // Hand-limit exemptions and self-discard prohibitions answer different questions.
     private IReadOnlyList<Card> GetSelfDiscardableHand(CharacterState owner) => GetDiscardEligibleHand(owner)
         .Where(c => !IsSelfHandCategoryDiscardForbidden(owner.Seat, c, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).ToArray();

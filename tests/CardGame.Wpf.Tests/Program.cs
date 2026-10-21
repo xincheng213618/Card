@@ -77,6 +77,7 @@ internal static class Program
             Check("table modal focus follows startup and current visible panels", ModalFocusChecks.StartupAndModalTransitions);
             Check("stale prompt choices cannot answer reloaded or consecutive decisions", () => StalePromptChoiceChecks.ReloadedChoices(output));
             Check("skill quantity activation and effect choices share the lower action dock", () => DockSkillChoiceUiChecks.QuantityActivationAndEffectsUseSameDock(output));
+            Check("Dinghan UI: many trick names wrap scroll and commit add remove skip", () => DockSkillChoiceUiChecks.DinghanNamesWrapAndCommit(output));
             Check("skill rail counts preserve order and align the unpaired last skill beside the portrait", () => SkillRailLayoutChecks.CountsKeepOrderAndAlignLastSkill(output));
             Check("recorded general selection saves load without replacing their source", RecordedSelectionSaveChecks.LoadHistoricalFingerprintWithoutReplacingSource);
             Check("custom general roster opens searches and previews with bounded presentation cost", () => GeneralRosterPerformanceChecks.OpenSearchAndPreview(output));
@@ -89,6 +90,7 @@ internal static class Program
             Check("Mo Diao Chan UI: forced hand selection waits for confirmation", () => MoDiaoChanUiChecks.LockedHandStillRequiresConfirmation(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
             Check("God editions UI: mobile and anniversary official portraits and complete details", () => MobileGodGalleryChecks.GodSeriesPortraitsAndDetails(output));
+            Check("Shouli field mount UI: published foreign conversion and native payment", () => ShouliFieldMountUiChecks.ForeignMountUsesPublishedConversion(output));
             Check("Benevolence public pile UI: shared faces and read-only inspection", () => BenevolencePileUiChecks.SharedPublicCardsOpenReadOnly(output));
             Check("Table order UI: public moved positions change panels and seat numbers", () => TableOrderUiChecks.MovedPositionsUpdatePanelsAndNumbers(output));
             Check("Le Diao Chan UI: original marks and whole Hand exchange", () => LeDiaoChanUiChecks.OriginalMarksAndWholeHandSwapUseNativeChoices(output));

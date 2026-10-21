@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "十周年神庞统、神钟会、神张角的官方默认立绘与图鉴绑定；各人物规则另见来源档案。",
+  "portraits": [
+    {
+      "key": "anniversary-shen-pang-tong",
+      "characterName": "神庞统",
+      "defaultSkinId": "122201",
+      "skins": [
+        {
+          "id": "122201",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/222.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122201.png",
+          "sha256": "b87105ad986f9bd1af5cd9edaa26b1fe34f62967c37c98872f5507b01ac5b063",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-pang-tong.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-zhong-hui",
+      "characterName": "神钟会",
+      "defaultSkinId": "122301",
+      "skins": [
+        {
+          "id": "122301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/223.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122301.png",
+          "sha256": "340b9213859b3a6aa77b9a2b9d4d190f8f9e88fc281fd6f6765e93215154f92f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhong-hui.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-zhang-jiao",
+      "characterName": "神张角",
+      "defaultSkinId": "121601",
+      "skins": [
+        {
+          "id": "121601",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/216.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121601.png",
+          "sha256": "785a5a5e30a8954295077ee28e6fecba9cabfd37b4ead9169284022888265b1d",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhang-jiao.png"
+        }
+      ]
+    }
+  ]
+}

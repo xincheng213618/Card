@@ -3,10 +3,9 @@
   "skills": [
     { "id": "anniversary:shouli", "revision": 1,
       "viewAs": [
-        { "id": "field-offensive-mount-slash", "inputKinds": ["offensiveHorse", "dawan", "zixing"], "inputCount": 1, "sourceZones": ["equipment", "judgment"], "fieldMountConversion": true, "outputKind": "slash", "forPlay": true, "forResponse": true },
-        { "id": "field-defensive-mount-dodge", "inputKinds": ["defensiveHorse", "dilu", "zhaohuangfeidian", "hualiu", "dustlessGoldenSpear"], "inputCount": 1, "sourceZones": ["equipment", "judgment"], "fieldMountConversion": true, "outputKind": "dodge", "forPlay": false, "forResponse": true }
+        { "id": "field-offensive-mount-slash", "inputKinds": ["offensiveHorse", "dawan", "zixing"], "inputSuits": [], "inputCount": 1, "sourceZones": ["equipment", "judgment"], "fieldMountConversion": true, "outputKind": "slash", "forPlay": true, "forResponse": true },
+        { "id": "field-defensive-mount-dodge", "inputKinds": ["defensiveHorse", "dilu", "zhaohuangfeidian", "hualiu", "dustlessGoldenSpear"], "inputSuits": [], "inputCount": 1, "sourceZones": ["equipment", "judgment"], "fieldMountConversion": true, "outputKind": "dodge", "forPlay": false, "forResponse": true }
       ],
-      "modifiers": [{ "id": "shouli-unlimited-slash", "query": "slashLimit", "operation": "unlimited", "value": 1, "sourceCardIdentityId": "field-offensive-mount-slash", "priority": 0 }],
       "triggers": [{ "id": "starting-mount-sequence", "window": "gameStarting", "subject": "owner", "optional": false, "effects": [{ "op": "dealShouliStartingMounts", "target": "owner" }] }]
     },
     { "id": "anniversary:hengwu", "revision": 1, "triggers": [

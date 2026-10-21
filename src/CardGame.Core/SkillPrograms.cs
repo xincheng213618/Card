@@ -287,6 +287,18 @@ public enum SkillProgramEffectOp
     AdvanceMobileShenHuaTuoWuling = 39101,
     DepositMobileShenHuaTuoYouyi = 39102,
     RecoverMobileShenHuaTuoYouyi = 39103,
+    ResolveShenPangTongFengliao = 39200,
+    ResolveShenPangTongKunyu = 39201,
+    ResolveLinjieRound = 39300,
+    ResolveLinjieDamage = 39301,
+    ResolveDuzhang = 39302,
+    AwakenJianghuo = 39303,
+    ChooseLishiPunishments = 39304,
+    ResolveLishiPhase = 39305,
+    ResolveAnniversaryZhangJiaoYizhao = 39400,
+    ResolveAnniversaryZhangJiaoSanshou = 39401,
+    ResolveAnniversaryZhangJiaoSijun = 39402,
+    ResolveAnniversaryZhangJiaoTianjie = 39403,
     InitializeMouDongChengBaojia = 37400, ResolveMouDongChengBaojia = 37401, ClaimMouDongChengBaojia = 37402, ResolveMouDongChengDouwei = 37403, ResolveMouDongChengDelayedSettlement = 37404,
     StartMouHuLieChuanyu = 37500,
     RegiveMouHuLieChuanyu = 37501,
@@ -3715,8 +3727,8 @@ public sealed class SkillProgramCatalog
         if (inputs.Count == 0 && suits.Count == 0)
             Fail(path, "must filter at least one physical card kind or suit");
         var output = EnumValue<CardKind>(node, "outputKind", path);
-        if (output is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Dodge))
-            Fail(path + ".outputKind", "card identities support only slash or dodge");
+        if (output is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Dodge or CardKind.IronChain))
+            Fail(path + ".outputKind", "card identities support only slash, dodge or iron chain");
         return new SkillProgramCardIdentity(id, zones, inputs, suits, output,
             OptionalCondition(node, path));
     }
@@ -5287,7 +5299,7 @@ public sealed class SkillProgramCatalog
         // The provenance operation makes that existing boundary explicit without
         // changing the occurrence contract of historical discard programs.
         if (window == SkillProgramTriggerWindow.DiscardPileReceived &&
-            effects.Any(e => e.Op is SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance or SkillProgramEffectOp.StoreAdjacentDiscardedSlash or SkillProgramEffectOp.DrawFromOtherActualBasicDiscard or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard or SkillProgramEffectOp.GiveOffTurnUsedCards or SkillProgramEffectOp.ReclaimFriendXuanjian or SkillProgramEffectOp.YuejianRevealAndClaimUsedCard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi))
+            effects.Any(e => e.Op is SkillProgramEffectOp.ResolveAnniversaryZhangJiaoYizhao or SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance or SkillProgramEffectOp.StoreAdjacentDiscardedSlash or SkillProgramEffectOp.DrawFromOtherActualBasicDiscard or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard or SkillProgramEffectOp.GiveOffTurnUsedCards or SkillProgramEffectOp.ReclaimFriendXuanjian or SkillProgramEffectOp.YuejianRevealAndClaimUsedCard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi))
             movementOccurrence = node.TryGetProperty("movementOccurrence", out _)
                 ? EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path)
                 : effects.Any(e => e.Op is SkillProgramEffectOp.DrawFromOtherActualBasicDiscard or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard or SkillProgramEffectOp.GiveOffTurnUsedCards)

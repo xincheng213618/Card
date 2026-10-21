@@ -7,11 +7,13 @@ public sealed partial class GameEngine
     private static CardConversionSource ShenMcSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private CardActionContext? HengwuAction(ProgramSkillWindowContext? context) => context is null ? null :
         _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(w => w.Id == context.ParentFrameId)?.Action;
-    private bool CanHengwu(int owner, CardActionContext? a) => a is { EffectiveSuit: { } suit } && suit != Suit.None && (a.ActorSeat == owner || a.ProviderSeat == owner) &&
+    private bool CanHengwu(int owner, CardActionContext? a, SkillProgramTriggerWindow? window) => a is { EffectiveSuit: { } suit } && suit != Suit.None &&
+        window == (a.Type == CardActionType.Use ? SkillProgramTriggerWindow.CardUseCommitted : SkillProgramTriggerWindow.CardResponseAccepted) &&
+        (a.ActorSeat == owner || a.ProviderSeat == owner) &&
         !GetHand(_players[owner]).Any(c => EffectiveSuit(_players[owner], c) == suit) &&
         !ProgramEventHistory<HengwuDrawIssuedEvent>().Any(e => e.OwnerSeat == owner && e.ActionId == a.ActionId);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 39000, SkillProgramEffectOp.DrawHengwuFieldSuitEquipment)]
-    private bool CanTriggerHengwu(ProgramTriggerLegalityContext gate) => CanHengwu(gate.OwnerSeat, HengwuAction(gate.WindowContext));
+    private bool CanTriggerHengwu(ProgramTriggerLegalityContext gate) => CanHengwu(gate.OwnerSeat, HengwuAction(gate.WindowContext), gate.WindowContext?.Window);
     private SkillProgramStepOutcome BeginShenMaChao(ProgramSkillFrame supplied, SkillProgramEffectOp op)
     {
         var f = GetActiveProgramFrame(supplied.Id);
@@ -26,7 +28,7 @@ public sealed partial class GameEngine
         }
         else
         {
-            if (op != SkillProgramEffectOp.DrawHengwuFieldSuitEquipment || f.SkillId != ShenMaChaoComposition.Hengwu || !CanHengwu(f.OwnerSeat, HengwuAction(w)))
+            if (op != SkillProgramEffectOp.DrawHengwuFieldSuitEquipment || f.SkillId != ShenMaChaoComposition.Hengwu || !CanHengwu(f.OwnerSeat, HengwuAction(w), w.Window))
                 throw new InvalidOperationException("Hengwu requires an unpaid actual use or played response and no same-suit hand card.");
             var a = HengwuAction(w)!; var suit = a.EffectiveSuit!.Value;
             var count = _players.Where(p => p.IsAlive).Sum(p => GetEquipment(p).Count(c => EffectiveSuit(p, c) == suit));
@@ -100,9 +102,12 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new HengwuDrawReturnedEvent(f.Id, f.OwnerSeat, r.DrawCount, o.ActualDrawIds.Count, o.SequenceBefore, o.SequenceAfter)); ContinueShenMaChao(f.Id);
     }
     [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 39000)] private bool IsShenMcNativeMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
-        f.ShenMaChao is { Operation: SkillProgramEffectOp.DealShouliStartingMounts, Stage: ShenMaChaoStage.EquipmentChildren } r && e?.Op == r.Operation &&
+        f.ShenMaChao is { Operation: SkillProgramEffectOp.DealShouliStartingMounts } r && e?.Op == r.Operation &&
+        r.Stage is ShenMaChaoStage.EquipmentUse or ShenMaChaoStage.EquipmentChildren &&
         r.Cursor < r.Seats.Count && p.SubjectSeat == r.Seats[r.Cursor] && p.BeforeCount == 0 && p.CoverageResultBind is null &&
-        ProgramEventHistory<ShouliStartingMountFinishedEvent>().Count(x => x.FrameId == f.Id && x.Index == r.Cursor && x.UseId == r.UseId && x.CardId == r.CardId) == 1;
+        ProgramEventHistory<ShouliStartingMountIssuedEvent>().Count(x => x.FrameId == f.Id && x.Index == r.Cursor && x.UseId == r.UseId && x.CardId == r.CardId) == 1 &&
+        (r.Stage == ShenMaChaoStage.EquipmentUse ? _resolutionStack.Any(child => IsShouliStartingEquipmentRide(child, f)) :
+            ProgramEventHistory<ShouliStartingMountFinishedEvent>().Count(x => x.FrameId == f.Id && x.Index == r.Cursor && x.UseId == r.UseId && x.CardId == r.CardId) == 1);
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 39000)] private void RequireShenMaChao(ProgramSkillFrame f)
     {
         if (f.ShenMaChao is not { } r) return;

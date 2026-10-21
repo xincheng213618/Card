@@ -23,7 +23,8 @@ internal static class MobileGodGalleryChecks
             foreach (var id in new[] { "mobile:shen-guo-jia", "mobile:shen-sun-ce", "mobile:shen-taishi-ci",
                          "mobile:shen-xun-yu", "anniversary:shen-jiang-wei", "anniversary:shen-deng-ai",
                          "anniversary:shen-zhang-fei", "anniversary:shen-hua-tuo", "anniversary:shen-xu-chu",
-                         "mobile:shen-lu-su", "anniversary:shen-ma-chao", "mobile:shen-hua-tuo" })
+                         "mobile:shen-lu-su", "anniversary:shen-ma-chao", "mobile:shen-hua-tuo",
+                         "anniversary:shen-pang-tong", "anniversary:shen-zhong-hui", "anniversary:shen-zhang-jiao" })
             {
                 model.GeneralGallerySearchText = string.Empty;
                 var entry = model.GeneralGalleryEntries.Single(item => item.GeneralId == id);
@@ -43,6 +44,7 @@ internal static class MobileGodGalleryChecks
                     "mobile:shen-guo-jia" => "mobile:zuoxing",
                     "mobile:shen-taishi-ci" => "mobile-god:shenzhu",
                     "anniversary:shen-deng-ai" => "anniversary-god:cuixin",
+                    "anniversary:shen-zhong-hui" => "anniversary:lishi",
                     _ => null
                 };
                 if (grantedSkill is not null)

@@ -64,7 +64,7 @@ internal static class ShenMaChaoComposition
                 v.SourceZones.SequenceEqual([CardZoneKind.Equipment, CardZoneKind.Judgment]) && v.Condition.Kind == SkillProgramConditionKind.Always &&
                 v.InputKinds.Count > 0 && v.InputKinds.All(k => EquipmentCatalog.IsEquipment(k) && EquipmentCatalog.Get(k).Slot == (v.OutputKind == CardKind.Slash ? EquipmentSlot.OffensiveHorse : EquipmentSlot.DefensiveHorse))) &&
             p.ViewAs.Any(v => v.Id == Slash && v.OutputKind == CardKind.Slash && v.ForPlay) && p.ViewAs.Any(v => v.Id == Dodge && v.OutputKind == CardKind.Dodge && !v.ForPlay) &&
-            p.Modifiers is [{ Query: SkillRuleQuery.SlashLimit, Operation: SkillRuleOperation.Unlimited, SourceCardIdentityId: Slash }] :
+            p.Modifiers.Count == 0 :
             p.Id == Hengwu && p.ViewAs.Count == 0 && p.Modifiers.Count == 0 && p.Triggers is [var use, var response] &&
             use.Id == "actual-use-suit" && use.Window == SkillProgramTriggerWindow.CardUseCommitted && use.IncludeResponseUses &&
             response.Id == "actual-response-suit" && response.Window == SkillProgramTriggerWindow.CardResponseAccepted &&

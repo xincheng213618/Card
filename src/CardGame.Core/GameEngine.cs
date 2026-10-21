@@ -2973,6 +2973,7 @@ public sealed partial class GameEngine
             var maxHp = UsesGeneralBaseHp
                 ? assignedGeneral.BaseHp + (role == Role.Lord ? 1 : 0)
                 : role == Role.Lord ? 5 : 4;
+            if (assignedGeneral.Skills.Any(skill => skill.Id == "anniversary:kunyu")) maxHp = 1;
             _players.Add(new CharacterState
             {
                 Seat = seat,
@@ -2989,8 +2990,8 @@ public sealed partial class GameEngine
                 SecondaryGeneralSelected = !_options.UseInteractiveSetup && _modeDefinition.DualGenerals,
                 SecondaryGeneralRevealed = !_options.UseInteractiveSetup && _modeDefinition.DualGenerals,
                 MaxHp = maxHp,
-                Hp = UsesGeneralBaseHp && assignedGeneral.InitialHp is { } initialHp
-                    ? initialHp + (role == Role.Lord ? 1 : 0) : maxHp
+                Hp = Math.Min(maxHp, UsesGeneralBaseHp && assignedGeneral.InitialHp is { } initialHp
+                    ? initialHp + (role == Role.Lord ? 1 : 0) : maxHp)
             });
         }
 
@@ -3860,8 +3861,8 @@ public sealed partial class GameEngine
             if (UsesGeneralBaseHp)
             {
                 player.MaxHp = general.BaseHp + (player.Role == Role.Lord ? 1 : 0);
-                player.Hp = general.InitialHp is { } initialHp
-                    ? initialHp + (player.Role == Role.Lord ? 1 : 0) : player.MaxHp;
+                player.Hp = Math.Min(player.MaxHp, general.InitialHp is { } initialHp
+                    ? initialHp + (player.Role == Role.Lord ? 1 : 0) : player.MaxHp);
             }
             if (IsSurvivalMode) InitializeWenheHealth(player);
             if (IsGuanduActivity) InitializeGuanduHealth(player);
@@ -11922,6 +11923,7 @@ public sealed partial class GameEngine
         if (pending.Continuation == JudgmentContinuationKind.ProgramSkill)
         {
             if (TryReturnShenGuoJiaJudgment(pending)) return;
+            if (TryReturnLishiJudgment(pending)) return;
             if (TryReturnShenZfJudgment(pending)) return;
             if (TryReturnWushuangLightningJudgment(pending)) return;
             if (TryReturnBinghuoJudgment(pending)) return;
@@ -15479,6 +15481,9 @@ public sealed partial class GameEngine
                       FindOwnedPlayableCard(actor, action.CardId) is { } equipmentConversion &&
                       _cardZones.GetLocation(equipmentConversion.Id) == CardLocation.Equipment(actor.Seat)
                         ? EffectiveSuit(actor, equipmentConversion)
+                        : FindShouliFieldCard(actor, action.CardId) is { } fieldMount &&
+                          IsAcceptedShouliMaterial(actor, fieldMount, action.ConversionSource, false)
+                            ? EffectiveSuit(actor, fieldMount)
                         : FindLastZoneJudgmentConversionCard(actor, action.CardId ?? -1) is { } judgmentConversion
                             ? EffectiveSuit(actor, judgmentConversion) : (Suit?)null;
             var declaredColor = action.CardId is { } colorCardId && FindOwnedPlayableCard(actor, colorCardId) is { } colorCard
@@ -16835,78 +16840,8 @@ public sealed partial class GameEngine
                 victim.Seat);
             MarkConvertingGiftExactDeath(deathFrameId, victim.Seat);
             AdvanceEventRulesAndQueueFact(new PlayerDiedEvent(victim.Seat, killer?.Seat));
-            if (killer is { } killerState && killerState.Seat == _currentSeat && _phase == TurnPhase.Play)
-                _playPhaseKillCountByCurrentPlayer++;
-            ResetHengyeAfterKill(killer);
-            if (!IsNationalWarMode)
-            {
-                NotifyAiOfDeath(killer, victim);
-            }
-
-            if (!IsTeamMode && !IsSurvivalMode && killer is { IsAlive: true })
-            {
-                if (victim.Role == Role.Rebel)
-                {
-                    DrawCards(killer, 3, log: true);
-                    AddLog("KillReward", $"{killer.Name} 击杀反贼，摸三张牌。", killer.Seat, victim.Seat);
-                }
-                else if (killer.Role == Role.Lord && victim.Role == Role.Loyalist)
-                {
-                    var penalty = GetHand(killer).ToArray();
-                    MoveLogicalDiscardCards(killer.Seat, killer.Seat,
-                        penalty,
-                        CardLocation.Hand(killer.Seat),
-                        CardMoveReasons.LordPenalty);
-
-                    AddLog("LordPenalty", $"主公误杀忠臣，弃置全部 {penalty.Length} 张手牌。", killer.Seat, victim.Seat);
-                }
-            }
-
-            var previousWinner = _winner;
-            if (IsSurvivalMode)
-            {
-                RecordWenheDeathRank(deathFrameId, victim.Seat);
-            }
-            else if (IsDragonBoatActivity || IsGuanduActivity)
-            {
-                // The treasure race ranks four teams at its actual round end.
-            }
-            else if (IsTeamMode)
-            {
-                _winnerTeamId = _modeDefinition.ShenwuActivity is not null ? EvaluateShenwuWinner() :
-                    _modeDefinition.BossActivity is not null ? EvaluateBossActivityWinner() :
-                    EvaluateActivityWinner() ?? GameRules.EvaluateWinningTeam(_players.Select(player =>
-                        new TeamLifeState(player.TeamId!, player.IsAlive)));
-                _winner = _winnerTeamId is null
-                    ? Winner.None
-                    : GetWinnerForTeam(_winnerTeamId);
-            }
-            else if (IsNationalWarMode)
-            {
-                _winnerFactionId = GameRules.EvaluateWinningFaction(_players.Select(player =>
-                    new FactionLifeState(player.NationalFactionId!, player.IsAlive)));
-                _winner = _winnerFactionId is null
-                    ? Winner.None
-                    : GetWinnerForFaction(_winnerFactionId);
-            }
-            else
-            {
-                _winnerTeamId = null;
-                _winnerFactionId = null;
-                _winner = GameRules.EvaluateWinner(_players.Select(player =>
-                    new PlayerLifeState(player.Role, player.IsAlive)));
-                if (ZaowangRebelDeathWins(victim, killer)) _winner = Winner.LordAndLoyalists;
-            }
-
-            if (_winner != previousWinner && _winner != Winner.None)
-            {
-                AdvanceEventRulesAndQueueFact(new WinnerDeterminedEvent(
-                    _winner,
-                    IsTeamMode ? _winnerTeamId : null,
-                    IsNationalWarMode ? _winnerFactionId : null));
-            }
-
-            ContinueDeathResolution(deathFrameId);
+            if (TryBeginShenPangTongKunyuDeath(GetCurrentDeathFrame(deathFrameId))) return;
+            ContinueDeathOutcome(deathFrameId);
         }
         catch
         {
@@ -17473,6 +17408,7 @@ public sealed partial class GameEngine
         to = NormalizeProgramViewAsCostDestination(card, from, to, reason);
         to = NormalizeEphemeralCardDestination(card, from, to);
         to = NormalizeWuZglCopyDestination(card, from, to, reason);
+        to = NormalizeLishiDiscardDestination(card, from, to, reason);
         if ((IsDiouCarrier(card.Id) || IsWushuangShopEquipment(card.Id)) && from == to) return;
         if (card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment || IsGuanduThunderChariotDeparture(card, from, to))
             to = CardLocation.OutsideGame;
@@ -17510,7 +17446,7 @@ public sealed partial class GameEngine
         CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null, bool emitCardMovedEvents = true,
         CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified)
     {
-        if (cards.Any(card => NormalizeEphemeralCardDestination(card, from, to) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to) ||
+        if (cards.Any(card => NormalizeEphemeralCardDestination(card, from, to) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to || NormalizeLishiDiscardDestination(card, from, to, reason) != to) ||
             from.Zone == CardZoneKind.Equipment && cards.Any(card => card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, to)))
         {
             foreach (var card in cards) MoveCard(card, from, to, reason, beforeFact, emitCardMovedEvents, disclosure);
@@ -17553,7 +17489,7 @@ public sealed partial class GameEngine
     {
         if (CanPlanHellDiscard(to) || _cardZones.CardsAt(from).Any(card => card.Kind == CardKind.ReturnSoul))
         { MoveCards(_cardZones.CardsAt(from).ToArray(), from, to, reason, disclosure: disclosure); return; }
-        if (_cardZones.CardsAt(from).Any(card => NormalizeEphemeralCardDestination(card, from, to) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to) ||
+        if (_cardZones.CardsAt(from).Any(card => NormalizeEphemeralCardDestination(card, from, to) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to || NormalizeLishiDiscardDestination(card, from, to, reason) != to) ||
             from.Zone == CardZoneKind.Equipment && _cardZones.CardsAt(from).Any(card => card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, to)))
         {
             MoveCards(_cardZones.CardsAt(from).ToArray(), from, to, reason, disclosure: disclosure);
@@ -17699,6 +17635,7 @@ public sealed partial class GameEngine
         CaptureDuFuRenOwnedOrigin(movement);
         ObserveOriginalHandMovement(movement);
         ObserveSourceCurseMovement(movement);
+        RecordLishiDiscardRedirection(movement);
         beforeFact?.Invoke(movement);
         CaptureRequestedDeckBasicPaid(card, from, to);
         CaptureDiscardedEntityOrigin(card, movement);

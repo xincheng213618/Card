@@ -140,6 +140,7 @@ public sealed partial class GameEngine
         var identityGrain = identityLocation == CardLocation.WoodenOxGrain(owner.Seat);
         var identityHu = IsMouGszHuCard(owner, card.Id);
         if (!identityHand && !identityGrain && !identityHu && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
+        if (identityHand && ShenPangTongLuansuoIdentity(owner, card) is { } luansuo) return [luansuo];
         if (identityHand && WuyouIdentity(owner, card) is { } wuyou) return [wuyou];
         if (identityHand && GetGiftedSlashIdentityMatch(owner, card) is { } gifted) return [gifted];
         if (identityHand && ShiluIdentity(owner, card) is { } shilu) return [shilu];
@@ -152,7 +153,7 @@ public sealed partial class GameEngine
         var inputKind = EffectiveConversionInputKind(owner, card);
         var context = CreateSkillContext(owner);
         return bindings.ProgramInstances
-            .Where(instance => instance.Program.CardIdentities.Count != 0)
+            .Where(instance => instance.Program.CardIdentities.Count != 0 && instance.SkillId != "anniversary:luansuo")
             .SelectMany(instance => instance.Program.CardIdentities
                 .Where(identity => ((identityHand || identityGrain) && identity.Zones.Contains(identityLocation.Zone) || identityHu && identity.Zones.Contains(CardZoneKind.Hand) || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
                                     identity.InputKinds.SequenceEqual([CardKind.Alcohol]) && identity.OutputKind == CardKind.Slash && identity.Zones.Contains(CardZoneKind.Hand)) &&
@@ -211,7 +212,7 @@ public sealed partial class GameEngine
     }
 
     private bool IgnoresProgramSlashLimit(CharacterState owner, CardConversionSource? source) =>
-        SiruiIgnoresSlashLimit(owner, source) || source is not null && source.OwnerSeat == owner.Seat &&
+        ShouliIgnoresSlashLimit(owner, source) || SiruiIgnoresSlashLimit(owner, source) || source is not null && source.OwnerSeat == owner.Seat &&
         GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashLimit).Any(binding =>
             binding.Source.SkillId == source.SkillId && binding.Source.SkillInstanceId == source.SkillInstanceId &&
             binding.Modifier.Operation == SkillRuleOperation.Unlimited && binding.Modifier.SourceCardIdentityId == source.BindingId &&

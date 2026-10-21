@@ -11,13 +11,19 @@ internal static class BenevolencePileUiChecks
 {
     public static void SharedPublicCardsOpenReadOnly(string output)
     {
-        using var model = new MainViewModel(false, 17, true, new MemorySaveStore(),
+        var scenario = ShenMaChaoChecks.CreateForeignMountUiScenario();
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, scenario.Game.CreateCheckpoint()));
+        using var model = new MainViewModel(false, scenario.Game.Seed, true, store, contentRegistry: scenario.Registry,
             historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore())
             { IsMotionEnabled = false, IsSoundEnabled = false, IsDeveloperView = false };
+        model.LoadManualGameCommand.Execute(null);
+        Program.Assert(!model.HasSaveError, model.SaveStatus);
         var game = Program.Engine(model);
         var initial = game.CreateSnapshot(0);
-        var cards = initial.Players.Single(player => player.IsHuman).Hand.Take(2).ToArray();
-        Program.Assert(cards.Length == 2, "The UI fixture needs two real card faces.");
+        // Exercise only the snapshot-to-view boundary; physical Ren movements have Core coverage.
+        var cards = new[] { new CardSnapshot(910001, CardKind.Slash, Suit.Spade, 7, "杀", "7"),
+            new CardSnapshot(910002, CardKind.Peach, Suit.Heart, 3, "桃", "3") };
         var window = new MainWindow(model);
         try
         {

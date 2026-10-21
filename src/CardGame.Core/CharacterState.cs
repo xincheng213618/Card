@@ -77,8 +77,8 @@ public sealed partial class CharacterState
     private int _maxHp;
     public required int MaxHp
     {
-        get => _maxHp;
-        set => _maxHp = SkillGrants.Grants.Any(g => g.IsEnabled && g.SkillId == "wushuang:tactic-2020") ? 7 : value;
+        get => HasShenPangTongKunyu ? 1 : _maxHp;
+        set => _maxHp = HasShenPangTongKunyu ? 1 : SkillGrants.Grants.Any(g => g.IsEnabled && g.SkillId == "wushuang:tactic-2020") ? 7 : value;
     }
     public required int Hp { get; set; }
     public GeneralGender? GenderOverride { get; set; }

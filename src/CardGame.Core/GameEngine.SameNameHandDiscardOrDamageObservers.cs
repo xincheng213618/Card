@@ -58,7 +58,7 @@ public sealed partial class GameEngine
                 invoice != new SameNameHandDiscardPaidEvent(f.Id, target, paid.CardId, r.SequenceBefore, r.SequenceAfter, batch)) return false;
             var records = _cardMovements.Where(m => m.Sequence > r.SequenceBefore && m.Sequence <= r.SequenceAfter).ToArray();
             return records is [var movement] && movement.CardId == paid.CardId && movement.CardKind == paid.PrintedKind &&
-                movement.From == paid.From && (movement.To == CardLocation.DiscardPile || IsHellShiyouPaidDiscardMovement(movement, paid.From, new(SameNameHandDiscardReason(f)))) && movement.Reason.Value == SameNameHandDiscardReason(f) &&
+                movement.From == paid.From && (movement.To == CardLocation.DiscardPile || IsRedirectedPaidDiscardMovement(movement, paid.From, new(SameNameHandDiscardReason(f)))) && movement.Reason.Value == SameNameHandDiscardReason(f) &&
                 (r.Stage == SameNameHandStage.Complete ? f.PendingMovementContinuation is null :
                     f.PendingMovementContinuation is { BeforeCount: 0, CoverageResultBind: null } pending && pending.SubjectSeat == target);
         }
@@ -75,7 +75,7 @@ public sealed partial class GameEngine
                 moved.ResumeProgramFrameId is null && moved.Batch.ParentFrameId == f.Id && moved.Batch.AwaitingProgramFrameId == f.Id &&
                 moved.Batch.OriginOwnerSeat == f.OwnerSeat && moved.Batch.OriginSkillId == f.SkillId && moved.Batch.OriginSkillInstanceId == f.SkillInstanceId &&
                 moved.Batch.Movements is [var movement] && _cardMovements.Contains(movement) && movement.Sequence > r.SequenceBefore && movement.Sequence <= r.SequenceAfter &&
-                movement.CardId == paid.CardId && movement.From == paid.From && (movement.To == CardLocation.DiscardPile || IsHellShiyouPaidDiscardMovement(movement, paid.From, new(SameNameHandDiscardReason(f)))) && movement.Reason.Value == SameNameHandDiscardReason(f);
+                movement.CardId == paid.CardId && movement.From == paid.From && (movement.To == CardLocation.DiscardPile || IsRedirectedPaidDiscardMovement(movement, paid.From, new(SameNameHandDiscardReason(f)))) && movement.Reason.Value == SameNameHandDiscardReason(f);
         return r.Stage == SameNameHandStage.DamageIssued && r.DamageIssued && f.AttackAttempt is not null &&
             DyingSuitsStructuralEdge(f, child);
     }
