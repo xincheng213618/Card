@@ -471,7 +471,7 @@ public sealed partial class GameEngine
             if (paid.Stage != ChainedStateBasicStage.StateChildren || p.PaymentFrameId != paid.Id || !ValidChainedStateBasicPayment(p) ||
                 paid.OriginalDecision.PlayerSeat != p.Source.OwnerSeat || paid.OriginalDecision.PromptId != p.OriginalPromptId || paid.OriginalDecision.Revision != p.OriginalRevision ||
                 paid.TargetSeats.Count == 0 || paid.TargetSeats.Distinct().Count() != paid.TargetSeats.Count || paid.TargetSeats.Any(t => !IsValidPlayerSeat(t)) ||
-                (p.Intent == ChainedStateBasicIntent.Play ? i != 0 && !IsKeBiNengPingduanPaymentFrame(paid) && !IsMouKrLiwenPaymentFrame(paid) : i <= 0 || !ChainedStateBasicFrameRidesOn(paid, _resolutionStack[i - 1])) ||
+                (p.Intent == ChainedStateBasicIntent.Play ? i != 0 && !IsKeBiNengPingduanPaymentFrame(paid) && !IsMouKrLiwenPaymentFrame(paid) && !IsMouLuSuPaymentFrame(paid) : i <= 0 || !ChainedStateBasicFrameRidesOn(paid, _resolutionStack[i - 1])) ||
                 !ChainedStateBasicPaidSuffix(i) || CompleteProgramEventHistory().OfType<ChainedStateBasicIssuedEvent>().Any(e => e.Receipt.Payment.PaymentFrameId == p.PaymentFrameId))
                 throw new InvalidOperationException("A chained-state payment lost its frozen original need, real cost or exact child subtree.");
         }

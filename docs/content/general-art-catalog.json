@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "mou-lu-su",
+      "characterName": "谋鲁肃",
+      "defaultSkinId": "1163101",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1631.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163101.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-lu-su.png",
+          "sha256": "aed223a8907b5cfe85e776318500e6ad43a309425a8f0c21985828c1a623fe44",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1163101",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
+      "key": "mou-zhou-yu",
+      "characterName": "谋周瑜",
+      "defaultSkinId": "1163001",
+      "skins": [
+        {
+          "sourcePage": "https://x.sanguosha.com/hero/1630.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163001.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-mou-zhou-yu.png",
+          "sha256": "eeefb03302dfbc27a4467e6a853e1ee95443874de188a9585a0470a94a6f2284",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "id": "1163001",
+          "name": "经典形象"
+        }
+      ]
+    },
+    {
       "key": "mou-cao-hong",
       "characterName": "谋曹洪",
       "defaultSkinId": "1230101",

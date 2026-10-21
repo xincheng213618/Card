@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-yu",
+  "skills": [
+    {
+      "registrationOrder": 2780,
+      "programBundle": "mou-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:ronghuo",
+        "name": "融火",
+        "description": "锁定技，有角色受到火焰伤害后，你下一次使用火【杀】或【火攻】额外指定1个目标，你使用火【杀】或【火攻】造成的伤害+X（X为全场势力数）。",
+        "executionForms": "Trigger, State",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 2781,
+      "programBundle": "mou-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mou:yingmou",
+        "name": "英谋",
+        "description": "转换技，游戏开始时可自选阴阳状态。每回合限一次，当你对其他角色使用牌后，你可以选择其中一个目标：阳：你摸牌至与其相同（至多摸5张），然后视为对其使用【火攻】；阴：令全场手牌数最多的一名角色对其使用手中所有【杀】和伤害锦囊牌（没有需弃牌至与你相同）。若其未因此受到伤害，你对其造成1点火焰伤害。",
+        "executionForms": "Trigger, State",
+        "tags": "Conversion"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 2782,
+      "pools": {
+        "current": 582
+      },
+      "definition": {
+        "id": "mou:zhou-yu",
+        "name": "谋周瑜",
+        "portraitKey": "mou-zhou-yu",
+        "skillId": "mou:ronghuo",
+        "additionalSkillIds": [
+          "mou:yingmou"
+        ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhou-yu",
+        "variantId": "mou",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

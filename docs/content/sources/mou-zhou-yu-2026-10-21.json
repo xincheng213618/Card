@@ -1,0 +1,95 @@
+{
+  "formatVersion": 1,
+  "generalId": "mou:zhou-yu",
+  "characterId": "character:zhou-yu",
+  "displayName": "谋周瑜",
+  "edition": "mou",
+  "rulesetId": "sanguosha-anniversary",
+  "identity": {
+    "factionId": "wu",
+    "gender": "Male",
+    "initialHp": 4,
+    "maximumHp": 4,
+    "officialHeroId": 1630
+  },
+  "selectedVersion": {
+    "publishedAt": "2026-03-11",
+    "effectiveFrom": "2026-03-12",
+    "version": "6.3.5",
+    "url": "https://x.sanguosha.com/news/20260309_7109_3517.html"
+  },
+  "sourceAgreement": "现行官方武将页1630与6.3.5正式平衡公告完整正文一致，采用这两个当前来源。2023年12月15日初版公告曾以势力数设置伤害，且第二技名为雄谋；当前正文为融火伤害+势力数、技能名英谋。不得混接初版句子。不与移动版英姿/反间或OL醉锋/顾曲同版混同。",
+  "skills": [
+    {
+      "id": "mou:ronghuo",
+      "name": "融火",
+      "officialSelectedText": "锁定技，有角色受到火焰伤害后，你下一次使用火【杀】或【火攻】额外指定1个目标，你使用火【杀】或【火攻】造成的伤害+X（X为全场势力数）。"
+    },
+    {
+      "id": "mou:yingmou",
+      "name": "英谋",
+      "officialSelectedText": "转换技，游戏开始时可自选阴阳状态。每回合限一次，当你对其他角色使用牌后，你可以选择其中一个目标：阳：你摸牌至与其相同（至多摸5张），然后视为对其使用【火攻】；阴：令全场手牌数最多的一名角色对其使用手中所有【杀】和伤害锦囊牌（没有需弃牌至与你相同）。若其未因此受到伤害，你对其造成1点火焰伤害。"
+    }
+  ],
+  "primarySources": [
+    {
+      "url": "https://x.sanguosha.com/hero/1630.html",
+      "bytes": 19654,
+      "sha256": "8013157d0f83e0f00897700959654165fe71b917deb2dc6c908d4b1eb58ca007"
+    },
+    {
+      "url": "https://x.sanguosha.com/news/20260309_7109_3517.html",
+      "bytes": 12743,
+      "sha256": "abe96bb88399b101ce8073411a4af743df81bcd2e7197adf29f58922a71ee151"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20231215_3585_1312",
+      "bytes": 659020,
+      "sha256": "9beff563243f996eaa1acd680b8e61b186fc516353a0edc59a28e3c18dc2cc4e",
+      "role": "initial-version-conflict-only"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero",
+      "bytes": 187953,
+      "sha256": "dfdd8b1aee58b3e3f3cdb65b0a7907c8591342abb208a0cab0ed63303dab039c",
+      "selectedEntry": {
+        "gid": 1630,
+        "prefix": "谋",
+        "name": "周瑜",
+        "resource": 1163001,
+        "country": "吴",
+        "gender": "男",
+        "hp": 4
+      }
+    }
+  ],
+  "portrait": {
+    "sourcePage": "https://x.sanguosha.com/hero/1630.html",
+    "selectedDomLabel": "经典形象*谋周瑜",
+    "url": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1163001.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-mou-zhou-yu.png",
+    "width": 574,
+    "height": 761,
+    "bytes": 767366,
+    "sha256": "eeefb03302dfbc27a4467e6a853e1ee95443874de188a9585a0470a94a6f2284",
+    "verification": "主代理依实际DOM下载并查看原图；未按resource猜测static路径。"
+  },
+  "engineeringInterpretationsNotOfficialFaq": [
+    "有限官方域名FAQ检索未找到独立补充说明。以下是按正文执行顺序采用的项目工程解释，不能标成官方FAQ或用户另行批准的规则。",
+    "每个实际正数火焰伤害的原生AfterDamageApplied/perDamage事实颁一份下一火杀/火攻的+1目标许可；伤害量大于1仍只颁一份，连环中各真实受伤者各自的伤害事实分别颁发。多次许可可累积，在下一次真实符合Use时消费现存许可。该Use自身后续产生的火焰伤害只为更后的Use颁许可。",
+    "融火伤害增量为结算时当前全场存活角色的真实势力数，在基础伤害上相加，沿原生连环传播处理，不能把总伤害设置为势力数。额外目标仍需通过该牌的原生目标禁止、距离及用牌资格。",
+    "英谋仅原生对其他目标的Use结算后触发，每个实际回合发动一次；发动时冻结本次Use的其他实际目标，选其中一个当前存活角色。普通打出不能伪装成Use。开局阴阳自选、发动后切换状态沿原生布尔状态。",
+    "阳先按本人和目标当时真实手牌数计算至多5的摸牌数，通过原生Draw与真实替代回执和观察子窗完成，然后视为真正使用无实体材料火攻。火攻继续原生无懈、展示、同花色支付及逐目标结算。",
+    "阴在选目标后按当时全场手牌数选择一名最多者，冻结其手牌中的所有相关实际实体，不追加之后取得的新实体。持有者自己从当前合法的原生Use中选择使用顺序；每次仍须保有这张真实手牌，并保留真实使用者/提供者、当前牌身份、全部材料及目标合法性。每张牌返回后重算剩余冻结实体的合法选项。",
+    "阴的相关手牌按正文伤害锦囊而非仅普通锦囊处理：采用两个现有原生伤害牌能力并集，包含水淹七军与出其不意，另计唯一原生伤害延时锦囊闪电。这是项目工程解释而非官方FAQ。闪电仍仅当使用者就是原英谋目标且可合法自放时才能用，其他情况跳过但仍算持有相关牌，不能误入无牌弃置分支。AOE保留完整原生目标集且包含原英谋目标，不得伪造成只对一人的直接伤害。",
+    "若有相关手牌但不能合法对原英谋目标使用，跳过不合法牌；没有只指冻结时确实没有这些相关手牌，不能因目标不合法而强制收取弃牌。该无相关牌分支按当前手牌数真正逻辑弃手牌至与谋周瑜相同，可执行数量沿原生弃牌资格。",
+    "末句未因此受到伤害按本次已发动英谋子链中原英谋目标的真实正数受伤事实判断，不借用原始触发Use或本回合其他伤害；无此事实才由谋周瑜造成原生1点火焰伤害。",
+    "异回合和普通杀次数门只对已颁本帧请求中的准确actor/card/paid parent开放，其他原生限制保留。使用与返回携带本将独立receipt，不复用谏计等其他技能的支付证明。",
+    "所有待决、冻结实体和已完成步骤留在所属ProgramSkillFrame；对应CardUseFrame携带typed origin。原生子窗完成后才继续下一张牌，冷恢复不能重复摸牌、弃牌、消费许可或使用已完成实体。新增历史事件均为标量。"
+  ],
+  "behaviorCheck": {
+    "path": "tests/CardGame.Core.Tests/MouZhouYuAnniversaryChecks.cs",
+    "method": "AdditiveFireTargetsAndBothNativeYingmouBranchesCold",
+    "scope": "固定山河四席真实混合手牌。阳真实摸5后进入零材料火攻展示及同花色支付，验证融火加算与下一火杀额外合法目标；推进到另一实际回合，阴选真实手牌最多者，在私有逐张使用待决处做代表冷恢复，再走实体杀/决斗/万箭/火攻与完整AOE目标和原生typed返回。仅NPC正常摸牌后跳过Play；人类原生响应由公开响应命令处理。"
+  }
+}

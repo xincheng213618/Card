@@ -49,7 +49,7 @@ public sealed partial class GameEngine
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
             throw new InvalidOperationException("A trick must finish its child before the next target.");
         var card = IsTieredRoundZeroUse(use.Id) ? TieredRoundZeroRepresentation(use.Id) :
-            (IsProgramVirtualOrdinaryTrickUse(use.Id) || IsDiouZeroUse(use.Id) || IsMouXqJueyanUse(use.Id)) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
+            (IsMouZyZeroFireUse(use.Id) || IsProgramVirtualOrdinaryTrickUse(use.Id) || IsDiouZeroUse(use.Id) || IsMouXqJueyanUse(use.Id)) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             IsMouWenChouZeroDuel(use.Id) || IsMouXuHuangZeroUse(use.Id) || IsJueshengDuelUse(use.Id) ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true) :
             (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use)) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
             ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)

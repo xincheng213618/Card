@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:lu-su",
+  "skills": [
+    { "registrationOrder": 2790, "programBundle": "mou-lu-su", "includeProgramPresentation": true, "definition": { "id": "mou:mingshi", "name": "明势", "description": "摸牌阶段，你可多摸2张牌，然后展示3张手牌并令一名其他角色获得其中1张，若你手牌数不为全场最多，你再摸2张牌。", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 2791, "programBundle": "mou-lu-su", "includeProgramPresentation": true, "definition": { "id": "mou:mengmou", "name": "盟谋", "description": "转换技，游戏开始时可自选阴阳状态，每回合各限一次，当你获得其他角色的牌或其他角色获得你的牌后，你可以令该角色阳：使用X张【杀】，每造成1点伤害你与其回复1点体力；阴：打出X张【杀】，每少打出1张其失去1点体力。（X为你的体力上限）", "executionForms": "Trigger, State" } }
+  ],
+  "generals": [{ "registrationOrder": 2792, "pools": { "current": 583 }, "definition": { "id": "mou:lu-su", "name": "谋鲁肃", "portraitKey": "mou-lu-su", "skillId": "mou:mingshi", "additionalSkillIds": ["mou:mengmou"], "factionId": "wu", "gender": "Male", "baseHp": 3, "characterId": "character:lu-su", "variantId": "mou", "rulesetId": "sanguosha-anniversary" } }]
+}

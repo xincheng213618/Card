@@ -113,7 +113,7 @@ public sealed partial class GameEngine
             return;
         }
         var attack = new CardAttackHandle(this, use.Id, use.SourceSeat, payment.TargetSeat,
-            (IsTieredRoundZeroFireAttackUse(use.Id) || IsMouZhijueZeroUse(use.Id) || IsQinLangXianyingUse(use.Id)) ? null : card,
+            (IsMouZyZeroFireUse(use.Id) || IsTieredRoundZeroFireAttackUse(use.Id) || IsMouZhijueZeroUse(use.Id) || IsQinLangXianyingUse(use.Id)) ? null : card,
             damageAmount: 1, playedCardKind: CardKind.FireAttack, physicalCards: GetCardUsePhysicalCards(use.Id));
         ActiveCardAttack = attack;
         if (!ApplyAttackDamage(attack)) CompleteAttack(attack);

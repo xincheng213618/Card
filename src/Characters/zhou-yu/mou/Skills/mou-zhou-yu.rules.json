@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mou:ronghuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "fire-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "condition": {
+            "kind": "damageNatureIs",
+            "damageNature": "fire"
+          },
+          "effects": [
+            {
+              "op": "issueMouZhouYuRonghuo",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mou:yingmou",
+      "revision": 1,
+      "states": [
+        {
+          "id": "yin",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "opening-state",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "initializeMouZhouYuYingmou",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "used-other-targets",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMouZhouYuYingmou",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

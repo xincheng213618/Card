@@ -12,9 +12,9 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new RedAdditionalTargetsGrantedEvent(frame.OwnerSeat,source,maximum));
     }
     private bool HasRedAdditionalTargets(CharacterState actor)=>_redAdditionalTargetGrants.TryGetValue(actor.Seat,out var g) && HasRuntimeSkillInstance(actor,g.Source.SkillId,g.Source.SkillInstanceId);
-    private bool HasNextCardTargetAdjustment(CharacterState actor)=>HasLegacyNextCardTargetAdjustment(actor)||HasRedAdditionalTargets(actor)||HasNextActualUseAdjustment(actor);
-    private bool IsTargetAdjustmentAction(CharacterState actor,LegalAction action)=>action.ProgramActivationId=="next-card-target-adjustment" && HasLegacyNextCardTargetAdjustment(actor) || action.ProgramActivationId=="red-additional-targets" && HasRedAdditionalTargets(actor) || IsNextActualUseAdjustmentAction(actor,action);
-    private int GetAdditionalTargetAdjustmentLimit(CharacterState actor,LegalAction action)=>action.ProgramActivationId=="red-additional-targets"?_redAdditionalTargetGrants[actor.Seat].Maximum:1;
+    private bool HasNextCardTargetAdjustment(CharacterState actor)=>HasLegacyNextCardTargetAdjustment(actor)||HasRedAdditionalTargets(actor)||HasNextActualUseAdjustment(actor)||HasMouZyFireTargets(actor);
+    private bool IsTargetAdjustmentAction(CharacterState actor,LegalAction action)=>action.ProgramActivationId=="next-card-target-adjustment" && HasLegacyNextCardTargetAdjustment(actor) || action.ProgramActivationId=="red-additional-targets" && HasRedAdditionalTargets(actor) || IsNextActualUseAdjustmentAction(actor,action) || IsMouZyTargetAction(actor,action);
+    private int GetAdditionalTargetAdjustmentLimit(CharacterState actor,LegalAction action)=>IsMouZyTargetAction(actor,action)?MouZyTargetLimit(actor):action.ProgramActivationId=="red-additional-targets"?_redAdditionalTargetGrants[actor.Seat].Maximum:1;
     [ProgramCardAction(ProgramCardActionPhase.AfterProgram, 50)]
     private void AddRedAdditionalTargetActions(List<LegalAction> actions,CharacterState actor)
     {

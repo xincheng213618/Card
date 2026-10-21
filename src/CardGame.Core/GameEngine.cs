@@ -6145,7 +6145,7 @@ public sealed partial class GameEngine
             pending.Id,
             source.Seat,
             target.Seat,
-            (IsProgramVirtualOrdinaryTrickUse(pending.Id) || IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsDiouZeroUse(pending.Id) || IsMouXqJueyanUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
+            (IsMouZyZeroFireUse(pending.Id) || IsProgramVirtualOrdinaryTrickUse(pending.Id) || IsTieredRoundZeroFireAttackUse(pending.Id) || IsMouZhijueZeroUse(pending.Id) || IsDiouZeroUse(pending.Id) || IsMouXqJueyanUse(pending.Id) || IsQinLangXianyingUse(pending.Id)) ? null : attackCard,
             damageAmount: 1,
             playedCardKind: CardKind.FireAttack,
             physicalCards: GetCardUsePhysicalCards(pending.Id));
@@ -7057,7 +7057,7 @@ public sealed partial class GameEngine
         IReadOnlyList<CardConversionSource>? additionalConversionSources = null)
     {
         var targetSeats = targets.Select(target => target.Seat).ToArray();
-        var stillLegal = targetSeats.Length >= 2 && (targetSeats.Length <= 5 || (HasHpLossSlashTargets(source) || HasNativeExtraSlashTargets(source, slash, playedCardKind)) && targetSeats.Length < _players.Count(p => p.IsAlive)) &&
+        var stillLegal = targetSeats.Length >= 2 && (targetSeats.Length <= 5 || (HasHpLossSlashTargets(source) || HasNativeExtraSlashTargets(source, slash, playedCardKind) || playedCardKind == CardKind.FireSlash && HasMouZyFireTargets(source) && targetSeats.Length <= 1 + MouZyTargetLimit(source)) && targetSeats.Length < _players.Count(p => p.IsAlive)) &&
             BuildLegalActions(source, selectedPhysicalCardId: slash.Id).Any(action =>
                 action.Kind == LegalActionKind.Slash &&
                 action.CardId == slash.Id &&
@@ -12903,7 +12903,7 @@ public sealed partial class GameEngine
             {
                 var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
                     .Single(item => item.Id == candidate.BindingId);
-                if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit)) continue;
+                if (trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.ResolveYouqueIssuedSlashDamageBenefit or SkillProgramEffectOp.RecoverMouLuSuMengmouDamage)) continue;
                 var ownsTiming = trigger.Subject switch
                 {
                     SkillProgramTriggerSubject.Owner => programOwnerSeat == attack.TargetSeat,
@@ -12944,6 +12944,7 @@ public sealed partial class GameEngine
 
         AppendZhangYanSujiDamageCandidates(attack, window, candidates);
         AppendGuanHaiYouqueDamageCandidates(attack, window, candidates);
+        AppendMouLuSuIssuedDamageCandidates(attack, window, candidates);
         AppendZhaohuoDamageCandidates(attack, window, candidates);
         return candidates;
     }
@@ -14203,6 +14204,7 @@ public sealed partial class GameEngine
         BindZhangJiNativeUse(resolutionId);
         BindGuoSiAcceptedUse(LifecycleCardUse(resolutionId)!);
         BindJianjiNativeUse(LifecycleCardUse(resolutionId)!);
+        BindMouZyNativeUse(LifecycleCardUse(resolutionId)!);
         BindCaoChunNativeUse(LifecycleCardUse(resolutionId)!);
         BindQigongNativeUse(resolutionId);
         BindZhangYanSujiUse(resolutionId);
@@ -14625,7 +14627,7 @@ public sealed partial class GameEngine
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor) && !IsMouKrLiwenUseQuery(actor))
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor) && !IsMouKrLiwenUseQuery(actor) && !IsMouLuSuUseQuery(actor) && !IsMouZyExactCardQuery(actor, selectedPhysicalCardId))
         {
             return actions;
         }
@@ -14661,7 +14663,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || IsMouKrLiwenUseQuery(actor) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || IsMouKrLiwenUseQuery(actor) || IsMouLuSuUseQuery(actor) || IsMouZyExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {
@@ -17922,7 +17924,7 @@ public sealed partial class GameEngine
         }
 
         IReadOnlyList<Card> groupProcessing = ActiveGroupCard is { } nativeGroup &&
-            (MouXqNativeAncestorProcessing(nativeGroup.ResolutionId) ?? DiouNativeAncestorProcessing(nativeGroup.ResolutionId)) is { } diouGroupAncestors
+            (MouZyNativeAncestorProcessing(nativeGroup.ResolutionId) ?? MouXqNativeAncestorProcessing(nativeGroup.ResolutionId) ?? DiouNativeAncestorProcessing(nativeGroup.ResolutionId)) is { } diouGroupAncestors
             ? processing.Where(card => !diouGroupAncestors.Contains(card.Id)).ToArray() : processing;
         if (ActiveGroupCard is { Effect: GroupCardEffect.Recovery } recoveryGroup &&
             (IsZeroEntityUse(recoveryGroup.ResolutionId) || IsClaimedUseCardEntity(recoveryGroup.ResolutionId, recoveryGroup.Card.Id) ? groupProcessing.Count != 0 :
@@ -17947,7 +17949,7 @@ public sealed partial class GameEngine
                 !IsClaimedUseCardEntity(fireAttack.Id, fireAttack.CardId) &&
                 (!IsHellDestroyedSoulMaterial(fireAttack.Id, fireAttack.CardId) && !(IsHuiyunOutsideGeneralWeaponMaterial(fireAttack.Id, fireAttack.CardId) || IsSiruiOutsideGeneralWeaponMaterial(fireAttack.Id, fireAttack.CardId)) && !(IsGuanduDestroyedChariotMaterial(fireAttack.Id, fireAttack.CardId) || IsDiouCarrierDestroyedMaterial(fireAttack.Id, fireAttack.CardId)));
             var expectedProcessingCount = retainedFireAttack ? 1 : 0;
-            IReadOnlyList<Card> fireProcessing = (MouXqNativeAncestorProcessing(fireAttack.Id) ?? DiouNativeAncestorProcessing(fireAttack.Id)) is { } diouFireAncestors
+            IReadOnlyList<Card> fireProcessing = (MouZyNativeAncestorProcessing(fireAttack.Id) ?? MouXqNativeAncestorProcessing(fireAttack.Id) ?? DiouNativeAncestorProcessing(fireAttack.Id)) is { } diouFireAncestors
                 ? processing.Where(card => !diouFireAncestors.Contains(card.Id)).ToArray() : processing;
             if (fireProcessing.Count != expectedProcessingCount ||
                 retainedFireAttack && fireProcessing.All(card => card.Id != fireAttack.CardId) ||
@@ -18017,7 +18019,7 @@ public sealed partial class GameEngine
             var expectedPhysicalCardIds = nullification.DelayedReturn is not null || IsZeroEntityUse(nullification.ParentFrameId) || IsNativeSlashTargetDuelZeroUse(nullification.ParentFrameId) || IsProgramVirtualOrdinaryTrickUse(nullification.ParentFrameId) ? Array.Empty<int>() : IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId) || IsConditionalDiscardDuelUse(nullification.ParentFrameId) || IsFriendRecastDuelUse(nullification.ParentFrameId) || IsZhenyingDuelUse(nullification.ParentFrameId) || IsHeJinMouzhuDuelUse(nullification.ParentFrameId) || IsWuAnGuoLiyongDuelUse(nullification.ParentFrameId) || IsJueshengDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
                 ? physicalCardIds
                 : [nullification.EffectCardId];
-            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(nullification.ParentFrameId) ?? (MouXqNativeAncestorProcessing(nullification.ParentFrameId) ?? DiouNativeAncestorProcessing(nullification.ParentFrameId)) ?? MouLiuChengNativeAncestorProcessing(nullification.ParentFrameId) ?? MouDanchiAncestorProcessing(nullification.ParentFrameId);
+            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(nullification.ParentFrameId) ?? (MouZyNativeAncestorProcessing(nullification.ParentFrameId) ?? MouXqNativeAncestorProcessing(nullification.ParentFrameId) ?? DiouNativeAncestorProcessing(nullification.ParentFrameId)) ?? MouLiuChengNativeAncestorProcessing(nullification.ParentFrameId) ?? MouDanchiAncestorProcessing(nullification.ParentFrameId);
             expectedPhysicalCardIds = expectedPhysicalCardIds.Where(id => !IsClaimedUseCardEntity(nullification.ParentFrameId,id) &&
                 (!IsHellDestroyedSoulMaterial(nullification.ParentFrameId, id) && !(IsHuiyunOutsideGeneralWeaponMaterial(nullification.ParentFrameId, id) || (IsSiruiOutsideGeneralWeaponMaterial(nullification.ParentFrameId, id) || IsMouLixianRemovedMaterial(nullification.ParentFrameId, id))) && !(IsGuanduDestroyedChariotMaterial(nullification.ParentFrameId, id) || IsDiouCarrierDestroyedMaterial(nullification.ParentFrameId, id)))).ToArray();
             if (!processing.Select(card => card.Id).Order().SequenceEqual(expectedPhysicalCardIds.Concat(rescueCosts).Concat(lixianParentProcessing ?? []).Order()))
@@ -18079,7 +18081,7 @@ public sealed partial class GameEngine
         {
             var target = _players[targetCardSelection.TargetSeat];
             var expectedSlots = Enumerable.Range(0, targetCardSelection.CandidateSlots.Count).ToArray();
-            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(targetCardSelection.ParentFrameId) ?? (MouXqNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? DiouNativeAncestorProcessing(targetCardSelection.ParentFrameId)) ?? MouLiuChengNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? MouDanchiAncestorProcessing(targetCardSelection.ParentFrameId);
+            var lixianParentProcessing = MouLixianNativeAttackAncestorProcessing(targetCardSelection.ParentFrameId) ?? (MouZyNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? MouXqNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? DiouNativeAncestorProcessing(targetCardSelection.ParentFrameId)) ?? MouLiuChengNativeAncestorProcessing(targetCardSelection.ParentFrameId) ?? MouDanchiAncestorProcessing(targetCardSelection.ParentFrameId);
             var expectedSelectionProcessing = IsZeroEntityProcessingParent(targetCardSelection.ParentFrameId, targetCardSelection.EffectCardId) ||
                 targetCardSelection.EffectCardId == 0 && IsProgramVirtualOrdinaryTrickUse(targetCardSelection.ParentFrameId) ||
                 IsClaimedUseCardEntity(targetCardSelection.ParentFrameId, targetCardSelection.EffectCardId) ||
@@ -19410,7 +19412,7 @@ public sealed partial class GameEngine
             ActiveNullificationWindow is null &&
             ActiveJudgment is null &&
             _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
-                .All(frame => !IsExactFinalizedDelayedPlacementWindow(frame) && !HasMouDanchiSuspendedCompletedParent(frame) &&
+                .All(frame => !ValidMouLuSuPlayedWindow(frame) && !IsExactFinalizedDelayedPlacementWindow(frame) && !HasMouDanchiSuspendedCompletedParent(frame) &&
                     !(LifecycleCardUse(frame.ParentFrameId) is { } diouParent && (IsDiouSuspendedCompletedAttack(diouParent, frame.Id) || IsMouLiuChengSuspendedCompletedAttack(diouParent, frame.Id))) && frame.Continuation is not
                     (ProgramCardContinuation.DelayedCard or ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.BeforeSimpleTargetEffects or ProgramCardContinuation.FinalizedTrick or ProgramCardContinuation.FinalizedSimpleCard or
                      ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.CommittedSimpleCard or
@@ -19509,6 +19511,9 @@ public sealed partial class GameEngine
     {
         processing = SeparateWenyiDamageHealthChildProcessing(attack, processing);
         processing = SeparateMouLixianDamageChildProcessing(attack, processing);
+        if (MouZyNativeAncestorProcessing(attack.ResolutionId) is { } mouZyAncestors)
+            processing = processing.Where(card => !mouZyAncestors.Contains(card.Id)).ToArray();
+        if (IsMouZyZeroFireAttackConsistent(attack, processing)) return true;
         if (ActiveBorrowedSword is { ActiveAttack: { } issuedBorrowedAttack } diouBorrowed &&
             SameAttackOwner(issuedBorrowedAttack, attack) &&
             LifecycleCardUse(attack.ResolutionId) is { Action: { } borrowedAction } borrowedChild &&
@@ -19557,7 +19562,8 @@ public sealed partial class GameEngine
                 .Where(cost => !alternativeResponseIds.Contains(cost.CardId) && !destroyedResponseIds.Contains(cost.CardId) &&
                     !IsExchangedCardClaim(programFrame.Action.ActionId,cost.CardId))
                 .Select(cost => cost.CardId).ToHashSet();
-            if (programFrame.ResponseCompletion is not null && ValidResponseCompletionWindow(programFrame) ||
+            if (programFrame.MouLuSuAnniversaryPlayed is { Window: SkillProgramTriggerWindow.CardResponseCompleted } && ValidMouLuSuPlayedWindow(programFrame) && programFrame.Action.PhysicalCards.Where(cost => responseIds.Contains(cost.CardId)).All(cost => IsMouLuSuPlayedCostFinished(programFrame, cost)) ||
+                programFrame.ResponseCompletion is not null && ValidResponseCompletionWindow(programFrame) ||
                 programFrame.CompletedResponseReturn is { IsCommitted: false } || programFrame.CompletedResponseReturn is { IsCommitted: true, Kind: ProgramCompletedResponseKind.Nullification })
             {
                 if (processing.Any(card => responseIds.Contains(card.Id))) return false;

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mou:mingshi", "revision": 1, "triggers": [
+      { "id": "extra-normal-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": true, "effects": [{ "op": "adjustNormalDraw", "target": "owner", "amount": 2 }, { "op": "scheduleMouLuSuMingshi", "target": "owner" }] },
+      { "id": "show-gift-refill", "window": "afterNormalDraw", "subject": "owner", "optional": false, "effects": [{ "op": "resolveMouLuSuMingshi", "target": "owner" }] }
+    ] },
+    { "id": "mou:mengmou", "revision": 1, "states": [{ "id": "yin", "initialValue": false, "visibility": "public", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" }], "triggers": [
+      { "id": "opening-state", "window": "gameStarting", "subject": "owner", "optional": false, "effects": [{ "op": "initializeMouLuSuMengmou", "target": "owner" }] },
+      { "id": "actual-owned-acquisition", "window": "cardsGained", "subject": "owner", "destinationZones": ["hand"], "movementOccurrence": "perBatch", "optional": true, "effects": [{ "op": "resolveMouLuSuMengmou", "target": "owner" }] },
+      { "id": "requested-slash-damage", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": false, "effects": [{ "op": "recoverMouLuSuMengmouDamage", "target": "owner" }] }
+    ] }
+  ]
+}

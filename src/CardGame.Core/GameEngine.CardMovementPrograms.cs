@@ -303,7 +303,7 @@ public sealed partial class GameEngine
                 var trigger = GetProgramTrigger(candidate);
                 if (IsMouHqGiveTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveYuandiDiscardNames)) continue;
                 if (IsWuZishengMovementTrigger(trigger) || IsGuYinDiscardTrigger(trigger) || IsBeifenLossTrigger(trigger) || IsHellZhiwangTrigger(trigger) || IsNianJingjueTrigger(trigger) || IsTangTangZhiyiTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) || IsXiangxuMinimumTrigger(trigger) || IsQuHuangMovementTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.OfferNativeBatchHandGainOrCardLossBenefit) || IsBiriTrigger(trigger) || IsLingkongGainTrigger(trigger) || IsQimeiEqualityTrigger(trigger) || IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
-                    IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger) || IsBianFuRenWanweiTrigger(trigger) || IsSunRuOlChishiTrigger(trigger) || IsDuFuRenYiseTrigger(trigger) || IsFeiYiSingletonTrigger(trigger) || IsQingyuanGainTrigger(trigger) || IsMouFaZhengGainTrigger(trigger) || IsMouGuoHuaiGainTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash)) continue;
+                    IsOwnerSourceHandGainTrigger(trigger) || IsOtherLastHandLossTrigger(trigger) || IsBianFuRenWanweiTrigger(trigger) || IsSunRuOlChishiTrigger(trigger) || IsDuFuRenYiseTrigger(trigger) || IsFeiYiSingletonTrigger(trigger) || IsQingyuanGainTrigger(trigger) || IsMouFaZhengGainTrigger(trigger) || IsMouLuSuGainTrigger(trigger) || IsMouGuoHuaiGainTrigger(trigger) || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimLiubingUndamagingSlash)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
@@ -364,6 +364,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectSilvRefundCandidates(batch));
         candidates.AddRange(CollectQingyuanGainCandidates(batch));
         candidates.AddRange(CollectMouFaZhengGainCandidates(batch));
+        candidates.AddRange(CollectMouLuSuGainCandidates(batch));
         candidates.AddRange(CollectMouGuoHuaiGainCandidates(batch));
         candidates.AddRange(CollectMouHyQiGainCandidates(batch));
         candidates.AddRange(CollectSunRuOlChishiCandidates(batch));
@@ -589,6 +590,7 @@ public sealed partial class GameEngine
             return CreateQingyuanGainContext(frame, candidate);
         if (IsMouGuoHuaiGainTrigger(GetProgramTrigger(candidate)))
             return CreateMouGuoHuaiGainContext(frame, candidate);
+        if (IsMouLuSuGainTrigger(GetProgramTrigger(candidate))) return CreateMouLuSuGainContext(frame, candidate);
         if (IsMouFaZhengGainTrigger(GetProgramTrigger(candidate)))
             return CreateMouFaZhengGainContext(frame, candidate);
         if (IsFeiYiSingletonTrigger(GetProgramTrigger(candidate)))

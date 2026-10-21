@@ -221,7 +221,7 @@ public sealed partial class GameEngine
         ProgramCompletedResponseReturn? completedResponseReturn = null,
         CaoChunHandUsePayment? caoChunPayment = null, bool caoChunDebtOnly = false)
     {
-        if ((continuation is null) != (completedResponseReturn is not null))
+        if ((continuation is null) != (completedResponseReturn is not null) && !IsMouLuSuPlayedWindow(action, window))
             throw new InvalidOperationException("A card trigger window needs exactly one return continuation.");
         RecordGuanduCardAction(action, window);
         if (window == SkillProgramTriggerWindow.CardUseCommitted && TracksAlternateActualUseColor)
@@ -309,7 +309,7 @@ public sealed partial class GameEngine
             _resolutionStack[^1].Id, action, continuation, Array.AsReadOnly(candidates.ToArray()),
             TrickContinuation: trickContinuation, SimpleContinuation: simpleContinuation,
             CompletedResponseReturn: completedResponseReturn, AttackOwnerFrameId: attack?.ResolutionId)
-            { CaoChunDebtBeforeEffects = caoChunDebtOnly ? true : null };
+            { CaoChunDebtBeforeEffects = caoChunDebtOnly ? true : null, MouLuSuAnniversaryPlayed = MouLuSuPlayedWindowReturn(action, window) };
         PushRuntimeFrame(frame);
         CaptureMoQuanyuSingleton(frame, window);
         if (HasGuoSiCapability && window == SkillProgramTriggerWindow.CardUseCompleted &&
@@ -535,7 +535,7 @@ public sealed partial class GameEngine
     }
 
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
-        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardActions.GetCardActionWindow(frame);
+        frame.MouLuSuAnniversaryPlayed?.Window ?? global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_CardActions.GetCardActionWindow(frame);
 
     [NativeFrameRoute(typeof(ProgramCardTriggerWindowFrame), 300)]
     private void ContinueProgramCardWindowCore() =>
@@ -564,6 +564,7 @@ public sealed partial class GameEngine
         var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
         if (TryStartLeChengyanEffect(frame)) return ProgramTriggerWindowFlow.Yield;
+        if (TryReturnMouLuSuPlayedWindow(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnLiuYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnCuiYanLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
         if (TryReturnZhuJunLegacyAlcohol(frame)) return ProgramTriggerWindowFlow.Yield;
@@ -830,7 +831,7 @@ public sealed partial class GameEngine
             var suspendedDiouParent = LifecycleCardUse(frame.ParentFrameId) is { } diouParent &&
                 (IsDiouSuspendedCompletedAttack(diouParent, frame.Id) || IsMouLiuChengSuspendedCompletedAttack(diouParent, frame.Id));
             var drawFundedQinglongFollowup = IsDrawFundedQinglongCompletedWindowRide(frame) || IsChainedStateQinglongCompletedWindowRide(frame);
-            var attackMatches = (HasHuiyunCompletedUseObserver(frame.ParentFrameId) || HasChenglieCompletedUseObserver(frame.ParentFrameId)) || HasGoudeCompletedSlashChild(frame) || HasFulueCompletedCounterChild(frame) || HasMouSunJianOlSuspendedCompletedParent(frame) || HasMouLzSuspendedCompletedParent(frame) || HasMouDanchiSuspendedCompletedParent(frame) || HasWuJingCompletedUseObserver(frame) || HasWoLongFengChuUseObserver(frame.ParentFrameId) || HasLvKuangLvXiangCardObserver(frame.ParentFrameId) || HasXinPiCardObserver(frame.ParentFrameId) || HasHuaManCardObserver(frame.ParentFrameId) || IsHuaManSouyingEmptyTargetWindow(frame) || HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
+            var attackMatches = ValidMouLuSuPlayedWindow(frame) || (HasHuiyunCompletedUseObserver(frame.ParentFrameId) || HasChenglieCompletedUseObserver(frame.ParentFrameId)) || HasGoudeCompletedSlashChild(frame) || HasFulueCompletedCounterChild(frame) || HasMouSunJianOlSuspendedCompletedParent(frame) || HasMouLzSuspendedCompletedParent(frame) || HasMouDanchiSuspendedCompletedParent(frame) || HasWuJingCompletedUseObserver(frame) || HasWoLongFengChuUseObserver(frame.ParentFrameId) || HasLvKuangLvXiangCardObserver(frame.ParentFrameId) || HasXinPiCardObserver(frame.ParentFrameId) || HasHuaManCardObserver(frame.ParentFrameId) || IsHuaManSouyingEmptyTargetWindow(frame) || HasSoleTargetProtectionCardObserver(frame.ParentFrameId) || frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) || HasPairedColorDispositionCardObserver(frame.ParentFrameId) || HasJoinedTrickDamageRewardCardObserver(frame.ParentFrameId) || HasRoundGainedEquipmentDrawCardObserver(frame.ParentFrameId) || HasSameNameHandCardObserver(frame.ParentFrameId) ||
                 CompletedUndamagedTargetRevealObserverRoot()?.CompletedUndamagedTargetReveal?.CardUseFrameId == frame.ParentFrameId ||
                 OverflowTargetCancellationObserverRoot()?.OverflowTargetCancellation?.CardUseFrameId == frame.ParentFrameId ||
                 frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) || HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup || suspendedGuoSiParent || suspendedDiouParent || drawFundedQinglongFollowup ||
@@ -875,7 +876,7 @@ public sealed partial class GameEngine
                    MatchesMouXuHuangNativeAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
                    MatchesChosenAssaultUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
-            var completedResponseMatches = frame.CardSupplyCompletion is not null ? ValidCardSupplyCompletionWindow(frame) : frame.ResponseCompletion is not null ? ValidResponseCompletionWindow(frame) : frame.CompletedResponseReturn is { } completedResponse
+            var completedResponseMatches = frame.MouLuSuAnniversaryPlayed is not null ? ValidMouLuSuPlayedWindow(frame) : frame.CardSupplyCompletion is not null ? ValidCardSupplyCompletionWindow(frame) : frame.ResponseCompletion is not null ? ValidResponseCompletionWindow(frame) : frame.CompletedResponseReturn is { } completedResponse
                 ? frame.Continuation is null && IsCompletedResponseUse(frame.Action, completedResponse.Kind) &&
                   IsCompletedResponseParentConsistent(frame)
                 : frame.Continuation is not null;
@@ -888,6 +889,7 @@ public sealed partial class GameEngine
                  frame.Action.PhysicalCards.Where(cost =>
                      !(frame.CardSupplyCompletion is not null && ValidCardSupplyCompletionWindow(frame) && IsCardSupplyCompletionCostPaid(frame, cost)) &&
                      !(frame.ResponseCompletion is not null && ValidResponseCompletionWindow(frame) && IsResponseCompletionCostFinished(frame, cost)) &&
+                     !IsMouLuSuPlayedCostFinished(frame, cost) &&
                      !(completedGiftRecipientFollowup && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&
                        recipientUse.Action!.PhysicalCards.Any(payment => payment.CardId == cost.CardId)) &&
                      !(suspendedGuoSiParent && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&

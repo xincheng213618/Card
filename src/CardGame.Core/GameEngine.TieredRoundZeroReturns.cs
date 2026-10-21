@@ -32,6 +32,7 @@ public sealed partial class GameEngine
         _resolutionStack.LastOrDefault() is ProgramSkillFrame && HasTieredRoundZeroDyingRide(dying.FrameId);
 
     private Card ReadTieredRoundUseAppearance(long ownerId, CardAppearanceReference appearance) =>
+        appearance.Id == 0 && appearance.Kind == CardKind.FireAttack && appearance.Suit == Suit.None && appearance.Rank == 0 && IsMouZyZeroFireUse(ownerId) ? new Card(0,CardKind.FireAttack,Suit.None,0) :
         appearance.Id == 0 && IsHuanpeiUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&
             appearance.Suit == Suit.None && appearance.Rank == 0 ? HuanpeiRepresentation(ownerId) :
         appearance.Id == 0 && IsZonghuUse(ownerId) && LifecycleCardUse(ownerId)!.CardKind == appearance.Kind &&

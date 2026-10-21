@@ -88,7 +88,7 @@ public sealed partial class GameEngine
                 paid.OriginalDecision.PlayerSeat != p.Source.OwnerSeat || paid.OriginalDecision.PromptId != p.OriginalPromptId || paid.OriginalDecision.Revision != p.OriginalRevision ||
                 paid.TargetSeats.Count == 0 && IsSlashCard(p.EffectiveKind) || paid.TargetSeats.Distinct().Count() != paid.TargetSeats.Count || paid.TargetSeats.Any(s => !IsValidPlayerSeat(s)) ||
                 p.Intent != DrawFundedDistinctBasicIntent.Play && (index <= 0 || !DrawFundedDistinctBasicFrameRidesOn(paid, _resolutionStack[index - 1])) ||
-                p.Intent == DrawFundedDistinctBasicIntent.Play && index != 0 && !IsKeBiNengPingduanPaymentFrame(paid) && !IsMouKrLiwenPaymentFrame(paid) || !DrawFundedDistinctBasicPaidSuffix(index) ||
+                p.Intent == DrawFundedDistinctBasicIntent.Play && index != 0 && !IsKeBiNengPingduanPaymentFrame(paid) && !IsMouKrLiwenPaymentFrame(paid) && !IsMouLuSuPaymentFrame(paid) || !DrawFundedDistinctBasicPaidSuffix(index) ||
                 CompleteProgramEventHistory().OfType<DrawFundedDistinctBasicIssuedEvent>().Any(e => e.PaymentFrameId == p.PaymentFrameId))
                 throw new InvalidOperationException("A paid basic-card attempt lost its owning frame, frozen original decision or exact child subtree.");
         }

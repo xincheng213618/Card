@@ -1991,6 +1991,7 @@ public sealed partial class GameEngine
         }
         if (handControl) foreach (var id in GetProgramHandControlPublicCardIds()) AddPublicId(id);
         if (handDraft) foreach (var id in GetPublicHandDraftCardIds()) AddPublicId(id);
+        if (HasMouLuSuAnniversary) foreach (var id in MouLuSuPublicShownIds()) AddPublicId(id);
         if (comparison) foreach (var id in HandComparisonPublicIds()) AddPublicId(id);
 
         // Receipt-backed faces precede current physical appearances. Query these
@@ -2208,6 +2209,7 @@ public sealed partial class GameEngine
         if (IsIssuedTongduCandidate(candidate, context)) return true;
         if (IsIssuedMouCaoHongCandidate(candidate, context)) return true;
         if (IsXiangxuMinimumCandidate(candidate, context)) return true;
+        if (IsIssuedMouLuSuDamageCandidate(candidate, context)) return true;
         if (IsIssuedXiangxuEndingCandidate(candidate, context)) return true;
         if (IsIssuedWuHfEnding(candidate, context)) return true;
         if (IsIssuedRuanYuXingzuoEndingCandidate(candidate, context)) return true;
@@ -2479,6 +2481,7 @@ public sealed partial class GameEngine
                     : IsFeiYiSingletonTrigger(trigger) ? CurrentFeiYiSingleton(candidate, context) is not null
                     : IsQingyuanGainTrigger(trigger) ? QingyuanGainQualification(candidate, context) is not null
                     : IsMouGuoHuaiGainTrigger(trigger) ? MouGuoHuaiGainQualification(candidate, context) is not null
+                    : IsMouLuSuGainTrigger(trigger) ? MouLuSuGainPeer(candidate, context) is not null
                     : IsMouFaZhengGainTrigger(trigger) ? MouFaZhengQualification(candidate, context) is not null
                     : IsDuFuRenYiseTrigger(trigger) ? CurrentDuFuRenGains(candidate, context) is not null
                     : IsBianFuRenWanweiTrigger(trigger) ? BianFuRenLoss(context, owner.Seat) is not null

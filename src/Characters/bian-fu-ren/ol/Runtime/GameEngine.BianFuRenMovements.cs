@@ -13,6 +13,7 @@ public sealed partial class GameEngine
     // payment. Contributions own an action id rather than a live stack frame.
     private void RecordBianFuRenOwnedTransferProducer(CardMovementRecord movement, int recipientSeat, long producerId)
     {
+        RecordMouLuSuOwnedTransferProducer(movement, recipientSeat, producerId);
         RecordDuFuRenOwnedTransferProducer(movement, recipientSeat, producerId);
         RecordTangTangOwnedTransferProducer(movement, recipientSeat, producerId);
         if (!HasBianFuRenCapability || !IsBianFuRenOwnedZone(movement.From) ||
@@ -45,6 +46,7 @@ public sealed partial class GameEngine
     // observers can retire its typed chooser/payment frame.
     private void CaptureBianFuRenForeignDiscardProducer(CardMovementRecord movement)
     {
+        CaptureMouLuSuNativeTransferProducer(movement);
         CaptureBianFuRenNativeUsePayment(movement);
         CaptureBianFuRenDelayedPlacement(movement);
         if (!HasBianFuRenCapability || !IsBianFuRenOwnedZone(movement.From) ||
