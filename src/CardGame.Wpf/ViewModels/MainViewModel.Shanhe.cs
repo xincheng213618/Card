@@ -254,9 +254,9 @@ public sealed partial class MainViewModel
             GameEngine? battle = null;
             if (session.PendingBattleSetup is { } setup)
             {
-                if (save.Battle is not { } checkpoint || checkpoint.Options.HumanSeat != 0 ||
-                    checkpoint.Options.Seed != setup.BattleSeed || checkpoint.ModeId != ShanheBattleSetup.BattleModeId ||
-                    !ShanheBattleSetup.ValueEquals(checkpoint.Options.ShanheBattle, setup))
+                if (save.Battle is not { } checkpoint || checkpoint.Options is not { } battleOptions || battleOptions.HumanSeat != 0 ||
+                    battleOptions.Seed != setup.BattleSeed || checkpoint.ModeId != ShanheBattleSetup.BattleModeId ||
+                    !ShanheBattleSetup.ValueEquals(battleOptions.ShanheBattle, setup))
                     throw new InvalidDataException("当前战斗与征程节点不一致。");
                 battle = GameReplay.Restore(checkpoint, StandardShanheCampaignCatalog.CreateBattleRegistry(setup));
             }
