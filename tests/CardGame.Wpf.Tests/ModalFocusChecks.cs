@@ -288,6 +288,7 @@ internal static class ModalFocusChecks
             original.Focus();
             model.OpenContextGuideCommand.Execute(null);
             Pump(window);
+            VerifyGuideSelectorEscape();
             model.ToggleHelpCommand.Execute(null);
             // Apply each real visibility transition while keeping Input-priority
             // focus callbacks queued until both close and reopen have happened.
@@ -481,6 +482,52 @@ internal static class ModalFocusChecks
         void ResetFocus()
         {
             latestFocus = null;
+        }
+
+        void VerifyGuideSelectorEscape()
+        {
+            var game = Program.Engine(model);
+            var views = Enumerable.Range(0, game.CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+            var commands = CommandJson.Serialize(game.AcceptedCommands);
+            var guide = (FrameworkElement)window.FindName("PlayerGuide");
+            model.SelectedGuideSection = model.GuideSections.Single(section => section.Key == "cards");
+            Pump(window);
+            var category = (ComboBox)guide.FindName("GuideCategoryBox");
+            category.Focus();
+            category.IsDropDownOpen = true;
+            Pump(window);
+            Program.Assert(category.IsDropDownOpen && model.IsHelpOpen && model.IsGuideCards,
+                "The guide Escape fixture must expand its actual card-category selector.");
+            Program.Assert(!RouteEscape(repeat: false) && !category.IsDropDownOpen && model.IsHelpOpen && model.IsGuideCards,
+                "The native category selector must receive the first Escape before its guide can close.");
+            Program.Assert(RouteEscape(repeat: true) && model.IsHelpOpen,
+                "Holding Escape after the guide selector closes must retain the containing guide.");
+            Program.Assert(RouteEscape(repeat: false) && !model.IsHelpOpen &&
+                ReferenceEquals(Program.Engine(model), game) && CommandJson.Serialize(game.AcceptedCommands) == commands &&
+                Enumerable.Range(0, views.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(views),
+                "A fresh Escape must close the guide without changing any player's view or the accepted journal.");
+            Pump(window);
+            model.OpenContextGuideCommand.Execute(null);
+            Pump(window);
+
+            bool RouteEscape(bool repeat) => TableShortcutChecks.WithModifiers(ModifierKeys.None, () =>
+            {
+                category.Focus();
+                Program.Assert(ReferenceEquals(Keyboard.FocusedElement, category),
+                    "Guide selector Escape must route from the actual focused ComboBox.");
+                var input = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(category)!, 0, Key.Escape)
+                    { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+                OpeningCustomizationUiChecks.SetKeyRepeat(input, repeat);
+                category.RaiseEvent(input);
+                var previewHandled = input.Handled;
+                if (!previewHandled)
+                {
+                    input.RoutedEvent = Keyboard.KeyDownEvent;
+                    category.RaiseEvent(input);
+                }
+                return previewHandled;
+            });
         }
 
         bool RouteShiftEscape(bool repeat)

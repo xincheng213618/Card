@@ -38,6 +38,7 @@ internal static class GeneralRosterPerformanceChecks
             var rows = Program.Find<ListBoxItem>(roster).Count();
             var hiddenCards = Program.Find<Button>(candidates).Count();
             var total = model.CustomGeneralChoices.Count;
+            var searchTarget = model.CustomGeneralChoices.Last();
             Console.WriteLine($"Custom roster: command {commandMs:F1} ms, open/render {openMs:F1} ms, {rows}/{model.CustomGeneralChoices.Count} rows, {hiddenCards} hidden cards, {bytes:N0} bytes.");
             Program.Assert(total > 300 && rows is > 0 and <= 64 && hiddenCards == 0 && bytes < 12_000_000,
                 "A tiled roster must realize only nearby cards and must not generate hidden candidates or the whole roster.");
@@ -69,11 +70,32 @@ internal static class GeneralRosterPerformanceChecks
                 Program.Engine(model).Revision == revision, "Search and preview must preserve the published private selection.");
             model.CustomGeneralSearch = target.SkillName.Split('/')[0].Trim();
             Program.Assert(model.CustomGeneralChoices.Contains(target), "The roster must search registered skill names.");
+            var accepted = Program.Engine(model).AcceptedCommands.Count;
+            model.CustomGeneralSearch = searchTarget.GeneralId;
+            Program.Render(root, 1120, 740, Path.Combine(output, "custom-general-search-result.png"));
+            Program.Assert(model.CustomGeneralChoices.Single() == searchTarget && model.SelectedGeneralChoice == searchTarget &&
+                model.CanConfirmGeneralChoice && model.ConfirmGeneralChoiceCommand.CanExecute(null),
+                "A search must preview its visible result instead of retaining a hidden general for confirmation.");
+            model.CustomGeneralSearch = $" {searchTarget.GeneralId} ";
+            Program.Assert(model.SelectedGeneralChoice == searchTarget,
+                "An equivalent search must preserve the visible general preview.");
+            RefreshView();
+            Program.Assert(model.SelectedGeneralChoice?.GeneralId == searchTarget.GeneralId &&
+                ReferenceEquals(model.SelectedGeneralChoice, model.CustomGeneralChoices.Single()),
+                "A refreshed private prompt must retain the visible search result for confirmation.");
             model.CustomGeneralSearch = "__missing_general_roster__";
-            Program.Render(root, 1440, 900, null);
-            Program.Assert(model.HasNoCustomGeneralChoices && roster.Items.Count == 0,
-                "An empty search must show its empty state and retire previous rows.");
+            RefreshView();
+            Program.Render(root, 1120, 740, Path.Combine(output, "custom-general-search-empty.png"));
+            var confirmation = (Button)window.FindName("ConfirmGeneralChoiceButton");
+            Program.Assert(model.HasNoCustomGeneralChoices && roster.Items.Count == 0 && model.SelectedGeneralChoice is null &&
+                !model.CanConfirmGeneralChoice && !model.ConfirmGeneralChoiceCommand.CanExecute(null) && !confirmation.IsEnabled,
+                "An empty search must clear the hidden preview and disable confirmation.");
+            model.ConfirmGeneralChoiceCommand.Execute(null);
+            Program.Assert(Program.Engine(model).Revision == revision && Program.Engine(model).AcceptedCommands.Count == accepted,
+                "Searching and a disabled confirmation must preserve the private prompt without selecting a hidden general.");
             model.CustomGeneralSearch = string.Empty;
+            Program.Assert(model.CustomGeneralChoices.Contains(model.SelectedGeneralChoice!) && model.CanConfirmGeneralChoice,
+                "Clearing an empty search must restore a visible preview and its confirmation.");
             foreach (var (width, height) in new[] { (1120, 740), (1920, 1080), (1440, 900) })
             {
                 Program.Render(root, width, height, Path.Combine(output, $"custom-general-roster-{width}.png"));
@@ -119,6 +141,10 @@ internal static class GeneralRosterPerformanceChecks
             File.WriteAllText(Path.Combine(output, "custom-general-performance.json"),
                 System.Text.Json.JsonSerializer.Serialize(new { commandMs, openMs, searchMs, previewMs, reopenMs, rows,
                     total, hiddenCards, managedBytes = bytes }));
+
+            void RefreshView() => typeof(MainViewModel).GetMethod("Refresh",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .Invoke(model, [Program.Engine(model).CreateSnapshot(0)]);
         }
         finally { window.Content = null; window.Close(); }
     }

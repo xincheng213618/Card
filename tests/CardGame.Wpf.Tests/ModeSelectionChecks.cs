@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.ViewModels;
 
 internal static class ModeSelectionChecks
@@ -14,6 +15,12 @@ internal static class ModeSelectionChecks
     public static void TwoStepSetup(MainViewModel vm, MainWindow window, FrameworkElement root, string output)
     {
         var revision = Program.Engine(vm).Revision;
+        var home = (HomeLobby)window.FindName("LobbyHome");
+        var lobbyButtons = Descendants(home).OfType<Button>().Where(button => button.IsTabStop).ToArray();
+        Program.Assert(lobbyButtons.All(button => button.TabIndex < int.MaxValue) &&
+                       lobbyButtons.Select(button => button.TabIndex).Distinct().Count() == lobbyButtons.Length &&
+                       ((Button)home.FindName("EnterBattleButton")).TabIndex == lobbyButtons.Min(button => button.TabIndex),
+            "Every lobby action needs an unambiguous keyboard order starting at the main battle entry.");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "activity");
         Program.Render(root, 1120, 740, Path.Combine(output, "134-activity-modes.png"));
         var groups = (ItemsControl)window.FindName("ModeGroupChoices");
@@ -63,6 +70,15 @@ internal static class ModeSelectionChecks
             Program.Assert(vm.SelectedTableMode == hardest, "Reopening the same mode lost its chosen difficulty.");
             vm.BackInLobbySetupCommand.Execute(null);
         }
+        var rememberedGroup = testedGroups.First(group => group.Variants.Count > 1);
+        vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "identity");
+        vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "activity");
+        vm.OpenModeConfigurationCommand.Execute(rememberedGroup);
+        choices.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Program.Assert(vm.SelectedTableMode == rememberedGroup.Variants[^1] &&
+                       Equals(choices.SelectedItem, vm.SelectedTableMode),
+            "Returning to an activity after browsing another category lost its chosen difficulty.");
+        vm.BackInLobbySetupCommand.Execute(null);
         Program.Assert(Program.Engine(vm).Revision == revision, "Browsing mode and difficulty choices changed the suspended match.");
         shortcut.Invoke(window, [Key.Escape, ModifierKeys.None]);
         Program.Assert(!vm.IsLobbyConfigurationOpen && vm.IsNewGameSetupOpen,

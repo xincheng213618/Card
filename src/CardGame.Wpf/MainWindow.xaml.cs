@@ -430,7 +430,7 @@ public partial class MainWindow : Window
         // The roster search owns text input, including repeated digits and Enter.
         if (viewModel.CanRerollOpeningHand && ReferenceEquals(CurrentFocusSurface(viewModel), TableSurface) &&
             (ReferenceEquals(Keyboard.FocusedElement, OpeningCardSearchBox) || OpeningCardSelector.IsKeyboardFocusWithin) &&
-            modifiers != ModifierKeys.Control) return false;
+            modifiers != ModifierKeys.Control && key != Key.Escape) return false;
         if (viewModel.IsCustomGeneralSelectionOpen &&
             ReferenceEquals(CurrentFocusSurface(viewModel), GeneralSelectionOverlay) &&
             ReferenceEquals(Keyboard.FocusedElement, CustomGeneralSearchBox) && modifiers == ModifierKeys.None &&
@@ -455,6 +455,10 @@ public partial class MainWindow : Window
         // Shortcut ownership follows the same top surface as deferred focus.
         // A retained lower panel must not intercept the visible panel's keys.
         var surface = CurrentFocusSurface(viewModel);
+        // Escape belongs to an expanded selector before its containing panel.
+        // Repeats have already been consumed, so holding it cannot close both.
+        if (key == Key.Escape && modifiers == ModifierKeys.None && ShanheCampaignWindow.HasOpenDropDown(surface))
+            return false;
         if (ReferenceEquals(surface, WushuangShopOverlay))
         {
             if (key == Key.Escape && modifiers == ModifierKeys.None) { viewModel.CloseWushuangShopCommand.Execute(null); return true; }
@@ -465,7 +469,6 @@ public partial class MainWindow : Window
         {
             if (key == Key.Escape && modifiers == ModifierKeys.None)
             {
-                if (ShanheCampaignWindow.HasOpenDropDown(ShanhePanel)) return false;
                 if (!ShanhePanel.HandleEscape()) viewModel.CloseShanheCommand.Execute(null);
                 return true;
             }
@@ -504,7 +507,11 @@ public partial class MainWindow : Window
         {
             if (key == Key.Escape && modifiers == ModifierKeys.None)
             {
-                if (viewModel.IsOpeningHandEditorOpen) viewModel.ToggleOpeningHandEditorCommand.Execute(null);
+                if (viewModel.IsOpeningHandEditorOpen)
+                {
+                    viewModel.ToggleOpeningHandEditorCommand.Execute(null);
+                    ChangeOpeningHandButton.Focus();
+                }
                 return true;
             }
             if (key is Key.Enter or Key.Space)

@@ -30,17 +30,48 @@ internal static class PreferencesChecks
             var slider = (Slider)window.FindName("SetupSoundVolume");
             var toggle = (CheckBox)window.FindName("SetupSoundToggle");
             var motion = (CheckBox)window.FindName("SetupMotionToggle");
-            slider.Value = .19;
+            var settingsSlider = (Slider)window.FindName("SettingsSoundVolume");
+            var settingsVolume = (TextBlock)window.FindName("SettingsSoundVolumeValue");
+            var settingsBack = (Button)window.FindName("CloseSettingsButton");
+            vm.OpenSettingsCommand.Execute(null);
+            root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            Require(Equals(settingsBack.Content, "返回大厅") && vm.IsNewGameSetupOpen,
+                "Settings opened from the lobby should return to the lobby.");
+            settingsSlider.Value = .19;
+            root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            var expectedVolume = vm.SoundVolume.ToString("P0", settingsVolume.Language.GetSpecificCulture());
+            Require(vm.SoundVolume == .19 && slider.Value == .19 && settingsVolume.Text == expectedVolume &&
+                    System.Windows.Automation.AutomationProperties.GetName(settingsSlider) == "游戏音量" &&
+                    settingsSlider.SmallChange == .05 && settingsSlider.LargeChange == .1,
+                "Settings volume needs a readable percentage, keyboard steps and a shared accessible volume control.");
+            Program.Render(root, 1120, 740, Path.Combine(output, "54-preferences-settings.png"));
+            vm.CloseSettingsCommand.Execute(null);
+            Require(!vm.IsSettingsOpen && vm.IsNewGameSetupOpen, "Closing settings unexpectedly left the lobby.");
+            vm.IsNewGameSetupOpen = false;
+            vm.OpenSettingsCommand.Execute(null);
+            root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            Require(Equals(settingsBack.Content, "返回牌桌"), "Settings opened from play should return to the table.");
+            vm.CloseSettingsCommand.Execute(null);
+            vm.IsNewGameSetupOpen = true;
+            vm.OpenLobbyCategoryCommand.Execute("identity");
+            vm.OpenModeConfigurationCommand.Execute(vm.VisibleModeGroups.Single(group => group.Variants.Contains(vm.SelectedTableMode)));
+            root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
             toggle.IsChecked = false;
             motion.IsChecked = false;
             Pump(650);
             Require(store.Read() == new PlayerPreferences(1, false, .19, false) && saves.WriteCount == 0 && State(vm) == before,
                 "Setup preferences failed to persist independently of the untouched game.");
-            Require(!slider.IsEnabled && toggle.IsEnabled && motion.IsEnabled, "Setup sound controls are not correctly bound.");
+            Require(!slider.IsEnabled && !settingsSlider.IsEnabled && settingsVolume.Text == expectedVolume && toggle.IsEnabled && motion.IsEnabled,
+                "Muted volume controls should retain their displayed level while the sound toggle remains available.");
             Program.Render(root, 1120, 740, Path.Combine(output, "55-preferences-muted.png"));
             var start = (Button)window.FindName("StartNewGameButton");
+            var configuration = (StackPanel)window.FindName("ModeConfigurationPanel");
+            var origin = start.TranslatePoint(new Point(), root);
             var end = start.TranslatePoint(new Point(start.ActualWidth, start.ActualHeight), root);
-            Require(start.ActualHeight > 0 && end.X <= 1120 && end.Y <= 740, "Preferences pushed the start button outside the small window.");
+            Require(vm.IsModeConfigurationOpen && configuration.Visibility == Visibility.Visible && start.Visibility == Visibility.Visible &&
+                    start.ActualWidth > 0 && start.ActualHeight > 0 &&
+                    origin.X >= 0 && origin.Y >= 0 && end.X <= 1120 && end.Y <= 740,
+                "Preferences pushed the visible mode-configuration start button outside the small window.");
             window.Content = null;
             window.Close();
         }

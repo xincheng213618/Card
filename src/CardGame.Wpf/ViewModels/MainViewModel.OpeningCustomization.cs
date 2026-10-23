@@ -17,7 +17,12 @@ public sealed partial class MainViewModel
     public string CustomGeneralSearch
     {
         get => _customGeneralSearch;
-        set { if (SetProperty(ref _customGeneralSearch, value ?? string.Empty)) RefreshCustomGeneralChoices(); }
+        set
+        {
+            if (!SetProperty(ref _customGeneralSearch, value ?? string.Empty)) return;
+            RefreshCustomGeneralChoices();
+            if (IsCustomGeneralSelectionOpen) PreviewVisibleCustomGeneral();
+        }
     }
     public bool IsCustomGeneralSelectionOpen => IsGeneralSelectionPending &&
         _snapshot.PendingDecision!.Choices.Any(choice => choice.Parameters.ContainsKey("full-roster"));
@@ -91,7 +96,7 @@ public sealed partial class MainViewModel
             RaisePropertyChanged(nameof(SelectedCustomGeneralCategory));
         }
         RefreshCustomGeneralChoices();
-        if (SelectedCustomGeneralCategory != "all") PreviewVisibleCustomGeneral();
+        if (IsCustomGeneralSelectionOpen) PreviewVisibleCustomGeneral();
         RaisePropertyChanged(nameof(CustomGeneralCategoryText));
         RaisePropertyChanged(nameof(IsCustomGeneralSelectionOpen));
         RaisePropertyChanged(nameof(GeneralSelectionSourceText));
@@ -102,7 +107,8 @@ public sealed partial class MainViewModel
 
     private void PreviewVisibleCustomGeneral()
     {
-        if (CustomGeneralChoices.Count > 0 && !CustomGeneralChoices.Contains(SelectedGeneralChoice!))
+        if (CustomGeneralChoices.Count == 0) SelectedGeneralChoice = null;
+        else if (!CustomGeneralChoices.Contains(SelectedGeneralChoice!))
             PreviewGeneralChoice(CustomGeneralChoices[0]);
     }
 

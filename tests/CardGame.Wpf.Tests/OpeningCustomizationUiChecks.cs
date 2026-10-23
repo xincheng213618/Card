@@ -169,11 +169,12 @@ internal static class OpeningCustomizationUiChecks
             vm.PreviewGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
             var roster = (ListBox)window.FindName("CustomGeneralRoster");
             var confirm = (Button)window.FindName("ConfirmGeneralChoiceButton");
+            var rosterToggle = (Button)window.FindName("ToggleGeneralRosterButton");
             var accepted = Program.Engine(vm).AcceptedCommands.Count;
             Program.Assert(vm.CustomGeneralChoices.Count == 1 && ReferenceEquals(vm.CustomGeneralChoices[0], numbered) &&
                 !ReferenceEquals(vm.SelectedGeneralChoice, numbered),
                 "The keyboard fixture must expose one searched result different from the hidden first candidate.");
-            Program.Assert(Press(confirm, Key.D1, allowShortcut: true) && ReferenceEquals(vm.SelectedGeneralChoice, numbered),
+            Program.Assert(Press(rosterToggle, Key.D1, allowShortcut: true) && ReferenceEquals(vm.SelectedGeneralChoice, numbered),
                 "A number key outside the search box must preview the corresponding visible search result, never a hidden candidate.");
             window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
             var numberedButton = Program.Find<Button>(roster).Single(button =>
@@ -189,12 +190,23 @@ internal static class OpeningCustomizationUiChecks
             Program.Assert(ReferenceEquals(vm.SelectedGeneralChoice, numbered) && ReferenceEquals(Keyboard.FocusedElement, numberedButton) &&
                 before == SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0)) && Program.Engine(vm).AcceptedCommands.Count == accepted,
                 "A number beyond the filtered result count must retain the current preview and row focus without submitting a command.");
+            var beforeEmptyViews = Enumerable.Range(0, Program.Engine(vm).CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(seat))).ToArray();
+            var beforeEmptyCommands = CommandJson.Serialize(Program.Engine(vm).AcceptedCommands);
             vm.CustomGeneralSearch = "__no_opening_general_match__";
-            Program.Assert(vm.CustomGeneralChoices.Count == 0, "The empty-result keyboard fixture must hide every roster row.");
-            Press(confirm, Key.D1, allowShortcut: true);
-            Program.Assert(ReferenceEquals(vm.SelectedGeneralChoice, numbered) &&
-                before == SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0)) && Program.Engine(vm).AcceptedCommands.Count == accepted,
-                "A number with no search results must not select an invisible candidate or submit a command.");
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            Program.Assert(vm.CustomGeneralChoices.Count == 0 && vm.SelectedGeneralChoice is null && !numbered.IsPreviewSelected &&
+                !vm.CanConfirmGeneralChoice && !confirm.IsEnabled && !vm.ConfirmGeneralChoiceCommand.CanExecute(null),
+                "An empty search must clear the hidden preview and disable the actual confirmation button and command.");
+            Press(rosterToggle, Key.D1, allowShortcut: true);
+            Press(roster, Key.Enter, allowShortcut: true);
+            Program.Assert(vm.SelectedGeneralChoice is null && !numbered.IsPreviewSelected && !vm.CanConfirmGeneralChoice &&
+                !confirm.IsEnabled && !vm.ConfirmGeneralChoiceCommand.CanExecute(null) &&
+                before == SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0)) && Program.Engine(vm).AcceptedCommands.Count == accepted &&
+                CommandJson.Serialize(Program.Engine(vm).AcceptedCommands) == beforeEmptyCommands &&
+                Enumerable.Range(0, beforeEmptyViews.Length)
+                    .Select(seat => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(seat))).SequenceEqual(beforeEmptyViews),
+                "A number or Enter routed from real enabled controls with no search results must leave confirmation disabled and preserve every player's view and accepted command.");
             vm.CustomGeneralSearch = numbered.Name;
             vm.PreviewGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
             roster.ScrollIntoView(numbered);
@@ -289,6 +301,32 @@ internal static class OpeningCustomizationUiChecks
             Program.Assert(!Input(Key.Space) && !Input(Key.D1) && !Input(Key.Enter) &&
                 beforeSearchKey == openingGame.AcceptedCommands.Count && openingGame.State.TurnNumber == 0,
                 "Search typing and Enter belong to the search box and cannot confirm the opening hand.");
+            var openingSelector = (ComboBox)window.FindName("OpeningCardSelector");
+            var beforeEditorEscape = Enumerable.Range(0, openingGame.CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(openingGame.CreateSnapshot(seat))).ToArray();
+            var escapeChoice = vm.SelectedOpeningCardChoice;
+            openingSelector.Focus();
+            openingSelector.IsDropDownOpen = true;
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            Program.Assert(openingSelector.IsDropDownOpen && vm.IsOpeningHandEditorOpen,
+                "The opening selector Escape fixture must expand its actual card list.");
+            Press(openingSelector, Key.Escape);
+            Program.Assert(!openingSelector.IsDropDownOpen && vm.IsOpeningHandEditorOpen &&
+                ReferenceEquals(vm.SelectedOpeningCardChoice, escapeChoice) && replaceTarget.IsSelected,
+                "The first Escape must close only the native opening-card dropdown and retain its draft.");
+            Program.Assert(Press(openingSelector, Key.Escape, allowShortcut: true, repeat: true) && vm.IsOpeningHandEditorOpen,
+                "Holding Escape after the opening dropdown closes must not dismiss its editor.");
+            Program.Assert(Press(openingSelector, Key.Escape, allowShortcut: true) && !vm.IsOpeningHandEditorOpen &&
+                ReferenceEquals(Keyboard.FocusedElement, window.FindName("ChangeOpeningHandButton")),
+                "A fresh Escape must close the opening editor and return focus to its replacement action.");
+            Press((Button)window.FindName("ChangeOpeningHandButton"), Key.Enter);
+            Program.Assert(Press(openingSearch, Key.Escape, allowShortcut: true) && !vm.IsOpeningHandEditorOpen &&
+                ReferenceEquals(Keyboard.FocusedElement, window.FindName("ChangeOpeningHandButton")) &&
+                openingGame.AcceptedCommands.Count == beforeSearchKey && openingGame.State.TurnNumber == 0 &&
+                Enumerable.Range(0, beforeEditorEscape.Length)
+                    .Select(seat => SnapshotJson.Serialize(openingGame.CreateSnapshot(seat))).SequenceEqual(beforeEditorEscape),
+                "Escape from the opening search must return to the replacement action without changing any player's view or accepting a command.");
+            Press((Button)window.FindName("ChangeOpeningHandButton"), Key.Enter);
             Program.Render(root, 1120, 820, System.IO.Path.Combine(output, "opening-customization-replace.png"));
             Press((Button)window.FindName("ReplaceOpeningCardButton"), Key.Enter);
             Program.Assert(vm.Hand.Single(card => !repeatedOpeningCards.Contains(card.Id)).Kind == replacement.Kind &&

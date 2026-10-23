@@ -1504,7 +1504,14 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <DockPanel>
-                        <Button x:Name="CloseSettingsButton" DockPanel.Dock="Right" Content="返回牌桌" Command="{Binding CloseSettingsCommand}" Style="{StaticResource ToolbarButton}" Padding="15,8" />
+                        <Button x:Name="CloseSettingsButton" DockPanel.Dock="Right" Command="{Binding CloseSettingsCommand}" Padding="15,8">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+                                    <Setter Property="Content" Value="返回牌桌" />
+                                    <Style.Triggers><DataTrigger Binding="{Binding IsNewGameSetupOpen}" Value="True"><Setter Property="Content" Value="返回大厅" /></DataTrigger></Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <StackPanel>
                             <TextBlock Text="牌 局 设 置" FontFamily="KaiTi" FontSize="28" Foreground="#E8CA8D" />
                             <TextBlock Text="辅助表现独立于规则结算；调整后不会替你选牌或提交行动。" Foreground="#8EA397" FontSize="11" Margin="0,4,0,0" />
@@ -1519,7 +1526,10 @@
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <CheckBox x:Name="SettingsSoundToggle" Content="游戏声音" IsChecked="{Binding IsSoundEnabled}" />
-                                <Slider Value="{Binding SoundVolume}" Minimum="0" Maximum="1" TickFrequency="0.05" Margin="0,10,0,0" ToolTip="游戏音量" />
+                                <DockPanel Margin="0,10,0,0">
+                                    <TextBlock x:Name="SettingsSoundVolumeValue" DockPanel.Dock="Right" Text="{Binding SoundVolume, StringFormat={}{0:P0}}" Foreground="#D3B97F" FontSize="12" MinWidth="42" TextAlignment="Right" VerticalAlignment="Center" Margin="12,0,0,0" />
+                                    <Slider x:Name="SettingsSoundVolume" Value="{Binding SoundVolume}" Minimum="0" Maximum="1" TickFrequency="0.05" SmallChange="0.05" LargeChange="0.1" IsMoveToPointEnabled="True" IsEnabled="{Binding IsSoundEnabled}" VerticalAlignment="Center" AutomationProperties.Name="游戏音量" AutomationProperties.HelpText="左右方向键调整音量。关闭游戏声音时保留当前音量。" ToolTip="{Binding SoundStatusText}" />
+                                </DockPanel>
                                 <TextBlock Text="{Binding SoundStatusText}" Foreground="#879C90" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" />
                                 <WrapPanel Margin="0,12,0,0">
                                     <CheckBox x:Name="SettingsMusicToggle" Content="背景音乐" IsChecked="{Binding IsMusicEnabled}" Margin="0,0,20,0" />

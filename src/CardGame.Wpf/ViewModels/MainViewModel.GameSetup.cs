@@ -10,6 +10,7 @@ public sealed partial class MainViewModel
     private bool _isLobbyConfigurationOpen;
     private bool _isModeConfigurationOpen;
     private TableModeGroupOption? _selectedModeGroup;
+    private readonly Dictionary<string, TableModeOption> _configuredModeVariants = new(StringComparer.Ordinal);
     private bool _isIdentityRevealOpen;
     private bool _manualDiscardEnabled = true;
     private StartingRoleOption _selectedStartingRole = new("随机身份", null, "开局随机分配身份");
@@ -37,6 +38,8 @@ public sealed partial class MainViewModel
         private set
         {
             if (!SetProperty(ref _isModeConfigurationOpen, value)) return;
+            if (value && SelectedModeGroup is { } group)
+                _configuredModeVariants[group.Id] = SelectedTableMode;
             RaisePropertyChanged(nameof(IsModeSelectionOpen));
             RaisePropertyChanged(nameof(LobbySetupBackText));
         }
@@ -105,6 +108,10 @@ public sealed partial class MainViewModel
             if (value is null) return;
             if (!SetProperty(ref _selectedTableMode, value)) return;
             RefreshSelectedModeGroup();
+            // Category refreshes select a valid fallback while the cards are hidden.
+            // Remember only choices made in configuration, for this UI session.
+            if (IsModeConfigurationOpen && SelectedModeGroup is { } group)
+                _configuredModeVariants[group.Id] = value;
             RaisePropertyChanged(nameof(StartingTeams));
             if (!StartingTeams.Contains(SelectedStartingTeam)) SelectedStartingTeam = StartingTeams[0];
             RaisePropertyChanged(nameof(IsActivityModeSelection));
@@ -344,7 +351,9 @@ public sealed partial class MainViewModel
         OpenModeConfigurationCommand = new RelayCommand<TableModeGroupOption>(group =>
         {
             if (group is null || !VisibleModeGroups.Contains(group)) return;
-            if (!group.Variants.Contains(SelectedTableMode)) SelectedTableMode = group.Variants[0];
+            if (_configuredModeVariants.TryGetValue(group.Id, out var remembered) && group.Variants.Contains(remembered))
+                SelectedTableMode = remembered;
+            else if (!group.Variants.Contains(SelectedTableMode)) SelectedTableMode = group.Variants[0];
             IsModeConfigurationOpen = true;
         });
         BackInLobbySetupCommand = new RelayCommand(() =>
