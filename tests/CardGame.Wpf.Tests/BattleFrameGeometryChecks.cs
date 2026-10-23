@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CardGame.Core;
 using CardGame.Wpf.Controls;
 using CardGame.Wpf.Presentation;
 using static Program;
@@ -25,6 +26,7 @@ internal static class BattleFrameGeometryChecks
         Console.WriteLine("Frame geometry (same frozen 200ms scene, 16 warmup / 64 measured frames): " + report);
         CheckMovingReadouts(fixture, output);
         CheckRoundedDistanceTie();
+        CheckSidebarAndRetiredSlash(fixture);
         // Keep this after the measurements and image so the pre-change run can
         // record its expected failure without a special benchmark runner mode.
         Assert(single.ChildReads <= fixture.Root.Children.Count * 3 && multiple.ChildReads <= fixture.Root.Children.Count * 3,
@@ -55,6 +57,88 @@ internal static class BattleFrameGeometryChecks
     private sealed record CaptionSample(int Visible, int WithTitleGlyphs, int CachedTextOffsets);
     private sealed record SourceSample(int Sources, int[] SourceSeats, Timing FirstFrame, Timing SteadyFrame,
         CaptionSample FirstCaptions, CaptionSample SteadyCaptions);
+
+    private static void CheckSidebarAndRetiredSlash(Scene fixture)
+    {
+        // Reuse the measured scene. This is a render/cache regression, while
+        // NativeActionFeedbackChecks retains the real paid Slash/Dodge flow.
+        fixture.Command.Visibility = fixture.Readout.Visibility = Visibility.Visible;
+        fixture.Command.RenderTransform = fixture.Readout.RenderTransform = Transform.Identity;
+        var contents = new CountingCanvas { Width = 270, Height = 520 };
+        var firstLine = new TextBlock { Text = "牌局记录：等待响应", Foreground = Brushes.Wheat };
+        contents.Children.Add(firstLine);
+        for (var index = 1; index <= 12; index++)
+        {
+            var line = new TextBlock { Text = $"公开记录 {index}：角色使用一张牌", Foreground = Brushes.Wheat };
+            Canvas.SetTop(line, index * 36); contents.Children.Add(line);
+        }
+        var scroll = new ScrollViewer { Content = contents, CanContentScroll = false,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        var sidebar = fixture.Place(new Border { Width = 300, Height = 280, ClipToBounds = true,
+            Background = Brushes.Black, Child = scroll }, 840, 320);
+        fixture.Layer.Sidebar = sidebar;
+        fixture.Relayout();
+        fixture.SetSlashCue(); fixture.Render();
+        var firstRoute = fixture.SlashRoute;
+        Assert(firstRoute is not null && SlashShapes().Any(),
+            "The cache probe must begin with a real rendered Slash route and visible blade ink.");
+        contents.ChildReads = 0; fixture.Root.ChildReads = 0; fixture.Render();
+        var liveReads = fixture.Root.ChildReads;
+        var liveSidebarReads = contents.ChildReads;
+
+        firstLine.Text = "牌局记录更新：目标角色已经选择打出闪";
+        fixture.Relayout(); fixture.Render();
+        var textRetainedRoute = ReferenceEquals(firstRoute, fixture.SlashRoute);
+        scroll.ScrollToVerticalOffset(48);
+        fixture.Relayout(); fixture.Render();
+        Assert(scroll.VerticalOffset > 0, "The sidebar probe must actually scroll its rendered child content.");
+        var scrollRetainedRoute = ReferenceEquals(firstRoute, fixture.SlashRoute);
+        var slashProtectsSidebar = Protected(SlashShapes());
+
+        fixture.Advance(.5); // Card cue survives to 900ms; its blade ended at 585ms.
+        firstLine.Text = "刀光退场后新增的公开记录";
+        fixture.Readout.RenderTransform = new TranslateTransform(1, 0);
+        fixture.Relayout();
+        contents.ChildReads = 0; fixture.Root.ChildReads = 0; fixture.Render();
+        var retiredReads = fixture.Root.ChildReads;
+        var retiredSidebarReads = contents.ChildReads;
+        var retiredRetainedRoute = ReferenceEquals(firstRoute, fixture.SlashRoute);
+        var retiredInk = SlashShapes().Any();
+
+        fixture.SetCues(1); fixture.Render();
+        var drawRoute = fixture.DrawRoute;
+        firstLine.Text = "又一条公开记录：摸牌数量已经更新";
+        scroll.ScrollToVerticalOffset(96);
+        fixture.Relayout(); fixture.Render();
+        var drawRetainedRoute = ReferenceEquals(drawRoute, fixture.DrawRoute);
+        var drawProtectsSidebar = Protected(Shapes(fixture.Drawing.Drawing, Matrix.Identity, null)
+            .Where(shape => IsBack(shape.Drawing)));
+        Console.WriteLine("Sidebar route work: " + JsonSerializer.Serialize(new
+        {
+            RootChildren = fixture.Root.Children.Count, SidebarChildren = contents.Children.Count,
+            liveReads, liveSidebarReads, retiredReads, retiredSidebarReads,
+            textRetainedRoute, scrollRetainedRoute, retiredRetainedRoute, drawRetainedRoute,
+            slashProtectsSidebar, drawProtectsSidebar, retiredInk, ScrollOffset = scroll.VerticalOffset
+        }));
+        Assert(textRetainedRoute && scrollRetainedRoute && drawRetainedRoute && slashProtectsSidebar && drawProtectsSidebar,
+            "Changes wholly inside the protected sidebar must retain Slash/draw routes, while both clips still exclude its complete rectangle.");
+        Assert(!retiredInk && retiredRetainedRoute && retiredReads <= fixture.Root.Children.Count &&
+            retiredSidebarReads <= contents.Children.Count,
+            "At 700ms the retired Slash must leave only the anchor walk, without reading avoidance ink or rebuilding its route.");
+
+        IEnumerable<(GeometryDrawing Drawing, Geometry Visible, Geometry? Clip)> SlashShapes() =>
+            Shapes(fixture.Drawing.Drawing, Matrix.Identity, null).Where(shape => shape.Drawing is
+                { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen: null } && fill.Color == Color.FromRgb(255, 203, 100));
+
+        bool Protected(IEnumerable<(GeometryDrawing Drawing, Geometry Visible, Geometry? Clip)> candidates)
+        {
+            var shapes = candidates.ToArray();
+            var bounds = new RectangleGeometry(fixture.Bounds(sidebar));
+            return shapes.Length > 0 && shapes.Any(shape => shape.Visible.GetArea() > 1) &&
+                shapes.All(shape => shape.Clip is not null &&
+                    Geometry.Combine(shape.Clip, bounds, GeometryCombineMode.Intersect, null).GetArea() < .01);
+        }
+    }
 
     private static void CheckRoundedDistanceTie()
     {
@@ -326,6 +410,36 @@ internal static class BattleFrameGeometryChecks
                     { Revision = index + 1, DrawCount = 2 });
             _clock.Advance(.2);
             Assert(Layer.ActiveEffectCount == seats.Length, "The frame fixture must retain every requested concurrent draw cue.");
+        }
+
+        public void SetSlashCue()
+        {
+            _cues.Clear();
+            _cues.Add(new BattleCue(1, BattleCueKind.Card, 1, [0], "杀", "对手") { Revision = 1, CardKind = CardKind.Slash });
+            _clock.Advance(.2);
+        }
+
+        public object? SlashRoute
+        {
+            get
+            {
+                var active = ((System.Collections.IEnumerable)typeof(BattleFeedbackLayer)
+                    .GetField("_active", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(Layer)!).Cast<object>().Single();
+                return (active.GetType().GetField("_slashPaths", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .GetValue(active) as System.Collections.IDictionary)?[0];
+            }
+        }
+
+        public object? DrawRoute => ((System.Collections.IDictionary)typeof(BattleFeedbackLayer)
+            .GetField("_drawRouteCache", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(Layer)!)[0];
+
+        public void Advance(double seconds) => _clock.Advance(seconds);
+
+        public void Relayout()
+        {
+            _host.Measure(new Size(Width, Height)); _host.Arrange(new Rect(0, 0, Width, Height)); _host.UpdateLayout();
+            // Real text drawings, including ScrollViewer offsets, supply the ink.
+            new RenderTargetBitmap(Width, Height, 96, 96, PixelFormats.Pbgra32).Render(Root);
         }
 
         public int TextOffsetCount => ((System.Collections.IEnumerable)typeof(BattleFeedbackLayer)

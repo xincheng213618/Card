@@ -737,7 +737,10 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
 
         private IEnumerable<Rect> DrawReadouts(DependencyObject? element)
         {
+            // The sidebar's complete rectangle is already protected. Its
+            // scrolling log glyphs cannot change the traversable battlefield.
             if (element is null || ReferenceEquals(element, layer.HandRoot) || ReferenceEquals(element, layer.DrawPileAnchor) ||
+                ReferenceEquals(element, layer.Sidebar) ||
                 element is UIElement { Visibility: not Visibility.Visible }) yield break;
             if (element is System.Windows.Controls.TextBlock || element is System.Windows.Controls.Primitives.ButtonBase && GetSeatAnchor(element) < 0)
             {
@@ -854,6 +857,9 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
             cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
             seats.TryGetValue(cue.OriginSeat ?? cue.SourceSeat, out var source))
         {
+            // Both Slash painters retire at .65; the public card/highlight cue
+            // remains alive longer, without needing further avoidance work.
+            if (progress >= .65) return;
             foreach (var targetSeat in cue.TargetSeats)
             {
                 if (!seats.TryGetValue(targetSeat, out var target)) continue;
