@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:chijian", "revision": 1, "modifiers": [
+      { "id": "one-more-slash", "query": "slashLimit", "operation": "add", "value": 1, "priority": 0 }
+    ] },
+    { "id": "anniversary:shiwu", "revision": 1, "triggers": [
+      { "id": "other-actual-turn-duel", "window": "otherActualTurnStarted", "subject": "owner", "optional": true,
+        "effects": [{ "op": "resolveAnniversaryXiahouEnShiwu", "target": "owner" }] },
+      { "id": "duel-actual-damage", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": false, "isSkillInvocation": false,
+        "effects": [{ "op": "resolveAnniversaryXiahouEnShiwuDamage", "target": "owner" }] },
+      { "id": "killer-obtains-sword", "window": "ownerDied", "subject": "owner", "optional": false, "isSkillInvocation": false,
+        "effects": [{ "op": "bequeathAnniversaryXiahouEnChijian", "target": "owner" }] }
+    ] }
+  ]
+}

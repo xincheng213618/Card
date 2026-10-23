@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "happy:duorui", "revision": 1, "triggers": [
+      { "id": "take-hand", "window": "playPhaseStarting", "subject": "owner", "optional": true, "effects": [{ "op": "resolveHappyZhangLiaoDuorui", "target": "owner" }] },
+      { "id": "colored-damage", "window": "afterDamageApplied", "subject": "damageSource", "optional": false, "damageOccurrence": "perDamage", "effects": [{ "op": "resolveHappyZhangLiaoDuoruiDamage", "target": "owner" }] },
+      { "id": "restore-source", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": false, "effects": [{ "op": "resolveHappyZhangLiaoDuoruiDamage", "target": "owner" }] }
+    ] },
+    { "id": "happy:zhiti", "revision": 1, "triggers": [
+      { "id": "wounded-slots-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": false, "effects": [{ "op": "resolveHappyZhangLiaoZhiti", "target": "owner" }] },
+      { "id": "wounded-slots-discard", "window": "discardPhaseEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false, "effects": [{ "op": "resolveHappyZhangLiaoZhiti", "target": "owner" }] }
+    ] }
+  ]
+}

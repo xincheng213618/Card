@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:xinghun", "revision": 1, "activations": [{ "id": "five-stars", "minCards": 0, "maxCards": 0, "sourceZones": ["hand"], "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1, "usesPerGame": null, "effects": [{ "op": "resolveMobileJiangWeiXinghun", "target": "owner" }] }] },
+    { "id": "mobile:tiantao", "revision": 1, "triggers": [{ "id": "ending-region", "window": "turnEnding", "subject": "owner", "optional": false, "effects": [{ "op": "resolveMobileJiangWeiTiantao", "target": "owner" }] }] },
+    { "id": "mobile:shenpei", "revision": 1, "triggers": [{ "id": "dying-rain", "window": "dyingEntering", "subject": "owner", "optional": true, "usageScope": "game", "usageLimit": 1, "effects": [{ "op": "resolveMobileJiangWeiShenpei", "target": "owner" }] }] },
+    { "id": "mobile:huitian", "revision": 1, "triggers": [
+      { "id": "higher-hp-extra-turn", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true, "condition": { "kind": "compare", "left": { "kind": "turnOwnerHp" }, "operator": "greaterThan", "right": { "kind": "currentHp" } }, "effects": [{ "op": "draw", "target": "owner", "amount": 1 }, { "op": "pendExtraTurn", "target": "owner" }] },
+      { "id": "next-round-death", "window": "roundStarting", "subject": "owner", "optional": false, "effects": [{ "op": "resolveMobileJiangWeiHuitianDeath", "target": "owner" }] }
+    ] }
+  ]
+}

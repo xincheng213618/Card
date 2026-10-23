@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:shenfu", "revision": 1, "triggers": [
+      { "id": "event-ending-parity", "window": "turnEnding", "turnOwnerScope": "own", "subject": "owner", "optional": true, "priority": 0,
+        "effects": [{ "op": "resolveOlShenZhenJiShenfu", "target": "owner" }] }
+    ] },
+    { "id": "ol:qixian", "revision": 1, "modifiers": [
+      { "id": "fixed-seven", "query": "handLimit", "operation": "set", "value": 7, "priority": 405 }
+    ] }
+  ]
+}

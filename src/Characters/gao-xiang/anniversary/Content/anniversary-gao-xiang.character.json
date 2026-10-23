@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:gao-xiang",
+  "skills": [ { "registrationOrder": 44900, "programBundle": "anniversary-gao-xiang", "includeProgramPresentation": true,
+    "definition": { "id": "anniversary:chiying", "name": "驰应", "description": "出牌阶段限一次，你可以选择一名体力值小于等于你的角色，其可以选择弃置其攻击范围内任意名其他角色各一张牌。若你选择的是其他角色，该角色获得其中的基本牌。", "actionForms": "Active" }
+  } ],
+  "generals": [ { "registrationOrder": 44901, "pools": { "current": 44901 }, "definition": {
+    "id": "anniversary:gao-xiang", "name": "高翔", "portraitKey": "anniversary-gao-xiang", "skillId": "anniversary:chiying",
+    "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:gao-xiang", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

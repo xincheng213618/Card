@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:yizan": {
+      "name": "翊赞",
+      "description": "你可以将两张牌（其中至少一张牌是基本牌）当任意基本牌使用或打出。龙渊觉醒后：你可以将一张基本牌当任意基本牌使用或打出。"
+    },
+    "anniversary:longyuan": {
+      "name": "龙渊",
+      "description": "觉醒技，每个回合结束时，若你本局累计发动过三次“翊赞”，你摸两张牌并回复1点体力，然后修改“翊赞”。修改后：你可以将一张基本牌当任意基本牌使用或打出。"
+    },
+    "anniversary:qingren": {
+      "name": "青刃",
+      "description": "结束阶段，你摸X张牌（X为本回合发动“翊赞”的次数）。"
+    }
+  }
+}

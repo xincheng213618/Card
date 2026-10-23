@@ -1,0 +1,12 @@
+{"schemaVersion":62,"skills":[
+ {"id":"happy:lunce","revision":1,"triggers":[
+  {"id":"round-plan","window":"roundStarting","subject":"owner","optional":true,"effects":[{"op":"issueHappyPangTongPlan","target":"owner"}]},
+  {"id":"turn-plan","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,"effects":[{"op":"issueHappyPangTongPlan","target":"owner"}]},
+  {"id":"first-slash-plan","window":"cardUseTargetsFinalized","ownerRelation":"observer","optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveHappyPangTongMiddle","target":"owner"}]},
+  {"id":"ended-plan","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"anyLiving","optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveHappyPangTongEnding","target":"owner"}]},
+  {"id":"renew-plan","window":"happyPlanSettled","subject":"owner","optional":false,"effects":[{"op":"issueHappyPangTongPlan","target":"owner"}]}
+ ]},
+ {"id":"happy:lanhai","revision":1,"triggers":[
+  {"id":"settled-plan","window":"happyPlanSettled","subject":"owner","optional":false,"priority":10,"effects":[{"op":"resolveHappyPangTongLanhai","target":"owner"}]}
+ ]}
+]}

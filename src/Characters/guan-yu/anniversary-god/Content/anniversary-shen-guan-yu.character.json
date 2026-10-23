@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 40825,
+      "programBundle": "anniversary-shen-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary-god:wushen",
+        "name": "武神",
+        "description": "锁定技，你的红桃手牌视为【杀】；你使用红桃【杀】无距离和次数限制，且此红桃【杀】造成伤害后，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 40826,
+      "programBundle": "anniversary-shen-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary-god:wuhun",
+        "name": "武魂",
+        "description": "锁定技，当你造成/受到1点伤害后，你令受伤角色/来源获得1枚【梦魇】标记；当你死亡时，你令拥有最多该标记的一名其他角色进行判定，若结果不为【桃】或【桃园结义】，则该角色死亡。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 40827,
+      "pools": {
+        "current": 40827
+      },
+      "definition": {
+        "id": "anniversary:shen-guan-yu",
+        "name": "神关羽",
+        "portraitKey": "anniversary-shen-guan-yu",
+        "skillId": "anniversary-god:wushen",
+        "additionalSkillIds": [
+          "anniversary-god:wuhun"
+        ],
+        "factionId": "god",
+        "baseHp": 5,
+        "gender": "Male",
+        "characterId": "character:guan-yu",
+        "variantId": "anniversary-god",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

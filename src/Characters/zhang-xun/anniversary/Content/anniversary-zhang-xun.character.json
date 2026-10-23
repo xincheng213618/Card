@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-xun",
+  "skills": [ { "registrationOrder": 45200, "programBundle": "anniversary-zhang-xun", "includeProgramPresentation": true,
+    "definition": { "id": "anniversary:suizheng", "name": "随征", "description": "结束阶段，你可以选择一名角色。该角色下个回合的出牌阶段使用【杀】无距离限制且可以多使用一张【杀】。然后其出牌阶段结束时，你可以视为对其本回合造成过伤害的另一名其他角色使用一张【杀】。", "executionForms": "Trigger" }
+  } ],
+  "generals": [ { "registrationOrder": 45201, "pools": { "current": 45201 }, "definition": {
+    "id": "anniversary:zhang-xun", "name": "张勋", "portraitKey": "anniversary-zhang-xun", "skillId": "anniversary:suizheng", "factionId": "qun", "baseHp": 4,
+    "gender": "Male", "characterId": "character:zhang-xun", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

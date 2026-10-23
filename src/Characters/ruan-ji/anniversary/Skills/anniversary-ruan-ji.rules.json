@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:zhaowen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "show-hand",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveAnniversaryRuanJiZhaowen",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "shown-red-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawAnniversaryRuanJiShownRedUse",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "black-drawtwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "drawTwo",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "duel",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-barbarianassault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "barbarianAssault",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-arrowbarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "arrowBarrage",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-peachgarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peachGarden",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-fivegrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fiveGrains",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dismantlement",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "snatch",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-fireattack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireAttack",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-ironchain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "ironChain",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-borrowedsword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "borrowedSword",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "black-unexpectedassault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "unexpectedAssault",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": false
+        },
+        {
+          "id": "black-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "nullification",
+          "allowSameKind": true,
+          "forPlay": false,
+          "forResponse": true,
+          "singleCardTrickUse": false
+        },
+        {
+          "id": "black-qizhengxiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        }
+      ]
+    },
+    {
+      "id": "anniversary:jiudun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "incoming-black",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "onlyDesignatedCardTargets": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveAnniversaryRuanJiJiudun",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

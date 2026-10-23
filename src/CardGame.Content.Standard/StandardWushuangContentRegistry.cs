@@ -28,7 +28,11 @@ public sealed class StandardWushuangContentPackage : IGameContentPackage
         EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills", skill => skill with
         { Tags = skill.Id == "wushuang:skill-3226" ? SkillTag.Awakening : skill.Id == "wushuang:skill-3260" ? SkillTag.Limited : SkillTag.None });
         EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills-a", skill => skill with
-        { Tags = skill.Id is "wushuang:skill-3004" or "wushuang:skill-3131" or "wushuang:skill-3246" or "wushuang:skill-3265" ? SkillTag.Locked : SkillTag.None });
+        {
+            Tags = skill.Id is "wushuang:skill-3004" or "wushuang:skill-3131" or "wushuang:skill-3246" or "wushuang:skill-3265" ? SkillTag.Locked : SkillTag.None,
+            ActionForms = skill.Id == "wushuang:skill-3252" ? SkillActionForm.Active : skill.ActionForms,
+            ExecutionForms = skill.Id == "wushuang:skill-3252" ? SkillExecutionForm.Trigger : skill.ExecutionForms
+        });
         EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills-b");
         EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-skills-b-audit");
         EmbeddedSkillProgramCatalog.RegisterBundle(builder, "wushuang-audit-a", skill => skill with

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:fuli", "revision": 1, "activations": [{ "id": "reveal-discard-draw", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+      "effects": [{ "op": "resolveAnniversaryLiuLiFuli", "target": "owner" }] }] },
+    { "id": "anniversary:dehua", "revision": 1, "triggers": [{ "id": "round-damage-name", "window": "roundStarting", "subject": "owner", "optional": false,
+      "effects": [{ "op": "resolveAnniversaryLiuLiDehua", "target": "owner" }] }] }
+  ]
+}

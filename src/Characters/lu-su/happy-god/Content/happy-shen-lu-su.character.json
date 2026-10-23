@@ -1,0 +1,9 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:lu-su",
+  "skills":[
+    {"registrationOrder":41280,"programBundle":"happy-shen-lu-su","includeProgramPresentation":true,"definition":{"id":"happy:tamo","name":"榻谟","description":"游戏开始时，你可以调整场上每名角色的座次（身份场的主公和斗地主的三号位除外）。","executionForms":"Trigger"}},
+    {"registrationOrder":41281,"programBundle":"happy-shen-lu-su","includeProgramPresentation":true,"definition":{"id":"happy:dingzhou","name":"定州","description":"出牌阶段限一次，你可以选择一项：①交给一名场上有牌的其他角色X张牌（X为其场上的牌的数量），然后你获得其场上的所有牌；②获得一名其他角色的所有手牌，然后交给其等量的牌。","actionForms":"Active"}},
+    {"registrationOrder":41282,"programBundle":"happy-shen-lu-su","includeProgramPresentation":true,"definition":{"id":"happy:zhimeng","name":"智盟","description":"你的回合结束后，你可以选择一名其他角色，你与其随机平均分配双方手牌（若为奇数则你分配较多）。","executionForms":"Trigger"}}
+  ],
+  "generals":[{"registrationOrder":41283,"pools":{"current":41283},"definition":{"id":"happy:shen-lu-su","name":"神鲁肃","portraitKey":"happy-shen-lu-su","skillId":"happy:tamo","additionalSkillIds":["happy:dingzhou","happy:zhimeng"],"factionId":"god","gender":"Male","baseHp":3,"characterId":"character:lu-su","variantId":"happy-god","rulesetId":"sanguosha-happy"}}]
+}

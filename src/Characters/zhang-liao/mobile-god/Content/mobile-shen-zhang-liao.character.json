@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-liao",
+  "skills": [
+    {
+      "registrationOrder": 39950,
+      "programBundle": "mobile-shen-zhang-liao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "name": "夺锐",
+        "id": "mobile:duorui",
+        "description": "当你于出牌阶段内对一名其他角色造成伤害后，你可以废除你的一个装备栏（武器栏、防具栏、+1坐骑栏、-1坐骑栏之一），然后选择该角色的武将牌上的一个技能（限定技、觉醒技、使命技、主公技、部分规则冲突技能除外），则其下回合结束之前，其被你选择的技能无效，然后你于其下回合结束或其死亡之前获得所选技能且不能发动【夺锐】。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 39951,
+      "programBundle": "mobile-shen-zhang-liao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "name": "止啼",
+        "id": "mobile:zhiti",
+        "tags": "Locked",
+        "description": "锁定技，你攻击范围内已受伤的角色手牌上限-1；当你和这些角色拼点或【决斗】你赢时，你恢复一个装备栏。当你受到伤害后，若来源在你的攻击范围内且已受伤，你恢复一个装备栏。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 39952,
+      "pools": {
+        "current": 39952
+      },
+      "definition": {
+        "rulesetId": "sanguosha-mobile",
+        "characterId": "character:zhang-liao",
+        "baseHp": 4,
+        "id": "mobile:shen-zhang-liao",
+        "skillId": "mobile:duorui",
+        "variantId": "mobile-god",
+        "portraitKey": "mobile-shen-zhang-liao",
+        "factionId": "god",
+        "additionalSkillIds": [
+          "mobile:zhiti"
+        ],
+        "name": "神张辽",
+        "gender": "Male"
+      }
+    }
+  ]
+}

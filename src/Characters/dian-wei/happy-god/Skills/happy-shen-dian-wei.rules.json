@@ -1,0 +1,13 @@
+{"schemaVersion":62,"skills":[
+  {"id":"happy:shenwei","revision":1,"triggers":[
+    {"id":"grant-guards","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,"effects":[{"op":"grantHappyDianWeiShenwei","target":"owner"}]},
+    {"id":"guard-damage","window":"beforeDamageApplied","subject":"any","optional":false,"effects":[{"op":"consumeHappyDianWeiShenwei","target":"owner"}]}
+  ]},
+  {"id":"happy:elai","revision":1,"triggers":[
+    {"id":"removed-guard","window":"happyGuardRemoved","subject":"any","optional":false,"effects":[
+      {"op":"resolveHappyDianWeiElai","target":"owner"},
+      {"op":"recover","target":"owner","amount":1,"condition":{"kind":"choiceIs","sourceBind":"elai-mode","optionId":"recover"}},
+      {"op":"damage","target":"selectedTarget","amount":1,"nature":"normal","condition":{"kind":"choiceIs","sourceBind":"elai-mode","optionId":"damage"}}
+    ]}
+  ]}
+]}

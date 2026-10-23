@@ -1,0 +1,249 @@
+{
+  "skills": [
+    {
+      "id": "happy:longnu",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "fire-distance",
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "sourceCardIdentityId": "red-hand-fire-slash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yang-turn"
+          }
+        },
+        {
+          "id": "thunder-count",
+          "query": "slashLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "sourceCardIdentityId": "black-hand-thunder-slash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yin-turn"
+          }
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "choose-fire-or-thunder",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "longnu-choice",
+              "options": [
+                {
+                  "id": "fire"
+                },
+                {
+                  "id": "thunder"
+                }
+              ]
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "longnu-choice",
+                "optionId": "fire"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "longnu-choice",
+                "optionId": "fire"
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "longnu-yang-turn",
+              "value": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "longnu-choice",
+                "optionId": "fire"
+              }
+            },
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "longnu-choice",
+                "optionId": "thunder"
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "longnu-yin-turn",
+              "value": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "longnu-choice",
+                "optionId": "thunder"
+              }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [
+        {
+          "id": "red-hand-fire-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [],
+          "inputSuits": [
+            "heart",
+            "diamond"
+          ],
+          "outputKind": "fireSlash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yang-turn"
+          }
+        },
+        {
+          "id": "black-hand-thunder-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club"
+          ],
+          "outputKind": "thunderSlash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yin-turn"
+          }
+        }
+      ],
+      "states": [
+        {
+          "id": "longnu-yang-turn",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "turn",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "longnu-yin-turn",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "turn",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ]
+    },
+    {
+      "id": "happy:shen-liu-bei-jieying",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "window": "gameStarting",
+          "effects": [
+            {
+              "op": "setChainedState",
+              "target": "owner",
+              "chained": true
+            }
+          ],
+          "id": "initial-chain",
+          "condition": {
+            "kind": "always"
+          },
+          "subject": "owner",
+          "optional": false,
+          "priority": 0
+        },
+        {
+          "id": "draw-on-actual-damage",
+          "window": "damageAppliedBeforeDying",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        },
+        {
+          "id": "chain-other",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTarget",
+              "chained": true
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": [],
+      "cardPolicies": [
+        {
+          "id": "permanent-chain",
+          "kind": "forceChained",
+          "condition": {
+            "kind": "always"
+          }
+        },
+        {
+          "id": "chained-hand-bonus",
+          "kind": "chainedHandLimitAura",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 62
+}

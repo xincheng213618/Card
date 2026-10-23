@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-xun",
+  "skills": [
+    {
+      "registrationOrder": 41900,
+      "programBundle": "happy-shen-lu-xun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:junlue",
+        "name": "军略",
+        "description": "锁定技，当你受到或造成1点伤害后，你获得一个“军略”标记。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 41901,
+      "programBundle": "happy-shen-lu-xun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:cuike",
+        "name": "摧克",
+        "description": "出牌阶段开始时，若“军略”数量为：①奇数，你可以对一名角色造成1点伤害；②偶数，你可以横置一名角色并弃置其区域里的一张牌。若“军略”数量超过场上人数，你可以移去全部“军略”标记并对任意名其他角色造成1点伤害。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 41902,
+      "programBundle": "happy-shen-lu-xun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:zhanhuo",
+        "name": "绽火",
+        "description": "限定技，出牌阶段，你可以移去全部“军略”，令至多等量的已横置角色弃置所有装备区里的牌，然后对其中一名角色造成1点火焰伤害。",
+        "tags": "Limited",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 41903,
+      "pools": {
+        "current": 41903
+      },
+      "definition": {
+        "id": "happy:shen-lu-xun",
+        "name": "神陆逊",
+        "portraitKey": "happy-shen-lu-xun",
+        "skillId": "happy:junlue",
+        "additionalSkillIds": [
+          "happy:cuike",
+          "happy:zhanhuo"
+        ],
+        "factionId": "god",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:lu-xun",
+        "variantId": "happy-god",
+        "rulesetId": "sanguosha-happy"
+      }
+    }
+  ]
+}

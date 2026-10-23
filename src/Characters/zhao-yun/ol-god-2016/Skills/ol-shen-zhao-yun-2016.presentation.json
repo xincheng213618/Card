@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:juejing-2016": { "name": "绝境", "description": "锁定技，摸牌阶段，你多摸等同于你已损失的体力值数的牌；你的手牌上限+2。" },
+    "ol:longhun-2016": { "name": "龙魂", "description": "你可以将花色相同的X张牌按下列规则使用或打出：红桃当【桃】；方块当【火杀】；梅花当【闪】；黑桃当【无懈可击】（X为你的体力值且最少为1）。", "activationLabels": { "heart-use": "红桃当桃", "diamond-use": "方块当火杀" } }
+  }
+}

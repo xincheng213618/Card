@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:yachai","revision":1,"triggers":[{"id":"source-three-choices","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveAnniversaryHeYanYachai","target":"owner"}]}]},
+ {"id":"anniversary:qingtan","revision":1,"activations":[{"id":"simultaneous-suit-hands","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveAnniversaryHeYanQingtan","target":"owner"}]}]}
+]}

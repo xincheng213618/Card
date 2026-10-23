@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[
+ {"id":"happy:meihun","revision":1,"triggers":[
+  {"id":"owner-ended","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[{"op":"resolveHappyDiaoChanMeihun","target":"owner"}]},
+  {"id":"first-slash-target","window":"cardUseTargetsFinalized","ownerRelation":"target","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"effects":[{"op":"resolveHappyDiaoChanMeihun","target":"owner"}]}
+ ]},
+ {"id":"happy:huoxin","revision":1,"activations":[{"id":"charm-contest","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveHappyDiaoChanHuoxin","target":"owner"}]}]}
+]}

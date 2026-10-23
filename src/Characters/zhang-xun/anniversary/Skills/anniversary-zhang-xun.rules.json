@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [ { "id": "anniversary:suizheng", "revision": 1, "triggers": [
+    { "id": "arm-next-actual-turn", "window": "turnEnding", "subject": "owner", "optional": true,
+      "effects": [ { "op": "selectTarget", "target": "owner", "targetKind": "anyLiving" }, { "op": "armAnniversaryZhangXunSuizheng", "target": "owner" } ] },
+    { "id": "issued-play-end-slash", "window": "playEnding", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": true, "isSkillInvocation": false,
+      "effects": [ { "op": "chooseAnniversaryZhangXunSuizhengSlash", "target": "owner" }, { "op": "useVirtualSlash", "target": "selectedTarget" } ] }
+  ] } ]
+}

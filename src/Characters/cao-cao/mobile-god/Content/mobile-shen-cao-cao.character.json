@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-cao",
+  "skills": [
+    {
+      "registrationOrder": 40300,
+      "programBundle": "mobile-shen-cao-cao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:guixin",
+        "name": "归心",
+        "description": "当你受到1点伤害后，你可以获得每名其他角色区域里的一张牌，然后你翻面。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 40301,
+      "programBundle": "mobile-shen-cao-cao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:feiying",
+        "name": "飞影",
+        "description": "锁定技，其他角色计算与你的距离+1。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 40302,
+      "pools": {
+        "current": 40302
+      },
+      "definition": {
+        "id": "mobile:shen-cao-cao",
+        "name": "神曹操",
+        "portraitKey": "mobile-shen-cao-cao",
+        "skillId": "mobile:guixin",
+        "factionId": "god",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "mobile:feiying"
+        ],
+        "gender": "Male",
+        "characterId": "character:cao-cao",
+        "variantId": "mobile-god",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

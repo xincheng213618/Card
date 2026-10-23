@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:guixin", "revision": 1, "triggers": [
+      { "id": "priority-region-random-claim", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamagePoint", "optional": true,
+        "effects": [{ "op": "resolveOlShenCaoCaoGuixin", "target": "owner" }] }
+    ] },
+    { "id": "ol:feiying", "revision": 1, "modifiers": [
+      { "id": "incoming-distance-plus-one", "query": "incomingDistance", "operation": "add", "value": 1, "priority": 0 }
+    ] }
+  ]
+}

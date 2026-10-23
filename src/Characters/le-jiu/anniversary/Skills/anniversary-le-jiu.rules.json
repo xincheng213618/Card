@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "anniversary:cuijin", "revision": 1, "triggers": [
+    { "id": "pay-original-use", "window": "cardUseCommitted", "ownerRelation": "observer", "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel"], "optional": true, "effects": [
+      { "op": "armAnniversaryLeJiuCuijin", "target": "owner" },
+      { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" }, "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "awaitMovementTriggers": true },
+      { "op": "armAnniversaryLeJiuCuijin", "target": "owner" }
+    ] },
+    { "id": "issued-undamaged-use", "window": "cardUseCompleted", "ownerRelation": "observer", "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel"], "optional": false, "isSkillInvocation": false, "effects": [
+      { "op": "bindAnniversaryLeJiuCuijinCompletion", "target": "owner" },
+      { "op": "draw", "target": "owner", "amount": 2 },
+      { "op": "damage", "target": "owner", "targetRef": { "kind": "actor" }, "amount": 1 }
+    ] }
+  ] }]
+}

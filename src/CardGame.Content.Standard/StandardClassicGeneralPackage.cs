@@ -545,7 +545,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     }
 
     internal static IReadOnlyList<string> CurrentGeneralIds { get; } =
-        CharacterContentCatalog.Default.GetPoolIds("standard-classic-generals", "current");
+        Array.AsReadOnly(CharacterContentCatalog.Default.GetPoolIds("standard-classic-generals", "current")
+            .Where(GodGeneralRulesCatalog.IsCanonical).ToArray());
 
     internal static IReadOnlyList<string> FanGeneralIds { get; } =
         CharacterContentCatalog.Default.GetPoolIds("standard-classic-generals", "fan");

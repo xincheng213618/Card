@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-en",
+  "skills": [
+    { "registrationOrder": 45000, "programBundle": "anniversary-xiahou-en", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:chijian", "name": "持剑", "description": "锁定技，你出牌阶段可使用【杀】次数+1，若你装备区没有武器牌你视为装备【青釭剑】。", "tags": "Locked", "executionForms": "State" } },
+    { "registrationOrder": 45001, "programBundle": "anniversary-xiahou-en", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:shiwu", "name": "恃武", "description": "其他角色回合开始，你可视为对其使用【决斗】，若你对其造成伤害，你从牌堆中获得一张伤害牌，若其对你造成伤害，其获得“持剑”，你失去“持剑”直至其回合结束。杀死你的角色获得“持剑”。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 45002, "pools": { "current": 45002 }, "definition": {
+    "id": "anniversary:xiahou-en", "name": "夏侯恩", "portraitKey": "anniversary-xiahou-en", "skillId": "anniversary:chijian", "additionalSkillIds": ["anniversary:shiwu"],
+    "factionId": "wei", "baseHp": 5, "gender": "Male", "characterId": "character:xiahou-en", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } }]
+}

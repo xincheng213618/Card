@@ -23,6 +23,9 @@ public sealed class StandardContentPackage : IGameContentPackage
     public void Register(IContentRegistryBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+        builder.AddCard(new ContentCardDefinition("anniversary:dagong-che-card", "大攻车", "装备牌",
+            CardCatalog.Get(CardKind.DagongChe).Description, CardKind.DagongChe,
+            new Dictionary<string, string> { ["action"] = "equip-treasure" }));
         builder.AddCard(new ContentCardDefinition("mobile:qizheng-xiangsheng", "奇正相生", "锦囊牌",
             CardCatalog.Get(CardKind.QizhengXiangsheng).Description, CardKind.QizhengXiangsheng,
             new Dictionary<string, string> { ["action"] = "targeted-damage-or-obtain" }));

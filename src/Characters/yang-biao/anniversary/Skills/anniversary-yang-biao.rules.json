@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:zhaohan", "revision": 1, "triggers": [
+      { "id": "extra-normal-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": true, "effects": [{ "op": "adjustNormalDraw", "target": "owner", "amount": 2 }, { "op": "scheduleAnniversaryYangBiaoZhaohan", "target": "owner" }] },
+      { "id": "settle-extra-draw", "window": "afterNormalDraw", "subject": "owner", "optional": false, "isSkillInvocation": false, "effects": [{ "op": "resolveAnniversaryYangBiaoZhaohan", "target": "owner" }] },
+      { "id": "settle-phase-draw", "window": "drawPhaseEnded", "subject": "owner", "optional": false, "isSkillInvocation": false, "effects": [{ "op": "resolveAnniversaryYangBiaoZhaohan", "target": "owner" }] }
+    ] },
+    { "id": "anniversary:jinjie", "revision": 1, "triggers": [{ "id": "dying-support", "window": "dyingEntering", "subject": "any", "optional": true, "usageScope": "round", "usageLimit": 1,
+      "effects": [{ "op": "resolveAnniversaryYangBiaoJinjie", "target": "owner" }, { "op": "recover", "target": "selectedTarget", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "jinjie-pay", "optionId": "paid" } }] }] },
+    { "id": "anniversary:juee", "revision": 1, "triggers": [{ "id": "ending-random-uses", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": true, "usageScope": "round", "usageLimit": 1,
+      "effects": [{ "op": "resolveAnniversaryYangBiaoJuee", "target": "owner" }] }] }
+  ]
+}

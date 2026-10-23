@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-cao",
+  "skills": [
+    { "registrationOrder": 40700, "programBundle": "ol-shen-cao-cao", "includeProgramPresentation": true,
+      "definition": { "id": "ol:guixin", "name": "归心", "description": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后你翻面。每次发动时统一选择优先区域：手牌区按手牌→装备→判定；装备区按装备→手牌→判定；判定区按判定→手牌→装备。", "executionForms": "Trigger" } },
+    { "registrationOrder": 40701, "programBundle": "ol-shen-cao-cao", "includeProgramPresentation": true,
+      "definition": { "id": "ol:feiying", "name": "飞影", "description": "锁定技，其他角色计算与你的距离+1。", "tags": "Locked", "executionForms": "State" } }
+  ],
+  "generals": [
+    { "registrationOrder": 40702, "pools": { "current": 40702 },
+      "definition": { "id": "ol:shen-cao-cao", "name": "神曹操", "portraitKey": "ol-shen-cao-cao", "skillId": "ol:guixin", "additionalSkillIds": ["ol:feiying"],
+        "factionId": "god", "baseHp": 3, "gender": "Male", "characterId": "character:cao-cao", "variantId": "ol-god-2016", "rulesetId": "sanguosha-ol" } }
+  ]
+}

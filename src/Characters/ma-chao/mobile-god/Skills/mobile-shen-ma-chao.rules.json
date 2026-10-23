@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile-god:yuli", "revision": 1, "triggers": [
+      { "id": "source-thunder", "window": "beforeDamageApplied", "subject": "any", "optional": false, "priority": 100,
+        "condition": { "kind": "damageNatureIs", "damageNature": "thunder" }, "effects": [{ "op": "resolveMobileShenMaChaoYuli", "target": "owner" }] },
+      { "id": "prevent-thunder", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": false, "priority": 0,
+        "condition": { "kind": "damageNatureIs", "damageNature": "thunder" }, "effects": [{ "op": "resolveMobileShenMaChaoYuli", "target": "owner" }] }
+    ] },
+    { "id": "mobile-god:tingwei", "revision": 1, "triggers": [
+      { "id": "slash-target", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": true, "priority": 0,
+        "effects": [{ "op": "resolveMobileShenMaChaoTingwei", "target": "owner" }] }
+    ] },
+    { "id": "mobile-god:jimie", "revision": 1, "triggers": [
+      { "id": "eight-ting", "window": "playEnding", "subject": "owner", "optional": true, "priority": 0,
+        "effects": [{ "op": "resolveMobileShenMaChaoJimie", "target": "owner" }] }
+    ] }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shelie": {
+      "name": "涉猎",
+      "description": "摸牌阶段，你可以改为亮出牌堆顶的五张牌，然后获得其中每种花色的牌各一张。"
+    },
+    "mobile:gongxin": {
+      "name": "攻心",
+      "description": "出牌阶段限一次，你可以观看一名其他角色的手牌，然后你可以展示其中一张红桃牌，选择一项：1.弃置此牌；2.将此牌置于牌堆顶。",
+      "optionLabels": {
+        "discard": "弃置展示的牌。",
+        "top": "将展示的牌置于牌堆顶。"
+      }
+    }
+  }
+}

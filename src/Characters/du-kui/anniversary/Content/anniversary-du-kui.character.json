@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:du-kui",
+  "skills": [
+    { "registrationOrder": 43200, "programBundle": "anniversary-du-kui", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:fanyin", "name": "泛音", "description": "出牌阶段开始时，你可从牌堆亮出点数最小的一张牌并选择一项：使用之（无距离限制）；或令你本回合使用的下一张牌可额外选择一个目标。然后从牌堆亮出点数翻倍的牌并重复此流程。", "executionForms": "Trigger" } },
+    { "registrationOrder": 43201, "programBundle": "anniversary-du-kui", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:peiqi", "name": "配器", "description": "当你受到伤害后，你可移动场上一张牌。然后若所有角色均在所有角色攻击范围内，你可再移动场上一张牌。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 43202, "pools": { "current": 43202 },
+      "definition": { "id": "anniversary:du-kui", "name": "杜夔", "portraitKey": "anniversary-du-kui", "skillId": "anniversary:fanyin", "additionalSkillIds": [ "anniversary:peiqi" ], "factionId": "wei", "baseHp": 3, "gender": "Male", "characterId": "character:du-kui", "variantId": "ordinary", "rulesetId": "sanguosha-anniversary" } }
+  ]
+}

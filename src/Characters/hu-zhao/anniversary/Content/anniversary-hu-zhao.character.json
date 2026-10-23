@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hu-zhao",
+  "skills": [
+    { "registrationOrder": 43000, "programBundle": "anniversary-hu-zhao", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:midu", "name": "弥笃", "description": "出牌阶段限一次，你可以选择一项：1.废除你任意数量的装备栏或判定区，然后令一名角色摸等量的牌；2.恢复你的一个被废除的装备栏或判定区，你获得“活墨”直到你的下个回合开始。活墨：你可以将一张黑色非基本牌置于牌堆顶，视为使用一张与你本回合使用过的牌牌名不同的基本牌。", "actionForms": "Active" } },
+    { "registrationOrder": 43001, "programBundle": null, "includeProgramPresentation": false,
+      "definition": { "id": "anniversary:xianwang", "name": "贤望", "description": "锁定技，当你有废除的装备栏时，其他角色与你计算距离+1，你计算与其他角色的距离-1；当你有至少三个废除的装备栏时，前面两个数字均改为2。", "tags": "Locked", "executionForms": "State" } }
+  ],
+  "generals": [ { "registrationOrder": 43002, "pools": { "current": 43002 }, "definition": {
+    "id": "anniversary:hu-zhao", "name": "胡昭", "portraitKey": "anniversary-hu-zhao", "skillId": "anniversary:midu", "additionalSkillIds": ["anniversary:xianwang"],
+    "factionId": "qun", "baseHp": 3, "gender": "Male", "characterId": "character:hu-zhao", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

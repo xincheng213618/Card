@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:yusui","revision":1,"triggers":[{"id":"black-other-target","window":"cardUseTargetsFinalized","ownerRelation":"target","optional":true,"usageScope":"turn","usageLimit":1,"condition":{"kind":"cardActionCardIsBlack"},"effects":[{"op":"loseHp","target":"owner","amount":1},{"op":"resolveAnniversaryFengXiYusui","target":"owner"}]}]},
+ {"id":"anniversary:boyan","revision":1,"activations":[{"id":"fill-and-seal-hand","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveAnniversaryFengXiBoyan","target":"owner"},{"op":"grantTurnHandCardProhibition","target":"selectedTarget"}]}]}
+]}

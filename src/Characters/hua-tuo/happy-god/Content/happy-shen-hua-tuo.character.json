@@ -1,0 +1,9 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:hua-tuo",
+  "skills":[
+    {"registrationOrder":41780,"programBundle":"happy-shen-hua-tuo","includeProgramPresentation":true,"definition":{"id":"happy:jishi","name":"济世","description":"游戏开始时，你获得3个“药”标记（“药”的上限为3）。当有角色濒死时，你可以移除1个“药”，使其回复至1点体力。当你回合外失去红色手牌时，获得等量“药”。你的手牌上限+3。","executionForms":"State, Trigger"}},
+    {"registrationOrder":41781,"programBundle":"happy-shen-hua-tuo","includeProgramPresentation":true,"definition":{"id":"happy:taoxian","name":"桃仙","description":"你可以将一张红桃牌当【桃】使用。其他角色使用【桃】时，你摸一张牌。","actionForms":"Active","executionForms":"Trigger"}},
+    {"registrationOrder":41782,"programBundle":"happy-shen-hua-tuo","includeProgramPresentation":true,"definition":{"id":"happy:shenzhen","name":"神针","description":"回合开始时，你可以弃置X枚“药”标记，然后选择一项：①令X名角色各回复1点体力；②令X名角色各失去1点体力。","executionForms":"Trigger"}}
+  ],
+  "generals":[{"registrationOrder":41783,"pools":{"current":41783},"definition":{"id":"happy:shen-hua-tuo","name":"神华佗","portraitKey":"happy-shen-hua-tuo","skillId":"happy:jishi","additionalSkillIds":["happy:taoxian","happy:shenzhen"],"factionId":"god","baseHp":1,"gender":"Male","characterId":"character:hua-tuo","variantId":"happy-god","rulesetId":"sanguosha-happy"}}]
+}

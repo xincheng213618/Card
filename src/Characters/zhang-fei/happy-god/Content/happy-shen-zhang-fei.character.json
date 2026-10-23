@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "skills": [
+    {
+      "registrationOrder": 42500,
+      "definition": {
+        "actionForms": "Active",
+        "id": "happy:shencai",
+        "description": "出牌阶段限一次，你可以令一名其他角色进行判定且你获得判定牌。若判定牌包含以下内容，其获得对应标记（已有以下标记则改为修改）：体力：“笞”，受到伤害后失去等量体力；武器：“杖”，无法响应【杀】；打出：“徒”，不因此技能失去手牌后随机弃置一张手牌；距离：“流”，结束阶段翻面。若判定牌不包含以上内容，你获得其区域内一张牌，然后该角色获得一个“死”标记。有“死”的角色手牌上限-X（X为其“死”数）；其回合结束时，若其“死”数大于场上存活人数，其直接死亡。",
+        "executionForms": "Trigger, State",
+        "name": "神裁"
+      },
+      "includeProgramPresentation": true,
+      "programBundle": "happy-shen-zhang-fei"
+    }
+  ],
+  "generals": [
+    {
+      "definition": {
+        "baseHp": 4,
+        "characterId": "character:zhang-fei",
+        "portraitKey": "happy-shen-zhang-fei",
+        "rulesetId": "sanguosha-happy",
+        "variantId": "happy-god",
+        "skillId": "happy:shencai",
+        "id": "happy:shen-zhang-fei",
+        "factionId": "god",
+        "name": "神张飞",
+        "additionalSkillIds": [
+          "anniversary:xunshi"
+        ],
+        "gender": "Male"
+      },
+      "registrationOrder": 42501,
+      "pools": {
+        "current": 42501
+      }
+    }
+  ],
+  "characterId": "character:zhang-fei",
+  "packageId": "standard-classic-generals"
+}

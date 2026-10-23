@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [ { "id": "anniversary:midu", "revision": 1, "activations": [ {
+    "id": "abolish-or-restore", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+    "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+    "effects": [
+      { "op": "resolveAnniversaryHuZhaoMidu", "target": "owner" },
+      { "op": "grantTurnSkills", "target": "owner", "skillIds": ["classic:huomo"], "expiry": "recipientNextActualTurnStart",
+        "condition": { "kind": "choiceIs", "sourceBind": "midu-branch", "optionId": "restore" } }
+    ]
+  } ] } ]
+}

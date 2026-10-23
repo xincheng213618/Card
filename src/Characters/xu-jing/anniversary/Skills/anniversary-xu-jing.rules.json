@@ -1,0 +1,10 @@
+{"schemaVersion":62,"skills":[
+  {"id":"anniversary:shangyu","revision":1,"triggers":[
+    {"id":"opening-slash","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"resolveAnniversaryXuJingShangyu","target":"owner"}]},
+    {"id":"marked-slash-damage","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":false,"effects":[{"op":"resolveAnniversaryXuJingShangyu","target":"owner"}]},
+    {"id":"marked-slash-discard","window":"discardPileReceived","subject":"owner","movementOccurrence":"perCard","optional":false,"effects":[{"op":"resolveAnniversaryXuJingShangyu","target":"owner"}]}
+  ]},
+  {"id":"anniversary:caixia","revision":1,"triggers":[
+    {"id":"damage-draw","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":true,"effects":[{"op":"resolveAnniversaryXuJingCaixia","target":"owner"}]}
+  ]}
+]}

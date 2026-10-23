@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-pi",
+  "skills": [
+    { "registrationOrder": 40550, "programBundle": "ol-shen-cao-pi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:chuyuan", "name": "储元", "description": "当一名角色受到伤害后，若你的“储”数小于你的体力上限，你可以令其摸一张牌，然后其将一张手牌置于你的武将牌上，称为“储”。", "executionForms": "Trigger" } },
+    { "registrationOrder": 40551, "programBundle": "ol-shen-cao-pi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:dengji", "name": "登极", "description": "觉醒技，准备阶段，若你的“储”不少于三张，你减1点体力上限，获得所有“储”，然后获得“界奸雄”和“天行”。【天行】觉醒技，准备阶段，若你的“储”不少于三张，你减1点体力上限，获得所有“储”并失去“储元”，然后选择获得“界仁德”“界制衡”“界乱击”中的一个技能。", "tags": "Awakening", "executionForms": "Trigger" } },
+    { "registrationOrder": 40552, "programBundle": "ol-shen-cao-pi", "includeProgramPresentation": true,
+      "definition": { "id": "ol:tianxing", "name": "天行", "description": "觉醒技，准备阶段，若你的“储”不少于三张，你减1点体力上限，获得所有“储”并失去“储元”，然后选择获得“界仁德”“界制衡”“界乱击”中的一个技能。", "tags": "Awakening", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 40553, "pools": { "current": 40553 },
+      "definition": { "id": "ol:shen-cao-pi", "name": "神曹丕", "portraitKey": "ol-shen-cao-pi", "skillId": "ol:chuyuan", "additionalSkillIds": ["ol:dengji"], "factionId": "god", "baseHp": 5, "gender": "Male", "characterId": "character:cao-pi", "variantId": "ol-god-event-2020", "rulesetId": "sanguosha-ol" } }
+  ]
+}

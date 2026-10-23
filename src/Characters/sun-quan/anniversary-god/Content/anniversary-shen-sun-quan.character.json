@@ -1,0 +1,65 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-quan",
+  "skills": [
+    {
+      "registrationOrder": 40500,
+      "programBundle": "anniversary-shen-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:cangming",
+        "name": "沧溟",
+        "description": "锁定技，游戏开始时，所有角色将手牌置于武将牌上，称为“溟”。有牌进入“溟”时，每有一种颜色牌，你摸一张牌。一名角色受到伤害后或回合开始时，该角色获得其武将牌上的“溟”。",
+        "executionForms": "Trigger, State",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 40501,
+      "programBundle": "anniversary-shen-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:chouxi",
+        "name": "筹汐",
+        "description": "出牌阶段，你可以将一张牌当“溟”里的一张基本牌或普通锦囊牌使用（每种牌名每回合限一次），以此法使用的牌无距离和次数限制。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 40502,
+      "programBundle": "anniversary-shen-sun-quan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:jichao",
+        "name": "激潮",
+        "description": "出牌阶段限一次，你可以选择一项：1.令一名其他角色随机将一半数量的手牌（向上取整）和装备区里的牌置于武将牌上成为“溟”；2.令所有其他角色将所有牌置于武将牌上成为“溟”，然后此选项失效直到你累计造成三点伤害。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 40503,
+      "pools": {
+        "current": 40503
+      },
+      "definition": {
+        "id": "anniversary:shen-sun-quan",
+        "name": "神孙权",
+        "portraitKey": "anniversary-shen-sun-quan",
+        "skillId": "anniversary:cangming",
+        "additionalSkillIds": [
+          "anniversary:chouxi",
+          "anniversary:jichao"
+        ],
+        "factionId": "wu",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:sun-quan",
+        "variantId": "anniversary-god",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

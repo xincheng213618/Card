@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "happy:dulie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "other-slash-heart",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.happy.dulie",
+              "resultBind": "dulie-judgment",
+              "outcomeBind": "dulie-outcome",
+              "visibility": "public"
+            },
+            {
+              "op": "cancelShenTaishiCiDulie",
+              "target": "owner"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "dulie-judgment",
+              "destination": "discardPile"
+            }
+          ]
+        },
+        {
+          "id": "first-dying-recover",
+          "window": "dyingEntering",
+          "optional": false,
+          "subject": "owner",
+          "effects": [
+            {
+              "op": "recoverHappyTaishiCiDulie",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "happy:chongwei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initialize",
+          "window": "gameStarting",
+          "optional": false,
+          "subject": "owner",
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveHappyTaishiCiChongwei",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "rotate",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "subject": "owner",
+          "priority": 1,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveHappyTaishiCiChongwei",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "damage-removes-wei",
+          "window": "afterDamageApplied",
+          "optional": false,
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveHappyTaishiCiChongwei",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "marked-turn",
+          "window": "otherActualTurnStarted",
+          "optional": false,
+          "subject": "owner",
+          "effects": [
+            {
+              "op": "resolveHappyTaishiCiChongwei",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "happy:powei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "awaken",
+          "window": "afterTurnEnded",
+          "optional": false,
+          "subject": "owner",
+          "turnOwnerScope": "anyLiving",
+          "effects": [
+            {
+              "op": "awakenHappyTaishiCiPowei",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "happy:shenzhu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "start-slash",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "subject": "owner",
+          "effects": [
+            {
+              "op": "obtainHappyTaishiCiStartSlash",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "physical-slash-choice",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "shenzhu-choice",
+              "options": [
+                {
+                  "id": "draw-one"
+                },
+                {
+                  "id": "draw-three"
+                }
+              ]
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "shenzhu-choice",
+                "optionId": "draw-one"
+              }
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashLimit",
+              "ruleOperation": "add",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "shenzhu-choice",
+                "optionId": "draw-one"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "shenzhu-choice",
+                "optionId": "draw-three"
+              }
+            },
+            {
+              "op": "grantTurnCardActionProhibition",
+              "target": "owner",
+              "cardKinds": [
+                "slash",
+                "fireSlash",
+                "thunderSlash"
+              ],
+              "actionTypes": [
+                "use"
+              ],
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "shenzhu-choice",
+                "optionId": "draw-three"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:xuewei", "revision": 1, "triggers": [
+      { "id": "arm-until-next-actual-turn", "window": "turnEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "armAnniversaryFuRongFuQianXuewei", "target": "owner" }] },
+      { "id": "prevent-and-pay-once-per-damage", "window": "beforeDamageApplied", "subject": "any", "optional": false, "isSkillInvocation": false,
+        "effects": [{ "op": "resolveAnniversaryFuRongFuQianXuewei", "target": "owner" }] }
+    ] },
+    { "id": "anniversary:yuguan", "revision": 1, "triggers": [
+      { "id": "maximum-lost-hp-actual-turn-end", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": true,
+        "effects": [{ "op": "resolveAnniversaryFuRongFuQianYuguan", "target": "owner" }] }
+    ] }
+  ]
+}

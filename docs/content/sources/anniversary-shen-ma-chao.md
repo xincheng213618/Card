@@ -1,6 +1,6 @@
 # 神马超：一将成名／十周年
 
-核对日期：2026-10-22。产品标识 `sanguosha-anniversary` / `anniversary-god`；角色 `anniversary:shen-ma-chao`，神势力、男性、4体力。不采用移动版另一套“狩骊／横骛”设计。
+核对日期：2026-10-22。产品标识 `sanguosha-anniversary` / `anniversary-god`；角色 `anniversary:shen-ma-chao`，神势力、男性、4体力。移动版另有“驭雳／霆威／寂灭”正式设计，规则独立收录。
 
 - [现行官方武将页，hero 214](https://x.sanguosha.com/hero/214.html)：当前两技能正文及四套形象。狩骊明确限定以此法失去坐骑的“其他角色”；自己的坐骑不会产生技能失效或双方伤害惩罚。转换杀不计次数，未授予无视距离。
 - [2022-07-22官方首发公告，7月23日上线](https://www.sanguosha.com/news/20220721_2755_1416)：身份、神势力、4体力、男性、神·武及首发技能。该旧稿没有“其他角色”，与现行页不同时采用现行页。

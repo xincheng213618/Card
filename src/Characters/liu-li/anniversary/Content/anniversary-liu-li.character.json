@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-li",
+  "skills": [
+    { "registrationOrder": 43300, "programBundle": "anniversary-liu-li", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:fuli", "name": "抚黎", "description": "出牌阶段限一次，你可以展示所有手牌并弃置一种类别的所有手牌，然后摸弃置牌的牌名字数之和张牌（至多为手牌数最多的角色的手牌数），然后令一名角色的攻击范围-1直到你的下个回合开始。若弃置牌中包含伤害牌，则改为其攻击范围减至0直到你的下回合开始。", "actionForms": "Active" } },
+    { "registrationOrder": 43301, "programBundle": "anniversary-liu-li", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:dehua", "name": "德化", "description": "锁定技，每轮游戏开始时，你选择一张你仍可以使用的伤害牌牌名，你视为使用此牌，然后你不能再使用手牌中相同牌名的牌；你的手牌上限增加你依此法选择的伤害牌牌名数量。所有伤害牌的牌名均被选择后，你失去“德化”，然后本局游戏你的伤害牌不计入手牌上限。", "tags": "Locked", "executionForms": "Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 43302, "pools": { "current": 43302 }, "definition": {
+    "id": "anniversary:liu-li", "name": "刘理", "portraitKey": "anniversary-liu-li", "skillId": "anniversary:fuli", "additionalSkillIds": ["anniversary:dehua"],
+    "factionId": "shu", "baseHp": 3, "gender": "Male", "characterId": "character:liu-li", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

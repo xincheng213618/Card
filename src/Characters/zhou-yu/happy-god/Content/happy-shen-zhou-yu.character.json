@@ -1,0 +1,8 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:zhou-yu",
+  "skills":[
+    {"registrationOrder":41440,"programBundle":"happy-shen-zhou-yu","includeProgramPresentation":true,"definition":{"id":"happy:qinyin","name":"琴音","description":"弃牌阶段结束时，如果你于此回合弃置过至少1张手牌，则你可以选择一项：1.令所有角色各回复1点体力；2.令所有角色各失去1点体力；3.令所有角色各摸一张牌。","executionForms":"Trigger"}},
+    {"registrationOrder":41441,"programBundle":"happy-shen-zhou-yu","includeProgramPresentation":true,"definition":{"id":"happy:yeyan","name":"业炎","description":"出牌阶段开始时，你可以选择一名其他角色，对其造成1点火焰伤害。","executionForms":"Trigger"}}
+  ],
+  "generals":[{"registrationOrder":41442,"pools":{"current":41442},"definition":{"id":"happy:shen-zhou-yu","name":"神周瑜","portraitKey":"happy-shen-zhou-yu","skillId":"happy:qinyin","additionalSkillIds":["happy:yeyan"],"factionId":"god","baseHp":4,"initialHp":4,"gender":"Male","characterId":"character:zhou-yu","variantId":"happy-god","rulesetId":"sanguosha-happy"}}]
+}

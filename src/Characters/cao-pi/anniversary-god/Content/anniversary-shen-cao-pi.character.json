@@ -1,0 +1,52 @@
+{
+  "skills": [
+    {
+      "registrationOrder": 39700,
+      "definition": {
+        "id": "anniversary:yinzhi",
+        "name": "阴鸷",
+        "description": "出牌阶段限一次，你可以选择一名其他角色并摸X张牌，该角色直至其回合开始所有非锁定技失效且每次使用或打出手牌后你摸X张牌（X为本局游戏你对其发动“阴鸷”的次数且至多为3）。然后其回合内只能使用或打出本回合获得的牌，若其对你造成伤害，则此效果消失。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      },
+      "includeProgramPresentation": true,
+      "programBundle": "anniversary-shen-cao-pi"
+    },
+    {
+      "registrationOrder": 39701,
+      "definition": {
+        "id": "anniversary:keming",
+        "name": "刻名",
+        "description": "当你受到其他角色造成的伤害后，若其武将牌上有此时机触发的技能，则你可以触发此技能，若没有，则你可从“曹”姓武将中随机触发一个此时机的技能。当你对其他角色造成伤害后，该角色下次发动准备阶段、结束阶段或出牌阶段内发动的技能后，若该角色因此技能摸牌或使用了牌，你可以摸等量同名牌（至多为5）。",
+        "executionForms": "Trigger"
+      },
+      "includeProgramPresentation": true,
+      "programBundle": "anniversary-shen-cao-pi"
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 39702,
+      "pools": {
+        "current": 39702
+      },
+      "definition": {
+        "baseHp": 4,
+        "additionalSkillIds": [
+          "anniversary:keming"
+        ],
+        "factionId": "god",
+        "rulesetId": "sanguosha-anniversary",
+        "variantId": "anniversary-god",
+        "id": "anniversary:shen-cao-pi",
+        "portraitKey": "anniversary-shen-cao-pi",
+        "gender": "Male",
+        "name": "神曹丕",
+        "skillId": "anniversary:yinzhi"
+      }
+    }
+  ],
+  "characterId": "character:cao-pi",
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals"
+}

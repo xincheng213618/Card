@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhuge-liang",
+  "skills": [
+    { "registrationOrder": 39925, "programBundle": "mobile-shen-zhuge-liang", "includeProgramPresentation": true,
+      "definition": { "id": "mobile-god:qixing", "name": "七星", "description": "游戏开始时，你将牌堆顶的七张牌扣置于你的武将牌上，称为“星”，然后你可以用任意张手牌替换等量的“星”；摸牌阶段结束时，你可以用任意张手牌替换等量的“星”。", "executionForms": "Trigger" } },
+    { "registrationOrder": 39926, "programBundle": "mobile-shen-zhuge-liang", "includeProgramPresentation": true,
+      "definition": { "id": "mobile-god:kuangfeng", "name": "狂风", "description": "结束阶段，你可以移去一张“星”并选择一名角色，然后直到你的下回合开始之前，当该角色受到火焰伤害时，此伤害+1。", "executionForms": "Trigger" } },
+    { "registrationOrder": 39927, "programBundle": "mobile-shen-zhuge-liang", "includeProgramPresentation": true,
+      "definition": { "id": "mobile-god:dawu", "name": "大雾", "description": "结束阶段，你可以移去任意张“星”并选择等量的角色，然后直到你的下回合开始之前，当这些角色受到非雷电伤害时，防止此伤害。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 39928, "pools": { "current": 39928 }, "definition": {
+    "id": "mobile:shen-zhuge-liang", "name": "神诸葛亮", "portraitKey": "mobile-shen-zhuge-liang", "skillId": "mobile-god:qixing", "additionalSkillIds": ["mobile-god:kuangfeng", "mobile-god:dawu"],
+    "factionId": "god", "baseHp": 3, "gender": "Male", "characterId": "character:zhuge-liang", "variantId": "mobile-god", "rulesetId": "sanguosha-mobile"
+  } }]
+}

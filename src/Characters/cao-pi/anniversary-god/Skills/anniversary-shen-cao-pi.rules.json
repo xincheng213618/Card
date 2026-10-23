@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:yinzhi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "hand-use-reward",
+          "includeResponseUses": true,
+          "ownerRelation": "observer",
+          "optional": false,
+          "effects": [
+            {
+              "target": "owner",
+              "op": "drawYinzhiHandAction"
+            }
+          ],
+          "window": "cardUseCompleted",
+          "isSkillInvocation": false
+        },
+        {
+          "id": "hand-response-reward",
+          "isSkillInvocation": false,
+          "ownerRelation": "observer",
+          "optional": false,
+          "effects": [
+            {
+              "target": "owner",
+              "op": "drawYinzhiHandAction"
+            }
+          ],
+          "window": "cardResponseCompleted"
+        }
+      ],
+      "activations": [
+        {
+          "usesPerPhase": 1,
+          "minTargets": 1,
+          "usesPerTurn": null,
+          "id": "edict",
+          "maxCards": 0,
+          "targetKind": "otherLiving",
+          "effects": [
+            {
+              "target": "owner",
+              "op": "applyShenCaoPiYinzhi"
+            }
+          ],
+          "minCards": 0,
+          "maxTargets": 1
+        }
+      ]
+    },
+    {
+      "id": "anniversary:keming",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "borrow-damaged-skill",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "target": "owner",
+              "op": "resolveKemingDamagedSkill"
+            }
+          ],
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage"
+        },
+        {
+          "id": "arm-skill-echo",
+          "isSkillInvocation": false,
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "target": "owner",
+              "op": "armKemingSkillEcho"
+            }
+          ],
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    }
+  ]
+}

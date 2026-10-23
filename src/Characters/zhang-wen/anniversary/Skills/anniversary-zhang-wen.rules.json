@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:songshu", "revision": 1, "activations": [ {
+      "id": "hand-contest", "minCards": 1, "maxCards": 1, "sourceZones": [ "hand" ],
+      "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingWithHand", "usesPerTurn": null, "usesPerPhase": 1,
+      "effects": [
+        { "op": "pindian", "target": "selectedTarget", "amount": 1 },
+        { "op": "refundAnniversaryZhangWenSongshu", "target": "owner", "condition": { "kind": "pindianWon" } },
+        { "op": "draw", "target": "owner", "amount": 2, "condition": { "kind": "pindianNotWon" } },
+        { "op": "draw", "target": "selectedTarget", "amount": 2, "condition": { "kind": "pindianNotWon" } }
+      ]
+    } ] },
+    { "id": "anniversary:sibian", "revision": 1, "triggers": [ {
+      "id": "replace-draw-four", "window": "drawPhaseStarting", "subject": "owner", "optional": true,
+      "priority": 95, "drawPhaseMode": "replacement",
+      "effects": [ { "op": "resolveAnniversaryZhangWenSibian", "target": "owner" } ]
+    } ] }
+  ]
+}

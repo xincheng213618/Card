@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "happy:shencai",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "sentence",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 5,
+          "effects": [
+            {
+              "op": "resolveShenZhangFeiShencai",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "judgment-first-gain",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentReasons": [
+            "anniversary-shencai"
+          ],
+          "suits": [
+            "spade",
+            "heart",
+            "club",
+            "diamond",
+            "none"
+          ],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "excludedReasons": [],
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenZhangFeiShencai",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "chi-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenZhangFeiPunishment",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "tu-hand-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenZhangFeiPunishment",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "liu-turn-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenZhangFeiPunishment",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "si-turn-ended",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveShenZhangFeiPunishment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

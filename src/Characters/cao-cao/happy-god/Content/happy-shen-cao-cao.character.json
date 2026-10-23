@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-cao",
+  "skills": [
+    { "registrationOrder": 41400, "programBundle": "happy-shen-cao-cao", "includeProgramPresentation": true,
+      "definition": { "id": "happy:guixin", "name": "归心", "description": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌。若你以此法获得的牌大于4张且你为正面，则翻面。", "executionForms": "Trigger" } },
+    { "registrationOrder": 41401, "programBundle": "happy-shen-cao-cao", "includeProgramPresentation": true,
+      "definition": { "id": "happy:feiying", "name": "飞影", "description": "锁定技，其他角色计算与你的距离+1。", "tags": "Locked", "executionForms": "State" } }
+  ],
+  "generals": [
+    { "registrationOrder": 41402, "pools": { "current": 41402 },
+      "definition": { "id": "happy:shen-cao-cao", "name": "神曹操", "portraitKey": "happy-shen-cao-cao", "skillId": "happy:guixin", "additionalSkillIds": ["happy:feiying"],
+        "factionId": "god", "baseHp": 3, "gender": "Male", "characterId": "character:cao-cao", "variantId": "happy-god", "rulesetId": "sanguosha-happy" } }
+  ]
+}

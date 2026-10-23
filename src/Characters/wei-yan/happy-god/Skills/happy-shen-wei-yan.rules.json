@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "happy:zigu", "revision": 1,
+      "triggers": [
+        { "id": "damage-bone", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": true, "effects": [{ "op": "resolveHappyWeiYanZigu", "target": "owner" }] },
+        { "id": "first-equipment", "window": "cardUseCommitted", "ownerRelation": "actor", "includeResponseUses": true, "optional": true, "effects": [{ "op": "resolveHappyWeiYanZigu", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "happy:ezhi", "revision": 1,
+      "triggers": [
+        { "id": "bone-use", "window": "cardUseCommitted", "ownerRelation": "observer", "includeResponseUses": true, "optional": false, "effects": [{ "op": "resolveHappyWeiYanEzhi", "target": "owner" }] },
+        { "id": "ended-bones", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false, "isSkillInvocation": false, "effects": [{ "op": "resolveHappyWeiYanBoneReturn", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "happy:gujing", "revision": 1,
+      "activations": [
+        { "id": "bone-path", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": null, "usesPerGame": 1, "effects": [{ "op": "resolveHappyWeiYanGujing", "target": "owner" }] }
+      ]
+    }
+  ]
+}

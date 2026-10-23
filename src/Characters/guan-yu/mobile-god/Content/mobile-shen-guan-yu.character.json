@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:guan-yu",
+  "skills": [
+    {
+      "registrationOrder": 40400,
+      "programBundle": "mobile-shen-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:wushen",
+        "name": "武神",
+        "description": "锁定技，你的红桃手牌只能当做【杀】；你使用红桃【杀】无距离限制。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 40401,
+      "programBundle": "mobile-shen-guan-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:wuhun",
+        "name": "武魂",
+        "description": "锁定技，当你受到1点伤害后，你令伤害来源获得1枚梦魇标记；当你死亡时，你令拥有最多该标记的一名其他角色进行判定，若结果不为【桃】或【桃园结义】，则该角色死亡。",
+        "tags": "Locked",
+        "executionForms": "State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 40402,
+      "pools": {
+        "current": 40402
+      },
+      "definition": {
+        "id": "mobile:shen-guan-yu",
+        "name": "神关羽",
+        "portraitKey": "mobile-shen-guan-yu",
+        "skillId": "mobile:wushen",
+        "factionId": "god",
+        "baseHp": 5,
+        "additionalSkillIds": [
+          "mobile:wuhun"
+        ],
+        "gender": "Male",
+        "characterId": "character:guan-yu",
+        "variantId": "mobile-god",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion":62,"skills":[
+    {"id":"happy:shenfu","revision":1,"activations":[{"id":"three-options","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveHappyZhenJiShenfu","target":"owner"}]}]},
+    {"id":"happy:qixian","revision":1,"modifiers":[{"id":"fixed-seven","query":"handLimit","operation":"set","value":7,"priority":405}],"triggers":[
+      {"id":"play-ending-store","window":"playEnding","subject":"owner","optional":true,"effects":[{"op":"storeHappyZhenJiQixian","target":"owner"}]},
+      {"id":"seven-at-turn-end","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"anyLiving","optional":false,"effects":[{"op":"returnHappyZhenJiQixian","target":"owner"}]}
+    ]},
+    {"id":"happy:feifu","revision":1,"viewAs":[{"id":"black-as-dodge","inputKinds":[],"inputSuits":["spade","club"],"sourceZones":["hand","equipment"],"outputKind":"dodge","forPlay":false,"forResponse":true}],"triggers":[
+      {"id":"finished-feifu","isSkillInvocation":false,"window":"cardResponseCompleted","ownerRelation":"conversionSource","sourceSkillId":"happy:feifu","sourceViewAsId":"black-as-dodge","optional":false,"effects":[{"op":"collectHappyZhenJiFeifu","target":"owner"}]}
+    ]}
+  ]
+}

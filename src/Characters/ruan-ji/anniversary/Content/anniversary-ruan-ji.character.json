@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ruan-ji",
+  "skills": [
+    {
+      "registrationOrder": 42800,
+      "definition": {
+        "name": "昭文",
+        "description": "出牌阶段开始时，你可以展示所有手牌。若如此做，本回合其中的黑色牌可以当任意一张普通锦囊牌使用（每回合每种牌名限一次），其中的红色牌你使用时摸一张牌。",
+        "id": "anniversary:zhaowen",
+        "executionForms": "Trigger"
+      },
+      "includeProgramPresentation": true,
+      "programBundle": "anniversary-ruan-ji"
+    },
+    {
+      "registrationOrder": 42801,
+      "definition": {
+        "name": "酒遁",
+        "description": "你的【酒】效果不会因回合结束而消失。当你成为其他角色使用黑色牌的目标后，若你没处于【酒】状态，你可以摸一张牌并视为使用一张【酒】；若你处于【酒】状态，你可以弃置一张手牌令此牌对你无效。",
+        "id": "anniversary:jiudun",
+        "executionForms": "State, Trigger"
+      },
+      "includeProgramPresentation": true,
+      "programBundle": "anniversary-ruan-ji"
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 42802,
+      "pools": {
+        "current": 42802
+      },
+      "definition": {
+        "variantId": "ordinary",
+        "gender": "Male",
+        "id": "anniversary:ruan-ji",
+        "name": "阮籍",
+        "skillId": "anniversary:zhaowen",
+        "factionId": "wei",
+        "additionalSkillIds": [
+          "anniversary:jiudun"
+        ],
+        "characterId": "character:ruan-ji",
+        "rulesetId": "sanguosha-anniversary",
+        "baseHp": 3,
+        "portraitKey": "anniversary-ruan-ji"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{"schemaVersion":62,"skills":[
+  {"id":"happy:huanshu","revision":1,"triggers":[
+    {"id":"initial-phantoms","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"initializeHappyZuoCiPhantoms","target":"owner"}]},
+    {"id":"round-phantoms","window":"roundStarting","subject":"owner","optional":false,"effects":[{"op":"gainHappyZuoCiPhantoms","target":"owner"}]},
+    {"id":"damage-phantoms","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"effects":[{"op":"gainHappyZuoCiPhantoms","target":"owner"}]},
+    {"id":"refresh-phantoms","window":"playPhaseStarting","subject":"owner","optional":false,"effects":[{"op":"refreshHappyZuoCiPhantoms","target":"owner"}]},
+    {"id":"foreign-phantom","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perCard","optional":false,"effects":[{"op":"gainHappyZuoCiPhantoms","target":"owner"}]}
+  ]},
+  {"id":"happy:huanhua","revision":1,"activations":[{"id":"transform-phantom","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":null,"effects":[{"op":"transformHappyZuoCiPhantom","target":"owner"}]}]},
+  {"id":"happy:huanjing","revision":1,"activations":[{"id":"limited-phantoms","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":null,"usesPerGame":1,"effects":[{"op":"resolveHappyZuoCiHuanjing","target":"owner"}]}]}
+]}

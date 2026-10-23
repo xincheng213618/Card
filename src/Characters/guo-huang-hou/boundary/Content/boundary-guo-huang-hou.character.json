@@ -19,8 +19,8 @@
       "includeProgramPresentation": true,
       "definition": {
         "id": "boundary:danxin-capped-current",
-        "name": "殚心",
-        "description": "当你受到伤害后，你可摸X张牌，然后修改“矫诏”（X为你修改“矫诏”的次数）。"
+        "name": "殚心·改",
+        "description": "当你受到伤害后（包括游戏开始时），你可摸X张牌，然后修改“矫诏”（X为此前成功修改“矫诏”的次数，至多为2；首次发动不摸牌）。"
       }
     }
   ],

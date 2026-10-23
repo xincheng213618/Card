@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-meng",
+  "skills": [
+    {
+      "registrationOrder": 40450,
+      "programBundle": "mobile-shen-lu-meng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shelie",
+        "name": "涉猎",
+        "description": "摸牌阶段，你可以改为亮出牌堆顶的五张牌，然后获得其中每种花色的牌各一张。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 40451,
+      "programBundle": "mobile-shen-lu-meng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:gongxin",
+        "name": "攻心",
+        "description": "出牌阶段限一次，你可以观看一名其他角色的手牌，然后你可以展示其中一张红桃牌，选择一项：1.弃置此牌；2.将此牌置于牌堆顶。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 40452,
+      "pools": {
+        "current": 40452
+      },
+      "definition": {
+        "id": "mobile:shen-lu-meng",
+        "name": "神吕蒙",
+        "portraitKey": "mobile-shen-lu-meng",
+        "skillId": "mobile:shelie",
+        "factionId": "god",
+        "baseHp": 3,
+        "additionalSkillIds": [
+          "mobile:gongxin"
+        ],
+        "gender": "Male",
+        "characterId": "character:lu-meng",
+        "variantId": "mobile-god",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

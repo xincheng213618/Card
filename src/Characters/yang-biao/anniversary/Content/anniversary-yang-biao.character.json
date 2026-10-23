@@ -1,0 +1,9 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:yang-biao",
+  "skills": [
+    { "registrationOrder": 43700, "programBundle": "anniversary-yang-biao", "includeProgramPresentation": true, "definition": { "id": "anniversary:zhaohan", "name": "昭汉", "description": "摸牌阶段，你可以多摸两张牌，然后选择一项：1.交给一名没手牌的角色两张手牌；2.弃置两张手牌。", "executionForms": "Trigger" } },
+    { "registrationOrder": 43701, "programBundle": "anniversary-yang-biao", "includeProgramPresentation": true, "definition": { "id": "anniversary:jinjie", "name": "尽节", "description": "每轮限一次，一名角色进入濒死状态时，你可以令其摸0-3张牌。然后你可以弃置等量的牌令其回复1点体力。", "executionForms": "Trigger" } },
+    { "registrationOrder": 43702, "programBundle": "anniversary-yang-biao", "includeProgramPresentation": true, "definition": { "id": "anniversary:juee", "name": "举讹", "description": "每轮限一次，一名角色的结束阶段，你可以视为随机对其使用以下牌共计X次（X为本回合因弃置进入弃牌堆的牌数且最多为其体力上限）：【过河拆桥】、【杀】、【五谷丰登】。若是你的回合，则改为你选择一名其他角色。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 43703, "pools": { "current": 43703 }, "definition": { "id": "anniversary:yang-biao", "name": "杨彪", "portraitKey": "anniversary-yang-biao", "skillId": "anniversary:zhaohan", "additionalSkillIds": ["anniversary:jinjie", "anniversary:juee"], "factionId": "qun", "baseHp": 3, "gender": "Male", "characterId": "character:yang-biao", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary" } }]
+}

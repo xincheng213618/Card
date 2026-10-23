@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:chuyuan", "revision": 1, "triggers": [
+      { "id": "draw-and-store-after-damage", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": true,
+        "effects": [{ "op": "storeOlChuyuanAfterDamage", "target": "owner" }] }
+    ] },
+    { "id": "ol:dengji", "revision": 1, "triggers": [
+      { "id": "awakening", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "usageScope": "game", "usageLimit": 1,
+        "condition": { "kind": "compare", "left": { "kind": "currentOwnedZoneCount", "zone": "publicPersistentPile" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 3 } },
+        "effects": [{ "op": "changeMaximumHp", "target": "owner", "amount": -1 }, { "op": "awakenOlDengji", "target": "owner", "skillIds": ["ol:chuyuan"] },
+          { "op": "grantSkills", "target": "owner", "skillIds": ["ol:jianxiong", "ol:tianxing"] }] }
+    ] },
+    { "id": "ol:tianxing", "revision": 1, "triggers": [
+      { "id": "awakening", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "usageScope": "game", "usageLimit": 1,
+        "condition": { "kind": "compare", "left": { "kind": "currentOwnedZoneCount", "zone": "publicPersistentPile" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 3 } },
+        "effects": [{ "op": "changeMaximumHp", "target": "owner", "amount": -1 }, { "op": "awakenOlTianxing", "target": "owner", "skillIds": ["ol:chuyuan", "boundary:rende", "boundary:zhiheng", "boundary:luanji-current"] }] }
+    ] }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "schemaVersion": 3,
+  "skills": { "anniversary:jiedao": { "name": "截刀", "description": "当你每回合第一次造成伤害时，你可令此伤害至多+X（X为你损失的体力值）。若受到此伤害的角色没有阵亡，你弃置等同于此伤害加值的牌。" } }
+}

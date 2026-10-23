@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:fanyin", "revision": 1, "triggers": [
+      { "id": "rank-doubling", "window": "playPhaseStarting", "subject": "owner", "optional": true, "effects": [ { "op": "resolveAnniversaryDuKuiFanyin", "target": "owner" } ] }
+    ] },
+    { "id": "anniversary:peiqi", "revision": 1, "triggers": [
+      { "id": "move-and-check-all-ranges", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": true, "effects": [ { "op": "resolveAnniversaryDuKuiPeiqi", "target": "owner" } ] }
+    ] }
+  ]
+}

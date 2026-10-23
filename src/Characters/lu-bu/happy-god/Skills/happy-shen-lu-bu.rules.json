@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "happy:wuqian", "revision": 1, "triggers": [
+      { "id": "actual-turn-basic", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "effects": [{ "op": "obtainHappyShenLuBuTurnBasic", "target": "owner" }] },
+      { "id": "first-kind-use", "window": "cardUseCommitted", "ownerRelation": "actor", "optional": false, "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel"], "effects": [{ "op": "enhanceHappyShenLuBuFirstUse", "target": "owner" }] }
+    ] },
+    { "id": "happy:shenfen", "revision": 1, "activations": [
+      { "id": "limited-destruction", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": null, "usesPerGame": 1, "effects": [
+        { "op": "loseHp", "target": "owner", "amount": 3 },
+        { "op": "damageParticipants", "target": "owner", "targetKind": "otherLiving", "amount": 1 },
+        { "op": "discardParticipantCards", "target": "owner", "targetKind": "otherLiving", "zones": ["equipment"], "amount": 64 },
+        { "op": "discardParticipantCards", "target": "owner", "targetKind": "otherLiving", "zones": ["hand"], "amount": 4 }
+      ] }
+    ], "triggers": [
+      { "id": "full-hp-reset", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false, "effects": [{ "op": "resetHappyShenLuBuShenfen", "target": "owner" }] }
+    ] }
+  ]
+}

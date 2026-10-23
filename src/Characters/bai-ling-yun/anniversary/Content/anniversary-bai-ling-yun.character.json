@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:bai-ling-yun",
+  "skills": [
+    { "registrationOrder": 43600, "programBundle": "anniversary-bai-ling-yun", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:linghui", "name": "灵慧", "description": "每个结束阶段，若本回合有角色进入过濒死状态（你的回合无此条件），你可以观看牌堆顶的三张牌：你可以使用其中一张牌，然后随机获得剩余中的一张。", "executionForms": "Trigger" } },
+    { "registrationOrder": 43601, "programBundle": "anniversary-bai-ling-yun", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:xiace", "name": "黠策", "description": "每回合每项限一次，当你受到伤害后，你可令一名其他角色所有非锁定技失效直到回合结束；当你造成伤害后，你可以弃置一张牌并回复1点体力。", "executionForms": "Trigger" } },
+    { "registrationOrder": 43602, "programBundle": "anniversary-bai-ling-yun", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:yuxin", "name": "御心", "description": "限定技，一名角色进入濒死状态时，你可以令其回复体力至1点。若以此法回复体力的是其他角色，改为回复至与你体力值相同。", "tags": "Limited", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 43603, "pools": { "current": 43603 },
+      "definition": { "id": "anniversary:bai-ling-yun", "name": "柏灵筠", "portraitKey": "anniversary-bai-ling-yun", "skillId": "anniversary:linghui", "additionalSkillIds": ["anniversary:xiace", "anniversary:yuxin"], "factionId": "wei", "baseHp": 3, "gender": "Female", "characterId": "character:bai-ling-yun", "variantId": "ordinary", "rulesetId": "sanguosha-anniversary" } }
+  ]
+}

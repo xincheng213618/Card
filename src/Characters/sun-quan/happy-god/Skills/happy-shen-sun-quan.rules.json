@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "happy:quanxue", "revision": 1, "triggers": [{ "id": "grant-study", "window": "playPhaseStarting", "subject": "owner", "optional": true, "effects": [{ "op": "grantHappySunQuanLearning", "target": "owner" }] }] },
+    { "id": "happy:shehu", "revision": 1, "triggers": [{ "id": "slash-studying", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false, "effects": [{ "op": "resolveHappySunQuanShehu", "target": "owner" }] }] },
+    { "id": "happy:dingli", "revision": 1, "triggers": [{ "id": "removed-study", "window": "turnStartBeforeNormalFlow", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true, "usageScope": "round", "usageLimit": 1, "effects": [{ "op": "resolveHappySunQuanDingli", "target": "owner" }] }] },
+    { "id": "happy:learning", "revision": 1, "triggers": [{ "id": "resolve-study", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "effects": [{ "op": "resolveHappySunQuanLearning", "target": "owner" }] }] }
+  ]
+}

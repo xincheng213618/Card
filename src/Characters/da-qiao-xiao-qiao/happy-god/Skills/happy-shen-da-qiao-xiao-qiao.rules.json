@@ -1,0 +1,5 @@
+{"schemaVersion":62,"skills":[
+  {"id":"happy:shuangshu","revision":1,"triggers":[{"id":"extra-real-draw","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"insertPhase","target":"owner","phase":"draw","phaseContinuation":"beforeNormalPreparation"}]}]},
+  {"id":"happy:shutu","revision":1,"triggers":[{"id":"pool-health","window":"afterHealthChanged","subject":"owner","optional":true,"effects":[{"op":"resolveHappyQiaoShutu","target":"owner"}]}]},
+  {"id":"happy:tongxin","revision":1,"triggers":[{"id":"pool-health","window":"afterHealthChanged","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveHappyQiaoTongxin","target":"owner"}]}]}
+]}

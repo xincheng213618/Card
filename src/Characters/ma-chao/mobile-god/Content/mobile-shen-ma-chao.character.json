@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:ma-chao",
+  "skills": [
+    { "registrationOrder": 40625, "programBundle": "mobile-shen-ma-chao", "includeProgramPresentation": true,
+      "definition": { "id": "mobile-god:yuli", "name": "驭雳", "tags": "Locked", "executionForms": "Trigger",
+        "description": "锁定技，1.你造成的伤害改为雷电伤害，已是雷电伤害则伤害+1；2.你受到雷电伤害时，防止之并摸等量牌。" } },
+    { "registrationOrder": 40626, "programBundle": "mobile-shen-ma-chao", "includeProgramPresentation": true,
+      "definition": { "id": "mobile-god:tingwei", "name": "霆威", "executionForms": "Trigger",
+        "description": "你使用【杀】指定目标后，可获得4个“霆”标记并选择一名目标角色，其选择任意项（每选择一项，你失去1个“霆”标记）：1.非锁定技失效至其下个回合结束；2.交给你一张装备牌；3.此牌对其造成伤害+1；4.随机弃一张牌。若其均不选择，其进入连环状态。" } },
+    { "registrationOrder": 40627, "programBundle": "mobile-shen-ma-chao", "includeProgramPresentation": true,
+      "definition": { "id": "mobile-god:jimie", "name": "寂灭", "tags": "Limited", "executionForms": "Trigger",
+        "description": "限定技，出牌阶段结束时，你可失去8个“霆”，对一名角色造成等于其体力上限的伤害。然后你“驭雳”的两项均执行后，该技能可再次发动。" } }
+  ],
+  "generals": [
+    { "registrationOrder": 40628, "pools": { "current": 40628 }, "definition": {
+      "id": "mobile:shen-ma-chao", "name": "神马超", "portraitKey": "mobile-shen-ma-chao", "skillId": "mobile-god:yuli",
+      "additionalSkillIds": ["mobile-god:tingwei", "mobile-god:jimie"], "factionId": "god", "baseHp": 4, "gender": "Male",
+      "characterId": "character:ma-chao", "variantId": "mobile-god", "rulesetId": "sanguosha-mobile"
+    } }
+  ]
+}

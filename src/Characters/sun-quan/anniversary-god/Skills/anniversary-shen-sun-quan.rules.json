@@ -1,0 +1,753 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:cangming",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-sea",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 1000,
+          "effects": [
+            {
+              "op": "resolveAnniversarySunQuanCangmingSetup",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "return-start",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 1000,
+          "effects": [
+            {
+              "op": "resolveAnniversarySunQuanCangmingReturn",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "return-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "priority": 1000,
+          "effects": [
+            {
+              "op": "resolveAnniversarySunQuanCangmingReturn",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "sea-colors",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveAnniversarySunQuanCangmingColors",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anniversary:chouxi",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "sea-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-fireslash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-thunderslash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-drawtwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-barbarianassault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-arrowbarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-peachgarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-fivegrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-fireattack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-ironchain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-borrowedsword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-unexpectedassault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "unexpectedAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-qizhengxiangsheng",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "qizhengXiangsheng",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-alliancefeast",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "allianceFeast",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-sowbeans",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "sowBeans",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-transplantwood",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "transplantWood",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-returnsoul",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "returnSoul",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-starshift",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "starShift",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-beamswap",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "beamSwap",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-handredistribution",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "handRedistribution",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-wenhechaos",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "wenheChaos",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-sameboat",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "sameBoat",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-striveupstream",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "striveUpstream",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-againstcurrent",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "againstCurrent",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-intoxication",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "intoxication",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": false,
+          "extendedUse": true
+        },
+        {
+          "id": "sea-storegrain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "storeGrain",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-reinforcements",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "reinforcements",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-unitedeffort",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "unitedEffort",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-wumiaoflood",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "wumiaoFlood",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "singleCardTrickUse": true,
+          "useOnly": true
+        },
+        {
+          "id": "sea-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "sea-zong",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "zong",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "sea-realgarwine",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "realgarWine",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true
+        },
+        {
+          "id": "sea-poison",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "poison",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true
+        }
+      ]
+    },
+    {
+      "id": "anniversary:jichao",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "surge",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveAnniversarySunQuanJichao",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:xiashu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "actual-xiashu",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "giveAllHandAndResolveXiashu", "target": "selectedTarget" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anniversary:kuanshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "arm-until-next-actual-turn",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "anyLiving" },
+            { "op": "armAnniversaryKanZeKuanshi", "target": "selectedTarget" }
+          ]
+        },
+        {
+          "id": "second-damage-point",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "isSkillInvocation": false,
+          "optional": false,
+          "effects": [
+            { "op": "bindAnniversaryKanZeKuanshiDamage", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

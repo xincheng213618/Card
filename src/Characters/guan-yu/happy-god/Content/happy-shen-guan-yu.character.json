@@ -1,0 +1,5 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:guan-yu",
+"skills":[
+  {"registrationOrder":41880,"programBundle":"happy-shen-guan-yu","includeProgramPresentation":true,"definition":{"id":"happy:wushen","name":"武神","description":"你的红桃手牌可以当作【杀】使用或打出。你使用红桃【杀】无距离限制且伤害+1。","actionForms":"Active","executionForms":"State"}},
+  {"registrationOrder":41881,"programBundle":"happy-shen-guan-yu","includeProgramPresentation":true,"definition":{"id":"happy:wuhun","name":"武魂","description":"锁定技，当你受到1点伤害后，你令伤害来源获得1枚“梦魇”标记。当你脱离濒死状态或阵亡时，你令拥有最多“梦魇”的一名其他角色进行判定，若结果不为【桃】或【桃园结义】，则该角色失去5点体力。","tags":"Locked","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":41882,"pools":{"current":41882},"definition":{"id":"happy:shen-guan-yu","name":"神关羽","portraitKey":"happy-shen-guan-yu","skillId":"happy:wushen","additionalSkillIds":["happy:wuhun"],"factionId":"god","baseHp":5,"gender":"Male","characterId":"character:guan-yu","variantId":"happy-god","rulesetId":"sanguosha-happy"}}]}

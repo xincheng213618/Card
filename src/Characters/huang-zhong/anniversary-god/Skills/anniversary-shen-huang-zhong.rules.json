@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary-god:lieqiong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "strike-body",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveAnniversaryHuangZhongLieqiong",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anniversary-god:zhanjue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "choose-play-benefit",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "resolveAnniversaryHuangZhongZhanjue",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "first-damage-recovery",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "isSkillInvocation": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "resolveAnniversaryHuangZhongDamageBenefit",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

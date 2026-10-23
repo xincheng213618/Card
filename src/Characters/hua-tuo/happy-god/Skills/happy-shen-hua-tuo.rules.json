@@ -1,0 +1,19 @@
+{"schemaVersion":62,"skills":[
+  {"id":"happy:jishi","revision":1,
+    "modifiers":[{"id":"medicine-hand-limit","query":"handLimit","operation":"add","value":3,"priority":0,"condition":{"kind":"always"}}],
+    "triggers":[
+      {"id":"initial-medicine","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"initializeHappyHuaTuoMedicine","target":"owner"}]},
+      {"id":"red-hand-loss","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"gainHappyHuaTuoMedicine","target":"owner"}]},
+      {"id":"medicine-rescue","window":"dyingEntering","subject":"any","optional":true,"effects":[{"op":"resolveHappyHuaTuoMedicine","target":"owner"},{"op":"recoverTo","target":"selectedTarget","numberExpression":"integerConstant","minimumValue":1,"clampToMaxHp":true}]}
+    ]},
+  {"id":"happy:taoxian","revision":1,
+    "viewAs":[{"id":"heart-as-peach","inputKinds":[],"inputSuits":["heart"],"sourceZones":["hand","equipment"],"inputCount":1,"outputKind":"peach","forPlay":true,"forResponse":false,"useOnly":true}],
+    "triggers":[{"id":"other-peach-use","window":"cardUseCommitted","ownerRelation":"observer","cardKinds":["peach"],"includeResponseUses":true,"optional":false,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
+  {"id":"happy:shenzhen","revision":1,"triggers":[
+    {"id":"medicine-needles","window":"turnStartBeforeNormalFlow","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[
+      {"op":"resolveHappyHuaTuoShenzhen","target":"owner"},
+      {"op":"recover","target":"selectedTargets","amount":1,"condition":{"kind":"choiceIs","sourceBind":"needle-mode","optionId":"recover"}},
+      {"op":"loseHpParticipants","target":"owner","amount":1,"condition":{"kind":"choiceIs","sourceBind":"needle-mode","optionId":"lose"}}
+    ]}
+  ]}
+]}

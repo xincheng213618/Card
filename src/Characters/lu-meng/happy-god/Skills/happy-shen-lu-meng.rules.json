@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "happy:shelie", "revision": 1, "triggers": [
+      { "id": "forced-distinct-suit-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": false, "priority": 90, "drawPhaseMode": "replacement",
+        "effects": [
+          { "op": "revealTopCards", "target": "owner", "amount": 5, "resultBind": "revealed", "visibility": "public" },
+          { "op": "selectCardSubset", "target": "owner", "sourceBind": "revealed", "resultBind": "taken", "minimumCards": 1, "maximumCards": 4, "maximumRankSum": 208, "aiOrder": "mostCardsThenRankSum", "onePerSuit": true },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "taken", "destination": "ownerHand", "awaitMovementTriggers": true },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "revealed", "exceptBind": "taken", "destination": "discardPile", "awaitMovementTriggers": true }
+        ] }
+    ] },
+    { "id": "happy:gongxin", "revision": 1, "triggers": [
+      { "id": "sole-outgoing", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": true,
+        "usageScope": "turn", "usageLimit": 1, "namedUsageGroup": "sole-red-hand",
+        "effects": [
+          { "op": "bindHappyShenLuMengGongxinTarget", "target": "owner" },
+          { "op": "revealTargetHandCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "selectedTarget" }, "resultBind": "shown", "mode": "chooser", "suits": ["heart", "diamond"], "allowDecline": true },
+          { "op": "chooseOption", "target": "owner", "resultBind": "disposition", "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "shown", "suits": ["heart", "diamond"] }, "options": [{ "id": "obtain" }, { "id": "top" }] },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "shown", "destination": "ownerHand", "awaitMovementTriggers": true, "condition": { "kind": "choiceIs", "sourceBind": "disposition", "optionId": "obtain" } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "shown", "destination": "drawPileTop", "awaitMovementTriggers": true, "condition": { "kind": "choiceIs", "sourceBind": "disposition", "optionId": "top" } }
+        ] },
+      { "id": "sole-incoming", "window": "cardUseTargetsFinalized", "ownerRelation": "target", "onlyDesignatedCardTargets": true, "optional": true,
+        "usageScope": "turn", "usageLimit": 1, "namedUsageGroup": "sole-red-hand",
+        "effects": [
+          { "op": "bindHappyShenLuMengGongxinTarget", "target": "owner" },
+          { "op": "revealTargetHandCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "selectedTarget" }, "resultBind": "shown", "mode": "chooser", "suits": ["heart", "diamond"], "allowDecline": true },
+          { "op": "chooseOption", "target": "owner", "resultBind": "disposition", "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "shown", "suits": ["heart", "diamond"] }, "options": [{ "id": "obtain" }, { "id": "top" }] },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "shown", "destination": "ownerHand", "awaitMovementTriggers": true, "condition": { "kind": "choiceIs", "sourceBind": "disposition", "optionId": "obtain" } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "shown", "destination": "drawPileTop", "awaitMovementTriggers": true, "condition": { "kind": "choiceIs", "sourceBind": "disposition", "optionId": "top" } }
+        ] }
+    ] }
+  ]
+}

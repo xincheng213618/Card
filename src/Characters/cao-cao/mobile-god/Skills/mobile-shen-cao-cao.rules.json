@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:guixin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "claim-every-other-character",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMobileShenCaoCaoGuixin",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:feiying",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "incoming-distance-plus-one",
+          "query": "incomingDistance",
+          "operation": "add",
+          "value": 1,
+          "priority": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "happy:yizhao", "revision": 1, "triggers": [
+      { "id": "used-card-rank", "window": "cardUseCommitted", "ownerRelation": "actor", "optional": false, "priority": 0, "effects": [{ "op": "resolveAnniversaryZhangJiaoYizhao", "target": "owner" }] },
+      { "id": "responded-card-rank", "window": "cardResponseAccepted", "ownerRelation": "actor", "optional": false, "priority": 0, "effects": [{ "op": "resolveAnniversaryZhangJiaoYizhao", "target": "owner" }] }
+    ] },
+    { "id": "happy:sanshou", "revision": 1, "triggers": [
+      { "id": "three-types", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": true, "priority": 0, "effects": [
+        { "op": "resolveAnniversaryZhangJiaoSanshou", "target": "owner" },
+        { "op": "revealTopCards", "target": "owner", "amount": 3, "resultBind": "sanshou-top", "visibility": "public" },
+        { "op": "resolveAnniversaryZhangJiaoSanshou", "target": "owner", "sourceBind": "sanshou-top" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "sanshou-top", "destination": "discardPile" }
+      ] }
+    ] },
+    { "id": "happy:sijun", "revision": 1, "triggers": [
+      { "id": "random-thirty-six", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true, "priority": 0, "effects": [{ "op": "resolveAnniversaryZhangJiaoSijun", "target": "owner" }] }
+    ] },
+    { "id": "happy:tianjie", "revision": 1, "triggers": [
+      { "id": "shuffle-thunder-own", "window": "turnEnding", "turnOwnerScope": "own", "subject": "owner", "optional": true, "priority": 0, "effects": [{ "op": "resolveAnniversaryZhangJiaoTianjie", "target": "owner" }] },
+      { "id": "shuffle-thunder-other", "window": "turnEnding", "turnOwnerScope": "otherLiving", "subject": "owner", "optional": true, "priority": 0, "effects": [{ "op": "resolveAnniversaryZhangJiaoTianjie", "target": "owner" }] }
+    ] }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-yun",
+  "skills": [
+    {
+      "registrationOrder": 39900,
+      "programBundle": "mobile-shen-zhao-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:juejing",
+        "name": "绝境",
+        "description": "锁定技，你的手牌上限+2；当你进入或脱离濒死状态时，你摸一张牌。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 39901,
+      "programBundle": "mobile-shen-zhao-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:longhun",
+        "name": "龙魂",
+        "description": "你可以将至多两张同花色的牌按以下规则使用或打出：红桃当〖桃〗；方块当火〖杀〗；梅花当〖闪〗；黑桃当〖无懈可击〗。若你以此法使用了两张红色牌，则此牌回复值或伤害值+1。若你以此法使用了两张黑色牌，则你弃置当前回合角色一张牌。",
+        "executionForms": "Trigger",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 39902,
+      "pools": {
+        "current": 39902
+      },
+      "definition": {
+        "id": "mobile:shen-zhao-yun",
+        "name": "神赵云",
+        "portraitKey": "mobile-shen-zhao-yun",
+        "skillId": "mobile:juejing",
+        "factionId": "god",
+        "baseHp": 2,
+        "additionalSkillIds": [
+          "mobile:longhun"
+        ],
+        "gender": "Male",
+        "characterId": "character:zhao-yun",
+        "variantId": "mobile-god",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

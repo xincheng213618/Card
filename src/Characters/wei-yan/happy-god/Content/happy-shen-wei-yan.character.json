@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wei-yan",
+  "skills": [
+    {
+      "registrationOrder": 42300,
+      "programBundle": "happy-shen-wei-yan",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:zigu",
+        "name": "恣骨",
+        "description": "当你对一名其他角色造成伤害或受到伤害后，可将一张手牌置入其装备栏，称为“骨”；每回合首次使用装备时，可对场上的一名角色造成1点伤害并获得一张伤害牌。",
+        "executionForms": "Trigger, State"
+      }
+    },
+    {
+      "registrationOrder": 42301, "programBundle": "happy-shen-wei-yan", "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:ezhi", "name": "恶峙",
+        "description": "锁定技，有“骨”的其它角色使用牌时，你摸2张牌并令其弃置一张“骨”，若与此牌类型：①相同，取消此牌；②不同，本回合你对其使用牌无距离限制；回合结束时，你可依次使用本回合被弃置的“骨”。",
+        "executionForms": "Trigger, State", "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 42302, "programBundle": "happy-shen-wei-yan", "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:gujing", "name": "骨径",
+        "description": "限定技，出牌阶段，你可以依次执行：①将一张手牌作为“骨”置入场上一名其他角色的装备栏，②弃置任意名其它角色的各一张“骨”并废除其对应装备栏。然后本局游戏中，装备栏被废除的玩家获得对应栏位的装备时，改为由你获得。",
+        "executionForms": "State", "actionForms": "Active", "tags": "Limited"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 42303,
+      "pools": { "current": 42303 },
+      "definition": {
+        "id": "happy:shen-wei-yan",
+        "name": "神魏延",
+        "portraitKey": "happy-shen-wei-yan",
+        "skillId": "happy:zigu",
+        "additionalSkillIds": ["happy:ezhi", "happy:gujing"],
+        "factionId": "god",
+        "baseHp": 6,
+        "gender": "Male",
+        "characterId": "character:wei-yan",
+        "variantId": "happy-god",
+        "rulesetId": "sanguosha-happy"
+      }
+    }
+  ]
+}

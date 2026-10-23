@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:pianchong", "revision": 1, "triggers": [
+      { "id": "replace-draw-colors", "window": "drawPhaseStarting", "subject": "owner", "optional": true, "drawPhaseMode": "replacement",
+        "effects": [ { "op": "resolveAnniversaryGuoZhaoPianchong", "target": "owner" } ] },
+      { "id": "lost-color-benefit", "window": "cardsMoved", "subject": "owner", "optional": false, "isSkillInvocation": false,
+        "sourceZones": ["hand", "equipment"], "movementOccurrence": "perOwnerBatch",
+        "effects": [ { "op": "drawAnniversaryGuoZhaoLostColor", "target": "owner" } ] }
+    ] },
+    { "id": "anniversary:zunwei", "revision": 1, "activations": [
+      { "id": "three-permanent-options", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+        "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [ { "op": "resolveAnniversaryGuoZhaoZunwei", "target": "owner" } ] }
+    ] }
+  ]
+}

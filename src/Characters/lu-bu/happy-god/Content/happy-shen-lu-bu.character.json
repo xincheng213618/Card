@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:lu-bu",
+  "skills": [
+    { "registrationOrder": 41200, "programBundle": "happy-shen-lu-bu", "includeProgramPresentation": true, "definition": { "id": "happy:wuqian", "name": "无前", "description": "锁定技。回合开始时，获得一张基本牌。每回合首张【杀】和【决斗】，目标数+1、获得“无双”效果且无视目标角色的防具。", "tags": "Locked", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 41201, "programBundle": "happy-shen-lu-bu", "includeProgramPresentation": true, "definition": { "id": "happy:shenfen", "name": "神愤", "description": "限定技。出牌阶段，你可以失去3点体力，然后对所有其他角色各造成1点伤害，令这些角色弃置装备区里的所有牌，并弃置四张手牌；任意回合结束时，若你的体力值达到上限，“神愤”视为未发动过。", "tags": "Limited", "actionForms": "Active", "executionForms": "Trigger, State" } }
+  ],
+  "generals": [{ "registrationOrder": 41202, "pools": { "current": 41202 }, "definition": { "id": "happy:shen-lu-bu", "name": "神吕布", "portraitKey": "happy-shen-lu-bu", "skillId": "happy:wuqian", "additionalSkillIds": ["happy:shenfen"], "factionId": "god", "baseHp": 6, "gender": "Male", "characterId": "character:lu-bu", "variantId": "happy-god", "rulesetId": "sanguosha-happy" } }]
+}

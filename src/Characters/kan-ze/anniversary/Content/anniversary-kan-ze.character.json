@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:kan-ze",
+  "skills": [
+    {
+      "registrationOrder": 42900,
+      "programBundle": "anniversary-kan-ze",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:xiashu",
+        "name": "下书",
+        "description": "出牌阶段开始时，你可以将所有手牌交给一名其他角色，然后该角色亮出任意数量的手牌，你选择一项：1.获得其亮出的手牌；2.获得其未亮出的手牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 42901,
+      "programBundle": "anniversary-kan-ze",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:kuanshi",
+        "name": "宽释",
+        "description": "结束阶段，你可以选择一名角色，直到你的下回合开始，该角色于同一回合内受到第2点伤害后，其回复1点体力。（每回合限触发一次）",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 42902,
+      "pools": { "current": 42902 },
+      "definition": {
+        "id": "anniversary:kan-ze",
+        "name": "阚泽",
+        "portraitKey": "anniversary-kan-ze",
+        "skillId": "anniversary:xiashu",
+        "additionalSkillIds": [ "anniversary:kuanshi" ],
+        "factionId": "wu",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:kan-ze",
+        "variantId": "ordinary",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

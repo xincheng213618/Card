@@ -1,0 +1,20 @@
+{"schemaVersion":62,"skills":[
+  {"id":"happy:wushen","revision":1,
+    "viewAs":[{"id":"heart-hand-as-slash","inputKinds":[],"inputSuits":["heart"],"sourceZones":["hand"],"inputCount":1,"outputKind":"slash","forPlay":true,"forResponse":true}],
+    "cardPolicies":[{"id":"heart-slash-distance","kind":"ignoreSlashUseDistanceBySuit","cardKinds":["slash","fireSlash","thunderSlash"],"inputSuit":"heart"}]},
+  {"id":"happy:wuhun","revision":1,"triggers":[
+    {"id":"damage-nightmare","window":"damageAppliedBeforeDying","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
+    {"id":"survived-nightmare","window":"dyingExited","subject":"owner","optional":false,"effects":[
+      {"op":"selectTarget","target":"owner","targetKind":"maximumOtherAttributedMarker","marker":"nightmare"},
+      {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.happy-wuhun","resultBind":"nightmare-judgment","visibility":"public"},
+      {"op":"loseHp","target":"selectedTarget","amount":5,"condition":{"kind":"not","children":[{"kind":"boundCardsMatchKinds","sourceBind":"nightmare-judgment","cardKinds":["peach","peachGarden"]}]}},
+      {"op":"moveBoundCards","target":"owner","sourceBind":"nightmare-judgment","destination":"discardPile"}
+    ]},
+    {"id":"death-nightmare","window":"ownerDied","subject":"owner","optional":false,"effects":[
+      {"op":"selectTarget","target":"owner","targetKind":"maximumOtherAttributedMarker","marker":"nightmare"},
+      {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.happy-wuhun","resultBind":"nightmare-judgment","visibility":"public"},
+      {"op":"loseHp","target":"selectedTarget","amount":5,"condition":{"kind":"not","children":[{"kind":"boundCardsMatchKinds","sourceBind":"nightmare-judgment","cardKinds":["peach","peachGarden"]}]}},
+      {"op":"moveBoundCards","target":"owner","sourceBind":"nightmare-judgment","destination":"discardPile"}
+    ]}
+  ]}
+]}

@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:sun-quan",
+  "skills": [
+    { "registrationOrder": 40940, "programBundle": "happy-shen-sun-quan", "includeProgramPresentation": true, "definition": { "id": "happy:quanxue", "name": "劝学", "description": "出牌阶段开始时，你可以选择至多两名其他角色各获得一个“学”；拥有“学”的角色回合开始时移除标记并选择一项：1.出牌阶段无法对其他角色使用牌；2.失去1点体力。", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 40941, "programBundle": "happy-shen-sun-quan", "includeProgramPresentation": true, "definition": { "id": "happy:shehu", "name": "射虎", "description": "锁定技，当你对有“学”的角色使用【杀】时，弃置其一张手牌。", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 40942, "programBundle": "happy-shen-sun-quan", "includeProgramPresentation": true, "definition": { "id": "happy:dingli", "name": "鼎立", "description": "每轮限一次，当其他角色移除“学”时，若其体力值大于等于你，你可以回复1点体力；若其体力值小于你，你可以摸X张牌（X为你与其体力值的差，且至多为2）。", "executionForms": "Trigger" } },
+    { "registrationOrder": 40943, "programBundle": "happy-shen-sun-quan", "includeProgramPresentation": true, "definition": { "id": "happy:learning", "name": "劝学", "description": "拥有“学”的角色回合开始时移除标记并选择一项：出牌阶段无法对其他角色使用牌，或失去1点体力。", "tags": "Locked", "executionForms": "Trigger, State" } }
+  ],
+  "generals": [{ "registrationOrder": 40944, "pools": { "current": 40944 }, "definition": { "id": "happy:shen-sun-quan", "name": "神孙权", "portraitKey": "happy-shen-sun-quan", "skillId": "happy:quanxue", "additionalSkillIds": ["happy:shehu", "happy:dingli"], "factionId": "god", "baseHp": 4, "gender": "Male", "characterId": "character:sun-quan", "variantId": "happy-god", "rulesetId": "sanguosha-happy" } }]
+}

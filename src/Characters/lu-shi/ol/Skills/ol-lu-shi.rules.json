@@ -1,0 +1,8 @@
+{"schemaVersion":62,"skills":[
+  {"id":"ol:zhuyan","revision":1,"triggers":[{"id":"discard-ending","window":"discardPhaseEnded","subject":"owner","turnOwnerScope":"own","allowOwnDiscardPhaseEnded":true,"optional":true,"effects":[{"op":"resolveOlLuShiZhuyan","target":"owner"}]}]},
+  {"id":"ol:leijie","revision":1,"activations":[{"id":"judge-target","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[
+    {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.ol.lushi.leijie","resultBind":"leijie-card","outcomeBind":"leijie-result","visibility":"public"},
+    {"op":"moveBoundCards","target":"owner","sourceBind":"leijie-card","destination":"discardPile"},
+    {"op":"resolveOlLuShiLeijie","target":"owner"}
+  ]}]}
+]}

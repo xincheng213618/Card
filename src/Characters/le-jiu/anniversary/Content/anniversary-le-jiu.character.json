@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:le-jiu",
+  "skills": [{ "registrationOrder": 44100, "programBundle": "anniversary-le-jiu", "includeProgramPresentation": true,
+    "definition": { "id": "anniversary:cuijin", "name": "催进", "description": "你或你攻击范围内的角色使用〖杀〗或〖决斗〗时，你可以弃置一张牌令此牌造成的伤害值+1。若此牌未造成伤害，你摸两张牌且使用者受到你造成的1点伤害。", "executionForms": "Trigger" } }],
+  "generals": [{ "registrationOrder": 44101, "pools": { "current": 44101 }, "definition": {
+    "id": "anniversary:le-jiu", "name": "乐就", "portraitKey": "anniversary-le-jiu", "skillId": "anniversary:cuijin", "factionId": "qun", "baseHp": 4,
+    "gender": "Male", "characterId": "character:le-jiu", "variantId": "ordinary", "rulesetId": "sanguosha-anniversary"
+  } }]
+}

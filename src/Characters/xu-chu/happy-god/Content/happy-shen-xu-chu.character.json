@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xu-chu",
+  "skills": [
+    {
+      "registrationOrder": 41940,
+      "programBundle": "happy-shen-xu-chu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:zhengqing",
+        "name": "争擎",
+        "description": "锁定技，每轮结束时，你令所有角色各移除其所有“擎”标记，然后本轮在一个回合内造成伤害值最多的角色获得X枚“擎”标记并与你各摸一张牌（X为其该回合造成的伤害值）。若是你获得“擎”且是获得数量最多的一次，你改为摸X张牌（最多摸五张）。",
+        "tags": "Locked",
+        "executionForms": "Trigger, State"
+      }
+    },
+    {
+      "registrationOrder": 41941,
+      "programBundle": "happy-shen-xu-chu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:zhuangpo",
+        "name": "壮魄",
+        "description": "你可以将牌面信息中有“杀”的牌当【决斗】使用，然后【决斗】指定目标后，若：①你有“擎”，你可以移去任意枚“擎”，然后令其弃置等量的牌；②目标角色有“擎”，则此牌伤害+1。",
+        "executionForms": "Trigger, State"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 41942,
+      "pools": {
+        "current": 41940
+      },
+      "definition": {
+        "id": "happy:shen-xu-chu",
+        "name": "神许褚·欢乐",
+        "portraitKey": "happy-shen-xu-chu",
+        "skillId": "happy:zhengqing",
+        "additionalSkillIds": [
+          "happy:zhuangpo"
+        ],
+        "factionId": "god",
+        "gender": "Male",
+        "baseHp": 5,
+        "characterId": "character:xu-chu",
+        "variantId": "happy-god",
+        "rulesetId": "sanguosha-happy"
+      }
+    }
+  ]
+}

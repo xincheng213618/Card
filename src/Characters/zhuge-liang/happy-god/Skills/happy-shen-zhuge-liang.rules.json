@@ -1,0 +1,25 @@
+{"schemaVersion":62,"skills":[
+  {"id":"happy:qixing","revision":1,"triggers":[
+    {"id":"initialize","window":"gameStarting","subject":"owner","optional":false,"priority":100,"effects":[
+      {"op":"draw","target":"owner","amount":7},
+      {"op":"selectOwnedCards","target":"owner","amount":7,"zones":["hand"],"resultBind":"initial-stars"},
+      {"op":"moveBoundCards","target":"owner","sourceBind":"initial-stars","destination":"ownerPersistentZone","destinationZone":"privateReserve","awaitMovementTriggers":true}
+    ]},
+    {"id":"draw-exchange","window":"afterNormalDraw","subject":"owner","optional":true,"effects":[{"op":"exchangePrivatePile","target":"owner"}]}
+  ]},
+  {"id":"happy:kuangfeng","revision":1,"triggers":[
+    {"id":"star-damage","window":"playEnding","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[
+      {"op":"selectOwnedCards","target":"owner","minimumCards":1,"maximumCards":7,"numberExpression":"livingPlayerCount","zones":["privateReserve"],"resultBind":"stars"},
+      {"op":"selectTargets","target":"owner","targetKind":"anyLiving","minimumTargets":1,"maximumTargets":7,"numberExpression":"boundCardCount","targetAiOrder":"stable"},
+      {"op":"moveBoundCards","target":"owner","sourceBind":"stars","destination":"discardPile","awaitMovementTriggers":true},
+      {"op":"damageParticipants","target":"selectedTargets","amount":1,"nature":"normal"}
+    ]}
+  ]},
+  {"id":"happy:dawu","revision":1,"states":[{"id":"mist-active","initialValue":false,"visibility":"public","resetScope":"game","reacquirePolicy":"preserveUntilGameEnd"}],"triggers":[
+    {"id":"self-mist","window":"turnEnding","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[
+      {"op":"selectOwnedCards","target":"owner","amount":1,"zones":["privateReserve"],"resultBind":"stars"},
+      {"op":"moveBoundCards","target":"owner","sourceBind":"stars","destination":"discardPile","awaitMovementTriggers":true},
+      {"op":"grantHappyZhugeLiangDawu","target":"owner"}
+    ]}
+  ]}
+]}

@@ -1,0 +1,19 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-fen",
+  "skills": [
+    { "registrationOrder": 43500, "programBundle": "anniversary-zhang-fen", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:wanglu", "name": "望橹", "description": "锁定技，准备阶段，将〖大攻车〗置入你的装备区，已有则执行一个额外的出牌阶段。", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 43501, "programBundle": "anniversary-zhang-fen", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:xianzhu", "name": "陷筑", "description": "每当你的〖杀〗造成伤害后，你可升级〖大攻车〗（每个〖大攻车〗最多5次）。", "executionForms": "Trigger" } },
+    { "registrationOrder": 43502, "programBundle": "anniversary-zhang-fen", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:chaixie", "name": "拆械", "description": "锁定技，当〖大攻车〗销毁后，你摸X张牌（X为该〖大攻车〗的升级次数）。", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 43503, "programBundle": "anniversary-zhang-fen", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:dagong-che", "name": "大攻车", "description": "宝物，黑桃9。出牌阶段开始时，你可视为使用一张〖杀〗（不计入次数），若以此法造成伤害，你弃置目标一张牌。（升级选项：无视距离和防具；目标数+1；弃牌数+1）若未升级则此牌无法被弃置。此宝物离开装备区时销毁。", "executionForms": "Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 43504, "pools": { "current": 43504 }, "definition": {
+    "id": "anniversary:zhang-fen", "name": "张奋", "portraitKey": "anniversary-zhang-fen", "skillId": "anniversary:wanglu", "additionalSkillIds": ["anniversary:xianzhu", "anniversary:chaixie"],
+    "factionId": "wu", "baseHp": 4, "gender": "Male", "characterId": "character:zhang-fen", "variantId": "ordinary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

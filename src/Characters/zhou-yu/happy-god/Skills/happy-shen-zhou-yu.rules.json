@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+  {"id":"happy:qinyin","revision":1,"triggers":[{"id":"whole-turn-discard","window":"discardPhaseEnded","turnOwnerScope":"own","allowOwnDiscardPhaseEnded":true,"subject":"owner","optional":true,"effects":[{"op":"resolveHappyZhouYuQinyin","target":"owner"}]}]},
+  {"id":"happy:yeyan","revision":1,"triggers":[{"id":"play-start-fire","window":"playPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"damage","target":"selectedTarget","amount":1,"nature":"fire"}]}]}
+]}

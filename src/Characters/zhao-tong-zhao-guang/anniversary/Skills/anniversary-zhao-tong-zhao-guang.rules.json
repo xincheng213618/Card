@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:yizan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "pair-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "pair-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "pair-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "pair-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "pair-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "pair-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "single-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCategories": [
+            "basic"
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "single-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCategories": [
+            "basic"
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "single-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCategories": [
+            "basic"
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "single-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCategories": [
+            "basic"
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "single-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCategories": [
+            "basic"
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "single-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCategories": [
+            "basic"
+          ],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        }
+      ]
+    },
+    {
+      "id": "anniversary:longyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "three-yizan-awakening",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "anyLiving",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "awakenAnniversaryZhaoTongZhaoGuangLongyuan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anniversary:qingren",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-ending-yizan-count",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawAnniversaryZhaoTongZhaoGuangQingren",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

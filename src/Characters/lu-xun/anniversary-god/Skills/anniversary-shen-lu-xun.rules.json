@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:junlue", "revision": 1,
+      "triggers": [
+        {
+          "id": "damage-received", "window": "afterDamageApplied", "subject": "owner",
+          "damageOccurrence": "perDamagePoint", "optional": false,
+          "effects": [{ "op": "setMarkerAmount", "target": "owner", "marker": "junlue", "amount": 1 }]
+        },
+        {
+          "id": "damage-dealt", "window": "afterDamageApplied", "subject": "damageSource",
+          "damageOccurrence": "perDamagePoint", "optional": false,
+          "effects": [{ "op": "setMarkerAmount", "target": "owner", "marker": "junlue", "amount": 1 }]
+        }
+      ]
+    },
+    {
+      "id": "anniversary:cuike", "revision": 1,
+      "triggers": [
+        {
+          "id": "odd-damage", "window": "playPhaseStarting", "subject": "owner", "optional": true,
+          "condition": { "kind": "compare", "left": { "kind": "markerParity", "marker": "junlue" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 1 } },
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "anyLiving" },
+            { "op": "damage", "target": "selectedTarget", "amount": 1 }
+          ]
+        },
+        {
+          "id": "even-chain-discard", "window": "playPhaseStarting", "subject": "owner", "optional": true,
+          "condition": { "kind": "compare", "left": { "kind": "markerParity", "marker": "junlue" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 0 } },
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "anyLiving" },
+            { "op": "setChainedState", "target": "selectedTarget", "chained": true },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "selectedTarget" }, "zones": ["hand", "equipment", "judgment"], "destination": "discardPile", "skipIfNoCards": true, "count": 1 }
+          ]
+        },
+        {
+          "id": "mass-damage", "window": "playPhaseStarting", "subject": "owner", "optional": true, "priority": -10,
+          "condition": { "kind": "compare", "left": { "kind": "ownerAttributedMarkerCount", "marker": "junlue" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 7 } },
+          "evaluateConditionAtResolution": true,
+          "effects": [
+            { "op": "setMarkerAmount", "target": "owner", "marker": "junlue", "amount": -1 },
+            { "op": "damageOtherLiving", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anniversary:zhanhuo", "revision": 1,
+      "activations": [{
+        "id": "limited-fire", "targetKind": "anyLiving", "usesPerGame": 1,
+        "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "usesPerTurn": null,
+        "effects": [
+          { "op": "selectChainedByMarker", "target": "owner", "marker": "junlue" },
+          { "op": "discardTargetEquipment", "target": "owner" },
+          { "op": "damageParticipants", "target": "selectedTargets", "amount": 1, "nature": "fire" }
+        ]
+      }]
+    }
+  ]
+}

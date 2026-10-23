@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "happy:zhengqing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "round-maximum-damage",
+          "window": "roundEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "settleZhengqingRound",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "happy:zhuangpo",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "printed-sha-duel",
+          "inputKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash",
+            "dodge",
+            "alcohol",
+            "duel",
+            "barbarianAssault",
+            "borrowedSword",
+            "crossbow",
+            "qinggangSword",
+            "stoneAxe",
+            "zhangbaSerpentSpear",
+            "cixiongDoubleSwords",
+            "qinglongCrescentBlade",
+            "iceSword",
+            "qilinBow",
+            "fangtianHalberd",
+            "gudingBlade",
+            "zhuqueFan",
+            "renwangShield",
+            "tengjia",
+            "ghostDragonCrescentBlade",
+            "scarletBloodSword",
+            "redBloodBlade",
+            "xuanjian",
+            "wushuangHalberd",
+            "qimenEightTrigrams",
+            "shuraInfernoHalberd",
+            "transplantWood",
+            "wenheChaos",
+            "realgarWine",
+            "qizhengXiangsheng",
+            "qiBaoDao",
+            "baiBiDao"
+          ],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "duel",
+          "allowSameKind": true,
+          "forPlay": true,
+          "forResponse": false,
+          "singleCardTrickUse": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "converted-duel-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "conversionSource",
+          "sourceSkillId": "happy:zhuangpo",
+          "sourceViewAsId": "printed-sha-duel",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveZhuangpoTarget",
+              "target": "owner"
+            }
+          ],
+          "isSkillInvocation": false
+        }
+      ]
+    }
+  ]
+}

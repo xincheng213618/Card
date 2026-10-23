@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "happy:linjie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "round-lin",
+          "window": "roundStarting",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveLinjieRound",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        },
+        {
+          "id": "marked-damage",
+          "window": "afterDamageApplied",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveLinjieDamage",
+              "target": "owner"
+            }
+          ],
+          "subject": "any",
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "happy:duzhang",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "lin-hand-limit",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "ownerMarkerCount",
+          "valueMarker": "linCold",
+          "priority": 0
+        }
+      ],
+      "triggers": [
+        {
+          "id": "sole-black-target",
+          "window": "cardUseTargetsFinalized",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveDuzhang",
+              "target": "owner"
+            }
+          ],
+          "ownerRelation": "observer",
+          "usageScope": "turn",
+          "usageLimit": 2
+        }
+      ]
+    },
+    {
+      "id": "happy:jianghuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "all-living-damaged",
+          "window": "turnBeforeStart",
+          "optional": false,
+          "effects": [
+            {
+              "op": "awakenJianghuo",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner",
+          "usageScope": "game",
+          "usageLimit": 1
+        }
+      ]
+    },
+    {
+      "id": "happy:lishi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-punishments",
+          "window": "turnEnding",
+          "optional": false,
+          "effects": [
+            {
+              "op": "chooseLishiPunishments",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "happy:lishi-curse",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "judge-debt",
+          "window": "judgmentPhaseStarting",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveLishiPhase",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner",
+          "isSkillInvocation": false
+        },
+        {
+          "id": "draw-debt",
+          "window": "drawPhaseEnded",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveLishiPhase",
+              "target": "owner"
+            }
+          ],
+          "subject": "owner",
+          "isSkillInvocation": false
+        }
+      ]
+    }
+  ]
+}

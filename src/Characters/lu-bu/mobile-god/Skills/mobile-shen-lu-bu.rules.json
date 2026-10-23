@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile-god:kuangbao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-rage",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": {
+                "kind": "owner"
+              },
+              "marker": "rage",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "gain-on-owner",
+          "damageOccurrence": "perDamagePoint",
+          "window": "afterDamageApplied",
+          "optional": false,
+          "subject": "owner",
+          "effects": [
+            {
+              "targetRef": {
+                "kind": "owner"
+              },
+              "target": "owner",
+              "amount": 1,
+              "op": "changeAttributedMarker",
+              "marker": "rage"
+            }
+          ],
+          "priority": 0
+        },
+        {
+          "id": "gain-on-damageSource",
+          "damageOccurrence": "perDamagePoint",
+          "window": "afterDamageApplied",
+          "optional": false,
+          "subject": "damageSource",
+          "effects": [
+            {
+              "targetRef": {
+                "kind": "owner"
+              },
+              "target": "owner",
+              "amount": 1,
+              "op": "changeAttributedMarker",
+              "marker": "rage"
+            }
+          ],
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "mobile-god:wumou",
+      "revision": 1,
+      "triggers": [],
+      "cardIdentities": [
+        {
+          "inputKinds": [
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "nullification",
+            "ironChain",
+            "borrowedSword",
+            "unexpectedAssault",
+            "allianceFeast",
+            "sowBeans",
+            "transplantWood",
+            "returnSoul",
+            "starShift",
+            "beamSwap",
+            "handRedistribution",
+            "wenheChaos",
+            "sameBoat",
+            "striveUpstream",
+            "againstCurrent",
+            "storeGrain",
+            "reinforcements",
+            "unitedEffort",
+            "wumiaoFlood",
+            "qizhengXiangsheng"
+          ],
+          "zones": [
+            "hand",
+            "woodenOxGrain"
+          ],
+          "condition": {
+            "kind": "always"
+          },
+          "outputKind": "slash",
+          "inputSuits": [],
+          "id": "tricks-as-slash"
+        }
+      ]
+    },
+    {
+      "id": "mobile-god:wuqian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "rage-attack",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "markerCost": {
+            "marker": "rage",
+            "amount": 2
+          },
+          "effects": [
+            {
+              "target": "owner",
+              "op": "resolveMobileShenLuBuWuqian"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "priority": 0,
+          "subject": "owner",
+          "window": "turnEnding",
+          "effects": [
+            {
+              "target": "owner",
+              "op": "gainMobileShenLuBuDamageCard"
+            }
+          ],
+          "optional": false,
+          "id": "ending-damage-card"
+        }
+      ]
+    },
+    {
+      "id": "mobile-god:shenfen",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "rage-destruction",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "markerCost": {
+            "marker": "rage",
+            "amount": 6
+          },
+          "effects": [
+            {
+              "op": "damageParticipants",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "amount": 1
+            },
+            {
+              "op": "discardParticipantCards",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "zones": [
+                "equipment"
+              ],
+              "amount": 64
+            },
+            {
+              "op": "discardParticipantCards",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "zones": [
+                "hand"
+              ],
+              "amount": 4
+            },
+            {
+              "op": "turnOver",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

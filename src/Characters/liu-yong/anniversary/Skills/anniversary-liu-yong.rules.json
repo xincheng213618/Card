@@ -1,0 +1,7 @@
+{"schemaVersion":62,"skills":[
+  {"id":"anniversary:zhuning","revision":1,"activations":[{"id":"gift-and-use","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":null,"effects":[{"op":"resolveAnniversaryLiuYongZhuning","target":"owner"}]}]},
+  {"id":"anniversary:fengxiang","revision":1,"triggers":[
+    {"id":"damaged-leader","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamage","optional":false,"effects":[{"op":"resolveAnniversaryLiuYongFengxiang","target":"owner"}]},
+    {"id":"xi-leader-changes","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"resolveAnniversaryLiuYongFengxiang","target":"owner"}]}
+  ]}
+]}

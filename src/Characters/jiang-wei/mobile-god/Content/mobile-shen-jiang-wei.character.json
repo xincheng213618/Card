@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:jiang-wei",
+  "skills": [
+    { "registrationOrder": 40600, "programBundle": "mobile-shen-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "mobile:xinghun", "name": "星魂", "description": "出牌阶段限一次，你可观看牌堆顶五张牌，用任意张手牌与其中等量牌进行交换并排序，然后你令一名其他角色展示你手牌与牌堆顶共五张牌，你对其依次使用其中的【杀】。", "actionForms": "Active" } },
+    { "registrationOrder": 40601, "programBundle": "mobile-shen-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "mobile:tiantao", "name": "天涛", "description": "锁定技，结束阶段，你选择一个区域并弃置其中所有牌，然后依次弃置任意名其他角色相同区域各一张牌，因此弃置牌且未弃置【杀】的角色失去1点体力。", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 40602, "programBundle": "mobile-shen-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "mobile:shenpei", "name": "神霈", "description": "限定技，你进入濒死时，可回复X点体力（X为你本局游戏进入过濒死的次数），对一名角色造成等量雷电伤害并获得“回天”。 回天：一名体力值大于你的角色回合结束时，你可摸一张牌并执行一个额外的回合。每轮开始时，若你发动过此技能，你死亡。", "tags": "Limited", "executionForms": "Trigger" } },
+    { "registrationOrder": 40603, "programBundle": "mobile-shen-jiang-wei", "includeProgramPresentation": true, "definition": { "id": "mobile:huitian", "name": "回天", "description": "一名体力值大于你的角色回合结束时，你可摸一张牌并执行一个额外的回合。每轮开始时，若你发动过此技能，你死亡。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 40604, "pools": { "current": 40604 }, "definition": { "id": "mobile:shen-jiang-wei", "name": "神姜维", "portraitKey": "mobile-shen-jiang-wei", "skillId": "mobile:xinghun", "additionalSkillIds": ["mobile:tiantao", "mobile:shenpei"], "factionId": "god", "gender": "Male", "baseHp": 4, "characterId": "character:jiang-wei", "variantId": "mobile-god", "rulesetId": "sanguosha-mobile" } }]
+}

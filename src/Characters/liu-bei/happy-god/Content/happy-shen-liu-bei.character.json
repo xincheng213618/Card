@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-bei",
+  "skills": [
+    {
+      "registrationOrder": 41800,
+      "programBundle": "happy-shen-liu-bei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:longnu",
+        "name": "龙怒",
+        "description": "锁定技，出牌阶段开始时选择一项：①你失去1点体力并摸两张牌，然后本回合你的红色手牌均视为火【杀】且无距离限制；②你减1点体力上限，然后本回合你的黑色手牌均视为雷【杀】且无次数限制。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 41801,
+      "programBundle": "happy-shen-liu-bei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:shen-liu-bei-jieying",
+        "name": "结营",
+        "description": "锁定技，你始终处于横置状态；受到伤害时摸一张牌；已横置的角色手牌上限+2。结束阶段，你横置一名其他角色。",
+        "tags": "Locked",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 41802,
+      "pools": {
+        "current": 41802
+      },
+      "definition": {
+        "id": "happy:shen-liu-bei",
+        "name": "神刘备",
+        "portraitKey": "happy-shen-liu-bei",
+        "skillId": "happy:longnu",
+        "factionId": "god",
+        "baseHp": 6,
+        "additionalSkillIds": [
+          "happy:shen-liu-bei-jieying"
+        ],
+        "gender": "Male",
+        "characterId": "character:liu-bei",
+        "variantId": "happy-god",
+        "rulesetId": "sanguosha-happy"
+      }
+    }
+  ]
+}

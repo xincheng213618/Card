@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:juejing-2016", "revision": 1,
+      "modifiers": [
+        { "id": "lost-hp-extra-draw", "query": "drawCount", "operation": "add", "valueExpression": "ownerLostHp", "priority": 0 },
+        { "id": "hand-limit", "query": "handLimit", "operation": "add", "value": 2, "priority": 0 }
+      ]
+    },
+    {
+      "id": "ol:longhun-2016", "revision": 1,
+      "viewAs": [
+        { "id": "heart", "inputKinds": [], "inputSuits": ["heart"], "inputCountExpression": "ownerHpAtLeastOne", "sourceZones": ["hand", "equipment"], "outputKind": "peach", "forPlay": true, "forResponse": true, "extendedUse": true, "allowSameKind": true },
+        { "id": "diamond", "inputKinds": [], "inputSuits": ["diamond"], "inputCountExpression": "ownerHpAtLeastOne", "sourceZones": ["hand", "equipment"], "outputKind": "fireSlash", "forPlay": true, "forResponse": true, "extendedUse": true, "allowSameKind": true },
+        { "id": "club", "inputKinds": [], "inputSuits": ["club"], "inputCountExpression": "ownerHpAtLeastOne", "sourceZones": ["hand", "equipment"], "outputKind": "dodge", "forPlay": false, "forResponse": true, "extendedUse": true, "allowSameKind": true },
+        { "id": "spade", "inputKinds": [], "inputSuits": ["spade"], "inputCountExpression": "ownerHpAtLeastOne", "sourceZones": ["hand", "equipment"], "outputKind": "nullification", "forPlay": false, "forResponse": true, "extendedUse": true, "allowSameKind": true }
+      ],
+      "activations": [
+        { "id": "heart-use", "minCards": 1, "maxCards": null, "cardCountExpression": "ownerHpAtLeastOne", "sourceZones": ["hand", "equipment"], "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving", "usesPerTurn": null, "condition": { "kind": "wounded" }, "effects": [{ "op": "useSelectedCardsAs", "target": "owner", "sourceBind": "heart", "outputKind": "peach" }] },
+        { "id": "diamond-use", "minCards": 1, "maxCards": null, "cardCountExpression": "ownerHpAtLeastOne", "sourceZones": ["hand", "equipment"], "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "effects": [{ "op": "useSelectedCardsAs", "target": "selectedTarget", "sourceBind": "diamond", "outputKind": "fireSlash" }] }
+      ]
+    }
+  ]
+}

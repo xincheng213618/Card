@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "triggers": [
+        {
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "resolveMobileDuoruiBorrowedSkill",
+              "target": "owner"
+            }
+          ],
+          "id": "borrow-after-damage",
+          "optional": true,
+          "window": "afterDamageApplied"
+        }
+      ],
+      "id": "mobile:duorui",
+      "revision": 1
+    },
+    {
+      "triggers": [
+        {
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "restoreMobileZhitiEquipmentSlot",
+              "target": "owner"
+            }
+          ],
+          "id": "restore-after-damage",
+          "optional": false,
+          "window": "afterDamageApplied"
+        },
+        {
+          "subject": "owner",
+          "optional": false,
+          "id": "restore-pindian-win",
+          "window": "pindianResultDetermined",
+          "effects": [
+            {
+              "op": "restoreMobileZhitiEquipmentSlot",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "subject": "owner",
+          "optional": false,
+          "id": "restore-duel-win",
+          "window": "duelResponseFailed",
+          "effects": [
+            {
+              "op": "restoreMobileZhitiEquipmentSlot",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "cardPolicies": [
+        {
+          "kind": "woundedInRangeHandLimitPenalty",
+          "id": "wounded-range-penalty",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ],
+      "id": "mobile:zhiti",
+      "revision": 1
+    }
+  ]
+}

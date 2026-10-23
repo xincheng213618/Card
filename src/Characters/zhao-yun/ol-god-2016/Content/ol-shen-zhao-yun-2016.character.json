@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-yun",
+  "skills": [
+    { "registrationOrder": 40650, "programBundle": "ol-shen-zhao-yun-2016", "includeProgramPresentation": true,
+      "definition": { "id": "ol:juejing-2016", "name": "绝境", "description": "锁定技，摸牌阶段，你多摸等同于你已损失的体力值数的牌；你的手牌上限+2。", "tags": "Locked", "executionForms": "State" } },
+    { "registrationOrder": 40651, "programBundle": "ol-shen-zhao-yun-2016", "includeProgramPresentation": true,
+      "definition": { "id": "ol:longhun-2016", "name": "龙魂", "description": "你可以将花色相同的X张牌按下列规则使用或打出：红桃当【桃】；方块当【火杀】；梅花当【闪】；黑桃当【无懈可击】（X为你的体力值且最少为1）。", "executionForms": "State", "actionForms": "Active" } }
+  ],
+  "generals": [
+    { "registrationOrder": 40652, "pools": { "current": 40652 },
+      "definition": { "id": "ol:shen-zhao-yun-2016", "name": "神赵云", "portraitKey": "ol-shen-zhao-yun-2016", "skillId": "ol:juejing-2016", "additionalSkillIds": ["ol:longhun-2016"], "factionId": "god", "baseHp": 2, "gender": "Male", "characterId": "character:zhao-yun", "variantId": "ol-god-2016", "rulesetId": "sanguosha-ol" } }
+  ]
+}

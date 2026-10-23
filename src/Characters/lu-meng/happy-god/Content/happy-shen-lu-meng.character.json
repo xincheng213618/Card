@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-meng",
+  "skills": [
+    { "registrationOrder": 41600, "programBundle": "happy-shen-lu-meng", "includeProgramPresentation": true,
+      "definition": { "id": "happy:shelie", "name": "涉猎", "description": "锁定技，摸牌阶段，改为亮出牌堆顶的五张牌，然后获得其中每种花色的牌各一张。", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 41601, "programBundle": "happy-shen-lu-meng", "includeProgramPresentation": true,
+      "definition": { "id": "happy:gongxin", "name": "攻心", "description": "每回合限一次，当你使用牌指定唯一目标（或成为其他角色使用牌的唯一目标）后，你可以观看目标角色的手牌，然后你可以展示其中一张红色牌，选择一项：①获得此牌；②将此牌置于牌堆顶。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 41602, "pools": { "current": 41602 },
+      "definition": { "id": "happy:shen-lu-meng", "name": "神吕蒙", "portraitKey": "happy-shen-lu-meng", "skillId": "happy:shelie", "additionalSkillIds": ["happy:gongxin"],
+        "factionId": "god", "baseHp": 3, "gender": "Male", "characterId": "character:lu-meng", "variantId": "happy-god", "rulesetId": "sanguosha-happy" } }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "happy:guixin", "revision": 1, "triggers": [
+      { "id": "random-claim-conditional-turnover", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamagePoint", "optional": true,
+        "effects": [{ "op": "resolveHappyShenCaoCaoGuixin", "target": "owner" }] }
+    ] },
+    { "id": "happy:feiying", "revision": 1, "modifiers": [
+      { "id": "incoming-distance-plus-one", "query": "incomingDistance", "operation": "add", "value": 1, "priority": 0 }
+    ] }
+  ]
+}

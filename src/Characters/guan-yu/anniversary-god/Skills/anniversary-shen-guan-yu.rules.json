@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary-god:wushen",
+      "revision": 1,
+      "cardIdentities": [
+        {
+          "id": "heart-hand-as-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [],
+          "inputSuits": [
+            "heart"
+          ],
+          "outputKind": "slash",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ],
+      "cardPolicies": [
+        {
+          "id": "heart-slash-distance",
+          "kind": "ignoreSlashUseDistanceBySuit",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "inputSuit": "heart"
+        },
+        {
+          "id": "heart-slash-count",
+          "kind": "bypassSlashLimitBySuit",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "inputSuit": "heart"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "heart-slash-damage-draw",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "damageCardIsSlash"
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anniversary-god:wuhun",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "outgoing-nightmare",
+          "window": "damageAppliedBeforeDying",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "recordAnniversaryGuanYuNightmare",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "incoming-nightmare",
+          "window": "damageAppliedBeforeDying",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "recordAnniversaryGuanYuNightmare",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "death-judgment",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "maximumAttributedMarker",
+              "marker": "nightmare"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "skill.wuhun.death",
+              "resultBind": "judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "causeDeathUnlessBoundCardKind",
+              "target": "selectedTarget",
+              "sourceBind": "judgment",
+              "excludedCardKinds": [
+                "peach",
+                "peachGarden"
+              ]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

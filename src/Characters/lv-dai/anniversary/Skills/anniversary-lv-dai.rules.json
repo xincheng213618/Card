@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:qinguo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-equipment-finished",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "ownerIsTurnPlayer"
+              },
+              {
+                "kind": "cardActionCategoryIs",
+                "categories": [
+                  "equipment"
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingVirtualSlashTarget"
+            },
+            {
+              "op": "useVirtualSlash",
+              "target": "selectedTarget"
+            }
+          ]
+        },
+        {
+          "id": "equipment-left",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "equipment"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "equal",
+                "right": {
+                  "kind": "sourceZoneCountAfter"
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "sourceZoneCountBefore"
+                },
+                "operator": "notEqual",
+                "right": {
+                  "kind": "sourceZoneCountAfter"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "equipment-entered",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": [
+            "equipment"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "equal",
+                "right": {
+                  "kind": "destinationZoneCountAfter"
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "destinationZoneCountBefore"
+                },
+                "operator": "notEqual",
+                "right": {
+                  "kind": "destinationZoneCountAfter"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

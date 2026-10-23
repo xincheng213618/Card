@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:cuixi", "revision": 1, "triggers": [{ "id": "actual-foreign-turn", "window": "otherActualTurnStarted", "subject": "owner", "optional": true, "effects": [{ "op": "resolveAnniversaryZhangLiaoCuixi", "target": "owner" }] }] },
+    { "id": "anniversary:duorui", "revision": 1, "triggers": [{ "id": "damage-abolish", "window": "beforeDamageApplied", "subject": "damageSource", "optional": false, "effects": [{ "op": "resolveAnniversaryZhangLiaoDuorui", "target": "owner" }] }] },
+    { "id": "anniversary:zhiti", "revision": 1, "triggers": [
+      { "id": "abolished-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": false, "effects": [{ "op": "resolveAnniversaryZhangLiaoZhiti", "target": "owner" }] },
+      { "id": "abolished-discard", "window": "discardPhaseEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false, "effects": [{ "op": "resolveAnniversaryZhangLiaoZhiti", "target": "owner" }] }
+    ] }
+  ]
+}

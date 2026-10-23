@@ -1,0 +1,61 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:dian-wei",
+  "skills": [
+    {
+      "registrationOrder": 39500,
+      "programBundle": "anniversary-shen-dian-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:juanjia",
+        "name": "捐甲",
+        "description": "锁定技，游戏开始时，废除你的防具栏，然后你获得一个额外的武器栏。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 39501,
+      "programBundle": "anniversary-shen-dian-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:qiexie",
+        "name": "挈挾",
+        "description": "锁定技，准备阶段，你在剩余武将牌堆中随机观看五张武将牌，然后选择其中任意张当武器牌置于你的装备区中，此类武器牌拥有如下规则：1.无花色点数且攻击范围为牌上的体力上限；2.武器效果为牌上描述中含有“【杀】”的无类型标签或仅有锁定技标签的技能；3.此牌离开你的装备区时你令其销毁。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 39502,
+      "programBundle": "anniversary-shen-dian-wei",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:cuijue",
+        "name": "摧決",
+        "description": "每回合对每名角色限一次，出牌阶段，你可以弃置一张牌，然后对一名攻击范围内距离最远的其他角色造成1点伤害。",
+        "actionForms": "Active"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 39503,
+      "pools": { "current": 39503 },
+      "definition": {
+        "id": "anniversary:shen-dian-wei",
+        "name": "神典韦",
+        "portraitKey": "anniversary-shen-dian-wei",
+        "skillId": "anniversary:juanjia",
+        "additionalSkillIds": ["anniversary:qiexie", "anniversary:cuijue"],
+        "factionId": "god",
+        "gender": "Male",
+        "baseHp": 4,
+        "characterId": "character:dian-wei",
+        "variantId": "anniversary-god",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile-god:poxi", "revision": 1, "activations": [
+      { "id": "four-suit-discard", "targetKind": "otherLiving", "usesPerPhase": 1, "usesPerTurn": null,
+        "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "effects": [
+          { "op": "selectDistinctSuitHandDiscards", "target": "selectedTarget", "resultBind": "four-suit-hands" },
+          { "op": "applyHandDiscardShare", "target": "owner", "sourceBind": "four-suit-hands" }
+        ] }
+    ] },
+    { "id": "mobile-god:jieying", "revision": 1, "triggers": [
+      { "id": "receive-camp", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "priority": 0,
+        "condition": { "kind": "compare", "left": { "kind": "globalMarkerCount", "marker": "camp" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 0 } },
+        "effects": [{ "op": "setMarkerAmount", "target": "owner", "marker": "camp", "amount": 1 }] },
+      { "id": "give-camp", "window": "turnEnding", "subject": "owner", "optional": true, "priority": 0,
+        "condition": { "kind": "compare", "left": { "kind": "ownerAttributedMarkerCount", "marker": "camp" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 0 } },
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+          { "op": "moveUniqueMarker", "target": "selectedTarget", "marker": "camp" }
+        ] },
+      { "id": "claim-camp-hand", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": false, "priority": 0,
+        "effects": [{ "op": "claimMobileEndedCampHand", "target": "owner" }] }
+    ], "cardPolicies": [{ "id": "camp-bonuses", "kind": "markerTurnBonuses", "condition": { "kind": "always" } }] }
+  ]
+}

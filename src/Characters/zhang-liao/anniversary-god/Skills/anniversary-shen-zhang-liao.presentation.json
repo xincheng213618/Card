@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:cuixi": { "name": "猝袭", "description": "其他角色回合开始时，你可以弃置一张牌，然后令其选择一项：1.跳过摸牌阶段并令你摸两张牌；2.其受到你造成的1点伤害。" },
+    "anniversary:duorui": { "name": "夺锐", "description": "锁定技，你对其他角色造成伤害时，你废除其一个装备栏直到你的下个出牌阶段开始。" },
+    "anniversary:zhiti": { "name": "止啼", "description": "锁定技，摸牌阶段你多摸X张牌（X为场上所有被废除的装备栏数，至多为5）；其他角色弃牌阶段结束时，若其有被废除的装备栏，你弃置其区域内等量张牌。" }
+  }
+}

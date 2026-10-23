@@ -1,0 +1,5 @@
+{"schemaVersion":3,"skills":{
+  "happy:qixing":{"name":"七星","description":"锁定技，游戏开始时，你多摸七张牌，你选择七张手牌置于你武将牌上，称为“星”。摸牌阶段结束时，你用任意张手牌交换等量的“星”。"},
+  "happy:kuangfeng":{"name":"狂风","description":"出牌阶段结束时，你可以移去任意张“星”对等量的角色各造成1点伤害。"},
+  "happy:dawu":{"name":"大雾","description":"结束阶段，你可以移去一张“星”，然后直到你的下回合开始，你受到的非属性伤害-1。","booleanStates":{"mist-active":{"trueText":"大雾：受到的非属性伤害-1，直到下回合开始","falseText":"大雾：未生效"}}}
+}}

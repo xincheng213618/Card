@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "anniversary:jiedao", "revision": 1, "triggers": [
+    { "id": "first-source-damage", "window": "beforeDamageApplied", "subject": "any", "optional": true,
+      "effects": [{ "op": "chooseAnniversaryMangYaChangJiedao", "target": "owner" }] },
+    { "id": "surviving-victim-cost", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": false, "isSkillInvocation": false,
+      "effects": [{ "op": "payAnniversaryMangYaChangJiedao", "target": "owner" }] }
+  ] }]
+}

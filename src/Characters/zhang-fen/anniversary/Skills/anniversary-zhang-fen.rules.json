@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:wanglu", "revision": 1, "triggers": [{ "id": "preparation-cart-or-play", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+      "effects": [{ "op": "resolveAnniversaryZhangFenWanglu", "target": "owner" }] }] },
+    { "id": "anniversary:xianzhu", "revision": 1, "triggers": [{ "id": "slash-upgrade", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "priority": 100, "optional": true,
+      "effects": [{ "op": "resolveAnniversaryZhangFenXianzhu", "target": "owner" }] }] },
+    { "id": "anniversary:chaixie", "revision": 1, "triggers": [{ "id": "destroyed-cart-draw", "window": "cardsMoved", "subject": "owner", "sourceZones": ["equipment"], "movementOccurrence": "perCard", "optional": false,
+      "effects": [{ "op": "resolveAnniversaryZhangFenChaixie", "target": "owner" }] }] },
+    { "id": "anniversary:dagong-che", "revision": 1, "triggers": [
+      { "id": "play-start-slash", "window": "playPhaseStarting", "subject": "owner", "optional": true,
+        "effects": [{ "op": "resolveAnniversaryDagongCheAttack", "target": "owner" }] },
+      { "id": "cart-slash-discard", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "resolveAnniversaryDagongCheAttack", "target": "owner" }] }
+    ] }
+  ]
+}

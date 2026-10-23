@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:wushen",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "wushen-slash-distance",
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "sourceCardIdentityId": "heart-hand-as-slash",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ],
+      "cardIdentities": [
+        {
+          "id": "heart-hand-as-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [],
+          "inputSuits": [
+            "heart"
+          ],
+          "outputKind": "slash",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mobile:wuhun",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "damage-nightmare",
+          "window": "damageAppliedBeforeDying",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventSource"
+              },
+              "marker": "nightmare",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "death-judgment",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "maximumAttributedMarker",
+              "marker": "nightmare"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "skill.wuhun.death",
+              "resultBind": "judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "causeDeathUnlessBoundCardKind",
+              "target": "selectedTarget",
+              "sourceBind": "judgment",
+              "excludedCardKinds": [
+                "peach",
+                "peachGarden"
+              ]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

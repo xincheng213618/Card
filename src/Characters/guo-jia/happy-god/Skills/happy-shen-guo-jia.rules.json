@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "happy:huishi",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "five-suit-reveal",
+          "targetKind": "anyLiving",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "amount": 5,
+              "resultBind": "huishi-five",
+              "visibility": "public"
+            },
+            {
+              "op": "resolveHappyGuoJiaHuishi",
+              "target": "owner",
+              "sourceBind": "huishi-five"
+            }
+          ],
+          "usesPerPhase": 1
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "happy:tianyi",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "all-living-damaged",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "resolveHappyGuoJiaTianyi",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "happy:huishi-gift",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "grant-awakening",
+          "targetKind": "anyLiving",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveHappyGuoJiaHuishiGrant",
+              "target": "owner"
+            }
+          ],
+          "usesPerGame": 1
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "happy:zuoxing",
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "borrow-ordinary-trick",
+          "targetKind": "anyLiving",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "resolveHappyGuoJiaZuoxing",
+              "target": "owner"
+            }
+          ],
+          "usesPerPhase": null
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

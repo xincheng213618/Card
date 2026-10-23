@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile-god:baiyin", "revision": 1, "triggers": [
+      { "id": "awakening", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false, "priority": 0,
+        "usageScope": "game", "usageLimit": 1,
+        "condition": { "kind": "compare", "left": { "kind": "ownerAttributedMarkerCount", "marker": "ren" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 4 } },
+        "effects": [ { "op": "changeMaximumHp", "target": "owner", "amount": -1 }, { "op": "grantSkills", "target": "owner", "skillIds": ["mobile-god:jilue"] } ]
+      }
+    ] },
+    { "id": "mobile-god:lianpo", "revision": 1, "triggers": [
+      { "id": "kill-choice", "window": "characterDied", "subject": "owner", "optional": true, "priority": 0,
+        "condition": { "kind": "deathKillerIsOwner" }, "effects": [{ "op": "resolveMobileShenSimaYiLianpo", "target": "owner" }] }
+    ] },
+    { "id": "mobile-god:jilue", "revision": 1, "triggers": [
+      { "id": "initial-acquisition", "window": "gameStarting", "subject": "owner", "optional": false, "priority": 100,
+        "effects": [{ "op": "initializeMobileShenSimaYiJilue", "target": "owner" }] },
+      { "id": "actual-acquisition", "window": "skillsChanged", "subject": "owner", "optional": false, "priority": 100,
+        "effects": [{ "op": "initializeMobileShenSimaYiJilue", "target": "owner" }] },
+      { "id": "learn-or-draw", "window": "playPhaseStarting", "subject": "owner", "optional": true, "priority": 0,
+        "effects": [{ "op": "resolveMobileShenSimaYiJilue", "target": "owner" }] }
+    ] }
+  ]
+}

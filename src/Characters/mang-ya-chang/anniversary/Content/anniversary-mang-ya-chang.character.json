@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:mang-ya-chang",
+  "skills": [{ "registrationOrder": 44400, "programBundle": "anniversary-mang-ya-chang", "includeProgramPresentation": true,
+    "definition": { "id": "anniversary:jiedao", "name": "截刀", "description": "当你每回合第一次造成伤害时，你可令此伤害至多+X（X为你损失的体力值）。若受到此伤害的角色没有阵亡，你弃置等同于此伤害加值的牌。", "executionForms": "Trigger" } }],
+  "generals": [{ "registrationOrder": 44401, "pools": { "current": 44401 }, "definition": {
+    "id": "anniversary:mang-ya-chang", "name": "忙牙长", "portraitKey": "anniversary-mang-ya-chang", "skillId": "anniversary:jiedao", "factionId": "qun", "baseHp": 4,
+    "gender": "Male", "characterId": "character:mang-ya-chang", "variantId": "ordinary", "rulesetId": "sanguosha-anniversary"
+  } }]
+}

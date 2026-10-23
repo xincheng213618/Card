@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-tong-zhao-guang",
+  "skills": [
+    {
+      "registrationOrder": 44600,
+      "programBundle": "anniversary-zhao-tong-zhao-guang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:yizan",
+        "name": "翊赞",
+        "description": "你可以将两张牌（其中至少一张牌是基本牌）当任意基本牌使用或打出。龙渊觉醒后：你可以将一张基本牌当任意基本牌使用或打出。",
+        "executionForms": "State",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 44601,
+      "programBundle": "anniversary-zhao-tong-zhao-guang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:longyuan",
+        "name": "龙渊",
+        "description": "觉醒技，每个回合结束时，若你本局累计发动过三次“翊赞”，你摸两张牌并回复1点体力，然后修改“翊赞”。修改后：你可以将一张基本牌当任意基本牌使用或打出。",
+        "executionForms": "Trigger",
+        "tags": "Awakening"
+      }
+    },
+    {
+      "registrationOrder": 44602,
+      "programBundle": "anniversary-zhao-tong-zhao-guang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:qingren",
+        "name": "青刃",
+        "description": "结束阶段，你摸X张牌（X为本回合发动“翊赞”的次数）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 44603,
+      "pools": {
+        "current": 44603
+      },
+      "definition": {
+        "id": "anniversary:zhao-tong-zhao-guang",
+        "name": "赵统赵广",
+        "portraitKey": "anniversary-zhao-tong-zhao-guang",
+        "skillId": "anniversary:yizan",
+        "additionalSkillIds": [
+          "anniversary:longyuan",
+          "anniversary:qingren"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhao-tong-zhao-guang",
+        "variantId": "anniversary",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

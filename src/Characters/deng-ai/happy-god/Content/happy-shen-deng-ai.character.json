@@ -1,0 +1,78 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:deng-ai",
+  "skills": [
+    {
+      "registrationOrder": 42140,
+      "programBundle": "happy-shen-deng-ai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:tuoyu",
+        "name": "拓域",
+        "description": "锁定技，你的手牌区增加3个未开发的分别令手牌具有以下效果的副区域：①丰田：伤害和回复值+1；②清渠：不限距离和次数；③峻山：无法被响应。出牌阶段开始与结束时，你可将手牌分配至已开发的副区域中。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 42141,
+      "programBundle": "happy-shen-deng-ai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:xianjin",
+        "name": "险进",
+        "description": "锁定技，你每造成或受到2次伤害后开发1个副区域，然后摸X张牌（X为已开发的副区域数）。",
+        "tags": "Locked",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 42142,
+      "programBundle": "happy-shen-deng-ai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:qijing",
+        "name": "奇径",
+        "description": "觉醒技，每个回合结束，若你的手牌副区域均已开发，你减1点体力上限，获得“摧心”，然后你将座次移动至除你以外的两名相邻角色之间并获得1个额外的回合。 【摧心】：当你对上家或下家使用牌结算后，你可以视为对另一家再使用1次此牌。",
+        "tags": "Awakening",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 42143,
+      "programBundle": "happy-shen-deng-ai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "happy:cuixin",
+        "name": "摧心",
+        "description": "当你对上家或下家使用牌结算后，你可以视为对另一家再使用1次此牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 42144,
+      "pools": {
+        "current": 42140
+      },
+      "definition": {
+        "id": "happy:shen-deng-ai",
+        "name": "神邓艾·欢乐",
+        "portraitKey": "happy-shen-deng-ai",
+        "skillId": "happy:tuoyu",
+        "additionalSkillIds": [
+          "happy:xianjin",
+          "happy:qijing"
+        ],
+        "factionId": "god",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:deng-ai",
+        "variantId": "happy-god",
+        "rulesetId": "sanguosha-happy"
+      }
+    }
+  ]
+}
