@@ -585,6 +585,71 @@ internal static class ShanheCampaignUiChecks
         finally { window.Content = null; window.DataContext = null; window.Close(); }
     }
 
+    public static void PublishedFixedNpcCardsAreReadOnlyInEncounterPreview(string output)
+    {
+        var published = StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.Returning2026EditionId);
+        var guangcheng = published.Nodes.Single(node => node.Id == "guangcheng");
+        var fixedEnemies = new[] { StandardShanheS5LiJuePackage.LijueId, StandardShanheS5GuosiPackage.GuosiId }
+            .Select(id => guangcheng.Encounters!.SelectMany(encounter => encounter.Enemies).Single(enemy => enemy.GeneralId == id)).ToArray();
+        Program.Assert(fixedEnemies.SelectMany(enemy => enemy.StartingCards ?? []).Select(card => card.Kind)
+                .SequenceEqual([CardKind.ScarletBloodSword, CardKind.ZhanhunDao]) &&
+            fixedEnemies.All(enemy => enemy.StartingHand is null),
+            "The actual published Guangcheng candidates retain random opening hands and expose only their two additional fixed weapons.");
+        // Retain the entire published graph and both original departures.
+        // Expose the route choice instead of randomly selecting one entrance;
+        // the real southern preparation commands still unlock Guangcheng.
+        var session = ShanheCampaignSession.Create(published with { RandomStartingNode = false },
+            new(89, "classic:guan-yu"), StandardShanheCampaignCatalog.CreateBattleRegistry);
+        var store = new PreviewTrackingShanheStore();
+        using var model = Create(new MemorySaveStore(), store);
+        model.SelectedShanheScenario = model.ShanheScenarios.Single(option => option.Id == StandardShanheCampaignCatalog.Returning2026EditionId);
+        typeof(MainViewModel).GetField("_shanheSession", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(model, session);
+        var window = new MainWindow(model); window.ApplyTemplate();
+        var root = (FrameworkElement)window.Content;
+        try
+        {
+            model.OpenShanheCommand.Execute(null); Layout(root);
+            var panel = Program.Find<ShanheCampaignPanel>(root).Single();
+            var departure = model.ShanheMapRows.SelectMany(row => row.Nodes).Single(candidate => candidate.Id == "guangcheng-start");
+            Click(Bound(panel, model.PreviewShanheNodeCommand, departure), root);
+            Click(Bound(panel, model.ChooseShanheOptionCommand, model.ShanheChoices.Single(choice => choice.Id == "supplies")), root);
+            var node = model.ShanheMapRows.SelectMany(row => row.Nodes).Single(candidate => candidate.Id == guangcheng.Id);
+            Program.Assert(node.IsAvailable && session.Snapshot.Phase == ShanheCampaignPhase.Map &&
+                session.Snapshot.CompletedNodeIds.Contains(departure.Id) && session.CreateCheckpoint().Commands.Count == 2 && store.Exists,
+                "The actual southern departure and preparation choice must complete before its published Guangcheng encounter is available for preview.");
+            var ordinary = Program.Engine(model);
+            var ordinaryCheckpoint = GameCheckpointJson.Serialize(ordinary.CreateCheckpoint());
+            var journal = ShanheCampaignJson.Serialize(session.CreateCheckpoint());
+            var snapshot = JsonSerializer.Serialize(session.Snapshot);
+            var writes = store.WriteCount;
+            var revision = session.Revision;
+            Click(Bound(panel, model.PreviewShanheNodeCommand, node), root);
+            var scroll = (ScrollViewer)panel.FindName("ShanheEncounterEnemyDetailScroll");
+            Program.Assert(model.IsShanheEncounterPreviewOpen && scroll.Content is TextBlock detail &&
+                detail.Text == model.ShanheEncounterEnemyDetail && detail.Visibility == Visibility.Visible && detail.ActualHeight > 0 &&
+                detail.Text.Contains("李傕", StringComparison.Ordinal) && detail.Text.Contains("郭汜", StringComparison.Ordinal) &&
+                detail.Text.Contains("额外起手牌（随机起手之外）", StringComparison.Ordinal) &&
+                new[] { CardKind.ScarletBloodSword, CardKind.ZhanhunDao }.All(kind =>
+                    detail.Text.Contains("【" + CardCatalog.Get(kind).DisplayName + "】", StringComparison.Ordinal) &&
+                    detail.Text.Contains(CardCatalog.Get(kind).Description, StringComparison.Ordinal)),
+                "The real preview control shows Scarlet Blood Sword and Soul Cleaver with their complete CardCatalog rules as additional hand cards, alongside the published Li Jue and Guo Si.");
+            Program.Assert(session.PendingBattleSetup is null && session.Revision == revision && session.Snapshot.EncounterOrdinal == 0 &&
+                ShanheCampaignJson.Serialize(session.CreateCheckpoint()) == journal && JsonSerializer.Serialize(session.Snapshot) == snapshot &&
+                ReferenceEquals(Program.Engine(model), ordinary) && GameCheckpointJson.Serialize(ordinary.CreateCheckpoint()) == ordinaryCheckpoint &&
+                !model.IsShanheBattleSession && store.WriteCount == writes && store.Exists,
+                "The public fixed-card preview does not roll an encounter, deal or reveal random opening cards, create a battle, change either journal or write a save.");
+            scroll.ScrollToBottom(); Layout(root);
+            Program.Assert(scroll.VerticalOffset > 0 && Math.Abs(scroll.VerticalOffset - scroll.ScrollableHeight) < 1,
+                "The actual scroll surface reaches the complete extra-card rules at the end of the published candidate roster.");
+            Program.Render(root, 1440, 880, Path.Combine(output, "shanhe-public-fixed-card-preview.png"));
+            Click((Button)panel.FindName("ShanheEncounterCloseButton"), root);
+            Program.Assert(!model.IsShanheEncounterPreviewOpen && session.PendingBattleSetup is null &&
+                ShanheCampaignJson.Serialize(session.CreateCheckpoint()) == journal && store.WriteCount == writes && store.Exists,
+                "Closing the actual fixed-card preview preserves the unissued encounter and read-only save boundary.");
+        }
+        finally { window.Content = null; window.DataContext = null; window.Close(); }
+    }
+
     public static void InheritanceOffersBeforeFirstMapAndSurvivesColdRestore(string output)
     {
         var store = new MemoryShanheCampaignSaveStore();

@@ -108,7 +108,14 @@ public sealed partial class MainViewModel
                 var general = registry.Generals[enemy.GeneralId];
                 var maxHp = general.BaseHp + enemy.MaxHpBonus;
                 var skillIds = general.SkillIds.Concat(enemy.ExtraSkillIds ?? []).Distinct(StringComparer.Ordinal);
-                return $"{general.Name}  体力 {enemy.Hp ?? general.InitialHp ?? maxHp}/{maxHp}\n" + string.Join(" · ", skillIds.Select(id => registry.GetSkill(id).Name));
+                var fixedCards = enemy.StartingCards is { Count: > 0 } cards
+                    ? "\n额外起手牌（随机起手之外）：\n" + string.Join("\n", cards.Select(card =>
+                    {
+                        var face = CardCatalog.Get(card.Kind);
+                        return $"【{face.DisplayName}】{face.Description}";
+                    })) : string.Empty;
+                return $"{general.Name}  体力 {enemy.Hp ?? general.InitialHp ?? maxHp}/{maxHp}\n" +
+                    string.Join(" · ", skillIds.Select(id => registry.GetSkill(id).Name)) + fixedCards;
             }));
         var gold = encounters.Select(encounter => encounter.VictoryGold).Distinct().Order().ToArray();
         var goldText = gold.Length == 1 ? gold[0].ToString() : $"{gold[0]}–{gold[^1]}";

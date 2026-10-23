@@ -104,7 +104,8 @@ public static partial class ShanheCampaignContent
         ExtraSkillIds = Freeze(value.ExtraSkillIds ?? []),
         QualifiedPrintedLordSkillIds = value.QualifiedPrintedLordSkillIds is null ? null :
             Freeze(value.QualifiedPrintedLordSkillIds.Order(StringComparer.Ordinal)),
-        StartingHand = value.StartingHand is null ? null : Freeze(value.StartingHand)
+        StartingHand = value.StartingHand is null ? null : Freeze(value.StartingHand),
+        StartingCards = value.StartingCards is null ? null : Freeze(value.StartingCards)
     };
     internal static ShanheRewardDefinition FreezeReward(ShanheRewardDefinition value) => value with
     {
@@ -139,6 +140,7 @@ public static partial class ShanheCampaignContent
         UniqueIds(npc.ExtraSkillIds ?? [], "combatant skill");
         UniqueIds(npc.QualifiedPrintedLordSkillIds ?? [], "qualified printed Lord skill");
         ValidateCards(npc.StartingHand, equipmentOnly: false);
+        ValidateCards(npc.StartingCards, equipmentOnly: false);
     }
     private static void ValidateCards(IReadOnlyList<ShanheStartingCard>? cards, bool equipmentOnly)
     {

@@ -916,6 +916,8 @@ public enum SkillProgramEffectOp
     ResolveShanheS5Luoyi = 5710, BindOwnTurnEnemyHandGain = 5714, ResolveShanheS5Jixian = 5716,
     DepositPersistentPrivateWhirl = 5730,
     DiscardAttackRangeCardsFromSlashTarget = 5740,
+    ChooseHpBoundOtherAndDealPositiveRandomDamage = 5750,
+    ResolveShanheZhanhunDao = 5754,
     DiscardBoundCardForRoundScaledTurnDuel = 5720,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
@@ -5866,11 +5868,13 @@ public sealed class SkillProgramCatalog
         Bao2025Contract.ValidateTrigger(path, parsedTrigger);
         OldHandDispositionComposition.ValidateTrigger(path, parsedTrigger);
         ParticipantPreventionComposition.ValidateTrigger(path, parsedTrigger);
+        ShanheZhanhunDaoComposition.ValidateTrigger(path, parsedTrigger);
         CaoYingContract.ValidateTrigger(path, parsedTrigger);
         FrozenHandRosterComposition.ValidateTrigger(path, parsedTrigger);
         PrivateWhirlContract.ValidateTrigger(path, parsedTrigger);
         PersistentPrivateWhirlContract.ValidateTrigger(path, parsedTrigger);
         ShanheS5GongsunContract.ValidateTrigger(path, parsedTrigger);
+        ShanheS5LiJueContract.ValidateTrigger(path, parsedTrigger);
         XuanGongZhuContract.ValidateTrigger(path, parsedTrigger);
         BuZhiComposition.ValidateTrigger(path, parsedTrigger);
         ZhaoXiangComposition.ValidateTrigger(path, parsedTrigger);

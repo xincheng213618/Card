@@ -152,7 +152,9 @@ public static partial class StandardShanheCampaignCatalog
         });
 
     private static bool RequiresCodexEquipmentRegistry(ShanheBattleSetup setup) =>
-        setup.StartingEquipment.Any(card => CodexAdditionalEquipment.ContainsKey(card.Kind));
+        setup.StartingEquipment.Any(card => CodexAdditionalEquipment.ContainsKey(card.Kind)) ||
+        setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.StartingCards ?? [])
+            .Any(card => CodexAdditionalEquipment.ContainsKey(card.Kind));
 
     // Only recipes that actually carry a newly available equipment kind receive
     // this package. Historical battle registries therefore keep their old hash.

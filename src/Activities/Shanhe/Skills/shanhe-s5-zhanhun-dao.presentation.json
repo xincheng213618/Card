@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:zhanhun-dao": {
+      "name": "斩魂刀",
+      "description": "攻击范围：3。你对一名角色造成伤害时，若其已受伤，你可以防止此伤害并令其体力值上限-1。",
+      "triggerChoices": { "wounded-target-maximum": "防止此次伤害，令目标体力上限减1" }
+    }
+  }
+}

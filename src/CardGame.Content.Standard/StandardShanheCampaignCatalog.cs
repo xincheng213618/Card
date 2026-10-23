@@ -230,6 +230,10 @@ public static partial class StandardShanheCampaignCatalog
             StandardShanheS5TaoyuanPackage.TishenId) ||
             ids.Contains(StandardShanheS5TaoyuanPackage.LiubeiId, StringComparer.Ordinal) ||
             ids.Contains(StandardShanheS5TaoyuanPackage.GuanyuId, StringComparer.Ordinal);
+        var s5Lijue = RequiresThreeBossRegistry(setup, StandardShanheS5LiJuePackage.LijueId,
+            StandardShanheS5LiJuePackage.LangxiId);
+        var s5Guosi = RequiresThreeBossRegistry(setup, StandardShanheS5GuosiPackage.GuosiId,
+            StandardShanheS5GuosiPackage.ZhanhunDaoSkillId) || ShanheRecipeCards(setup).Any(card => card.Kind == CardKind.ZhanhunDao);
         var s5Zaiqi = RequiresS5ZaiqiRegistry(setup);
         var key = $"{setup.AllyRoster.Count}/{setup.EnemyRoster.Count}/" + string.Join("|", ids) +
             (codexEquipment ? "/codex-equipment" : "") + (currentFarStrike ? "/current-yuanji-2129" : "") +
@@ -256,6 +260,8 @@ public static partial class StandardShanheCampaignCatalog
             (s5Yuanshu ? "/s5-yuanshu-2654" : "") +
             (s5Gongsun ? "/s5-gongsun-2662" : "") +
             (s5Taoyuan ? "/s5-taoyuan-2683" : "") +
+            (s5Lijue ? "/s5-lijue-2636" : "") +
+            (s5Guosi ? "/s5-guosi-2637" : "") +
             (s5Zaiqi ? "/s5-zaiqi-887" : "") +
             (setup.RebirthAvailable ? "/rank-five-rebirth" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
@@ -292,6 +298,8 @@ public static partial class StandardShanheCampaignCatalog
             if (s5Yuanshu) packages.Add(new StandardShanheS5YuanshuPackage());
             if (s5Gongsun) packages.Add(new StandardShanheS5GongsunZanPackage());
             if (s5Taoyuan) packages.Add(new StandardShanheS5TaoyuanPackage());
+            if (s5Lijue) packages.Add(new StandardShanheS5LiJuePackage());
+            if (s5Guosi) packages.Add(new StandardShanheS5GuosiPackage());
             // These forms reuse existing skills. The roster, already present
             // in the cache key, is their only additional package requirement.
             if (ids.Contains(StandardShanheS5LukuangLuxiangPackage.LukuangLuxiangId, StringComparer.Ordinal))
@@ -306,6 +314,9 @@ public static partial class StandardShanheCampaignCatalog
             if (ids.Contains(StandardShanheS5CaorenZhaoyunPackage.CaorenId, StringComparer.Ordinal) ||
                 ids.Contains(StandardShanheS5CaorenZhaoyunPackage.ZhaoyunId, StringComparer.Ordinal))
                 packages.Add(new StandardShanheS5CaorenZhaoyunPackage());
+            if (ids.Contains(StandardShanheS5XujingXuqiuPackage.XujingId, StringComparer.Ordinal) ||
+                ids.Contains(StandardShanheS5XujingXuqiuPackage.XuqiuId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5XujingXuqiuPackage());
             if (s5Chengxiong) packages.Add(new StandardShanheS5ChengxiongPackage());
             if (setup.RebirthAvailable) packages.Add(new StandardShanheRankPrivilegePackage());
             packages.Add(new ShanheEncounterPackage(setup));

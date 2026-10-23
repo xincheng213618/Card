@@ -119,6 +119,7 @@ public enum CardKind
     QizhengXiangsheng = 710,
     QiBaoDao = 33800,
     BaiBiDao = 33801,
+    ZhanhunDao = 5754,
     DagongChe = 43500
 }
 

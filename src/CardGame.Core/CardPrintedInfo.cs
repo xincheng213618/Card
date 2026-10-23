@@ -31,14 +31,14 @@ public static class CardPrintedInfo
             CardKind.QizhengXiangsheng, CardKind.QiBaoDao, CardKind.BaiBiDao);
         Add(PrintedCardTerms.Hp, CardKind.Peach, CardKind.Alcohol, CardKind.PeachGarden, CardKind.SilverLion,
             CardKind.Zong, CardKind.Reinforcements, CardKind.StarShift, CardKind.WenheChaos, CardKind.Poison,
-            CardKind.SowBeans, CardKind.ShuraInfernoHalberd, CardKind.AllianceFeast);
+            CardKind.SowBeans, CardKind.ShuraInfernoHalberd, CardKind.AllianceFeast, CardKind.ZhanhunDao);
         Add(PrintedCardTerms.Weapon, CardKind.Crossbow, CardKind.QinggangSword, CardKind.StoneAxe,
             CardKind.ZhangbaSerpentSpear, CardKind.CixiongDoubleSwords, CardKind.QinglongCrescentBlade,
             CardKind.IceSword, CardKind.QilinBow, CardKind.FangtianHalberd, CardKind.GudingBlade,
             CardKind.ZhuqueFan, CardKind.BorrowedSword, CardKind.GhostDragonCrescentBlade,
             CardKind.ScarletBloodSword, CardKind.XingtianAxe, CardKind.RedBloodBlade, CardKind.GeneralWeapon,
             CardKind.Xuanjian, CardKind.WushuangHalberd, CardKind.CrimsonSoulZither,
-            CardKind.ShuraInfernoHalberd, CardKind.ThunderChariot, CardKind.QiBaoDao, CardKind.BaiBiDao);
+            CardKind.ShuraInfernoHalberd, CardKind.ThunderChariot, CardKind.QiBaoDao, CardKind.BaiBiDao, CardKind.ZhanhunDao);
         Add(PrintedCardTerms.Play, CardKind.BarbarianAssault, CardKind.ArrowBarrage, CardKind.Duel,
             CardKind.BaguaFormation, CardKind.ZhangbaSerpentSpear, CardKind.QizhengXiangsheng,
             CardKind.ScarletBloodSword, CardKind.XingtianAxe, CardKind.WoodenOx);

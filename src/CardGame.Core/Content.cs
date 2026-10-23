@@ -383,6 +383,10 @@ public static class CardCatalog
                 CardKind.ScarletBloodSword, "赤血青锋", "装备牌",
                 "攻击范围 2，你的杀无视防具，目标不能使用或打出手牌响应。",
                 AiPlayValue: 41, AiResponseValue: 0, HandKeepValue: 44),
+            [CardKind.ZhanhunDao] = new(
+                CardKind.ZhanhunDao, "斩魂刀", "装备牌",
+                "攻击范围 3。你对一名角色造成伤害时，若其已受伤，你可以防止此伤害并令其体力值上限-1。",
+                AiPlayValue: 40, AiResponseValue: 0, HandKeepValue: 43),
             [CardKind.XingtianAxe] = new(
                 CardKind.XingtianAxe, "刑天破军斧", "装备牌",
                 "攻击范围 4，单一目标用牌后可弃两张牌，令其本回合不能使用或打出手牌且防具失效。",

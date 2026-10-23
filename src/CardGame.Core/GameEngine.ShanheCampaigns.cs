@@ -72,10 +72,11 @@ public sealed partial class GameEngine
                     skill.ImplementationStatus != SkillImplementationStatus.Complete))
                 throw new ArgumentException("A Shanhe combatant has invalid general, health, bonuses or skills.");
             ValidateShanhePrintedLordQualifications(member, general, registry);
-            if (member.StartingHand is { } hand && (hand.Count > 24 || hand.Any(card => card is null ||
-                    !Enum.IsDefined(card.Kind) || !Enum.IsDefined(card.Suit) || card.Suit == Suit.None ||
-                    card.Rank is < 1 or > 13 || !registry.Cards.Values.Any(c => c.LegacyKind == card.Kind))))
-                throw new ArgumentException("A Shanhe combatant has an invalid fixed physical starting hand.");
+            foreach (var cards in new[] { member.StartingHand, member.StartingCards })
+                if (cards is { } hand && (hand.Count > 24 || hand.Any(card => card is null ||
+                        !Enum.IsDefined(card.Kind) || !Enum.IsDefined(card.Suit) || card.Suit == Suit.None ||
+                        card.Rank is < 1 or > 13 || !registry.Cards.Values.Any(c => c.LegacyKind == card.Kind))))
+                    throw new ArgumentException("A Shanhe combatant has invalid fixed physical opening cards.");
         }
     }
 
@@ -142,6 +143,13 @@ public sealed partial class GameEngine
             PlaceShanhePhysicalCard(setup.StartingCards[index], 0, equipment: false);
         for (var index = 0; index < setup.StartingEquipment.Count; index++)
             PlaceShanhePhysicalCard(setup.StartingEquipment[index], 0, equipment: !setup.StartingResourcesExpireOnUse);
+        for (var seat = 1; seat < _players.Count; seat++)
+        {
+            var member = seat <= setup.AllyRoster.Count ? setup.AllyRoster[seat - 1] :
+                setup.EnemyRoster[seat - setup.AllyRoster.Count - 1];
+            foreach (var card in member.StartingCards ?? [])
+                PlaceShanhePhysicalCard(card, seat, equipment: false);
+        }
         if (_started) PublishShanheStartingResourceOrigins();
     }
 

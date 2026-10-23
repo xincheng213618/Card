@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-langxi-14113": {
+      "name": "狼袭", "description": "每个人的准备阶段，你可以对一名体力值小于等于你的其他角色造成1~2点随机伤害。",
+      "triggerChoices": { "each-actual-prepare": "对一名体力不大于你的其他角色造成1至2点随机伤害" }
+    }
+  }
+}
