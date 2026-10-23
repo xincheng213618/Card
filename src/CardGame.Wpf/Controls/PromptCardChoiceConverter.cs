@@ -10,25 +10,22 @@ public sealed class PromptCardChoiceConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) =>
         values.Length >= 2 && values[0] is PromptChoice choice && values[1] is GameSnapshot snapshot
-            ? Present(choice, snapshot)
+            ? parameter is "names-only"
+                ? new PromptCardChoicePresentation(choice.Description, false, false, string.Empty, null)
+                    { NamedCard = CardNameChoicePresentation.From(choice) }
+                : Present(choice, snapshot)
             : new PromptCardChoicePresentation(string.Empty, false, false, string.Empty, null);
 
     public static PromptCardChoicePresentation Present(PromptChoice choice, GameSnapshot snapshot)
     {
-        int? slot = null;
-        foreach (var key in new[] { "slot-index", "hand-slot", "slot" })
-            if (int.TryParse(choice.Parameters.GetValueOrDefault(key), NumberStyles.None,
-                    CultureInfo.InvariantCulture, out var index) && index >= 0)
-            {
-                slot = index;
-                break;
-            }
+        var slot = OpaqueHandSlot(choice);
 
         // An opaque slot remains a back even in a developer snapshot. Never infer its entity ID.
         if (choice.Cards.Count == 0 && slot is { } hiddenSlot)
             return new(choice.Description, true, true, $"暗牌 {hiddenSlot + 1}", null);
         if (choice.Cards.Count != 1)
-            return new(choice.Description, false, false, string.Empty, null);
+            return new(choice.Description, false, false, string.Empty, null)
+            { NamedCard = choice.Cards.Count == 0 && choice.ContentIds.Count == 0 ? CardNameChoicePresentation.From(choice) : null };
 
         var visible = snapshot.PublicRevealedCards.Concat(snapshot.PrivateRevealedCards ?? [])
             .Concat(snapshot.Players.SelectMany(player => player.Hand.Concat(player.Equipment)
@@ -58,9 +55,24 @@ public sealed class PromptCardChoiceConverter : IMultiValueConverter
         return new(choice.Description, true, false, visible.DisplayName, face);
     }
 
+    public static int? OpaqueHandSlot(PromptChoice choice)
+    {
+        IEnumerable<string> keys = new[] { "slot-index", "hand-slot", "slot" };
+        if (choice.Parameters.GetValueOrDefault("program-action") == "qizheng" &&
+            choice.Parameters.GetValueOrDefault("branch") == "hand") keys = keys.Append("value");
+        foreach (var key in keys)
+            if (int.TryParse(choice.Parameters.GetValueOrDefault(key), NumberStyles.None,
+                CultureInfo.InvariantCulture, out var slot) && slot >= 0) return slot;
+        return null;
+    }
+
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
 
 public sealed record PromptCardChoicePresentation(
-    string Description, bool IsCard, bool IsHidden, string Label, CardViewModel? Face);
+    string Description, bool IsCard, bool IsHidden, string Label, CardViewModel? Face)
+{
+    public CardNameChoicePresentation? NamedCard { get; init; }
+    public bool IsCardName => NamedCard is not null;
+}

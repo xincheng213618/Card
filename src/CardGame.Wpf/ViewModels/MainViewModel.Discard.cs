@@ -12,7 +12,7 @@ public sealed partial class MainViewModel
     public int RequiredDiscardCount => IsDiscardSelectionPending ? _snapshot.PendingDecision!.RequiredCardCount : 0;
     public int SelectedDiscardCount => _discardCardIds.Count;
     public ICommand RecommendDiscardCommand { get; private set; } = null!;
-    private string DiscardSelectionHint => $"{_snapshot.PendingDecision!.Prompt} 已选 {SelectedDiscardCount} 张。再次点击可取消。";
+    private string DiscardSelectionHint => $"还需弃置 {RequiredDiscardCount} 张，已选 {SelectedDiscardCount} 张。可分次确认，弃够后自动结束。";
 
     private void SyncDiscardSelection()
     {

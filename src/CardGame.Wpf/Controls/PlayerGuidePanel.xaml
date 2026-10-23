@@ -192,7 +192,7 @@
                                 </TextBlock>
                             </Grid>
                             <ComboBox x:Name="GuideCategoryBox" Grid.Column="1" ItemsSource="{Binding GuideCategories}" SelectedItem="{Binding SelectedGuideCategory}" AutomationProperties.Name="卡牌分类" Padding="7" VerticalContentAlignment="Center" />
-                            <Button Grid.Column="2" Content="清空" Command="{Binding ClearGuideSearchCommand}" Style="{StaticResource QuietButton}" Padding="9,5" />
+                            <Button x:Name="GuideClearSearchButton" Grid.Column="2" Content="清空" Command="{Binding ClearGuideSearchCommand}" Click="GuideSearchCleared_Click" Style="{StaticResource QuietButton}" Padding="9,5" />
                         </Grid>
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="154" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
@@ -203,8 +203,8 @@
                                     <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" FontSize="13" /></DataTemplate></ListBox.ItemTemplate>
                                 </ListBox>
                             </Grid>
-                            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="22,0,0,0" Visibility="{Binding HasGuideCard, Converter={StaticResource BoolToVisibility}}">
-                                <StackPanel DataContext="{Binding SelectedGuideCard}" Margin="0,0,12,0">
+                            <ScrollViewer x:Name="GuideCardDetailsScroll" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="22,0,0,0" Visibility="{Binding HasGuideCard, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel x:Name="GuideCardDetails" DataContext="{Binding SelectedGuideCard}" DataContextChanged="GuideCardDetails_DataContextChanged" Margin="0,0,12,0">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="112" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <Border Width="102" Height="144" Background="{StaticResource CardPaper}" BorderBrush="#C6AD77" BorderThickness="1" CornerRadius="5" HorizontalAlignment="Left">
@@ -230,7 +230,7 @@
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="25" Visibility="{Binding HasNoGuideCards, Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock Text="没有找到对应的牌" Style="{StaticResource GuideHeading}" FontSize="22" />
                                 <TextBlock Text="试试更短的牌名或效果词，也可以清空筛选。" Style="{StaticResource GuideBody}" />
-                                <Button Content="显示全部卡牌" Command="{Binding ClearGuideSearchCommand}" Style="{StaticResource ToolbarButton}" Margin="0,18,0,0" HorizontalAlignment="Left" />
+                                <Button x:Name="GuideResetSearchButton" Content="显示全部卡牌" Command="{Binding ClearGuideSearchCommand}" Click="GuideSearchCleared_Click" Style="{StaticResource ToolbarButton}" Margin="0,18,0,0" HorizontalAlignment="Left" />
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -240,7 +240,7 @@
                             <TextBlock Text="点击手牌 → 选择目标 → 确认出牌" Style="{StaticResource GuideSubheading}" Margin="0,3,0,8" />
                             <TextBlock Text="再次点击已选手牌或目标可以取消。中央的响应、技能和目标组合按钮会直接提交完整选择。" Style="{StaticResource GuideBody}" />
                             <TextBlock Text="常用快捷键" Style="{StaticResource GuideSubheading}" />
-                            <TextBlock Text="F1　打开或关闭指南&#10;Esc　关闭最上层面板，或取消选择&#10;Enter　确认当前出牌或弃牌&#10;Ctrl + Enter　结束出牌阶段&#10;1–9　选择对应位置的手牌（须可选）&#10;F5　保存到独立手动存档&#10;Ctrl + M　切换游戏静音" Style="{StaticResource GuideBody}" LineHeight="28" />
+                            <TextBlock Text="F1　打开或关闭指南&#10;Esc　关闭最上层面板，或取消选择&#10;Enter　确认当前出牌或弃牌&#10;Ctrl + Enter　结束出牌阶段&#10;1–9　选择对应位置的手牌（须可选）&#10;Ctrl + F　在自选武将、武将图鉴或指南中搜索&#10;F5　保存到独立手动存档&#10;Ctrl + M　切换游戏静音" Style="{StaticResource GuideBody}" LineHeight="28" />
                             <TextBlock Text="自动保存与继续" Style="{StaticResource GuideSubheading}" />
                             <TextBlock Text="游戏操作会自动保存。可在「战报 / 存档」手动保存或读取，下次启动时点击「继续上次对局」。读取会替换当前牌局，手动存档独立保留。" Style="{StaticResource GuideBody}" />
                             <TextBlock Text="开局、指南和需要你决定的询问都会暂停自动行动。关闭指南后，仍按你原来的自动推进设置继续，不会替你选牌或提交响应。" Style="{StaticResource GuideBody}" Margin="0,15,0,0" />

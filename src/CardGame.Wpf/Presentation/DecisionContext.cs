@@ -82,6 +82,10 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
                 title = $"{Name(source)} · {card} · 轮到你选牌";
                 targetLabel = "正在选牌";
                 break;
+            case DecisionKind.ProgramTrigger when prompt.IncomingCard is not null:
+                title = $"{card} · {Name(prompt.PlayerSeat)}";
+                targetLabel = "效果目标";
+                break;
             default:
                 title = $"当前技能选择 · {Name(prompt.PlayerSeat)}";
                 break;

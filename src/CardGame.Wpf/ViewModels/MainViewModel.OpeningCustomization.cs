@@ -9,6 +9,8 @@ public sealed partial class MainViewModel
     private string _customGeneralSearch = string.Empty;
     private string _selectedCustomGeneralCategory = "all";
     private GeneralChoiceViewModel[] _orderedCustomGeneralChoices = [];
+    private PromptId? _customGeneralScrollPromptId;
+    public long CustomGeneralScrollVersion { get; private set; }
     public ObservableRangeCollection<GeneralChoiceViewModel> CustomGeneralChoices { get; } = [];
     public ObservableRangeCollection<GeneralRosterCategoryOption> CustomGeneralCategories { get; } = [];
     public string SelectedCustomGeneralCategory => _selectedCustomGeneralCategory;
@@ -79,7 +81,7 @@ public sealed partial class MainViewModel
         });
     }
 
-    private void RefreshOpeningCustomization()
+    private void RefreshOpeningCustomization(bool retainedGeneralPreview)
     {
         _orderedCustomGeneralChoices = IsCustomGeneralSelectionOpen
             ? _generalSelectionChoices.Values.OrderBy(choice => choice.Kingdom).ThenBy(choice => choice.Name).ToArray()
@@ -93,10 +95,11 @@ public sealed partial class MainViewModel
         if (IsCustomGeneralSelectionOpen && !CustomGeneralCategories.Any(option => option.Id == SelectedCustomGeneralCategory))
         {
             _selectedCustomGeneralCategory = "all";
+            retainedGeneralPreview = false;
             RaisePropertyChanged(nameof(SelectedCustomGeneralCategory));
         }
         RefreshCustomGeneralChoices();
-        if (IsCustomGeneralSelectionOpen) PreviewVisibleCustomGeneral();
+        if (IsCustomGeneralSelectionOpen) PreviewVisibleCustomGeneral(retainedGeneralPreview);
         RaisePropertyChanged(nameof(CustomGeneralCategoryText));
         RaisePropertyChanged(nameof(IsCustomGeneralSelectionOpen));
         RaisePropertyChanged(nameof(GeneralSelectionSourceText));
@@ -105,17 +108,24 @@ public sealed partial class MainViewModel
         (ChangeStartingIdentityCommand as RelayCommand<StartingRoleOption>)?.NotifyCanExecuteChanged();
     }
 
-    private void PreviewVisibleCustomGeneral()
+    private void PreviewVisibleCustomGeneral(bool retainSameFamilyEdition = false)
     {
         if (CustomGeneralChoices.Count == 0) SelectedGeneralChoice = null;
         else if (!CustomGeneralChoices.Contains(SelectedGeneralChoice!))
+        {
+            // A user can choose another edition from the filtered result's
+            // family. Keep that legal choice on an unchanged prompt refresh;
+            // editing the search or series still requires an exact visible match.
+            if (retainSameFamilyEdition && SelectedGeneralChoice is { } selected &&
+                CustomGeneralChoices.Any(choice => choice.CandidateGeneralId == selected.CandidateGeneralId)) return;
             PreviewGeneralChoice(CustomGeneralChoices[0]);
+        }
     }
 
     private void RefreshCustomGeneralChoices()
     {
         var search = CustomGeneralSearch.Trim();
-        CustomGeneralChoices.ReplaceAll(!IsCustomGeneralSelectionOpen ? [] :
+        GeneralChoiceViewModel[] choices = !IsCustomGeneralSelectionOpen ? [] :
             _orderedCustomGeneralChoices
             .Where(choice => SelectedCustomGeneralCategory == "all" || choice.RosterCategoryId == SelectedCustomGeneralCategory)
             .Where(choice => search.Length == 0 ||
@@ -123,7 +133,17 @@ public sealed partial class MainViewModel
                 choice.GeneralId.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 choice.Kingdom.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 choice.EditionText.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                choice.SkillName.Contains(search, StringComparison.OrdinalIgnoreCase)));
+                choice.SkillName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToArray();
+        var promptId = IsCustomGeneralSelectionOpen ? _snapshot.PendingDecision!.PromptId : (PromptId?)null;
+        if (_customGeneralScrollPromptId != promptId ||
+            !CustomGeneralChoices.Select(choice => (choice.GeneralId, choice.CandidateGeneralId, choice.ChoiceId))
+                .SequenceEqual(choices.Select(choice => (choice.GeneralId, choice.CandidateGeneralId, choice.ChoiceId))))
+        {
+            _customGeneralScrollPromptId = promptId;
+            CustomGeneralScrollVersion++;
+            RaisePropertyChanged(nameof(CustomGeneralScrollVersion));
+        }
+        CustomGeneralChoices.ReplaceAll(choices);
         RaisePropertyChanged(nameof(CustomGeneralCountText));
         RaisePropertyChanged(nameof(HasNoCustomGeneralChoices));
     }

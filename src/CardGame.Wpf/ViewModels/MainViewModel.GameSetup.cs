@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Threading;
 using CardGame.Core;
 
 namespace CardGame.Wpf.ViewModels;
@@ -47,6 +48,8 @@ public sealed partial class MainViewModel
             }
             RaisePropertyChanged(nameof(IsModeSelectionOpen));
             RaisePropertyChanged(nameof(LobbySetupBackText));
+            if (value) PrepareSetupRoom();
+            else NotifySetupRoom();
         }
     }
     public bool IsModeSelectionOpen => !IsModeConfigurationOpen;
@@ -64,7 +67,7 @@ public sealed partial class MainViewModel
             RaisePropertyChanged(nameof(ModeLobbySummary));
         }
     }
-    public string ModeLobbySummary => $"{VisibleModeGroups.Count} 个模式 · 先选模式，再选难度与开局设置";
+    public string ModeLobbySummary => $"{VisibleModeGroups.Count} 个模式 · 选择模式进入房间，安排 AI 后开始";
 
     private static readonly IReadOnlyList<StartingTeamOption> StandardStartingTeams =
     [new("青队", "team:blue", "与青队同伴并肩作战"), new("赤队", "team:red", "与赤队同伴并肩作战")];
@@ -104,7 +107,24 @@ public sealed partial class MainViewModel
             RefreshPlayerGuide();
         }
     }
-    public StartingRoleOption SelectedStartingRole { get => _selectedStartingRole; set { if (SetProperty(ref _selectedStartingRole, value)) RefreshPlayerGuide(); } }
+    public StartingRoleOption SelectedStartingRole
+    {
+        get => _selectedStartingRole;
+        set
+        {
+            if (value is null)
+            {
+                // A required ListBox choice can be cleared with Ctrl+click.
+                // Reapply the current role after WPF finishes updating the source.
+                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.DataBind, new Action(() =>
+                {
+                    if (!_disposed) RaisePropertyChanged(nameof(SelectedStartingRole));
+                }));
+                return;
+            }
+            if (SetProperty(ref _selectedStartingRole, value)) RefreshPlayerGuide();
+        }
+    }
     public TableModeOption SelectedTableMode
     {
         get => _selectedTableMode;
@@ -134,6 +154,8 @@ public sealed partial class MainViewModel
             RaisePropertyChanged(nameof(ShowModeSetupText));
             RaisePropertyChanged(nameof(SetupIdentityLabel));
             RaisePropertyChanged(nameof(TeamModeSetupText));
+            if (IsModeConfigurationOpen) PrepareSetupRoom();
+            else NotifySetupRoom();
             RefreshPlayerGuide();
         }
     }
@@ -147,7 +169,7 @@ public sealed partial class MainViewModel
     public bool IsIdentityModeSelection => !IsWushuangModeSelection && !IsTeamModeSelection && !IsNationalModeSelection && !IsWenheActivityModeSelection;
     public bool IsClassicIdentityModeSelection =>
         SelectedTableMode?.ModeId.StartsWith("identity:classic-", StringComparison.Ordinal) == true;
-    public string SetupIdentityLabel => IsWenheActivityModeSelection ? IsWenheAspirationSelection ? "本局志向 · 免费选择" : "独立求生" : IsNationalModeSelection ? "暗置与明置" : IsTeamModeSelection ? "你的阵营" : "你的身份";
+    public string SetupIdentityLabel => IsWushuangModeSelection ? "对局规则" : IsWenheActivityModeSelection ? IsWenheAspirationSelection ? "本局志向 · 免费选择" : "独立求生" : IsNationalModeSelection ? "暗置与明置" : IsTeamModeSelection ? "你的阵营" : "你的身份";
     public string DeckSetupText => SelectedDeck is null
         ? string.Empty
         : $"{SelectedDeck.Name}：{SelectedDeck.Description}";
@@ -334,6 +356,7 @@ public sealed partial class MainViewModel
 
     private void InitializeGameSetup()
     {
+        InitializeRoomSetup();
         ModeGroups = TableModes.GroupBy(mode => mode.GroupId, StringComparer.Ordinal)
             .Select(group => new TableModeGroupOption(group.Key, group.ToArray())).ToArray();
         RevealNationalGeneralCommand = new RelayCommand<NationalRevealChoice>(RevealNationalGeneral);
@@ -377,11 +400,10 @@ public sealed partial class MainViewModel
 
     private void StartConfiguredGame(bool showOpeningDeal)
     {
-        if (IsTutorialActive) return;
+        if (IsTutorialActive || !NewGame()) return;
         IsNewGameSetupOpen = false;
         IsLogOpen = false;
         IsHelpOpen = false;
-        NewGame();
         if (showOpeningDeal) ArmOpeningDeal();
         IsIdentityRevealOpen = true;
     }
@@ -465,7 +487,7 @@ public sealed record TableModeGroupOption(string Id, IReadOnlyList<TableModeOpti
     public string Description => Name == "十殿阎罗" ? "玩家固定五阶 · 两名人机队友\n四殿与孟婆 · 隐藏地藏王" : Variants[0].Description;
     public string PlayerCountText => Variants[0].PlayerCountText;
     public string ModeBadge => Variants[0].ModeBadge;
-    public string SelectionHint => Variants.Count > 1 ? $"{Variants.Count} 项难度 / 版本 · 点击选择 ›" : "选择版本与开局设置 ›";
+    public string SelectionHint => Variants.Count > 1 ? $"进入房间 · {Variants.Count} 项难度 / 版本 ›" : "进入房间 · 安排 AI ›";
 }
 
 public sealed record ModeCategoryOption(string Id, string Name, string Description);

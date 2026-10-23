@@ -68,14 +68,14 @@ public sealed partial class MainViewModel
         SelectedGeneralChoice = choice;
     }
 
-    private void SyncGeneralChoicePreview(PromptId? promptId,
+    private bool SyncGeneralChoicePreview(PromptId? promptId,
         IReadOnlyList<GeneralChoiceViewModel> previousChoices, IReadOnlyList<GeneralChoiceViewModel> previousVariants)
     {
         if (promptId is null)
         {
             _previewGeneralPromptId = null;
             SelectedGeneralChoice = null;
-            return;
+            return false;
         }
 
         if (_previewGeneralPromptId != promptId || previousChoices.Count != GeneralChoices.Count ||
@@ -85,7 +85,7 @@ public sealed partial class MainViewModel
         {
             _previewGeneralPromptId = promptId;
             SelectedGeneralChoice = GeneralChoices.FirstOrDefault();
-            return;
+            return false;
         }
 
         var selectedId = SelectedGeneralChoice?.GeneralId;
@@ -93,7 +93,12 @@ public sealed partial class MainViewModel
         // edition previews. Rebind each row before restoring the selected family.
         foreach (var previous in previousChoices)
             if (_generalSelectionChoices.TryGetValue(previous.GeneralId, out var choice)) PreviewGeneralChoice(choice);
-        if (selectedId is not null && _generalSelectionChoices.TryGetValue(selectedId, out var selected)) PreviewGeneralChoice(selected);
-        else SelectedGeneralChoice = GeneralChoices.FirstOrDefault();
+        if (selectedId is not null && _generalSelectionChoices.TryGetValue(selectedId, out var selected))
+        {
+            PreviewGeneralChoice(selected);
+            return ReferenceEquals(SelectedGeneralChoice, selected);
+        }
+        SelectedGeneralChoice = GeneralChoices.FirstOrDefault();
+        return false;
     }
 }

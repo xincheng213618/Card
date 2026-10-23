@@ -65,7 +65,8 @@ public sealed partial class MainViewModel
             var choices = _snapshot.PendingDecision!.Choices.Where(choice => choice.Cards.Count == 0 &&
                 choice.ContentIds.Count == 0 && choice.Targets.Count == 0 &&
                 (choice.Parameters.GetValueOrDefault("program-action") is "skip" or "select-targets" ||
-                 choice.Parameters.GetValueOrDefault("option") == "skip")).Take(2).ToArray();
+                 choice.Parameters.GetValueOrDefault("option") == "skip" ||
+                 choice.Parameters.GetValueOrDefault("branch") is "decline" or "skip" or "cancel")).Take(2).ToArray();
             return choices.Length == 1 ? choices[0] : null;
         }
     }

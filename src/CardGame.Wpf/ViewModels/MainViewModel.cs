@@ -125,7 +125,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             .Select(mode => new TableModeOption(mode.MaxPlayers, mode.Name,
                 mode.GuanduActivity is not null ? GuanduLobbyDescription : mode.DragonBoatActivity is not null ? DragonBoatActivityLobbyDescription : mode.WenheActivity is not null ? WenheActivityLobbyDescription : mode.HellActivity is not null ? HellActivityLobbyDescription(mode) : mode.NianActivity is not null ? NianActivityLobbyDescription : mode.ShenwuActivity is not null ? ShenwuActivityLobbyDescription(mode) : mode.BossActivity is not null
                     ? BossActivityLobbyDescription(mode)
-                    : "五阶出征 · 人机队友\n万夫莫开 · 击败敌方英灵", mode.Id))).ToArray();
+                    : TeamActivityLobbyDescription(mode.TeamActivity!), mode.Id))).ToArray();
         TableModes = TableModes.Append(new TableModeOption(2, "单骑无双", "单机 1v1 AI · 15 分钟\n回合成长 · 虎符商店 · 最多两个额外技能", WushuangMode.ModeId)).ToArray();
         DeckOptions =
         [
@@ -155,6 +155,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         InitializeNianClock();
         InitializeShanheCodex(shanheCodexStore, shanheSaveStore is not null);
         InitializeShanheCampaign(shanheSaveStore);
+    }
+
+    private static string TeamActivityLobbyDescription(TeamActivityDefinition activity)
+    {
+        var spiritTier = activity.SpiritTierMinimum == activity.SpiritTierMaximum
+            ? activity.SpiritTierMinimum.ToString()
+            : $"{activity.SpiritTierMinimum}–{activity.SpiritTierMaximum}";
+        return $"你与人机搭档固定 {activity.PlayerTier} 阶\n敌方英灵 {spiritTier} 阶 · 双方器械 {activity.MachineTier} 阶\n万夫莫开 · 击败敌方英灵";
     }
 
     public ObservableCollection<SeatViewModel> Seats { get; } = [];
@@ -376,9 +384,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         private set => SetProperty(ref _publicRevealTitle, value);
     }
 
-    private void NewGame()
+    private bool NewGame()
     {
-        if (!_initializing && (IsWushuangTable || IsWushuangModeSelection) && !FlushPendingSave()) return;
+        if (!_initializing && (IsWushuangTable || IsWushuangModeSelection) && !FlushPendingSave()) return false;
         SaveShanheBeforeOrdinaryGame();
         if (!_initializing) ResetPersistenceMessage();
         // A predictable seed would let a modified client reconstruct every hidden
@@ -410,11 +418,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             },
             SelectedModeRegistry);
         ReplaceEngine(game);
+        var started = false;
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new StartGameCommand());
             RefreshCommandResult(result.State);
+            started = result.Accepted;
         });
+        return started;
     }
 
     private bool IsSelectedTeamMode => SelectedModeDefinition?.ModeKind == ContentModeKind.Team;
@@ -440,6 +451,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedActiveSkillTargetSeats.Clear();
         _selectedActiveSkillIdentity = null;
         _activeSkillPromptId = null;
+        _selectedJinzhiKind = null;
         _skillTargetPromptId = null;
         _skillTargetChoices = [];
         _selectedSkillTargetSeats.Clear();
@@ -488,8 +500,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void OnLogAdded(GameLogEntry entry)
     {
         RecordPublicActivity(entry);
-        GameLog.Insert(0, $"#{entry.Sequence:000} · T{entry.TurnNumber:000}  {entry.Message}");
         AddBattleLogEntry(entry);
+        GameLog.Insert(0, $"#{entry.Sequence:000} · T{entry.TurnNumber:000}  {_allBattleLogEntries[0].Message}");
         while (GameLog.Count > 400)
         {
             GameLog.RemoveAt(GameLog.Count - 1);
@@ -523,6 +535,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var promptId = pending?.Kind == DecisionKind.PlayCard ? pending.PromptId : (PromptId?)null;
         if (promptId != _activeSkillPromptId)
         {
+            _selectedJinzhiKind = null;
             _selectedTieredRoundZeroAction = null;
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
@@ -613,7 +626,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Portrait = GetGeneralPortrait(choice.ContentIds[0]),
                     ChoiceId = choice.Id,
                     Text = choice.Description,
-                    Name = general.Name,
+                    Name = CardGame.Content.Standard.GodGeneralRulesCatalog.DisplayName(general.Id, general.Name),
                     Kingdom = FactionName(general.FactionId),
                     HealthText = IsGuanduActivitySnapshot ? GuanduSelectionHealth(general) : IsDragonBoatActivitySnapshot || IsWenheActivitySnapshot || IsHellActivitySnapshot || IsShenwuActivitySnapshot || IsNianActivitySnapshot ? $"五阶体力上限 {general.BaseHp + 2}" : !HasDualGeneralSlots
                         ? choice.Parameters.TryGetValue("identity-max-hp", out var identityHp) ? $"体力上限 {identityHp}" : string.Empty
@@ -634,10 +647,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         GeneralChoices.ReplaceAll(generalChoices);
         if (!IsCustomGeneralSelectionOpen) RaisePropertyChanged(nameof(CandidateGeneralChoices));
         RaisePropertyChanged(nameof(GeneralChoiceColumns));
-        SyncGeneralChoicePreview(_snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral
+        var retainedGeneralPreview = SyncGeneralChoicePreview(_snapshot.PendingDecision?.Kind == DecisionKind.SelectGeneral
             ? _snapshot.PendingDecision.PromptId
             : null, previousGeneralChoices, previousGeneralVariants);
-        RefreshOpeningCustomization();
+        RefreshOpeningCustomization(retainedGeneralPreview);
         if (_snapshot.PendingDecision is { Kind: DecisionKind.RescueDying } dyingPrompt)
         {
             foreach (var choice in dyingPrompt.Choices)
@@ -713,6 +726,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.QinglongCrescentBlade or
                     DecisionKind.IceSword or
                     DecisionKind.QilinBow or
+                    DecisionKind.ProgramTrigger or
                     DecisionKind.ProgramJudgmentTrigger or
                     DecisionKind.ProgramJudgmentReplacement or
                     DecisionKind.ProgramTopReorder or
@@ -737,6 +751,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.QinglongCrescentBlade or
             DecisionKind.IceSword or
             DecisionKind.QilinBow or
+            DecisionKind.ProgramTrigger or
             DecisionKind.ProgramJudgmentTrigger or
             DecisionKind.ProgramJudgmentReplacement or
                     DecisionKind.ProgramTopReorder or
@@ -803,6 +818,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 SecondaryGeneralText = HasDualGeneralSlots ? $"副将：{player.SecondaryGeneralName ?? (player.IsHuman ? "待选" : "暗将")}" +
                     (player.IsHuman && player.SecondaryGeneralName is not null && !player.IsSecondaryGeneralPublic ? "·暗" : "") : string.Empty,
                 Hp = player.Hp,
+                HappyQiaoHealth = player.HappyQiaoHealth,
                 Armor = player.Armor,
                 IdentityConcealed = player.IdentityConcealed,
                 HpUndefined = player.HpUndefined || IsHellDormantAuxiliary(player),
@@ -854,7 +870,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 TeamId = player.TeamId,
                 IsTeammate = IsNationalSnapshot ? NationalRelationship(player) == "同伴" : !player.IsHuman && player.TeamId is not null &&
                     player.TeamId == _snapshot.Players.SingleOrDefault(seat => seat.IsHuman)?.TeamId,
-                HpText = IsHellDormantAuxiliary(player) ? "孟婆尚未登场" : player.HpUndefined ? "隐匿中 · 体力未定义" : $"体力 {player.Hp}/{player.MaxHp}",
+                HpText = IsHellDormantAuxiliary(player) ? "孟婆尚未登场" : player.HappyQiaoHealth is { } qiaoHealth
+                    ? $"大乔 {qiaoHealth.DaQiaoHp}/{qiaoHealth.MaximumHp} · 小乔 {qiaoHealth.XiaoQiaoHp}/{qiaoHealth.MaximumHp}"
+                    : player.HpUndefined ? "隐匿中 · 体力未定义" : $"体力 {player.Hp}/{player.MaxHp}",
                 HandText = BuildHandText(player),
                 EquipmentText = player.Equipment.Count == 0
                     ? "装备 —"
@@ -862,8 +880,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                         card.Kind == CardKind.WoodenOx && player.WoodenOxGrainCount > 0
                             ? $"{card.DisplayName}（粮 {player.WoodenOxGrainCount}）"
                             : card.DisplayName))}",
-                EquipmentSlots = Array.AsReadOnly(player.Equipment.OrderBy(card => EquipmentSlotViewModel.DisplayOrder(EquipmentCatalog.Get(card.Kind).Slot))
-                    .Select(card => new EquipmentSlotViewModel(EquipmentCatalog.Get(card.Kind).Slot, card)).ToArray()),
+                EquipmentSlots = Array.AsReadOnly(player.Equipment.OrderBy(card => EquipmentSlotViewModel.DisplayOrder(EquipmentSlotViewModel.CardSlot(card)))
+                    .Select(card => new EquipmentSlotViewModel(EquipmentSlotViewModel.CardSlot(card), card)).ToArray()),
                 JudgmentText = player.Judgment.Count == 0
                     ? "判定区 —"
                     : $"判定区 {string.Join(" · ", player.Judgment.Select(JudgmentDisplayName))}",
@@ -941,11 +959,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     displayed.IdentitySkillName = card.IdentitySkillName;
                     displayed.IsPlayable = selectable;
                     displayed.AvailabilityText = availability;
-                    displayed.IsSelected = IsCardPaymentSelectionPending ? _paymentCardIds.Contains(card.Id) : IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(card.Id) : IsDiscardSelectionPending
-                        ? _discardCardIds.Contains(card.Id)
-                        : IsActiveSkillCardSelectionPending
-                            ? _selectedActiveSkillCardIds.Contains(card.Id)
-                            : card.Id == _selectedCardId;
+                    displayed.IsSelected = IsHandCardSelected(card.Id);
                     continue;
                 }
                 Hand.Add(new CardViewModel
@@ -962,16 +976,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Description = GetCardDescription(card.Kind),
                     AvailabilityText = availability,
                     IsPlayable = selectable,
-                    IsSelected = IsCardPaymentSelectionPending ? _paymentCardIds.Contains(card.Id) : IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(card.Id) : IsDiscardSelectionPending
-                        ? _discardCardIds.Contains(card.Id)
-                        : IsActiveSkillCardSelectionPending
-                            ? _selectedActiveSkillCardIds.Contains(card.Id)
-                            : card.Id == _selectedCardId
+                    IsSelected = IsHandCardSelected(card.Id)
                 });
             }
 
             HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : human.TeamId is { } humanTeam ? PublicTeamName(humanTeam) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · " +
-                (human.HpUndefined ? "隐匿中 · 体力未定义" : $"{human.Hp}/{human.MaxHp} 体力") +
+                (human.HappyQiaoHealth is { } humanQiao ? $"大乔 {humanQiao.DaQiaoHp}/{humanQiao.MaximumHp} · 小乔 {humanQiao.XiaoQiaoHp}/{humanQiao.MaximumHp}" :
+                    human.HpUndefined ? "隐匿中 · 体力未定义" : $"{human.Hp}/{human.MaxHp} 体力") +
                 (!IsNationalSnapshot && human.FactionId is not null ? $" · 本局{FactionName(human.FactionId)}势力" : string.Empty) +
                 (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
                 (human.AuthorityCount > 0 ? $" · {human.AuthorityName ?? "权"} {human.AuthorityCount}" : string.Empty) +
@@ -1084,7 +1095,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         ClearTieredRoundZeroSelection();
         _selectedCardId = _selectedCardId == card.Id ? null : card.Id;
-        if (!IsPlayConversionSelectionPending) _selectedConversionSource = null;
+        if (!IsPlayConversionSelectionPending)
+            _selectedConversionSource = _selectedCardId is null ? null : AutomaticPlayIdentitySource(card.Id, card.IdentityKind);
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
 
@@ -1097,7 +1109,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         SelectedCardText = _selectedCardId is null
             ? IsPlayConversionSelectionPending ? PlayConversionSelectionText : "未选择手牌"
-            : IsPlayConversionSelectionPending ? $"{PlayConversionSkillName}：将【{card.Name}】当【{PlayConversionCardName}】使用" : $"已选择：{card.Name}";
+            : IsPlayConversionSelectionPending ? $"{PlayConversionSkillName}：将【{card.Name}】当【{PlayConversionCardName}】使用" : $"已选择：{PlayCardName(card)}";
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             GetViewLegalActions());
@@ -1135,6 +1147,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             item.IsSelected = _selectedActiveSkillCardIds.Contains(item.Id);
         }
 
+        RefreshJinzhiMaterialSelection();
+
         RebuildActiveSkillEquipmentChoices(
             _snapshot.Players.Single(player => player.IsHuman),
             action.SelectableCardIds.ToHashSet());
@@ -1166,7 +1180,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        if (TrySelectPlayConversionMode(choice) || choice.Cards.Count != 1) return;
+        if (TrySelectJinzhiCardName(choice) || TrySelectPlayConversionMode(choice) || choice.Cards.Count != 1) return;
         var cardId = choice.Cards[0];
         var human = _snapshot.Players.Single(player => player.IsHuman);
         var regionalCard = human.Equipment.Concat(human.Judgment).Concat(human.AuthorityCards ?? []).Concat(OwnPublicPileMaterials(human)).Concat(ForeignFieldPlayMaterials(human)).SingleOrDefault(card => card.Id == cardId);
@@ -1186,14 +1200,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (KeepForcedHandSelection()) return;
         var cardId = regionalCard.Id;
         _selectedCardId = _selectedCardId == cardId ? null : cardId;
-        if (!IsPlayConversionSelectionPending) _selectedConversionSource = null;
+        if (!IsPlayConversionSelectionPending)
+            _selectedConversionSource = _selectedCardId is null ? null : AutomaticPlayIdentitySource(cardId, regionalCard.IdentityKind);
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = _selectedCardId is null
             ? IsPlayConversionSelectionPending ? PlayConversionSelectionText : "未选择手牌、装备或判定牌"
             : IsPlayConversionSelectionPending ? $"{PlayConversionSkillName}：将【{regionalCard.DisplayName}】当【{PlayConversionCardName}】使用"
-                : $"已选择：{regionalCard.DisplayName}";
+                : $"已选择：{PlayCardName(regionalCard)}";
         SelectOnlyCardTarget();
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
@@ -1209,6 +1224,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         IReadOnlyList<LegalAction> legalActions)
     {
         EquipmentPlayChoices.Clear();
+        if (IsJinzhiSelectionPending)
+        {
+            AddJinzhiCardNameChoices();
+            return;
+        }
         if (_snapshot.PendingDecision?.Kind != DecisionKind.PlayCard || IsActiveSkillSelectionPending)
         {
             return;
@@ -1660,12 +1680,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         var human = _snapshot.Players.FirstOrDefault(player => player.IsHuman);
         var physicalCard = human is null ? null : PlayMaterials(human).FirstOrDefault(card => card.Id == _selectedCardId);
+        var ordinaryKind = physicalCard?.IdentityKind ?? physicalCard?.Kind;
         var requiresRegionChoice = PublicTargetChoices.Any(choice => choice.Targets.SequenceEqual(selectedTargets));
         CanPlaySelected = !requiresRegionChoice && selectedActions.Any(action => action.TargetSeats.SequenceEqual(selectedTargets)
-            && action.TargetCardId is null && (action.PlayedCardKind is null || action.PlayedCardKind == physicalCard?.Kind));
+            && action.TargetCardId is null && (action.PlayedCardKind is null || action.PlayedCardKind == ordinaryKind));
         var conversionActions = selectedActions.Where(action =>
             action.TargetSeats.SequenceEqual(selectedTargets) && action.TargetCardId is null &&
-            action.PlayedCardKind is { } effectiveKind && effectiveKind != physicalCard?.Kind).ToArray();
+            action.PlayedCardKind is { } effectiveKind && effectiveKind != ordinaryKind).ToArray();
         CanPlaySelectedAsSlash = !requiresRegionChoice && conversionActions.Length == 1;
         RefreshSelectionHint();
     }
@@ -1678,7 +1699,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_selectedCardId is not { } cardId || _snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt) return;
         var human = _snapshot.Players.Single(player => player.IsHuman);
-        var physicalKind = PlayMaterials(human).Single(card => card.Id == cardId).Kind;
+        var physical = PlayMaterials(human).Single(card => card.Id == cardId);
+        var physicalKind = physical.IdentityKind ?? physical.Kind;
         var targets = SelectedPlayTargets();
         if (PublicTargetChoices.Any(choice => choice.Targets.SequenceEqual(targets))) return;
         var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), cardId, targets, physicalKind,
@@ -1849,6 +1871,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             SelectedCardText = $"至少选择 {action.MinTargetCount} 个目标。";
             RefreshSelectionHint();
             return;
+        }
+
+        if (IsJinzhiDraft(action))
+        {
+            if (!CanConfirmActiveSkill || SelectedJinzhiAction is not { } nativeAction) return;
+            action = nativeAction;
         }
 
         ExecuteSafely(() =>

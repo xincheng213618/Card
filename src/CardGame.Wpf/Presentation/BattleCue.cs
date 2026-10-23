@@ -2,7 +2,7 @@ using CardGame.Core;
 
 namespace CardGame.Wpf.Presentation;
 
-public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Recovery, Turn, Dying, Death, Skill, ChainPropagation, Weapon, Rescued, Draw }
+public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Recovery, Turn, Dying, Death, Skill, ChainPropagation, Weapon, Rescued, Draw, HpLoss, CardTransfer, CardDiscard }
 public enum JudgmentCueStage { Requested, Replaced, Resolved }
 
 /// <summary>Presentation data containing only actions and values that are already public.</summary>
@@ -16,11 +16,17 @@ public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat
     public int RequiredResponseCount { get; init; }
     public CardKind? RequiredResponseCardKind { get; init; }
     public long? ResponseResolutionId { get; init; }
+    // A paid Duel response has an opponent, not an offensive visual target.
+    public int? DuelOpponentSeat { get; init; }
+    public long? SourceCardUseResolutionId { get; init; }
+    public long? CompletedCardUseResolutionId { get; init; }
     public bool HasResponseProgress => Kind == BattleCueKind.ResponseWindow && !IsInquiry &&
         RequiredResponseCount > 1 && ResponseCount > 0 && ResponseCount <= RequiredResponseCount &&
         RequiredResponseCardKind is not null;
     public int DrawCount { get; init; }
     public bool HasDrawCards => Kind == BattleCueKind.Draw && !IsInquiry && DrawCount > 0 && SourceSeat >= 0;
+    public CardZoneKind? OriginZone { get; init; }
+    public int TransferCount { get; init; }
     public long Revision { get; init; }
     public CardKind? CardKind { get; init; }
     public int? PublicCardId { get; init; }
@@ -48,19 +54,50 @@ public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat
     public string CardActionLabel => Kind == BattleCueKind.Card ? Detail ?? "使用" : "打出";
 }
 
+/// <summary>Only program activations whose public banner was actually returned remain in flight.</summary>
+public sealed class BattleCueProjectionState
+{
+    private readonly HashSet<ProgramFeedbackActivation> _announced = [];
+    private readonly Dictionary<int, CardSnapshot> _publicFaces = [];
+    internal void Remember(ProgramFeedbackActivation activation) => _announced.Add(activation);
+    internal bool Complete(ProgramFeedbackActivation activation) => _announced.Remove(activation);
+    internal void RememberPublicCards(IEnumerable<CardSnapshot> cards)
+    {
+        foreach (var card in cards)
+        {
+            if (card.Id <= 0) continue;
+            _publicFaces[card.Id] = card;
+            // Only previously exposed faces enter this bounded presentation cache.
+            if (_publicFaces.Count > 256) _publicFaces.Remove(_publicFaces.Keys.First());
+        }
+    }
+    internal CardSnapshot? PublicFace(int id) => _publicFaces.GetValueOrDefault(id);
+    public void ObservePublicView(GameSnapshot view) => RememberPublicCards(view.PublicRevealedCards);
+    public void Clear() { _announced.Clear(); _publicFaces.Clear(); }
+}
+
+internal readonly record struct ProgramFeedbackActivation(long FrameId, int OwnerSeat, string SkillId, string ActivationId);
+
 public static class BattleCueProjector
 {
-    private static readonly CardMoveReason ExtraDrawReason = new("program.extra-draw-phase.draw");
-
-    public static IReadOnlyList<BattleCue> Project(IEnumerable<EventEnvelope> source, GameSnapshot playerView)
+    public static IReadOnlyList<BattleCue> Project(IEnumerable<EventEnvelope> source, GameSnapshot playerView,
+        BattleCueProjectionState? projectionState = null)
     {
         var events = source.ToArray();
+        projectionState ??= new();
+        projectionState.ObservePublicView(playerView);
+        var programUsages = AssociateProgramUsages(events);
+        var programIdentities = new Dictionary<long, ProgramFeedbackActivation>(programUsages);
+        var completedPrograms = new HashSet<ProgramFeedbackActivation>();
         var targets = events.Select(item => item.Payload).OfType<TargetsConfirmedEvent>()
             .GroupBy(item => item.ResolutionId).ToDictionary(group => group.Key, group => group.Last().TargetSeats);
         var cues = new List<BattleCue>();
         var cardPlays = ProjectCardPlays(events, playerView).ToDictionary(cue => cue.Sequence);
         var shownSkills = new HashSet<(long Revision, int Seat, string Skill)>();
+        var unassociatedSkills = new HashSet<(long Revision, int Seat, string Skill)>();
         string Name(int seat) => playerView.Players.FirstOrDefault(player => player.Seat == seat)?.GeneralName ?? "武将";
+        string NullificationState(int? targetSeat, string state) => targetSeat is { } seat
+            ? $"对{Name(seat)}的效果{state}" : $"锦囊{state}";
         string SkillName(int ownerSeat, string skillId)
         {
             var player = playerView.Players.FirstOrDefault(candidate => candidate.Seat == ownerSeat);
@@ -69,27 +106,51 @@ public static class BattleCueProjector
         }
         IReadOnlyList<int> Seats(IEnumerable<int> seats) => Array.AsReadOnly(seats.Where(seat => seat >= 0 && seat < playerView.Players.Count).Distinct().ToArray());
 
-        // The host movement stream carries private faces. Strip it to public
-        // quantities before grouping; never retain a card ID, kind or private zone.
-        var drawn = new List<(long Sequence, long Revision, int OwnerSeat)>();
-        foreach (var envelope in events)
-        {
-            if (envelope.Payload is CardMovedEvent moved && moved.From == CardLocation.DrawPile &&
-                moved.To is { Zone: CardZoneKind.Hand, OwnerSeat: { } ownerSeat } && ownerSeat >= 0 &&
-                playerView.Players.Any(player => player.Seat == ownerSeat) &&
-                (moved.Reason == CardMoveReasons.Draw || moved.Reason == ExtraDrawReason))
-                drawn.Add((envelope.Sequence, envelope.Revision, ownerSeat));
-        }
+        // Every producer publishes its actual public count at the draw boundary.
+        // Do not inspect private movement faces or infer draws from requested
+        // quantities, skill names, or replacement gains out of the draw pile.
+        var drawn = events.Where(envelope => envelope.Payload is CardsDrawnEvent draw &&
+                draw.Count > 0 && playerView.Players.Any(player => player.Seat == draw.PlayerSeat))
+            .Select(envelope => (envelope.Sequence, envelope.Revision,
+                OwnerSeat: ((CardsDrawnEvent)envelope.Payload).PlayerSeat,
+                Count: ((CardsDrawnEvent)envelope.Payload).Count));
         var draws = drawn.GroupBy(item => (item.Revision, item.OwnerSeat)).ToDictionary(
             group => group.Max(item => item.Sequence),
             group => new BattleCue(group.Max(item => item.Sequence), BattleCueKind.Draw, group.Key.OwnerSeat,
-                Array.AsReadOnly(new[] { group.Key.OwnerSeat }), $"摸牌 +{group.Count()}", Name(group.Key.OwnerSeat))
-                { DrawCount = group.Count() });
+                Array.AsReadOnly(new[] { group.Key.OwnerSeat }), $"摸牌 +{group.Sum(item => item.Count)}", Name(group.Key.OwnerSeat))
+                { DrawCount = group.Sum(item => item.Count) });
 
         foreach (var envelope in events)
         {
+            if (envelope.Payload is CardsRevealedEvent revealedCards)
+                projectionState.RememberPublicCards(revealedCards.Cards);
+            if (envelope.Payload is ProgramSkillResolvedEvent completed)
+            {
+                var activation = new ProgramFeedbackActivation(completed.FrameId, completed.OwnerSeat, completed.SkillId, completed.ActivationId);
+                completedPrograms.Add(activation);
+                // Completed=false also closes the presentation lifetime. A
+                // hidden/unreturned start never enters this set.
+                if (projectionState.Complete(activation)) continue;
+                if (completed.Completed) programIdentities[envelope.Sequence] = activation;
+            }
             BattleCue? cue = envelope.Payload switch
             {
+                TargetCardTakenEvent taken => new(envelope.Sequence, BattleCueKind.CardTransfer,
+                    taken.TargetSeat, Seats([taken.SourceSeat]), "顺手牵羊 · 获得牌", Name(taken.SourceSeat),
+                    Detail: "获得一张牌")
+                    { OriginZone = taken.FromZone, TransferCount = 1, SourceCardUseResolutionId = taken.ResolutionId,
+                        PublicCardId = taken.PublicCardId, CardKind = taken.PublicCardKind },
+                TargetCardDiscardedEvent discarded => new(envelope.Sequence, BattleCueKind.CardDiscard,
+                    discarded.TargetSeat, [], "过河拆桥 · 弃置牌", Name(discarded.TargetSeat),
+                    Detail: "弃置一张牌")
+                    { OriginZone = discarded.FromZone, TransferCount = 1, SourceCardUseResolutionId = discarded.ResolutionId,
+                        PublicCardId = discarded.PublicCardId, CardKind = discarded.PublicCardKind },
+                HarvestCardSelectedEvent selected => new(envelope.Sequence, BattleCueKind.CardTransfer,
+                    -1, Seats([selected.PlayerSeat]), "五谷丰登 · 获得牌", Name(selected.PlayerSeat),
+                    Detail: "选取公开牌")
+                    { OriginZone = CardZoneKind.Processing, TransferCount = 1, SourceCardUseResolutionId = selected.ResolutionId,
+                        PublicCardId = selected.CardId, PublicCard = projectionState.PublicFace(selected.CardId),
+                        CardKind = projectionState.PublicFace(selected.CardId)?.Kind },
                 CardRecastEvent recast => new(envelope.Sequence, BattleCueKind.Card, recast.ActorSeat, [],
                     $"重铸{CardCatalog.Get(recast.CardKind).DisplayName}", Name(recast.ActorSeat), Detail: "重铸") { CardKind = recast.CardKind },
                 MouSmTargetsDisclosedEvent revealed => new(envelope.Sequence, BattleCueKind.Card, revealed.Actor, Seats(revealed.Targets), CardCatalog.Get(revealed.Kind).DisplayName, Name(revealed.Actor), Detail: "指定目标") { CardKind = revealed.Kind },
@@ -105,15 +166,17 @@ public static class BattleCueProjector
                     { ResponseCount = progress.ResponseCount, RequiredResponseCount = progress.RequiredResponseCount,
                         RequiredResponseCardKind = progress.RequiredCardKind, ResponseResolutionId = progress.ResolutionId },
                 NullificationRequestedEvent nullification => new(envelope.Sequence, BattleCueKind.ResponseWindow,
-                    nullification.ResponderSeat, Seats([nullification.SourceSeat]),
+                    nullification.ResponderSeat, Seats([nullification.TargetSeat ?? nullification.SourceSeat]),
                     $"无懈可击询问中 · 第 {nullification.ChainDepth + 1} 层", Name(nullification.ResponderSeat),
-                    Detail: nullification.EffectCurrentlyNullified ? "当前锦囊已失效 · 可反制恢复" : "当前锦囊生效中 · 可令其失效") { IsInquiry = true },
+                    Detail: nullification.EffectCurrentlyNullified
+                        ? $"{(nullification.TargetSeat is null ? "当前" : "")}{NullificationState(nullification.TargetSeat, "已失效")} · 可反制恢复"
+                        : $"{(nullification.TargetSeat is null ? "当前" : "")}{NullificationState(nullification.TargetSeat, "生效中")} · 可令其失效") { IsInquiry = true },
                 NullificationRespondedEvent nullification => new(envelope.Sequence, BattleCueKind.Response,
-                    nullification.ResponderSeat, [], $"打出无懈可击 · 第 {nullification.ChainDepth} 层",
-                    Name(nullification.ResponderSeat), Detail: nullification.EffectNullified ? "锦囊暂时失效" : "锦囊恢复生效"),
-                NullificationResolvedEvent nullification => new(envelope.Sequence, BattleCueKind.ResponseWindow, -1, [],
-                    $"{CardCatalog.Get(nullification.EffectCardKind).DisplayName} · {(nullification.EffectNullified ? "已失效" : "继续生效")}",
-                    "响应链结束", Detail: $"无懈链共 {nullification.ChainDepth} 次响应"),
+                    nullification.ResponderSeat, Seats(nullification.TargetSeat is { } responseTarget ? [responseTarget] : []), $"打出无懈可击 · 第 {nullification.ChainDepth} 层",
+                    Name(nullification.ResponderSeat), Detail: NullificationState(nullification.TargetSeat, nullification.EffectNullified ? "暂时失效" : "恢复生效")),
+                NullificationResolvedEvent nullification => new(envelope.Sequence, BattleCueKind.ResponseWindow, -1, Seats(nullification.TargetSeat is { } resolvedTarget ? [resolvedTarget] : []),
+                    $"{CardCatalog.Get(nullification.EffectCardKind).DisplayName} · {(nullification.TargetSeat is { } effectTarget ? $"对{Name(effectTarget)}" : "")}{(nullification.EffectNullified ? "已失效" : "继续生效")}",
+                    "响应链结束", Detail: nullification.TargetSeat is null ? $"无懈链共 {nullification.ChainDepth} 次响应" : $"{NullificationState(nullification.TargetSeat, nullification.EffectNullified ? "已失效" : "继续生效")} · 无懈链共 {nullification.ChainDepth} 次响应"),
                 StoneAxeResolvedEvent axe => new(envelope.Sequence, BattleCueKind.Weapon, axe.SourceSeat,
                     Seats([axe.TargetSeat]), axe.Used ? "贯石斧 · 破闪" : "贯石斧 · 未发动", Name(axe.SourceSeat),
                     Detail: axe.Used ? $"弃置 {axe.DiscardedCardIds.Count} 张牌 · 此杀继续结算" : "此次未发动")
@@ -142,24 +205,25 @@ public static class BattleCueProjector
                     Seats([tengjia.SourceSeat]), "藤甲 · 火焰伤害+1", Name(tengjia.TargetSeat), DamageNature.Fire),
                 SilverLionDamageCappedEvent silverLion => new(envelope.Sequence, BattleCueKind.Response, silverLion.TargetSeat,
                     Seats([silverLion.SourceSeat]), "白银狮子 · 伤害改为1", Name(silverLion.TargetSeat)),
-                SilverLionRemovedRecoveryEvent silverLion => new(envelope.Sequence, BattleCueKind.Recovery, silverLion.PlayerSeat,
-                    Seats([silverLion.PlayerSeat]), "白银狮子 · +1", Name(silverLion.PlayerSeat)),
+                SilverLionRemovedRecoveryEvent silverLion => new(envelope.Sequence, BattleCueKind.ResponseWindow, silverLion.PlayerSeat,
+                    Seats([silverLion.PlayerSeat]), "白银狮子 · 移除", Name(silverLion.PlayerSeat),
+                    Detail: silverLion.RecoveredAmount > 0 ? "回复体力已结算" : "此次未回复体力"),
                 ChunlaoStoredEvent chunlao => new(envelope.Sequence, BattleCueKind.Response,
                     chunlao.OwnerSeat, Seats([chunlao.OwnerSeat]), $"醇醪 · 醇 {chunlao.CardIds.Count}",
                     Name(chunlao.OwnerSeat), Detail: "公开置于武将牌上"),
-                ChunlaoRescueEvent chunlao => new(envelope.Sequence, BattleCueKind.Recovery,
+                ChunlaoRescueEvent chunlao => new(envelope.Sequence, BattleCueKind.ResponseWindow,
                     chunlao.OwnerSeat, Seats([chunlao.VictimSeat]), "醇醪 · 酒救援",
-                    Name(chunlao.OwnerSeat), Detail: $"回复{chunlao.RecoveredHp}点体力"),
-                ProgramDyingRescueEvent rescue => new(envelope.Sequence, BattleCueKind.Recovery,
+                    Name(chunlao.OwnerSeat), Detail: chunlao.RecoveredHp > 0 ? "回复体力已结算" : "此次未回复体力"),
+                ProgramDyingRescueEvent rescue => new(envelope.Sequence, BattleCueKind.ResponseWindow,
                     rescue.OwnerSeat, Seats([rescue.VictimSeat]),
                     $"{SkillName(rescue.OwnerSeat, rescue.SkillId)} · 酒救援",
-                    Name(rescue.OwnerSeat), Detail: $"回复{rescue.RecoveredHp}点体力"),
+                    Name(rescue.OwnerSeat), Detail: rescue.RecoveredHp > 0 ? "回复体力已结算" : "此次未回复体力"),
                 GongqiResolvedEvent gongqi => new(envelope.Sequence, BattleCueKind.Response,
                     gongqi.OwnerSeat, Seats(gongqi.TargetSeat is { } target ? [target] : [gongqi.OwnerSeat]),
                     "弓骑 · 攻击范围无限", Name(gongqi.OwnerSeat),
                     Detail: gongqi.DiscardedCardId is null ? "未弃置其他角色的牌" : "弃置其他角色一张牌"),
                 ProgramAttackRangeAidChoiceResolvedEvent aid => new(envelope.Sequence,
-                    aid.DiscardedWeaponCardId is null ? BattleCueKind.Recovery : BattleCueKind.Response,
+                    BattleCueKind.Response,
                     aid.ResponderSeat, Seats([aid.TargetSeat]),
                     $"{SkillName(aid.OwnerSeat, aid.SkillId)} · 响应",
                     Name(aid.ResponderSeat),
@@ -214,11 +278,19 @@ public static class BattleCueProjector
                 DamageAppliedEvent damage when damage.Amount > 0 => new(envelope.Sequence, BattleCueKind.Damage, damage.SourceLess ? -1 : damage.SourceSeat,
                     Seats([damage.TargetSeat]), $"−{damage.Amount}", Name(damage.TargetSeat), damage.Nature)
                     { HpDelta = -damage.Amount, RemainingHp = damage.RemainingHp,
+                        SourceCardUseResolutionId = damage.SourceCardUseResolutionId,
                         MaximumHp = playerView.Players.FirstOrDefault(player => player.Seat == damage.TargetSeat)?.MaxHp },
                 RecoveryAppliedEvent recovery when recovery.Amount > 0 => new(envelope.Sequence, BattleCueKind.Recovery, recovery.SourceSeat,
                     Seats([recovery.TargetSeat]), $"+{recovery.Amount}", Name(recovery.TargetSeat))
                     { HpDelta = recovery.Amount, RemainingHp = recovery.RemainingHp,
                         MaximumHp = playerView.Players.FirstOrDefault(player => player.Seat == recovery.TargetSeat)?.MaxHp },
+                // The public loss fact identifies its recipient, not an attacker
+                // or a publicly disclosed skill owner. Do not infer either.
+                ProgramSkillHpLostEvent loss when loss.Amount > 0 => new(envelope.Sequence, BattleCueKind.HpLoss, -1,
+                    Seats([loss.TargetSeat]), $"−{loss.Amount}", Name(loss.TargetSeat), Detail: "失去体力")
+                    { HpDelta = -loss.Amount, RemainingHp = loss.RemainingHp,
+                        CompletedCardUseResolutionId = loss.CompletedCardUseResolutionId,
+                        MaximumHp = playerView.Players.FirstOrDefault(player => player.Seat == loss.TargetSeat)?.MaxHp },
                 TurnStartedEvent turn => new(envelope.Sequence, BattleCueKind.Turn, turn.ActorSeat, [],
                     turn.ActorSeat == playerView.HumanSeat ? "轮 到 你 了" : $"{Name(turn.ActorSeat)}的回合", $"回合 {turn.TurnNumber}"),
                 PlayerDyingEvent dying => new(envelope.Sequence, BattleCueKind.Dying, dying.VictimSeat, Seats([dying.VictimSeat]), "濒死 · 等待救援", Name(dying.VictimSeat))
@@ -233,7 +305,8 @@ public static class BattleCueProjector
             if (draws.TryGetValue(envelope.Sequence, out var draw)) cue = draw;
 
             if (cardPlays.TryGetValue(envelope.Sequence, out var cardPlay))
-                cue = cardPlay with { TargetSeats = cue?.TargetSeats ?? cardPlay.TargetSeats };
+                cue = cardPlay with { TargetSeats = cue?.TargetSeats ?? cardPlay.TargetSeats,
+                    Detail = envelope.Payload is NullificationRespondedEvent ? cue?.Detail ?? cardPlay.Detail : cardPlay.Detail };
 
             var (skillSeat, skillId) = envelope.Payload switch
             {
@@ -256,10 +329,19 @@ public static class BattleCueProjector
                 .FirstOrDefault(skill => skill.ContentId == skillId);
             if (publicSkill is not null)
             {
-                // Usage, conversion and completion may describe the same committed activation.
-                if (shownSkills.Add((envelope.Revision, skillSeat, skillId!)))
+                var revisionSkill = (envelope.Revision, skillSeat, skillId!);
+                var firstInRevision = shownSkills.Add(revisionSkill);
+                // Exact program identities preserve separate real activations,
+                // even within one command. Unlinked usage groups retain the
+                // existing within-revision behavior rather than guessing a frame.
+                var identifiedProgram = programIdentities.ContainsKey(envelope.Sequence) &&
+                    !unassociatedSkills.Contains(revisionSkill);
+                if (identifiedProgram || firstInRevision)
+                {
                     cue = new(envelope.Sequence, BattleCueKind.Skill, skillSeat, Seats([skillSeat]),
                         publicSkill.Name, Name(skillSeat), Detail: cue?.Label) { SkillId = skillId };
+                    if (!identifiedProgram) unassociatedSkills.Add(revisionSkill);
+                }
                 else if (cue?.Kind == BattleCueKind.Response && cue.CardKind is null)
                     cue = null;
             }
@@ -268,7 +350,39 @@ public static class BattleCueProjector
             if (cue is not null) cues.Add(cue with { Revision = envelope.Revision });
         }
 
-        return BoundFeedback(events, cues);
+        var retainedPrograms = new HashSet<ProgramFeedbackActivation>();
+        var result = BoundFeedback(events, cues).Where(cue => cue.Kind != BattleCueKind.Skill ||
+            !programIdentities.TryGetValue(cue.Sequence, out var activation) || retainedPrograms.Add(activation)).ToArray();
+        foreach (var cue in result)
+            if (cue.Kind == BattleCueKind.Skill && programUsages.TryGetValue(cue.Sequence, out var activation) &&
+                !completedPrograms.Contains(activation))
+                projectionState.Remember(activation);
+        return result;
+    }
+
+    private static Dictionary<long, ProgramFeedbackActivation> AssociateProgramUsages(EventEnvelope[] events)
+    {
+        var pending = new Dictionary<(long Revision, int Seat, string Skill, string Usage), List<long>>();
+        var result = new Dictionary<long, ProgramFeedbackActivation>();
+        foreach (var envelope in events)
+        {
+            if (envelope.Payload is SkillUsageConsumedEvent { Count: > 0 } usage)
+            {
+                var key = (envelope.Revision, usage.SkillOwnerSeat, usage.SkillId, usage.UsageId);
+                if (!pending.TryGetValue(key, out var sequences)) pending[key] = sequences = [];
+                sequences.Add(envelope.Sequence);
+            }
+            else if (envelope.Payload is ProgramSkillStartedEvent started)
+            {
+                // The activation's default usage id is its published activation
+                // id. Shared/named usage groups expose no such identity: leave
+                // them unlinked. Ambiguous multiple payments are unlinked too.
+                var key = (envelope.Revision, started.OwnerSeat, started.SkillId, started.ActivationId);
+                if (pending.Remove(key, out var sequences) && sequences.Count == 1)
+                    result[sequences[0]] = new(started.FrameId, started.OwnerSeat, started.SkillId, started.ActivationId);
+            }
+        }
+        return result;
     }
 
     private sealed record PublicDamageOccurrence(long RequestedSequence, DamageRequestedEvent Request,
@@ -355,6 +469,7 @@ public static class BattleCueProjector
     public static IReadOnlyList<BattleCue> ProjectCardPlays(IEnumerable<EventEnvelope> source, GameSnapshot playerView)
     {
         var events = source.ToArray();
+        var duelResponses = AssociateDuelResponses(events);
         var responses = events.Where(item => item.Payload is CardRespondedEvent)
             .Select(item => (item.Revision, Card: (CardRespondedEvent)item.Payload))
             .Select(item => (item.Revision, item.Card.ResponderSeat, item.Card.CardId)).ToHashSet();
@@ -395,10 +510,39 @@ public static class BattleCueProjector
             if (!play.Use) label = "打出" + label;
             if (envelope.Payload is CardRecastEvent) label = "重铸" + label;
             if (envelope.Payload is NullificationRespondedEvent chainResponse) label += $" · 第 {chainResponse.ChainDepth} 层";
+            var duelResponse = duelResponses.GetValueOrDefault(envelope.Sequence);
             result.Add(new(envelope.Sequence, play.Use ? BattleCueKind.Card : BattleCueKind.Response,
                 play.Seat, [], label, name, Detail: play.Detail)
                 { CardKind = play.Kind, PublicCardId = cardId, PublicCard = publicCard, Revision = envelope.Revision,
+                    SourceCardUseResolutionId = (envelope.Payload as CardUseDeclaredEvent)?.ResolutionId,
+                    ResponseResolutionId = duelResponse?.ResolutionId, DuelOpponentSeat = duelResponse?.OpponentSeat,
                     IsUseCompletion = envelope.Payload is DyingResponseEvent });
+        }
+        return result;
+    }
+
+    private sealed record PublicDuelResponse(long ResolutionId, int OpponentSeat);
+
+    private static Dictionary<long, PublicDuelResponse> AssociateDuelResponses(EventEnvelope[] events)
+    {
+        var played = events.Where(envelope => envelope.Payload is CardRespondedEvent)
+            .ToLookup(envelope => (envelope.Revision, ((CardRespondedEvent)envelope.Payload).ResponderSeat,
+                ((CardRespondedEvent)envelope.Payload).CardId));
+        var result = new Dictionary<long, PublicDuelResponse>();
+        foreach (var group in events.Where(envelope => envelope.Payload is DuelResponseEvent { UsedSlash: true, SlashCardId: not null })
+            .GroupBy(envelope => (envelope.Revision, ((DuelResponseEvent)envelope.Payload).ResponderSeat,
+                ((DuelResponseEvent)envelope.Payload).SlashCardId!.Value)))
+        {
+            // Both facts name the same paid entity in the same commit. Leave
+            // ambiguous recycled/virtual entities unlinked rather than guessing.
+            var matching = played[group.Key];
+            if (group.Count() != 1 || matching.Count() != 1) continue;
+            var duel = group.Single();
+            var play = matching.Single();
+            var response = (CardRespondedEvent)play.Payload;
+            if (play.Sequence >= duel.Sequence || response.EffectiveCardKind != CardKind.Slash ||
+                response.SourceSeat < 0 || response.SourceSeat == response.ResponderSeat) continue;
+            result[play.Sequence] = new(((DuelResponseEvent)duel.Payload).ResolutionId, response.SourceSeat);
         }
         return result;
     }

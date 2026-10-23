@@ -1,4 +1,5 @@
 using System.Windows.Media;
+using CardGame.Core;
 
 namespace CardGame.Wpf.ViewModels;
 
@@ -78,6 +79,8 @@ public sealed partial class SeatViewModel : ObservableObject
     public bool ShowPortraitStatuses => HasStatusBadges && !IsHuman;
     public IReadOnlyList<WushuangTacticViewModel> WushuangTactics { get; set; } = [];
     public bool HasWushuangTactics => WushuangTactics.Count > 0;
+    public double OpponentWushuangTacticWidth => Math.Min(WushuangTactics.Count, 5) * 62 +
+        (WushuangTactics.Count > 10 ? System.Windows.SystemParameters.VerticalScrollBarWidth : 0);
     public bool ShowPortraitWushuangTactics => HasWushuangTactics && !IsHuman;
     private bool _statusBadgesOnLeft;
     public bool StatusBadgesOnLeft { get => _statusBadgesOnLeft; set => SetProperty(ref _statusBadgesOnLeft, value); }
@@ -98,15 +101,23 @@ public sealed partial class SeatViewModel : ObservableObject
     public string VerticalName => string.Join("\n", GeneralName.ToCharArray());
     public bool IdentityConcealed { get; set; }
     public bool HpUndefined { get; set; }
-    public string HealthPips => HpUndefined ? string.Empty : new('●', Math.Max(0, Hp));
-    public string EmptyHealthPips => HpUndefined ? string.Empty : new('○', Math.Max(0, MaxHp - Math.Max(0, Hp)));
-    public string HealthValue => HpUndefined ? "体力未定义" : $"{Hp}/{MaxHp}";
-    public bool ShowNumericHealth => !HpUndefined && (MaxHp > 5 || Hp < 0);
-    public string NumericHealthText => $"{Hp}\n/\n{MaxHp}";
+    public HappyQiaoDualHealth? HappyQiaoHealth { get; set; }
+    public bool IsHealthHidden => HpUndefined && HappyQiaoHealth is null;
+    public string HealthPips => HpUndefined || HappyQiaoHealth is not null ? string.Empty : new('●', Math.Max(0, Hp));
+    public string EmptyHealthPips => HpUndefined || HappyQiaoHealth is not null ? string.Empty : new('○', Math.Max(0, MaxHp - Math.Max(0, Hp)));
+    public string HealthValue => HappyQiaoHealth is { } q
+        ? $"大乔 {q.DaQiaoHp}/{q.MaximumHp} · 小乔 {q.XiaoQiaoHp}/{q.MaximumHp}"
+        : HpUndefined ? "体力未定义" : $"{Hp}/{MaxHp}";
+    public bool ShowNumericHealth => HappyQiaoHealth is not null || !HpUndefined && (MaxHp > 5 || Hp < 0);
+    public double NumericHealthWidth => HappyQiaoHealth is not null ? 42 : 19;
+    public string NumericHealthText => HappyQiaoHealth is { } q
+        ? $"大{q.DaQiaoHp}/{q.MaximumHp}\n小{q.XiaoQiaoHp}/{q.MaximumHp}" : $"{Hp}\n/\n{MaxHp}";
     private static readonly Brush HealthyHealthBrush = FrozenHealthBrush("#6FBD48");
     private static readonly Brush WarningHealthBrush = FrozenHealthBrush("#EFC64E");
     private static readonly Brush CriticalHealthBrush = FrozenHealthBrush("#EF7264");
-    public Brush HealthBrush => Hp <= 1 ? CriticalHealthBrush : Hp == 2 ? WarningHealthBrush : HealthyHealthBrush;
+    public Brush HealthBrush => HappyQiaoHealth is { } q
+        ? q.DaQiaoHp <= 1 || q.XiaoQiaoHp <= 1 ? CriticalHealthBrush : q.DaQiaoHp == 2 || q.XiaoQiaoHp == 2 ? WarningHealthBrush : HealthyHealthBrush
+        : Hp <= 1 ? CriticalHealthBrush : Hp == 2 ? WarningHealthBrush : HealthyHealthBrush;
     private static Brush FrozenHealthBrush(string color)
     {
         var brush = (SolidColorBrush)new BrushConverter().ConvertFromString(color)!;
@@ -117,7 +128,7 @@ public sealed partial class SeatViewModel : ObservableObject
     {
         get
         {
-            if (HpUndefined) return Array.Empty<string>();
+            if (HpUndefined || HappyQiaoHealth is not null) return Array.Empty<string>();
             var count = ShowNumericHealth ? 1 : Math.Clamp(MaxHp, 0, 5);
             var filled = ShowNumericHealth ? Hp > 0 ? 1 : 0 : Math.Clamp(Hp, 0, count);
             if (_healthImages is null || count != _healthIconCount || filled != _filledHealthIcons)
@@ -204,6 +215,7 @@ public sealed partial class SeatViewModel : ObservableObject
         if (!EqualityComparer<string>.Default.Equals(SkillName, source.SkillName)) { SkillName = source.SkillName; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(IdentityConcealed, source.IdentityConcealed)) { IdentityConcealed = source.IdentityConcealed; changed = true; }
         if (!EqualityComparer<bool>.Default.Equals(HpUndefined, source.HpUndefined)) { HpUndefined = source.HpUndefined; changed = true; }
+        if (HappyQiaoHealth != source.HappyQiaoHealth) { HappyQiaoHealth = source.HappyQiaoHealth; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(Hp, source.Hp)) { Hp = source.Hp; changed = true; }
         if (!EqualityComparer<int>.Default.Equals(MaxHp, source.MaxHp)) { MaxHp = source.MaxHp; changed = true; }
         if (Armor != source.Armor) { Armor = source.Armor; changed = true; }

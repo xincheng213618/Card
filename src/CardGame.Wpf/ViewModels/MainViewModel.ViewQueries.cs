@@ -25,6 +25,13 @@ public sealed partial class MainViewModel
 
     private IReadOnlyList<HandCardGuidance> GetViewHandGuidance() => GetViewAction().HandGuidance;
 
+    private bool IsHandCardSelected(int cardId) =>
+        IsCardPaymentSelectionPending ? _paymentCardIds.Contains(cardId)
+        : IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(cardId)
+        : IsDiscardSelectionPending ? _discardCardIds.Contains(cardId)
+        : IsActiveSkillCardSelectionPending ? _selectedActiveSkillCardIds.Contains(cardId)
+        : cardId == _selectedCardId;
+
     private void RefreshCommandResult(GameSnapshot snapshot)
     {
         // The automatic dispatcher slice will present its last committed state.
@@ -37,9 +44,7 @@ public sealed partial class MainViewModel
             // Some command handlers clear their local draft after Submit returns.
             // Reconcile those highlights without rebuilding the whole table.
             foreach (var card in Hand)
-                card.IsSelected = IsDiscardSelectionPending ? _discardCardIds.Contains(card.Id)
-                    : IsActiveSkillCardSelectionPending ? _selectedActiveSkillCardIds.Contains(card.Id)
-                    : card.Id == _selectedCardId;
+                card.IsSelected = IsHandCardSelected(card.Id);
             RebuildPublicTargetChoices();
             RebuildTargetCombinationChoices();
             RefreshTargetHighlights();

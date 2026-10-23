@@ -14,6 +14,8 @@ namespace CardGame.Wpf;
 
 public partial class MainWindow : Window
 {
+    private void OpenLanRooms(object sender, RoutedEventArgs e) =>
+        new LanRoomWindow(DataContext as MainViewModel) { Owner = this }.Show();
     private readonly GameAudioController _audio;
     private IInputElement? _focusBeforeGuide;
     private IInputElement? _focusBeforeHistory;
@@ -240,13 +242,43 @@ public partial class MainWindow : Window
 
     private void LobbySetupStep_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        if (!IsLoaded || e.NewValue is not true) return;
+        if (!IsLoaded || e.NewValue is not true || sender is not FrameworkElement step ||
+            DataContext is not MainViewModel viewModel) return;
+        var request = _overlayFocusRequest;
         Dispatcher.BeginInvoke(DispatcherPriority.Input, () =>
         {
+            if (request != _overlayFocusRequest || !IsLoaded || !IsVisible || !IsEnabled || !IsKeyboardFocusWithin ||
+                !ReferenceEquals(DataContext, viewModel) || !step.IsVisible || !step.IsEnabled ||
+                !ReferenceEquals(CurrentFocusSurface(viewModel), NewGameSetupPanel)) return;
+            // The new step may already have received a click or Tab before this
+            // callback. Keep that live action and its current reading position.
+            if (Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } focused &&
+                focused.IsDescendantOf(LobbyConfigurationOverlay)) return;
             ModeSetupScroll.ScrollToTop();
             FocusLobby();
         });
     }
+
+    private void RequiredSetupChoice_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if ((Keyboard.Modifiers & ModifierKeys.Control) == 0 ||
+            SelectedSetupChoiceItem(sender, e.OriginalSource as DependencyObject) is not { } item) return;
+        // Ctrl can change a required choice, but cannot clear the current one.
+        // Rejecting null in the source alone leaves the clicked row unselected.
+        item.Focus();
+        e.Handled = true;
+    }
+
+    private void RequiredSetupChoice_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Space && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0 &&
+            SelectedSetupChoiceItem(sender, e.OriginalSource as DependencyObject) is not null)
+            e.Handled = true;
+    }
+
+    private static ListBoxItem? SelectedSetupChoiceItem(object sender, DependencyObject? source) =>
+        sender is ListBox choices && source is not null &&
+        ItemsControl.ContainerFromElement(choices, source) is ListBoxItem { IsSelected: true } item ? item : null;
 
     private void PlayerGuideOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         => QueueOverlayFocus(PlayerGuideOverlay, ref _focusBeforeGuide);
@@ -434,6 +466,8 @@ public partial class MainWindow : Window
 
     private bool HandleKeyInput(Key key, ModifierKeys modifiers, bool isRepeat)
     {
+        if (key == Key.F && modifiers == ModifierKeys.Control && DataContext is MainViewModel searchViewModel)
+            return HandleSearchShortcut(searchViewModel, isRepeat);
         CancelCardAim();
         if (DataContext is not MainViewModel viewModel) return false;
         // The roster search owns text input, including repeated digits and Enter.
@@ -442,9 +476,24 @@ public partial class MainWindow : Window
             modifiers != ModifierKeys.Control && key != Key.Escape) return false;
         if (viewModel.IsCustomGeneralSelectionOpen &&
             ReferenceEquals(CurrentFocusSurface(viewModel), GeneralSelectionOverlay) &&
-            ReferenceEquals(Keyboard.FocusedElement, CustomGeneralSearchBox) && modifiers == ModifierKeys.None &&
-            (key is Key.Enter or Key.Space || key is >= Key.D0 and <= Key.D9 || key is >= Key.NumPad0 and <= Key.NumPad9))
-            return false;
+            ReferenceEquals(Keyboard.FocusedElement, CustomGeneralSearchBox) && modifiers == ModifierKeys.None)
+        {
+            if (key == Key.Down)
+            {
+                var result = viewModel.SelectedGeneralChoice is { } selected && viewModel.CustomGeneralChoices.Contains(selected)
+                    ? selected : viewModel.CustomGeneralChoices.FirstOrDefault();
+                if (result is not null)
+                {
+                    CustomGeneralRoster.ScrollIntoView(result);
+                    CustomGeneralRoster.UpdateLayout();
+                    if (CustomGeneralRoster.ItemContainerGenerator.ContainerFromItem(result) is UIElement row)
+                        row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                }
+                return true;
+            }
+            if (key is Key.Enter or Key.Space || key is >= Key.D0 and <= Key.D9 || key is >= Key.NumPad0 and <= Key.NumPad9)
+                return false;
+        }
         // Consume repeats before routing reaches a focused Button. A held key must
         // not toggle a draft, close the next overlay, or confirm the next prompt.
         if (isRepeat &&
@@ -453,9 +502,43 @@ public partial class MainWindow : Window
              modifiers == ModifierKeys.Control && key == Key.M ||
              modifiers == ModifierKeys.None && key == Key.Space &&
                  (IsStartupOverlayActive(viewModel) || !IsBlockingTableOverlayOpen(viewModel)) ||
-             modifiers == ModifierKeys.None && key is >= Key.D1 and <= Key.D9 &&
+             modifiers == ModifierKeys.None &&
+                 (key is >= Key.D1 and <= Key.D9 ||
+                  viewModel.IsGeneralSelectionPending && key is >= Key.NumPad1 and <= Key.NumPad9) &&
                  !IsBlockingTableOverlayOpen(viewModel))) return true;
         return HandleShortcut(key, modifiers);
+    }
+
+    private bool HandleSearchShortcut(MainViewModel viewModel, bool isRepeat)
+    {
+        var surface = CurrentFocusSurface(viewModel);
+        var gallery = ReferenceEquals(surface, GeneralGalleryOverlay);
+        var roster = ReferenceEquals(surface, GeneralSelectionOverlay) && viewModel.IsCustomGeneralSelectionOpen;
+        var guide = ReferenceEquals(surface, PlayerGuideOverlay);
+        if (!gallery && !roster && !guide) return false;
+        if (isRepeat) return true;
+        if (gallery)
+        {
+            if (viewModel.HasGeneralGallerySelection) viewModel.CloseGeneralGalleryDetailsCommand.Execute(null);
+            var request = _overlayFocusRequest;
+            // Closing details also queues its return focus. Follow that callback
+            // after bindings enable browse, while retaining top-surface ownership.
+            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+            {
+                if (request != _overlayFocusRequest || !IsLoaded || !IsVisible || !IsEnabled ||
+                    !ReferenceEquals(DataContext, viewModel) || !ReferenceEquals(CurrentFocusSurface(viewModel), GeneralGalleryOverlay) ||
+                    viewModel.HasGeneralGallerySelection) return;
+                GeneralGallery.FocusSearch();
+                if (Keyboard.FocusedElement is TextBox search && search.IsDescendantOf(GeneralGallery)) search.SelectAll();
+            }));
+        }
+        else if (roster)
+        {
+            CustomGeneralSearchBox.Focus();
+            CustomGeneralSearchBox.SelectAll();
+        }
+        else PlayerGuide.FocusCardSearch();
+        return true;
     }
 
     private bool HandleShortcut(Key key, ModifierKeys modifiers)
@@ -583,6 +666,13 @@ public partial class MainWindow : Window
         }
         if (key == Key.M && modifiers == ModifierKeys.Control)
         {
+            if (viewModel.IsSoundEnabled)
+            {
+                if (ReferenceEquals(surface, SettingsOverlay) && SettingsSoundVolume.IsKeyboardFocusWithin)
+                    SettingsSoundToggle.Focus();
+                else if (ReferenceEquals(surface, NewGameSetupPanel) && SetupSoundVolume.IsKeyboardFocusWithin)
+                    SetupSoundToggle.Focus();
+            }
             viewModel.IsSoundEnabled = !viewModel.IsSoundEnabled;
             return true;
         }
@@ -619,9 +709,9 @@ public partial class MainWindow : Window
             return true;
         }
         if (viewModel.IsGeneralSelectionPending && !IsBlockingTableOverlayOpen(viewModel) &&
-            key is >= Key.D1 and <= Key.D9 && modifiers == ModifierKeys.None)
+            key is >= Key.D1 and <= Key.D9 or >= Key.NumPad1 and <= Key.NumPad9 && modifiers == ModifierKeys.None)
         {
-            var generalIndex = key - Key.D1;
+            var generalIndex = key is >= Key.D1 and <= Key.D9 ? key - Key.D1 : key - Key.NumPad1;
             var choices = viewModel.IsCustomGeneralSelectionOpen ? viewModel.CustomGeneralChoices : viewModel.GeneralChoices;
             if (generalIndex < choices.Count)
             {
@@ -683,4 +773,55 @@ public partial class MainWindow : Window
 
     private void SettingsOverlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         => QueueOverlayFocus(SettingsOverlay, ref _focusBeforeSettings);
+
+    private void RetrySettingsPreferences_Click(object sender, RoutedEventArgs e)
+        => QueuePreferencesRetryFocus(RetrySettingsPreferencesButton, SettingsOverlay, SettingsSoundToggle);
+
+    private void RetrySetupPreferences_Click(object sender, RoutedEventArgs e)
+        => QueuePreferencesRetryFocus(RetrySetupPreferencesButton, NewGameSetupPanel, SetupSoundToggle);
+
+    private void QueuePreferencesRetryFocus(Button retry, FrameworkElement surface, UIElement fallback)
+    {
+        if (DataContext is MainViewModel viewModel)
+            QueueRetryFocus(retry, surface, () => !viewModel.HasPreferencesError, () => fallback);
+    }
+
+    private void WushuangSaveAccessRetry_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel || e.OriginalSource is not Button retry ||
+            !ReferenceEquals(retry.Command, viewModel.RetryWushuangSaveAccessCommand)) return;
+        var configuration = viewModel.IsLobbyConfigurationOpen;
+        var modeStep = viewModel.IsModeConfigurationOpen;
+        var mode = viewModel.SelectedTableMode;
+        QueueRetryFocus(retry, NewGameSetupPanel,
+            () => !viewModel.HasWushuangSaveAccessError && viewModel.IsLobbyConfigurationOpen == configuration &&
+                viewModel.IsModeConfigurationOpen == modeStep && ReferenceEquals(viewModel.SelectedTableMode, mode),
+            () => !configuration ? LobbyHome.WushuangSaveAccessFocusTarget :
+                viewModel.IsWushuangModeSelection && modeStep && WushuangContinueButton.IsVisible ? WushuangContinueButton :
+                viewModel.IsWushuangModeSelection && modeStep && WushuangLoadManualButton.IsVisible ? WushuangLoadManualButton :
+                modeStep ? StartNewGameButton : ModeGroupChoices);
+    }
+
+    private void QueueRetryFocus(Button retry, FrameworkElement surface, Func<bool> recovered, Func<UIElement> focusTarget)
+    {
+        if (DataContext is not MainViewModel viewModel ||
+            !ReferenceEquals(Keyboard.FocusedElement, retry) ||
+            !ReferenceEquals(CurrentFocusSurface(viewModel), surface)) return;
+        var request = _overlayFocusRequest;
+        // Click precedes the bound command. Wait for its error-banner bindings
+        // before replacing focus lost with the successful retry button.
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+        {
+            if (request != _overlayFocusRequest || !IsLoaded || !IsVisible || !IsEnabled || !IsKeyboardFocusWithin ||
+                !ReferenceEquals(DataContext, viewModel) ||
+                !ReferenceEquals(CurrentFocusSurface(viewModel), surface) ||
+                !recovered() || retry.IsVisible) return;
+            var fallback = focusTarget();
+            if (!fallback.IsVisible || !fallback.IsEnabled || !fallback.Focusable || !fallback.IsDescendantOf(surface)) return;
+            if (Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } focused &&
+                !ReferenceEquals(focused, this) && !ReferenceEquals(focused, surface) &&
+                focused.IsDescendantOf(surface)) return;
+            fallback.Focus();
+        }));
+    }
 }

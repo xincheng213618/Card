@@ -1,6 +1,6 @@
-using System.Globalization;
 using System.Windows.Input;
 using CardGame.Core;
+using CardGame.Wpf.Controls;
 
 namespace CardGame.Wpf.ViewModels;
 
@@ -27,9 +27,7 @@ public sealed partial class MainViewModel
         : CurrentDecisionContext?.Title ?? "选择牌";
 
     private static bool HasOpaqueRegionSlot(PromptChoice choice) => choice.Cards.Count == 0 &&
-        new[] { "slot-index", "hand-slot", "slot" }.Any(key =>
-            int.TryParse(choice.Parameters.GetValueOrDefault(key), NumberStyles.None,
-                CultureInfo.InvariantCulture, out var slot) && slot >= 0);
+        PromptCardChoiceConverter.OpaqueHandSlot(choice) is not null;
 
     private (CardZoneKind Zone, int Owner)? TargetChoiceRegion(PromptChoice choice, bool publicPlay)
     {
@@ -59,7 +57,8 @@ public sealed partial class MainViewModel
         var zoneName = choice.Parameters.GetValueOrDefault("source-zone") ?? choice.Parameters.GetValueOrDefault("zone") ??
             choice.Parameters.GetValueOrDefault("target-zone");
         var zone = Enum.TryParse<CardZoneKind>(zoneName, true, out var parsed) ? parsed
-            : choice.Parameters.ContainsKey("hand-slot") || choice.Parameters.GetValueOrDefault("action") == "target-card-slot"
+            : choice.Parameters.ContainsKey("hand-slot") || choice.Parameters.GetValueOrDefault("action") == "target-card-slot" ||
+                choice.Parameters.GetValueOrDefault("program-action") == "qizheng" && choice.Parameters.GetValueOrDefault("branch") == "hand"
                 ? CardZoneKind.Hand : (CardZoneKind?)null;
         if (zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)) return null;
         var owner = int.TryParse(choice.Parameters.GetValueOrDefault("card-owner-seat"), out var declaredOwner)
@@ -98,7 +97,7 @@ public sealed partial class MainViewModel
             RaisePropertyChanged(nameof(TargetCardRegions));
         }
         PromptChoice[] grouped = publicPlay ? [] : entries.Select(entry => entry.Choice).ToArray();
-        var ungrouped = HasDockSkillChoices || IsOwnedCardSelectionPending ? []
+        var ungrouped = HasDockSkillChoices || HasExpandedSelection || IsOwnedCardSelectionPending ? []
             : skillChoices.Where(choice => !grouped.Contains(choice, ReferenceEqualityComparer.Instance)).ToArray();
         if (!_ungroupedCenterSkillChoices.SequenceEqual(ungrouped, ReferenceEqualityComparer.Instance))
         {

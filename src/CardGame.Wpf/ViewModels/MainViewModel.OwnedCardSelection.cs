@@ -88,11 +88,22 @@ public sealed partial class MainViewModel
         RefreshSelectionHint();
     }
 
-    private string OwnedCardSelectionHint => $"{_snapshot.PendingDecision!.SkillPrompt!.Name} · 选择 " +
-        (_snapshot.PendingDecision.MinimumCardCount is { } min && min != _snapshot.PendingDecision.RequiredCardCount
-            ? $"{min} 至 {_snapshot.PendingDecision.RequiredCardCount}" : $"{_snapshot.PendingDecision.RequiredCardCount}") +
-        (IsForeignCardTakeSelectionPending ? " 张目标手牌" : " 张手牌或装备") +
-        $"（已选 {_selectedOwnedCardIds.Count}/{_snapshot.PendingDecision.RequiredCardCount}）· 选好后点击「确定」；再次点击取消单张，Esc 清空选择。";
+    private string OwnedCardSelectionHint
+    {
+        get
+        {
+            var prompt = _snapshot.PendingDecision!;
+            if (prompt.MinimumCardCount is > 0 && prompt.MinimumCardCount < prompt.RequiredCardCount &&
+                !prompt.Choices.Any(IsOwnedSelectionFinish))
+                return $"{prompt.SkillPrompt!.Name} · 还需选 {prompt.RequiredCardCount} 张牌（已选 {_selectedOwnedCardIds.Count}）· " +
+                    "可逐张或多选确认；选齐后结算，Esc 清空。";
+            return $"{prompt.SkillPrompt!.Name} · 选择 " +
+                (prompt.MinimumCardCount is { } min && min != prompt.RequiredCardCount
+                    ? $"{min} 至 {prompt.RequiredCardCount}" : $"{prompt.RequiredCardCount}") +
+                (IsForeignCardTakeSelectionPending ? " 张目标手牌" : " 张手牌或装备") +
+                $"（已选 {_selectedOwnedCardIds.Count}/{prompt.RequiredCardCount}）· 选好后点击「确定」；再次点击取消单张，Esc 清空选择。";
+        }
+    }
 
     private ICommand? _selectOwnedCardEquipmentCommand;
     public ICommand SelectOwnedCardEquipmentCommand => _selectOwnedCardEquipmentCommand ??=

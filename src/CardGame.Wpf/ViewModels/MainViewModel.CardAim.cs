@@ -111,7 +111,7 @@ public sealed partial class MainViewModel
         // branch and its exact unique-action selection, including provenance.
         var converted = !CanPlaySelected && CanPlaySelectedAsSlash;
         if (!CanPlaySelected && !converted) return false;
-        var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), card.Id, SelectedPlayTargets(), card.Kind!.Value,
+        var action = SelectPlayAction(GetViewLegalActions().Where(MatchesSelectedPlayConversion).ToArray(), card.Id, SelectedPlayTargets(), (card.IdentityKind ?? card.Kind)!.Value,
             converted, _selectedConversionSource);
         return action is { TargetCardId: null } && action.Kind != LegalActionKind.Recast &&
             (action.TargetSeats.Count == 0 || action.Kind == LegalActionKind.ReturnSoul && SelectedHellReturnSoulAction() is not null);

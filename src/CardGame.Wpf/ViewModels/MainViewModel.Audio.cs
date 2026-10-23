@@ -35,7 +35,9 @@ public sealed partial class MainViewModel
         set { if (SetProperty(ref _isAudioUnavailable, value)) { RaisePropertyChanged(nameof(SoundStatusText)); RaisePropertyChanged(nameof(GeneralVoiceStatus)); } }
     }
     public string SoundStatusText => HasPreferencesError ? PreferencesStatus : IsAudioUnavailable ? "声音暂不可用，可关闭后重新开启重试。"
-        : !IsSoundEnabled || SoundVolume == 0 ? "已静音 · Ctrl+M 切换声音" : $"游戏音量 {SoundVolume:P0} · 切到后台自动停声 · Ctrl+M 静音";
+        : !IsSoundEnabled ? "游戏声音已关闭 · Ctrl+M 开启声音"
+        : SoundVolume == 0 ? "音量为 0 · 调高音量恢复声音"
+        : $"游戏音量 {SoundVolume:P0} · 切到后台自动停声 · Ctrl+M 静音";
     public string GameOutcomeTitle => !HasGameOver ? string.Empty : IsDragonBoatActivitySnapshot ? DragonBoatGameOutcomeTitle : IsWenheActivitySnapshot &&
         _snapshot.Players.SingleOrDefault(player => player.IsHuman)?.SurvivalRank is { } rank ? $"第 {rank} 名" : GameSoundRules.Outcome(_snapshot) switch
     {

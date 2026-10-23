@@ -15,6 +15,7 @@ public sealed partial class MainViewModel
     private bool _isWushuangShopPreview;
     private bool _hasWushuangSave;
     private bool _hasWushuangManualSave;
+    private string _wushuangSaveAccessStatus = string.Empty;
     private string? _wushuangPendingOfferId;
     private long _wushuangVisibleWindowId;
     private string _wushuangShopMessage = "";
@@ -26,6 +27,16 @@ public sealed partial class MainViewModel
     public bool IsWushuangShopOpen { get => _isWushuangShopOpen; private set => SetProperty(ref _isWushuangShopOpen, value); }
     public bool HasWushuangSave { get => _hasWushuangSave; private set => SetProperty(ref _hasWushuangSave, value); }
     public bool HasWushuangManualSave { get => _hasWushuangManualSave; private set => SetProperty(ref _hasWushuangManualSave, value); }
+    public bool HasWushuangSaveAccessError => WushuangSaveAccessStatus.Length > 0;
+    public string WushuangSaveAccessStatus
+    {
+        get => _wushuangSaveAccessStatus;
+        private set
+        {
+            if (SetProperty(ref _wushuangSaveAccessStatus, value))
+                RaisePropertyChanged(nameof(HasWushuangSaveAccessError));
+        }
+    }
     public string WushuangShopMessage { get => _wushuangShopMessage; private set => SetProperty(ref _wushuangShopMessage, value); }
     public string WushuangClockText => FormatWushuangTime(WushuangVisibleRemainingMilliseconds);
     public string WushuangClockCaption => $"总局时限 · 剩余 {WushuangClockText}";
@@ -57,6 +68,7 @@ public sealed partial class MainViewModel
     public ICommand OpenWushuangModeCommand { get; private set; } = null!;
     public ICommand ContinueWushuangCommand { get; private set; } = null!;
     public ICommand LoadWushuangManualGameCommand { get; private set; } = null!;
+    public ICommand RetryWushuangSaveAccessCommand { get; private set; } = null!;
     public ICommand OpenWushuangShopCommand { get; private set; } = null!;
     public ICommand CloseWushuangShopCommand { get; private set; } = null!;
     public ICommand BuyWushuangOfferCommand { get; private set; } = null!;
@@ -81,6 +93,8 @@ public sealed partial class MainViewModel
         }, () => !IsTutorialActive);
         ContinueWushuangCommand = new RelayCommand(() => LoadGame(GameSaveSlot.Automatic, wushuang: true), () => HasWushuangSave && !IsTutorialActive);
         LoadWushuangManualGameCommand = new RelayCommand(() => LoadGame(GameSaveSlot.Manual, wushuang: true), () => HasWushuangManualSave && !IsTutorialActive);
+        RetryWushuangSaveAccessCommand = new RelayCommand(RefreshWushuangSaveSlot,
+            () => HasWushuangSaveAccessError);
         OpenWushuangShopCommand = new RelayCommand(() =>
         {
             FlushWushuangClock();
@@ -216,12 +230,20 @@ public sealed partial class MainViewModel
     {
         try
         {
-            HasWushuangSave = _wushuangSaveStore?.GetSavedAt(GameSaveSlot.Automatic) is not null;
-            HasWushuangManualSave = _wushuangSaveStore?.GetSavedAt(GameSaveSlot.Manual) is not null;
+            var automatic = _wushuangSaveStore?.GetSavedAt(GameSaveSlot.Automatic);
+            var manual = _wushuangSaveStore?.GetSavedAt(GameSaveSlot.Manual);
+            HasWushuangSave = automatic is not null;
+            HasWushuangManualSave = manual is not null;
+            WushuangSaveAccessStatus = string.Empty;
         }
-        catch (Exception error) when (IsSaveException(error)) { HasWushuangSave = HasWushuangManualSave = false; }
+        catch (Exception error) when (IsSaveException(error))
+        {
+            HasWushuangSave = HasWushuangManualSave = false;
+            WushuangSaveAccessStatus = $"暂时无法访问单骑无双存档：{ReadableSaveError(error)} 请重试访问。";
+        }
         (ContinueWushuangCommand as RelayCommand)?.NotifyCanExecuteChanged();
         (LoadWushuangManualGameCommand as RelayCommand)?.NotifyCanExecuteChanged();
+        (RetryWushuangSaveAccessCommand as RelayCommand)?.NotifyCanExecuteChanged();
     }
 }
 

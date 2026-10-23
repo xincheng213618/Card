@@ -20,7 +20,8 @@ public sealed class CardLiftSurface : Grid
 
     private const double LiftDuration = .14;
     private const double ReflowDuration = .18;
-    private const double ArrivalDuration = .2;
+    internal const double ArrivalStartTime = .42;
+    internal const double ArrivalDuration = .18;
     private readonly TranslateTransform _lift = new();
     private readonly SolidColorBrush _arrivalMask = new(Colors.White);
     private readonly DispatcherTimer _timer;
@@ -33,11 +34,18 @@ public sealed class CardLiftSurface : Grid
     private bool _animating;
     private long _reflowStarted;
     private double _reflowFrom;
+    private double _reflowX;
     private double _reflowElapsed;
     private bool _reflowAnimating;
     private long _arrivalStarted;
     private double _arrivalElapsed;
     private double _arrivalDelay;
+    private double _arrivalTimeScale = 1;
+    private Vector _arrivalFrom;
+    private Vector _arrivalEntry;
+    private double _arrivalRetargetProgress;
+    private HandArrivalBatch? _arrivalBatch;
+    private double _arrivalX;
     private double _arrivalY;
     private bool _arrivalAnimating;
     private bool _refreshing;
@@ -60,14 +68,21 @@ public sealed class CardLiftSurface : Grid
         };
         Unloaded += (_, _) =>
         {
+            _loaded = false;
+            _timer.Stop();
+            // ItemsControl.Move can deliver Unloaded after reinserting the
+            // same container in its live hand. Its new reflow/arrival is still
+            // current; only a real removal freezes the last public-use origin.
+            for (DependencyObject? ancestor = VisualTreeHelper.GetParent(this); ancestor is not null;
+                 ancestor = VisualTreeHelper.GetParent(ancestor))
+                if (ancestor is HandPanel { IsLoaded: true }) return;
             // A committed hand removal precedes its public cue. Keep the last
             // visible pose, and do not bubble a change which would replace that origin.
-            _loaded = false;
             _retired = true;
             _animating = false;
             _reflowAnimating = false;
             _arrivalAnimating = false;
-            _timer.Stop();
+            _arrivalBatch = null;
         };
     }
 
@@ -89,8 +104,9 @@ public sealed class CardLiftSurface : Grid
             RefreshMotion();
             var liftElapsed = _animating ? _liftElapsed + _clock.GetElapsedTime(_started).TotalSeconds : 0;
             var reflowElapsed = _reflowAnimating ? _reflowElapsed + _clock.GetElapsedTime(_reflowStarted).TotalSeconds : 0;
-            var arrivalElapsed = _arrivalAnimating ? _arrivalElapsed + _clock.GetElapsedTime(_arrivalStarted).TotalSeconds : 0;
+            var arrivalElapsed = _arrivalAnimating ? _arrivalElapsed + _clock.GetElapsedTime(_arrivalStarted).TotalSeconds / _arrivalTimeScale : 0;
             _clock = value;
+            _arrivalBatch?.SetFallbackClock(value);
             _liftElapsed = liftElapsed;
             _reflowElapsed = reflowElapsed;
             _arrivalElapsed = arrivalElapsed;
@@ -106,6 +122,7 @@ public sealed class CardLiftSurface : Grid
     internal bool IsReflowAnimating => _reflowAnimating;
     internal bool IsArrivalAnimating => _arrivalAnimating;
     internal double HorizontalOffset { get { RefreshMotion(); return _lift.X; } }
+    internal double ReflowOffset { get { RefreshMotion(); return _reflowX; } }
     internal double ArrivalOpacity { get { RefreshMotion(); return ReferenceEquals(OpacityMask, _arrivalMask) ? _arrivalMask.Opacity : 1; } }
     internal bool IsFrameTimerRunning => _timer.IsEnabled;
     private double TargetLift => IsSelected ? -18 : IsPointerOver ? -7 : 0;
@@ -166,11 +183,12 @@ public sealed class CardLiftSurface : Grid
             }
             if (_arrivalAnimating)
             {
-                var elapsed = _arrivalElapsed + Clock.GetElapsedTime(_arrivalStarted).TotalSeconds;
-                var progress = Math.Clamp((elapsed - _arrivalDelay) / ArrivalDuration, 0, 1);
+                var elapsed = _arrivalElapsed + Clock.GetElapsedTime(_arrivalStarted).TotalSeconds / _arrivalTimeScale;
+                var progress = Math.Clamp((_arrivalBatch?.ElapsedAfterArrival ?? elapsed - _arrivalDelay) / ArrivalDuration, 0, 1);
                 var eased = 1 - Math.Pow(1 - progress, 3);
-                SetArrivalY(-12 * (1 - eased));
-                SetArrivalOpacity(.72 + .28 * eased);
+                var remaining = Math.Clamp((progress - _arrivalRetargetProgress) / (1 - _arrivalRetargetProgress), 0, 1);
+                SetArrivalOffset(_arrivalFrom * Math.Pow(1 - remaining, 3));
+                SetArrivalOpacity(eased);
                 if (progress >= 1) FinishArrival();
             }
             StartIfNeeded();
@@ -205,7 +223,7 @@ public sealed class CardLiftSurface : Grid
         StartIfNeeded();
     }
 
-    internal void BeginArrival(int ordinal)
+    internal void BeginArrival(Vector entryOffset, double timeScale, HandArrivalBatch? batch = null)
     {
         RefreshMotion();
         if (_retired) return;
@@ -215,14 +233,36 @@ public sealed class CardLiftSurface : Grid
             return;
         }
         _arrivalElapsed = 0;
-        _arrivalDelay = .035 * Math.Clamp(ordinal, 0, 3);
+        _arrivalDelay = ArrivalStartTime;
+        _arrivalTimeScale = timeScale;
+        _arrivalFrom = entryOffset;
+        _arrivalEntry = entryOffset;
+        _arrivalRetargetProgress = 0;
+        _arrivalBatch = batch;
+        batch?.Activate();
         _arrivalStarted = Clock.GetTimestamp();
         _arrivalAnimating = true;
-        SetArrivalOpacity(.72);
+        SetArrivalOpacity(0);
         if (OpacityMask is null) SetCurrentValue(OpacityMaskProperty, _arrivalMask);
-        SetArrivalY(-12);
+        SetArrivalOffset(entryOffset);
+        RefreshMotion();
         InvalidateVisual();
         StartIfNeeded();
+    }
+
+    internal void RetargetArrival(Vector entryOffset, Vector slotDisplacement)
+    {
+        if (!_arrivalAnimating || (_arrivalEntry - entryOffset).Length < .01 && slotDisplacement.Length < .01) return;
+        RefreshMotion();
+        if (!_arrivalAnimating) return;
+        var elapsed = _arrivalBatch?.ElapsedAfterArrival ??
+            _arrivalElapsed + Clock.GetElapsedTime(_arrivalStarted).TotalSeconds / _arrivalTimeScale - _arrivalDelay;
+        _arrivalRetargetProgress = Math.Clamp(elapsed / ArrivalDuration, 0, .999999);
+        _arrivalFrom = elapsed <= 0 ? entryOffset : new Vector(_arrivalX + _reflowX, _arrivalY) + slotDisplacement;
+        _arrivalEntry = entryOffset;
+        FinishReflow();
+        SetArrivalOffset(_arrivalFrom);
+        InvalidateVisual();
     }
 
     internal void FinishArrival()
@@ -230,10 +270,25 @@ public sealed class CardLiftSurface : Grid
         _arrivalAnimating = false;
         _arrivalElapsed = 0;
         _arrivalDelay = 0;
-        SetArrivalY(0);
+        _arrivalBatch = null;
+        _arrivalRetargetProgress = 0;
+        SetArrivalOffset(new Vector());
         SetArrivalOpacity(1);
         if (ReferenceEquals(OpacityMask, _arrivalMask)) SetCurrentValue(OpacityMaskProperty, null);
         StartIfNeeded();
+    }
+
+    internal void SetArrivalTimeScale(double timeScale)
+    {
+        _arrivalBatch?.SetTimeScale(timeScale);
+        if (_arrivalTimeScale == timeScale) return;
+        RefreshMotion();
+        if (_arrivalAnimating)
+        {
+            _arrivalElapsed += Clock.GetElapsedTime(_arrivalStarted).TotalSeconds / _arrivalTimeScale;
+            _arrivalStarted = Clock.GetTimestamp();
+        }
+        _arrivalTimeScale = timeScale;
     }
 
     protected override void OnRender(DrawingContext dc)
@@ -266,16 +321,18 @@ public sealed class CardLiftSurface : Grid
         UpdateVertical();
     }
 
-    private void SetArrivalY(double value)
+    private void SetArrivalOffset(Vector value)
     {
-        if (_arrivalY == value) return;
-        _arrivalY = value;
+        if (_arrivalX == value.X && _arrivalY == value.Y) return;
+        _arrivalX = value.X;
+        _arrivalY = value.Y;
+        UpdateHorizontal();
         UpdateVertical();
     }
 
     private void UpdateVertical()
     {
-        var value = Math.Max(-18, _liftY + _arrivalY);
+        var value = Math.Max(-18, _liftY) + _arrivalY;
         if (_lift.Y == value) return;
         _lift.Y = value;
         RaiseEvent(new RoutedEventArgs(LiftChangedEvent, this));
@@ -290,6 +347,14 @@ public sealed class CardLiftSurface : Grid
 
     private void SetHorizontal(double value)
     {
+        if (_reflowX == value) return;
+        _reflowX = value;
+        UpdateHorizontal();
+    }
+
+    private void UpdateHorizontal()
+    {
+        var value = _reflowX + _arrivalX;
         if (_lift.X == value) return;
         _lift.X = value;
         RaiseEvent(new RoutedEventArgs(LiftChangedEvent, this));

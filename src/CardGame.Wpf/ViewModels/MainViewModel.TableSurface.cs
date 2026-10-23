@@ -7,8 +7,8 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private IReadOnlyList<LegalAction> _supplementalActiveSkillActions = [];
-    public string ActionDockConfirmText => CanEndTurn ? "确 定" : PlayButtonText;
-    public string ActionDockCancelText => IsBaguaActivationPending ? "不发动" : IsStoneAxeSelectionPending ? "否" : OwnedCardDeclineChoice is not null || HandResponseDeclineChoice is not null || SkillTargetDeclineChoice is not null
+    public string ActionDockConfirmText => PlayButtonText;
+    public string ActionDockCancelText => IsBaguaActivationPending ? "不发动" : IsStoneAxeSelectionPending ? "否" : SkillTargetDeclineChoice is not null ? "取 消" : OwnedCardDeclineChoice is not null || HandResponseDeclineChoice is not null
         ? "放 弃" : "取 消";
     public int HumanSkillColumns => HumanSkillCards.Count > 2 ? 2 : 1;
     public double HumanSkillRailWidth => HumanSkillColumns == 2 ? 216 : 108;
@@ -48,7 +48,7 @@ public sealed partial class MainViewModel
             if (_humanEquipmentSlots is not null && ReferenceEquals(human, _equipmentPlayer)) return _humanEquipmentSlots;
             var slots = Enum.GetValues<EquipmentSlot>().OrderBy(EquipmentSlotViewModel.DisplayOrder).SelectMany(slot =>
             {
-                var cards = human?.Equipment.Where(card => EquipmentCatalog.Get(card.Kind).Slot == slot).ToArray() ?? [];
+                var cards = human?.Equipment.Where(card => EquipmentSlotViewModel.CardSlot(card) == slot).ToArray() ?? [];
                 var count = Math.Max(human?.EquipmentSlotCapacities?.GetValueOrDefault(slot, 1) ?? 1, cards.Length);
                 return Enumerable.Range(0, count).Select(index =>
                 {
@@ -84,6 +84,7 @@ public sealed partial class MainViewModel
 
 public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Card, bool IsSelected = false, bool IsSelectable = false)
 {
+    public static EquipmentSlot CardSlot(CardSnapshot card) => card.OccupiedEquipmentSlot ?? EquipmentCatalog.Get(card.Kind).Slot;
     public static int DisplayOrder(EquipmentSlot slot) => slot switch
     {
         EquipmentSlot.Weapon => 0, EquipmentSlot.Armor => 1, EquipmentSlot.DefensiveHorse => 2,
@@ -99,8 +100,9 @@ public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Ca
     public string SlotName => EquipmentCatalog.GetSlotName(Slot);
     public bool IsOccupied => Card is not null;
     public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Card?.Kind);
+    public bool NeedsNameOverlay => Card?.IsBone == true || HasDynamicWeaponName;
     public string Name => Card?.DisplayName ?? string.Empty;
-    public ImageSource? Artwork => Card is { } card ? CardArt.GetEquipment(card.Kind) : null;
+    public ImageSource? Artwork => Card is { IsBone: false } card ? CardArt.GetEquipment(card.Kind) : null;
     private string Suit => Card?.Suit switch
     {
         CardGame.Core.Suit.Heart => "♥", CardGame.Core.Suit.Diamond => "♦",
@@ -109,5 +111,5 @@ public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Ca
     public ImageSource? RankArtwork => CardArt.GetRank(Card?.RankText ?? string.Empty, Suit);
     public ImageSource? SuitArtwork => CardArt.GetSuit(Suit);
     public string Tooltip => Card is { } card
-        ? $"{card.DisplayName} · {Suit}{card.RankText}\n{EquipmentCatalog.Get(card.Kind).Description}" : $"{SlotName} · 空槽";
+        ? $"{card.DisplayName} · {Suit}{card.RankText}\n{(card.IsBone ? "骨 · 仅占用栏位，不提供原装备效果" : EquipmentCatalog.Get(card.Kind).Description)}" : $"{SlotName} · 空槽";
 }

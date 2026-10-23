@@ -27,6 +27,13 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        if (e.Args.Length >= 1 && e.Args[0] == "--lan")
+        {
+            base.OnStartup(e);
+            MainWindow = new LanRoomWindow(serverAddress: e.Args.Length == 2 ? e.Args[1] : null);
+            MainWindow.Show();
+            return;
+        }
         if (e.Args.Length > 0 && e.Args[0] == "--verify-package")
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;

@@ -8,6 +8,7 @@ public sealed partial class MainViewModel
 {
     private int _feedbackEventCursor;
     private long _feedbackRevision;
+    private readonly BattleCueProjectionState _feedbackProjection = new();
     private bool _isMotionEnabled = true;
 
     public ObservableCollection<BattleCue> BattleCues { get; } = [];
@@ -25,6 +26,8 @@ public sealed partial class MainViewModel
     private void ResetBattleFeedback()
     {
         BattleCues.Clear();
+        _feedbackProjection.Clear();
+        _feedbackProjection.ObservePublicView(_game.State);
         FeedbackRevision = _game.Revision;
         _feedbackEventCursor = _game.Events.Count;
         ResetAudioFeedback();
@@ -41,7 +44,7 @@ public sealed partial class MainViewModel
         var repeatedCompletions = RecordPublicPlays(committed, snapshot);
         // A later rescue return is the result of the face already shown in the
         // public row. Use that same decision for animation and sound feedback.
-        var cues = BattleCueProjector.Project(committed, snapshot)
+        var cues = BattleCueProjector.Project(committed, snapshot, _feedbackProjection)
             .Where(cue => !repeatedCompletions.Contains(cue.Sequence)).ToArray();
         foreach (var cue in cues)
         {

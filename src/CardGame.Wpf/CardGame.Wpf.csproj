@@ -28,6 +28,7 @@
     <Content Include="Assets\Audio\Official\**\*.mp3;Assets\Audio\Official\**\*.wav" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <EmbeddedResource Include="..\..\docs\content\game-audio-catalog.json" LogicalName="CardGame.GameAudioCatalog.json" />
     <ProjectReference Include="..\CardGame.Core\CardGame.Core.csproj" />
+    <ProjectReference Include="..\CardGame.Lan\CardGame.Lan.csproj" />
     <ProjectReference Include="..\CardGame.Content.Standard\CardGame.Content.Standard.csproj" />
   </ItemGroup>
 </Project>

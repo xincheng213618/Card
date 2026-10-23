@@ -39,7 +39,7 @@ internal static class BattleEffectPainter
     public static void Draw(DrawingContext dc, BattleCue cue, double progress, Rect source,
         IReadOnlyDictionary<int, Rect> seats)
     {
-        if (cue.IsInquiry || progress <= 0 || progress >= 1) return;
+        if (cue.IsInquiry || cue.Kind == BattleCueKind.HpLoss || progress <= 0 || progress >= 1) return;
         if (cue.Kind == BattleCueKind.Judgment)
         {
             if (!cue.HasJudgmentCard) return;
@@ -117,6 +117,17 @@ internal static class BattleEffectPainter
             return;
         }
         if (cue.Kind is not (BattleCueKind.Card or BattleCueKind.Response) || cue.Detail == "重铸") return;
+        if (cue.Kind == BattleCueKind.Response && cue.DuelOpponentSeat is not null &&
+            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
+        {
+            if (!source.IsEmpty) DuelGuard(dc, source, progress);
+            return;
+        }
+        if (cue.Kind == BattleCueKind.Response && cue.CardKind == CardKind.Nullification)
+        {
+            if (!source.IsEmpty) NullificationWeave(dc, source, progress);
+            return;
+        }
         if (cue.CardKind == CardKind.Dodge && !source.IsEmpty)
         {
             // Paying one response says nothing about the attack's final result.
@@ -134,15 +145,181 @@ internal static class BattleEffectPainter
             if (!seats.TryGetValue(seat, out var target)) continue;
             if (cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
                 Slash(dc, source.IsEmpty ? target : source, target, cue.CardKind.Value, progress);
+            else if (cue.Kind == BattleCueKind.Card && cue.CardKind == CardKind.Duel && !source.IsEmpty)
+                DuelChallenge(dc, source, target, progress);
             else if (cue.CardKind is not null)
                 Aura(dc, target, Cyan, BlueGlow, progress);
         }
     }
 
-    public static void DrawGroupResponseFocus(DrawingContext dc, Rect responder, double progress)
+    public static void DrawGroupResponseFocus(DrawingContext dc, BattleCue cue, Rect responder, double progress)
     {
-        if (!responder.IsEmpty && progress > 0 && progress < 1)
-            Aura(dc, responder, Cyan, BlueGlow, progress);
+        if (cue.Kind != BattleCueKind.ResponseWindow || !cue.IsInquiry ||
+            cue.CardKind is not (CardKind.ArrowBarrage or CardKind.BarbarianAssault) ||
+            responder.IsEmpty || responder.Width <= 0 || responder.Height <= 0 || progress <= 0 || progress >= .82) return;
+        var artwork = PortraitArtwork(responder);
+        if (artwork.Width <= 8 || artwork.Height <= 8) return;
+        dc.PushClip(new RectangleGeometry(artwork));
+        dc.PushOpacity(Pulse(progress, .01, .82));
+        // This is the current public response request, not a hit. Projectiles
+        // approach and stop without impact sparks, a success shield or HP tint.
+        if (cue.CardKind == CardKind.ArrowBarrage)
+        {
+            for (var index = 0; index < 3; index++)
+            {
+                var travel = 1 - Math.Pow(1 - Math.Clamp((progress - index * .045) / .38, 0, 1), 2);
+                var head = new Point(artwork.Left + artwork.Width * (.18 + index * .28 + .08 * travel),
+                    artwork.Top + artwork.Height * (-.1 + (.62 + index * .045) * travel));
+                var direction = new Vector(.18, 1); direction.Normalize();
+                var length = Math.Min(artwork.Height * .32, artwork.Width * .55);
+                ResponseProjectile(dc, head, direction, length, Gold, feathered: true);
+            }
+        }
+        else
+        {
+            var travel = 1 - Math.Pow(1 - Math.Clamp(progress / .43, 0, 1), 3);
+            for (var side = -1; side <= 1; side += 2)
+            {
+                var head = Center(artwork) + new Vector(side * artwork.Width * (.7 - .56 * travel),
+                    artwork.Height * (.4 - .3 * travel + side * .055));
+                var direction = new Vector(-side * .8, -.6);
+                var length = Math.Min(artwork.Height * .55, artwork.Width * .8);
+                ResponseProjectile(dc, head, direction, length, AshGold, feathered: false);
+            }
+        }
+        dc.Pop();
+        dc.Pop();
+    }
+
+    private static void ResponseProjectile(DrawingContext dc, Point head, Vector direction, double length, Brush shaft, bool feathered)
+    {
+        var normal = new Vector(-direction.Y, direction.X);
+        var tail = head - direction * length;
+        var breadth = Math.Clamp(length * (feathered ? .13 : .19), 2.2, 7);
+        dc.DrawLine(new Pen(shaft, feathered ? 1.6 : 2.5) { StartLineCap = PenLineCap.Round }, tail, head);
+        var tip = new StreamGeometry();
+        using (var path = tip.Open())
+        {
+            path.BeginFigure(head, true, true);
+            path.LineTo(head - direction * (breadth * 2.5) + normal * breadth, true, false);
+            path.LineTo(head - direction * (breadth * 1.7), true, false);
+            path.LineTo(head - direction * (breadth * 2.5) - normal * breadth, true, false);
+        }
+        tip.Freeze();
+        dc.DrawGeometry(White, new Pen(shaft, .7), tip);
+        if (!feathered) return;
+        var feather = new Pen(shaft, 1.2);
+        for (var index = 0; index < 2; index++)
+        {
+            var root = tail + direction * (breadth * (.8 + index));
+            dc.DrawLine(feather, root, root - direction * breadth + normal * breadth);
+            dc.DrawLine(feather, root, root - direction * breadth - normal * breadth);
+        }
+    }
+
+    private static void DuelChallenge(DrawingContext dc, Rect source, Rect target, double p)
+    {
+        if (source.Width <= 0 || target.IsEmpty || target.Width <= 0 || p >= .65) return;
+        var direction = Center(target) - Center(source);
+        var distance = direction.Length;
+        if (distance <= 1) return;
+        direction.Normalize();
+        double Edge(Rect bounds) => Math.Min(bounds.Width / (2 * Math.Max(.001, Math.Abs(direction.X))),
+            bounds.Height / (2 * Math.Max(.001, Math.Abs(direction.Y)))) + 10;
+        var from = Center(source) + direction * Edge(source);
+        var to = Center(target) - direction * Edge(target);
+        var gap = Vector.Multiply(to - from, direction);
+        if (gap < 28) return;
+        var middle = from + (to - from) * .5;
+        var travel = 1 - Math.Pow(1 - Math.Clamp(p / .36, 0, 1), 2);
+        var length = Math.Clamp(gap * .24, 18, 56);
+        dc.PushOpacity(Pulse(p, .01, .65));
+        for (var side = 0; side < 2; side++)
+        {
+            var facing = side == 0 ? direction : -direction;
+            var start = side == 0 ? from : to;
+            var head = start + (middle - facing * 7 - start) * travel;
+            // Opposed blades meet in the open table corridor. Neither one
+            // strikes a portrait or predicts who will fail the Duel.
+            DuelBlade(dc, head - facing * length, facing, length, side == 0 ? Gold : Cyan);
+        }
+        dc.Pop();
+    }
+
+    private static void DuelGuard(DrawingContext dc, Rect responder, double p)
+    {
+        if (p >= .55 || responder.Width <= 0 || responder.Height <= 0) return;
+        var artwork = PortraitArtwork(responder);
+        var center = Center(artwork);
+        var settle = 1 - Math.Pow(1 - Math.Clamp(p / .24, 0, 1), 3);
+        var length = Math.Min(artwork.Width * .6, artwork.Height * .65);
+        dc.PushClip(new RectangleGeometry(artwork));
+        dc.PushOpacity(Pulse(p, .01, .55));
+        for (var side = -1; side <= 1; side += 2)
+        {
+            var angle = (-90 + side * (24 + 22 * settle)) * Math.PI / 180;
+            var direction = new Vector(Math.Cos(angle), Math.Sin(angle));
+            var grip = center + new Vector(-side * artwork.Width * .2, artwork.Height * (.28 - .08 * settle));
+            DuelBlade(dc, grip, direction, length, Cyan);
+        }
+        // Paying a Duel Slash is a local parry, never a fresh outgoing attack.
+        dc.Pop();
+        dc.Pop();
+    }
+
+    private static void DuelBlade(DrawingContext dc, Point grip, Vector direction, double length, Brush edge)
+    {
+        var normal = new Vector(-direction.Y, direction.X);
+        var breadth = Math.Clamp(length * .075, 1.7, 4.5);
+        var blade = new StreamGeometry();
+        using (var path = blade.Open())
+        {
+            path.BeginFigure(grip - normal * breadth, true, true);
+            path.LineTo(grip + direction * (length * .78) - normal * breadth, true, false);
+            path.LineTo(grip + direction * length, true, false);
+            path.LineTo(grip + direction * (length * .78) + normal * breadth, true, false);
+            path.LineTo(grip + normal * breadth, true, false);
+        }
+        blade.Freeze();
+        dc.DrawGeometry(White, new Pen(edge, 1), blade);
+        dc.DrawLine(new Pen(edge, 2.3), grip - normal * breadth * 2.5, grip + normal * breadth * 2.5);
+        dc.DrawLine(new Pen(AshGold, 3) { EndLineCap = PenLineCap.Round }, grip, grip - direction * breadth * 3);
+    }
+
+    private static void NullificationWeave(DrawingContext dc, Rect responder, double p)
+    {
+        if (p >= .66 || responder.Width <= 0 || responder.Height <= 0) return;
+        var artwork = PortraitArtwork(responder);
+        var center = Center(artwork);
+        var close = 1 - Math.Pow(1 - Math.Clamp(p / .19, 0, 1), 2);
+        var dissolve = Math.Clamp((p - .22) / .4, 0, 1);
+        var half = artwork.Width * .35;
+        dc.PushClip(new RectangleGeometry(artwork));
+        dc.PushOpacity(Pulse(p, .01, .66));
+        // A counterspell's woven seal separates into strips. The public chain
+        // caption alone says whether the actual effect is restored or nullified.
+        for (var row = 0; row < 4; row++)
+        for (var side = -1; side <= 1; side += 2)
+        {
+            var offset = new Vector(side * half * ((1 - close) * .7 + dissolve * .55),
+                (row - 1.5) * artwork.Height * (.13 + .1 * dissolve));
+            var inner = center + offset + new Vector(side * half * .05, 0);
+            var outer = inner + new Vector(side * half, -side * half * .18);
+            var strip = new StreamGeometry();
+            using (var path = strip.Open())
+            {
+                path.BeginFigure(inner + new Vector(0, -1.5), true, true);
+                path.LineTo(outer + new Vector(0, -1.5), true, false);
+                path.LineTo(outer + new Vector(-side * 4, 2), true, false);
+                path.LineTo(inner + new Vector(side * 3, 2), true, false);
+            }
+            strip.Freeze();
+            dc.DrawGeometry(row % 2 == 0 ? Cyan : Violet, null, strip);
+        }
+        dc.DrawLine(new Pen(White, 1.6 * (1 - dissolve)),
+            center + new Vector(0, -artwork.Height * .28), center + new Vector(0, artwork.Height * .28));
+        dc.Pop();
+        dc.Pop();
     }
 
     private static void JudgmentConfirmation(DrawingContext dc, Rect artwork, double p)

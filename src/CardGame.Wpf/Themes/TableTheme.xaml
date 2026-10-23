@@ -132,6 +132,132 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FontSize" Value="12" />
     </Style>
+    <Style x:Key="PreferencesCheckBox" TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+        <Setter Property="Background" Value="{StaticResource TableDeepBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <AccessText Text="{Binding}" TextWrapping="Wrap" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid x:Name="PreferenceSurface" Background="Transparent" SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Grid Width="20" Height="20" Margin="0,0,6,0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <Border x:Name="PreferenceBox" Width="16" Height="16" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2">
+                                <Grid>
+                                    <Path x:Name="PreferenceCheck" Data="M 1,4 L 4,7 L 10,1" Stroke="{StaticResource GoldBrush}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="10" Height="8" Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
+                                    <Border x:Name="PreferenceMixed" Width="8" Height="2" Background="{StaticResource GoldBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
+                                </Grid>
+                            </Border>
+                            <Border x:Name="PreferenceFocus" BorderBrush="{StaticResource GoldBrush}" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                        </Grid>
+                        <ContentPresenter Grid.Column="1" ContentSource="Content" RecognizesAccessKey="True" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="PreferenceCheck" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="PreferenceMixed" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PreferenceBox" Property="BorderBrush" Value="{StaticResource PaperBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource PaperBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="PreferenceFocus" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="PreferenceBox" Property="Background" Value="{StaticResource LineBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="PreferenceSurface" Property="Opacity" Value="0.45" />
+                            <Setter TargetName="PreferenceBox" Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+                            <Setter TargetName="PreferenceBox" Property="Background" Value="{StaticResource TableDeepBrush}" />
+                            <Setter TargetName="PreferenceFocus" Property="Visibility" Value="Collapsed" />
+                            <Setter Property="Foreground" Value="{StaticResource MutedPaperBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PreferencesVolumeSlider" TargetType="Slider">
+        <Setter Property="MinHeight" Value="20" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid x:Name="PreferencesVolumeSurface" Background="Transparent" SnapsToDevicePixels="True">
+                        <Border x:Name="PreferencesVolumeRail" Height="4" Margin="7,0" VerticalAlignment="Center" Background="{StaticResource TableDeepBrush}" BorderBrush="{StaticResource GoldBrush}" BorderThickness="1" CornerRadius="2" IsHitTestVisible="False" />
+                        <Track x:Name="PART_Track" Orientation="{TemplateBinding Orientation}" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" IsDirectionReversed="{TemplateBinding IsDirectionReversed}" Focusable="False">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.DecreaseLarge}" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" IsTabStop="False" Background="{StaticResource GoldBrush}">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Grid Background="Transparent" MinHeight="20">
+                                                <Border Height="4" Margin="7,0,0,0" VerticalAlignment="Center" Background="{TemplateBinding Background}" CornerRadius="2" />
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.IncreaseLarge}" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" IsTabStop="False">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Grid Background="Transparent" MinHeight="20" />
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb x:Name="PreferencesVolumeThumb" Width="14" Height="18" Focusable="False" IsTabStop="False" Background="{StaticResource TableDeepBrush}" BorderBrush="{StaticResource GoldBrush}" Foreground="{StaticResource GoldBrush}">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2">
+                                                <Border Width="2" Height="8" Background="{TemplateBinding Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                        <Border x:Name="PreferencesVolumeFocus" BorderBrush="{StaticResource GoldBrush}" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" IsHitTestVisible="False" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PreferencesVolumeRail" Property="BorderBrush" Value="{StaticResource PaperBrush}" />
+                            <Setter TargetName="PreferencesVolumeThumb" Property="BorderBrush" Value="{StaticResource PaperBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="PreferencesVolumeFocus" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger SourceName="PreferencesVolumeThumb" Property="IsDragging" Value="True">
+                            <Setter TargetName="PreferencesVolumeThumb" Property="Background" Value="{StaticResource GoldBrush}" />
+                            <Setter TargetName="PreferencesVolumeThumb" Property="BorderBrush" Value="{StaticResource PaperBrush}" />
+                            <Setter TargetName="PreferencesVolumeThumb" Property="Foreground" Value="{StaticResource TableDeepBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="PreferencesVolumeSurface" Property="Opacity" Value="0.45" />
+                            <Setter TargetName="PreferencesVolumeRail" Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+                            <Setter TargetName="PreferencesVolumeThumb" Property="Background" Value="{StaticResource TableDeepBrush}" />
+                            <Setter TargetName="PreferencesVolumeThumb" Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+                            <Setter TargetName="PreferencesVolumeThumb" Property="Foreground" Value="{StaticResource GoldBrush}" />
+                            <Setter TargetName="PreferencesVolumeFocus" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style TargetType="ListBox">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -268,9 +394,9 @@
             <Grid.Background><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seatbottom__self_seat_bg.png" ViewboxUnits="Absolute" Viewbox="0,0,298,68" Stretch="Fill" /></Grid.Background>
             <TextBlock x:Name="EmptySlotText" Text="{Binding SlotName}" Foreground="#928779" FontFamily="KaiTi" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center" />
             <Image Source="{Binding Artwork}" Stretch="Fill" />
-            <TextBlock Text="{Binding Name}" Foreground="#4D3923" FontFamily="KaiTi" FontSize="11"
+            <TextBlock x:Name="EquipmentRuntimeName" Text="{Binding Name}" Foreground="#4D3923" FontFamily="KaiTi" FontSize="11"
                 Margin="29,0,4,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
-                Visibility="{Binding HasDynamicWeaponName, Converter={StaticResource BoolToVisibility}}" />
+                Visibility="{Binding NeedsNameOverlay, Converter={StaticResource BoolToVisibility}}" />
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,3,0">
                 <Image Source="{Binding RankArtwork}" Width="14" Height="16" Stretch="Uniform" />
                 <Image Source="{Binding SuitArtwork}" Width="14" Height="16" Stretch="Uniform" />
@@ -284,6 +410,7 @@
         </Grid>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding IsOccupied}" Value="True"><Setter TargetName="EmptySlotText" Property="Visibility" Value="Collapsed" /></DataTrigger>
+            <DataTrigger Binding="{Binding Card.IsBone}" Value="True"><Setter TargetName="EquipmentRuntimeName" Property="Foreground" Value="#F4DE9A" /></DataTrigger>
             <DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter TargetName="StoneAxeEquipmentButton" Property="Background" Value="#665EA78A" /><Setter TargetName="StoneAxeEquipmentButton" Property="BorderBrush" Value="#B5FFD7" /><Setter TargetName="StoneAxeEquipmentButton" Property="BorderThickness" Value="2" /></DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
@@ -396,16 +523,18 @@
     </DataTemplate>
 
     <DataTemplate x:Key="WushuangTacticBadgeTemplate">
-        <StackPanel Width="60" Margin="1,0" ToolTip="{Binding Tooltip}" ToolTipService.InitialShowDelay="150" AutomationProperties.Name="{Binding Tooltip}">
+        <StackPanel Width="60" Height="66" Margin="1,0" ToolTip="{Binding Tooltip}" ToolTipService.InitialShowDelay="150" AutomationProperties.Name="{Binding Tooltip}">
             <Grid Width="46" Height="46">
                 <Image Source="{Binding Frame}" Stretch="Uniform" />
                 <Ellipse Width="33" Height="33" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Ellipse.Fill><ImageBrush ImageSource="{Binding Icon}" Stretch="UniformToFill" /></Ellipse.Fill>
                 </Ellipse>
             </Grid>
-            <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontFamily="SimSun" FontSize="12" TextAlignment="Center" Margin="0,2,0,0" TextWrapping="Wrap">
-                <TextBlock.Effect><DropShadowEffect Color="#160C06" BlurRadius="3" ShadowDepth="1" Opacity="1" /></TextBlock.Effect>
-            </TextBlock>
+            <Viewbox Height="16" Stretch="Uniform" StretchDirection="DownOnly" Margin="0,2,0,0">
+                <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontFamily="SimSun" FontSize="12" TextAlignment="Center">
+                    <TextBlock.Effect><DropShadowEffect Color="#160C06" BlurRadius="3" ShadowDepth="1" Opacity="1" /></TextBlock.Effect>
+                </TextBlock>
+            </Viewbox>
         </StackPanel>
     </DataTemplate>
 
@@ -499,7 +628,7 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <Viewbox x:Name="SeatNumericHealth" Width="19" MaxHeight="54" StretchDirection="DownOnly" Visibility="{Binding ShowNumericHealth, Converter={StaticResource BoolToVisibility}}">
+                                <Viewbox x:Name="SeatNumericHealth" Width="{Binding NumericHealthWidth}" MaxHeight="54" StretchDirection="DownOnly" Visibility="{Binding ShowNumericHealth, Converter={StaticResource BoolToVisibility}}">
                                     <TextBlock Text="{Binding NumericHealthText}" Foreground="{Binding HealthBrush}" FontSize="16" LineHeight="16" FontWeight="Bold" TextAlignment="Center" />
                                 </Viewbox>
                             </StackPanel>
@@ -530,7 +659,7 @@
             </Border>
         </controls:IdentityMarkButton>
         <Canvas Width="0" Height="0" HorizontalAlignment="Left" VerticalAlignment="Top" Panel.ZIndex="5" Visibility="{Binding ShowPortraitWushuangTactics, Converter={StaticResource BoolToVisibility}}">
-            <ScrollViewer x:Name="OpponentWushuangTactics" Canvas.Left="-192" Canvas.Top="74" Width="186" MaxHeight="132" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="对方战法">
+            <ScrollViewer x:Name="OpponentWushuangTactics" Canvas.Right="6" Canvas.Top="74" Width="{Binding OpponentWushuangTacticWidth}" MaxHeight="132" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="对方战法" AutomationProperties.HelpText="超过十个战法时可滚动查看">
                 <ItemsControl ItemsSource="{Binding WushuangTactics}" ItemTemplate="{StaticResource WushuangTacticBadgeTemplate}">
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel HorizontalAlignment="Right" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                 </ItemsControl>
@@ -638,7 +767,7 @@
             <Trigger SourceName="SeatButton" Property="IsKeyboardFocused" Value="True">
                 <Setter TargetName="SeatFocusOutline" Property="Visibility" Value="Visible" />
             </Trigger>
-            <DataTrigger Binding="{Binding HpUndefined}" Value="True">
+            <DataTrigger Binding="{Binding IsHealthHidden}" Value="True">
                 <Setter TargetName="SeatHealthIcons" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="SeatHealthRail" Property="Visibility" Value="Collapsed" />
             </DataTrigger>
@@ -758,7 +887,7 @@
         </Button>
     </DataTemplate>
     <DataTemplate x:Key="HarvestCardTemplate">
-        <Button Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="5" Cursor="Hand" ToolTip="{Binding CardHint}" AutomationProperties.Name="{Binding CardHint}" AutomationProperties.HelpText="点击此牌，获得到手牌中">
+        <Button controls:BattleFeedbackLayer.PublicChoiceAnchor="{Binding Id}" Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="5" Cursor="Hand" ToolTip="{Binding CardHint}" AutomationProperties.Name="{Binding CardHint}" AutomationProperties.HelpText="点击此牌，获得到手牌中">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="ChoiceFrame" Background="#3B443E" BorderBrush="#B99A61" BorderThickness="2" CornerRadius="4" Padding="3">
@@ -844,8 +973,12 @@
                 <Border Background="#DD201D18" BorderBrush="#9B8355" BorderThickness="0,0,1,1" Padding="7,3" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <TextBlock Text="{Binding Kingdom}" Foreground="#E8DBAE" FontFamily="KaiTi" FontSize="17" />
                 </Border>
+                <Border x:Name="GeneralRosterPreviewBadge" Background="#E64A3D28" BorderBrush="#D4B572" BorderThickness="1" CornerRadius="2" Padding="5,3" Margin="3" HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False" Visibility="{Binding IsPreviewSelected, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="已预选" Foreground="#FFE4A7" FontSize="10" />
+                </Border>
                 <StackPanel VerticalAlignment="Bottom" Background="#E8211C16" Margin="0" IsHitTestVisible="False">
-                    <TextBlock Text="{Binding Name}" Foreground="#FFE1A0" FontFamily="KaiTi" FontSize="18" FontWeight="SemiBold" TextAlignment="Center" Margin="3,4,3,2" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding CardName}" Foreground="#FFE1A0" FontFamily="KaiTi" FontSize="18" FontWeight="SemiBold" TextAlignment="Center" Margin="3,4,3,2" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding RulesLabel}" Foreground="#BFC898" FontSize="11" TextAlignment="Center" Margin="4,0,4,2" Visibility="{Binding HasRulesLabel, Converter={StaticResource BoolToVisibility}}" />
                     <TextBlock Text="{Binding SkillName}" Foreground="#C9BC9D" FontSize="10" TextAlignment="Center" Margin="4,0,4,5" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
             </Grid>
@@ -863,6 +996,7 @@
                     </Border>
                     <TextBlock Text="{Binding VerticalName}" FontFamily="KaiTi" FontWeight="Bold" Foreground="#FFE8BC" FontSize="21" LineHeight="23" Background="#8018130D" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,40,0,0" Padding="2" />
                     <StackPanel VerticalAlignment="Bottom" Margin="10,0,10,10">
+                        <TextBlock Text="{Binding RulesLabel}" Foreground="#BFC898" FontSize="11" TextAlignment="Center" Margin="0,0,0,5" Visibility="{Binding HasRulesLabel, Converter={StaticResource BoolToVisibility}}" />
                         <TextBlock x:Name="GeneralHealthPreview" Text="{Binding HealthText}" Foreground="#DCE8C3" FontSize="10" TextAlignment="Right" Margin="0,0,0,5" />
                         <Border x:Name="ChoiceStatus" Background="#D2312920" BorderBrush="#847354" BorderThickness="1" Padding="3,4">
                             <TextBlock x:Name="ChoiceStatusText" Text="{Binding SkillName}" Foreground="#D8C9AB" FontSize="10" TextAlignment="Center" TextTrimming="CharacterEllipsis" />

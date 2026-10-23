@@ -12,7 +12,7 @@ using CardGame.Wpf.ViewModels;
 namespace CardGame.Wpf.Controls;
 
 /// <summary>A transient, non-interactive layer. It never delays or submits a game command.</summary>
-public sealed class BattleFeedbackLayer : FrameworkElement
+public sealed partial class BattleFeedbackLayer : FrameworkElement
 {
     public static readonly DependencyProperty CuesProperty = DependencyProperty.Register(nameof(Cues), typeof(IEnumerable), typeof(BattleFeedbackLayer), new PropertyMetadata(null, OnCuesChanged));
     public static readonly DependencyProperty AnchorRootProperty = DependencyProperty.Register(nameof(AnchorRoot), typeof(FrameworkElement), typeof(BattleFeedbackLayer), new PropertyMetadata(null, OnAnchorRootChanged));
@@ -40,9 +40,11 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     public static readonly DependencyProperty IsDeathPendingProperty = IsDeathPendingPropertyKey.DependencyProperty;
 
     private readonly List<TimedCue> _active = [];
+    public HandArrivalTimeline ArrivalTimeline { get; } = new();
+    private readonly Dictionary<int, DrawFlightPath> _drawRouteCache = [];
     private const double DamageTextDuration = .72;
     internal const double DrawDuration = .85;
-    internal const double DrawArrivalTime = .42;
+    internal const double DrawArrivalTime = CardLiftSurface.ArrivalStartTime;
     private readonly DispatcherTimer _timer;
     private INotifyCollectionChanged? _observed;
     private FrameworkElement? _observedHand;
@@ -74,7 +76,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         _timer.Tick += OnTick;
         // A public container can appear after this layer prepared its fallback
         // drawing. Refresh once when that layout changes the face handoff.
-        LayoutUpdated += (_, _) => { if (UpdatePlayVisibility() | UpdateDeathVisibility()) InvalidateVisual(); };
+        LayoutUpdated += (_, _) => { CachePublicChoiceOrigins(); if (UpdatePlayVisibility() | UpdateDeathVisibility()) InvalidateVisual(); };
         Loaded += (_, _) => { _hasLoaded = true; _loaded = true; Observe(); ObserveHand(); StartIfNeeded(); };
         Unloaded += (_, _) => { _loaded = false; StopAndClear(); Unobserve(); UnobserveHand(); };
     }
@@ -163,6 +165,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         var layer = (BattleFeedbackLayer)sender;
         var now = layer.Clock.GetTimestamp();
         var scale = (double)args.NewValue;
+        layer.ArrivalTimeline.SetTimeScale(scale);
         for (var index = 0; index < layer._active.Count; index++)
         {
             var item = layer._active[index];
@@ -204,7 +207,27 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     }
 
     private void OnHandLayoutUpdated(object? sender, EventArgs args) => CacheHandOrigins();
-    private void OnHandLiftChanged(object sender, RoutedEventArgs args) => CacheHandOrigins();
+    private void OnHandLiftChanged(object sender, RoutedEventArgs args)
+    {
+        if (args.OriginalSource is not FrameworkElement card) return;
+        var id = GetHandAnchor(card);
+        if (id <= 0 || !MotionEnabled || HandRoot is null) return;
+        // Lift/reflow raises one event per moving surface. Follow only that
+        // surface's ancestry instead of rescanning every other hand card.
+        for (DependencyObject? current = card; current is not null; current = VisualTreeHelper.GetParent(current))
+        {
+            if (current is UIElement { Visibility: not Visibility.Visible })
+            {
+                // A hidden ancestor can invalidate sibling poses too. Preserve
+                // the whole-hand visibility boundary without doing it each frame.
+                CacheHandOrigins();
+                return;
+            }
+            if (!ReferenceEquals(current, HandRoot)) continue;
+            CacheHandOrigin(card, id, Bounds(HandRoot), true);
+            return;
+        }
+    }
 
     private void CacheHandOrigins()
     {
@@ -221,15 +244,20 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             visible &= element is not UIElement { Visibility: not Visibility.Visible };
             if (element is FrameworkElement card && GetHandAnchor(card) is var id && id > 0)
             {
-                var bounds = visible ? Bounds(card) : Rect.Empty;
-                if (!bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0 && viewport.Contains(Center(bounds)))
-                    _handOrigins[id] = (bounds, CommittedRevision);
-                else _handOrigins.Remove(id);
+                CacheHandOrigin(card, id, viewport, visible);
                 return;
             }
             for (var index = 0; index < VisualTreeHelper.GetChildrenCount(element); index++)
                 Cache(VisualTreeHelper.GetChild(element, index), visible);
         }
+    }
+
+    private void CacheHandOrigin(FrameworkElement card, int id, Rect viewport, bool visible)
+    {
+        var bounds = visible ? Bounds(card) : Rect.Empty;
+        if (!viewport.IsEmpty && !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0 && viewport.Contains(Center(bounds)))
+            _handOrigins[id] = (bounds, CommittedRevision);
+        else _handOrigins.Remove(id);
     }
 
     private static void OnCommittedRevisionChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
@@ -273,6 +301,9 @@ public sealed class BattleFeedbackLayer : FrameworkElement
                         item.Cue.JudgmentResolutionId == judgmentId);
                 }
                 var delay = PresentationDelay(cue, now);
+                if (cue.TargetSeats.Contains(HandOwnerSeat) &&
+                    (cue.Kind == BattleCueKind.CardTransfer || cue.HasDrawCards))
+                    ArrivalTimeline.Register(cue.Revision, Clock, now, delay, PlaybackTimeScale);
                 if (IsLifeOutcome(cue))
                     _active.RemoveAll(item => IsLifeOutcome(item.Cue) && SameLifeSeat(item.Cue, cue));
                 // Published progress advances one public response set. Keep the
@@ -289,10 +320,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
                         item.Cue.ResponseResolutionId == weaponId && cue.TargetSeats.Contains(item.Cue.SourceSeat));
                 var visibleFace = cue.HasJudgmentCard ? cue.JudgmentCard : cue.PublicCard;
                 _active.Add(new(cue, now, delay, PlaybackTimeScale,
-                    cue.HasJudgmentCard ? CardArt.Get(cue.JudgmentCard!.Kind) : IsCardPlay(cue) ? CardArt.Get(cue.CardKind) : null,
+                    cue.HasJudgmentCard ? CardArt.Get(cue.JudgmentCard!.Kind) : IsCardPlay(cue) || IsTransfer(cue) ? CardArt.Get(cue.CardKind) : null,
                     CardArt.GetRank(visibleFace?.RankText ?? string.Empty, visibleFace is { } card ? TablePlayViewModel.GetSuitGlyph(card.Suit) : string.Empty),
                     visibleFace is { } face ? CardArt.GetSuit(TablePlayViewModel.GetSuitGlyph(face.Suit)) : null, CaptureHandOrigin(cue))
-                { SoundConsumed = !_soundsEnabled || !_loaded });
+                { SoundConsumed = !_soundsEnabled || !_loaded,
+                    PublicChoiceOrigin = cue.OriginZone == CardZoneKind.Processing && cue.PublicCardId is { } publicId
+                        ? _publicChoiceOrigins.GetValueOrDefault(publicId, Rect.Empty) : Rect.Empty });
             }
         if (_active.Count > 24) _active.RemoveRange(0, _active.Count - 24);
         PublishDueSounds();
@@ -338,7 +371,10 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     {
         _timer.Stop();
         _active.Clear();
+        ArrivalTimeline.Clear();
+        _drawRouteCache.Clear();
         _handOrigins.Clear();
+        _publicChoiceOrigins.Clear();
         RevealPendingPlays();
         RevealPendingDeaths();
         InvalidateVisual();
@@ -411,7 +447,10 @@ public sealed class BattleFeedbackLayer : FrameworkElement
 
     private bool UpdatePlayVisibility(IReadOnlyDictionary<long, FrameworkElement>? plays = null)
     {
-        if (!MotionEnabled || _active.Count == 0 || AnchorRoot is null)
+        // Once every public face has handed off, its remaining highlight does
+        // not need to rediscover the row on each timer tick. A missing/late row
+        // still has an unhanded cue, so it continues through the normal lookup.
+        if (!MotionEnabled || !_active.Any(item => IsCardPlay(item.Cue) && !item.HandedOff) || AnchorRoot is null)
         {
             var hadPending = _pendingPlays.Count > 0;
             RevealPendingPlays();
@@ -463,6 +502,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
 
     private void RemoveExpired()
     {
+        ArrivalTimeline.Prune();
         var now = Clock.GetTimestamp();
         _active.RemoveAll(cue => VisualAge(cue, now) >= Duration(cue.Cue.Kind));
         if (_active.Count == 0) { _timer.Stop(); RevealPendingPlays(); RevealPendingDeaths(); }
@@ -470,6 +510,32 @@ public sealed class BattleFeedbackLayer : FrameworkElement
 
     private double PresentationDelay(BattleCue cue, long now)
     {
+        if (IsTransfer(cue))
+        {
+            if (cue.SourceCardUseResolutionId is not { } useId) return 0;
+            for (var i = _active.Count - 1; i >= 0; i--)
+            {
+                var previous = _active[i];
+                if (previous.HandedOff || previous.Cue.Sequence >= cue.Sequence ||
+                    previous.Cue.Kind != BattleCueKind.Card ||
+                    previous.Cue.SourceCardUseResolutionId != useId) continue;
+                return Math.Max(0, Duration(previous.Cue.Kind) * .37 - VisualAge(previous, now));
+            }
+            return 0;
+        }
+        if (cue.Kind == BattleCueKind.HpLoss)
+        {
+            if (cue.CompletedCardUseResolutionId is not { } completedUse) return 0;
+            var delay = 0d;
+            // A completion cost follows every still-visible hit from this exact
+            // use. Its owner can differ from the damaged seats, and a human
+            // response can commit the hit in an earlier revision.
+            foreach (var previous in _active)
+                if (previous.Cue.Sequence < cue.Sequence && previous.Cue.Kind == BattleCueKind.Damage &&
+                    previous.Cue.SourceCardUseResolutionId == completedUse)
+                    delay = Math.Max(delay, BattleEffectPainter.DamageImpactTime - VisualAge(previous, now));
+            return delay;
+        }
         if (IsLifeOutcome(cue))
         {
             var delay = 0d;
@@ -478,6 +544,8 @@ public sealed class BattleFeedbackLayer : FrameworkElement
                 var age = VisualAge(previous, now);
                 if (cue.Kind is BattleCueKind.Dying or BattleCueKind.Death && previous.Cue.Kind == BattleCueKind.Damage)
                     delay = Math.Max(delay, BattleEffectPainter.DamageImpactTime - age);
+                if (cue.Kind is BattleCueKind.Dying or BattleCueKind.Death && previous.Cue.Kind == BattleCueKind.HpLoss)
+                    delay = Math.Max(delay, .12 - age);
                 if (cue.Kind == BattleCueKind.Death && previous.Cue.Kind == BattleCueKind.Dying)
                     delay = Math.Max(delay, .24 - age);
                 if (cue.Kind == BattleCueKind.Rescued)
@@ -491,6 +559,20 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         }
         if (cue.Kind == BattleCueKind.Damage)
         {
+            // Duel damage can reverse the original card user's direction. Its
+            // owning use and the paid response's public opponent identify the
+            // flight even when the response and hit commit in different revisions.
+            if (cue.SourceCardUseResolutionId is { } cardUseId)
+                for (var i = _active.Count - 1; i >= 0; i--)
+                {
+                    var previous = _active[i];
+                    var responseCard = previous.Cue;
+                    if (previous.HandedOff || responseCard.Sequence >= cue.Sequence ||
+                        responseCard.Kind != BattleCueKind.Response || responseCard.CardKind != CardKind.Slash ||
+                        responseCard.ResponseResolutionId != cardUseId || responseCard.SourceSeat != cue.SourceSeat ||
+                        responseCard.DuelOpponentSeat is not { } opponent || !cue.TargetSeats.Contains(opponent)) continue;
+                    return Math.Max(0, Duration(responseCard.Kind) * .37 - VisualAge(previous, now));
+                }
             // The paid axe announces continued resolution, not guaranteed damage.
             // Only an actual public damage cue waits for its recent axe stroke.
             for (var i = _active.Count - 1; i >= 0; i--)
@@ -546,7 +628,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
 
     private static double Duration(BattleCueKind kind) => kind switch
     {
-        BattleCueKind.Draw => DrawDuration,
+        BattleCueKind.Draw or BattleCueKind.CardTransfer or BattleCueKind.CardDiscard => DrawDuration,
         BattleCueKind.ChainPropagation => BattleEffectPainter.ChainDuration,
         BattleCueKind.Weapon => BattleEffectPainter.WeaponDuration,
         BattleCueKind.Damage => BattleEffectPainter.DamageDuration,
@@ -573,11 +655,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         CollectAnchors(AnchorRoot, seats, plays, health, playElements);
         UpdatePlayVisibility(playElements);
         UpdateDeathVisibility();
-        var centerArea = Bounds(CenterAnchor);
+        var frame = new FrameGeometry(this, seats, plays.Values);
+        var centerArea = frame.Bounds(CenterAnchor);
         var center = centerArea.IsEmpty ? new Point(ActualWidth * .5, ActualHeight * .45)
             : new Point(centerArea.X + centerArea.Width / 2, centerArea.Y + centerArea.Height * .64);
         var now = Clock.GetTimestamp();
-        var sidebar = Bounds(Sidebar);
+        var sidebar = frame.Bounds(Sidebar);
         if (!sidebar.IsEmpty)
             dc.PushClip(new CombinedGeometry(GeometryCombineMode.Exclude,
                 new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight)), new RectangleGeometry(sidebar)));
@@ -588,34 +671,185 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             if (elapsed <= 0) continue;
             var progress = Math.Clamp(elapsed / Duration(item.Cue.Kind), 0, 1);
             if (item.Cue.HasDrawCards)
-                DrawCards(dc, item.Cue, elapsed, seats, plays.Values);
-            DrawBattleEffects(dc, item.Cue, progress, seats);
-            DrawCue(dc, item.Cue, item.Artwork, item.RankArtwork, item.SuitArtwork, item.HandOrigin, item.HandedOff, progress, seats, plays, center, i);
+                DrawCards(dc, item.Cue, elapsed, seats, frame);
+            if (IsTransfer(item.Cue)) DrawCardTransfer(dc, item, elapsed, seats, frame);
+            DrawBattleEffects(dc, item.Cue, progress, seats, frame);
+            DrawCue(dc, item, progress, seats, plays, center, i, frame);
         }
-        DrawHealthChanges(dc, health, now);
-        DrawCombatText(dc, seats, health, plays, now);
+        DrawHealthChanges(dc, health, now, frame);
+        DrawCombatText(dc, seats, health, plays, now, frame);
         if (!sidebar.IsEmpty) dc.Pop();
     }
 
-    private IEnumerable<Rect> ProtectedAreas(bool includeCommandDock = true) => new[]
+    // This snapshot belongs to one synchronous render only. LayoutUpdated is
+    // insufficient for a longer cache: RenderTransform and Visibility can
+    // change the protected geometry without a new layout pass.
+    private sealed class FrameGeometry(BattleFeedbackLayer layer, IReadOnlyDictionary<int, Rect> seats, IEnumerable<Rect> plays)
     {
-        includeCommandDock ? Bounds(ActionBar) : Rect.Empty, Bounds(SupplementalActions), Bounds(Sidebar),
-        PhaseHud is { Visibility: Visibility.Visible } ? Bounds(PhaseHud) : Rect.Empty,
-        IsPromptVisible ? Bounds(CenterAnchor) : Rect.Empty
-    };
+        private readonly Dictionary<FrameworkElement, Rect> _bounds = [];
+        private readonly Dictionary<int, Geometry> _drawClips = [];
+        private readonly Dictionary<int, DrawFlightPath> _drawPaths = [];
+        private Rect[]? _protected, _drawProtected, _readouts, _drawReadouts, _flightObstacles, _drawObstacles, _drawInk, _drawProtectedInk;
+        private Geometry? _effectClip;
 
-    private void DrawBattleEffects(DrawingContext dc, BattleCue cue, double progress, IReadOnlyDictionary<int, Rect> seats)
+        public Rect Bounds(FrameworkElement? element)
+        {
+            if (element is null) return Rect.Empty;
+            if (!_bounds.TryGetValue(element, out var bounds)) _bounds[element] = bounds = layer.Bounds(element);
+            return bounds;
+        }
+
+        public Rect VisibleBounds(FrameworkElement? element)
+        {
+            for (DependencyObject? current = element; current is not null; current = VisualTreeHelper.GetParent(current))
+                if (current is UIElement { Visibility: not Visibility.Visible }) return Rect.Empty;
+            return Bounds(element);
+        }
+
+        public IReadOnlyList<Rect> ProtectedAreas(bool includeCommandDock = true)
+        {
+            _protected ??= [Bounds(layer.ActionBar), Bounds(layer.SupplementalActions), Bounds(layer.Sidebar),
+                layer.PhaseHud is { Visibility: Visibility.Visible } ? Bounds(layer.PhaseHud) : Rect.Empty,
+                layer.IsPromptVisible ? Bounds(layer.CenterAnchor) : Rect.Empty];
+            return includeCommandDock ? _protected : _drawProtected ??= [Rect.Empty, _protected[1], _protected[2], _protected[3], _protected[4]];
+        }
+
+        public IReadOnlyList<Rect> Readouts(bool includeSeatButtons = true) => includeSeatButtons
+            ? _readouts ??= layer.ReadoutAndCommandBounds(layer.AnchorRoot).ToArray()
+            : _drawReadouts ??= layer.ReadoutAndCommandBounds(layer.AnchorRoot, false).ToArray();
+
+        public Rect FlightViewport => new(2, 2, Math.Max(0, layer.ActualWidth - 4), Math.Max(0, layer.ActualHeight - 4));
+
+        public Rect[] FlightObstacles() => _flightObstacles ??= layer.FlightCommandBounds(layer.ActionBar)
+            .Concat(layer.FlightCommandBounds(layer.SupplementalActions))
+            .Concat(seats.Where(seat => seat.Key != layer.HandOwnerSeat).Select(seat => seat.Value))
+            .Append(VisibleBounds(layer.Sidebar)).Append(VisibleBounds(layer.PhaseHud))
+            .Append(layer.IsPromptVisible ? VisibleBounds(layer.CenterAnchor) : Rect.Empty)
+            .Where(bounds => !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0).ToArray();
+
+        private IReadOnlyList<Rect> DrawInk() => _drawInk ??= DrawReadouts(layer.AnchorRoot).ToArray();
+
+        private IEnumerable<Rect> DrawReadouts(DependencyObject? element)
+        {
+            if (element is null || ReferenceEquals(element, layer.HandRoot) || ReferenceEquals(element, layer.DrawPileAnchor) ||
+                element is UIElement { Visibility: not Visibility.Visible }) yield break;
+            if (element is System.Windows.Controls.TextBlock || element is System.Windows.Controls.Primitives.ButtonBase && GetSeatAnchor(element) < 0)
+            {
+                foreach (var bounds in layer.FlightCommandBounds(element)) yield return bounds;
+                yield break;
+            }
+            for (var index = 0; index < VisualTreeHelper.GetChildrenCount(element); index++)
+                foreach (var bounds in DrawReadouts(VisualTreeHelper.GetChild(element, index))) yield return bounds;
+        }
+
+        private Rect[] DrawProtectedInk() => _drawProtectedInk ??= ProtectedAreas(false).Concat(plays).Concat(DrawInk())
+            .Where(bounds => !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0)
+            .Select(bounds => { bounds.Inflate(2, 2); return bounds; }).Distinct().ToArray();
+
+        private Rect[] DrawObstacles() => _drawObstacles ??= seats.Values.Concat(DrawProtectedInk())
+            .Where(bounds => !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0).Distinct().ToArray();
+
+        public DrawFlightPath DrawPath(int sourceSeat, Rect owner, Rect pile, int count)
+        {
+            if (_drawPaths.TryGetValue(sourceSeat, out var path)) return path;
+            var launch = Center(pile);
+            var hand = sourceSeat == layer.HandOwnerSeat ? Bounds(layer.HandRoot) : Rect.Empty;
+            // Count-only cards meet the local hand at one public entrance.
+            // The launch body fits the actual pile; it never shrinks below the
+            // existing 14.72 x 20.48 landing body while it travels.
+            var destination = hand.IsEmpty
+                ? new Point(Center(owner).X > layer.ActualWidth / 2 ? owner.Left - 20 : owner.Right + 20, Center(owner).Y)
+                : new Point(hand.Left + hand.Width / 2, hand.Top + HandPanel.ArrivalEntryInset);
+            var scale = Math.Clamp(Math.Min(pile.Width / 47.5, pile.Height / 65.5), .32, 1);
+            var obstacles = DrawObstacles();
+            if (!layer._drawRouteCache.TryGetValue(sourceSeat, out path) ||
+                !path.Matches(launch, destination, scale, obstacles, FlightViewport))
+                layer._drawRouteCache[sourceSeat] = path = new(launch, destination, scale, obstacles, FlightViewport);
+            _drawPaths.Add(sourceSeat, path);
+            return path;
+        }
+
+        public IEnumerable<Rect> DrawCorridors() => _drawPaths.Values.SelectMany(path => path.Corridor());
+
+        public Geometry EffectClip()
+        {
+            if (_effectClip is not null) return _effectClip;
+            Geometry clip = new RectangleGeometry(new Rect(0, 0, layer.ActualWidth, layer.ActualHeight));
+            foreach (var area in ProtectedAreas())
+                if (!area.IsEmpty) clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, new RectangleGeometry(area));
+            clip.Freeze();
+            return _effectClip = clip;
+        }
+
+        public Geometry DrawClip(int sourceSeat, Rect owner)
+        {
+            if (_drawClips.TryGetValue(sourceSeat, out var cached)) return cached;
+            var artwork = new Rect(owner.Left + owner.Width * .24, owner.Top + owner.Height * .2, owner.Width * .6, owner.Height * .46);
+            Geometry clip = new RectangleGeometry(new Rect(0, 0, layer.ActualWidth, layer.ActualHeight));
+            foreach (var (seat, bounds) in seats)
+            {
+                var protectedPortrait = seat == sourceSeat
+                    ? new CombinedGeometry(GeometryCombineMode.Exclude, new RectangleGeometry(bounds), new RectangleGeometry(artwork))
+                    : (Geometry)new RectangleGeometry(bounds);
+                clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, protectedPortrait);
+            }
+            // Seat buttons need their inner readouts here; the full button is
+            // protected separately for caption placement. Keep both semantics.
+            foreach (var area in DrawProtectedInk())
+                clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, new RectangleGeometry(area));
+            clip.Freeze();
+            _drawClips.Add(sourceSeat, clip);
+            return clip;
+        }
+    }
+
+    private sealed class DrawFlightPath
     {
+        public const double HalfWidth = 23, HalfHeight = 32;
+        private readonly Point _launch, _destination;
+        private readonly double _initialScale;
+        private readonly Rect[] _obstacles;
+        private readonly Rect _viewport;
+        private readonly DrawCardFlightPath _route;
+        private readonly Rect[] _corridor;
+        public bool NeedsClip => _route.NeedsClip;
+
+        public DrawFlightPath(Point launch, Point destination, double initialScale, Rect[] obstacles, Rect viewport)
+        {
+            _launch = launch; _destination = destination; _initialScale = initialScale;
+            _obstacles = obstacles; _viewport = viewport;
+            _route = DrawCardFlightPath.Create(launch, destination,
+                new Size(HalfWidth * 2 * initialScale, HalfHeight * 2 * initialScale), obstacles, viewport);
+            _corridor = _route.Corridor().ToArray();
+        }
+
+        public bool Matches(Point launch, Point destination, double scale, Rect[] obstacles, Rect viewport) =>
+            launch == _launch && destination == _destination && scale == _initialScale && viewport == _viewport &&
+            _obstacles.AsSpan().SequenceEqual(obstacles);
+
+        public (Point Point, double Scale, double Tilt) Position(double elapsed, int index, int count)
+        {
+            var start = .06 + index * .04;
+            var flight = Math.Clamp((elapsed - start) / (DrawArrivalTime - start), 0, 1);
+            var move = 1 - Math.Pow(1 - flight, 2);
+            // Stagger along the same validated route. An extra lateral fan or
+            // tilt after routing would move the actual back outside its envelope.
+            return (_route.Position(move), _initialScale + (.32 - _initialScale) * move, 0);
+        }
+
+        public IEnumerable<Rect> Corridor() => _corridor;
+    }
+
+    private void DrawBattleEffects(DrawingContext dc, BattleCue cue, double progress, IReadOnlyDictionary<int, Rect> seats, FrameGeometry frame)
+    {
+        if (cue.Kind == BattleCueKind.Draw || IsTransfer(cue)) return;
         var groupResponse = cue.CardKind is CardKind.ArrowBarrage or CardKind.BarbarianAssault;
         // A declaration identifies all public targets; its portrait outlines
         // remain in DrawCue. The response focus belongs to the actual public
         // inquiry, so future recipients never receive its active effect early.
         if (groupResponse && cue.Kind == BattleCueKind.Card) return;
         // Effects can cross the battlefield, but must leave decisions and command buttons readable.
-        Geometry clip = new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight));
-        foreach (var protectedArea in ProtectedAreas())
-            if (!protectedArea.IsEmpty)
-                clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, new RectangleGeometry(protectedArea));
+        Geometry clip = frame.EffectClip();
         if (cue.Kind == BattleCueKind.Weapon)
             foreach (var (seat, bounds) in seats)
                 if (seat != cue.SourceSeat)
@@ -623,7 +857,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         clip.Freeze();
         dc.PushClip(clip);
         if (groupResponse && cue.Kind == BattleCueKind.ResponseWindow && cue.IsInquiry && cue.Revision >= CommittedRevision)
-            BattleEffectPainter.DrawGroupResponseFocus(dc, seats.GetValueOrDefault(cue.SourceSeat, Rect.Empty), progress);
+            BattleEffectPainter.DrawGroupResponseFocus(dc, cue, seats.GetValueOrDefault(cue.SourceSeat, Rect.Empty), progress);
         else
             BattleEffectPainter.Draw(dc, cue, progress, seats.GetValueOrDefault(cue.OriginSeat ?? cue.SourceSeat, Rect.Empty), seats);
         dc.Pop();
@@ -653,22 +887,22 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             CollectAnchors(VisualTreeHelper.GetChild(element, index), seats, plays, health, playElements);
     }
 
-    private void DrawHealthChanges(DrawingContext dc, IReadOnlyDictionary<int, HealthMeter> health, long now)
+    private void DrawHealthChanges(DrawingContext dc, IReadOnlyDictionary<int, HealthMeter> health, long now, FrameGeometry frame)
     {
         foreach (var (seat, meter) in health)
         {
             var latest = _active.LastOrDefault(item => item.Cue.RemainingHp is not null &&
-                item.Cue.Kind is BattleCueKind.Damage or BattleCueKind.Recovery && item.Cue.TargetSeats.Contains(seat));
+                IsHealthResult(item.Cue) && item.Cue.TargetSeats.Contains(seat));
             if (latest is null || latest.Cue.RemainingHp != meter.Value || latest.Cue.MaximumHp != meter.Maximum) continue;
             // Only the latest public HP result belongs to the current track. A rapid
             // rescue, new maximum, or load must not redraw a stale damage remainder.
             var elapsed = VisualAge(latest, now);
-            if (elapsed >= .85) continue;
+            if (elapsed < 0 || elapsed >= .85) continue;
             var after = meter.Fraction(meter.Value);
             var before = meter.Fraction((double)latest.Cue.RemainingHp.Value - latest.Cue.HpDelta);
             var bounds = Bounds(meter, meter.TrackBounds);
             if (bounds.IsEmpty || before == after) continue;
-            if (ProtectedAreas()
+            if (frame.ProtectedAreas()
                 .Any(area => !area.IsEmpty && area.IntersectsWith(bounds))) continue;
             if (bounds.Width <= 0 || bounds.Height <= 0) continue;
             var damage = latest.Cue.HpDelta < 0;
@@ -678,7 +912,8 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             if (end <= start) continue;
             dc.PushClip(new RectangleGeometry(bounds, 2, 2));
             dc.PushOpacity(damage ? .8 : .9 * (1 - progress));
-            dc.DrawRectangle(Frozen(damage ? Color.FromRgb(255, 127, 91) : Color.FromRgb(197, 255, 207)), null,
+            dc.DrawRectangle(Frozen(latest.Cue.Kind == BattleCueKind.HpLoss ? Color.FromRgb(225, 183, 128) :
+                damage ? Color.FromRgb(255, 127, 91) : Color.FromRgb(197, 255, 207)), null,
                 new Rect(bounds.Left + start * bounds.Width, bounds.Top, (end - start) * bounds.Width, bounds.Height));
             dc.Pop();
             dc.Pop();
@@ -693,60 +928,30 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     }
 
     private void DrawCards(DrawingContext dc, BattleCue cue, double elapsed,
-        IReadOnlyDictionary<int, Rect> seats, IEnumerable<Rect> plays)
+        IReadOnlyDictionary<int, Rect> seats, FrameGeometry frame)
     {
-        var pile = Bounds(DrawPileAnchor);
-        if (pile.IsEmpty || !seats.TryGetValue(cue.SourceSeat, out var owner) || owner.IsEmpty || elapsed >= DrawArrivalTime + .16) return;
-        var artwork = new Rect(owner.Left + owner.Width * .24, owner.Top + owner.Height * .2, owner.Width * .6, owner.Height * .46);
-        Geometry clip = new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight));
-        foreach (var (seat, bounds) in seats)
-        {
-            var protectedPortrait = seat == cue.SourceSeat
-                ? new CombinedGeometry(GeometryCombineMode.Exclude, new RectangleGeometry(bounds), new RectangleGeometry(artwork))
-                : (Geometry)new RectangleGeometry(bounds);
-            clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, protectedPortrait);
-        }
+        var pile = frame.Bounds(DrawPileAnchor);
+        if (pile.IsEmpty || !seats.TryGetValue(cue.SourceSeat, out var owner) || owner.IsEmpty) return;
+        // Retain the complete corridor through the caption's lifetime, even
+        // after the back has arrived and faded. All same-source cues share it.
+        var count = Math.Min(3, cue.DrawCount);
+        var path = frame.DrawPath(cue.SourceSeat, owner, pile, count);
+        if (elapsed >= DrawArrivalTime + .16) return;
         // A card can cross empty space in the command dock on its way to the
         // hand. Every measured command, label and readout still stays clear.
-        foreach (var protectedArea in ProtectedAreas(false).Concat(plays).Concat(ReadoutAndCommandBounds(AnchorRoot, false)))
-            if (!protectedArea.IsEmpty)
-            {
-                var padded = protectedArea; padded.Inflate(2, 2);
-                clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, new RectangleGeometry(padded));
-            }
-        clip.Freeze();
-        dc.PushClip(clip);
-        var launch = Center(pile);
-        var hand = cue.SourceSeat == HandOwnerSeat ? Bounds(HandRoot) : Rect.Empty;
-        // The hand's top padding is below the command dock and above its faces.
-        // Arrive there without masking a live command or an actual hand card.
-        var destination = hand.IsEmpty
-            ? new Point(Center(owner).X > ActualWidth / 2 ? owner.Left - 14 : owner.Right + 14, Center(owner).Y)
-            : new Point(hand.Left + hand.Width / 2, hand.Top + 7);
-        var arena = Bounds(CenterAnchor);
-        var via = arena.IsEmpty ? new Point(ActualWidth * .45, ActualHeight * .45) : Center(arena);
-        via.Y = Math.Max(via.Y, launch.Y + 70);
-        if ((destination - launch).Length < 180)
-            via = new Point((launch.X + destination.X) / 2 - 28, (launch.Y + destination.Y) / 2);
+        dc.PushClip(frame.DrawClip(cue.SourceSeat, owner));
         // Only public quantity reaches this layer. The fan is bounded even for
         // large draws; no hidden physical identity or artwork is consulted.
-        var count = Math.Min(3, cue.DrawCount);
         for (var index = 0; index < count; index++)
         {
-            var start = .06 + index * .04;
             if (elapsed <= index * .04) continue;
-            var flight = Math.Clamp((elapsed - start) / (DrawArrivalTime - start), 0, 1);
-            var move = 1 - Math.Pow(1 - flight, 2);
-            var point = new Point(
-                (1 - move) * (1 - move) * launch.X + 2 * (1 - move) * move * via.X + move * move * destination.X,
-                (1 - move) * (1 - move) * launch.Y + 2 * (1 - move) * move * via.Y + move * move * destination.Y);
-            point.X += (index - (count - 1) * .5) * 8 * Math.Sin(flight * Math.PI);
-            var scale = 1 - .68 * move;
+            var (point, scale, tilt) = path.Position(elapsed, index, count);
             var alpha = Math.Min(1, (elapsed - index * .04) / .045) * Math.Clamp((DrawArrivalTime + .16 - elapsed) / .16, 0, 1);
             dc.PushOpacity(alpha);
-            dc.PushTransform(new RotateTransform((index - (count - 1) * .5) * 7 * Math.Sin(flight * Math.PI), point.X, point.Y));
+            dc.PushTransform(new RotateTransform(tilt, point.X, point.Y));
             dc.PushTransform(new ScaleTransform(scale, scale, point.X, point.Y));
-            var back = new Rect(point.X - 23, point.Y - 32, 46, 64);
+            var back = new Rect(point.X - DrawFlightPath.HalfWidth, point.Y - DrawFlightPath.HalfHeight,
+                DrawFlightPath.HalfWidth * 2, DrawFlightPath.HalfHeight * 2);
             dc.DrawRoundedRectangle(Frozen(Color.FromRgb(48, 39, 29)), new Pen(Gold, 1.5), back, 4, 4);
             back.Inflate(-5, -5);
             dc.DrawRoundedRectangle(null, new Pen(Gold, .8), back, 2, 2);
@@ -765,9 +970,14 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         dc.Pop();
     }
 
-    private void DrawCue(DrawingContext dc, BattleCue cue, ImageSource? artwork, ImageSource? rankArtwork, ImageSource? suitArtwork, Rect handOrigin, bool handedOff, double progress, IReadOnlyDictionary<int, Rect> seats, IReadOnlyDictionary<long, Rect> plays, Point center, int lane)
+    private void DrawCue(DrawingContext dc, TimedCue item, double progress, IReadOnlyDictionary<int, Rect> seats,
+        IReadOnlyDictionary<long, Rect> plays, Point center, int lane, FrameGeometry frame)
     {
-        if (cue.Kind == BattleCueKind.Draw) return;
+        var cue = item.Cue;
+        var handOrigin = item.HandOrigin;
+        var handedOff = item.HandedOff;
+        if (cue.Kind == BattleCueKind.Draw || IsTransfer(cue)) return;
+        if (cue.Kind == BattleCueKind.HpLoss) return; // Numeric loss and its health tail have no attack highlight.
         if (cue.Kind == BattleCueKind.ChainPropagation) return; // The relay is drawn between public portraits.
         if (cue.Kind == BattleCueKind.Weapon) return; // Weapon captions share the protected text placement pass.
         if (cue.HasResponseProgress) return; // Its caption uses the text pass, leaving the portrait meter visible.
@@ -815,16 +1025,29 @@ public sealed class BattleFeedbackLayer : FrameworkElement
                 var flight = Math.Clamp((progress - .03) / .34, 0, 1);
                 var move = 1 - Math.Pow(1 - flight, 3);
                 var launch = handOrigin.IsEmpty ? from : Center(handOrigin);
-                var point = launch + (destination - launch) * move;
-                point.Y -= 28 * Math.Sin(flight * Math.PI);
-                var scale = handOrigin.IsEmpty ? .58 + .42 * move : 1;
                 var settledSize = hasLanding ? landing.Size : new Size(86, 120);
                 var size = handOrigin.IsEmpty ? settledSize : new Size(
                     handOrigin.Width + (settledSize.Width - handOrigin.Width) * move,
                     handOrigin.Height + (settledSize.Height - handOrigin.Height) * move);
+                var path = handOrigin.IsEmpty || handedOff ? null : item.GetFlightPath(destination, settledSize,
+                    frame.FlightObstacles(), frame.FlightViewport);
+                var scale = handOrigin.IsEmpty ? .58 + .42 * move : path?.ScaleAt(move) ?? PublicCardFlightPath.Scale(move);
+                var point = path?.PositionAt(flight) ?? launch + (destination - launch) * move - new Vector(0, 28 * Math.Sin(flight * Math.PI));
+                if (path is { NeedsClip: true })
+                {
+                    // A newly opened prompt can leave no continuous full-face
+                    // route. Keep the original launch and handoff; protect only
+                    // actual controls, never the transparent full-width dock.
+                    Geometry clip = new RectangleGeometry(frame.FlightViewport);
+                    foreach (var obstacle in frame.FlightObstacles())
+                        clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, new RectangleGeometry(obstacle));
+                    clip.Freeze(); dc.PushClip(clip);
+                }
                 if (flight is > 0 and < 1)
                 {
-                    var tail = point - (destination - launch) * .09 * (1 - flight);
+                    var tail = path is { Detoured: true }
+                        ? path.Position(flight, Math.Max(0, move - .09 * (1 - flight)))
+                        : point - (destination - launch) * .09 * (1 - flight);
                     dc.PushOpacity(.3 * Math.Sin(flight * Math.PI));
                     dc.DrawLine(new Pen(ink, 12 * scale) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round }, tail, point);
                     dc.Pop();
@@ -842,10 +1065,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
                 {
                     dc.PushTransform(new RotateTransform(Math.Sign(destination.X - launch.X) * 10 * Math.Sin(flight * Math.PI), point.X, point.Y));
                     dc.PushTransform(new ScaleTransform(scale, scale, point.X, point.Y));
-                    DrawCard(dc, point, size, cue, artwork, rankArtwork, suitArtwork, ink);
+                    DrawCard(dc, point, size, cue, item.Artwork, item.RankArtwork, item.SuitArtwork, ink,
+                        footerInset: handOrigin.IsEmpty ? 0 : 21 * size.Width / 86 * (1 - move));
                     dc.Pop();
                     dc.Pop();
                 }
+                if (path is { NeedsClip: true }) dc.Pop();
             }
         }
         else if (cue.Kind == BattleCueKind.Turn)
@@ -884,6 +1109,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         cue.Kind == BattleCueKind.Response && (cue.CardKind is not null || cue.PublicCardId is not null);
 
     private static bool IsLifeOutcome(BattleCue cue) => cue.Kind is BattleCueKind.Dying or BattleCueKind.Death or BattleCueKind.Rescued;
+    private static bool IsHealthResult(BattleCue cue) => cue.Kind is BattleCueKind.Damage or BattleCueKind.Recovery or BattleCueKind.HpLoss;
     private static bool SameLifeSeat(BattleCue left, BattleCue right) =>
         left.TargetSeats.Intersect(right.TargetSeats).Any();
 
@@ -933,7 +1159,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         if (!actionBar.IsEmpty) dc.Pop();
     }
 
-    private void DrawCard(DrawingContext dc, Point point, Size size, BattleCue cue, ImageSource? artwork, ImageSource? rankArtwork, ImageSource? suitArtwork, Brush accent, string? footer = null)
+    private void DrawCard(DrawingContext dc, Point point, Size size, BattleCue cue, ImageSource? artwork, ImageSource? rankArtwork, ImageSource? suitArtwork, Brush accent, string? footer = null, double footerInset = 0)
     {
         var bounds = new Rect(point.X - size.Width / 2, point.Y - size.Height / 2, size.Width, size.Height);
         dc.DrawRoundedRectangle(Shadow, null, new Rect(bounds.X + 4, bounds.Y + 5, bounds.Width, bounds.Height), 5, 5);
@@ -970,12 +1196,14 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             DrawCardCorner(dc, cue.PublicCard, rankArtwork, suitArtwork);
             dc.Pop(); dc.Pop();
         }
-        dc.DrawRectangle(Frozen(Color.FromArgb(224, 35, 27, 19)), null, new Rect(bounds.X, bounds.Bottom, bounds.Width, 21 * size.Width / 86));
+        var footerTop = bounds.Bottom - footerInset;
+        dc.DrawRectangle(Frozen(Color.FromArgb(224, 35, 27, 19)), null, new Rect(bounds.X, footerTop, bounds.Width, 21 * size.Width / 86));
         var name = Text(footer ?? cue.ActorName + cue.CardActionLabel, 10 * size.Width / 86, accent, TextTypeface);
         name.TextAlignment = TextAlignment.Center;
         name.MaxTextWidth = size.Width - 6;
+        name.MaxLineCount = 1;
         name.Trimming = TextTrimming.CharacterEllipsis;
-        dc.DrawText(name, new Point(bounds.X + 3, bounds.Bottom + 4));
+        dc.DrawText(name, new Point(bounds.X + 3, footerTop + 4));
     }
 
     private void DrawCardCorner(DrawingContext dc, CardSnapshot? card, ImageSource? rank, ImageSource? suit)
@@ -1016,22 +1244,27 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     }
 
     private void DrawCombatText(DrawingContext dc, IReadOnlyDictionary<int, Rect> seats,
-        IReadOnlyDictionary<int, HealthMeter> health, IReadOnlyDictionary<long, Rect> plays, long now)
+        IReadOnlyDictionary<int, HealthMeter> health, IReadOnlyDictionary<long, Rect> plays, long now, FrameGeometry frame)
     {
         var occupied = new List<Rect>();
-        foreach (var area in ProtectedAreas()
+        foreach (var area in frame.ProtectedAreas()
             .Concat(plays.Values)
-            .Append(Bounds(DrawPileAnchor))
-            .Concat(health.Values.Select(meter => Bounds(meter))))
+            .Append(frame.Bounds(DrawPileAnchor))
+            // Cards remain selectable while effects run. Keep opaque captions
+            // outside the whole visible hand viewport, including new arrivals.
+            .Append(frame.VisibleBounds(HandRoot))
+            .Concat(frame.DrawCorridors())
+            .Concat(health.Values.Select(meter => frame.Bounds(meter))))
             if (!area.IsEmpty) { var padded = area; padded.Inflate(4, 4); occupied.Add(padded); }
         // HP results have priority. A skill banner can move to leave a new result readable.
-        foreach (var item in _active.Where(item => item.Cue.Kind is BattleCueKind.Damage or BattleCueKind.Recovery)
+        foreach (var item in _active.Where(item => IsHealthResult(item.Cue))
             .Concat(_active.Where(item => item.Cue.Kind == BattleCueKind.Skill))
             .Concat(_active.Where(item => item.Cue.HasResponseProgress))
             .Concat(_active.Where(item => item.Cue.Kind == BattleCueKind.Weapon && !item.Cue.IsInquiry))
             .Concat(_active.Where(item => IsLifeOutcome(item.Cue)))
             .Concat(_active.Where(item => item.Cue.Kind == BattleCueKind.Judgment))
             .Concat(_active.Where(item => item.Cue.HasDrawCards))
+            .Concat(_active.Where(item => IsTransfer(item.Cue)))
             .Concat(_active.Where(item => item.Cue.Kind == BattleCueKind.Turn && !IsPromptVisible))
             .Concat(_active.Where(item => item.Cue.Kind == BattleCueKind.ResponseWindow && !item.Cue.HasResponseProgress &&
                 (!item.Cue.IsInquiry || !IsPromptVisible || item.Cue.SourceSeat != HandOwnerSeat))))
@@ -1047,19 +1280,19 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             if (!seats.TryGetValue(seat, out var owner))
             {
                 if (item.Cue.Kind != BattleCueKind.ResponseWindow || item.Cue.IsInquiry) continue;
-                owner = Bounds(CenterAnchor);
+                owner = frame.Bounds(CenterAnchor);
                 if (owner.IsEmpty) owner = new Rect(ActualWidth * .5, ActualHeight * .45, 1, 1);
             }
-            if (item.Cue.HasJudgmentCard) JudgmentPanel(dc, item, owner, elapsed, occupied, seats.Values);
-            else if (item.Cue.Kind == BattleCueKind.Skill) SkillBanner(dc, item, owner, progress, occupied);
-            else if (item.Cue.HasResponseProgress || item.Cue.Kind is BattleCueKind.Weapon or BattleCueKind.Judgment or BattleCueKind.ResponseWindow or BattleCueKind.Draw or BattleCueKind.Turn || item.Cue.IsInquiry || IsLifeOutcome(item.Cue))
-                ContinuationCaption(dc, item, owner, progress, occupied, seats.Values);
+            if (item.Cue.HasJudgmentCard) JudgmentPanel(dc, item, owner, elapsed, occupied, seats.Values, frame);
+            else if (item.Cue.Kind == BattleCueKind.Skill) SkillBanner(dc, item, owner, progress, occupied, seats.Values, frame);
+            else if (item.Cue.HasResponseProgress || IsTransfer(item.Cue) || item.Cue.Kind is BattleCueKind.Weapon or BattleCueKind.Judgment or BattleCueKind.ResponseWindow or BattleCueKind.Draw or BattleCueKind.Turn || item.Cue.IsInquiry || IsLifeOutcome(item.Cue))
+                ContinuationCaption(dc, item, owner, progress, occupied, seats.Values, frame);
             else Amount(dc, item, owner, progress, occupied);
         }
     }
 
     private void JudgmentPanel(DrawingContext dc, TimedCue item, Rect owner, double elapsed,
-        List<Rect> occupied, IEnumerable<Rect> portraits)
+        List<Rect> occupied, IEnumerable<Rect> portraits, FrameGeometry frame)
     {
         var cue = item.Cue;
         var face = cue.JudgmentCard!;
@@ -1073,7 +1306,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         var waiting = Text("翻开判定牌", 12, Gold, TextTypeface);
         var width = Math.Max(actor.Width, Math.Max(Math.Max(title.Width, result.Width), Math.Max(faceLabel.Width, waiting.Width)));
         var size = new Size(width + 102, Math.Max(126, title.Height + actor.Height + result.Height + faceLabel.Height + 38));
-        var obstacles = occupied.Concat(portraits).Concat(ReadoutAndCommandBounds(AnchorRoot)).ToArray();
+        var obstacles = occupied.Concat(portraits).Concat(frame.Readouts()).ToArray();
         if (!PlaceText(item, new Point(owner.Left + owner.Width / 2, owner.Top - size.Height / 2 - 6),
             size, obstacles, out var bounds)) return;
         occupied.Add(bounds);
@@ -1115,7 +1348,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     }
 
     private void ContinuationCaption(DrawingContext dc, TimedCue item, Rect owner, double progress,
-        List<Rect> occupied, IEnumerable<Rect> portraits)
+        List<Rect> occupied, IEnumerable<Rect> portraits, FrameGeometry frame)
     {
         var accent = item.Cue.Kind switch
         {
@@ -1139,7 +1372,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             Math.Max(draw ? 62 : 0, title.Height + detail.Height + 19));
         // Keep the whole portrait clear, including the just-paid sidestep and
         // public meter. Use the same placement contract as damage/skill text.
-        var obstacles = occupied.Concat(portraits).Concat(ReadoutAndCommandBounds(AnchorRoot)).ToArray();
+        var obstacles = occupied.Concat(portraits).Concat(frame.Readouts()).ToArray();
         if (!PlaceText(item, new Point(owner.Left + owner.Width / 2, owner.Top - size.Height / 2 - 6),
             size, obstacles, out var bounds)) return;
         occupied.Add(bounds);
@@ -1148,6 +1381,36 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         dc.DrawText(title, new Point(bounds.Left + (bounds.Width - title.Width) / 2, bounds.Top + 6));
         dc.DrawText(detail, new Point(bounds.Left + (bounds.Width - detail.Width) / 2, bounds.Top + title.Height + 9));
         dc.Pop();
+    }
+
+    private IEnumerable<Rect> FlightCommandBounds(DependencyObject? element)
+    {
+        if (element is null || element is UIElement { Visibility: not Visibility.Visible } or UIElement { Opacity: <= 0 }) yield break;
+        if (element is System.Windows.Controls.Primitives.ButtonBase button)
+        {
+            var bounds = Bounds(button); if (!bounds.IsEmpty) { bounds.Inflate(3, 3); yield return bounds; }
+            yield break;
+        }
+        if (element is System.Windows.Controls.TextBlock text && !string.IsNullOrWhiteSpace(text.Text))
+        {
+            // A stretched TextBlock is mostly empty space. Use its rendered
+            // glyph extent, otherwise it would seal the entire command row.
+            var ink = VisualTreeHelper.GetDrawing(text)?.Bounds ?? Rect.Empty;
+            if (ink.IsEmpty && text.ActualWidth > 0 && text.ActualHeight > 0)
+            {
+                var formatted = new FormattedText(text.Text, CultureInfo.CurrentUICulture, text.FlowDirection,
+                    new Typeface(text.FontFamily, text.FontStyle, text.FontWeight, text.FontStretch), text.FontSize,
+                    Brushes.White, VisualTreeHelper.GetDpi(text).PixelsPerDip) { MaxTextWidth = text.ActualWidth };
+                var width = Math.Min(text.ActualWidth, formatted.WidthIncludingTrailingWhitespace);
+                var x = text.TextAlignment == TextAlignment.Center ? (text.ActualWidth - width) / 2 :
+                    text.TextAlignment == TextAlignment.Right ? text.ActualWidth - width : 0;
+                ink = new Rect(x, 0, width, Math.Min(text.ActualHeight, formatted.Height));
+            }
+            var bounds = Bounds(text, ink); if (!ink.IsEmpty && !bounds.IsEmpty) { bounds.Inflate(3, 3); yield return bounds; }
+            yield break;
+        }
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(element); index++)
+            foreach (var bounds in FlightCommandBounds(VisualTreeHelper.GetChild(element, index))) yield return bounds;
     }
 
     private IEnumerable<Rect> ReadoutAndCommandBounds(DependencyObject? element, bool includeSeatButtons = true)
@@ -1183,12 +1446,13 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             item.AmountText = textCache = new AmountTextCache(cue, pixelsPerDip);
         var accent = textCache.Accent;
         var isDamage = cue.Kind == BattleCueKind.Damage;
-        var travel = isDamage ? 24 : 48;
+        var isLoss = cue.Kind == BattleCueKind.HpLoss;
+        var travel = isDamage || isLoss ? 24 : 48;
         var caption = textCache.Caption;
         FormattedText? number = null;
         AmountNumberText? numberText = null;
         var bounds = Rect.Empty;
-        var baseFontSize = owner.Width >= 150 ? (isDamage ? 40 : 48) : (isDamage ? 32 : 36);
+        var baseFontSize = owner.Width >= 150 ? (isDamage || isLoss ? 40 : 48) : (isDamage || isLoss ? 32 : 36);
         var initialSize = item.TextFontSize ?? (cue.Label.Length > 5 ? 24 : baseFontSize);
         foreach (var fontSize in new[] { initialSize, 28d, 22d }.Distinct().Where(size => size <= initialSize))
         {
@@ -1197,13 +1461,13 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             // Reserve the complete pop and upward trajectory, so subsequent frames keep their position.
             var size = new Size(Math.Max(number.Width, caption.Width) * 1.2 + 10,
                 (number.Height + caption.Height + 4) * 1.2 + travel + 10);
-            if (PlaceText(item, Center(owner) + new Vector(0, isDamage ? -10 : -28), size, occupied, out bounds))
+            if (PlaceText(item, Center(owner) + new Vector(0, isDamage || isLoss ? -10 : -28), size, occupied, out bounds))
             { item.TextFontSize = fontSize; break; }
         }
         if (bounds.IsEmpty || number is null || numberText is null) return;
         occupied.Add(bounds);
         var point = new Point(bounds.X + bounds.Width / 2, bounds.Top + 5 + travel + number.Height * .6 - travel * (1 - Math.Pow(1 - progress, 2)));
-        var scale = progress < .16 ? .8 + .4 * Math.Sin(progress / .16 * Math.PI / 2) :
+        var scale = isLoss ? 1 : progress < .16 ? .8 + .4 * Math.Sin(progress / .16 * Math.PI / 2) :
             1 + .2 * Math.Pow(Math.Max(0, 1 - (progress - .16) / .2), 2);
         var fadeIn = isDamage ? .09 / DamageTextDuration : .09;
         var fadeOut = isDamage ? .4 / DamageTextDuration : .3;
@@ -1226,7 +1490,8 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         dc.Pop();
     }
 
-    private void SkillBanner(DrawingContext dc, TimedCue item, Rect owner, double progress, List<Rect> occupied)
+    private void SkillBanner(DrawingContext dc, TimedCue item, Rect owner, double progress,
+        List<Rect> occupied, IEnumerable<Rect> portraits, FrameGeometry frame)
     {
         var title = Text(item.Cue.Label, item.Cue.Label.Length > 6 ? 26 : 32, SkillInk, Calligraphy);
         title.MaxTextWidth = Math.Min(220, Math.Max(60, ActualWidth - 48));
@@ -1234,12 +1499,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         var caption = Text(item.Cue.ActorName + " · 技能发动", 11, Gold, TextTypeface);
         caption.MaxTextWidth = title.MaxTextWidth; caption.MaxLineCount = 1; caption.Trimming = TextTrimming.CharacterEllipsis;
         var size = new Size(Math.Max(130, Math.Max(title.Width, caption.Width) + 32), title.Height + caption.Height + 25);
-        // Keep the opaque name plate outside its owner's activation ink. If
-        // there is no room above, the usual protected-area search finds a side.
-        var portrait = owner;
-        portrait.Inflate(4, 4);
+        // Moving away from the owner's hand must not cover another portrait
+        // or a public readout. Include the name plate's offset shadow.
+        var obstacles = occupied.Concat(portraits.Select(portrait => { portrait.Inflate(4, 4); return portrait; }))
+            .Concat(frame.Readouts()).ToArray();
         var preferred = new Point(owner.Left + owner.Width / 2, owner.Top - size.Height / 2 - 8);
-        if (!PlaceText(item, preferred, size, occupied.Append(portrait).ToArray(), out var bounds)) return;
+        if (!PlaceText(item, preferred, size, obstacles, out var bounds)) return;
         occupied.Add(bounds);
         dc.PushOpacity(Math.Min(1, progress / .08) * Math.Min(1, (1 - progress) / .2));
         dc.DrawRoundedRectangle(Shadow, null, new Rect(bounds.X + 2, bounds.Y + 3, bounds.Width, bounds.Height), 4, 4);
@@ -1272,11 +1537,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         {
             PixelsPerDip = pixelsPerDip;
             _numberText = cue.Label;
-            Accent = Frozen(cue.Kind == BattleCueKind.Recovery ? Color.FromRgb(145, 227, 170) :
+            Accent = Frozen(cue.Kind == BattleCueKind.HpLoss ? Color.FromRgb(225, 183, 128) :
+                cue.Kind == BattleCueKind.Recovery ? Color.FromRgb(145, 227, 170) :
                 cue.Nature == DamageNature.Thunder ? Color.FromRgb(179, 173, 255) : Color.FromRgb(255, 126, 99));
-            var detail = cue.Kind == BattleCueKind.Recovery ? "回复体力" : cue.Nature switch
+            var detail = cue.Kind == BattleCueKind.HpLoss ? "失去体力" : cue.Kind == BattleCueKind.Recovery ? "回复体力" : cue.Nature switch
             { DamageNature.Fire => "火焰伤害", DamageNature.Thunder => "雷电伤害", _ => "受到伤害" };
-            Caption = CreateText(cue.Kind == BattleCueKind.Damage ? detail : cue.ActorName + " · " + detail,
+            Caption = CreateText(cue.Kind is BattleCueKind.Damage or BattleCueKind.HpLoss ? detail : cue.ActorName + " · " + detail,
                 11, Paper, 140);
         }
 
@@ -1322,5 +1588,38 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         public bool HadLanding { get; set; }
         public bool HandedOff { get; set; }
         public bool SoundConsumed { get; set; }
+        public Rect PublicChoiceOrigin { get; init; } = Rect.Empty;
+        private PublicCardFlightPath? _flightPath;
+        private Point _flightDestination;
+        private Size _flightSize;
+        private Rect _flightViewport;
+        private Rect[]? _flightObstacles;
+        private PublicCardFlightPath? _transferPath;
+        private Point _transferLaunch, _transferDestination;
+        private Rect _transferViewport;
+        private Rect[]? _transferObstacles;
+
+        public PublicCardFlightPath GetTransferPath(Point launch, Point destination, Rect[] obstacles, Rect viewport)
+        {
+            if (_transferPath is null || launch != _transferLaunch || destination != _transferDestination || viewport != _transferViewport ||
+                _transferObstacles is null || !_transferObstacles.AsSpan().SequenceEqual(obstacles))
+            {
+                _transferLaunch = launch; _transferDestination = destination; _transferViewport = viewport; _transferObstacles = obstacles;
+                _transferPath = PublicCardFlightPath.Create(launch, destination, new Size(46, 64), new Size(18.4, 25.6), obstacles, viewport,
+                    Cue.Kind == BattleCueKind.CardDiscard ? PublicCardFlightStyle.Discard : PublicCardFlightStyle.Transfer);
+            }
+            return _transferPath;
+        }
+
+        public PublicCardFlightPath GetFlightPath(Point destination, Size size, Rect[] obstacles, Rect viewport)
+        {
+            if (_flightPath is null || destination != _flightDestination || size != _flightSize || viewport != _flightViewport ||
+                _flightObstacles is null || !_flightObstacles.AsSpan().SequenceEqual(obstacles))
+            {
+                _flightDestination = destination; _flightSize = size; _flightViewport = viewport; _flightObstacles = obstacles;
+                _flightPath = PublicCardFlightPath.Create(Center(HandOrigin), destination, HandOrigin.Size, size, obstacles, viewport);
+            }
+            return _flightPath;
+        }
     }
 }

@@ -567,7 +567,8 @@ public sealed record ShanheGeneralOption(string Id, string Name)
     public string Description { get; init; } = string.Empty;
     public string Kingdom { get; init; } = string.Empty;
     public string EditionText => (Id.StartsWith("ol:", StringComparison.Ordinal) ? "OL · " :
-        Id.StartsWith("mobile:", StringComparison.Ordinal) ? "移动版 · " : string.Empty) + Presentation.GeneralGalleryCatalog.Classify(Id).Title;
+        Id.StartsWith("mobile:", StringComparison.Ordinal) ? "移动版 · " :
+        Id.StartsWith("anniversary:", StringComparison.Ordinal) ? "十周年 · " : string.Empty) + Presentation.GeneralGalleryCatalog.Classify(Id).Title;
     public string SearchText => $"{Name} {Id} {Kingdom} {EditionText} {SkillSummary}";
 }
 public sealed record ShanheMapRow(string Title, IReadOnlyList<ShanheCampaignNode> Nodes);

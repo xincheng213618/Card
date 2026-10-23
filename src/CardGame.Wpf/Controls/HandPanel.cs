@@ -14,6 +14,7 @@ public sealed class HandPanel : Panel
     private const double CardWidth = 112;
     private const double CardHeight = 178;
     private const double MinimumStep = 36;
+    internal const double ArrivalEntryInset = 7;
     private double _step;
     private UIElement? _hoveredCard;
     private Point? _pointerPosition;
@@ -27,7 +28,7 @@ public sealed class HandPanel : Panel
     private bool _hasHandBaseline;
     private bool _awaitingSnapshotAfterReset;
     private INotifyCollectionChanged? _items;
-    private readonly HashSet<int> _pendingArrivalIds = new();
+    private readonly Dictionary<int, HandArrivalBatch> _pendingArrivalIds = new();
     private TimeProvider _clock = TimeProvider.System;
 
     private sealed record HandSlot(double X, object? Identity, CardLiftSurface? Surface);
@@ -80,6 +81,26 @@ public sealed class HandPanel : Panel
         set => SetValue(ViewportWidthProperty, value);
     }
 
+    public static readonly DependencyProperty PlaybackTimeScaleProperty = DependencyProperty.Register(
+        nameof(PlaybackTimeScale), typeof(double), typeof(HandPanel),
+        new PropertyMetadata(1d, OnPlaybackTimeScaleChanged),
+        value => value is double scale && double.IsFinite(scale) && scale > 0);
+
+    public double PlaybackTimeScale
+    {
+        get => (double)GetValue(PlaybackTimeScaleProperty);
+        set => SetValue(PlaybackTimeScaleProperty, value);
+    }
+
+    private static void OnPlaybackTimeScaleChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+    {
+        var panel = (HandPanel)sender;
+        panel.ArrivalTimeline?.SetTimeScale((double)args.NewValue);
+        foreach (var batch in panel._pendingArrivalIds.Values) batch.SetTimeScale((double)args.NewValue);
+        foreach (UIElement child in panel.InternalChildren)
+            FindSurface(child)?.SetArrivalTimeScale((double)args.NewValue);
+    }
+
     public static readonly DependencyProperty HandSnapshotProperty = DependencyProperty.Register(
         nameof(HandSnapshot), typeof(GameSnapshot), typeof(HandPanel),
         new PropertyMetadata(null, OnHandSnapshotChanged));
@@ -88,6 +109,15 @@ public sealed class HandPanel : Panel
     {
         get => (GameSnapshot?)GetValue(HandSnapshotProperty);
         set => SetValue(HandSnapshotProperty, value);
+    }
+
+    public static readonly DependencyProperty ArrivalTimelineProperty = DependencyProperty.Register(
+        nameof(ArrivalTimeline), typeof(HandArrivalTimeline), typeof(HandPanel), new PropertyMetadata(null));
+
+    public HandArrivalTimeline? ArrivalTimeline
+    {
+        get => (HandArrivalTimeline?)GetValue(ArrivalTimelineProperty);
+        set => SetValue(ArrivalTimelineProperty, value);
     }
 
     public static readonly DependencyProperty ArrivalEnabledProperty = DependencyProperty.Register(
@@ -103,7 +133,12 @@ public sealed class HandPanel : Panel
     public TimeProvider Clock
     {
         get => _clock;
-        set { ArgumentNullException.ThrowIfNull(value); _clock = value; }
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            foreach (var batch in _pendingArrivalIds.Values) batch.SetFallbackClock(value);
+            _clock = value;
+        }
     }
 
     private static void OnArrivalEnabledChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
@@ -131,12 +166,18 @@ public sealed class HandPanel : Panel
             return;
         }
         var currentIds = OwnHandIds(current);
-        panel._pendingArrivalIds.IntersectWith(currentIds);
+        foreach (var id in panel._pendingArrivalIds.Keys.Where(id => !currentIds.Contains(id)).ToArray())
+            panel._pendingArrivalIds.Remove(id);
         if (!panel._panelLoaded || !panel._hasHandBaseline || !panel.ArrivalEnabled) return;
         if (current.Revision > previous.Revision)
         {
             currentIds.ExceptWith(OwnHandIds(previous));
-            panel._pendingArrivalIds.UnionWith(currentIds);
+            if (currentIds.Count > 0)
+            {
+                var batch = panel.ArrivalTimeline?.Begin(previous.Revision, current.Revision, panel.Clock, panel.PlaybackTimeScale)
+                    ?? new HandArrivalBatch(previous.Revision, current.Revision, panel.Clock, panel.PlaybackTimeScale);
+                foreach (var id in currentIds) panel._pendingArrivalIds[id] = batch;
+            }
         }
         // Snapshot notification precedes collection updates. Keep these IDs
         // through an early layout until their actual local surfaces arrive.
@@ -151,7 +192,11 @@ public sealed class HandPanel : Panel
 
     private void ObserveItems()
     {
-        var items = ItemsControl.GetItemsOwner(this)?.Items as INotifyCollectionChanged;
+        var owner = ItemsControl.GetItemsOwner(this);
+        // The initial ItemCollection view can reset after the current snapshot
+        // is already bound. Only a source reset denotes the engine's Hand.Clear
+        // and requires waiting for its replacement snapshot.
+        var items = owner?.ItemsSource as INotifyCollectionChanged ?? owner?.Items as INotifyCollectionChanged;
         if (ReferenceEquals(_items, items)) return;
         if (_items is not null) _items.CollectionChanged -= OnItemsChanged;
         _items = items;
@@ -173,6 +218,7 @@ public sealed class HandPanel : Panel
 
     private void ResetArrivalBaseline(bool awaitingSnapshot)
     {
+        ArrivalTimeline?.Clear();
         _hasHandBaseline = false;
         _awaitingSnapshotAfterReset = awaitingSnapshot;
         _pendingArrivalIds.Clear();
@@ -220,7 +266,6 @@ public sealed class HandPanel : Panel
         }
         _step = count == 1 ? cardWidth : Math.Clamp((finalSize.Width - cardWidth) / (count - 1), MinimumStep * scale, cardWidth);
         var order = InternalChildren.Cast<UIElement>().ToList();
-        var present = order.ToHashSet();
         var identitiesMatch = order.All(child => !_slots.TryGetValue(child, out var old) ||
             ReferenceEquals(old.Identity, (child as FrameworkElement)?.DataContext));
         // Overflow content shrinks when a card leaves; the viewport remains
@@ -229,14 +274,18 @@ public sealed class HandPanel : Panel
         var sameLayout = Math.Abs(_layoutWidth - layoutWidth) < .01 && Math.Abs(_layoutScale - scale) < .0001;
         var sameOrder = _order.SequenceEqual(order);
         var survivors = order.Where(_slots.ContainsKey).ToArray();
-        var survivingOrderMatches = _order.Where(present.Contains).SequenceEqual(survivors);
-        var reflow = _order.Count != count && survivors.Length > 0 && sameLayout && identitiesMatch && survivingOrderMatches;
+        // Both a committed replacement and an explicit sort move surviving
+        // cards from their current visible pose. Reordering does not introduce
+        // new cards, so keep its arrival/reset boundary separate below.
+        var reflow = !sameOrder && survivors.Length > 0 && sameLayout && identitiesMatch;
         var preserveReflow = sameLayout && sameOrder && identitiesMatch;
         var allowArrival = _panelLoaded && _hasHandBaseline && !_awaitingSnapshotAfterReset && ArrivalEnabled &&
-            sameLayout && survivingOrderMatches;
-        var preserveArrival = sameLayout && survivingOrderMatches && identitiesMatch;
-        if (_hasHandBaseline && (!sameLayout || !survivingOrderMatches)) _pendingArrivalIds.Clear();
-        var arrivalOrdinal = 0;
+            sameLayout;
+        var preserveArrival = sameLayout && identitiesMatch;
+        // A sort can occur after the committed snapshot but before first
+        // layout. It changes slots, not the identity of the newly gained cards.
+        if (_hasHandBaseline && !sameLayout) _pendingArrivalIds.Clear();
+        var arrivalEntry = ArrivalEntryPoint();
         var slots = new Dictionary<UIElement, HandSlot>(count);
         _arranging = true;
         try
@@ -245,7 +294,7 @@ public sealed class HandPanel : Panel
             {
                 var child = order[index];
                 _slots.TryGetValue(child, out var old);
-                var previousX = old is null ? 0 : old.X + (old.Surface?.HorizontalOffset ?? 0) * _layoutScale;
+                var previousX = old is null ? 0 : old.X + (old.Surface?.ReflowOffset ?? 0) * _layoutScale;
                 var x = index * _step;
                 child.Arrange(new Rect(x, 0, cardWidth, cardHeight));
                 var surface = FindSurface(child);
@@ -254,7 +303,14 @@ public sealed class HandPanel : Panel
                     // Inject the panel's frame clock before a newly generated
                     // card starts moving, including surfaces created by Arrange.
                     if (!ReferenceEquals(Clock, TimeProvider.System)) surface.Clock = Clock;
-                    if (reflow && old is not null && ReferenceEquals(old.Surface, surface))
+                    var center = surface.TranslatePoint(new Point(surface.ActualWidth / 2, surface.ActualHeight / 2), this);
+                    // Entry offsets are relative to the arranged slot, not its
+                    // current lift/reflow/arrival transform.
+                    var entryOffset = (arrivalEntry - center) / scale +
+                        new Vector(surface.RenderTransform.Value.OffsetX, surface.RenderTransform.Value.OffsetY);
+                    if (preserveArrival && surface.IsArrivalAnimating && old is not null && ReferenceEquals(old.Surface, surface))
+                        surface.RetargetArrival(entryOffset, new Vector((old.X - x) / scale, 0));
+                    else if (reflow && old is not null && ReferenceEquals(old.Surface, surface))
                     {
                         // Surface transforms are local to the scaled card template;
                         // slots and pointer coordinates are in panel DIP.
@@ -263,9 +319,14 @@ public sealed class HandPanel : Panel
                     else if (!preserveReflow || old is null || !ReferenceEquals(old.Surface, surface))
                         surface.FinishReflow();
                     if (!preserveArrival) surface.FinishArrival();
-                    if ((child as FrameworkElement)?.DataContext is CardViewModel card && _pendingArrivalIds.Remove(card.Id))
+                    if ((child as FrameworkElement)?.DataContext is CardViewModel card && _pendingArrivalIds.Remove(card.Id, out var arrivalBatch))
                     {
-                        if (allowArrival) surface.BeginArrival(arrivalOrdinal++);
+                        if (allowArrival)
+                        {
+                            // Public count-only flights stop at one entrance. Only
+                            // this local snapshot connects new faces to their slots.
+                            surface.BeginArrival(entryOffset, PlaybackTimeScale, arrivalBatch);
+                        }
                         else surface.FinishArrival();
                     }
                 }
@@ -283,6 +344,14 @@ public sealed class HandPanel : Panel
         if (IsMouseOver) _pointerPosition = Mouse.GetPosition(this);
         UpdateHoveredCard();
         return finalSize;
+    }
+
+    private Point ArrivalEntryPoint()
+    {
+        for (DependencyObject? ancestor = this; ancestor is not null; ancestor = VisualTreeHelper.GetParent(ancestor))
+            if (ancestor is ScrollViewer viewport)
+                return viewport.TranslatePoint(new Point(viewport.ActualWidth / 2, ArrivalEntryInset), this);
+        return new Point((ViewportWidth > 0 ? ViewportWidth : ActualWidth) / 2, ArrivalEntryInset);
     }
 
     // Follow horizontal motion, while keeping the physical vertical hit strip

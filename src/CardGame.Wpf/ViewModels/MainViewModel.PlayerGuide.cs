@@ -222,9 +222,9 @@ public sealed partial class MainViewModel
         }
         else if (IsDiscardSelectionPending)
         {
-            CurrentGuideTitle = SelectedDiscardCount == RequiredDiscardCount ? "数量已够，确认弃牌" : "选出本回合要弃置的牌";
+            CurrentGuideTitle = SelectedDiscardCount > 0 ? "确认弃置已选手牌" : "选出本回合要弃置的牌";
             CurrentGuideBody = DiscardSelectionHint;
-            steps = ["点击多张手牌选为弃牌，再次点击可取消；未确认前不会失去牌。", "「推荐弃牌」只替你选中候选，你可以修改。", "选够指定数量后点击确认。弃牌完成后进入下一名角色的回合。"];
+            steps = ["可选择一张或多张手牌，再次点击可取消；点击「弃置」后才会失去所选手牌。", "「推荐弃牌」只替你选中候选，你可以修改。", "支持分次确认弃牌；累计弃够后自动结束弃牌阶段。"];
         }
         else if (IsActiveSkillSelectionPending && HumanActiveSkillAction is { } skillAction)
         {
@@ -327,6 +327,10 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
             CurrentGuideBody = prompt.Prompt;
             if (IsOwnedCardSelectionPending)
                 steps = [OwnedCardSelectionHint, "可以同时选中多张牌；再次点击可取消该牌，确认前不会交出或消耗所选牌。", .. steps];
+            else if (HasCardNameSelection)
+                steps = ["在手牌上方的选择区点选牌名，点击后执行当前选项。", "牌名较多时可滚动列表；定汉会标出已记录的牌名及增加、移除操作。", "牌名下方保留当前操作说明；选取后按下一步提示继续。"];
+            else if (HasExpandedSelection)
+                steps = ["在手牌上方的选择区选择当前效果；选项较多时可滚动列表。", "每个按钮保留当前选项的完整说明，点击后按该选项继续结算。"];
             else if (HasDockSkillChoices)
                 steps = ["在下方操作区选择发动方式或不发动。", .. steps];
             else if (IsCardPaymentSelectionPending)

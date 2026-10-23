@@ -14,6 +14,7 @@ public sealed partial class MainViewModel
     {
         if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat)
             return false;
+        if (HasIncrementalCardSelectionChoices(prompt)) return false;
         if (SupportsHandResponse(prompt.Kind)) return true;
         if (IsCardPaymentPrompt(snapshot)) return true;
         if (prompt.SkillPrompt is null || prompt.Choices.Any(choice => choice.Targets.Count > 0 || choice.ContentIds.Count > 0))
@@ -24,6 +25,10 @@ public sealed partial class MainViewModel
         return prompt.Choices.Where(choice => choice.Cards.Count == 1 && handIds.Contains(choice.Cards[0]))
             .GroupBy(choice => choice.Cards[0]).Any(group => group.Count() == 1);
     }
+
+    // These commands edit a native selection; a later choice commits its payment.
+    private static bool HasIncrementalCardSelectionChoices(PendingDecision prompt) => prompt.Choices.Any(choice =>
+        choice.Cards.Count > 0 && choice.Parameters.GetValueOrDefault("branch") is "pick" or "unpick");
 
     public bool IsHandResponsePending => IsHandResponsePrompt(_snapshot);
 
@@ -141,7 +146,7 @@ public sealed partial class MainViewModel
         : (Hand.Any(card => card.IsPlayable)
             ? $"选择一张亮起的手牌，再点击「{HandResponseButtonText}」。"
             : "当前没有可直接选择的手牌。") +
-          (HandResponseExtraChoices.Count > 0 ? "其他技能、装备或响应方式在中央。" : string.Empty)) +
+          (HandResponseExtraChoices.Count > 0 ? HasDockSkillChoices || HasExpandedSelection ? "其他响应方式在下方选择区。" : "其他技能、装备或响应方式在中央。" : string.Empty)) +
           (HandResponseDeclineChoice is not null ? $"点击「{ActionDockCancelText}」放弃本次响应。" : string.Empty);
 
     private string HandResponseUnavailableHint(int cardId) => IsBaguaActivationPending

@@ -18,6 +18,7 @@ public sealed partial class MainViewModel
     {
         if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat ||
             prompt.RequiredCardCount > 0 ||
+            HasIncrementalCardSelectionChoices(prompt) ||
             prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") is "select-owned-cards" or "finish-owned-cards"))
             return false;
         if (prompt.SkillPrompt is null && prompt.Kind is not (DecisionKind.StoneAxe or DecisionKind.CixiongDoubleSwords or DecisionKind.QinglongCrescentBlade) &&

@@ -60,6 +60,8 @@ public sealed partial class MainViewModel
     {
         if (IsTutorialActive || !IsActiveSkillTargetSelectionPending ||
             HumanActiveSkillAction is not { } action || ActiveSkillMaximumTargets(action) != 1) return;
+        // Target-only active skills require a portrait click even when only one recipient is legal.
+        if (action.MaxCardCount == 0) return;
         // Cardless view-as actions publish each exact target separately. The
         // first rail entry alone does not make its recipient the only legal one.
         if (IsTieredRoundZeroAction(action) && HumanActiveSkillActions.Any(candidate =>

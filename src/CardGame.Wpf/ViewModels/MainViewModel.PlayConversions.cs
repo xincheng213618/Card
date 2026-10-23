@@ -58,7 +58,22 @@ public sealed partial class MainViewModel
 
     private bool MatchesSelectedPlayConversion(LegalAction action) =>
         action.ConversionSource == _selectedConversionSource &&
-        (!IsPlayConversionSelectionPending || _playConversionSelection!.Mode?.Matches(action) == true);
+        (IsPlayConversionSelectionPending ? _playConversionSelection!.Mode?.Matches(action) == true
+            : !PlayConversionSources(action).Any());
+
+    // Locked identities already apply to the card. Only optional view-as rules
+    // require a skill draft; retain the published identity source for commit.
+    private CardConversionSource? AutomaticPlayIdentitySource(int cardId, CardKind? identityKind)
+    {
+        if (identityKind is null) return null;
+        var sources = GetViewLegalActions().Where(action => action.CardId == cardId &&
+                action.PlayedCardKind == identityKind && !PlayConversionSources(action).Any())
+            .Select(action => action.ConversionSource).Distinct().Take(2).ToArray();
+        return sources is [var source] ? source : null;
+    }
+
+    private static string PlayCardName(CardViewModel card) => card.IdentityKind is not null ? card.IdentityLabel : card.Name;
+    private static string PlayCardName(CardSnapshot card) => card.IdentityKind is { } kind ? CardCatalog.Get(kind).DisplayName : card.DisplayName;
 
     private bool MatchesSelectedPlayChoice(PromptChoice choice) => GetViewLegalActions().Any(action =>
         MatchesSelectedPlayConversion(action) && action.CardId == choice.Cards.SingleOrDefault() &&
