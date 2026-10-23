@@ -1079,6 +1079,7 @@ internal static class ModalFocusChecks
             var retry = (Button)window.FindName("RetrySettingsPreferencesButton");
             var originalTransform = content.LayoutTransform;
             var originalVolume = model.SoundVolume;
+            var originalSoundEnabled = model.IsSoundEnabled;
             try
             {
                 model.OpenSettingsCommand.Execute(null);
@@ -1206,6 +1207,50 @@ internal static class ModalFocusChecks
                     back.IsVisible && back.IsEnabled && SameSettingsBoundary(),
                     "A delayed successful retry must retain the live return action the user reached before its callback.");
 
+                var preferencesTimer = (DispatcherTimer)typeof(MainViewModel).GetField("_preferencesTimer",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(model)!;
+                var preferencesTick = typeof(MainViewModel).GetMethod("OnPreferencesTick",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+                foreach (var moveBeforeRecovery in new[] { false, true })
+                {
+                    preferencesStore.FailWrite = true;
+                    model.SoundVolume = model.SoundVolume == .34 ? .35 : .34;
+                    Program.Assert(!model.FlushPreferences() && model.HasPreferencesError,
+                        "Timer recovery must begin with a genuine failed in-memory preferences write.");
+                    Pump(window);
+                    Program.Assert(retry.Focus() && ReferenceEquals(Keyboard.FocusedElement, retry),
+                        "The actual error retry must hold native focus before a sound shortcut schedules automatic recovery.");
+                    var writes = preferencesStore.Writes;
+                    var previousSound = model.IsSoundEnabled;
+                    preferencesStore.FailWrite = false;
+                    Program.Assert(RouteFocusedKey(Key.M, ModifierKeys.Control) && model.IsSoundEnabled != previousSound &&
+                        preferencesTimer.IsEnabled && preferencesStore.Writes == writes && model.HasPreferencesError &&
+                        ReferenceEquals(Keyboard.FocusedElement, retry),
+                        "Ctrl+M must schedule the real preferences timer while retaining its focused retry and pending error.");
+                    var expectedPreferences = preferencesStore.Value with
+                        { SoundEnabled = model.IsSoundEnabled, SoundVolume = model.SoundVolume };
+                    if (moveBeforeRecovery)
+                        Program.Assert(retry.MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous)) &&
+                            ReferenceEquals(Keyboard.FocusedElement, back),
+                            "Backward Tab from the pending error must let the user reach the fixed return action before recovery.");
+                    preferencesTick.Invoke(model, [null, EventArgs.Empty]);
+                    Pump(window);
+                    RenderSettings(moveBeforeRecovery ? "timer-moved" : "timer-recovered");
+                    UIElement expectedFocus = moveBeforeRecovery ? back : sound;
+                    var recoveredBounds = sound.TransformToAncestor(presenter).TransformBounds(new Rect(sound.RenderSize));
+                    Console.WriteLine($"Settings timer recovery: moved={moveBeforeRecovery}, error={error.Visibility}, " +
+                        $"focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, writes={preferencesStore.Writes - writes}.");
+                    Program.Assert(!model.HasPreferencesError && error.Visibility == Visibility.Collapsed && model.IsSettingsOpen &&
+                        !preferencesTimer.IsEnabled && preferencesStore.Writes == writes + 1 &&
+                        System.Text.Json.JsonSerializer.Serialize(preferencesStore.Value) == System.Text.Json.JsonSerializer.Serialize(expectedPreferences) &&
+                        ReferenceEquals(Keyboard.FocusedElement, expectedFocus) && expectedFocus.IsVisible && expectedFocus.IsEnabled &&
+                        expectedFocus.Focusable && expectedFocus.IsDescendantOf(overlay) &&
+                        (moveBeforeRecovery || recoveredBounds.Width > 0 && recoveredBounds.Height > 0 &&
+                            recoveredBounds.Left >= -1 && recoveredBounds.Top >= -1 && recoveredBounds.Right <= presenter.ActualWidth + 1 &&
+                            recoveredBounds.Bottom <= presenter.ActualHeight + 1) && SameSettingsBoundary(),
+                        "Automatic preferences recovery after Ctrl+M must retain usable settings focus, preserve a return action already reached and write the exact active preferences once without changing the game.");
+                }
+
                 void RenderSettings(string state)
                 {
                     if (output is not null)
@@ -1228,6 +1273,7 @@ internal static class ModalFocusChecks
             {
                 preferencesStore.FailRead = false;
                 preferencesStore.FailWrite = false;
+                model.IsSoundEnabled = originalSoundEnabled;
                 model.SoundVolume = originalVolume;
                 model.FlushPreferences();
                 content.LayoutTransform = originalTransform;

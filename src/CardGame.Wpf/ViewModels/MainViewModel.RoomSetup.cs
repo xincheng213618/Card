@@ -9,7 +9,7 @@ public sealed class SetupRoomSeat(int seat, RoomSeatKind kind) : ObservableObjec
     private RoomSeatKind _kind = kind;
     public int Seat { get; } = seat;
     public RoomSeatKind Kind => _kind;
-    public string Title => $"{Seat + 1} 号位";
+    public string Title => $"房间席位 {Seat + 1}";
     public string Name => Kind switch { RoomSeatKind.Human => "你 · 房主", RoomSeatKind.Ai => $"AI {Seat + 1}", _ => "空位" };
     public string Detail => Kind switch { RoomSeatKind.Human => "真人 · 已入座", RoomSeatKind.Ai => "电脑控制 · 已准备", _ => "点击下方添加 AI" };
     public bool CanAddAi => Kind == RoomSeatKind.Empty;

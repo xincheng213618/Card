@@ -71,6 +71,8 @@ public sealed partial class MainViewModel
         if (!CanCustomizeStartingIdentity || !StartingRoles.Contains(option)) return;
         var reveal = IsIdentityRevealOpen;
         SelectedStartingRole = option;
+        if (option.Role is { } role &&
+            _snapshot.Players.Single(player => player.Seat == _snapshot.HumanSeat).Role == role) return;
         var options = _game.CreateCheckpoint().Options with { HumanRole = option.Role };
         ExecuteSafely(() =>
         {

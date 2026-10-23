@@ -51,10 +51,18 @@ internal static class LanRoomUiChecks
             Program.Assert(ReferenceEquals(Program.Engine(model), suspended) &&
                 SnapshotJson.Serialize(suspended.CreateSnapshot(0)) == before, "Arranging room seats changed the suspended match.");
             Open("identity:classic-8");
+            var roles = (ListBox)window.FindName("RoleChoices");
+            var rebel = model.StartingRoles.Single(role => role.Role == Role.Rebel);
+            roles.SetCurrentValue(Selector.SelectedItemProperty, rebel);
+            roles.GetBindingExpression(Selector.SelectedItemProperty)!.UpdateSource();
+            var roomHost = model.SetupRoomSeats.Single(seat => seat.Kind == RoomSeatKind.Human);
             model.FillSetupRoomAiCommand.Execute(null);
             Program.Render(root, 1120, 740, Path.Combine(output, "mode-room-eight-ready.png"));
             Program.Assert(model.StartSetupRoomCommand.CanExecute(null) && start.IsEnabled &&
                 model.SetupRoomSeats.Count(seat => seat.Kind == RoomSeatKind.Ai) == 7, "A full room did not become ready.");
+            Program.Assert(model.SelectedStartingRole == rebel && Equals(roles.SelectedItem, rebel) &&
+                ((ListBoxItem)roles.ItemContainerGenerator.ContainerFromItem(rebel)).IsSelected && SameRoomBoundary(),
+                "Choosing a rebel in the real room identity list must preserve every suspended player view and accepted command.");
             var bounds = start.TransformToAncestor(root).TransformBounds(new Rect(start.RenderSize));
             Program.Assert(bounds.Top >= 0 && bounds.Bottom <= 740 && bounds.Left >= 0 && bounds.Right <= 1120,
                 "The room start button is outside the compact window.");
@@ -63,6 +71,16 @@ internal static class LanRoomUiChecks
             Program.Assert(!model.IsNewGameSetupOpen && game.ModeId == "identity:classic-8" &&
                 game.CreateSnapshot(0).Players.Count == 8 && game.CreateSnapshot(0).Players.Count(player => player.IsHuman) == 1,
                 "Starting the prepared room did not enter its selected eight-seat match.");
+            var enteredView = game.CreateSnapshot(0);
+            var humanSeat = model.Seats.Single(seat => seat.IsHuman);
+            var lord = enteredView.Players.Single(player => player.Role == Role.Lord);
+            Console.WriteLine($"Room slot numbering: room={roomHost.Seat}/{roomHost.Title}, " +
+                $"human role={enteredView.Players.Single(player => player.IsHuman).Role}, table={humanSeat.DisplaySeatNumber}, " +
+                $"lord table={model.Seats.Single(seat => seat.Seat == lord.Seat).DisplaySeatNumber}.");
+            Program.Assert(roomHost.Seat == 0 && roomHost.Title == "房间席位 1" &&
+                enteredView.Players.Single(player => player.IsHuman).Role == Role.Rebel && humanSeat.DisplaySeatNumber > 1 &&
+                model.Seats.Single(seat => seat.Seat == lord.Seat).DisplaySeatNumber == 1,
+                "Local room slots must be labelled separately from the actual table numbering, where the lord remains first and a chosen rebel does not.");
             model.NewGameCommand.Execute(null);
             Open("team:standard-2v2");
             model.StartNewGameFromLobbyCommand.Execute(null);

@@ -1555,7 +1555,7 @@
                         </ItemsControl>
                         <DockPanel Margin="4,0,4,12">
                             <Button DockPanel.Dock="Right" Content="联机房间列表 ›" Click="OpenLanRooms" Visibility="{Binding CanOpenSelectedLanMode, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Padding="12,7" ToolTip="同一模式下创建或加入局域网房间，邀请真人与 AI 一起玩。" />
-                            <TextBlock Text="本地房间 · 你操作自己的角色，其余座位安排 AI。" Foreground="#8EA597" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <TextBlock Text="本地房间 · 你操作自己的角色，其余席位安排 AI。身份局开局后按主公位置确定牌桌号位。" Foreground="#8EA597" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
                         <TextBlock Text="房 间 设 置" Foreground="#CFB985" FontFamily="KaiTi" FontSize="22" Margin="4,6,4,12" />
                         <TextBlock Text="选择难度 / 版本" Visibility="{Binding HasModeVariantChoices, Converter={StaticResource BoolToVisibility}}" Foreground="#CFB985" FontSize="15" Margin="4,4,4,8" />
@@ -1663,7 +1663,7 @@
                             <TextBlock Text="下次启动沿用设置" Foreground="#80998C" FontSize="10" VerticalAlignment="Center" Margin="18,0,0,0" />
                         </WrapPanel>
                         <DockPanel x:Name="SetupPreferencesError" Margin="8,8,8,0" Visibility="{Binding HasPreferencesError, Converter={StaticResource BoolToVisibility}}">
-                            <Button x:Name="RetrySetupPreferencesButton" DockPanel.Dock="Right" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySetupPreferences_Click" Style="{StaticResource QuietButton}" Padding="10,4" AutomationProperties.Name="重试读取或保存本机设置" />
+                            <Button x:Name="RetrySetupPreferencesButton" DockPanel.Dock="Right" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySetupPreferences_Click" IsKeyboardFocusWithinChanged="PreferencesRetry_IsKeyboardFocusWithinChanged" Style="{StaticResource QuietButton}" Padding="10,4" AutomationProperties.Name="重试读取或保存本机设置" />
                             <TextBlock Text="{Binding PreferencesStatus}" Foreground="#D5AA85" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
                         </StackPanel>
@@ -1722,7 +1722,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding PreferencesStatus}" Foreground="#F0D0A8" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,14,0" />
-                                <Button x:Name="RetrySettingsPreferencesButton" Grid.Column="1" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySettingsPreferences_Click" Style="{StaticResource ToolbarButton}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="重试读取或保存本机设置" />
+                                <Button x:Name="RetrySettingsPreferencesButton" Grid.Column="1" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySettingsPreferences_Click" IsKeyboardFocusWithinChanged="PreferencesRetry_IsKeyboardFocusWithinChanged" Style="{StaticResource ToolbarButton}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="重试读取或保存本机设置" />
                             </Grid>
                         </Border>
                     <Border Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18">

@@ -135,6 +135,13 @@ internal static class OpeningCustomizationUiChecks
                 ReferenceEquals(button.Command, vm.ChangeStartingIdentityCommand) &&
                 button.CommandParameter is StartingRoleOption { Role: Role.Lord }), Key.Enter);
             vm.ContinueFromIdentityRevealCommand.Execute(null);
+            vm.SaveGameCommand.Execute(null);
+            vm.LoadManualGameCommand.Execute(null);
+            Program.Assert(!vm.HasSaveError && vm.SelectedStartingRole.Role is null &&
+                Program.Engine(vm).CreateSnapshot(0).Players.Single(player => player.IsHuman).Role == Role.Lord,
+                "The current-identity regression must cold restore an actual Lord while the requested lobby identity is random.");
+            vm.PreviewGeneralChoiceCommand.Execute(vm.GeneralChoices.Last());
+            VerifyCurrentIdentityNoop("cold-restored ordinary candidate");
             var candidates = vm.GeneralChoices.Select(choice => choice.GeneralId).ToHashSet();
             var retired = vm.GeneralChoices[0];
             vm.ToggleGeneralRosterCommand.Execute(null);
@@ -476,6 +483,36 @@ internal static class OpeningCustomizationUiChecks
             search.Focus();
         }
 
+        void VerifyCurrentIdentityNoop(string label)
+        {
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            var game = Program.Engine(vm);
+            var snapshot = game.CreateSnapshot(0);
+            var role = snapshot.Players.Single(player => player.Seat == snapshot.HumanSeat).Role;
+            var views = Enumerable.Range(0, snapshot.Players.Count).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+            var commands = CommandJson.Serialize(game.AcceptedCommands);
+            var preview = vm.SelectedGeneralChoice;
+            var candidates = vm.GeneralChoices.ToArray();
+            var editions = vm.SelectedGeneralVariants.ToArray();
+            var results = vm.CustomGeneralChoices.ToArray();
+            var custom = vm.IsCustomGeneralSelectionOpen;
+            var search = vm.CustomGeneralSearch;
+            var category = vm.SelectedCustomGeneralCategory;
+            var button = Program.Find<Button>(root).Single(button => button.IsVisible &&
+                ReferenceEquals(button.Command, vm.ChangeStartingIdentityCommand) &&
+                button.CommandParameter is StartingRoleOption option && option.Role == role);
+            Press(button, Key.Enter);
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            Console.WriteLine($"Current identity Enter ({label}): role={role}, same engine={ReferenceEquals(Program.Engine(vm), game)}, " +
+                $"preview={preview?.GeneralId}->{vm.SelectedGeneralChoice?.GeneralId}, full roster={custom}->{vm.IsCustomGeneralSelectionOpen}, same search={search == vm.CustomGeneralSearch}.");
+            Program.Assert(ReferenceEquals(Program.Engine(vm), game) && ReferenceEquals(vm.SelectedGeneralChoice, preview) &&
+                vm.GeneralChoices.SequenceEqual(candidates) && vm.SelectedGeneralVariants.SequenceEqual(editions) && vm.CustomGeneralChoices.SequenceEqual(results) &&
+                vm.IsCustomGeneralSelectionOpen == custom && vm.CustomGeneralSearch == search && vm.SelectedCustomGeneralCategory == category &&
+                ReferenceEquals(Keyboard.FocusedElement, button) && CommandJson.Serialize(game.AcceptedCommands) == commands &&
+                Enumerable.Range(0, views.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(views),
+                $"Activating the already assigned identity ({label}) must keep the same engine, exact local candidate/edition preview, roster filters, live role focus and every private view and native command.");
+        }
+
         void VerifyFilteredEditionRefresh(TextBox search)
         {
             var originalSearch = vm.CustomGeneralSearch;
@@ -497,6 +534,7 @@ internal static class OpeningCustomizationUiChecks
             var commands = CommandJson.Serialize(game.AcceptedCommands);
             var promptId = game.PendingDecision!.PromptId;
             var alternate = PreviewAlternate();
+            VerifyCurrentIdentityNoop("filtered hand-picked edition");
             search.Focus();
             Refresh();
             var refreshed = vm.SelectedGeneralChoice;
