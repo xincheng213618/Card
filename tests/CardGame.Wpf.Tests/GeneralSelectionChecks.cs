@@ -912,6 +912,7 @@ internal static class GeneralSelectionChecks
 
     public static void InputBoundaries(string output)
     {
+        VerifyThirteenCandidateLayout(output);
         using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore(), useExpandedContent: true)
         {
             IsMotionEnabled = false
@@ -1109,6 +1110,150 @@ internal static class GeneralSelectionChecks
             window.Content = null;
             window.Close();
         }
+    }
+
+    private static void VerifyThirteenCandidateLayout(string output)
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var unreadable = new List<string>();
+        foreach (var role in new[] { Role.Lord, Role.Renegade })
+        {
+            using var vm = new MainViewModel(false, 31, true, new MemorySaveStore(),
+                useExpandedContent: true, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
+            vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "identity:classic-5");
+            vm.SelectedStartingRole = vm.StartingRoles.Single(option => option.Role == role);
+            vm.StartNewGameFromLobbyCommand.Execute(null);
+            vm.ContinueFromIdentityRevealCommand.Execute(null);
+            var game = Program.Engine(vm);
+            var boundary = Boundary(game);
+            Program.Assert(vm.IsGeneralSelectionPending && !vm.IsIdentityRevealOpen && !vm.IsCustomGeneralSelectionOpen &&
+                game.CreateSnapshot(0).Players.Single(player => player.IsHuman).Role == role && vm.GeneralChoices.Count == 13,
+                "The normal-size candidate fixture must use the real Standard identity role's thirteen published candidate families.");
+            using var host = new NativeResponseStatusChecks.NativeHost(vm);
+            var window = host.Window;
+            var root = host.Root;
+            window.Height = window.MinHeight;
+            root.Width = 1120; root.Height = 740;
+            window.UpdateLayout();
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            Program.Render(root, 1120, 740, Path.Combine(output, $"general-thirteen-candidates-{role}.png"));
+            var panel = (Border)window.FindName("GeneralSelectionPanel");
+            var candidates = (ItemsControl)window.FindName("GeneralCandidateCards");
+            var cards = Program.Find<Button>(candidates).ToArray();
+            Rect Bounds(FrameworkElement element) => element.TransformToAncestor(root).TransformBounds(new Rect(element.RenderSize));
+            var bounds = cards.Select(Bounds).ToArray();
+            var textScales = cards.Select(card =>
+            {
+                var text = Program.Find<TextBlock>(card).Single(item => item.Name == "ChoiceStatusText");
+                var transform = text.TransformToAncestor(root);
+                return (transform.Transform(new Point(1, 0)) - transform.Transform(new Point())).Length;
+            }).ToArray();
+            var minimumWidth = bounds.Min(rect => rect.Width);
+            var minimumTextScale = textScales.Min();
+            Console.WriteLine($"Normal thirteen-candidate layout: role={role}, root={root.RenderSize}, " +
+                $"window={window.ActualWidth:F3}x{window.ActualHeight:F3}, min-height={window.MinHeight:F0}, " +
+                $"cards={cards.Length}, columns={vm.GeneralChoiceColumns}, first={bounds[0]}, last={bounds[^1]}, " +
+                $"minimum width={minimumWidth:F3}/{cards[0].Width:F0}, minimum text scale={minimumTextScale:F4}, " +
+                $"10-DIP skill text={10 * minimumTextScale:F3}, same journal={Boundary(game) == boundary}.");
+            Program.Assert(root.RenderSize == new Size(1120, 740) && window.ActualHeight >= window.MinHeight &&
+                Math.Abs(window.ActualHeight - window.MinHeight) <= 1 &&
+                ((Grid)panel.Child).LayoutTransform.Value.IsIdentity && cards.Length == 13 &&
+                cards.All(card => ReferenceEquals(card.Command, vm.PreviewGeneralChoiceCommand) &&
+                    vm.GeneralChoices.Contains((GeneralChoiceViewModel)card.CommandParameter)) && Boundary(game) == boundary,
+                "Measuring the loaded ordinary-size selection must retain exact client bounds, current real candidates and the native private boundary without applying a text zoom.");
+            // The actual template declares a 142-DIP portrait and 10-DIP skill
+            // text. More legal candidates must add scrolling, not shrink both.
+            if (minimumWidth < cards[0].Width - 1 || minimumTextScale < .99)
+                unreadable.Add($"{role}: card {minimumWidth:F2}/{cards[0].Width:F0} DIP, text scale {minimumTextScale:F3}");
+            else if (role == Role.Lord)
+            {
+                var scroll = (ScrollViewer)window.FindName("GeneralCandidateScroller");
+                var presenter = Program.Find<ScrollContentPresenter>(scroll).Single(item => ReferenceEquals(item.TemplatedParent, scroll));
+                var confirm = (Button)window.FindName("ConfirmGeneralChoiceButton");
+                var confirmBounds = Bounds(confirm);
+                var last = cards[^1];
+                var lastChoice = (GeneralChoiceViewModel)last.CommandParameter;
+                Rect InViewport(FrameworkElement element) => element.TransformToAncestor(presenter).TransformBounds(new Rect(element.RenderSize));
+                bool FullyVisible(FrameworkElement element)
+                {
+                    var area = InViewport(element);
+                    return area.Left >= -1 && area.Top >= -1 && area.Right <= presenter.ActualWidth + 1 && area.Bottom <= presenter.ActualHeight + 1;
+                }
+                void Pump()
+                {
+                    root.UpdateLayout();
+                    window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                    root.UpdateLayout();
+                }
+                Program.Assert(scroll.ScrollableHeight > 0 && presenter.ActualHeight > 0 && !scroll.Focusable,
+                    "Thirteen unscaled portraits must scroll vertically without adding a candidate-pane Tab stop.");
+                scroll.ScrollToEnd();
+                Pump();
+                Program.Render(root, 1120, 740, Path.Combine(output, "general-thirteen-candidates-last.png"));
+                Program.Assert(scroll.VerticalOffset > 0 && FullyVisible(last) && Bounds(last).Width >= last.Width - 1 &&
+                    Boundary(game) == boundary && Bounds(confirm) == confirmBounds,
+                    "Scrolling the real thirteen-choice pane must expose its entire last unscaled portrait while confirmation stays fixed and all player views remain unchanged.");
+                scroll.ScrollToHome();
+                SetFocus(new WindowInteropHelper(window).Handle);
+                cards[0].Focus();
+                Pump();
+                var tabCount = 0;
+                while (!ReferenceEquals(Keyboard.FocusedElement, last) && tabCount++ < cards.Length + 4)
+                {
+                    Program.Assert(!TableShortcutChecks.Input(window, Key.Tab) && Keyboard.FocusedElement is UIElement current &&
+                        current.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)),
+                        "The normal candidate pane must retain native forward Tab traversal through its real portraits.");
+                    Pump();
+                }
+                Program.Assert(ReferenceEquals(Keyboard.FocusedElement, last) && FullyVisible(last) && scroll.VerticalOffset > 0 &&
+                    !ReferenceEquals(vm.SelectedGeneralChoice, lastChoice) && Boundary(game) == boundary,
+                    "Tab must bring the thirteenth real candidate fully into view without previewing or confirming it.");
+                var accepted = game.AcceptedCommands.Count;
+                var first = Enter(repeat: false);
+                Pump();
+                Program.Assert(!first.PreviewHandled && first.Bubbles == 1 && first.Handled &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, lastChoice) && ReferenceEquals(Keyboard.FocusedElement, last) &&
+                    FullyVisible(last) && Boundary(game) == boundary,
+                    "Fresh Enter on the last unselected candidate must only preview its exact published choice while keeping its complete portrait visible.");
+                var held = Enter(repeat: true);
+                Pump();
+                Program.Assert(held.PreviewHandled && held.Bubbles == 0 && held.Handled &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, lastChoice) && Boundary(game) == boundary,
+                    "Holding the preview key must not turn the thirteenth candidate's reversible preview into a confirmation.");
+                var fresh = Enter(repeat: false);
+                Pump();
+                Program.Assert(fresh.PreviewHandled && fresh.Bubbles == 0 && fresh.Handled &&
+                    game.AcceptedCommands.Count == accepted + 1 && game.AcceptedCommands.Last() is SelectGeneralCommand selection &&
+                    selection.GeneralId == lastChoice.GeneralId && game.CreateSnapshot(0).Players.Single(player => player.IsHuman).GeneralId == lastChoice.GeneralId,
+                    "After releasing Enter, one fresh press must confirm the exact last real candidate once through the existing native command boundary.");
+                Console.WriteLine($"Thirteen-candidate native navigation: {tabCount} Tab moves, last={lastChoice.GeneralId}, " +
+                    $"preview-only=True, held preview consumed=True, confirmation commands={game.AcceptedCommands.Count - accepted}.");
+
+                (bool PreviewHandled, int Bubbles, bool Handled) Enter(bool repeat) => TableShortcutChecks.WithModifiers(ModifierKeys.None, () =>
+                {
+                    var handle = new WindowInteropHelper(window).Handle;
+                    Program.Assert(ReferenceEquals(Keyboard.FocusedElement, last) && GetFocus() == handle && IsMessageOnlyWindow(handle) &&
+                        !IsWindowVisible(handle) && GetForegroundWindow() != handle && last.IsVisible && last.IsEnabled,
+                        "Each candidate Enter must originate on the focused real Button in its hidden nonforeground native host.");
+                    var bubbles = 0;
+                    KeyEventHandler observe = (_, args) => { if (args.Key == Key.Enter) bubbles++; };
+                    last.AddHandler(Keyboard.KeyDownEvent, observe, handledEventsToo: true);
+                    try
+                    {
+                        var input = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(last)!, 0, Key.Enter)
+                            { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+                        OpeningCustomizationUiChecks.SetKeyRepeat(input, repeat);
+                        last.RaiseEvent(input);
+                        var previewHandled = input.Handled;
+                        if (!input.Handled) { input.RoutedEvent = Keyboard.KeyDownEvent; last.RaiseEvent(input); }
+                        return (previewHandled, bubbles, input.Handled);
+                    }
+                    finally { last.RemoveHandler(Keyboard.KeyDownEvent, observe); }
+                });
+            }
+        }
+        Program.Assert(unreadable.Count == 0,
+            "Thirteen real identity candidates in the minimum-height window with a 1120x740 client must retain their declared card and text sizes: " + string.Join("; ", unreadable));
     }
 
     private static void VerifyHeldNationalConfirm(MainViewModel vm)

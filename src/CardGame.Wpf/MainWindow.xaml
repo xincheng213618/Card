@@ -43,6 +43,20 @@
             <Setter Property="Background" Value="#44171310" /><Setter Property="BorderBrush" Value="#81735E" />
             <Setter Property="Foreground" Value="#C5B58E" />
         </Style>
+        <Style x:Key="SetupRoomSeatAction" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+            <Setter Property="Content" Value="添加 AI" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Command" Value="{Binding DataContext.AddSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+            <Setter Property="AutomationProperties.Name" Value="{Binding Title, StringFormat={}{0}添加 AI}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Kind}" Value="Human"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                <DataTrigger Binding="{Binding CanRemoveAi}" Value="True">
+                    <Setter Property="Content" Value="移除 AI" />
+                    <Setter Property="Command" Value="{Binding DataContext.RemoveSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                    <Setter Property="AutomationProperties.Name" Value="{Binding Title, StringFormat={}{0}移除 AI}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="GeneralRosterCategoryButton" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
             <Setter Property="Background" Value="#29251E" /><Setter Property="BorderBrush" Value="#5B503B" />
             <Setter Property="Foreground" Value="#C7BDA4" /><Setter Property="Padding" Value="10,5" />
@@ -1118,12 +1132,15 @@
                             </StackPanel>
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="340" /></Grid.ColumnDefinitions>
-                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="438" VerticalAlignment="Top">
-                                    <Viewbox.Style><Style TargetType="Viewbox"><Style.Triggers><DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></Viewbox.Style>
-                                    <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding CandidateGeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick">
-                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding DataContext.GeneralChoiceColumns, RelativeSource={RelativeSource AncestorType=ItemsControl}}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                    </ItemsControl>
-                                </Viewbox>
+                                <ScrollViewer x:Name="GeneralCandidateScroller" AutomationProperties.Name="候选武将" AutomationProperties.HelpText="候选较多时可上下滚动；数字键 1 至 9 预选，按 Tab 浏览其他候选。" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False" MaxHeight="438" VerticalAlignment="Top">
+                                    <ScrollViewer.Style><Style TargetType="ScrollViewer"><Style.Triggers><DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
+                                    <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
+                                    <Viewbox Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top">
+                                        <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding CandidateGeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick" Focusable="False" IsTabStop="False">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding DataContext.GeneralChoiceColumns, RelativeSource={RelativeSource AncestorType=ItemsControl}}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </Viewbox>
+                                </ScrollViewer>
                                 <Grid Visibility="{Binding IsCustomGeneralSelectionOpen, Converter={StaticResource BoolToVisibility}}">
                                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                                     <Grid Margin="0,0,0,9">
@@ -1498,7 +1515,7 @@
                         </ItemsControl>
                         </StackPanel>
                         <StackPanel x:Name="ModeConfigurationPanel" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="LobbySetupStep_IsVisibleChanged">
-                        <ItemsControl x:Name="SetupRoomSeatCards" ItemsSource="{Binding SetupRoomSeats}" Margin="0,0,0,10" AutomationProperties.Name="房间座位">
+                        <ItemsControl x:Name="SetupRoomSeatCards" ItemsSource="{Binding SetupRoomSeats}" Margin="0,0,0,10" Focusable="False" IsTabStop="False" AutomationProperties.Name="房间座位">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="4" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate><DataTemplate>
                                 <Border Background="#142227" BorderBrush="#8C744C" BorderThickness="1" CornerRadius="4" Padding="12" Margin="4" MinHeight="145">
@@ -1506,8 +1523,7 @@
                                         <TextBlock Text="{Binding Title}" Foreground="#B39A65" FontSize="11" />
                                         <TextBlock Text="{Binding Name}" Foreground="#E6C58C" FontFamily="KaiTi" FontSize="25" Margin="0,8,0,6" />
                                         <TextBlock Text="{Binding Detail}" Foreground="#9FAF9F" FontSize="11" Margin="0,0,0,10" />
-                                        <Button Content="添加 AI" Command="{Binding DataContext.AddSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Visibility="{Binding CanAddAi, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Padding="10,6" AutomationProperties.Name="{Binding Title, StringFormat={}{0}添加 AI}" />
-                                        <Button Content="移除 AI" Command="{Binding DataContext.RemoveSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Visibility="{Binding CanRemoveAi, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource QuietButton}" Padding="10,6" AutomationProperties.Name="{Binding Title, StringFormat={}{0}移除 AI}" />
+                                        <Button CommandParameter="{Binding}" Style="{StaticResource SetupRoomSeatAction}" />
                                     </StackPanel>
                                 </Border>
                             </DataTemplate></ItemsControl.ItemTemplate>
