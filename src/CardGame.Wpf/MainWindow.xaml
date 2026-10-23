@@ -70,6 +70,13 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="StartingIdentityButton" TargetType="Button" BasedOn="{StaticResource GeneralRosterCategoryButton}">
+            <Setter Property="ToolTip" Value="{Binding Description}" />
+            <Setter Property="Tag">
+                <Setter.Value><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Name" /><Binding Path="DataContext.HumanPlayer.RoleLabel" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Setter.Value>
+            </Setter>
+            <Style.Triggers><Trigger Property="Tag" Value="True"><Setter Property="AutomationProperties.ItemStatus" Value="当前身份" /></Trigger></Style.Triggers>
+        </Style>
         <controls:PromptCardChoiceConverter x:Key="PromptCardChoiceConverter" />
         <DataTemplate x:Key="DragonBoatStandingTemplate">
             <Border Margin="2" Padding="6,4" BorderThickness="1" CornerRadius="2" ToolTip="相同至宝数时按到达先后排序；唐咨满12枚仅在终局优先。">
@@ -1127,7 +1134,7 @@
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding CanCustomizeStartingIdentity, Converter={StaticResource BoolToVisibility}}">
                                         <TextBlock Text="改选身份" Foreground="#C6B895" VerticalAlignment="Center" Margin="0,0,10,0" />
                                         <ItemsControl ItemsSource="{Binding StartingRoles}" ItemsPanel="{StaticResource ChoicePanel}">
-                                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Padding="8,5" Margin="0,0,5,0" /></DataTemplate></ItemsControl.ItemTemplate>
+                                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource StartingIdentityButton}" Padding="8,5" Margin="0,0,5,0" /></DataTemplate></ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </StackPanel>
                                 </DockPanel>
@@ -1417,7 +1424,7 @@
                     <StackPanel Visibility="{Binding CanCustomizeStartingIdentity, Converter={StaticResource BoolToVisibility}}" Margin="0,18,0,0">
                         <TextBlock Text="自选身份" Foreground="#C6B895" HorizontalAlignment="Center" Margin="0,0,0,8" />
                         <ItemsControl x:Name="IdentityOverrideChoices" ItemsSource="{Binding StartingRoles}" ItemsPanel="{StaticResource ChoicePanel}" HorizontalAlignment="Center">
-                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Padding="10,6" Margin="3,0" /></DataTemplate></ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource StartingIdentityButton}" Padding="10,6" Margin="3,0" /></DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                     <Border Background="#112127" BorderBrush="#465C53" BorderThickness="1" Padding="12,8" Margin="36,20,36,0">
@@ -1512,13 +1519,18 @@
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Command="{Binding DataContext.OpenModeConfigurationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" MinHeight="120" Padding="12" Margin="4" Background="#142329" BorderBrush="#53664F" AutomationProperties.Name="{Binding Name}">
+                                    <Button Command="{Binding DataContext.OpenModeConfigurationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" MinHeight="120" Padding="12" Margin="4" AutomationProperties.Name="{Binding Name}">
+                                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource GeneralRosterCategoryButton}"><Setter Property="Background" Value="#142329" /><Setter Property="BorderBrush" Value="#53664F" /><Style.Triggers><Trigger Property="Tag" Value="True"><Setter Property="AutomationProperties.ItemStatus" Value="当前配置" /></Trigger></Style.Triggers></Style></Button.Style>
+                                        <Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding /><Binding Path="DataContext.SelectedModeGroup" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag>
                                         <StackPanel>
                                             <DockPanel>
                                                 <TextBlock DockPanel.Dock="Right" Text="{Binding PlayerCountText}" Foreground="#789083" FontSize="10" VerticalAlignment="Center" />
                                                 <TextBlock Text="{Binding Name}" FontSize="17" Foreground="#E6C58C" TextWrapping="Wrap" />
                                             </DockPanel>
-                                            <TextBlock Text="{Binding ModeBadge}" Foreground="#B39A65" FontSize="9" Margin="0,5,0,0" />
+                                            <WrapPanel Margin="0,5,0,0">
+                                                <TextBlock Text="{Binding ModeBadge}" Foreground="#B39A65" FontSize="9" />
+                                                <TextBlock Text="当前配置" Foreground="#FFE4A7" FontSize="10" Margin="8,0,0,0" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}, Converter={StaticResource BoolToVisibility}}" />
+                                            </WrapPanel>
                                             <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap" />
                                             <TextBlock Text="{Binding SelectionHint}" Foreground="#D0B67E" FontSize="10" Margin="0,10,0,0" />
                                         </StackPanel>
@@ -1767,6 +1779,14 @@
                                     </ListBox.ItemContainerStyle>
                                 </ListBox>
                                 <TextBlock Text="调整自动行动的等待时间与战斗动画节奏；轮到你出牌、响应或选择时仍会停下。" Foreground="#879C90" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                <Border x:Name="SettingsSessionSaveError" Background="#382B22" BorderBrush="#A57D4D" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
+                                    <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions><Condition Binding="{Binding HasSaveError}" Value="True" /><Condition Binding="{Binding IsTutorialActive}" Value="False" /></MultiDataTrigger.Conditions><Setter Property="Visibility" Value="Visible" /></MultiDataTrigger></Style.Triggers></Style></Border.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="牌局存档" Foreground="#EAC78B" FontSize="12" />
+                                        <TextBlock x:Name="SettingsSessionSaveStatus" Text="{Binding SessionSaveStatus}" Foreground="#F0D0A8" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+                                        <Button x:Name="SettingsSaveGameButton" Content="手动保存牌局" Command="{Binding SaveGameCommand}" Click="SettingsSaveGame_Click" Style="{StaticResource ToolbarButton}" Padding="10,5" Margin="0,8,0,0" HorizontalAlignment="Left" ToolTip="保存当前牌局和对局节奏，更新本局手动存档；声音与动画仍独立保存在本机。" AutomationProperties.Name="手动保存当前牌局和对局节奏" />
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Grid>
                     </Border>

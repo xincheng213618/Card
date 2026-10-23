@@ -732,6 +732,39 @@ internal static class ModalFocusChecks
                 Program.Assert(!model.IsLobbyConfigurationOpen && model.IsNewGameSetupOpen &&
                     ReferenceEquals(Keyboard.FocusedElement, origin) && SameModeBoundary(),
                     "Returning from the Team category must restore its actual home entry and preserve every player view and accepted command.");
+                model.OpenLobbyCategoryCommand.Execute("identity");
+                Pump(window);
+                var groupChoices = (ItemsControl)window.FindName("ModeGroupChoices");
+                var currentGroup = model.VisibleModeGroups.Single(item => item.Variants[0].PlayerCount == 5);
+                var currentEntry = Program.Find<Button>(groupChoices).Single(button => ReferenceEquals(button.CommandParameter, currentGroup));
+                Program.Assert(currentEntry.IsVisible && currentEntry.IsEnabled && currentEntry.Focus() &&
+                    !RouteFocusedKey(Key.Enter, ModifierKeys.None), "The current-group probe must open a real nondefault mode card through native Enter.");
+                Pump(window);
+                Program.Assert(model.IsModeConfigurationOpen && ReferenceEquals(model.SelectedModeGroup, currentGroup) &&
+                    RouteFocusedKey(Key.Escape, ModifierKeys.None), "The actual configured mode group must return one step through native Escape.");
+                Pump(window);
+                var groupBack = Program.Find<Button>((DependencyObject)window.FindName("LobbyConfigurationOverlay"))
+                    .Single(button => ReferenceEquals(button.Command, model.BackInLobbySetupCommand));
+                Program.Assert(groupBack.IsVisible && groupBack.IsEnabled && groupBack.Focus(),
+                    "The current-group probe must move real keyboard focus off the mode cards onto the fixed footer.");
+                Pump(window);
+                var groupCards = Program.Find<Button>(groupChoices).Where(button => ReferenceEquals(button.Command, model.OpenModeConfigurationCommand)).ToArray();
+                var currentChrome = (Border)currentEntry.Template.FindName("Chrome", currentEntry);
+                var otherEntry = groupCards.First(button => !ReferenceEquals(button, currentEntry));
+                var otherChrome = (Border)otherEntry.Template.FindName("Chrome", otherEntry);
+                var currentMark = Program.Find<TextBlock>(currentEntry).SingleOrDefault(text => text.Text == "当前配置");
+                Program.Assert(model.IsModeSelectionOpen && ReferenceEquals(Keyboard.FocusedElement, groupBack) &&
+                    ReferenceEquals(model.SelectedModeGroup, currentGroup) && groupCards.Count(button => button.Tag is true) == 1 &&
+                    currentEntry.Tag is true && !currentEntry.IsKeyboardFocusWithin &&
+                    currentEntry.Template.FindName("FocusRing", currentEntry) is Border { Visibility: Visibility.Collapsed } &&
+                    currentChrome.Background is SolidColorBrush selectedFill && otherChrome.Background is SolidColorBrush otherFill &&
+                    selectedFill.Color != otherFill.Color && currentMark is { IsVisible: true, ActualWidth: > 0, ActualHeight: > 0 } &&
+                    model.SelectedStartingRole == role && model.SelectedStartingTeam == team && SameModeBoundary(),
+                    "The actual mode group alone must retain a visible current marker and distinct fill after native return and focus leaves, without changing player views or accepted commands.");
+                Console.WriteLine($"Mode group persistent selection: group={currentGroup.Id}, selected={groupCards.Count(button => button.Tag is true)}, " +
+                    $"focus={Keyboard.FocusedElement?.GetType().Name}, marker={currentMark?.IsVisible}, same match={SameModeBoundary()}.");
+                if (output is not null) Program.Render(client, 1120, 740, System.IO.Path.Combine(output, "mode-current-configuration.png"));
+                model.SelectedTableMode = mode;
                 window.Width = width;
                 window.Height = height;
                 client.Width = clientWidth;

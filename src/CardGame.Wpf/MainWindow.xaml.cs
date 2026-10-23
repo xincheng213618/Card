@@ -777,6 +777,12 @@ public partial class MainWindow : Window
     private void RetrySettingsPreferences_Click(object sender, RoutedEventArgs e)
         => QueuePreferencesRetryFocus(RetrySettingsPreferencesButton, SettingsOverlay, SettingsSoundToggle);
 
+    private void SettingsSaveGame_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+            QueueRetryFocus(SettingsSaveGameButton, SettingsOverlay, () => !viewModel.HasSaveError, () => SettingsAutoAdvanceToggle);
+    }
+
     private void RetrySetupPreferences_Click(object sender, RoutedEventArgs e)
         => QueuePreferencesRetryFocus(RetrySetupPreferencesButton, NewGameSetupPanel, SetupSoundToggle);
 

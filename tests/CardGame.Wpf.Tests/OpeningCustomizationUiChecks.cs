@@ -18,7 +18,7 @@ internal static class OpeningCustomizationUiChecks
     {
         using var vm = new MainViewModel(autoAdvance: false, seed: 31, showSetup: true,
             saveStore: new MemorySaveStore(), confirmOpeningHand: true, useExpandedContent: true,
-            contentRegistry: StandardContentRegistry.CreateWithClassicGenerals()) { IsMotionEnabled = false };
+            contentRegistry: StandardContentRegistry.CreateWithClassicGenerals(), wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
         vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "identity:classic-5");
         vm.StartNewGameFromLobbyCommand.Execute(null);
         GeneralChoiceViewModel? retiredIdentityChoice = null;
@@ -94,6 +94,8 @@ internal static class OpeningCustomizationUiChecks
             });
             Program.Assert(vm.IsIdentityRevealOpen && Program.Engine(vm).CreateSnapshot(0).Players[0].Role == Role.Rebel,
                 "Enter on the actual identity button changes the role without leaving its reveal panel.");
+            AssertCurrentIdentityVisual(window, vm, (FrameworkElement)window.FindName("IdentityOverrideChoices"),
+                (UIElement)window.FindName("ContinueFromIdentityRevealButton"));
             var previousIdentityGame = Program.Engine(vm);
             Press(roleButtons.Single(button => ((StartingRoleOption)button.DataContext).Role == Role.Loyalist), Key.Enter,
                 modifiers: ModifierKeys.Shift);
@@ -101,6 +103,8 @@ internal static class OpeningCustomizationUiChecks
                 !ReferenceEquals(Program.Engine(vm), previousIdentityGame) &&
                 Program.Engine(vm).CreateSnapshot(0).Players[0].Role == Role.Loyalist,
                 "Shift+Enter on the actual identity button must select its role through the native button without continuing identity reveal.");
+            AssertCurrentIdentityVisual(window, vm, (FrameworkElement)window.FindName("IdentityOverrideChoices"),
+                (UIElement)window.FindName("ContinueFromIdentityRevealButton"));
             vm.ContinueFromIdentityRevealCommand.Execute(null);
             vm.ToggleGeneralRosterCommand.Execute(null);
             Program.Render(root, 1120, 820, System.IO.Path.Combine(output, "opening-customization-public-lord.png"));
@@ -601,6 +605,31 @@ internal static class OpeningCustomizationUiChecks
                     $"prompt={game.PendingDecision?.Kind}/{game.PendingDecision?.PromptId}, revision={game.Revision}.";
             }
         }
+    }
+
+    internal static void AssertCurrentIdentityVisual(MainWindow window, MainViewModel model, FrameworkElement scope, UIElement focusTarget)
+    {
+        window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+        var game = Program.Engine(model);
+        var snapshot = game.CreateSnapshot(0);
+        var role = snapshot.Players.Single(player => player.Seat == snapshot.HumanSeat).Role;
+        var views = Enumerable.Range(0, snapshot.Players.Count).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+        var commands = CommandJson.Serialize(game.AcceptedCommands);
+        var buttons = Program.Find<Button>(scope).Where(button => button.IsVisible &&
+            ReferenceEquals(button.Command, model.ChangeStartingIdentityCommand)).ToArray();
+        var selected = buttons.Single(button => ((StartingRoleOption)button.CommandParameter).Role == role);
+        Program.Assert(focusTarget.Focus(), "Identity feedback must remain visible after moving actual keyboard focus to another live action.");
+        window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+        var chrome = (Border)selected.Template.FindName("Chrome", selected);
+        var focusRing = (Border)selected.Template.FindName("FocusRing", selected);
+        Program.Assert(role is not null && buttons.Length == 5 &&
+            buttons.All(button => (button.Tag is true) == (((StartingRoleOption)button.CommandParameter).Role == role)) &&
+            !selected.IsKeyboardFocused && focusRing.Visibility != Visibility.Visible && chrome.Background.ToString() == selected.Background.ToString() &&
+            buttons.Where(button => !ReferenceEquals(button, selected)).All(button =>
+                ((Border)button.Template.FindName("Chrome", button)).Background.ToString() != chrome.Background.ToString()) &&
+            CommandJson.Serialize(game.AcceptedCommands) == commands &&
+            Enumerable.Range(0, views.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(views),
+            "Only the safe snapshot's actual human identity must retain a distinct rendered selection background after focus leaves it, without a focus-ring substitute or changes to any player view or accepted command.");
     }
 
     internal static void SetKeyRepeat(KeyEventArgs input, bool repeat)

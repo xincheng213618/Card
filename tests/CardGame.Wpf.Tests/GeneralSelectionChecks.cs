@@ -31,7 +31,7 @@ internal static class GeneralSelectionChecks
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
         using var vm = new MainViewModel(autoAdvance: false, seed: 31, showSetup: true, saveStore: store,
-            useExpandedContent: false, contentRegistry: registry) { IsMotionEnabled = false };
+            useExpandedContent: false, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
         vm.LoadManualGameCommand.Execute(null);
         var engine = Program.Engine(vm);
         var revision = engine.Revision;
@@ -68,6 +68,10 @@ internal static class GeneralSelectionChecks
                 $"The edition fixture must load a hidden Window: loaded={window.IsLoaded}, " +
                 $"WPF visible={window.IsVisible}, native visible={IsWindowVisible(handle)}, owns foreground={GetForegroundWindow() == handle}.");
             AssertHiddenFocusHost();
+            Program.Assert(vm.SelectedStartingRole.Role is null && engine.CreateSnapshot(0).Players.Single(player => player.IsHuman).Role == Role.Lord,
+                "The cold selection fixture must restore an actual Lord while the lobby's requested identity remains random.");
+            OpeningCustomizationUiChecks.AssertCurrentIdentityVisual(window, vm, (FrameworkElement)window.FindName("GeneralSelectionPanel"),
+                (UIElement)window.FindName("ConfirmGeneralChoiceButton"));
             var ling = vm.GeneralChoices.Single(choice => EditionPackage.Ling.Contains(choice.GeneralId));
             vm.PreviewGeneralChoiceCommand.Execute(ling);
             Program.Assert(vm.SelectedGeneralVariants.Select(choice => choice.GeneralId).ToHashSet().SetEquals(EditionPackage.Ling),
@@ -504,7 +508,7 @@ internal static class GeneralSelectionChecks
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, checkpoint));
         using var vm = new MainViewModel(autoAdvance: false, seed: checkpoint.Options.Seed, showSetup: true,
-            saveStore: store, useExpandedContent: false, contentRegistry: registry)
+            saveStore: store, useExpandedContent: false, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore())
             { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
         vm.LoadManualGameCommand.Execute(null);
         var engine = Program.Engine(vm);
@@ -837,7 +841,7 @@ internal static class GeneralSelectionChecks
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, original));
         using var vm = new MainViewModel(autoAdvance: false, seed: 31, showSetup: true, saveStore: store,
-            useExpandedContent: false, contentRegistry: registry) { IsMotionEnabled = false };
+            useExpandedContent: false, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
         vm.LoadManualGameCommand.Execute(null);
         var previousGame = Program.Engine(vm);
         var previousBoundary = Boundary(previousGame);
@@ -914,7 +918,7 @@ internal static class GeneralSelectionChecks
     public static void InputBoundaries(string output)
     {
         VerifyThirteenCandidateLayout(output);
-        using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore(), useExpandedContent: true)
+        using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore(), useExpandedContent: true, wushuangSaveStore: new MemorySaveStore())
         {
             IsMotionEnabled = false
         };
