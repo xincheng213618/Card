@@ -91,7 +91,7 @@ public sealed partial class MainViewModel
             SelectedTableMode = TableModes.Single(mode => mode.ModeId == WushuangMode.ModeId);
             IsModeConfigurationOpen = true;
         }, () => !IsTutorialActive);
-        ContinueWushuangCommand = new RelayCommand(() => LoadGame(GameSaveSlot.Automatic, wushuang: true), () => HasWushuangSave && !IsTutorialActive);
+        ContinueWushuangCommand = new RelayCommand(() => ContinueAutomaticGame(wushuang: true), () => HasWushuangSave && !IsTutorialActive);
         LoadWushuangManualGameCommand = new RelayCommand(() => LoadGame(GameSaveSlot.Manual, wushuang: true), () => HasWushuangManualSave && !IsTutorialActive);
         RetryWushuangSaveAccessCommand = new RelayCommand(RefreshWushuangSaveSlot,
             () => HasWushuangSaveAccessError);

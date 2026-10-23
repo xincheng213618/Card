@@ -45,7 +45,7 @@ public sealed partial class MainViewModel
         _saveStore = saveStore ?? new FileGameSaveStore();
         SaveGameCommand = new RelayCommand(() => { if (!IsTutorialActive) SaveCurrentGame(GameSaveSlot.Manual); }, () => !IsTutorialActive);
         LoadManualGameCommand = new RelayCommand(() => { if (!IsTutorialActive) LoadGame(GameSaveSlot.Manual, wushuang: IsWushuangTable); }, () => HasManualSave && !IsTutorialActive);
-        ContinueGameCommand = new RelayCommand(() => { if (!IsTutorialActive) LoadGame(GameSaveSlot.Automatic); }, () => HasAutomaticSave && !IsTutorialActive);
+        ContinueGameCommand = new RelayCommand(() => ContinueAutomaticGame(), () => HasAutomaticSave && !IsTutorialActive);
         _saveTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(1) };
         _saveTimer.Tick += OnSaveTick;
         RefreshSaveSlots();
@@ -158,6 +158,13 @@ public sealed partial class MainViewModel
                 : $"保存失败：{ReadableSaveError(exception)} 当前牌局仍可继续，可稍后重试。";
             return false;
         }
+    }
+
+    private void ContinueAutomaticGame(bool wushuang = false)
+    {
+        if (IsTutorialActive) return;
+        if (!_game.IsFaulted && !FlushPendingSave()) return;
+        LoadGame(GameSaveSlot.Automatic, wushuang);
     }
 
     private void LoadGame(GameSaveSlot slot, bool wushuang = false)

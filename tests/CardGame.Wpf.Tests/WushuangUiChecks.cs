@@ -168,8 +168,44 @@ internal static class WushuangUiChecks
                 game.CreateWushuangSnapshot(0)!.CanShop && !vm.BuyWushuangOfferCommand.CanExecute(offer) &&
                 vm.WushuangOffers.Count == 4 && vm.WushuangOffers.Single(item => item.Id == offer.Id).IsPurchased,
                 "One purchase pays once, keeps its sold card in position and leaves the shopping prompt open.");
-            vm.ToggleWushuangShopLockCommand.Execute(null);
-            Program.Assert(game.CreateWushuangSnapshot(0)!.IsLocked, "The visible lock commits to the native private shop state.");
+            Method("FlushWushuangClock").Invoke(vm, null);
+            var continueClockGuard = Field("_wushuangClockSubmitting").GetValue(vm);
+            Field("_wushuangClockSubmitting").SetValue(vm, true);
+            ((DispatcherTimer)Field("_wushuangClockTimer").GetValue(vm)!).Stop();
+            try
+            {
+                Program.Assert(vm.FlushPendingSave() && vm.ContinueWushuangCommand.CanExecute(null),
+                    "The existing shop must have a valid independent automatic checkpoint before its next committed action.");
+                var continueWrites = wushuang.WriteCount;
+                var ordinaryWrites = ordinary.WriteCount;
+                var savedCommands = game.AcceptedCommands.Count;
+                var previousAutomatic = GameCheckpointJson.Serialize(wushuang.Read(GameSaveSlot.Automatic).Checkpoint);
+                vm.ToggleWushuangShopLockCommand.Execute(null);
+                Program.Assert(game.CreateWushuangSnapshot(0)!.IsLocked, "The visible lock commits to the native private shop state.");
+                ((DispatcherTimer)Field("_saveTimer").GetValue(vm)!).Stop();
+                var pendingViews = Enumerable.Range(0, game.CreateSnapshot(0).Players.Count)
+                    .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+                var pendingCommands = CommandJson.Serialize(game.AcceptedCommands);
+                var pendingRemaining = game.WushuangRemainingMilliseconds;
+                Program.Assert(game.AcceptedCommands.Count == savedCommands + 1 && game.AcceptedCommands.Last() is ToggleWushuangShopLockCommand &&
+                    Field("_autoSavePending").GetValue(vm) is true && wushuang.WriteCount == continueWrites &&
+                    GameCheckpointJson.Serialize(wushuang.Read(GameSaveSlot.Automatic).Checkpoint) == previousAutomatic,
+                    "The real shop-lock command must be accepted once while its automatic save is still pending and the previous checkpoint remains on disk.");
+                vm.ContinueWushuangCommand.Execute(null);
+                game = Program.Engine(vm);
+                Console.WriteLine($"Wushuang pending Continue: saved={savedCommands}, pending={savedCommands + 1}, restored={game.AcceptedCommands.Count}, " +
+                    $"independent writes={continueWrites}->{wushuang.WriteCount}, ordinary writes={ordinaryWrites}->{ordinary.WriteCount}.");
+                Program.Assert(!vm.HasSaveError && vm.IsWushuangTable && game.CreateWushuangSnapshot(0)!.IsLocked &&
+                    CommandJson.Serialize(game.AcceptedCommands) == pendingCommands && game.WushuangRemainingMilliseconds == pendingRemaining &&
+                    Enumerable.Range(0, pendingViews.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(pendingViews) &&
+                    wushuang.WriteCount == continueWrites + 1 && ordinary.WriteCount == ordinaryWrites,
+                    "Continuing the duel must first persist and restore its latest committed lock, every private view, native journal and remaining time without writing the ordinary store.");
+            }
+            finally
+            {
+                Field("_wushuangClockSubmitting").SetValue(vm, continueClockGuard);
+                Method("SyncWushuangClockAfterCommand").Invoke(vm, null);
+            }
             Program.Render(root, 1440, 880, Path.Combine(output, "wushuang-shop.png"));
             var sidebar = (FrameworkElement)window.FindName("TableSidebar");
             var shopEnd = panel.TranslatePoint(new Point(panel.ActualWidth, panel.ActualHeight), root);
