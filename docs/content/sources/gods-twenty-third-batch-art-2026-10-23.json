@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-23",
+  "scope": "One distinct playable Happy Diao Chan and two reviewed rule-equivalent Happy editions. Diao Chan and Jiang Wei exact same-product illustrations are reproduced by the dated player guide (secondary provenance, not publisher CDN claims). Ma Chao official Happy quick-guide illustration is an additional skin of the existing anniversary general. Both anniversary defaults are preserved. All five local bitmaps visually inspected; exact byte hashes verified; no duplicate playable identities.",
+  "portraits": [
+    {
+      "key": "happy-shen-diao-chan",
+      "characterName": "神貂蝉",
+      "defaultSkinId": "happy-classic",
+      "skins": [
+        {
+          "id": "happy-classic",
+          "name": "欢乐经典形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/431f46bb391c948dedf6fbb4ad0b0dada41efc88.png",
+          "sha256": "7529bb775f6fb950eaaa535c1d77c67213c6d0b9c00f88ec1105f90d17e616d4",
+          "pixelWidth": 486,
+          "pixelHeight": 625,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-diao-chan.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-ma-chao",
+      "characterName": "神马超",
+      "defaultSkinId": "121401",
+      "skins": [
+        {
+          "id": "121401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/214.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121401.png",
+          "sha256": "9239cbefb5830b6d1396baa04eb362bb320046243dbd9fb73bd290471063e6c2",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-ma-chao.png"
+        },
+        {
+          "id": "happy-classic",
+          "name": "欢乐经典形象",
+          "sourcePage": "https://www.taptap.cn/moment/473191608876011245",
+          "imageUrl": "https://img2-tc.tapimg.com/moment/etag/FtgILcHchHutevbLcFtwu0bUvp7w.png/_tap_ugc.jpg",
+          "sha256": "8e80ab80e5718a2495d66c50349928342c955b190ec3d7a5b09f754664551faf",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-ma-chao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-jiang-wei",
+      "characterName": "神姜维",
+      "defaultSkinId": "121301",
+      "skins": [
+        {
+          "id": "121301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/213.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121301.png",
+          "sha256": "2c0c3a7fe49c7624f76038fc09b3021f4cc3dbdbbf959c4aa68a9f0517552fd3",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-jiang-wei.png"
+        },
+        {
+          "id": "happy-guide",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/e74bcd186f80462607a0ee4435250b5cfedcf818.png",
+          "sha256": "71906829ddc5f77e06f3a41f7a92f3aa0d4b422a801a31b12427b54e1b5904c4",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-jiang-wei.png"
+        }
+      ]
+    }
+  ]
+}

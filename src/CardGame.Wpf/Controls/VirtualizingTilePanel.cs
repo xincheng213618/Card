@@ -14,12 +14,18 @@ public sealed class VirtualizingTilePanel : VirtualizingPanel, IScrollInfo
     public static readonly DependencyProperty ItemHeightProperty = DependencyProperty.Register(
         nameof(ItemHeight), typeof(double), typeof(VirtualizingTilePanel),
         new FrameworkPropertyMetadata(204d, FrameworkPropertyMetadataOptions.AffectsMeasure), PositiveSize);
+    // An optional scope key preserves scrolling when immutable rows are rebound.
+    // A changed result scope still returns to the first row.
+    public static readonly DependencyProperty ScrollResetKeyProperty = DependencyProperty.Register(
+        nameof(ScrollResetKey), typeof(object), typeof(VirtualizingTilePanel),
+        new PropertyMetadata(null, (owner, _) => ((VirtualizingTilePanel)owner).SetVerticalOffset(0)));
     private static readonly DependencyProperty ItemIndexProperty = DependencyProperty.RegisterAttached(
         "ItemIndex", typeof(int), typeof(VirtualizingTilePanel), new PropertyMetadata(-1));
     private static bool PositiveSize(object value) => value is double size && double.IsFinite(size) && size > 0;
 
     public double ItemWidth { get => (double)GetValue(ItemWidthProperty); set => SetValue(ItemWidthProperty, value); }
     public double ItemHeight { get => (double)GetValue(ItemHeightProperty); set => SetValue(ItemHeightProperty, value); }
+    public object? ScrollResetKey { get => GetValue(ScrollResetKeyProperty); set => SetValue(ScrollResetKeyProperty, value); }
     private int _columns = 1;
     private double _slotWidth;
     private double _verticalOffset;
@@ -93,7 +99,7 @@ public sealed class VirtualizingTilePanel : VirtualizingPanel, IScrollInfo
         base.OnItemsChanged(sender, args);
         ItemContainerGenerator.RemoveAll();
         RemoveInternalChildRange(0, InternalChildren.Count);
-        _verticalOffset = 0;
+        if (ScrollResetKey is null) _verticalOffset = 0;
         InvalidateMeasure();
     }
 

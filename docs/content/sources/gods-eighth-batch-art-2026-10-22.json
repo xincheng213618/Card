@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Official mobile god Zhao Yun, Zhuge Liang and Zhang Liao default portraits; gameplay sources documented separately.",
+  "portraits": [
+    {
+      "key": "mobile-shen-zhao-yun",
+      "characterName": "神赵云",
+      "defaultSkinId": "20700",
+      "skins": [
+        {
+          "id": "20700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-145.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20700.jpg",
+          "sha256": "e871d67db30560af2a628f4476e6408949ef72bf2e2569511085ca6b006f4af9",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhao-yun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-zhuge-liang",
+      "characterName": "神诸葛亮",
+      "defaultSkinId": "20400",
+      "skins": [
+        {
+          "id": "20400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-142.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20400.jpg",
+          "sha256": "f7422018b1ad625f451e27f0d6a3cb9595bfed1c223752cad7bccf281bb99fcf",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhuge-liang.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-zhang-liao",
+      "characterName": "神张辽",
+      "defaultSkinId": "46800",
+      "skins": [
+        {
+          "id": "46800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-347.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/46800.jpg",
+          "sha256": "5e362eb96eab1014462bf363756d3bedde61a5972f6ea566b80d272e46f1eeba",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhang-liao.jpg"
+        }
+      ]
+    }
+  ]
+}

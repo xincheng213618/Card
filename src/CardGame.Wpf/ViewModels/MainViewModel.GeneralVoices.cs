@@ -25,7 +25,8 @@ public sealed partial class MainViewModel
             .ThenBy(voice => voice.SkinName).ThenBy(voice => voice.SkillName).ToArray() : [];
     public bool HasNoGeneralVoices => GeneralVoices.Count == 0;
     public string GeneralVoiceStatus => IsAudioUnavailable ? "声音暂不可用 · 可关闭声音后重新开启重试"
-        : !IsSoundEnabled || SoundVolume <= 0 ? "已静音 · 开启声音后可试听"
+        : !IsSoundEnabled ? "游戏声音已关闭 · 可在设置中开启"
+        : SoundVolume <= 0 ? "音量为 0 · 可在设置中调高音量"
         : !IsVoiceEnabled ? "武将配音已关闭 · 可在设置中开启" : "点击试听 · 对局按当前皮肤播放已收录配音";
     public ICommand PlayGeneralVoiceCommand { get; private set; } = null!;
     public ICommand PlayGeneralSkillVoiceCommand { get; private set; } = null!;

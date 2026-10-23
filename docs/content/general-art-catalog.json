@@ -2,6 +2,1369 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-xiahou-en",
+      "characterName": "夏侯恩",
+      "defaultSkinId": "195701",
+      "skins": [
+        {
+          "id": "195701",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/957.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/195701.png",
+          "sha256": "71c735849668fae7e79d3c8968995f51e30365079be110acaacb1d3e89a7fd03",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-xiahou-en.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-zhang-wen",
+      "characterName": "张温",
+      "defaultSkinId": "185201",
+      "skins": [
+        {
+          "id": "185201",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/852.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/185201.png",
+          "sha256": "a53c28dfdb13eaec97922c60bf65443f9baf8aad416e7a8c0693e4f6dbc7b291",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-zhang-wen.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-zhang-xun",
+      "characterName": "张勋",
+      "defaultSkinId": "1190101",
+      "skins": [
+        {
+          "id": "1190101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1901.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1190101.png",
+          "sha256": "17798bc427737934269dcd42023d92af4116bbc85fc96692a08f2504f68164f0",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-zhang-xun.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-lv-dai",
+      "characterName": "吕岱",
+      "defaultSkinId": "143801",
+      "skins": [
+        {
+          "id": "143801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/438.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/143801.png",
+          "sha256": "f53c90658e6f3e76db65b5f66c7f51cc51e4b0c5c24b77a843b0aff8bb575e24",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-lv-dai.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-fu-rong-fu-qian",
+      "characterName": "傅肜傅佥",
+      "defaultSkinId": "1111501",
+      "skins": [
+        {
+          "id": "1111501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1115.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1111501.png",
+          "sha256": "c25c435559f9eaae323c9f9fc53f2a7e90f2087b1537c270ec27f2492fa64524",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-fu-rong-fu-qian.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-gao-xiang",
+      "characterName": "高翔",
+      "defaultSkinId": "1111701",
+      "skins": [
+        {
+          "id": "1111701",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1117.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1111701.png",
+          "sha256": "ee5d14c49d00e5d97eb4c6122210fd0f3b3210b9380e5c0aaa131bdb1533f007",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-gao-xiang.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-mang-ya-chang",
+      "characterName": "忙牙长",
+      "defaultSkinId": "165101",
+      "skins": [
+        {
+          "id": "165101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/651.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/165101.png",
+          "sha256": "54fb4346a19fe40fe7f852fdb21724d56708661def9a5863275a84bbf3f55b49",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-mang-ya-chang.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-feng-xi",
+      "characterName": "冯熙",
+      "defaultSkinId": "1209401",
+      "skins": [
+        {
+          "id": "1209401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1013.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1209401.png",
+          "sha256": "43ee6ae1adeef5d8380a79237be0a85e8fa9bef66e96cca72bf8e7ce731121dc",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-feng-xi.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-zhao-tong-zhao-guang",
+      "characterName": "赵统赵广",
+      "defaultSkinId": "1122201",
+      "skins": [
+        {
+          "id": "1122201",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1222.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1122201.png",
+          "sha256": "b2656e606ca772839635e4ae0fcdf4bd77fb35ff6af8327de10270fc2b723f98",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-zhao-tong-zhao-guang.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-le-jiu",
+      "characterName": "乐就",
+      "defaultSkinId": "1190401",
+      "skins": [
+        {
+          "id": "1190401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1904.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1190401.png",
+          "sha256": "21d74607f565c67c1c4606cc95b5bf07cb514917639889a1dde4324202d7f174",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-le-jiu.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-he-yan",
+      "characterName": "何晏",
+      "defaultSkinId": "154401",
+      "skins": [
+        {
+          "id": "154401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/544.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/154401.png",
+          "sha256": "3cd16f65f6d9d3eefe6e7c7c449497dcc2f13d298ea7f9eed64000e080c4fc5a",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-he-yan.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-guo-zhao",
+      "characterName": "郭照",
+      "defaultSkinId": "153801",
+      "skins": [
+        {
+          "id": "153801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/538.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/153801.png",
+          "sha256": "4a4f29891756380ea15103579a32c939becee1b9fd7c65ddde6735992076bef7",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-guo-zhao.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-zhang-fen",
+      "characterName": "张奋",
+      "defaultSkinId": "1116001",
+      "skins": [
+        {
+          "id": "1116001",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1160.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1116001.png",
+          "sha256": "e5ab8ec95b021e4bf1b3ddb18c210d27c3b5610f8086e1947c96af3d1b24d032",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-zhang-fen.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-bai-ling-yun",
+      "characterName": "柏灵筠",
+      "defaultSkinId": "1124501",
+      "skins": [
+        {
+          "id": "1124501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1245.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1124501.png",
+          "sha256": "5ecba427c0113454f05802b0ce988c9e09c3b6965fdaa3aaa6312f8e0b38adbd",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-bai-ling-yun.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-yang-biao",
+      "characterName": "杨彪",
+      "defaultSkinId": "1109301",
+      "skins": [
+        {
+          "id": "1109301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1093.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1109301.png",
+          "sha256": "1e764c3a42760f59048244380398c17678c165a1a590a3aedb27d7636a067a54",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-yang-biao.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-liu-li",
+      "characterName": "刘理",
+      "defaultSkinId": "1122601",
+      "skins": [
+        {
+          "id": "1122601",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1226.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1122601.png",
+          "sha256": "e76fb7c978ffa32fb62f446118d5172b419fb76b0836bbc09c1044a968595fab",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-liu-li.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-du-kui",
+      "characterName": "杜夔",
+      "defaultSkinId": "180501",
+      "skins": [
+        {
+          "id": "180501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/805.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/180501.png",
+          "sha256": "7ca0d6c7f5e9a05b6322c08681701a3c8d15920e8092686178e82962ae6f270c",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-du-kui.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-liu-yong",
+      "characterName": "刘永",
+      "defaultSkinId": "155401",
+      "skins": [
+        {
+          "id": "155401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/554.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/155401.png",
+          "sha256": "e2c5db02da82bfe27d14ce35bceba7678a60d56fa4daf20eaf3fb25c978295a4",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-liu-yong.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-kan-ze",
+      "characterName": "阚泽",
+      "defaultSkinId": "154801",
+      "skins": [
+        {
+          "id": "154801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/548.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/154801.png",
+          "sha256": "9c6e2c9991d598c1398e0f3eceae23d7ffec2d66a86b9d9a0cc711d162858421",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-kan-ze.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-hu-zhao",
+      "characterName": "胡昭",
+      "defaultSkinId": "1195201",
+      "skins": [
+        {
+          "id": "1195201",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1952.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1195201.png",
+          "sha256": "39ae165999543f3af27951a875806324db54610419afef1bb3d1f3973cedc577",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-hu-zhao.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-xu-jing",
+      "characterName": "许靖",
+      "defaultSkinId": "1123501",
+      "skins": [
+        {
+          "id": "1123501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1235.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1123501.png",
+          "sha256": "a0641875771472f5ae11a65a8448a027898159c2524a5dd24f1d96fdc79d4745",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-xu-jing.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-ruan-ji",
+      "characterName": "阮籍",
+      "defaultSkinId": "1109401",
+      "skins": [
+        {
+          "id": "1109401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1094.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1109401.png",
+          "sha256": "17962eb50a08fa2a1a7d1c2adda3c62960d8988e3604d2b68c7fb4e33b3a59d0",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-ruan-ji.png"
+        }
+      ]
+    },
+    {
+      "key": "ol-lu-shi",
+      "characterName": "卢氏",
+      "defaultSkinId": "53900",
+      "skins": [
+        {
+          "id": "53900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/539",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/53900.png",
+          "sha256": "2595e1af027a1283e338f79352d0b2c0e61cff64271b64aa6760ecc9e548f8f5",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-lu-shi.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zuo-ci",
+      "characterName": "神左慈",
+      "defaultSkinId": "happy-operations-20240207",
+      "skins": [
+        {
+          "id": "happy-operations-20240207",
+          "name": "欢乐运营帖形象",
+          "sourcePage": "https://www.taptap.cn/moment/504292835307028816",
+          "imageUrl": "https://img2-tc.tapimg.com/moment/etag/76bb396a986db428637c7c59bcf44e03.png/_tap_ugc.jpg",
+          "sha256": "f989273a08cc6a048a695751b2ac4e4fe2b5d2bc35cc8013777dbe81c748aa6d",
+          "pixelWidth": 526,
+          "pixelHeight": 713,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-zuo-ci.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-wei-yan",
+      "characterName": "神魏延",
+      "defaultSkinId": "happy-guide",
+      "skins": [
+        {
+          "id": "happy-guide",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/new_dyn/22c9ec42325132dced5c991165088001386733385.png",
+          "sha256": "8a64ea3fe16d84de90d08ac91e6f7d039d50ad59466e18eeef550d3f4eecdbed",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-wei-yan-guide.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-da-qiao-xiao-qiao",
+      "characterName": "神大小乔",
+      "defaultSkinId": "happy-guide",
+      "skins": [
+        {
+          "id": "happy-guide",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/397320cfeb04d1941e0f27ee95a8fd932785140e.png",
+          "sha256": "d986035df6b448268be18d01eae785f96ead9881d61cba678311c6f7c17a19fd",
+          "pixelWidth": 486,
+          "pixelHeight": 630,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-da-qiao-xiao-qiao-guide.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhang-fei",
+      "characterName": "神张飞",
+      "defaultSkinId": "happy-guide",
+      "skins": [
+        {
+          "id": "happy-guide",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/42ae92ee4e0284218778abe10c6b058d02dda317.png",
+          "sha256": "bec013df04cf42089b3e600df3431da9d3202de521bb14e80a456a1ef48777ba",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-zhang-fei-guide.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-diao-chan",
+      "characterName": "神貂蝉",
+      "defaultSkinId": "happy-classic",
+      "skins": [
+        {
+          "id": "happy-classic",
+          "name": "欢乐经典形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/431f46bb391c948dedf6fbb4ad0b0dada41efc88.png",
+          "sha256": "7529bb775f6fb950eaaa535c1d77c67213c6d0b9c00f88ec1105f90d17e616d4",
+          "pixelWidth": 486,
+          "pixelHeight": 625,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-diao-chan.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhong-hui",
+      "characterName": "神钟会",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/223.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122301.png",
+          "sha256": "340b9213859b3a6aa77b9a2b9d4d190f8f9e88fc281fd6f6765e93215154f92f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhong-hui.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-deng-ai",
+      "characterName": "神邓艾",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/217.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121701.png",
+          "sha256": "8e8232819f2bbbd26b7e3f951ab52f08879d14a24c1e4745c3638b443c6c582f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-deng-ai.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-pang-tong",
+      "characterName": "神庞统",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/222.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122201.png",
+          "sha256": "b87105ad986f9bd1af5cd9edaa26b1fe34f62967c37c98872f5507b01ac5b063",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-pang-tong.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-lu-xun",
+      "characterName": "神陆逊",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-272.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/44000.jpg",
+          "sha256": "7b79902ad429637f31e4302c7b9465a2bd10b1565bf851525410d2b60482654a",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-xun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-xu-chu",
+      "characterName": "神许褚",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/219.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121901.png",
+          "sha256": "47cc74717f0a73918e1d2f6e9fcacd384fe453765bc52a6d588e67f5e21f3e31",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-xu-chu.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-dian-wei",
+      "characterName": "神典韦",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/218.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121801.png",
+          "sha256": "c0d077698ea89c3296aeef4ee655d9fbe6683ffd996c6caf8fc74c6b6c820ad1",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-dian-wei.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-liu-bei",
+      "characterName": "神刘备",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-271.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/43900.jpg",
+          "sha256": "b3b114f9c802567ac94cd7ed2685f69b42fc626693ba1885f5478e7bc0ddad59",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-liu-bei.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-sima-yi",
+      "characterName": "神司马懿",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-146.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20800.jpg",
+          "sha256": "ed733dda57c4aca294c8b29cc44606888c18ac6e86e0c822ae83ea8abfdda400",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-sima-yi.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-guan-yu",
+      "characterName": "神关羽",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-139.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20100.jpg",
+          "sha256": "a47866c74d83e0a1b219597d8eaa7c64f130479e4315fd6fd604b3932912c414",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-guan-yu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhang-jiao",
+      "characterName": "神张角",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/216.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121601.png",
+          "sha256": "785a5a5e30a8954295077ee28e6fecba9cabfd37b4ead9169284022888265b1d",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhang-jiao.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-taishi-ci",
+      "characterName": "神太史慈",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-332.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22100.jpg",
+          "sha256": "59b44f9f814e69e31627475e057b85f8ce20136f1847b1e2855478e20400ab43",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-taishi-ci.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-hua-tuo",
+      "characterName": "神华佗",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-568.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/22501.jpg",
+          "sha256": "80d2657de5d8b75a4c80be234c3a9aa709d7c9be1beef9a0852cdf4b38ad7e2f",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-hua-tuo.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-lu-meng",
+      "characterName": "神吕蒙",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-140.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20200.jpg",
+          "sha256": "9de5274b696deb2ca444f57e7cef2367f23abf0c52a2ca335cb1a17e170b38a8",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-meng.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhao-yun",
+      "characterName": "神赵云",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-145.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20700.jpg",
+          "sha256": "e871d67db30560af2a628f4476e6408949ef72bf2e2569511085ca6b006f4af9",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhao-yun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-gan-ning",
+      "characterName": "神甘宁",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-348.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/46900.jpg",
+          "sha256": "1a9d09c8ab8ec814db7eaa861a1840af25a543393a6686b3a023709c6f275f92",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-gan-ning.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-cao-cao",
+      "characterName": "神曹操",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-143.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20500.jpg",
+          "sha256": "e00ede8c66899eb3fde8028b9095f4c1758dd275e44f088e27dee126045e77da",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-cao-cao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhou-yu",
+      "characterName": "神周瑜",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-141.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20300.jpg",
+          "sha256": "e483f594e64691e938b9ad72f884ac1e9b13b1027cdddb6aceb7f8aeb7bb0657",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhou-yu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhuge-liang",
+      "characterName": "神诸葛亮",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-142.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20400.jpg",
+          "sha256": "f7422018b1ad625f451e27f0d6a3cb9595bfed1c223752cad7bccf281bb99fcf",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhuge-liang.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-lu-bu",
+      "characterName": "神吕布",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-144.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20600.jpg",
+          "sha256": "d815af3aaad558a286165f8cc331ba02abab3c8027439f6e60cffed14d6b58cd",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-bu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhen-ji",
+      "characterName": "神甄姬",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.com/news/20200520_1333_5818",
+          "imageUrl": "https://www.sanguosha.com/uploads/202005/5ec66f3695c69.jpg",
+          "sha256": "822a7ffd2dea8e83727832212df2033a4690abca8def9f6aa688c7c27cd5b810",
+          "pixelWidth": 600,
+          "pixelHeight": 424,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhen-ji.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-lu-su",
+      "characterName": "神鲁肃",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-581.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/22600.jpg",
+          "sha256": "9ff6728bb935e72fd979da8c9c3a1f328911a3b973d20018de602160340b6cf2",
+          "pixelWidth": 2798,
+          "pixelHeight": 3903,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-su.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-guo-jia",
+      "characterName": "神郭嘉",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-336.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22000.jpg",
+          "sha256": "0744f2c360e025126badc6f34e662b6aca5bb85cf9eaefb4b4fb86ce2c2d7547",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-guo-jia.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-sun-quan",
+      "characterName": "神孙权",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.com/hero/226",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22600.png",
+          "sha256": "5fda178f9919fa4d743cf34b1bdc60d497f5f523689ec307c6ecbb34f46ef7d6",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-sun-quan.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhang-liao",
+      "characterName": "神张辽",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-347.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/46800.jpg",
+          "sha256": "5e362eb96eab1014462bf363756d3bedde61a5972f6ea566b80d272e46f1eeba",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhang-liao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-guan-yu",
+      "characterName": "神关羽",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/201.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120101.png",
+          "sha256": "5e7578c3415aa95d48ddfb25fb9b6e7ee1d92c789a62d5be1cf8e28b34b05dcc",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/wiki-shen-guan-yu-classic.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-liu-bei",
+      "characterName": "神刘备",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/209.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120901.png",
+          "sha256": "03f6ed69774c9692829a3950f2a1d662e4aae2fe6f4788085e710b7d9d0da93e",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-liu-bei.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-lu-xun",
+      "characterName": "神陆逊",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/210.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/121001.png",
+          "sha256": "83883541f011b0345bcc1caeb953c313b9796d76bf5582d0ef496e3f4dc46f31",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-lu-xun.png"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-cao-cao",
+      "characterName": "神曹操",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/205",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20500.png",
+          "sha256": "f04003b2c251b7355e9e2ffac63a0fe719495123aef62e9749a944a57d582d61",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-cao-cao.png"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-sima-yi-2016",
+      "characterName": "神司马懿",
+      "defaultSkinId": "2016-classic",
+      "skins": [
+        {
+          "id": "2016-classic",
+          "name": "2016经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20161207_6342_3611",
+          "imageUrl": "https://www.sanguosha.com/uploads/201612/5848d6073e7d8.jpg",
+          "sha256": "561693f4925be0e15d2e3fd00797d08561873fc275a2882ba770a3f846afc355",
+          "pixelWidth": 371,
+          "pixelHeight": 500,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-sima-yi-2016.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-zhang-liao",
+      "characterName": "神张辽",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/211.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/121101.png",
+          "sha256": "bd88973f5b8a0581abf95f66aeaa0be50726e6af5be35fb639cdfcb0febd074f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhang-liao.png"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-jiang-wei",
+      "characterName": "神姜维",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-645.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/87000.png",
+          "sha256": "b6f399105c80e66a442230106507cf30fc819e4e1453a63f28522c58ffec0b7b",
+          "pixelWidth": 446,
+          "pixelHeight": 621,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-jiang-wei.png"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-ma-chao",
+      "characterName": "神马超",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-657.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/90000.jpg",
+          "sha256": "514c9686ccb70b3d65cb5912a05db910e24ddc29f24298b3ff517c0ab1c3d41f",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-ma-chao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-zhao-yun-2016",
+      "characterName": "神赵云",
+      "defaultSkinId": "2016-classic",
+      "skins": [
+        {
+          "id": "2016-classic",
+          "name": "2016经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20161207_6342_3611",
+          "imageUrl": "https://www.sanguosha.com/uploads/201612/5848d5fedf35a.jpg",
+          "sha256": "fb8ac71d21b2cd4c41fb4ddace0bbcf9f7bc4cbe2af67c69ad64b95ce54bc446",
+          "pixelWidth": 355,
+          "pixelHeight": 500,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhao-yun-2016.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-sun-quan",
+      "characterName": "神孙权",
+      "defaultSkinId": "classic-2026-05",
+      "skins": [
+        {
+          "id": "classic-2026-05",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/news/20260508_1372_2616.html",
+          "imageUrl": "https://xoss.sanguosha.com/uploads/image/2026/8317633f-954e-4f58-9603-ce26aac6fb3f.png",
+          "sha256": "f6f4c86ae577663351e67e5fccccefa619f61c4ce6b966813f3318bd2b703ade",
+          "pixelWidth": 876,
+          "pixelHeight": 632,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-sun-quan-2026.png"
+        },
+        {
+          "id": "bihai-chaosheng",
+          "name": "碧海潮生",
+          "sourcePage": "https://x.sanguosha.com/news/20260108_4235_1811.html",
+          "imageUrl": "https://xoss.sanguosha.com/uploads/image/2026/c7b0a7cf-f13c-4652-ab59-fcf287ab51aa.png",
+          "sha256": "15a9c83d71e35b408037dc2f2a6a5d3dc4f83588854ccd6a465b85116aafc219",
+          "pixelWidth": 876,
+          "pixelHeight": 632,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-sun-quan.png"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-zhen-ji",
+      "characterName": "神甄姬",
+      "defaultSkinId": "2020-shenwu",
+      "skins": [
+        {
+          "id": "2020-shenwu",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20200520_1333_5818",
+          "imageUrl": "https://www.sanguosha.com/uploads/202005/5ec66f3695c69.jpg",
+          "sha256": "822a7ffd2dea8e83727832212df2033a4690abca8def9f6aa688c7c27cd5b810",
+          "pixelWidth": 600,
+          "pixelHeight": 424,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhen-ji.jpg"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-cao-pi",
+      "characterName": "神曹丕",
+      "defaultSkinId": "2020-shenwu",
+      "skins": [
+        {
+          "id": "2020-shenwu",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20200520_1333_5818",
+          "imageUrl": "https://www.sanguosha.com/uploads/202005/5ec66f41693a8.jpg",
+          "sha256": "9c2a125026ee5d60c806ea8106cf9beceb42b3f2e102d30cd8abcdd373b57129",
+          "pixelWidth": 600,
+          "pixelHeight": 424,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-cao-pi.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-guan-yu",
+      "characterName": "神关羽",
+      "defaultSkinId": "20100",
+      "skins": [
+        {
+          "id": "20100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-139.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20100.jpg",
+          "sha256": "a47866c74d83e0a1b219597d8eaa7c64f130479e4315fd6fd604b3932912c414",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-guan-yu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-lu-meng",
+      "characterName": "神吕蒙",
+      "defaultSkinId": "20200",
+      "skins": [
+        {
+          "id": "20200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-140.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20200.jpg",
+          "sha256": "9de5274b696deb2ca444f57e7cef2367f23abf0c52a2ca335cb1a17e170b38a8",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-meng.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-sima-yi",
+      "characterName": "神司马懿",
+      "defaultSkinId": "20800",
+      "skins": [
+        {
+          "id": "20800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-146.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20800.jpg",
+          "sha256": "ed733dda57c4aca294c8b29cc44606888c18ac6e86e0c822ae83ea8abfdda400",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-sima-yi.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-cao-cao",
+      "characterName": "神曹操",
+      "defaultSkinId": "20500",
+      "skins": [
+        {
+          "id": "20500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-143.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20500.jpg",
+          "sha256": "e00ede8c66899eb3fde8028b9095f4c1758dd275e44f088e27dee126045e77da",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-cao-cao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-lu-bu",
+      "characterName": "神吕布",
+      "defaultSkinId": "20600",
+      "skins": [
+        {
+          "id": "20600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-144.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20600.jpg",
+          "sha256": "d815af3aaad558a286165f8cc331ba02abab3c8027439f6e60cffed14d6b58cd",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-bu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-zhou-yu",
+      "characterName": "神周瑜",
+      "defaultSkinId": "20300",
+      "skins": [
+        {
+          "id": "20300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-141.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20300.jpg",
+          "sha256": "e483f594e64691e938b9ad72f884ac1e9b13b1027cdddb6aceb7f8aeb7bb0657",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhou-yu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-zhao-yun",
+      "characterName": "神赵云",
+      "defaultSkinId": "20700",
+      "skins": [
+        {
+          "id": "20700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-145.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20700.jpg",
+          "sha256": "e871d67db30560af2a628f4476e6408949ef72bf2e2569511085ca6b006f4af9",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhao-yun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-zhuge-liang",
+      "characterName": "神诸葛亮",
+      "defaultSkinId": "20400",
+      "skins": [
+        {
+          "id": "20400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-142.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20400.jpg",
+          "sha256": "f7422018b1ad625f451e27f0d6a3cb9595bfed1c223752cad7bccf281bb99fcf",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhuge-liang.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-zhang-liao",
+      "characterName": "神张辽",
+      "defaultSkinId": "46800",
+      "skins": [
+        {
+          "id": "46800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-347.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/46800.jpg",
+          "sha256": "5e362eb96eab1014462bf363756d3bedde61a5972f6ea566b80d272e46f1eeba",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhang-liao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-lu-xun",
+      "characterName": "神陆逊",
+      "defaultSkinId": "44000",
+      "skins": [
+        {
+          "id": "44000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-272.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/44000.jpg",
+          "sha256": "7b79902ad429637f31e4302c7b9465a2bd10b1565bf851525410d2b60482654a",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-xun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-gan-ning",
+      "characterName": "神甘宁",
+      "defaultSkinId": "46900",
+      "skins": [
+        {
+          "id": "46900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-348.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/46900.jpg",
+          "sha256": "1a9d09c8ab8ec814db7eaa861a1840af25a543393a6686b3a023709c6f275f92",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-gan-ning.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-liu-bei",
+      "characterName": "神刘备",
+      "defaultSkinId": "43900",
+      "skins": [
+        {
+          "id": "43900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-271.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/43900.jpg",
+          "sha256": "b3b114f9c802567ac94cd7ed2685f69b42fc626693ba1885f5478e7bc0ddad59",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-liu-bei.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-dian-wei",
+      "characterName": "神典韦",
+      "defaultSkinId": "121801",
+      "skins": [
+        {
+          "id": "121801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/218.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121801.png",
+          "sha256": "c0d077698ea89c3296aeef4ee655d9fbe6683ffd996c6caf8fc74c6b6c820ad1",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-dian-wei.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-huang-zhong",
+      "characterName": "神黄忠",
+      "defaultSkinId": "122101",
+      "skins": [
+        {
+          "id": "122101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/221.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122101.png",
+          "sha256": "eee92a23d3dcfcc2331dfb51dcfce838c06f75edb4fd2a667c2c16baf203f08b",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-huang-zhong.png"
+        },
+        {
+          "id": "happy-guide-20260923",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/new_dyn/fc0777a26a7356702260ad6f1f1bf8e6386733385.png",
+          "sha256": "0dacc728bd50b22dde72a41e8eae9501e0b91c0e8876cabb8adc810432ac1cc7",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-huang-zhong-guide.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-cao-pi",
+      "characterName": "神曹丕",
+      "defaultSkinId": "122601",
+      "skins": [
+        {
+          "id": "122601",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/226.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122601.png",
+          "sha256": "dd6bc98703613e337ab50f3a853f5a742cf6931ac5065c3ab983f4ab2a10a912",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-cao-pi.png"
+        }
+      ]
+    },
+    {
       "key": "mou-dong-cheng",
       "characterName": "谋董承",
       "defaultSkinId": "1230001",
@@ -17361,6 +18724,16 @@
           "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-sun-ce.jpg",
           "id": "22300",
           "name": "经典形象"
+        },
+        {
+          "id": "happy-guide-20260923",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/8aa6e44ce06d6fdcfb5f2c999a19edc5148ba8fb.png",
+          "sha256": "90360fcaa4b677593f043d12d52cddb99f5725d3bdec5a65e4a060384759eda8",
+          "pixelWidth": 486,
+          "pixelHeight": 625,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-sun-ce-guide.png"
         }
       ]
     },
@@ -17395,6 +18768,16 @@
           "pixelWidth": 530,
           "pixelHeight": 750,
           "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-xun-yu.jpg"
+        },
+        {
+          "id": "happy-guide-20260923",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/28056e4046ed321f366206d4384f1370386733385.jpg",
+          "sha256": "bafc802d24c8b45c5f483d9952d2841ee225921cfcff755cb958fbb842a8922c",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-xun-yu-guide.jpg"
         }
       ]
     },
@@ -17412,6 +18795,16 @@
           "pixelWidth": 574,
           "pixelHeight": 761,
           "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-jiang-wei.png"
+        },
+        {
+          "id": "happy-guide",
+          "name": "欢乐图鉴形象",
+          "sourcePage": "https://www.bilibili.com/opus/801083728217505844",
+          "imageUrl": "https://i0.hdslb.com/bfs/article/e74bcd186f80462607a0ee4435250b5cfedcf818.png",
+          "sha256": "71906829ddc5f77e06f3a41f7a92f3aa0d4b422a801a31b12427b54e1b5904c4",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-jiang-wei.png"
         }
       ]
     },
@@ -17514,6 +18907,16 @@
           "pixelWidth": 574,
           "pixelHeight": 761,
           "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-ma-chao.png"
+        },
+        {
+          "id": "happy-classic",
+          "name": "欢乐经典形象",
+          "sourcePage": "https://www.taptap.cn/moment/473191608876011245",
+          "imageUrl": "https://img2-tc.tapimg.com/moment/etag/FtgILcHchHutevbLcFtwu0bUvp7w.png/_tap_ugc.jpg",
+          "sha256": "8e80ab80e5718a2495d66c50349928342c955b190ec3d7a5b09f754664551faf",
+          "pixelWidth": 540,
+          "pixelHeight": 720,
+          "localPath": "src/CardGame.Wpf/Assets/happy-shen-ma-chao.jpg"
         }
       ]
     },

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Happy god rule variants reuse existing same-character full illustrations as explicitly shared skins. All three actual local images visually inspected and byte hashes verified; these are not claimed to be Happy product original illustrations. No duplicate bitmap files are added.",
+  "portraits": [
+    {
+      "key": "happy-shen-lu-meng",
+      "characterName": "神吕蒙",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-140.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20200.jpg",
+          "sha256": "9de5274b696deb2ca444f57e7cef2367f23abf0c52a2ca335cb1a17e170b38a8",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-meng.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhao-yun",
+      "characterName": "神赵云",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-145.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20700.jpg",
+          "sha256": "e871d67db30560af2a628f4476e6408949ef72bf2e2569511085ca6b006f4af9",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhao-yun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-gan-ning",
+      "characterName": "神甘宁",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-348.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/46900.jpg",
+          "sha256": "1a9d09c8ab8ec814db7eaa861a1840af25a543393a6686b3a023709c6f275f92",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-gan-ning.jpg"
+        }
+      ]
+    }
+  ]
+}

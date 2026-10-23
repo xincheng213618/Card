@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Official anniversary god Dian Wei, Huang Zhong and Cao Pi default portraits; gameplay sources documented separately.",
+  "portraits": [
+    {
+      "key": "anniversary-shen-dian-wei",
+      "characterName": "神典韦",
+      "defaultSkinId": "121801",
+      "skins": [
+        {
+          "id": "121801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/218.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121801.png",
+          "sha256": "c0d077698ea89c3296aeef4ee655d9fbe6683ffd996c6caf8fc74c6b6c820ad1",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-dian-wei.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-huang-zhong",
+      "characterName": "神黄忠",
+      "defaultSkinId": "122101",
+      "skins": [
+        {
+          "id": "122101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/221.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122101.png",
+          "sha256": "eee92a23d3dcfcc2331dfb51dcfce838c06f75edb4fd2a667c2c16baf203f08b",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-huang-zhong.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-cao-pi",
+      "characterName": "神曹丕",
+      "defaultSkinId": "122601",
+      "skins": [
+        {
+          "id": "122601",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/226.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122601.png",
+          "sha256": "dd6bc98703613e337ab50f3a853f5a742cf6931ac5065c3ab983f4ab2a10a912",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-cao-pi.png"
+        }
+      ]
+    }
+  ]
+}

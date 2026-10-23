@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Official Anniversary Sun Quan and OL 2020 Shenwu Zhen Ji and Cao Pi illustrations; gameplay editions and later Cao Pi revision documented separately.",
+  "portraits": [
+    {
+      "key": "anniversary-shen-sun-quan",
+      "characterName": "神孙权",
+      "defaultSkinId": "classic-2026-05",
+      "skins": [
+        {
+          "id": "classic-2026-05",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/news/20260508_1372_2616.html",
+          "imageUrl": "https://xoss.sanguosha.com/uploads/image/2026/8317633f-954e-4f58-9603-ce26aac6fb3f.png",
+          "sha256": "f6f4c86ae577663351e67e5fccccefa619f61c4ce6b966813f3318bd2b703ade",
+          "pixelWidth": 876,
+          "pixelHeight": 632,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-sun-quan-2026.png"
+        },
+        {
+          "id": "bihai-chaosheng",
+          "name": "碧海潮生",
+          "sourcePage": "https://x.sanguosha.com/news/20260108_4235_1811.html",
+          "imageUrl": "https://xoss.sanguosha.com/uploads/image/2026/c7b0a7cf-f13c-4652-ab59-fcf287ab51aa.png",
+          "sha256": "15a9c83d71e35b408037dc2f2a6a5d3dc4f83588854ccd6a465b85116aafc219",
+          "pixelWidth": 876,
+          "pixelHeight": 632,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-sun-quan.png"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-zhen-ji",
+      "characterName": "神甄姬",
+      "defaultSkinId": "2020-shenwu",
+      "skins": [
+        {
+          "id": "2020-shenwu",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20200520_1333_5818",
+          "imageUrl": "https://www.sanguosha.com/uploads/202005/5ec66f3695c69.jpg",
+          "sha256": "822a7ffd2dea8e83727832212df2033a4690abca8def9f6aa688c7c27cd5b810",
+          "pixelWidth": 600,
+          "pixelHeight": 424,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhen-ji.jpg"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-cao-pi",
+      "characterName": "神曹丕",
+      "defaultSkinId": "2020-shenwu",
+      "skins": [
+        {
+          "id": "2020-shenwu",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20200520_1333_5818",
+          "imageUrl": "https://www.sanguosha.com/uploads/202005/5ec66f41693a8.jpg",
+          "sha256": "9c2a125026ee5d60c806ea8106cf9beceb42b3f2e102d30cd8abcdd373b57129",
+          "pixelWidth": 600,
+          "pixelHeight": 424,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-cao-pi.jpg"
+        }
+      ]
+    }
+  ]
+}

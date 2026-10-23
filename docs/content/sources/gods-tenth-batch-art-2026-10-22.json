@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Official mobile god Guan Yu, Lu Meng and Sima Yi default portraits; gameplay sources documented separately.",
+  "portraits": [
+    {
+      "key": "mobile-shen-guan-yu",
+      "characterName": "神关羽",
+      "defaultSkinId": "20100",
+      "skins": [
+        {
+          "id": "20100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-139.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20100.jpg",
+          "sha256": "a47866c74d83e0a1b219597d8eaa7c64f130479e4315fd6fd604b3932912c414",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-guan-yu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-lu-meng",
+      "characterName": "神吕蒙",
+      "defaultSkinId": "20200",
+      "skins": [
+        {
+          "id": "20200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-140.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20200.jpg",
+          "sha256": "9de5274b696deb2ca444f57e7cef2367f23abf0c52a2ca335cb1a17e170b38a8",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-meng.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-sima-yi",
+      "characterName": "神司马懿",
+      "defaultSkinId": "20800",
+      "skins": [
+        {
+          "id": "20800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-146.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20800.jpg",
+          "sha256": "ed733dda57c4aca294c8b29cc44606888c18ac6e86e0c822ae83ea8abfdda400",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-sima-yi.jpg"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-23",
+  "scope": "Happy god variants reuse existing same-character publisher illustrations as explicitly shared skins. All three local images visually inspected and exact byte hashes verified. Xu Chu publisher page was fetched again; Lu Xun timed out and Dian Wei was inaccessible, so their source URLs retain previously catalogued provenance. These are not claimed as Happy product original illustrations; no duplicate bitmap files added.",
+  "portraits": [
+    {
+      "key": "happy-shen-lu-xun",
+      "characterName": "神陆逊",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-272.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/44000.jpg",
+          "sha256": "7b79902ad429637f31e4302c7b9465a2bd10b1565bf851525410d2b60482654a",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-xun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-xu-chu",
+      "characterName": "神许褚",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/219.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121901.png",
+          "sha256": "47cc74717f0a73918e1d2f6e9fcacd384fe453765bc52a6d588e67f5e21f3e31",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-xu-chu.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-dian-wei",
+      "characterName": "神典韦",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/218.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121801.png",
+          "sha256": "c0d077698ea89c3296aeef4ee655d9fbe6683ffd996c6caf8fc74c6b6c820ad1",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-dian-wei.png"
+        }
+      ]
+    }
+  ]
+}

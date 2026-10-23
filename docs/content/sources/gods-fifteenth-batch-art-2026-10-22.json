@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Happy god rule variants reuse the existing same-character OL/mobile full illustrations as explicitly shared skins. This batch verifies local byte hashes and visually inspects each portrait; it does not claim these are Happy product original illustrations. The Happy official Sun Quan release page provides a small circular icon unsuitable for a full portrait. No duplicate bitmap files are added.",
+  "portraits": [
+    {
+      "key": "happy-shen-guo-jia",
+      "characterName": "神郭嘉",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-336.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22000.jpg",
+          "sha256": "0744f2c360e025126badc6f34e662b6aca5bb85cf9eaefb4b4fb86ce2c2d7547",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-guo-jia.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-sun-quan",
+      "characterName": "神孙权",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.com/hero/226",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22600.png",
+          "sha256": "5fda178f9919fa4d743cf34b1bdc60d497f5f523689ec307c6ecbb34f46ef7d6",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-sun-quan.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhang-liao",
+      "characterName": "神张辽",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-347.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/46800.jpg",
+          "sha256": "5e362eb96eab1014462bf363756d3bedde61a5972f6ea566b80d272e46f1eeba",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhang-liao.jpg"
+        }
+      ]
+    }
+  ]
+}

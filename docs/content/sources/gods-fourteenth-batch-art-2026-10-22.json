@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Formal July Anniversary Guan Yu and Liu Bei revisions, plus current Anniversary Lu Xun. Guan Yu reuses the historical local asset after an exact byte hash match to the current official portrait URL.",
+  "portraits": [
+    {
+      "key": "anniversary-shen-guan-yu",
+      "characterName": "神关羽",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/201.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120101.png",
+          "sha256": "5e7578c3415aa95d48ddfb25fb9b6e7ee1d92c789a62d5be1cf8e28b34b05dcc",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/wiki-shen-guan-yu-classic.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-liu-bei",
+      "characterName": "神刘备",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/209.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120901.png",
+          "sha256": "03f6ed69774c9692829a3950f2a1d662e4aae2fe6f4788085e710b7d9d0da93e",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-liu-bei.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-lu-xun",
+      "characterName": "神陆逊",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/210.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/121001.png",
+          "sha256": "83883541f011b0345bcc1caeb953c313b9796d76bf5582d0ef496e3f4dc46f31",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-lu-xun.png"
+        }
+      ]
+    }
+  ]
+}

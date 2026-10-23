@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Happy god rule variants reuse existing same-character full illustrations as explicitly shared skins. All three actual local images visually inspected and byte hashes verified; these are not claimed to be Happy product original illustrations. No duplicate bitmap files are added.",
+  "portraits": [
+    {
+      "key": "happy-shen-cao-cao",
+      "characterName": "神曹操",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-143.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20500.jpg",
+          "sha256": "e00ede8c66899eb3fde8028b9095f4c1758dd275e44f088e27dee126045e77da",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-cao-cao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhou-yu",
+      "characterName": "神周瑜",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-141.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20300.jpg",
+          "sha256": "e483f594e64691e938b9ad72f884ac1e9b13b1027cdddb6aceb7f8aeb7bb0657",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhou-yu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhuge-liang",
+      "characterName": "神诸葛亮",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-142.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20400.jpg",
+          "sha256": "f7422018b1ad625f451e27f0d6a3cb9595bfed1c223752cad7bccf281bb99fcf",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhuge-liang.jpg"
+        }
+      ]
+    }
+  ]
+}

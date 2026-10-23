@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Happy god rule variants reuse existing same-character full illustrations as explicitly shared skins. All three actual local images visually inspected and byte hashes verified; these are not claimed to be Happy product original illustrations. No duplicate bitmap files are added.",
+  "portraits": [
+    {
+      "key": "happy-shen-lu-bu",
+      "characterName": "神吕布",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-144.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20600.jpg",
+          "sha256": "d815af3aaad558a286165f8cc331ba02abab3c8027439f6e60cffed14d6b58cd",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-bu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-zhen-ji",
+      "characterName": "神甄姬",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.com/news/20200520_1333_5818",
+          "imageUrl": "https://www.sanguosha.com/uploads/202005/5ec66f3695c69.jpg",
+          "sha256": "822a7ffd2dea8e83727832212df2033a4690abca8def9f6aa688c7c27cd5b810",
+          "pixelWidth": 600,
+          "pixelHeight": 424,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhen-ji.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-lu-su",
+      "characterName": "神鲁肃",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-581.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/22600.jpg",
+          "sha256": "9ff6728bb935e72fd979da8c9c3a1f328911a3b973d20018de602160340b6cf2",
+          "pixelWidth": 2798,
+          "pixelHeight": 3903,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-su.jpg"
+        }
+      ]
+    }
+  ]
+}

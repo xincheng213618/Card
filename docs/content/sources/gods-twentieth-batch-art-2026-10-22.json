@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Happy god variants reuse existing same-character publisher illustrations as explicitly shared skins. All three local images visually inspected and exact byte hashes verified. Source URLs retain previously catalogued provenance; fresh online page fetch timed out. These are not claimed as Happy product original illustrations; no duplicate bitmap files added.",
+  "portraits": [
+    {
+      "key": "happy-shen-liu-bei",
+      "characterName": "神刘备",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-271.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/43900.jpg",
+          "sha256": "b3b114f9c802567ac94cd7ed2685f69b42fc626693ba1885f5478e7bc0ddad59",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-liu-bei.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-sima-yi",
+      "characterName": "神司马懿",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-146.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20800.jpg",
+          "sha256": "ed733dda57c4aca294c8b29cc44606888c18ac6e86e0c822ae83ea8abfdda400",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-sima-yi.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-guan-yu",
+      "characterName": "神关羽",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-139.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20100.jpg",
+          "sha256": "a47866c74d83e0a1b219597d8eaa7c64f130479e4315fd6fd604b3932912c414",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-guan-yu.jpg"
+        }
+      ]
+    }
+  ]
+}

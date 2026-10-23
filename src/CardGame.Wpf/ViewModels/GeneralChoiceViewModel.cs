@@ -13,15 +13,22 @@ public sealed class GeneralChoiceViewModel : ObservableObject
 
     public required string Text { get; init; }
     public string Name { get; init; } = string.Empty;
-    public string VerticalName => string.Join("\n", Name.ToCharArray());
+    public string CardName => CardGame.Content.Standard.GodGeneralRulesCatalog.CardName(GeneralId, Name);
+    public string RulesLabel => CardGame.Content.Standard.GodGeneralRulesCatalog.VariantLabel(GeneralId);
+    public bool HasRulesLabel => RulesLabel.Length > 0;
+    public string VerticalName => string.Join("\n", CardName.ToCharArray());
     public string Kingdom { get; init; } = string.Empty;
     private string? _rosterCategoryId;
     public string RosterCategoryId => _rosterCategoryId ??= Presentation.GeneralRosterCatalog.Classify(GeneralId);
-    public string EditionText => RosterCategoryId == "magic" ? "魔系列" :
+    public string EditionLabel => RosterCategoryId == "magic" ? "魔系列" :
         GeneralId.StartsWith("national:", StringComparison.Ordinal) ? "国战" :
         (GeneralId.StartsWith("ol:", StringComparison.Ordinal) ? "OL · " :
-         GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ? "移动版 · " : string.Empty) +
+         GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ? "移动版 · " :
+         GeneralId.StartsWith("anniversary:", StringComparison.Ordinal) ? "十周年 · " : string.Empty) +
         Presentation.GeneralGalleryCatalog.Classify(GeneralId).Title;
+    public string EditionText => EditionLabel +
+        (CardGame.Content.Standard.GodGeneralRulesCatalog.Difference(GeneralId) is { Length: > 0 } difference
+            ? " · " + difference : string.Empty);
     public string SkillName { get; init; } = string.Empty;
     public string SkillDescription { get; init; } = string.Empty;
     public string HealthText { get; init; } = string.Empty;
@@ -46,13 +53,18 @@ public sealed class GeneralGalleryEntryViewModel
     public required string SeriesName { get; init; }
     public required string GroupId { get; init; }
     public required string GroupName { get; init; }
+    public string RulesDifference => CardGame.Content.Standard.GodGeneralRulesCatalog.Difference(GeneralId);
+    public bool HasRulesDifference => RulesDifference.Length > 0;
     public required string Name { get; init; }
     public required string FactionId { get; init; }
     public required string Kingdom { get; init; }
     public required string HealthText { get; init; }
     public required string SkillName { get; init; }
     public required string SkillDescription { get; init; }
-    public string VerticalName => string.Join("\n", Name.Replace("SP", string.Empty, StringComparison.Ordinal).Trim().ToCharArray());
+    public string CardName => CardGame.Content.Standard.GodGeneralRulesCatalog.CardName(GeneralId, Name);
+    public string RulesLabel => CardGame.Content.Standard.GodGeneralRulesCatalog.VariantLabel(GeneralId);
+    public bool HasRulesLabel => RulesLabel.Length > 0;
+    public string VerticalName => string.Join("\n", CardName.Replace("SP", string.Empty, StringComparison.Ordinal).Trim().ToCharArray());
     public string AccessibilityText => $"{Name}，{Kingdom}，{GroupName}，{HealthText}，{SkillName}";
     public string FactionImage => $"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-faction-{(FactionId == "god" ? "shen" : FactionId is "wei" or "shu" or "wu" or "jin" ? FactionId : "qun")}.png";
     public IReadOnlyList<string> HealthImages { get; init; } = [];

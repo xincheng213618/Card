@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-23",
+  "scope": "Happy god variants reuse existing same-character publisher illustrations as explicitly shared skins. All three local images visually inspected and exact byte hashes verified. Deng Ai and Pang Tong publisher pages fetched again; Zhong Hui was inaccessible, retaining prior catalogued provenance. These are not claimed as Happy product original illustrations; no duplicate bitmap files added.",
+  "portraits": [
+    {
+      "key": "happy-shen-zhong-hui",
+      "characterName": "神钟会",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/223.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122301.png",
+          "sha256": "340b9213859b3a6aa77b9a2b9d4d190f8f9e88fc281fd6f6765e93215154f92f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhong-hui.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-deng-ai",
+      "characterName": "神邓艾",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/217.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121701.png",
+          "sha256": "8e8232819f2bbbd26b7e3f951ab52f08879d14a24c1e4745c3638b443c6c582f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-deng-ai.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-pang-tong",
+      "characterName": "神庞统",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/222.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/122201.png",
+          "sha256": "b87105ad986f9bd1af5cd9edaa26b1fe34f62967c37c98872f5507b01ac5b063",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-pang-tong.png"
+        }
+      ]
+    }
+  ]
+}

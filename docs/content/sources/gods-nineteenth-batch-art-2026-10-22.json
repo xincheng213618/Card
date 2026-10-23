@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Happy god variants reuse existing same-character publisher illustrations as explicitly shared skins. All three local images visually inspected and exact byte hashes verified. These are not claimed as Happy product original illustrations; no duplicate bitmap files added.",
+  "portraits": [
+    {
+      "key": "happy-shen-zhang-jiao",
+      "characterName": "神张角",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://x.sanguosha.com/hero/216.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/121601.png",
+          "sha256": "785a5a5e30a8954295077ee28e6fecba9cabfd37b4ead9169284022888265b1d",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhang-jiao.png"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-taishi-ci",
+      "characterName": "神太史慈",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/hero-detail-332.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/22100.jpg",
+          "sha256": "59b44f9f814e69e31627475e057b85f8ce20136f1847b1e2855478e20400ab43",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-taishi-ci.jpg"
+        }
+      ]
+    },
+    {
+      "key": "happy-shen-hua-tuo",
+      "characterName": "神华佗",
+      "defaultSkinId": "shared-god-art",
+      "skins": [
+        {
+          "id": "shared-god-art",
+          "name": "共用神将原画",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-568.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/22501.jpg",
+          "sha256": "80d2657de5d8b75a4c80be234c3a9aa709d7c9be1beef9a0852cdf4b38ad7e2f",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-hua-tuo.jpg"
+        }
+      ]
+    }
+  ]
+}

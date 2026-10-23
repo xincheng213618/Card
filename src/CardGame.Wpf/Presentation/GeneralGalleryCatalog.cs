@@ -53,6 +53,7 @@ public static class GeneralGalleryCatalog
     private static readonly IReadOnlyDictionary<string, string> GeneralGroups = BuildGeneralGroups();
 
     public static bool IsVisible(string generalId) =>
+        CardGame.Content.Standard.GodGeneralRulesCatalog.IsCanonical(generalId) &&
         !generalId.StartsWith("standard:", StringComparison.Ordinal) &&
         !generalId.StartsWith("composed:", StringComparison.Ordinal) &&
         !generalId.StartsWith("national:", StringComparison.Ordinal);
@@ -111,12 +112,14 @@ public static class GeneralGalleryCatalog
         Add("fame-6", "guo-huanghou li-yan sun-deng liu-yu cen-hun sun-zi-liu-fang huang-hao zhang-rang");
         Add("fame-7", "xin-xianying wu-xian xu-shi cao-jie ji-kang qin-mi xue-zong cai-yong");
         Add("god", "shen-guan-yu shen-sima-yi shen-lu-meng shen-cao-cao shen-zhao-yun shen-zhou-yu shen-lu-bu");
-        foreach (var id in new[] { "guo-jia", "sun-ce", "taishi-ci", "xun-yu", "lu-su", "hua-tuo" })
+        foreach (var id in new[] { "guo-jia", "sun-ce", "taishi-ci", "xun-yu", "lu-su", "hua-tuo", "lu-xun", "gan-ning", "liu-bei", "zhao-yun", "zhuge-liang", "zhang-liao", "cao-cao", "lu-bu", "zhou-yu", "guan-yu", "lu-meng", "sima-yi", "jiang-wei", "ma-chao" })
             groups.Add("mobile:shen-" + id, "god");
-        foreach (var id in new[] { "jiang-wei", "deng-ai", "zhang-fei", "hua-tuo", "xu-chu", "ma-chao", "pang-tong", "zhong-hui", "zhang-jiao" })
+        foreach (var id in new[] { "jiang-wei", "deng-ai", "zhang-fei", "hua-tuo", "xu-chu", "ma-chao", "pang-tong", "zhong-hui", "zhang-jiao", "dian-wei", "huang-zhong", "cao-pi", "sun-quan", "zhang-liao", "guan-yu", "liu-bei", "lu-xun" })
             groups.Add("anniversary:shen-" + id, "god");
+        foreach (var id in new[] { "guo-jia", "sun-quan", "zhang-liao", "lu-bu", "zhen-ji", "lu-su", "cao-cao", "zhou-yu", "zhuge-liang", "lu-meng", "zhao-yun", "gan-ning", "zhang-jiao", "taishi-ci", "hua-tuo", "liu-bei", "sima-yi", "guan-yu", "lu-xun", "xu-chu", "dian-wei", "zhong-hui", "deng-ai", "pang-tong", "diao-chan", "wei-yan", "da-qiao-xiao-qiao", "zhang-fei", "zuo-ci" })
+            groups.Add("happy:shen-" + id, "god");
         foreach (var id in new[] { "guan-yu", "zhou-yu", "zhuge-liang", "lu-bu", "zhao-yun", "sima-yi",
-                     "liu-bei", "lu-xun", "gan-ning", "zhang-liao", "sun-quan", "zhang-jiao", "dian-wei", "huang-zhong" })
+                     "liu-bei", "lu-xun", "gan-ning", "zhang-liao", "sun-quan", "zhang-jiao", "dian-wei", "huang-zhong", "cao-pi", "zhen-ji", "zhao-yun-2016", "sima-yi-2016", "cao-cao" })
             groups.Add("ol:shen-" + id, "god");
         groups.Add("ol:sp-pang-de", "other");
         groups.Add("ol:sp-diao-chan", "other");
@@ -343,6 +346,29 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:kong-shu", "other");
         groups.Add("ol:ma-cheng", "other");
         groups.Add("ol:zhou-qun", "other");
+        groups.Add("ol:lu-shi", "other");
+        groups.Add("anniversary:ruan-ji", "other");
+        groups.Add("anniversary:kan-ze", "other");
+        groups.Add("anniversary:hu-zhao", "other");
+        groups.Add("anniversary:xu-jing", "other");
+        groups.Add("anniversary:du-kui", "other");
+        groups.Add("anniversary:liu-li", "other");
+        groups.Add("anniversary:liu-yong", "other");
+        groups.Add("anniversary:zhang-fen", "other");
+        groups.Add("anniversary:bai-ling-yun", "other");
+        groups.Add("anniversary:yang-biao", "other");
+        groups.Add("anniversary:le-jiu", "other");
+        groups.Add("anniversary:he-yan", "other");
+        groups.Add("anniversary:guo-zhao", "other");
+        groups.Add("anniversary:mang-ya-chang", "other");
+        groups.Add("anniversary:feng-xi", "other");
+        groups.Add("anniversary:zhao-tong-zhao-guang", "other");
+        groups.Add("anniversary:lv-dai", "other");
+        groups.Add("anniversary:fu-rong-fu-qian", "other");
+        groups.Add("anniversary:gao-xiang", "other");
+        groups.Add("anniversary:xiahou-en", "other");
+        groups.Add("anniversary:zhang-wen", "other");
+        groups.Add("anniversary:zhang-xun", "other");
         groups.Add("ol:guan-hai", "other");
         groups.Add("ol:xie-ling-yu", "other");
         groups.Add("ol:li-feng", "other");

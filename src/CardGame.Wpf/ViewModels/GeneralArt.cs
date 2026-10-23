@@ -609,9 +609,32 @@ public static partial class GeneralArt
     });
     private static readonly Dictionary<string, WeakReference<BitmapImage>> Images = new(StringComparer.Ordinal);
 
+    private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<GeneralSkin>>> MergedGodSkins = new(() =>
+        CardGame.Content.Standard.GodGeneralRulesCatalog.Aliases.GroupBy(pair => pair.Value, StringComparer.Ordinal)
+            .ToDictionary(group => NormalizeKey(group.Key), group =>
+            {
+                var skins = OwnSkins(NormalizeKey(group.Key)).ToList();
+                var paths = skins.Select(skin => skin.LocalPath).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                foreach (var alias in group)
+                    foreach (var skin in OwnSkins(NormalizeKey(alias.Key)))
+                        if (paths.Add(skin.LocalPath))
+                            skins.Add(skin with
+                            {
+                                Id = NormalizeKey(alias.Key) + "/" + skin.Id,
+                                Name = (alias.Key.StartsWith("mobile:", StringComparison.Ordinal) ? "移动版" :
+                                    alias.Key.StartsWith("anniversary:", StringComparison.Ordinal) ? "十周年" : "OL") + " · " + skin.Name
+                            });
+                return (IReadOnlyList<GeneralSkin>)skins.AsReadOnly();
+            }, StringComparer.Ordinal));
+
     public static IReadOnlyList<GeneralSkin> GetSkins(string id)
     {
         var key = NormalizeKey(id);
+        return MergedGodSkins.Value.TryGetValue(key, out var skins) ? skins : OwnSkins(key);
+    }
+
+    private static IReadOnlyList<GeneralSkin> OwnSkins(string key)
+    {
         if (ArtCatalog.Value.TryGetValue(key, out var entry)) return entry.Skins;
         return StandalonePortraits.TryGetValue(key, out var file)
             ? [new GeneralSkin("classic", "经典形象", "src/CardGame.Wpf/Assets/" + file)] : [];
@@ -675,7 +698,7 @@ public static partial class GeneralArt
         var key = GuanduPortraitSource(id) ?? id;
         foreach (var prefix in new[] { "standard:", "classic:", "national:wei-", "national:shu-", "national:ambitious-", "national:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = key[prefix.Length..]; break; }
-        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:", "anniversary:", "le:", "wumiao:" })
+        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:", "friend:", "magic:", "mobile:", "anniversary:", "happy:", "le:", "wumiao:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = prefix[..^1] + "-" + key[prefix.Length..]; break; }
         return PortraitAliases.GetValueOrDefault(key, key);
     }

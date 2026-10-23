@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Official Mobile Jiang Wei and Ma Chao plus formal OL 2016 Zhao Yun; rules and edition provenance documented separately.",
+  "portraits": [
+    {
+      "key": "mobile-shen-jiang-wei",
+      "characterName": "神姜维",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-645.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/87000.png",
+          "sha256": "b6f399105c80e66a442230106507cf30fc819e4e1453a63f28522c58ffec0b7b",
+          "pixelWidth": 446,
+          "pixelHeight": 621,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-jiang-wei.png"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-ma-chao",
+      "characterName": "神马超",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-657.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/90000.jpg",
+          "sha256": "514c9686ccb70b3d65cb5912a05db910e24ddc29f24298b3ff517c0ab1c3d41f",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-ma-chao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-zhao-yun-2016",
+      "characterName": "神赵云",
+      "defaultSkinId": "2016-classic",
+      "skins": [
+        {
+          "id": "2016-classic",
+          "name": "2016经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20161207_6342_3611",
+          "imageUrl": "https://www.sanguosha.com/uploads/201612/5848d5fedf35a.jpg",
+          "sha256": "fb8ac71d21b2cd4c41fb4ddace0bbcf9f7bc4cbe2af67c69ad64b95ce54bc446",
+          "pixelWidth": 355,
+          "pixelHeight": 500,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhao-yun-2016.jpg"
+        }
+      ]
+    }
+  ]
+}

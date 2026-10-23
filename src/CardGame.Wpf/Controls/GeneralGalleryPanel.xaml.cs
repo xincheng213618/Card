@@ -17,6 +17,20 @@ public partial class GeneralGalleryPanel : UserControl
 
     public void FocusSearch() => GeneralGallerySearchBox.Focus();
 
+    private void GeneralGalleryFiltersCleared_Click(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded || !IsVisible || !IsEnabled ||
+            sender is not UIElement { IsVisible: true, IsEnabled: true } ||
+            DataContext is not MainViewModel
+            {
+                IsGeneralGalleryOpen: true, HasGeneralGallerySelection: false,
+                IsWushuangShopOpen: false, IsShanheOpen: false, IsSettingsOpen: false, IsHistoryOpen: false
+            } viewModel || !ReferenceEquals(viewModel, _observedViewModel)) return;
+        // Move focus before the bound command collapses its empty-result button.
+        _detailsFocusRequest++;
+        FocusSearch();
+    }
+
     public void FocusCurrentView()
     {
         if (DataContext is MainViewModel { HasGeneralGallerySelection: true }) CloseGeneralDetailsButton.Focus();

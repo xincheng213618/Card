@@ -148,7 +148,7 @@ public sealed partial class MainViewModel
         {
             var skills = general.SkillIds.Select(_contentRegistry.GetSkill).ToArray();
             var group = GeneralGalleryCatalog.Classify(general.Id);
-            var factionId = group.SeriesId == "god" ? "god" : general.FactionId ?? string.Empty;
+            var factionId = general.FactionId ?? (group.SeriesId == "god" ? "god" : string.Empty);
             _allGeneralGalleryEntries.Add(new GeneralGalleryEntryViewModel
             {
                 GeneralId = general.Id,
@@ -158,10 +158,11 @@ public sealed partial class MainViewModel
                 SeriesId = group.SeriesId,
                 SeriesName = GeneralGallerySeries.First(option => option.Id == group.SeriesId).Name,
                 GroupId = group.Id,
-                GroupName = group.Title,
-                Name = general.Name,
+                GroupName = general.Id.StartsWith("anniversary:", StringComparison.Ordinal)
+                    ? "十周年 · " + group.Title : group.Title,
+                Name = CardGame.Content.Standard.GodGeneralRulesCatalog.DisplayName(general.Id, general.Name),
                 FactionId = factionId,
-                Kingdom = factionId == "god" ? "神" : FactionName(general.FactionId),
+                Kingdom = factionId == "god" ? "神" : FactionName(factionId),
                 HealthText = general.InitialHp is { } initialHp
                     ? $"{initialHp}/{general.BaseHp} 体力" : $"{general.BaseHp} 体力",
                 HealthImages = Enumerable.Repeat($"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-hp-{(factionId is "wei" or "shu" or "wu" or "jin" ? factionId : "qun")}.png", Math.Clamp(general.BaseHp, 0, 12)).ToArray(),

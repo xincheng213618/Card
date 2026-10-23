@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Formal OL 2016 Cao Cao priority-area and Sima Yi original Jilue editions, plus Anniversary Zhang Liao September 2026 revision.",
+  "portraits": [
+    {
+      "key": "ol-shen-cao-cao",
+      "characterName": "神曹操",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/205",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20500.png",
+          "sha256": "f04003b2c251b7355e9e2ffac63a0fe719495123aef62e9749a944a57d582d61",
+          "pixelWidth": 750,
+          "pixelHeight": 950,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-cao-cao.png"
+        }
+      ]
+    },
+    {
+      "key": "ol-shen-sima-yi-2016",
+      "characterName": "神司马懿",
+      "defaultSkinId": "2016-classic",
+      "skins": [
+        {
+          "id": "2016-classic",
+          "name": "2016经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20161207_6342_3611",
+          "imageUrl": "https://www.sanguosha.com/uploads/201612/5848d6073e7d8.jpg",
+          "sha256": "561693f4925be0e15d2e3fd00797d08561873fc275a2882ba770a3f846afc355",
+          "pixelWidth": 371,
+          "pixelHeight": 500,
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-sima-yi-2016.jpg"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-shen-zhang-liao",
+      "characterName": "神张辽",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/211.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/121101.png",
+          "sha256": "bd88973f5b8a0581abf95f66aeaa0be50726e6af5be35fb639cdfcb0febd074f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhang-liao.png"
+        }
+      ]
+    }
+  ]
+}

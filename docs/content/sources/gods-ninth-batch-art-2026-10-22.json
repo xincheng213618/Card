@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedOn": "2026-10-22",
+  "scope": "Official mobile god Cao Cao, Lu Bu and Zhou Yu default portraits; gameplay sources documented separately.",
+  "portraits": [
+    {
+      "key": "mobile-shen-cao-cao",
+      "characterName": "神曹操",
+      "defaultSkinId": "20500",
+      "skins": [
+        {
+          "id": "20500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-143.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20500.jpg",
+          "sha256": "e00ede8c66899eb3fde8028b9095f4c1758dd275e44f088e27dee126045e77da",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-cao-cao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-lu-bu",
+      "characterName": "神吕布",
+      "defaultSkinId": "20600",
+      "skins": [
+        {
+          "id": "20600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-144.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20600.jpg",
+          "sha256": "d815af3aaad558a286165f8cc331ba02abab3c8027439f6e60cffed14d6b58cd",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-lu-bu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shen-zhou-yu",
+      "characterName": "神周瑜",
+      "defaultSkinId": "20300",
+      "skins": [
+        {
+          "id": "20300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-141.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/20300.jpg",
+          "sha256": "e483f594e64691e938b9ad72f884ac1e9b13b1027cdddb6aceb7f8aeb7bb0657",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shen-zhou-yu.jpg"
+        }
+      ]
+    }
+  ]
+}
