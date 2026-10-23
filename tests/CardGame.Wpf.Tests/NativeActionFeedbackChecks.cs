@@ -123,6 +123,7 @@ internal static class NativeActionFeedbackChecks
         OptionalSkill(output);
         NormalDraft(output);
         SlashAndDodgeMotion(output);
+        NativePublicPileUiChecks.DuelDeclarationMotion(output);
         GroupResponseMotion(output);
         NullificationMotion(output);
     }
@@ -172,7 +173,7 @@ internal static class NativeActionFeedbackChecks
             {
                 AdvanceTo(milliseconds, milliseconds is 120 or 260 ? $"native-slash-{milliseconds}ms" : null, unpaidBoundary);
                 var drawing = VisualTreeHelper.GetDrawing(host.Layer);
-                var ink = InkEvidence(drawing).ToArray();
+                var ink = MotionInkEvidence(drawing, IsSlashInk).ToArray();
                 var totalArea = ink.Sum(sample => sample.TotalArea);
                 var visibleArea = ink.Sum(sample => sample.VisibleArea);
                 var ratio = totalArea > 0 ? visibleArea / totalArea : 0;
@@ -250,33 +251,99 @@ internal static class NativeActionFeedbackChecks
             shape.Pen?.Brush is SolidColorBrush edge && edge.Color == Color.FromRgb(255, 91, 62);
         static Point Center(Rect rect) => new(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
         static Rect Union(IEnumerable<Rect> bounds) => bounds.Aggregate(Rect.Empty, Rect.Union);
-        static IEnumerable<MotionInkSample> InkEvidence(Drawing? drawing, Matrix? inherited = null, Geometry? inheritedClip = null, double opacity = 1)
-        {
-            var transform = inherited ?? Matrix.Identity;
-            if (drawing is DrawingGroup group)
-            {
-                var next = group.Transform?.Value ?? Matrix.Identity; next.Append(transform);
-                var clip = inheritedClip;
-                if (group.ClipGeometry is { } own)
-                {
-                    var current = own.Clone(); current.Transform = new MatrixTransform(next);
-                    clip = clip is null ? current : new CombinedGeometry(GeometryCombineMode.Intersect, clip, current);
-                }
-                foreach (var child in group.Children)
-                    foreach (var evidence in InkEvidence(child, next, clip, opacity * group.Opacity)) yield return evidence;
-            }
-            else if (drawing is GeometryDrawing shape && IsSlashInk(shape))
-            {
-                var whole = shape.Geometry.Clone(); whole.Transform = new MatrixTransform(transform);
-                Geometry visible = inheritedClip is null ? whole : new CombinedGeometry(GeometryCombineMode.Intersect, whole, inheritedClip);
-                yield return new(opacity, whole.Bounds.ToString(), inheritedClip?.Bounds.ToString(),
-                    visible.Bounds.ToString(), whole.GetArea(), visible.GetArea());
-            }
-        }
     }
 
     private sealed record MotionInkSample(double Opacity, string Bounds, string? ClipBounds,
         string VisibleBounds, double TotalArea, double VisibleArea);
+
+    private static IEnumerable<MotionInkSample> MotionInkEvidence(Drawing? drawing, Func<GeometryDrawing, bool> select,
+        Matrix? inherited = null, Geometry? inheritedClip = null, double opacity = 1)
+    {
+        var transform = inherited ?? Matrix.Identity;
+        if (drawing is DrawingGroup group)
+        {
+            var next = group.Transform?.Value ?? Matrix.Identity; next.Append(transform);
+            var clip = inheritedClip;
+            if (group.ClipGeometry is { } own)
+            {
+                var current = own.Clone(); current.Transform = new MatrixTransform(next);
+                clip = clip is null ? current : new CombinedGeometry(GeometryCombineMode.Intersect, clip, current);
+            }
+            foreach (var child in group.Children)
+                foreach (var evidence in MotionInkEvidence(child, select, next, clip, opacity * group.Opacity)) yield return evidence;
+        }
+        else if (drawing is GeometryDrawing shape && select(shape))
+        {
+            var whole = shape.Geometry.Clone(); whole.Transform = new MatrixTransform(transform);
+            Geometry visible = inheritedClip is null ? whole : new CombinedGeometry(GeometryCombineMode.Intersect, whole, inheritedClip);
+            yield return new(opacity, whole.Bounds.ToString(), inheritedClip?.Bounds.ToString(),
+                visible.Bounds.ToString(), whole.GetArea(), visible.GetArea());
+        }
+    }
+
+    internal static void VerifyDuelDeclarationMotion(NativeResponseStatusChecks.NativeHost host, BattleCue declaration, string output)
+    {
+        var game = Engine(host.Model);
+        var stable = Boundary(game);
+        var seats = Find<Button>(host.Root).Where(button => button.IsVisible && BattleFeedbackLayer.GetSeatAnchor(button) >= 0)
+            .ToDictionary(BattleFeedbackLayer.GetSeatAnchor,
+                button => button.TransformToVisual(host.Layer).TransformBounds(new Rect(button.RenderSize)));
+        Assert(declaration is { Kind: BattleCueKind.Card, CardKind: CardKind.Duel, SourceSeat: 1 } &&
+            declaration.TargetSeats.SequenceEqual([0]) && game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 },
+            "The native Duel declaration must come from the actual selected opponent and still await the human response.");
+        var samples = new List<(int Milliseconds, double Gold, double Cyan, MotionInkSample[] Ink)>();
+        var poses = new Dictionary<int, (Point Gold, Point Cyan)>();
+        var time = 0;
+        for (var milliseconds = 100; milliseconds <= 500; milliseconds += 20)
+        {
+            host.Clock.Advance((milliseconds - time) / 1000d); time = milliseconds;
+            host.Layer.InvalidateVisual();
+            if (milliseconds is 120 or 260) host.Capture(output, $"native-duel-declaration-{milliseconds}ms", 1120);
+            else Render(host.Root, 1120, 740, null);
+            var drawing = VisualTreeHelper.GetDrawing(host.Layer);
+            var gold = MotionInkEvidence(drawing, IsGoldBlade).ToArray();
+            var cyan = MotionInkEvidence(drawing, IsGuardBlade).ToArray();
+            samples.Add((milliseconds, Ratio(gold), Ratio(cyan), [.. gold, .. cyan]));
+            if (milliseconds is 120 or 260)
+            {
+                var goldBounds = VisibleMotionShapes(drawing, IsGoldBlade).Aggregate(Rect.Empty, Rect.Union);
+                var cyanBounds = VisibleMotionShapes(drawing, IsGuardBlade).Aggregate(Rect.Empty, Rect.Union);
+                Assert(!goldBounds.IsEmpty && !cyanBounds.IsEmpty,
+                    "Both actual Duel blades must remain visible at the measured opposing-motion frames.");
+                poses[milliseconds] = (Center(goldBounds), Center(cyanBounds));
+            }
+            Assert(Boundary(game) == stable,
+                "Sampling an unanswered real Duel must preserve HP, all viewer snapshots, commands and physical card movements.");
+        }
+        host.Clock.Advance((700 - time) / 1000d); host.Layer.InvalidateVisual();
+        host.Capture(output, "native-duel-declaration-retired-700ms", 1120);
+        Assert(!VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), shape => IsGoldBlade(shape) || IsGuardBlade(shape)).Any() &&
+            Boundary(game) == stable && game.PendingDecision?.Kind == DecisionKind.RespondSlash,
+            "The opposed Duel blades must retire without answering the still-live response or inventing a hit.");
+        var worst = samples.MinBy(sample => Math.Min(sample.Gold, sample.Cyan));
+        var first = poses[120]; var later = poses[260];
+        var goldMove = (later.Gold - first.Gold).Length;
+        var cyanMove = (later.Cyan - first.Cyan).Length;
+        var initialGap = (first.Cyan - first.Gold).Length;
+        var laterGap = (later.Cyan - later.Gold).Length;
+        Console.WriteLine($"Native Duel declaration: use{declaration.SourceCardUseResolutionId}; {samples.Count} real Layer samples 100..500ms; " +
+            $"minimum gold={samples.Min(sample => sample.Gold):P3}, cyan={samples.Min(sample => sample.Cyan):P3}; " +
+            $"120->260ms goldMove={goldMove:F2}, cyanMove={cyanMove:F2}, gap={initialGap:F2}->{laterGap:F2}; retired700ms awaiting response.");
+        Assert(samples.All(sample => sample.Gold >= .98 && sample.Cyan >= .98),
+            "Both real Duel blades must retain at least 98% of their face ink through the actual native Layer clips. Diagnostic: " +
+            JsonSerializer.Serialize(new { Cue = declaration, Source = seats[1].ToString(), Target = seats[0].ToString(),
+                WorstMilliseconds = worst.Milliseconds, worst.Gold, worst.Cyan, worst.Ink }));
+        Assert(goldMove > 10 && cyanMove > 10 && initialGap - laterGap > 10,
+            "Both visible Duel blades must actually advance toward each other, not remain stationary after avoiding the sidebar: " +
+            $"gold {first.Gold}->{later.Gold}; cyan {first.Cyan}->{later.Cyan}; gap {initialGap:F2}->{laterGap:F2}.");
+
+        static double Ratio(MotionInkSample[] ink)
+        {
+            var total = ink.Sum(sample => sample.TotalArea);
+            return total > 1 && ink.All(sample => sample.Opacity > .1) ? ink.Sum(sample => sample.VisibleArea) / total : 0;
+        }
+        static Point Center(Rect bounds) => new(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
+    }
 
     internal static void VerifyDuelMotion(NativeResponseStatusChecks.NativeHost host, BattleCue response, string? output = null)
     {
@@ -315,10 +382,11 @@ internal static class NativeActionFeedbackChecks
                     .Invoke(null, [dc, cue, progress, seats[cue.SourceSeat], seats]);
             return visual.Drawing;
         }
-        static bool IsGoldBlade(GeometryDrawing shape) => shape is
-            { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen.Brush: SolidColorBrush edge } &&
-            fill.Color == Color.FromRgb(255, 249, 218) && edge.Color == Color.FromRgb(255, 203, 100);
     }
+
+    private static bool IsGoldBlade(GeometryDrawing shape) => shape is
+        { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen.Brush: SolidColorBrush edge } &&
+        fill.Color == Color.FromRgb(255, 249, 218) && edge.Color == Color.FromRgb(255, 203, 100);
 
     private static bool IsGuardBlade(GeometryDrawing shape) => shape is
         { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen.Brush: SolidColorBrush edge } &&

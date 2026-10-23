@@ -181,6 +181,38 @@ internal static class NativePublicPileUiChecks
         }
     }
 
+    internal static void DuelDeclarationMotion(string output)
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());
+        using var model = Restore(Create(registry), registry);
+        model.IsMotionEnabled = true;
+        using var host = new NativeResponseStatusChecks.NativeHost(model);
+        host.Capture(output, "native-duel-declaration-before", 1120);
+        var game = Program.Engine(model);
+        var commands = game.AcceptedCommands.Count;
+        var cursor = game.Events.Count;
+        model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill => skill.ContentId == Fixture.Driver));
+        model.SelectTargetCommand.Execute(model.Seats.Single(seat => seat.Seat == 1));
+        Program.Assert(model.CanConfirmSelected && game.AcceptedCommands.Count == commands,
+            "The existing native Duel fixture must prepare its real selected-actor declaration without committing the draft.");
+        model.ConfirmSelectedCommand.Execute(null);
+        Program.Assert(game.AcceptedCommands.Count == commands + 1 && game.AcceptedCommands.Last() is UseProgramSkillCommand
+            { ActorSeat: 0, SkillId: Fixture.Driver, ActivationId: "incoming-duel" } use && use.TargetSeats.SequenceEqual([1]),
+            "The actual native confirmation must submit this fixture's existing selected-opponent Duel once.");
+        for (var step = 0; step < 12 && game.PendingDecision is not { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 }; step++)
+        {
+            Program.Assert(model.CanStepAi, "The real selected-actor Duel unexpectedly requires another human choice.");
+            model.StepAiCommand.Execute(null);
+        }
+        var fact = game.Events.Skip(cursor).Single(envelope => envelope.Payload is CardUseDeclaredEvent { CardKind: CardKind.Duel });
+        var declaration = model.BattleCues.Single(cue => cue.Sequence == fact.Sequence);
+        Program.Assert(declaration.SourceCardUseResolutionId == ((CardUseDeclaredEvent)fact.Payload).ResolutionId &&
+            !game.Events.Skip(cursor).Any(envelope => envelope.Payload is DamageAppliedEvent),
+            "The measured effect must identify this real unanswered Duel declaration without a fabricated hit.");
+        host.Capture(output, "native-duel-declaration-start", 1120);
+        NativeActionFeedbackChecks.VerifyDuelDeclarationMotion(host, declaration, output);
+    }
+
     private static void DuelSchedulingBoundaries(NativeResponseStatusChecks.NativeHost host, EventEnvelope[] events,
         BattleCue actualResponse, EventEnvelope actualDamage)
     {

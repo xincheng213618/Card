@@ -192,6 +192,144 @@ internal static class HandReflowChecks
         Console.WriteLine($"Native hand sort seed721019: real IDs {string.Join(',', original.Select(card => card.Id))} -> " +
             $"{string.Join(',', model.Hand.Select(card => card.Id))}; {moved.Length} moving faces, stable VM/surface identities, 0/40/100/200ms, repeated-sort continuity, zero game commands.");
 
+        var gestureFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var arm = host.Window.GetType().GetMethod("ArmCardAim", gestureFlags)!
+            .CreateDelegate<Func<HandPanel, Point, bool>>(host.Window);
+        var update = host.Window.GetType().GetMethod("UpdateCardAim", gestureFlags)!
+            .CreateDelegate<Func<Point, bool>>(host.Window);
+        var release = host.Window.GetType().GetMethod("ReleaseCardAim", gestureFlags)!
+            .CreateDelegate<Func<Point, bool>>(host.Window);
+        var press = typeof(HandPanel).GetMethod("PressCardAt", gestureFlags)!.CreateDelegate<Func<Point, bool>>(panel);
+        var targeting = (FrameworkElement)host.Window.FindName("CardTargeting");
+        var beforeDrag = model.Hand.ToArray();
+        var sourceIndex = Array.IndexOf(beforeDrag, selected);
+        var targetIndex = sourceIndex + 1 < beforeDrag.Length ? sourceIndex + 1 : sourceIndex - 1;
+        var sourcePoint = surfaces[selected.Id].TranslatePoint(new Point(55, 110), panel);
+        var destination = surfaces[beforeDrag[targetIndex].Id].TranslatePoint(new Point(55, 110), targeting);
+        var oldPositions = surfaces.ToDictionary(pair => pair.Key, pair => X(pair.Value));
+        Assert(arm(panel, sourcePoint) && press(sourcePoint), "The real visible selected hand card must accept the native press/drag start.");
+        Assert(update(destination) && release(destination), "The native gesture must process a horizontal release inside the hand.");
+        RenderFrame();
+        var reordered = beforeDrag.ToList(); reordered.RemoveAt(sourceIndex); reordered.Insert(targetIndex, selected);
+        Console.WriteLine($"Native hand drag seed721019: {selected.Id} from slot {sourceIndex} to {targetIndex}; " +
+            $"before={string.Join(',', beforeDrag.Select(card => card.Id))}; after={string.Join(',', model.Hand.Select(card => card.Id))}.");
+        Assert(model.Hand.SequenceEqual(reordered),
+            "Dragging a real hand card sideways onto its neighboring slot must change the local hand order.");
+        Assert(surfaces.All(pair => Near(X(pair.Value), oldPositions[pair.Key])) && selected.IsSelected &&
+            model.Hand.Count(card => card.IsSelected) == 1 && ReferenceEquals(choice, model.ChoiceSnapshot) &&
+            game.AcceptedCommands.Count == commands && Enumerable.Range(0, views.Length)
+                .All(seat => views[seat] == SnapshotJson.Serialize(game.CreateSnapshot(seat))),
+            "A local hand drag must preserve every visible starting pose, the selected draft and all committed player views.");
+
+        var firstDrop = surfaces.ToDictionary(pair => pair.Key,
+            pair => X(pair.Value) - pair.Value.RenderTransform.Value.OffsetX * panel.CardScale);
+        host.Clock.Advance(.04); RenderFrame();
+        Assert(reordered.Where(card => !Near(oldPositions[card.Id], firstDrop[card.Id])).All(card =>
+            X(surfaces[card.Id]) > Math.Min(oldPositions[card.Id], firstDrop[card.Id]) + .01 &&
+            X(surfaces[card.Id]) < Math.Max(oldPositions[card.Id], firstDrop[card.Id]) - .01),
+            "The first native hand drop must visibly travel between its old and new slots at 40ms.");
+        host.Capture(output, "hand-native-drag-40ms", 1120);
+
+        var action = game.GetLegalActions().First(item => item.CardId is not null && item.ConversionSource is null &&
+            item.Kind is LegalActionKind.Slash or LegalActionKind.Duel && item.TargetSeats.Count == 1 &&
+            model.Hand.Any(card => card.Id == item.CardId));
+        var aimedCard = model.Hand.Single(card => card.Id == action.CardId);
+        if (!aimedCard.IsSelected) model.SelectCardCommand.Execute(aimedCard);
+        var aimedSeat = model.Seats.Single(seat => seat.Seat == action.TargetSeats[0]);
+        model.SelectTargetCommand.Execute(aimedSeat);
+        Assert(aimedCard.IsSelected && aimedSeat.IsSelectedTarget && model.CanConfirmSelected,
+            "The native reorder fixture must retain a genuine selected card and legal portrait target.");
+        RenderFrame();
+        var unavailable = model.Hand.First(card => !card.IsPlayable);
+        var unavailableButton = Find<Button>(panel).Single(button => ReferenceEquals(button.DataContext, unavailable) &&
+            ReferenceEquals(button.Command, model.SelectCardCommand));
+        Assert(!unavailableButton.IsEnabled, "The reorder fixture must exercise a real disabled, visible hand button.");
+        Drag(unavailable, model.Hand.First(card => !ReferenceEquals(card, unavailable) && !ReferenceEquals(card, aimedCard)));
+        host.Capture(output, "hand-native-drag-interrupted-0ms", 1120);
+        host.Clock.Advance(.04); RenderFrame();
+        host.Capture(output, "hand-native-drag-interrupted-40ms", 1120);
+        host.Clock.Advance(.16); RenderFrame();
+        Assert(surfaces.Values.All(surface => Math.Abs(surface.RenderTransform.Value.OffsetX) < .1),
+            "The interrupted native reorder must settle all existing faces into their new slots at 200ms.");
+
+        var otherPlayable = model.Hand.First(card => card.IsPlayable && !ReferenceEquals(card, aimedCard));
+        Drag(otherPlayable, aimedCard);
+        Assert(aimedCard.IsSelected && aimedSeat.IsSelectedTarget && !otherPlayable.IsSelected && model.CanConfirmSelected,
+            "Grabbing another playable card must restore the prior card and its target instead of replacing the play draft.");
+        host.Clock.Advance(.2); RenderFrame();
+
+        // Crossing the horizontal threshold locks this gesture to ordering. A
+        // later portrait release must not borrow the restored draft's target.
+        var portrait = Find<Button>(host.Root).Single(button => button.IsVisible &&
+            BattleFeedbackLayer.GetSeatAnchor(button) == aimedSeat.Seat);
+        var portraitPoint = portrait.TranslatePoint(new Point(portrait.ActualWidth / 2, portrait.ActualHeight / 2), targeting);
+        var orderBeforeCancel = model.Hand.ToArray();
+        var noMovePoint = HandPoint(otherPlayable);
+        Assert(arm(panel, noMovePoint) && press(noMovePoint) &&
+            !release(panel.TranslatePoint(noMovePoint, targeting)) && otherPlayable.IsSelected,
+            "An ordinary no-drag press must still select immediately and must not reorder on release.");
+        model.SelectCardCommand.Execute(aimedCard);
+        model.SelectTargetCommand.Execute(aimedSeat);
+        RenderFrame();
+        var lockedPoint = HandPoint(otherPlayable);
+        Assert(arm(panel, lockedPoint) && press(lockedPoint) &&
+            update(panel.TranslatePoint(HandPoint(aimedCard), targeting)) && release(portraitPoint) &&
+            model.Hand.SequenceEqual(orderBeforeCancel) && aimedCard.IsSelected && aimedSeat.IsSelectedTarget,
+            "A reorder dragged out of the hand must cancel its move, preserve the draft and never turn into a play.");
+        AssertRulesUnchanged();
+
+        // Leave a different card selected, then use the original aim path to
+        // drag this physical Slash/Duel onto its real legal portrait.
+        model.SelectCardCommand.Execute(otherPlayable);
+        RenderFrame();
+        var aimedPoint = HandPoint(aimedCard);
+        Assert(arm(panel, aimedPoint) && press(aimedPoint) && aimedCard.IsSelected &&
+            update(portraitPoint) && release(portraitPoint),
+            "The actual hand-to-portrait aim must remain usable after local drag ordering.");
+        Assert(game.AcceptedCommands.Count == commands + 1 && game.AcceptedCommands.Last() is PlayCardCommand played &&
+            played.CardId == aimedCard.Id && played.TargetSeats.SequenceEqual(action.TargetSeats),
+            "A real portrait release must submit exactly the dragged physical card once, not the previous selected draft.");
+        Console.WriteLine($"Native hand drag: disabled {unavailable.Id}/{unavailable.Name}, distinct playable {otherPlayable.Id}, " +
+            $"40ms interruption and 200ms settle, draft/target preserved, no-move and outside release; " +
+            $"final real aim {aimedCard.Id}->{aimedSeat.Seat} submitted exactly one command.");
+
+        void Drag(CardViewModel card, CardViewModel target)
+        {
+            var order = model.Hand.ToList();
+            var from = order.IndexOf(card); var to = order.IndexOf(target);
+            var positions = surfaces.ToDictionary(pair => pair.Key, pair => X(pair.Value));
+            var draft = model.Hand.Where(item => item.IsSelected).Select(item => item.Id).ToArray();
+            var targets = model.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).ToArray();
+            var text = model.SelectedCardText;
+            var start = HandPoint(card); var end = panel.TranslatePoint(HandPoint(target), targeting);
+            Assert(arm(panel, start) && press(start) && update(end) && release(end),
+                $"The native hand gesture must accept visible card {card.Id} onto card {target.Id}.");
+            RenderFrame();
+            order.RemoveAt(from); order.Insert(to, card);
+            Assert(model.Hand.SequenceEqual(order) && surfaces.All(pair => Near(X(pair.Value), positions[pair.Key])) &&
+                model.Hand.Where(item => item.IsSelected).Select(item => item.Id).SequenceEqual(draft) &&
+                model.Seats.Where(seat => seat.IsSelectedTarget).Select(seat => seat.Seat).SequenceEqual(targets) &&
+                model.SelectedCardText == text,
+                $"Dragging {card.Id} must preserve the interrupted pose and the complete ordinary play draft.");
+            AssertRulesUnchanged();
+        }
+        Point HandPoint(CardViewModel card)
+        {
+            // Resolve a currently visible strip, including while two native
+            // surfaces are crossing. Do not assume a destination slot is hit.
+            var hit = typeof(HandPanel).GetMethod("CardButtonAt", gestureFlags)!.CreateDelegate<Func<Point, Button?>>(panel);
+            for (var x = 55; x <= 105; x += 5)
+            {
+                var point = surfaces[card.Id].TranslatePoint(new Point(x, 110), panel);
+                if (ReferenceEquals(hit(point)?.DataContext, card)) return point;
+            }
+            throw new InvalidOperationException($"Native hand card {card.Id} has no visible draggable strip.");
+        }
+        void AssertRulesUnchanged() => Assert(ReferenceEquals(choice, model.ChoiceSnapshot) &&
+            game.AcceptedCommands.Count == commands && Enumerable.Range(0, views.Length)
+                .All(seat => views[seat] == SnapshotJson.Serialize(game.CreateSnapshot(seat))),
+            "Local hand gestures must not submit commands or alter any committed player view.");
+
         void ClickSort() => typeof(ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(sort, null);
         void RenderFrame()
         {
