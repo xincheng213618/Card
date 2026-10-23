@@ -251,6 +251,8 @@ internal static class StalePromptChoiceChecks
             window.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
             model.OpenSettingsCommand.Execute(null);
             window.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            // Arrange the newly visible scroll viewport without running the queued Input callback.
+            root.UpdateLayout();
             var motion = (CheckBox)window.FindName("SettingsMotionToggle");
             motion.Focus();
             Program.Assert(motion.IsVisible && motion.IsEnabled && ReferenceEquals(Keyboard.FocusedElement, motion),

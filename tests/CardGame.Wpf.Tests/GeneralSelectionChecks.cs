@@ -76,6 +76,7 @@ internal static class GeneralSelectionChecks
             Program.Assert(vm.SelectedGeneralVariants.Select(choice => choice.GeneralId).ToHashSet().SetEquals(EditionPackage.Zhao),
                 "Zhao Yun must expose the requested ordinary, boundary, SP, God and Gundam editions.");
             Program.Render(root, 1120, 820, Path.Combine(output, "general-variant-before.png"));
+            VerifyGeneralPreviewScroll();
             foreach (var id in EditionPackage.Zhao)
             {
                 var choices = (ItemsControl)window.FindName("GeneralVariantChoices");
@@ -254,6 +255,85 @@ internal static class GeneralSelectionChecks
                 "The selected returned edition must cold restore every safe player view and native journal exactly.");
             VerifyChangedCandidateContract(registry, game.CreateCheckpoint(), EditionPackage.FewerCandidates, 2);
             VerifyChangedCandidateContract(registry, game.CreateCheckpoint(), EditionPackage.FewerVariants, 3);
+
+            void VerifyGeneralPreviewScroll()
+            {
+                var scroller = (ScrollViewer)window.FindName("GeneralSelectionSkillsScroller");
+                var originalHeight = scroller.ReadLocalValue(FrameworkElement.HeightProperty);
+                var originalId = vm.SelectedGeneralChoice!.GeneralId;
+                var originalSearch = vm.CustomGeneralSearch;
+                var boundary = Boundary(engine);
+                try
+                {
+                    // Keep real skill text and bindings; a short viewport makes
+                    // the actual scroll state deterministic across font metrics.
+                    scroller.Height = 23;
+                    vm.PreviewGeneralChoiceCommand.Execute(vm.GeneralChoices.Single(choice => EditionPackage.Ling.Contains(choice.GeneralId)));
+                    vm.PreviewGeneralChoiceCommand.Execute(vm.SelectedGeneralVariants.Single(choice => choice.GeneralId == "classic:ling-tong"));
+                    PumpPreview();
+                    var version = Program.Find<Button>((ItemsControl)window.FindName("GeneralVariantChoices"))
+                        .Single(button => button.DataContext is GeneralChoiceViewModel { GeneralId: "boundary:ling-tong" });
+                    version.Focus();
+                    ScrollDetails();
+                    typeof(System.Windows.Controls.Primitives.ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!
+                        .Invoke(version, null);
+                    PumpPreview();
+                    Program.Assert(vm.SelectedGeneralChoice?.GeneralId == "boundary:ling-tong" && scroller.VerticalOffset == 0 &&
+                        ReferenceEquals(Keyboard.FocusedElement, version),
+                        "Switching the real edition button must show its skills from the top and retain that live button's focus.");
+
+                    var offset = ScrollDetails();
+                    vm.PreviewGeneralChoiceCommand.Execute(vm.SelectedGeneralChoice!);
+                    PumpPreview();
+                    Program.Assert(scroller.VerticalOffset == offset && ReferenceEquals(Keyboard.FocusedElement, version),
+                        "Previewing the same edition must retain the reader's scroll position and focus.");
+                    var confirm = (Button)window.FindName("ConfirmGeneralChoiceButton");
+                    confirm.Focus();
+                    vm.CustomGeneralSearch = "凌统 草稿";
+                    var retiredPreview = vm.SelectedGeneralChoice;
+                    vm.IsDeveloperView = true;
+                    vm.IsDeveloperView = false;
+                    PumpPreview();
+                    Program.Assert(vm.SelectedGeneralChoice?.GeneralId == "boundary:ling-tong" &&
+                        !ReferenceEquals(vm.SelectedGeneralChoice, retiredPreview) && scroller.VerticalOffset == offset &&
+                        vm.CustomGeneralSearch == "凌统 草稿" && ReferenceEquals(Keyboard.FocusedElement, confirm),
+                        "Rebinding the same preview through complete snapshots must retain scroll, search draft and the live focus target.");
+
+                    var candidate = Program.Find<Button>((ItemsControl)window.FindName("GeneralCandidateCards"))
+                        .Single(button => button.DataContext is GeneralChoiceViewModel choice && EditionPackage.Zhao.Contains(choice.GeneralId));
+                    candidate.Focus();
+                    typeof(System.Windows.Controls.Primitives.ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!
+                        .Invoke(candidate, null);
+                    PumpPreview();
+                    Program.Assert(EditionPackage.Zhao.Contains(vm.SelectedGeneralChoice!.GeneralId) && scroller.VerticalOffset == 0 &&
+                        ReferenceEquals(Keyboard.FocusedElement, candidate) && Boundary(engine) == boundary,
+                        "Switching the real candidate must show its first skill without moving focus or changing any player view or native journal.");
+                    vm.PreviewGeneralChoiceCommand.Execute(vm.SelectedGeneralVariants.Single(choice => choice.GeneralId == originalId));
+                }
+                finally
+                {
+                    vm.CustomGeneralSearch = originalSearch;
+                    if (ReferenceEquals(originalHeight, DependencyProperty.UnsetValue)) scroller.ClearValue(FrameworkElement.HeightProperty);
+                    else scroller.SetValue(FrameworkElement.HeightProperty, originalHeight);
+                    PumpPreview();
+                }
+
+                double ScrollDetails()
+                {
+                    scroller.ScrollToEnd();
+                    PumpPreview();
+                    Program.Assert(scroller.ScrollableHeight > 0 && scroller.VerticalOffset > 0,
+                        "The skill-reading fixture must actually scroll the real description before changing previews.");
+                    return scroller.VerticalOffset;
+                }
+
+                void PumpPreview()
+                {
+                    root.UpdateLayout();
+                    window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                    root.UpdateLayout();
+                }
+            }
 
             void FocusVersion()
             {

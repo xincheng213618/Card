@@ -207,6 +207,14 @@ internal static class OpeningCustomizationUiChecks
                 Enumerable.Range(0, beforeEmptyViews.Length)
                     .Select(seat => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(seat))).SequenceEqual(beforeEmptyViews),
                 "A number or Enter routed from real enabled controls with no search results must leave confirmation disabled and preserve every player's view and accepted command.");
+            var emptyCategory = vm.SelectedCustomGeneralCategory;
+            Press((Button)window.FindName("ClearCustomGeneralSearchButton"), Key.Enter);
+            Program.Assert(vm.CustomGeneralSearch == string.Empty && vm.SelectedCustomGeneralCategory == emptyCategory &&
+                vm.CustomGeneralChoices.Count > 0 && vm.CanConfirmGeneralChoice && ReferenceEquals(Keyboard.FocusedElement, search) &&
+                CommandJson.Serialize(Program.Engine(vm).AcceptedCommands) == beforeEmptyCommands &&
+                Enumerable.Range(0, beforeEmptyViews.Length)
+                    .Select(seat => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(seat))).SequenceEqual(beforeEmptyViews),
+                "Keyboard recovery must restore results and focus search without changing the series or committing a general.");
             vm.CustomGeneralSearch = numbered.Name;
             vm.PreviewGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
             roster.ScrollIntoView(numbered);

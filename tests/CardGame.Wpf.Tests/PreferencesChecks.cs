@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CardGame.Core;
 using CardGame.Wpf;
@@ -45,6 +46,7 @@ internal static class PreferencesChecks
                     settingsSlider.SmallChange == .05 && settingsSlider.LargeChange == .1,
                 "Settings volume needs a readable percentage, keyboard steps and a shared accessible volume control.");
             Program.Render(root, 1120, 740, Path.Combine(output, "54-preferences-settings.png"));
+            SettingsScrollKeepsHeader(window, root, output);
             vm.CloseSettingsCommand.Execute(null);
             Require(!vm.IsSettingsOpen && vm.IsNewGameSetupOpen, "Closing settings unexpectedly left the lobby.");
             vm.IsNewGameSetupOpen = false;
@@ -151,6 +153,42 @@ internal static class PreferencesChecks
         retry.RetryPreferencesCommand.Execute(null);
         Require(failure.Writes == 2 && !retry.HasPreferencesError && failure.Value.SoundVolume == .19, "Retry did not save the latest pending value.");
         Console.WriteLine("  Device settings: startup-only persistence, one-time save migration, mute retention, tutorial return, corrupt backup and debounced retry verified.");
+    }
+
+    private static void SettingsScrollKeepsHeader(MainWindow window, FrameworkElement root, string output)
+    {
+        var scroll = (ScrollViewer)window.FindName("SettingsContentScroll");
+        var content = (StackPanel)window.FindName("SettingsContentHost");
+        var privacy = (TextBlock)window.FindName("SettingsPrivacyNotice");
+        var back = (Button)window.FindName("CloseSettingsButton");
+        var presenter = Program.Find<ScrollContentPresenter>(scroll).Single(item => ReferenceEquals(item.TemplatedParent, scroll));
+        var originalTransform = content.LayoutTransform;
+        try
+        {
+            // Exercise enlarged content at the minimum client size without shrinking its text.
+            content.LayoutTransform = new ScaleTransform(1.5, 1.5);
+            Program.Render(root, 1120, 740, null);
+            var fixedHeader = back.TranslatePoint(new Point(), root);
+            Require(scroll.ScrollableHeight > 0 && scroll.ViewportHeight > 0,
+                "Enlarged settings content must scroll inside the available height.");
+            scroll.ScrollToEnd();
+            root.UpdateLayout();
+            Program.Render(root, 1120, 740, Path.Combine(output, "54-preferences-settings-enlarged.png"));
+            var footerBounds = privacy.TransformToAncestor(presenter).TransformBounds(new Rect(privacy.RenderSize));
+            var headerEnd = back.TranslatePoint(new Point(back.ActualWidth, back.ActualHeight), root);
+            Require(Math.Abs(scroll.VerticalOffset - scroll.ScrollableHeight) < 1 &&
+                    footerBounds.Top >= -1 && footerBounds.Left >= -1 &&
+                    footerBounds.Bottom <= presenter.ActualHeight + 1 && footerBounds.Right <= presenter.ActualWidth + 1 &&
+                    (back.TranslatePoint(new Point(), root) - fixedHeader).Length < 1 &&
+                    fixedHeader.X >= 0 && fixedHeader.Y >= 0 && headerEnd.X <= 1120 && headerEnd.Y <= 740,
+                "Scrolling enlarged settings must reveal the entire privacy notice while the return button stays fixed and visible.");
+        }
+        finally
+        {
+            content.LayoutTransform = originalTransform;
+            scroll.ScrollToHome();
+            Program.Render(root, 1120, 740, null);
+        }
     }
 
     private static void Pump(int milliseconds)

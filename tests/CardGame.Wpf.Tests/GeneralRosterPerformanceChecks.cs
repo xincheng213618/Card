@@ -83,6 +83,8 @@ internal static class GeneralRosterPerformanceChecks
             Program.Assert(model.SelectedGeneralChoice?.GeneralId == searchTarget.GeneralId &&
                 ReferenceEquals(model.SelectedGeneralChoice, model.CustomGeneralChoices.Single()),
                 "A refreshed private prompt must retain the visible search result for confirmation.");
+            model.SelectCustomGeneralCategoryCommand.Execute("boundary");
+            var categoryBeforeClear = model.SelectedCustomGeneralCategory;
             model.CustomGeneralSearch = "__missing_general_roster__";
             RefreshView();
             Program.Render(root, 1120, 740, Path.Combine(output, "custom-general-search-empty.png"));
@@ -93,9 +95,16 @@ internal static class GeneralRosterPerformanceChecks
             model.ConfirmGeneralChoiceCommand.Execute(null);
             Program.Assert(Program.Engine(model).Revision == revision && Program.Engine(model).AcceptedCommands.Count == accepted,
                 "Searching and a disabled confirmation must preserve the private prompt without selecting a hidden general.");
-            model.CustomGeneralSearch = string.Empty;
-            Program.Assert(model.CustomGeneralChoices.Contains(model.SelectedGeneralChoice!) && model.CanConfirmGeneralChoice,
-                "Clearing an empty search must restore a visible preview and its confirmation.");
+            var clearSearch = (Button)window.FindName("ClearCustomGeneralSearchButton");
+            Program.Assert(clearSearch.Visibility == Visibility.Visible && clearSearch.IsEnabled && clearSearch.ActualWidth > 70,
+                "An empty search must offer a reachable recovery action.");
+            clearSearch.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Program.Assert(model.CustomGeneralSearch == string.Empty && model.SelectedCustomGeneralCategory == categoryBeforeClear &&
+                model.CustomGeneralChoices.All(choice => choice.RosterCategoryId == categoryBeforeClear) &&
+                model.CustomGeneralChoices.Contains(model.SelectedGeneralChoice!) && model.CanConfirmGeneralChoice &&
+                Program.Engine(model).Revision == revision && Program.Engine(model).AcceptedCommands.Count == accepted,
+                "The recovery button must clear search while preserving its series and private prompt, then restore a visible confirmation.");
+            model.SelectCustomGeneralCategoryCommand.Execute("all");
             foreach (var (width, height) in new[] { (1120, 740), (1920, 1080), (1440, 900) })
             {
                 Program.Render(root, width, height, Path.Combine(output, $"custom-general-roster-{width}.png"));

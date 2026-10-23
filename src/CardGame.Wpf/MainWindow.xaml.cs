@@ -40,6 +40,7 @@ public partial class MainWindow : Window
         Deactivated += (_, _) => _audio.SetActive(false);
         PreviewMouseDown += TableMouseDown;
         InitializeCardAim();
+        InitializeGeneralPreviewScroll();
         InitializeShanheWindowHost(viewModel);
     }
 
@@ -140,6 +141,14 @@ public partial class MainWindow : Window
 
     private static bool IsTableModalOpen(MainViewModel vm) =>
         IsBlockingTableOverlayOpen(vm) || vm.IsGeneralSelectionPending;
+
+    private void ClearCustomGeneralSearch_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel { IsCustomGeneralSelectionOpen: true } vm ||
+            !ReferenceEquals(CurrentFocusSurface(vm), GeneralSelectionOverlay)) return;
+        vm.CustomGeneralSearch = string.Empty;
+        CustomGeneralSearchBox.Focus();
+    }
 
     private void GeneralChoices_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
