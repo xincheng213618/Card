@@ -1232,7 +1232,16 @@
                             <Grid Grid.Row="2" Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="单击 / 数字键预选 · Enter 预选焦点项，再次确认 · 双击确认" Foreground="#D3BE8A" FontSize="12" />
+                                    <TextBlock x:Name="GeneralSelectionInputHint" Foreground="#D3BE8A" FontSize="12" TextWrapping="Wrap" Margin="0,0,12,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding GeneralChoices.Count, StringFormat={}{0} 名候选 · 滚动 / Tab 浏览 · 数字键 1–9 预选 · Enter 预选焦点项，再次确认 · 双击确认}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Text" Value="滚动 / Tab 浏览 · 数字键 1–9 预选 · Enter 预选焦点项，再次确认 · 双击确认" /></DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#94866F" FontSize="10" Margin="0,5,12,0" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <Button x:Name="ConfirmGeneralChoiceButton" Grid.Column="1" Content="确 认 出 征" Command="{Binding ConfirmGeneralChoiceCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="132" Padding="17,9" />

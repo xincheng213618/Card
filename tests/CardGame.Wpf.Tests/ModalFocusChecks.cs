@@ -701,8 +701,42 @@ internal static class ModalFocusChecks
             var offset = scroll.VerticalOffset;
             var width = window.Width;
             var height = window.Height;
+            var client = (FrameworkElement)window.Content;
+            var clientWidth = client.Width;
+            var clientHeight = client.Height;
             try
             {
+                window.Width = 1120;
+                window.Height = window.MinHeight;
+                client.Width = 1120;
+                client.Height = 740;
+                Pump(window);
+                Program.Assert(Math.Abs(client.ActualWidth - 1120) < 1 && Math.Abs(client.ActualHeight - 740) < 1,
+                    "The home-return probe must use the ordinary 1120x740 native client without content zoom.");
+                var home = (FrameworkElement)window.FindName("LobbyHome");
+                var origin = (Button)home.FindName("TeamBattleButton");
+                Program.Assert(origin.IsVisible && origin.IsEnabled && origin.Focus() && ReferenceEquals(Keyboard.FocusedElement, origin),
+                    "The home-return probe must begin on the actual enabled Team lobby entry.");
+                Program.Assert(!RouteFocusedKey(Key.Enter, ModifierKeys.None),
+                    "A fresh Team entry Enter must pass through the native focused button.");
+                Pump(window);
+                Program.Assert(model.IsLobbyConfigurationOpen && model.IsModeSelectionOpen &&
+                    model.SelectedModeCategory.Id == "team" && SameModeBoundary(),
+                    "Native Enter must open the Team category without changing the suspended game.");
+                Program.Assert(RouteFocusedKey(Key.Escape, ModifierKeys.None),
+                    "A fresh Escape must return from mode selection to the home lobby.");
+                Pump(window);
+                Console.WriteLine($"Home Team return: client={client.ActualWidth:F3}x{client.ActualHeight:F3}, " +
+                    $"focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, " +
+                    $"origin retained={ReferenceEquals(Keyboard.FocusedElement, origin)}, same match={SameModeBoundary()}.");
+                Program.Assert(!model.IsLobbyConfigurationOpen && model.IsNewGameSetupOpen &&
+                    ReferenceEquals(Keyboard.FocusedElement, origin) && SameModeBoundary(),
+                    "Returning from the Team category must restore its actual home entry and preserve every player view and accepted command.");
+                window.Width = width;
+                window.Height = height;
+                client.Width = clientWidth;
+                client.Height = clientHeight;
+                Pump(window);
                 model.OpenLobbyCategoryCommand.Execute("identity");
                 Pump(window);
                 var group = model.SelectedModeGroup!;
@@ -852,6 +886,8 @@ internal static class ModalFocusChecks
                 panel.LayoutTransform = transform;
                 window.Width = width;
                 window.Height = height;
+                client.Width = clientWidth;
+                client.Height = clientHeight;
                 model.SelectedModeCategory = category;
                 model.SelectedTableMode = mode;
                 model.SelectedStartingRole = role;
