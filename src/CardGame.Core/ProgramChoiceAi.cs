@@ -52,6 +52,9 @@ internal static class ProgramChoiceAi
                 case SkillProgramEffectOp.Draw:
                     score += effect.Amount * 8d;
                     break;
+                case SkillProgramEffectOp.ResolveShanheS5Luoyi when effect.StateId == "apply":
+                    score += ShanheS5LuoyiAi.UnknownChoiceScore(owner, context);
+                    break;
                 case SkillProgramEffectOp.UseBoundCardByTarget
                     when effect.SourceBind is { } giftBind &&
                          chooserOwnedBoundCardCount?.Invoke(giftBind) == 1:

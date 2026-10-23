@@ -3,19 +3,24 @@ using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Core.Campaigns;
 
-internal static class ShanheThreeBossEncounterChecks
+internal static class ShanheEncounterChecks
 {
     public static void PreviousExpeditionsKeepExactRoutesAndPendingRecipesCold()
     {
         const string edition = StandardShanheCampaignCatalog.Returning2026EditionId;
         var catalog = typeof(StandardShanheCampaignCatalog);
         var previous = catalog.GetMethod("CreateReturning2026Definition", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var threeBosses = catalog.GetMethod("WithS5ThreeBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var codex = catalog.GetMethod("WithCodexRewards", BindingFlags.Static | BindingFlags.NonPublic)!;
         var resources = catalog.GetMethod("WithStartingResourcesContract", BindingFlags.Static | BindingFlags.NonPublic)!;
         foreach (var tier in new[] { 1, 2, 3 })
         foreach (var useCodex in new[] { false, true })
         {
             var old = (ShanheCampaignDefinition)previous.Invoke(null, [tier])!;
+            var earlier = useCodex ? (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])! : old;
+            earlier = (ShanheCampaignDefinition)resources.Invoke(null, [earlier])!;
+            var unsupportedEarlierHash = ShanheCampaignContent.GetContentHash(earlier);
+            old = (ShanheCampaignDefinition)threeBosses.Invoke(null, [old])!;
             if (useCodex) old = (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])!;
             var unsupportedOlderHash = ShanheCampaignContent.GetContentHash(old);
             old = (ShanheCampaignDefinition)resources.Invoke(null, [old])!;
@@ -39,7 +44,7 @@ internal static class ShanheThreeBossEncounterChecks
             var selected = StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint, tier);
             var recovered = ShanheCampaignSession.Restore(checkpoint, selected, StandardShanheCampaignCatalog.CreateBattleRegistry);
             Need(ShanheCampaignContent.GetContentHash(selected) == checkpoint.CampaignHash &&
-                !selected.Nodes.SelectMany(n => n.Encounters ?? []).Any(IsNewEncounter) &&
+                !selected.Nodes.SelectMany(n => n.Encounters ?? []).Any(IsCurrentAddition) &&
                 selected.StartingResourcesExpireOnUse && ShanheCampaignJson.Serialize(recovered.CreateCheckpoint()) == encoded &&
                 ShanheBattleSetup.ValueEquals(session.PendingBattleSetup, recovered.PendingBattleSetup),
                 "All old routes, current resource semantics, accepted commands and exact pending recipes survive cold recovery without new bosses.");
@@ -47,10 +52,13 @@ internal static class ShanheThreeBossEncounterChecks
             try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint with { CampaignHash = new string('0', 64) }, tier); }
             catch (ArgumentException) { rejected = true; }
             Need(rejected && ShanheCampaignJson.Serialize(checkpoint) == encoded, "Fallbacks still require the full original fingerprint.");
-            rejected = false;
-            try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint with { CampaignHash = unsupportedOlderHash }, tier); }
-            catch (ArgumentException) { rejected = true; }
-            Need(rejected, "Earlier starting-resource definitions are no longer selected as a compatibility fallback.");
+            foreach (var unsupported in new[] { unsupportedOlderHash, unsupportedEarlierHash })
+            {
+                rejected = false;
+                try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint with { CampaignHash = unsupported }, tier); }
+                catch (ArgumentException) { rejected = true; }
+                Need(rejected, "Only the immediately preceding expedition is selected; earlier resource and encounter definitions are not accumulated.");
+            }
         }
     }
 
@@ -58,14 +66,14 @@ internal static class ShanheThreeBossEncounterChecks
     {
         const string edition = StandardShanheCampaignCatalog.Returning2026EditionId;
         var current = StandardShanheCampaignCatalog.CreateDefinition(1, edition);
-        var encounters = current.Nodes.SelectMany(n => n.Encounters ?? []).Where(IsNewEncounter).ToArray();
-        Need(encounters.Length == 3 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
-            .Nodes.SelectMany(n => n.Encounters ?? []).All(e => !IsNewEncounter(e)), "Only the 2026 edition adds the three source forms.");
+        var encounters = current.Nodes.SelectMany(n => n.Encounters ?? []).Where(IsSourceEncounter).ToArray();
+        Need(encounters.Length == 5 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
+            .Nodes.SelectMany(n => n.Encounters ?? []).All(e => !IsSourceEncounter(e)), "Only the 2026 edition includes these verified source forms.");
         foreach (var encounter in encounters)
         {
             Need(encounter.Enemies.Count == 1 && (encounter.Allies?.Count ?? 0) == 0,
                 "The actual local recipe preserves a single enemy without an invented companion.");
-            var route = new ShanheCampaignDefinition("fixture-shanhe-three-bosses", "S5单敌配方", ["classic:guan-yu"], ["boss"],
+            var route = new ShanheCampaignDefinition("fixture-shanhe-source-bosses", "S5单敌配方", ["classic:guan-yu"], ["boss"],
                 [new("boss", "首领", ShanheNodeKind.Battle, [], Encounters: [encounter])], []);
             var session = ShanheCampaignSession.Create(route, new(83, "classic:guan-yu"), StandardShanheCampaignCatalog.CreateBattleRegistry);
             Need(session.Submit(new MoveShanheNodeCommand("boss", session.Revision)).Accepted, "The real map command prepares the new encounter.");
@@ -87,15 +95,21 @@ internal static class ShanheThreeBossEncounterChecks
             var ordinary = StandardShanheCampaignCatalog.CreateBattleRegistry(plain);
             var ordinaryHash = ordinary.ContentHash;
             foreach (var skill in registry.Generals[encounter.Enemies[0].GeneralId].SkillIds)
-                Need(StandardShanheCampaignCatalog.CreateBattleRegistry(plain with { ExtraSkillIds = [skill] }).Skills.ContainsKey(skill),
-                    "An explicit skill grant composes its package even without its general.");
+            {
+                var granted = StandardShanheCampaignCatalog.CreateBattleRegistry(plain with { ExtraSkillIds = [skill] });
+                Need(granted.Skills.ContainsKey(skill) && (!IsCurrentAddition(encounter) || !granted.Generals.ContainsKey(encounter.Enemies[0].GeneralId)),
+                    "Explicit skill grants are available; reusing an ordinary skill does not import an unearned S5 general package.");
+            }
             Need(!ordinary.Generals.ContainsKey(encounter.Enemies[0].GeneralId) &&
                 StandardShanheCampaignCatalog.CreateBattleRegistry(plain).ContentHash == ordinaryHash,
                 "Warming boss and skill registries cannot change an ordinary recipe's content.");
         }
     }
 
-    private static bool IsNewEncounter(ShanheEncounterDefinition encounter) => encounter.Id is
+    private static bool IsCurrentAddition(ShanheEncounterDefinition encounter) => encounter.Id is
+        "hulao:lukuang-luxiang-s5" or "huanyuan:chenlin-s5";
+
+    private static bool IsSourceEncounter(ShanheEncounterDefinition encounter) => IsCurrentAddition(encounter) || encounter.Id is
         "guangcheng:zhangliang-s5" or "dagu:yuanshao-s5" or "huanyuan:xuchu-s5";
 
     private static void Need(bool value, string message)

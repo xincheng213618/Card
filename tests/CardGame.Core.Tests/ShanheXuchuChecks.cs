@@ -71,6 +71,48 @@ internal static class ShanheXuchuChecks
             "Declining the initial activation leaves the deck unexposed and performs ordinary Draw2.");
     }
 
+    public static void NpcRevealedChoiceWeighsActualCardsAgainstNormalDrawCold()
+    {
+        foreach (var armorOnly in new[] { false, true })
+        {
+            var s = Scene.Start(npc: true, armorOnly: armorOnly);
+            s.NpcUntil(() => s.Events<ProgramBindingResolvedEvent>().Any(e => e.SkillId == Luoyi && e.Completed));
+            var chosen = s.Events<ProgramOptionChosenEvent>().Single(e => e.SkillId == Luoyi);
+            var resolved = s.Events<ProgramBindingResolvedEvent>().Single(e => e.SkillId == Luoyi);
+            Need(!s.V().IsHuman && s.Events<ShanheS5LuoyiFrozenEvent>() is [{ X: 4 }] &&
+                chosen.OwnerSeat == 0 && chosen.ChooserSeat == 0 &&
+                resolved.Activated && resolved.Completed && resolved.FrameId == chosen.FrameId &&
+                s.Events<ShanheS5LuoyiFrozenEvent>().Single().FrameId == chosen.FrameId &&
+                chosen.ResultBind == "luoyi-draw-choice" && chosen.BindingId == resolved.BindingId &&
+                chosen.OptionId == (armorOnly ? "normal-draw" : "skip-draw"),
+                "The real NPC activates Luoyi, then its actual named-choice fact records the second decision from the public HP4 reveal.");
+            if (armorOnly)
+                s.NpcUntil(() => s.G.CardMovements.Count(m => m.From == CardLocation.DrawPile &&
+                    m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.Draw) == 2);
+            var modifiers = s.Events<CardDamageModifierGrantedEvent>().Where(e => e.Modifier.Source.SkillId == Luoyi).ToArray();
+            var normalDraws = s.G.CardMovements.Count(m => m.From == CardLocation.DrawPile && m.To == CardLocation.Hand(0) && m.Reason == CardMoveReasons.Draw);
+            var reveal = s.Events<ProgramCardsRevealedEvent>().Single(e => e.SkillId == Luoyi);
+            var revealedMoves = s.G.CardMovements.Where(m => reveal.Cards.Any(c => c.Id == m.CardId) &&
+                m.From == CardLocation.Processing && m.Reason.Value == $"skill-program.{Luoyi}.MoveBoundCards").ToArray();
+            Need(reveal.Cards.Count == 4 && revealedMoves.Length == 4 &&
+                (armorOnly
+                    ? revealedMoves.All(m => m.To == CardLocation.DiscardPile)
+                    : revealedMoves.Where(m => m.To == CardLocation.Hand(0)).Select(m => m.CardId).Order()
+                        .SequenceEqual(reveal.Cards.Where(c => c.Kind != CardKind.BaguaFormation).Select(c => c.Id).Order()) &&
+                        revealedMoves.Single(m => m.To == CardLocation.DiscardPile).CardId == reveal.Cards.Single(c => c.Kind == CardKind.BaguaFormation).Id),
+                "The NPC's unique completed Luoyi moves every revealed physical entity once through the selected native partition.");
+            Need(armorOnly
+                    ? modifiers.Length == 0 && normalDraws == 2 &&
+                        !s.Events<ProgramTurnPhaseSubstitutedEvent>().Any(e => e.SkillId == Luoyi)
+                    : modifiers is [{ Modifier.Amount: 4 }] && modifiers[0].Modifier.ParentFrameId == chosen.FrameId &&
+                        normalDraws == 0 && s.Events<ProgramTurnPhaseSubstitutedEvent>().Single(e => e.SkillId == Luoyi).FrameId == chosen.FrameId,
+                armorOnly
+                    ? "An empty-handed NPC declines an all-armor public reveal and takes the real normal Draw2 instead of valuing an unusable immediate bonus."
+                    : "The NPC takes the actual mixed basic/weapon/Duel reveal and its frozen +4 benefit instead of always choosing normal draw.");
+            s.Cold();
+        }
+    }
+
     private static void Need(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private sealed class Scene(GameEngine game, ContentRegistry registry)
     {
@@ -100,6 +142,19 @@ internal static class ShanheXuchuChecks
                 action.PlayedCardKind, action.TargetCardId) { ConversionSource = action.ConversionSource });
         }
         public void EndTurn() => Accept(new EndPlayPhaseCommand(0, G.Revision, P!.PromptId));
+        public void NpcUntil(Func<bool> done)
+        {
+            for (var step = 0; step < 100; step++)
+            {
+                if (done()) return;
+                Need(G.State.Winner == Winner.None, "The bounded NPC Xuchu choice must not finish a match. Luoyi returns: " +
+                    JsonSerializer.Serialize(Events<ProgramBindingResolvedEvent>().Where(e => e.SkillId == Luoyi)
+                        .Select(e => new { e.FrameId, e.Activated, e.Completed })) +
+                    "; public HP freezes: " + Events<ShanheS5LuoyiFrozenEvent>().Length);
+                Accept(new AdvanceOneStepCommand(G.Revision));
+            }
+            throw new InvalidOperationException("The real NPC did not reach its expected Luoyi choice return.");
+        }
         private void Reach(Func<bool> done)
         {
             for (var step = 0; step < 220; step++)
@@ -125,25 +180,26 @@ internal static class ShanheXuchuChecks
             G = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(G.CreateCheckpoint())), registry);
             Need(State() == before, "Cold replay preserves the frozen HP, public reveal choice, exact native damage children and owner-start expiry.");
         }
-        public static Scene Start()
+        public static Scene Start(bool npc = false, bool armorOnly = false)
         {
             var registry = ContentRegistry.Build(new StandardContentPackage(),
-                new StandardShanheS5XuchuPackage(), new Fixture());
+                new StandardShanheS5XuchuPackage(), new Fixture(armorOnly));
             var setup = new ShanheBattleSetup(71, 1, "fixture-xuchu", StandardShanheS5XuchuPackage.XuchuId, 4, 0, 0, 0, 0,
-                [Driver, Watch], [new(CardKind.Slash), new(CardKind.Slash), new(CardKind.Duel), new(CardKind.Duel)], [],
+                [Driver, Watch], armorOnly ? [] : [new(CardKind.Slash), new(CardKind.Slash), new(CardKind.Duel), new(CardKind.Duel)], [],
                 Enumerable.Range(1, 3).Select(_ => new ShanheCombatantDefinition(Enemy, MaxHpBonus: 30) { StartingHand = [] }).ToArray(),
                 [], new string('a', 64));
             var g = GameEngine.CreateStandard(new()
             {
-                Seed = setup.BattleSeed, PlayerCount = 4, HumanSeat = 0, HumanRole = null, HumanTeamId = ShanheBattleSetup.PlayerTeamId,
+                Seed = setup.BattleSeed, PlayerCount = 4, HumanSeat = npc ? -1 : 0, HumanRole = null,
+                HumanTeamId = npc ? null : ShanheBattleSetup.PlayerTeamId,
                 ModeId = ShanheBattleSetup.BattleModeId, ShanheBattle = setup, UseInteractiveSetup = false,
-                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 12
+                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = npc ? 1 : 12
             }, registry);
             var scene = new Scene(g, registry); scene.Accept(new StartGameCommand()); return scene;
         }
     }
 
-    private sealed class Fixture : IGameContentPackage
+    private sealed class Fixture(bool armorOnly) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-shanhe-xuchu", new(1, 0, 0));
         public void Register(IContentRegistryBuilder b)
@@ -175,7 +231,8 @@ internal static class ShanheXuchuChecks
                 b.AddSkill(new(id, catalog.Presentations[id].Name, catalog.Presentations[id].Description)
                     { Program = program, ProgramPresentation = catalog.Presentations[id] });
             b.AddGeneral(new(Enemy, "守军", "supporter", Quiet, "qun", 4));
-            b.AddDeck(new(Deck, "固定四张实体", 0, 2, []) { PhysicalCards = [
+            b.AddDeck(new(Deck, "固定四张实体", 0, 2, []) { PhysicalCards = armorOnly
+                ? Enumerable.Range(0, 4).Select(_ => new ContentDeckPhysicalCard("standard:bagua", Suit.Diamond, 6)).ToArray() : [
                 new("standard:peach", Suit.Heart, 3), new("standard:duel", Suit.Spade, 4),
                 new("standard:crossbow", Suit.Club, 5), new("standard:bagua", Suit.Diamond, 6)] });
             b.AddMode(new(ShanheBattleSetup.BattleModeId, "许褚机制", 4, 4, new Dictionary<string, int>(), Deck,

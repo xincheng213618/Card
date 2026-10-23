@@ -259,6 +259,12 @@ public static partial class StandardShanheCampaignCatalog
             if (s5Yuanshao) packages.Add(new StandardShanheS5YuanshaoPackage());
             if (s5Zhangliang) packages.Add(new StandardShanheS5ZhangliangPackage());
             if (s5Xuchu) packages.Add(new StandardShanheS5XuchuPackage());
+            // These forms reuse existing skills. The roster, already present
+            // in the cache key, is their only additional package requirement.
+            if (ids.Contains(StandardShanheS5LukuangLuxiangPackage.LukuangLuxiangId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5LukuangLuxiangPackage());
+            if (ids.Contains(StandardShanheS5ChenlinPackage.ChenlinId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5ChenlinPackage());
             if (s5Chengxiong) packages.Add(new StandardShanheS5ChengxiongPackage());
             if (setup.RebirthAvailable) packages.Add(new StandardShanheRankPrivilegePackage());
             packages.Add(new ShanheEncounterPackage(setup));
