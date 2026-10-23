@@ -88,7 +88,8 @@ internal sealed class DamageAdjacencyRuntime(
         }
         if (parent is not ProgramSkillFrame producer) return false;
         if (child is CardsMovedTriggerWindowFrame movement)
-            return RuntimeSkills.RuntimeRules_Core_CommonRules.ProgramMovementReturnMatches(producer, movement);
+            return RuntimeSkills.RuntimeRules_Core_CommonRules.ProgramMovementReturnMatches(producer, movement) ||
+                protocols.RandomEquipmentFrameRidesOn(movement, producer);
         return child is HpChangedTriggerWindowFrame changed && RuntimeSkills.RuntimeRules_Core_CommonRules.ProgramHpReturnMatches(producer, changed);
     }
 
@@ -151,7 +152,8 @@ internal sealed class DamageAdjacencyRuntime(
                     var paidFactionReturn = movement.ResumeFactionRequestCostFrameId == producer.Id &&
                         movement.ResumeProgramFrameId is null && producer.PaidFactionRequestCostRecovery is { } receipt &&
                         protocols.HasPaidFactionRequestCostRecovery(receipt);
-                    if (!RuntimeSkills.RuntimeRules_Core_CommonRules.ProgramMovementReturnMatches(producer, movement, paidFactionReturn))
+                    if (!RuntimeSkills.RuntimeRules_Core_CommonRules.ProgramMovementReturnMatches(producer, movement, paidFactionReturn) &&
+                        !protocols.RandomEquipmentFrameRidesOn(movement, producer))
                         return true;
                 }
                 if (child is HpChangedTriggerWindowFrame hp)

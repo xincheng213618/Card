@@ -176,7 +176,7 @@ public sealed partial class GameEngine
     {
         while (_resolutionStack.LastOrDefault() is BeforeDamageProgramWindowFrame frame)
         {
-            if (frame.AnniversaryJiedaoSource is null && RuntimeHooks.TryAdvance(ProgramRuntimePhase.BeforeDamageApply)) return;
+            if (frame.AnniversaryJiedaoSource is null && frame.CaiYangJiaofeng is null && RuntimeHooks.TryAdvance(ProgramRuntimePhase.BeforeDamageApply)) return;
             frame = (BeforeDamageProgramWindowFrame)_resolutionStack.Last();
             if (frame.Prevented || frame.RedirectedTargetSeat is not null ||
                 frame.CandidateIndex >= frame.Candidates.Count)
@@ -252,6 +252,7 @@ public sealed partial class GameEngine
                     (frame.RedirectedTargetSeat ?? frame.TargetSeat))
                     throw new InvalidOperationException("The before-damage attack participants changed.");
                 if (ResumeAnniversaryJiedaoSourceWindow(frame, attack)) return;
+                if (ResumeAnniversaryCaiYangJiaofengSourceWindow(frame, attack)) return;
                 if (frame.RedirectedTargetSeat is null) attack.MarkBeforeDamageProgramsResolved();
                 if (frame.Prevented)
                 {

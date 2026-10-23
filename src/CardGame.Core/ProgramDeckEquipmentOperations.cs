@@ -19,13 +19,13 @@ internal sealed class UseRandomDeckEquipmentDescriptor : ProgramOperationDescrip
         var condition = r.Condition();
         if (condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs)) throw new InvalidOperationException("Random deck equipment requires an unconditional or exact choice branch.");
         var recipient = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
-        if (recipient is not null && (recipient.Kind != ProgramParticipantRef.Owner || condition.Kind != SkillProgramConditionKind.Always))
-            throw new InvalidOperationException("Owner-origin random equipment requires an unconditional owner reference.");
+        if (recipient is not null && recipient.Kind != ProgramParticipantRef.Owner)
+            throw new InvalidOperationException("Owner-origin random equipment requires an owner reference.");
         return new(Op, target, 0, condition, resultBind: r.RequiredIdentifier("resultBind"), targetReference: recipient);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) =>
         e.TargetReference is null ? [new ReadSelectedTarget(), new CreateCardSet(e.ResultBind!, 1, false, true)] :
-            [new RequireTriggerWindow(SkillProgramTriggerWindow.GameStarting), new CreateCardSet(e.ResultBind!, 1, false, true)];
+            [new CreateCardSet(e.ResultBind!, 1, false, true)];
 }
 
 internal sealed class GrantRandomSkillAndSuitShieldDescriptor : ProgramOperationDescriptorBase

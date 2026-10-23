@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62, "skills": [{ "id": "anniversary:xuhe", "revision": 1, "triggers": [
+    { "id": "pay-maximum-neighbors", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+      "effects": [{ "op": "changeMaximumHp", "target": "owner", "amount": -1 }, { "op": "resolveAnniversaryXingDaoRongXuHe", "target": "owner" }] },
+    { "id": "not-highest-maximum", "window": "playEnding", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+      "effects": [{ "op": "changeMaximumHp", "target": "owner", "amount": 1 },
+        { "op": "chooseOption", "target": "owner", "resultBind": "xu-he-ending", "options": [{ "id": "recover" }, { "id": "draw" }] },
+        { "op": "recover", "target": "owner", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "xu-he-ending", "optionId": "recover" } },
+        { "op": "draw", "target": "owner", "amount": 2, "condition": { "kind": "choiceIs", "sourceBind": "xu-he-ending", "optionId": "draw" } }] }
+  ]}]
+}

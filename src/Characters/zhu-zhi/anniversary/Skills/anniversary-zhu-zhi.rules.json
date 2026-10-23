@@ -1,0 +1,17 @@
+{"schemaVersion":62,"skills":[{"id":"anniversary:anguo","revision":1,"activations":[{
+ "id":"three-minimum-benefits","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,
+ "effects":[
+  {"op":"resolveAnniversaryZhuZhiAnguo","target":"owner","resultBind":"target-hand"},
+  {"op":"draw","target":"selectedTarget","amount":1,"condition":{"kind":"choiceIs","sourceBind":"target-hand","optionId":"perform"}},
+  {"op":"resolveAnniversaryZhuZhiAnguo","target":"owner","resultBind":"target-hp"},
+  {"op":"recover","target":"selectedTarget","amount":1,"condition":{"kind":"choiceIs","sourceBind":"target-hp","optionId":"perform"}},
+  {"op":"resolveAnniversaryZhuZhiAnguo","target":"owner","resultBind":"target-equipment"},
+  {"op":"useRandomDeckEquipment","target":"owner","resultBind":"target-equipment-card","condition":{"kind":"choiceIs","sourceBind":"target-equipment","optionId":"perform"}},
+  {"op":"resolveAnniversaryZhuZhiAnguo","target":"owner","resultBind":"owner-hand"},
+  {"op":"draw","target":"owner","amount":1,"condition":{"kind":"choiceIs","sourceBind":"owner-hand","optionId":"perform"}},
+  {"op":"resolveAnniversaryZhuZhiAnguo","target":"owner","resultBind":"owner-hp"},
+  {"op":"recover","target":"owner","amount":1,"condition":{"kind":"choiceIs","sourceBind":"owner-hp","optionId":"perform"}},
+  {"op":"resolveAnniversaryZhuZhiAnguo","target":"owner","resultBind":"owner-equipment"},
+  {"op":"useRandomDeckEquipment","target":"owner","targetRef":{"kind":"owner"},"resultBind":"owner-equipment-card","condition":{"kind":"choiceIs","sourceBind":"owner-equipment","optionId":"perform"}}
+ ]
+}]}]}

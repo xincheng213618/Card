@@ -1034,8 +1034,8 @@ public sealed partial class GameEngine
                     !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement && !awaitsLostHpOwnedGift &&
                     !(paidEffect?.Op == SkillProgramEffectOp.MouZhijueUse && frame.MouZhijue is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !RuntimeHooks.MatchesMovement(ProgramMovementProofPhase.PrivatePayments, frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !RuntimeHooks.MatchesMovement(ProgramMovementProofPhase.EffectPayments, frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && pendingMovement.CoverageResultBind is null &&
                     (frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser ||
-                     paidEffect.TargetReference?.Kind == ProgramParticipantRef.Owner && frame.WindowContext?.Window == SkillProgramTriggerWindow.GameStarting &&
-                     frame.SelectedTargetSeats.Count == 0 && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 &&
+                     paidEffect.TargetReference?.Kind == ProgramParticipantRef.Owner &&
+                     pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 &&
                      paidEffect.ResultBind is { } arrivalEquipmentBind && frame.CardSetBindings.SingleOrDefault(binding => binding.Name == arrivalEquipmentBind) is
                          { CardIds: [var arrivalEquipmentId], SourceLocations: [var arrivalEquipmentSource] } &&
                      arrivalEquipmentId > 0 && arrivalEquipmentSource == CardLocation.DrawPile)) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
@@ -1132,6 +1132,7 @@ public sealed partial class GameEngine
                 if (IsHellKingChoiceResult(frame, binding)) continue;
                 if (IsGuanduChoiceResult(frame, binding)) continue;
                 if (IsMouHuaXiongChoiceResult(frame, binding)) continue;
+                if (IsAnniversaryZhuZhiChoiceResult(frame, binding)) continue;
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
                     (effect.Op is SkillProgramEffectOp.AccumulatePaidPhaseGift or SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget or SkillProgramEffectOp.ChooseDifferentActionCategoryGift or SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
                         SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or

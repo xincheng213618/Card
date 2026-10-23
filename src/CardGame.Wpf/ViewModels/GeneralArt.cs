@@ -56,6 +56,7 @@ public static partial class GeneralArt
             ["hell:mengpo"] = "hell-mengpo",
             ["hell:dizang"] = "hell-dizang",
             ["ol-sp-huang-yueying"] = "ol-huang-yueying-sp",
+            ["anniversary-zhu-zhi"] = "zhu-zhi",
             ["demo-yuanhu"] = "huang-gai",
             ["demo-ganglie"] = "xiahou-dun",
             ["demo-guicai"] = "sima-yi",

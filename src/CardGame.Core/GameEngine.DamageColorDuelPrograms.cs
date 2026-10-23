@@ -97,6 +97,7 @@ public sealed partial class GameEngine
             var o=use.SelectedActorDuelOrigin!;
             if (o.MouDiaoChanRing is not null) { AssertMouDiaoChanRingUse(use, o); continue; }
             if (o.XiahouEnShiwu is not null) { AssertXiahouEnShiwuDuelUse(use, o); continue; }
+            if (o.CaiYangXunji is not null) { AssertCaiYangXunjiDuelUse(use, o); continue; }
             var index=_resolutionStack.FindIndex(x=>x.Id==use.Id);
             if(o.OrderedPairPayment is not null)
             {

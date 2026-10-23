@@ -1,0 +1,6 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:xunji","revision":1,"activations":[{"id":"designate-next-turn","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"armAnniversaryCaiYangXunji","target":"owner"}]}],"triggers":[
+  {"id":"next-black-turn-ending-duel","window":"turnEnding","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveAnniversaryCaiYangXunji","target":"owner"}]},
+  {"id":"issued-duel-actual-damage","window":"afterDamageApplied","subject":"any","damageOccurrence":"perDamage","optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveAnniversaryCaiYangXunji","target":"owner"}]}]},
+ {"id":"anniversary:jiaofeng","revision":1,"triggers":[{"id":"first-source-damage","window":"beforeDamageApplied","subject":"any","optional":false,"effects":[{"op":"resolveAnniversaryCaiYangJiaofeng","target":"owner"}]}]}
+]}

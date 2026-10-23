@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:xing-dao-rong",
+  "skills": [{ "registrationOrder": 45700, "programBundle": "anniversary-xing-dao-rong", "includeProgramPresentation": true,
+    "definition": { "id": "anniversary:xuhe", "name": "虚猲", "description": "出牌阶段开始时，你可以减1点体力上限，然后你弃置距离1以内的每名角色各一张牌或这些角色各摸一张牌。出牌阶段结束时，若你体力上限不为全场最高，你加1点体力上限，然后选择回复1点体力或摸两张牌。", "executionForms": "Trigger" }
+  }],
+  "generals": [{ "registrationOrder": 45701, "pools": { "current": 45701 }, "definition": {
+    "id": "anniversary:xing-dao-rong", "name": "邢道荣", "portraitKey": "anniversary-xing-dao-rong", "skillId": "anniversary:xuhe",
+    "factionId": "qun", "baseHp": 6, "gender": "Male", "characterId": "character:xing-dao-rong", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  }}]
+}

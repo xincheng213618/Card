@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-cai-yang",
+      "characterName": "蔡阳",
+      "defaultSkinId": "195501",
+      "skins": [
+        {
+          "id": "195501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/955.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/195501.png",
+          "sha256": "64d8c1de660a5a1d5a549d8b951836397654604d5b6c4c5eac65faa1ba43b5b3",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-cai-yang.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-xing-dao-rong",
+      "characterName": "邢道荣",
+      "defaultSkinId": "195101",
+      "skins": [
+        {
+          "id": "195101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/951.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/195101.png",
+          "sha256": "f6e2d462e36d535297199d8f68ea12fadd5fd5c64eb848025f63d475cca38c10",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-xing-dao-rong.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-mu-shun",
       "characterName": "穆顺",
       "defaultSkinId": "1108001",

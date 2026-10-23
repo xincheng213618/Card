@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhu-zhi",
+  "skills": [{
+    "registrationOrder": 45800, "programBundle": "anniversary-zhu-zhi", "includeProgramPresentation": true,
+    "definition": {
+      "id": "anniversary:anguo", "name": "安国",
+      "description": "出牌阶段限一次，你可以选择一名其他角色，若其手牌数为全场最少，其摸一张牌；体力值为全场最低，回复1点体力；装备区内牌数为全场最少，随机使用一张装备牌。然后若该角色有未执行的分支且你满足条件，你执行之。",
+      "actionForms": "Active"
+    }
+  }],
+  "generals": [{
+    "registrationOrder": 45801, "pools": { "current": 45801 },
+    "definition": {
+      "id": "anniversary:zhu-zhi", "name": "朱治", "portraitKey": "zhu_zhi", "skillId": "anniversary:anguo",
+      "factionId": "wu", "baseHp": 4, "gender": "Male", "characterId": "character:zhu-zhi", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+    }
+  }]
+}

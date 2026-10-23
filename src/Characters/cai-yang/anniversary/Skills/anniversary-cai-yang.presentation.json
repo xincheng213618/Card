@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "anniversary:xunji":{"name":"寻嫉","description":"出牌阶段限一次，你可以选择一名其他角色。然后若该角色于其下个回合内使用过黑色牌，则其结束阶段你视为对其使用一张【决斗】。此【决斗】对其造成伤害后，其对你造成等量的伤害。","activationLabels":{"designate-next-turn":"指定下个回合"}},
+ "anniversary:jiaofeng":{"name":"交锋","description":"锁定技，当你每回合首次造成伤害时，若你已损失的体力值：大于0，你摸一张牌；大于1，此伤害+1；大于2，你回复1点体力。"}
+}}
