@@ -87,10 +87,13 @@ public sealed partial class GameEngine
     private static IReadOnlyList<int> FreezeGuanduSeats(IEnumerable<int> seats) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_GuanduGenerals.FreezeGuanduSeats(seats);
 
+    private bool IsGuanduGeneralContextAllowed(string skillId, SkillProgramEffectOp operation) => IsGuanduActivity ||
+        _options.ShanheBattle is not null && skillId == "guandu:moushi" && operation == SkillProgramEffectOp.ResolveGuanduMoushi;
+
     private SkillProgramStepOutcome BeginGuanduGeneral(ProgramSkillFrame supplied, SkillProgramEffectOp operation)
     {
         var f = GetActiveProgramFrame(supplied.Id);
-        if (!IsGuanduActivity || f.GuanduGeneral is not null || f.InstructionIndex != 1 ||
+        if (!IsGuanduGeneralContextAllowed(f.SkillId, operation) || f.GuanduGeneral is not null || f.InstructionIndex != 1 ||
             GetPausedPrivateOfferEffect(f)?.Op != operation)
             throw new InvalidOperationException("An activity general requires its exact unpaid owning instruction.");
         var r = new GuanduGeneralReceipt(operation, f.InstructionIndex, _turnNumber, f.WindowContext?.ParentFrameId,
@@ -189,7 +192,7 @@ public sealed partial class GameEngine
     private void AssertGuanduGeneral(ProgramSkillFrame f)
     {
         if (f.GuanduGeneral is not { } r) return;
-        if (!IsGuanduActivity || r.InstructionIndex != f.InstructionIndex || r.InstructionIndex != 1 ||
+        if (!IsGuanduGeneralContextAllowed(f.SkillId, r.Operation) || r.InstructionIndex != f.InstructionIndex || r.InstructionIndex != 1 ||
             r.ActualTurn != _turnNumber || r.WindowId != f.WindowContext?.ParentFrameId ||
             GetPausedPrivateOfferEffect(f)?.Op != r.Operation ||
             ProgramEventHistory<GuanduGeneralIssuedEvent>().Count(e => e == new GuanduGeneralIssuedEvent(f.Id,

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-mashu-14118": { "name": "马术", "description": "锁定技，你计算与其他角色的距离都为1。" },
+    "shanhe:s5-tieqi-14122": {
+      "name": "铁骑", "description": "当你使用【杀】指定目标后，你可以令其本回合非锁定技失效，然后你判定，除非其弃置全部与判定结果颜色相同的牌，否则其不能抵消此【杀】。",
+      "triggerChoices": { "suppress-judge-all-color": "令目标非锁定技失效，判定后要求弃置全部同色牌" }
+    }
+  }
+}

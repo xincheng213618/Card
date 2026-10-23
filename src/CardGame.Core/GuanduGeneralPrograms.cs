@@ -94,6 +94,9 @@ internal sealed class ResolveGuanduYuanlveDescriptor : GuanduGeneralDescriptor
 internal sealed class ResolveGuanduMoushiDescriptor : GuanduGeneralDescriptor
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ResolveGuanduMoushi;
+    public override ProgramFactRequirements FactRequirements => new(
+        Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase,
+        Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase);
 }
 internal sealed class ResolveGuanduZhongjieDescriptor : GuanduGeneralDescriptor
 {

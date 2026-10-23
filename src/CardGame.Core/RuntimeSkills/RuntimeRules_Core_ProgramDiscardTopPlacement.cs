@@ -30,7 +30,7 @@ internal static class RuntimeRules_Core_ProgramDiscardTopPlacement
     internal static bool IsDiscardMovementReason(CardMoveReason reason)
     {
         var value = reason.Value;
-        if (value == "skill-program.shanhe-qiaomeng.discard") return true;
+        if (value is "skill-program.shanhe-qiaomeng.discard" or "skill-program.shanhe-tieqi.discard") return true;
         if (value is MouHanDangDiscardReason or "skill-program.le-xiao-qiao.weiwan.discard" or QingyaDiscardReason or "skill-program.guo-tu.weijie.discard" or "skill-program.li-yi.chanshuang.discard" or "skill-program.sun-yuan.dongxin.discard" or "skill-program.cao-yu.xiangxu.discard" or "skill-program.sun-hong.xianbi.discard") return true;
         if (value is GoudeDiscardReason or PairedColorDiscardReason or SoleProtectionCostReason or FanChouDiscardReason or ZhenyingDiscardReason or WeifuDiscardReason or FeiYiDiscardReason or FudaoDiscardReason or FengyanDiscardReason or HeJinDiscardReason or "skill-program.yan-rou.choutao.discard" or "skill-program.lu-yu-sheng.cangxin.discard" or "skill-program.lu-yu-sheng.runwei.discard" or "skill-program.yuan-huan.linjie.discard" or "skill-program.han-fu.kuangshou.discard" or "skill-program.wang-kuang.renxia.discard" or
             "skill-program.duan-jiong.saogu.discard" or "skill-program.ma-mi-di.bingjie.discard" or

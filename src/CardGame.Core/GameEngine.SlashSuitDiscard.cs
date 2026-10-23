@@ -79,6 +79,7 @@ public sealed partial class GameEngine
     {
         var frame = GetActiveProgramFrame(frameId);
         if (frame.SlashSuitDiscard is not { } draft) return false;
+        if (IsShanheS5Tieqi(frame)) return ResumeShanheS5Tieqi(frame);
         if (frame.PendingMovementContinuation is not null) return true;
         _ = SlashSuitDiscardAttack(frame);
         if (draft.Stage == ProgramSlashSuitDiscardStage.Judging) return true;
@@ -188,6 +189,7 @@ public sealed partial class GameEngine
     private void AssertProgramSlashSuitDiscard(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
         if (frame.SlashSuitDiscard is not { } draft) return;
+        if (IsShanheS5Tieqi(frame)) { AssertShanheS5Tieqi(frame); return; }
         if (paused.Op != SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard ||
             paused.JudgmentReason != draft.JudgmentReason || paused.ResultBind != draft.ResultBind ||
             !IsValidPlayerSeat(draft.TargetSeat) || draft.TargetSeat == frame.OwnerSeat ||

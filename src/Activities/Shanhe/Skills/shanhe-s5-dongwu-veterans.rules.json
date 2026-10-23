@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-chunlao-3616",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "store-own-or-neighbor-discard-up-to-nine",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "optional": false,
+          "evaluateConditionAtResolution": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentOwnedZoneCount", "zone": "chunlao" },
+            "operator": "lessThan",
+            "right": { "kind": "integerConstant", "value": 9 }
+          },
+          "effects": [
+            { "op": "storeAdjacentDiscardedSlash", "target": "owner", "destinationZone": "chunlao" }
+          ]
+        },
+        {
+          "id": "round-priced-pile-alcohol",
+          "window": "dyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "useRoundPricedPileDyingAlcohol", "target": "owner", "zones": ["chunlao"], "stateId": "round-wine-uses" }
+          ]
+        }
+      ]
+    }
+  ]
+}

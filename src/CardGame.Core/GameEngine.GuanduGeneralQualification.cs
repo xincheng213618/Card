@@ -9,7 +9,7 @@ public sealed partial class GameEngine
     private bool AllowsGuanduGeneralActivation(ProgramActivationLegalityContext gate)
     {
         if (!gate.SkillId.StartsWith("guandu:", StringComparison.Ordinal)) return true;
-        if (!IsGuanduActivity) return false;
+        if (!IsGuanduGeneralContextAllowed(gate.SkillId, SkillProgramEffectOp.ResolveGuanduMoushi)) return false;
         if (gate.SkillId == "guandu:shicai") return GuanduShicaiReady(gate.OwnerSeat, GetRuntimeSkillInstanceId(gate.Owner, gate.SkillId)) &&
             _cardZones.Count(CardLocation.DrawPile) > 0 && GuanduDiscardable(gate.OwnerSeat, gate.OwnerSeat).Length > 0;
         if (gate.SkillId == "guandu:zezhu") return _players[gate.OwnerSeat].SkillGrants.Grants.Any(g =>
@@ -22,7 +22,7 @@ public sealed partial class GameEngine
     private bool AllowsGuanduGeneralTrigger(ProgramTriggerLegalityContext gate)
     {
         if (!gate.SkillId.StartsWith("guandu:", StringComparison.Ordinal)) return true;
-        if (!IsGuanduActivity) return false;
+        if (!IsGuanduGeneralContextAllowed(gate.SkillId, SkillProgramEffectOp.ResolveGuanduMoushi)) return false;
         var c = gate.Context; var owner = gate.Owner;
         switch (gate.SkillId)
         {

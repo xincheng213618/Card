@@ -15,6 +15,7 @@ internal static class ShanheEncounterChecks
         var strategy = catalog.GetMethod("WithS5StrategyBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var hebei = catalog.GetMethod("WithS5HebeiBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var lords = catalog.GetMethod("WithS5LordGroupEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var liGuo = catalog.GetMethod("WithS5LiGuoBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var codex = catalog.GetMethod("WithCodexRewards", BindingFlags.Static | BindingFlags.NonPublic)!;
         var resources = catalog.GetMethod("WithStartingResourcesContract", BindingFlags.Static | BindingFlags.NonPublic)!;
         foreach (var tier in new[] { 1, 2, 3 })
@@ -25,10 +26,11 @@ internal static class ShanheEncounterChecks
             old = (ShanheCampaignDefinition)coalition.Invoke(null, [old])!;
             old = (ShanheCampaignDefinition)strategy.Invoke(null, [old])!;
             old = (ShanheCampaignDefinition)hebei.Invoke(null, [old])!;
+            old = (ShanheCampaignDefinition)lords.Invoke(null, [old])!;
             var earlier = useCodex ? (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])! : old;
             earlier = (ShanheCampaignDefinition)resources.Invoke(null, [earlier])!;
             var unsupportedEarlierHash = ShanheCampaignContent.GetContentHash(earlier);
-            old = (ShanheCampaignDefinition)lords.Invoke(null, [old])!;
+            old = (ShanheCampaignDefinition)liGuo.Invoke(null, [old])!;
             if (useCodex) old = (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])!;
             var unsupportedOlderHash = ShanheCampaignContent.GetContentHash(old);
             old = (ShanheCampaignDefinition)resources.Invoke(null, [old])!;
@@ -75,15 +77,16 @@ internal static class ShanheEncounterChecks
         const string edition = StandardShanheCampaignCatalog.Returning2026EditionId;
         var current = StandardShanheCampaignCatalog.CreateDefinition(1, edition);
         var encounters = current.Nodes.SelectMany(n => n.Encounters ?? []).Where(IsSourceEncounter).ToArray();
-        Need(encounters.Length == 19 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
+        Need(encounters.Length == 23 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
             .Nodes.SelectMany(n => n.Encounters ?? []).All(e => !IsSourceEncounter(e)), "Only the 2026 edition includes these verified source forms.");
         foreach (var encounter in encounters)
         {
             var expectedEnemies = encounter.Id switch
             {
-                "guangcheng:yuanshu-s5" or "huanyuan:taoyuan-s5" => 3,
+                "guangcheng:yuanshu-s5" or "huanyuan:taoyuan-s5" or "huanyuan:moushi-s5" => 3,
                 "dagu:xuyou-jushou-s5" or "huanyuan:caoren-zhaoyun-s5" or
-                "dagu:gongsun-zan-yue-s5" or "huanyuan:gongsun-zan-zhaoyun-s5" or "dagu:xujing-xuqiu-s5" => 2,
+                "dagu:gongsun-zan-yue-s5" or "huanyuan:gongsun-zan-zhaoyun-s5" or "dagu:xujing-xuqiu-s5" or
+                "dagu:ma-siblings-s5" or "huanyuan:dongwu-veterans-s5" => 2,
                 _ => 1
             };
             Need(encounter.Enemies.Count == expectedEnemies && (encounter.Allies?.Count ?? 0) == 0,
@@ -124,9 +127,10 @@ internal static class ShanheEncounterChecks
     }
 
     private static bool IsCurrentAddition(ShanheEncounterDefinition encounter) => encounter.Id is
-        "guangcheng:lijue-s5" or "guangcheng:guosi-s5" or "dagu:xujing-xuqiu-s5";
+        "dagu:ma-siblings-s5" or "huanyuan:dongwu-veterans-s5" or "huanyuan:moushi-s5" or "hulao:huaxiong-base-s5";
 
     private static bool IsSourceEncounter(ShanheEncounterDefinition encounter) => IsCurrentAddition(encounter) || encounter.Id is
+        "guangcheng:lijue-s5" or "guangcheng:guosi-s5" or "dagu:xujing-xuqiu-s5" or
         "guangcheng:yuanshu-s5" or "dagu:gongsun-zan-yue-s5" or "huanyuan:gongsun-zan-zhaoyun-s5" or "huanyuan:taoyuan-s5" or
         "guangcheng:zhangliang-s5" or "dagu:yuanshao-s5" or "huanyuan:xuchu-s5" or
         "hulao:lukuang-luxiang-s5" or "huanyuan:chenlin-s5" or "hulao:zhuling-s5" or "huanyuan:zhouyu-s5" or

@@ -920,6 +920,7 @@ public enum SkillProgramEffectOp
     DiscardAttackRangeCardsFromSlashTarget = 5740,
     ChooseHpBoundOtherAndDealPositiveRandomDamage = 5750,
     ResolveShanheZhanhunDao = 5754,
+    SuppressCurrentSlashTargetAndJudgeColorAllDiscard = 5760,
     DiscardBoundCardForRoundScaledTurnDuel = 5720,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
@@ -5877,6 +5878,7 @@ public sealed class SkillProgramCatalog
         PersistentPrivateWhirlContract.ValidateTrigger(path, parsedTrigger);
         ShanheS5GongsunContract.ValidateTrigger(path, parsedTrigger);
         ShanheS5LiJueContract.ValidateTrigger(path, parsedTrigger);
+        ShanheS5MaSiblingsContract.ValidateTrigger(path, parsedTrigger);
         XuanGongZhuContract.ValidateTrigger(path, parsedTrigger);
         BuZhiComposition.ValidateTrigger(path, parsedTrigger);
         ZhaoXiangComposition.ValidateTrigger(path, parsedTrigger);

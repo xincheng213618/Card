@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-mashu-14118", "revision": 1,
+      "cardPolicies": [{ "id": "fixed-outgoing-one", "kind": "outgoingDistanceOne" }]
+    },
+    {
+      "id": "shanhe:s5-tieqi-14122", "revision": 1,
+      "triggers": [{
+        "id": "suppress-judge-all-color", "window": "slashBeforeResponse", "ownerRelation": "actor",
+        "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": true,
+        "effects": [{ "op": "suppressCurrentSlashTargetAndJudgeColorAllDiscard", "target": "owner",
+          "judgmentReason": "shanhe:s5-tieqi-14122", "resultBind": "tieqi-color-judgment" }]
+      }]
+    }
+  ]
+}

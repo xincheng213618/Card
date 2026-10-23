@@ -684,7 +684,7 @@ public sealed partial class GameEngine
         var instructions = ProgramInstructionResolver.Default.Resolve(frame, program).Instructions;
         if (frame.InstructionIndex < 1 || frame.InstructionIndex > instructions.Count ||
             instructions[frame.InstructionIndex - 1] is not
-            { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.StartOwnedDamagePointJudgment or SkillProgramEffectOp.StartChouceDamagePointJudgment or SkillProgramEffectOp.RepeatJudgment or SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard or SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard } effect ||
+            { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.StartOwnedDamagePointJudgment or SkillProgramEffectOp.StartChouceDamagePointJudgment or SkillProgramEffectOp.RepeatJudgment or SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard or SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeColorAllDiscard or SkillProgramEffectOp.JudgeDamageTargetThenOfferSuitDiscard } effect ||
             reason != effect.JudgmentReason || resultBind != effect.ResultBind)
             return false;
         if (effect.Op == SkillProgramEffectOp.RepeatJudgment &&
