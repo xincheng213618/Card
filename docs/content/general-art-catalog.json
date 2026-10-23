@@ -18938,6 +18938,23 @@
       ]
     },
     {
+      "key": "mobile-shi-yu-ji",
+      "characterName": "势于吉",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-610.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/82500.jpg",
+          "sha256": "fa04b057637dc55027ff1fe0aa03a4af8ef9cb8e8326db151250a05c3db91d14",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-yu-ji.jpg"
+        }
+      ]
+    },
+    {
       "key": "anniversary-shen-pang-tong",
       "characterName": "神庞统",
       "defaultSkinId": "122201",
