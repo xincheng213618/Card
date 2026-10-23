@@ -22,7 +22,7 @@ public sealed partial class GameEngine
     {
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAttackRangeCardsFromSlashTarget))
             return context is { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, TargetSeat: { } target, CardUse: { } identity } &&
-                target != candidate.OwnerSeat && IsValidPlayerSeat(target) && _players[target].IsAlive &&
+                IsValidPlayerSeat(target) && _players[target].IsAlive &&
                 LifecycleCardUse(identity.ParentCardUseFrameId) is { Action: { } action } use &&
                 action.ActionId == identity.CardActionId && action.ActorSeat == candidate.OwnerSeat &&
                 IsSlashCard(use.CardKind) && action.EffectiveDesignatedTargetSeats.Contains(target) &&
