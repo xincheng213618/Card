@@ -1,0 +1,8 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:yan-xiang",
+ "skills":[
+  {"registrationOrder":46800,"programBundle":"anniversary-yan-xiang","includeProgramPresentation":true,"definition":{"id":"anniversary:yuzheng","name":"谕诤","description":"出牌阶段每个选项各限一次，你可以令一名角色选择一项：1.将手牌数调整至与全场最少角色相同，本轮下X次使用或打出牌后摸两张牌（X为以此法弃置的牌量）；2.摸等同于体力上限张牌（至多为5），本轮增加等量手牌上限，且本轮至多可以再使用等量张牌。","actionForms":"Active","executionForms":"Trigger, State"}},
+  {"registrationOrder":46801,"programBundle":"anniversary-yan-xiang","includeProgramPresentation":true,"definition":{"id":"anniversary:suishi","name":"邃识","description":"一名角色的结束阶段，若其手牌数大于等于体力值，你可以声明一种伤害牌牌名，其可以将一张牌当此牌使用，若此牌造成伤害，受到伤害的角色不能使用与造成伤害的牌颜色相同的牌直到其回合结束。","executionForms":"Trigger, State"}}
+ ],
+ "generals":[{"registrationOrder":46802,"pools":{"current":46802},"definition":{"id":"anniversary:yan-xiang","name":"阎象","portraitKey":"anniversary-yan-xiang","skillId":"anniversary:yuzheng","additionalSkillIds":["anniversary:suishi"],"factionId":"qun","baseHp":3,"gender":"Male","characterId":"character:yan-xiang","variantId":"anniversary","rulesetId":"sanguosha-anniversary"}}]
+}

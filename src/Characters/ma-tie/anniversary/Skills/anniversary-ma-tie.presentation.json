@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:quxian": { "name": "驱险", "description": "回合开始与结束时，你可从牌堆中获得一张【杀】并选择一名其他角色，若其在其他角色的攻击范围内，这些角色可依次对其使用【杀】，每有一名角色使用【杀】你摸一张牌。然后若其未以此法受到伤害，未使用【杀】的角色各失去X点体力（X为以此法使用【杀】的角色数量）。", "triggerLabels": { "turn-start": "回合开始驱险", "turn-ended": "回合结束驱险", "issued-slash-reward": "驱险用杀摸牌" } },
+    "anniversary:zhuiji": { "name": "追击", "description": "锁定技，你对其他角色使用牌结算后，本回合你计算与其距离视为1。", "triggerLabels": { "completed-other-targets": "追击距离" } }
+  }
+}

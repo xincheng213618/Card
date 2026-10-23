@@ -114,6 +114,7 @@ public sealed partial class GameEngine
     private bool CanSupplyAssistedFactionSlash(FactionCardRequestHandle pending, CardKind kind, IReadOnlyList<Card> cards, bool isTrueZhangba = false) =>
         IsRedSlashProviderPaymentLegal(pending,kind,cards,isTrueZhangba) &&
         MouJwFactionSupplyLegal(pending, kind) &&
+        AnniversaryMaTieFactionSupplyLegal(pending, kind) &&
         (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,cards.Select(c=>c.Id).ToArray())) &&
         (!pending.IsAssistedProgramUse || HasRankSlashRange(_players[pending.OwnerSeat],kind) || pending.TargetSeat is { } target &&
         (IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, kind, allowPotentialRank: false, physicalCardIds: cards.Select(c => c.Id).ToArray()) ||
@@ -193,6 +194,7 @@ public sealed partial class GameEngine
         if (ValidateQigongFactionSlashParent(pending,frame)) return;
         if (ValidateCaoChunFactionSlashParent(pending,frame)) return;
         if (ValidateMouJwFactionParent(pending, frame)) return;
+        if (ValidateAnniversaryMaTieFactionParent(pending, frame)) return;
         if (ValidateWuJingFactionParent(pending,frame)) return;
         if (ValidateChanshuangFactionSlashParent(pending,frame)) return;
         if (ValidateSayingFactionSlashParent(pending,frame)) return;

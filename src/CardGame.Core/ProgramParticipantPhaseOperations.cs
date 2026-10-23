@@ -66,7 +66,7 @@ public sealed partial class GameEngine
         if(!_skillRuntimeState.TryConsumeUsage(active.OwnerSeat,active.SkillId,key,SkillUsageScope.Phase,1)) throw new InvalidOperationException("Participant phase usage could not advance.");
         AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(active.OwnerSeat,active.SkillId,key,SkillUsageScope.Phase,1));
     }
-    private bool IsTurnPhysicalUseForbidden(int seat, IReadOnlyList<int> ids) => IsTurnPhysicalUseForbiddenByExistingPolicies(seat, ids) || MouGuquPhysicalUseForbidden(seat, ids) || IsAnniversaryHeYanHandUseForbidden(seat, ids);
+    private bool IsTurnPhysicalUseForbidden(int seat, IReadOnlyList<int> ids) => IsTurnPhysicalUseForbiddenByExistingPolicies(seat, ids) || MouGuquPhysicalUseForbidden(seat, ids) || IsAnniversaryHeYanHandUseForbidden(seat, ids) || IsAnniversaryWuFuHandUseForbidden(seat, ids);
     private bool IsTurnPhysicalUseForbiddenByExistingPolicies(int seat, IReadOnlyList<int> ids) => IsWuZglUseMaterialForbidden(seat, ids) || ids.Any(id => IsProgramEntityPhysicalRestricted(seat, id)) || IsHandCategoryMaterialRestricted(ids) || ids.Count > 0 && CaptureUsedCardSuit(seat, ids, _cardZones.CardsAt(_cardZones.GetLocation(ids[0])).Single(c => c.Id == ids[0])) is { } suit && IsTurnSuitUseForbidden(seat,suit);
     private bool IsTurnSuitUseForbidden(int seat,Suit suit) => IsHappyDiaoChanSuitForbidden(seat,suit) || _turnCardUseEffects.ActionProhibitions.Any(p=>p.TurnNumber==_turnNumber && p.TurnSeat==_currentSeat && p.Source.OwnerSeat==seat && p.Suits?.Contains(suit)==true && p.ActionTypes.Contains(CardActionType.Use));
     private void GrantProgramTurnBoundSuitUseProhibition(ProgramSkillFrame frame,string bind)

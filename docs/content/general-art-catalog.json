@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-wu-fu",
+      "characterName": "伍孚",
+      "defaultSkinId": "1172101",
+      "skins": [
+        {
+          "id": "1172101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1724.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1172101.png",
+          "sha256": "d7ae831c2e1483cdb70a4d9a4c52ed7563a3473b41a16b00056e6e8ea9604fba",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-wu-fu.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-ma-tie",
+      "characterName": "马铁",
+      "defaultSkinId": "1135301",
+      "skins": [
+        {
+          "id": "1135301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1353.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1135301.png",
+          "sha256": "070e326e0289ee6f4b91138838a128c18f00ee451cbe32260eba0d6f567d9c25",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-ma-tie.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-yan-xiang",
+      "characterName": "阎象",
+      "defaultSkinId": "1135401",
+      "skins": [
+        {
+          "id": "1135401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1354.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1135401.png",
+          "sha256": "617eb92a8ffbca9ae62b8fad3adb2010375a915ce6a5fcb31cf1a0eb65ae51c1",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-yan-xiang.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-zhang-huan",
       "characterName": "张奂",
       "defaultSkinId": "1172501",

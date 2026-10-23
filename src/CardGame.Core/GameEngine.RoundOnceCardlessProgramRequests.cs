@@ -21,6 +21,7 @@ public sealed partial class GameEngine
  {
   if(f.InstructionIndex<1||_contentRegistry.Skills.GetValueOrDefault(f.SkillId)?.Program is not {} program||program.GameplayHash!=f.GameplayHash)return false;
   var plan=ProgramInstructionResolver.Default.Resolve(f,program);if(f.InstructionIndex>plan.Instructions.Count||plan.GetPausedInstruction(f.InstructionIndex).Effect.Op!=op)return false;
+  if(op==SkillProgramEffectOp.ResolveAnniversaryMaTieQuxian)return AnniversaryMaTieRequestActor(f,actor);
   if(op==SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply)return TryGetSayingSlashRequest(f,out var sayingActor,out _)&&actor==sayingActor;
   if(op is SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices or SkillProgramEffectOp.ResolveChanshuangEnding)return TryGetChanshuangSlashRequest(f,out var requested,out _)&&actor==requested;
   if(op==SkillProgramEffectOp.UseHejiAtCompletedSingleTarget)return actor==f.OwnerSeat&&IsWuJingHejiRequest(f);
@@ -32,6 +33,7 @@ public sealed partial class GameEngine
  private int[] RoundOnceCardlessProgramTargets(ProgramSkillFrame f,int actor,SkillProgramEffectOp op)
  {
   if(!RoundOnceCardlessProgramActor(f,op,actor))return [];
+  if(op==SkillProgramEffectOp.ResolveAnniversaryMaTieQuxian)return AnniversaryMaTieRequestTargets(f,actor);
   if(op==SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply)return TryGetSayingSlashRequest(f,out _,out var sayingTargets)?sayingTargets.ToArray():[];
   if(op is SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices or SkillProgramEffectOp.ResolveChanshuangEnding)return TryGetChanshuangSlashRequest(f,out _,out var targets)?targets.ToArray():[];
   return op switch
@@ -70,6 +72,7 @@ public sealed partial class GameEngine
   var source=RequireConversionSource(choice);ClearPendingDecision();var payment=ConsumeRoundOnceCardlessBasic(source,false);
   var receipt=new RoundOnceCardlessProgramRequestReceipt(f.Id,new(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId),f.GameplayHash,f.InstructionIndex,effect.Op,actor.Seat,target,effect.ResultBind,prompt.PromptId,prompt.Revision,f.WindowContext?.ParentFrameId,payment);
   ReplaceRuntimeTop(f=f with{RoundOnceCardlessProgramRequest=new(receipt)});AdvanceEventRulesAndQueueFact(new RoundOnceCardlessProgramRequestAcceptedEvent(receipt));
+  PrepareAnniversaryMaTieSuppliedSlash(f,actor.Seat,actor.Seat,target,CardKind.Slash,[],source);
   if(IsSayingSlashRequest(f))PrepareSayingSuppliedSlash(f,actor.Seat,actor.Seat,target,CardKind.Slash,[],source);
   if(IsChanshuangSlashRequest(f))PrepareChanshuangSuppliedSlash(f,actor.Seat,actor.Seat,target,CardKind.Slash,[],source);
   if(effect.Op==SkillProgramEffectOp.RequestSlashByTarget)CommitProgramChoiceResult(f.Id,effect.ResultBind!,RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption,actor.Seat,"卫境：视为使用【杀】。");

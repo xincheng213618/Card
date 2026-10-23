@@ -24,7 +24,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<LegalAction> ChainedStateBasicNativePlayActions(CharacterState actor, CardConversionSource source, CardKind kind)
     {
-        if (!actor.IsAlive || _winner != Winner.None || (_phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) && !IsMouKrLiwenUseQuery(actor) && !IsMouLuSuUseQuery(actor) ||
+        if (!actor.IsAlive || _winner != Winner.None || (_phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) && !(IsMouKrLiwenUseQuery(actor) || IsAnniversaryMaTieSlashQuery(actor)) && !IsMouLuSuUseQuery(actor) ||
             !IsSlashCard(kind) || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) return [];
         var card = new Card(0, kind, Suit.None, 0);
         var targets = GetFangtianOrderedSlashTargets(actor, card, source, effectiveKind: kind);
@@ -37,7 +37,7 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<LegalAction> ChainedStateBasicPlayActions(CharacterState actor)
     {
-        if ((_resolutionStack.Count != 0 || _phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) && !IsMouKrLiwenUseQuery(actor) && !IsMouLuSuUseQuery(actor)) return [];
+        if ((_resolutionStack.Count != 0 || _phase != TurnPhase.Play || _currentSeat != actor.Seat) && !IsKeBiNengPingduanBasicQuery(actor) && !(IsMouKrLiwenUseQuery(actor) || IsAnniversaryMaTieSlashQuery(actor)) && !IsMouLuSuUseQuery(actor)) return [];
         return Array.AsReadOnly(ChainedStateBasicRules(actor).SelectMany(r => ChainedStateBasicNativePlayActions(actor, r.Source, r.Rule.OutputKind)).ToArray());
     }
     private bool TrySubmitChainedStateBasicPlay(PlayCardCommand command, out CommandResult result)
@@ -283,7 +283,7 @@ public sealed partial class GameEngine
         var p = frame.Payment; var actor = _players[p.Source.OwnerSeat];
         if (!actor.IsAlive || _winner != Winner.None || p.ActualTurnNumber != _turnNumber || p.ActualTurnOwnerSeat != _turnProgression.OwnerSeat) return false;
         if (p.Intent == ChainedStateBasicIntent.Play)
-            return (_resolutionStack.Count == 1 || IsKeBiNengPingduanPaymentFrame(frame) || IsMouKrLiwenPaymentFrame(frame) || IsMouLuSuPaymentFrame(frame)) && ChainedStateBasicNativePlayActions(actor, p.Source, p.EffectiveKind).Any(a => a.TargetSeats.SequenceEqual(frame.TargetSeats));
+            return (_resolutionStack.Count == 1 || IsKeBiNengPingduanPaymentFrame(frame) || (IsMouKrLiwenPaymentFrame(frame) || IsAnniversaryMaTiePaymentFrame(frame)) || IsMouLuSuPaymentFrame(frame)) && ChainedStateBasicNativePlayActions(actor, p.Source, p.EffectiveKind).Any(a => a.TargetSeats.SequenceEqual(frame.TargetSeats));
         var request = _resolutionStack.SingleOrDefault(f => f.Id == p.RequestFrameId);
         if (request is null || _resolutionStack.Count < 2 || _resolutionStack[^2].Id != request.Id ||
             ChainedStateBasicContext(frame.OriginalDecision, request) is not { } current || current.Intent != p.Intent || current.ParentFrameId != p.ParentFrameId ||
@@ -300,7 +300,7 @@ public sealed partial class GameEngine
         var p = frame.Payment; AdvanceEventRulesAndQueueFact(new ChainedStateBasicCancelledEvent(p)); ClearPendingDecision(); _status = EngineStatus.Running;
         if (p.ParentFrameId is { } pingduanParent && TryCancelKeBiNengPingduanBasicPayment(pingduanParent)) return;
         if (p.ParentFrameId is { } luSuParent && TryCancelMouLuSuPayment(luSuParent)) return;
-        if (p.ParentFrameId is { } liwenParent && TryCancelMouKrLiwenPayment(liwenParent)) return;
+        if (p.ParentFrameId is { } liwenParent && (TryCancelMouKrLiwenPayment(liwenParent) || TryCancelAnniversaryMaTiePayment(liwenParent))) return;
         if (_winner != Winner.None) return;
         if (p.Intent == ChainedStateBasicIntent.BorrowedSword && ActiveBorrowedSword is { ActiveAttack: null } b && b.ResolutionId == p.ParentFrameId)
         { CompleteBorrowedSwordWithoutSlash(b, transferWeapon: _players[b.WeaponOwnerSeat].IsAlive && _players[b.SlashTargetSeat].IsAlive); return; }
