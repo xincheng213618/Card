@@ -72,7 +72,14 @@ public partial class GeneralGalleryPanel : UserControl
                 !ReferenceEquals(DataContext, viewModel) || !IsVisible || !IsEnabled ||
                 !viewModel.IsGeneralGalleryOpen || viewModel.IsHistoryOpen || viewModel.IsSettingsOpen ||
                 viewModel.HasGeneralGallerySelection != showingDetails) return;
-            if (showingDetails) CloseGeneralDetailsButton.Focus();
+            if (showingDetails)
+            {
+                // Next/previous entries keep the same live detail controls.
+                // Retain their focus so keyboard browsing can continue.
+                if (Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } current &&
+                    current.IsDescendantOf(GeneralDetailsPanel)) return;
+                CloseGeneralDetailsButton.Focus();
+            }
             else if (previous is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } target &&
                      target.IsDescendantOf(GalleryBrowseSurface)) target.Focus();
             else FocusSearch();

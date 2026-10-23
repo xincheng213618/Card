@@ -139,19 +139,48 @@ internal static class PreferencesChecks
         var failure = new FailingPreferencesStore { FailRead = true };
         using var retry = new MainViewModel(false, 721019, true, new MemorySaveStore(), preferencesStore: failure);
         Require(retry.HasPreferencesError, "Read failure was not surfaced.");
-        failure.FailRead = false;
-        retry.RetryPreferencesCommand.Execute(null);
-        Require(!retry.HasPreferencesError && retry.SoundVolume == .3, "Retry did not reread a temporarily inaccessible settings file.");
-        var before = State(retry);
-        failure.FailWrite = true;
-        for (var i = 1; i < 20; i++) retry.SoundVolume = i / 100.0;
-        Require(failure.Writes == 0, "Slider changes caused immediate synchronous file writes.");
-        Pump(650);
-        Require(failure.Writes == 1 && retry.HasPreferencesError && retry.SoundVolume == .19 && State(retry) == before,
-            "Debounced failure interrupted the game or lost the active setting.");
-        failure.FailWrite = false;
-        retry.RetryPreferencesCommand.Execute(null);
-        Require(failure.Writes == 2 && !retry.HasPreferencesError && failure.Value.SoundVolume == .19, "Retry did not save the latest pending value.");
+        var retryWindow = new MainWindow(retry);
+        var retryRoot = (FrameworkElement)retryWindow.Content;
+        try
+        {
+            var before = State(retry);
+            retry.OpenSettingsCommand.Execute(null);
+            Program.Render(retryRoot, 1120, 740, Path.Combine(output, "preferences-read-failure-settings.png"));
+            var errorPanel = retryWindow.FindName("SettingsPreferencesError") as Border;
+            var retryButton = retryWindow.FindName("RetrySettingsPreferencesButton") as Button;
+            Require(errorPanel is { Visibility: Visibility.Visible, ActualHeight: > 0 } &&
+                    retryButton is { IsEnabled: true, ActualWidth: > 0 } &&
+                    ReferenceEquals(retryButton.Command, retry.RetryPreferencesCommand),
+                "Settings errors must expose a visible retry action inside the current settings panel.");
+            failure.FailRead = false;
+            ClickRetry();
+            Require(!retry.HasPreferencesError && retry.SoundVolume == .3 && failure.Writes == 0 &&
+                    errorPanel!.Visibility == Visibility.Collapsed && retry.IsSettingsOpen && State(retry) == before,
+                "The settings retry button must reread a temporary failure without writing or leaving the current panel.");
+            failure.FailWrite = true;
+            for (var i = 1; i < 20; i++) retry.SoundVolume = i / 100.0;
+            Require(failure.Writes == 0, "Slider changes caused immediate synchronous file writes.");
+            Pump(650);
+            Program.Render(retryRoot, 1120, 740, Path.Combine(output, "preferences-write-failure-settings.png"));
+            Require(failure.Writes == 1 && retry.HasPreferencesError && retry.SoundVolume == .19 && State(retry) == before &&
+                    errorPanel!.Visibility == Visibility.Visible && retryButton!.IsEnabled,
+                "A failed debounced save must retain active settings and expose the current panel's retry action.");
+            failure.FailWrite = false;
+            ClickRetry();
+            Require(failure.Writes == 2 && !retry.HasPreferencesError && failure.Value.SoundVolume == .19 &&
+                    retry.SoundVolume == .19 && errorPanel!.Visibility == Visibility.Collapsed &&
+                    retry.IsSettingsOpen && State(retry) == before,
+                "Retry must save the latest active value and clear the error without changing the match or closing settings.");
+
+            void ClickRetry()
+            {
+                typeof(System.Windows.Controls.Primitives.ButtonBase).GetMethod("OnClick",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                    .Invoke(retryButton, null);
+                retryRoot.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            }
+        }
+        finally { retryWindow.Content = null; retryWindow.Close(); }
         Console.WriteLine("  Device settings: startup-only persistence, one-time save migration, mute retention, tutorial return, corrupt backup and debounced retry verified.");
     }
 

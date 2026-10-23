@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
+using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
 using CardGame.Wpf.Persistence;
@@ -16,7 +17,9 @@ internal static class TableShortcutChecks
     public static void SinglePressActions()
     {
         var store = new MemorySaveStore();
-        using var model = new MainViewModel(false, 1, false, store) { IsMotionEnabled = false };
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardTeamModePackage(),
+            new GeneralGalleryFocusChecks.GalleryFixture());
+        using var model = new MainViewModel(false, 1, false, store, contentRegistry: registry) { IsMotionEnabled = false };
         model.SelectedStartingRole = new StartingRoleOption("fixture", Role.Lord, string.Empty);
         model.StartNewGameCommand.Execute(null);
         var window = new MainWindow(model);
@@ -74,6 +77,7 @@ internal static class TableShortcutChecks
                     "A modal overlay consumed repeatable text digits or changed the hidden hand.");
                 close();
             }
+            VerifyGalleryMute(card);
             model.ClearSelectionCommand.Execute(null);
             var equip = engine.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Equip);
             var equipment = model.Hand.Single(item => item.Id == equip.CardId);
@@ -89,6 +93,51 @@ internal static class TableShortcutChecks
         {
             window.Content = null;
             window.Close();
+        }
+
+        void VerifyGalleryMute(CardViewModel selectedCard)
+        {
+            var engine = Program.Engine(model);
+            var views = Enumerable.Range(0, engine.CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(engine.CreateSnapshot(seat))).ToArray();
+            var commands = CommandJson.Serialize(engine.AcceptedCommands);
+            var originalSound = model.IsSoundEnabled;
+            var originalSearch = model.GeneralGallerySearchText;
+            try
+            {
+                model.OpenGeneralGalleryCommand.Execute(null);
+                var entry = model.GeneralGalleryEntries.First();
+                model.GeneralGallerySearchText = entry.Name;
+                foreach (var details in new[] { false, true })
+                {
+                    if (details) model.SelectGeneralGalleryEntryCommand.Execute(entry);
+                    var selected = model.SelectedGeneralGalleryEntry;
+                    Program.Assert(model.IsGeneralGalleryOpen && model.HasGeneralGallerySelection == details &&
+                                   !Input(window, Key.Enter) && ReferenceEquals(model.SelectedGeneralGalleryEntry, selected),
+                        "Gallery Enter must remain owned by its focused control before testing mute in browse and detail views.");
+                    Program.Assert(Input(window, Key.M, ModifierKeys.Control) && model.IsSoundEnabled != originalSound &&
+                                   Input(window, Key.M, ModifierKeys.Control, true) && model.IsSoundEnabled != originalSound &&
+                                   Input(window, Key.M, ModifierKeys.Control) && model.IsSoundEnabled == originalSound,
+                        "Gallery browse and details must support Ctrl+M while a held shortcut toggles sound only once.");
+                    Program.Assert(model.IsGeneralGalleryOpen && model.HasGeneralGallerySelection == details &&
+                                   ReferenceEquals(model.SelectedGeneralGalleryEntry, selected) &&
+                                   model.GeneralGallerySearchText == entry.Name && selectedCard.IsSelected &&
+                                   ReferenceEquals(Program.Engine(model), engine) &&
+                                   CommandJson.Serialize(engine.AcceptedCommands) == commands &&
+                                   Enumerable.Range(0, views.Length).All(seat => SnapshotJson.Serialize(engine.CreateSnapshot(seat)) == views[seat]),
+                        "Gallery mute must preserve its search draft, selected details, hidden hand draft, every player view and accepted journal.");
+                }
+                Program.Assert(Input(window, Key.Escape) && model.IsGeneralGalleryOpen && !model.HasGeneralGallerySelection &&
+                               Input(window, Key.Escape, repeat: true) && model.IsGeneralGalleryOpen &&
+                               Input(window, Key.Escape) && !model.IsGeneralGalleryOpen,
+                    "Mute shortcuts must retain the gallery's separate detail and browse Escape layers.");
+            }
+            finally
+            {
+                model.IsGeneralGalleryOpen = false;
+                model.GeneralGallerySearchText = originalSearch;
+                model.IsSoundEnabled = originalSound;
+            }
         }
 
         void VerifyRejectedTutorialEndTurn()

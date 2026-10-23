@@ -751,12 +751,12 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             back.Inflate(-5, -5);
             dc.DrawRoundedRectangle(null, new Pen(Gold, .8), back, 2, 2);
             var ornament = new StreamGeometry();
-            using (var path = ornament.Open())
+            using (var ornamentContext = ornament.Open())
             {
-                path.BeginFigure(point + new Vector(0, -12), false, true);
-                path.LineTo(point + new Vector(9, 0), true, false);
-                path.LineTo(point + new Vector(0, 12), true, false);
-                path.LineTo(point + new Vector(-9, 0), true, false);
+                ornamentContext.BeginFigure(point + new Vector(0, -12), false, true);
+                ornamentContext.LineTo(point + new Vector(9, 0), true, false);
+                ornamentContext.LineTo(point + new Vector(0, 12), true, false);
+                ornamentContext.LineTo(point + new Vector(-9, 0), true, false);
             }
             ornament.Freeze();
             dc.DrawGeometry(null, new Pen(Gold, 1), ornament);

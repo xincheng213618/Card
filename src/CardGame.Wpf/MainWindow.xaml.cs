@@ -557,7 +557,7 @@ public partial class MainWindow : Window
             }
             return key != Key.Tab;
         }
-        if (ReferenceEquals(surface, GeneralGalleryOverlay))
+        if (ReferenceEquals(surface, GeneralGalleryOverlay) && !(key == Key.M && modifiers == ModifierKeys.Control))
         {
             if (key != Key.Escape) return false;
             if (viewModel.HasGeneralGallerySelection) viewModel.CloseGeneralGalleryDetailsCommand.Execute(null);

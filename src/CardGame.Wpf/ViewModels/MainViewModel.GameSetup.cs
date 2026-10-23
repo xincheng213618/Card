@@ -11,6 +11,7 @@ public sealed partial class MainViewModel
     private bool _isModeConfigurationOpen;
     private TableModeGroupOption? _selectedModeGroup;
     private readonly Dictionary<string, TableModeOption> _configuredModeVariants = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, StartingTeamOption> _configuredStartingTeams = new(StringComparer.Ordinal);
     private bool _isIdentityRevealOpen;
     private bool _manualDiscardEnabled = true;
     private StartingRoleOption _selectedStartingRole = new("随机身份", null, "开局随机分配身份");
@@ -39,7 +40,11 @@ public sealed partial class MainViewModel
         {
             if (!SetProperty(ref _isModeConfigurationOpen, value)) return;
             if (value && SelectedModeGroup is { } group)
+            {
                 _configuredModeVariants[group.Id] = SelectedTableMode;
+                if (IsTeamModeSelection && StartingTeams.Contains(SelectedStartingTeam))
+                    _configuredStartingTeams[group.Id] = SelectedStartingTeam;
+            }
             RaisePropertyChanged(nameof(IsModeSelectionOpen));
             RaisePropertyChanged(nameof(LobbySetupBackText));
         }
@@ -72,6 +77,8 @@ public sealed partial class MainViewModel
         set
         {
             if (value is null || !SetProperty(ref _selectedStartingTeam, value)) return;
+            if (IsModeConfigurationOpen && IsTeamModeSelection && SelectedModeGroup is { } group && StartingTeams.Contains(value))
+                _configuredStartingTeams[group.Id] = value;
             RaisePropertyChanged(nameof(TeamModeSetupText));
             RefreshPlayerGuide();
         }
@@ -351,9 +358,14 @@ public sealed partial class MainViewModel
         OpenModeConfigurationCommand = new RelayCommand<TableModeGroupOption>(group =>
         {
             if (group is null || !VisibleModeGroups.Contains(group)) return;
+            _configuredStartingTeams.TryGetValue(group.Id, out var rememberedTeam);
             if (_configuredModeVariants.TryGetValue(group.Id, out var remembered) && group.Variants.Contains(remembered))
                 SelectedTableMode = remembered;
             else if (!group.Variants.Contains(SelectedTableMode)) SelectedTableMode = group.Variants[0];
+            // Browsing other categories can change the available teams. Restore only
+            // a still-legal choice from this group's configuration in this UI session.
+            if (rememberedTeam is not null && StartingTeams.Contains(rememberedTeam))
+                SelectedStartingTeam = rememberedTeam;
             IsModeConfigurationOpen = true;
         });
         BackInLobbySetupCommand = new RelayCommand(() =>

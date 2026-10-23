@@ -326,12 +326,17 @@ internal static class ModalFocusChecks
             var escapeCommands = CommandJson.Serialize(escapeGame.AcceptedCommands);
             var escapeRevision = escapeGame.Revision;
             var escapeEntry = model.GeneralGalleryEntries.First();
-            model.SelectGeneralGalleryEntryCommand.Execute(escapeEntry);
-            Pump(window);
             var gallery = (FrameworkElement)window.FindName("GeneralGallery");
+            var browseButton = Program.Find<Button>(gallery).Single(button =>
+                ReferenceEquals(button.Command, model.SelectGeneralGalleryEntryCommand) &&
+                ReferenceEquals(button.CommandParameter, escapeEntry));
+            browseButton.Focus();
+            RouteGalleryEnter(browseButton);
+            Pump(window);
             var detailsClose = (Button)gallery.FindName("CloseGeneralDetailsButton");
             Program.Assert(model.HasGeneralGallerySelection && ReferenceEquals(Keyboard.FocusedElement, detailsClose),
-                "The modified Escape fixture must start on the actual gallery detail control.");
+                "Opening the actual gallery card must focus its detail close action instead of retaining the disabled browse card.");
+            VerifyGalleryDetailsNavigation();
             model.OpenHistoryCommand.Execute(null);
             Pump(window);
             RequireFocusWithin("HistoryOverlay", "History did not take focus above the retained gallery.");
@@ -366,6 +371,56 @@ internal static class ModalFocusChecks
             bool SameEscapeBoundary() => ReferenceEquals(Program.Engine(model), escapeGame) && escapeGame.Revision == escapeRevision &&
                 CommandJson.Serialize(escapeGame.AcceptedCommands) == escapeCommands &&
                 Enumerable.Range(0, escapeViews.Length).All(seat => SnapshotJson.Serialize(escapeGame.CreateSnapshot(seat)) == escapeViews[seat]);
+
+            void VerifyGalleryDetailsNavigation()
+            {
+                var entries = model.GeneralGalleryEntries.ToArray();
+                Program.Assert(entries.Length >= 2, "Continuous gallery navigation needs two distinct real catalogue entries.");
+                var next = Program.Find<Button>(gallery).Single(button => ReferenceEquals(button.Command, model.NextGeneralDetailsCommand));
+                var previous = Program.Find<Button>(gallery).Single(button => ReferenceEquals(button.Command, model.PreviousGeneralDetailsCommand));
+                next.Focus();
+                for (var index = 1; index <= 2; index++)
+                {
+                    RouteGalleryEnter(next);
+                    Pump(window);
+                    Program.Assert(ReferenceEquals(model.SelectedGeneralGalleryEntry, entries[index % entries.Length]) &&
+                        ReferenceEquals(Keyboard.FocusedElement, next) && SameEscapeBoundary(),
+                        "Each fresh Enter on Next must advance exactly one catalogue entry and retain its real button's focus.");
+                }
+                RouteGalleryEnter(next, repeat: true);
+                Pump(window);
+                Program.Assert(ReferenceEquals(model.SelectedGeneralGalleryEntry, entries[2 % entries.Length]) &&
+                    ReferenceEquals(Keyboard.FocusedElement, next) && SameEscapeBoundary(),
+                    "Holding Enter must not skip another general or move focus from Next.");
+                previous.Focus();
+                for (var index = 1; index >= 0; index--)
+                {
+                    RouteGalleryEnter(previous);
+                    Pump(window);
+                    Program.Assert(ReferenceEquals(model.SelectedGeneralGalleryEntry, entries[index]) &&
+                        ReferenceEquals(Keyboard.FocusedElement, previous) && SameEscapeBoundary(),
+                        "Each fresh Enter on Previous must move back exactly one entry and retain its real button's focus.");
+                }
+                model.NextGeneralDetailsCommand.Execute(null);
+                window.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+                previous.Focus();
+                Pump(window);
+                Program.Assert(ReferenceEquals(model.SelectedGeneralGalleryEntry, entries[1]) &&
+                    ReferenceEquals(Keyboard.FocusedElement, previous),
+                    "A queued detail callback must retain another live detail action the user reached before it ran.");
+                RouteGalleryEnter(previous);
+                Pump(window);
+                detailsClose.Focus();
+                RouteGalleryEnter(detailsClose);
+                Pump(window);
+                Program.Assert(!model.HasGeneralGallerySelection && ReferenceEquals(Keyboard.FocusedElement, browseButton) && SameEscapeBoundary(),
+                    "Closing details after keyboard navigation must return to the original live catalogue card without changing the match.");
+                RouteGalleryEnter(browseButton);
+                Pump(window);
+                Program.Assert(ReferenceEquals(model.SelectedGeneralGalleryEntry, escapeEntry) &&
+                    ReferenceEquals(Keyboard.FocusedElement, detailsClose) && SameEscapeBoundary(),
+                    "Reopening the original card must focus the detail action while preserving the original player-safe boundary.");
+            }
 
             model.OpenSettingsCommand.Execute(null);
             Pump(window);
@@ -482,6 +537,29 @@ internal static class ModalFocusChecks
         void ResetFocus()
         {
             latestFocus = null;
+        }
+
+        void RouteGalleryEnter(Button target, bool repeat = false)
+        {
+            Program.Assert(ReferenceEquals(Keyboard.FocusedElement, target) && target.IsVisible && target.IsEnabled &&
+                GetFocus() == new WindowInteropHelper(window).Handle,
+                "Gallery Enter must route from its actual focused enabled button in the hidden native Window.");
+            TableShortcutChecks.WithModifiers(ModifierKeys.None, () =>
+            {
+                var input = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(target)!, 0, Key.Enter)
+                    { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+                OpeningCustomizationUiChecks.SetKeyRepeat(input, repeat);
+                target.RaiseEvent(input);
+                var previewHandled = input.Handled;
+                if (!previewHandled)
+                {
+                    input.RoutedEvent = Keyboard.KeyDownEvent;
+                    target.RaiseEvent(input);
+                }
+                Program.Assert(input.Handled && previewHandled == repeat,
+                    "Fresh gallery Enter belongs to the native button; held Enter must stop in the Window preview route.");
+                return true;
+            });
         }
 
         void VerifyGuideSelectorEscape()

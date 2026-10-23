@@ -70,6 +70,14 @@ internal static class ModeSelectionChecks
             Program.Assert(vm.SelectedTableMode == hardest, "Reopening the same mode lost its chosen difficulty.");
             vm.BackInLobbySetupCommand.Execute(null);
         }
+        var jiangeGroup = testedGroups.Single(group => group.Name == "剑阁决战");
+        vm.OpenModeConfigurationCommand.Execute(jiangeGroup);
+        Program.Render(root, 1120, 740, null);
+        var teams = (ListBox)window.FindName("TeamChoices");
+        var wei = vm.StartingTeams.Single(team => team.TeamId == "team:wei");
+        teams.SetCurrentValue(Selector.SelectedItemProperty, wei);
+        teams.GetBindingExpression(Selector.SelectedItemProperty)!.UpdateSource();
+        Program.Assert(vm.SelectedStartingTeam == wei, "Choosing the activity team did not update the configured side.");
         var rememberedGroup = testedGroups.First(group => group.Variants.Count > 1);
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "identity");
         vm.SelectedModeCategory = vm.ModeCategories.Single(category => category.Id == "activity");
@@ -78,6 +86,12 @@ internal static class ModeSelectionChecks
         Program.Assert(vm.SelectedTableMode == rememberedGroup.Variants[^1] &&
                        Equals(choices.SelectedItem, vm.SelectedTableMode),
             "Returning to an activity after browsing another category lost its chosen difficulty.");
+        vm.BackInLobbySetupCommand.Execute(null);
+        vm.OpenModeConfigurationCommand.Execute(jiangeGroup);
+        teams.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+        Program.Assert(vm.SelectedStartingTeam == wei && Equals(teams.SelectedItem, wei) &&
+                       vm.StartingTeams.Contains(vm.SelectedStartingTeam) && vm.TeamModeSetupText.Contains(wei.Name, StringComparison.Ordinal),
+            "Returning to an activity after browsing identity modes lost the configured team or its selected visual state.");
         vm.BackInLobbySetupCommand.Execute(null);
         Program.Assert(Program.Engine(vm).Revision == revision, "Browsing mode and difficulty choices changed the suspended match.");
         shortcut.Invoke(window, [Key.Escape, ModifierKeys.None]);

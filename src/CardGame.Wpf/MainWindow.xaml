@@ -1521,6 +1521,13 @@
                     </DockPanel>
                     <ScrollViewer x:Name="SettingsContentScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False" Margin="0,22,0,0" Padding="0,0,8,4" AutomationProperties.Name="游戏设置内容">
                       <StackPanel x:Name="SettingsContentHost">
+                        <Border x:Name="SettingsPreferencesError" Background="#382B22" BorderBrush="#A57D4D" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,12" Visibility="{Binding HasPreferencesError, Converter={StaticResource BoolToVisibility}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding PreferencesStatus}" Foreground="#F0D0A8" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,14,0" />
+                                <Button x:Name="RetrySettingsPreferencesButton" Grid.Column="1" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Style="{StaticResource ToolbarButton}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="重试读取或保存本机设置" />
+                            </Grid>
+                        </Border>
                     <Border Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18">
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
