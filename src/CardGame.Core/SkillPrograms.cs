@@ -570,6 +570,8 @@ public enum SkillProgramEffectOp
     ResolveMobileShiFujiGift = 63300,
     ResolveMobileShiFujiUseEffects = 63301,
     ResolveMobileShiFujiDodgeDraw = 63302,
+    ResolveMobileShiDuzuoGrant = 63310,
+    ResolveMobileShiBihanGuard = 63311,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,
