@@ -66,10 +66,15 @@ internal sealed partial class MoCaoCaoBachaoRuntime(IMoCaoCaoFacts facts, IMoCao
         var choices = Choices(f); var chooser = Chooser(f);
         if (choices.Count == 0) { Complete(f); return; }
         frames.ReplaceTop(f = f with { Step = ResolutionFrameStep.AwaitingResponse });
+        var skill = facts.Skill(f.SkillId);
         prompts.Set(new PendingDecision(DecisionKind.ProgramTrigger, chooser,
             f.MoCaoCaoBaibi is not null ? "百辟刀：可以获得目标的一张手牌。" : f.MoCaoCaoBachao!.Stage == MoCaoCaoBachaoStage.Commit ? "霸朝：分别密选；全部提交后再结算交牌。" : "霸朝：选择伤害对象，或不造成伤害。",
             choices.SelectMany(c => c.Cards).Distinct().ToArray(), choices.SelectMany(c => c.Targets).Distinct().ToArray(), f.OwnerSeat)
-        { PromptId = prompts.NextId(), IsPrivate = true, TargetSeat = chooser, Choices = Array.AsReadOnly(choices.ToArray()) }, facts.Participant(chooser).Human);
+        {
+            PromptId = prompts.NextId(), IsPrivate = true, TargetSeat = chooser,
+            SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description),
+            Choices = Array.AsReadOnly(choices.ToArray())
+        }, facts.Participant(chooser).Human);
         operations.PublishState();
     }
     [ProgramAnswer(Action)]

@@ -42,7 +42,7 @@ public sealed partial class GameEngine
         {
             if (target.Seat != owner && !IsForeignEquipmentDiscardPrevented(owner, card,
                     CardLocation.Equipment(target.Seat), OwnedCardMoveIntent.Discard)) yield return (card, target.Seat, false);
-            if (EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Armor) yield return (card, target.Seat, true);
+            if (FieldEquipmentSlot(card) == EquipmentSlot.Armor) yield return (card, target.Seat, true);
         }
     }
     private SkillProgramStepOutcome BeginPhaseStartCardControl(ProgramSkillFrame supplied, PhaseStartCardControlKind kind, string? grantedSkill)

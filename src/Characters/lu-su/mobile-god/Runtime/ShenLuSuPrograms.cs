@@ -68,9 +68,9 @@ internal static class ShenLuSuComposition
         static bool Exact(IReadOnlyList<SkillProgramEffect> es,SkillProgramEffectOp op)=>es is [{Target:SkillProgramEffectTarget.Owner,Condition.Kind:SkillProgramConditionKind.Always}e]&&e.Op==op;
         bool valid=p.Id switch
         {
-            Tamo=>p.Activations.Count==0&&p.Triggers is [{Id:"redistribute-seats",Window:SkillProgramTriggerWindow.GameStarting,Subject:SkillProgramTriggerSubject.Owner,Optional:true}t]&&Exact(t.Effects,SkillProgramEffectOp.ResolveShenLuSuTamo),
+            Tamo or "happy:tamo"=>p.Activations.Count==0&&p.Triggers is [{Id:"redistribute-seats",Window:SkillProgramTriggerWindow.GameStarting,Subject:SkillProgramTriggerSubject.Owner,Optional:true}t]&&Exact(t.Effects,SkillProgramEffectOp.ResolveShenLuSuTamo),
             Dingzhou=>p.Triggers.Count==0&&p.Activations is [{Id:"give-and-obtain",MinCards:0,MaxCards:0,MinTargets:1,MaxTargets:1,TargetKind:SkillProgramTargetKind.OtherLiving,UsesPerTurn:null,UsesPerPhase:1,UsesPerGame:null}a]&&Exact(a.Effects,SkillProgramEffectOp.ResolveShenLuSuDingzhou),
-            Zhimeng=>p.Activations.Count==0&&p.Triggers is [{Id:"divide-hands",Window:SkillProgramTriggerWindow.AfterTurnEnded,Subject:SkillProgramTriggerSubject.Owner,TurnOwnerScope:SkillProgramTurnOwnerScope.Own,Optional:true}t]&&Exact(t.Effects,SkillProgramEffectOp.ResolveShenLuSuZhimeng),
+            Zhimeng or "happy:zhimeng"=>p.Activations.Count==0&&p.Triggers is [{Id:"divide-hands",Window:SkillProgramTriggerWindow.AfterTurnEnded,Subject:SkillProgramTriggerSubject.Owner,TurnOwnerScope:SkillProgramTurnOwnerScope.Own,Optional:true}t]&&Exact(t.Effects,SkillProgramEffectOp.ResolveShenLuSuZhimeng),
             _=>false
         };
         if(!valid||p.CardPolicies.Count!=0||p.Modifiers.Count!=0||p.ViewAs.Count!=0||p.CardIdentities.Count!=0||p.BooleanStates.Count!=0||

@@ -88,11 +88,20 @@ public sealed partial class GameEngine
         if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount));
         if (amount == 0) return SkillProgramStepOutcome.Continue;
         if (TryBeginIdentityAppearanceForProgramHpLoss(frameId, skillId, targetSeat, amount)) return SkillProgramStepOutcome.AwaitChild;
+        long? completedCardUseResolutionId = _resolutionStack.OfType<ProgramSkillFrame>()
+            .SingleOrDefault(frame => frame.Id == frameId)?.WindowContext is
+                { Window: SkillProgramTriggerWindow.CardUseCompleted, CardUse: { } context } &&
+            LifecycleCardUse(context.ParentCardUseFrameId) is
+                { Step: ResolutionFrameStep.Completed, Action: { Type: CardActionType.Use } action } use &&
+            action.ActionId == context.CardActionId ? use.Id : null;
         var target = _players[targetSeat]; var before = target.Hp;
         var lost = amount;
         target.Hp = checked(target.Hp - amount);
         RecordHpChange(frameId, null, targetSeat, before, target.Hp, HpChangeKind.Loss);
-        AdvanceEventRulesAndQueueFact(new ProgramSkillHpLostEvent(frameId, skillId, targetSeat, lost, target.Hp));
+        AdvanceEventRulesAndQueueFact(new ProgramSkillHpLostEvent(frameId, skillId, targetSeat, lost, target.Hp)
+        {
+            CompletedCardUseResolutionId = completedCardUseResolutionId
+        });
         afterPayment?.Invoke(before, target.Hp, lost);
         if (target.Hp > 0) return SkillProgramStepOutcome.Continue;
         BeginProgramSkillDying(frameId, target); return SkillProgramStepOutcome.AwaitChild;

@@ -310,7 +310,7 @@ public sealed partial class GameEngine
         if (Wants(CardKind.Snatch))
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
-                     (HasWuHfOrDixianMaterialPrivilege(source, CardKind.Snatch, physicalCardIds, conversionSource) || HasWuHfOrWuyouMaterialPrivilege(source, CardKind.Snatch, physicalCardIds) || SiruiIgnoresTrickDistance(source, conversionSource, physicalCardIds) || HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch, physicalCardIds: physicalCardIds) ||
+                     (HasWuHfOrDixianMaterialPrivilege(source, CardKind.Snatch, physicalCardIds, conversionSource) || HasWuHfOrWuyouMaterialPrivilege(source, CardKind.Snatch, physicalCardIds) || SiruiIgnoresTrickDistance(source, conversionSource, physicalCardIds) || IsAnniversaryChouxiSource(source, conversionSource) || HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch, physicalCardIds: physicalCardIds) ||
                       HasProvenanceUseDistance(source, physicalCardIds) || HasCardPolicy(source, SkillProgramCardPolicyKind.IgnoreUseDistance,
                           CardKind.Snatch) ||
                       GetCombatDistance(source.Seat, player.Seat) == 1) &&

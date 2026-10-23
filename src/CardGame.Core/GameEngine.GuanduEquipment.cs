@@ -50,7 +50,7 @@ public sealed partial class GameEngine
         RunGuanduGeneral(f.Id);
     }
     private Card[] GuanduChariotDiscardable(int actor, int target) => GetEquipment(_players[target])
-        .Where(c => EquipmentCatalog.Get(c.Kind).Slot is EquipmentSlot.Armor or EquipmentSlot.DefensiveHorse)
+        .Where(c => FieldEquipmentSlot(c) is EquipmentSlot.Armor or EquipmentSlot.DefensiveHorse)
         .Where(c => !IsForeignEquipmentDiscardPrevented(actor, c, CardLocation.Equipment(target), OwnedCardMoveIntent.Discard)).ToArray();
     private void ContinueGuanduThunderChariot(ProgramSkillFrame f)
     {

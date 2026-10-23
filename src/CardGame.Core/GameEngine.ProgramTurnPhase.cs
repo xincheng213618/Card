@@ -80,7 +80,8 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;
-        var nativeWindows = instruction.UseCardActionWindows || HasCommittedSlashFireCapability(source);
+        var nativeWindows = instruction.UseCardActionWindows || HasCommittedSlashFireCapability(source) ||
+            HasHappyLuBuWuqianCapability(source) || HasAnniversaryLeJiuUseObserver(source);
         var action = nativeWindows || HasMouHuangYueyingBingcaiCapability || HasZhouQunCapability || HasKongShuCapability || HasMaChengCapability || HasCuiYanCapability || HasLiYiCapability || HasLeCaiWenJiBeifenCapability || HasLiuYanCapability || TracksNativeLogicalDiscards || TracksAlternateActualUseColor || HasSoleTargetProtectionParticipant || phaseControlParticipant || HasSunHaoCanshiCapability
             ? CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
                 CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [],

@@ -130,8 +130,8 @@ public sealed partial class GameEngine
         var equipment = GetAdvancedCard(cardId);
         if (equipment.IsGeneralWeapon || !CanPlaceOwnedEquipment(f.OwnerSeat, recipient, equipment, source))
             throw new InvalidOperationException("The chosen equipment cannot actually enter this recipient's slot.");
-        var slot = EquipmentCatalog.Get(equipment.Kind).Slot;
-        var equipped = GetEquipment(_players[recipient]).Where(c => EquipmentCatalog.Get(c.Kind).Slot == slot).ToArray();
+        var slot = FieldEquipmentSlot(equipment);
+        var equipped = GetEquipment(_players[recipient]).Where(c => FieldEquipmentSlot(c) == slot).ToArray();
         var replaced = equipped.Length >= _players[recipient].EquipmentSlotCapacity(slot) ? equipped[0] : null;
         var seq = _movementSequence;
         ReplaceRuntimeTop(f with { PendingMovementContinuation = new(f.OwnerSeat, 0, null) });

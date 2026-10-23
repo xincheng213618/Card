@@ -111,10 +111,12 @@ public sealed partial class GameEngine
 
     private void ContinueSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
+        if (ContinueHappyWeiYanIneffectiveSimple(frameId, continuation)) return;
         if (ContinueMouCyIneffectiveSimple(frameId, continuation)) return;
         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
         if (TryBeginCaoChunSimpleDebt(frameId, continuation)) return;
         if (TryBeginSimpleBeforeTargetPrograms(frameId, continuation)) return;
+        if (ContinueAnniversaryHzIneffectiveSimple(frameId, continuation)) return;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         if (ContinueGuanduIntoxicationUse(frameId, continuation)) return;
         if (ContinueDyingSuitsPeach(frameId, continuation)) return;

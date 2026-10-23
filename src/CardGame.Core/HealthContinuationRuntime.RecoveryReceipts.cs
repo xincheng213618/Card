@@ -9,7 +9,8 @@ internal sealed partial class HealthContinuationRuntime
             TypedRecoveryPausedEffect(owner) is null)
             throw new InvalidOperationException("Program recovery request lost its exact instruction owner.");
         events.AdvanceFact(new ProgramRecoveryRequestedEvent(owner.Id, owner.InstructionIndex,
-            owner.GameplayHash, attempt.Id, attempt.SourceSeat, attempt.TargetSeat, attempt.Amount, attempt.HpBefore));
+            owner.GameplayHash, attempt.Id, attempt.SourceSeat, attempt.TargetSeat, attempt.Amount, attempt.HpBefore)
+        { HappyQiaoBefore = attempt.HappyQiaoBefore });
     }
 
     internal bool ProgramRecoveryReplacementReceiptMatches(ProgramSkillFrame owner, RecoveryReplacementFrame recovery,
@@ -22,10 +23,12 @@ internal sealed partial class HealthContinuationRuntime
               recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement && owner.PendingMovementContinuation is not null) ||
             attempt.Completion != new RecoveryAttemptCompletion(RecoveryAttemptProducer.Program, owner.InstructionIndex) ||
             TypedRecoveryPausedEffect(owner) is null || attempt.Amount <= 0 ||
+            (attempt.HpBefore is null) != (attempt.HappyQiaoBefore is not null) ||
             !facts.IsValidPlayerSeat(attempt.SourceSeat) || !facts.IsValidPlayerSeat(attempt.TargetSeat) ||
             !TypedRecoveryApplicationBoundsMatch(recovery, history)) return false;
         var issued = new ProgramRecoveryRequestedEvent(owner.Id, owner.InstructionIndex, owner.GameplayHash,
-            attempt.Id, attempt.SourceSeat, attempt.TargetSeat, attempt.Amount, attempt.HpBefore);
+            attempt.Id, attempt.SourceSeat, attempt.TargetSeat, attempt.Amount, attempt.HpBefore)
+        { HappyQiaoBefore = attempt.HappyQiaoBefore };
         return history.OfType<ProgramRecoveryRequestedEvent>().Count(e => e == issued) == 1;
     }
 

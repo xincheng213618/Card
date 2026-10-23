@@ -161,6 +161,7 @@ public sealed partial class GameEngine
             (result.SourceWon ? "发起者获胜。" : "发起者未赢。"), source.Seat, opponent.Seat);
         frame = frame with { Result = result };
         ReplaceRuntimeTop(frame);
+        if (TryBeginMobileZhitiPindianPrograms(frame)) return;
         if (!BeginPindianClaims(frame)) CompletePindian((PindianFrame)_resolutionStack[^1]);
     }
 
@@ -228,6 +229,7 @@ public sealed partial class GameEngine
         var frames = _resolutionStack.OfType<PindianFrame>().ToArray();
         foreach (var owned in frames) AssertOwnedPilePindianSource(owned);
         if (frames.Length == 0) return;
+        if (frames.Length == 1 && IsMobileZhitiContestSubtree(frames[0])) return;
         if (frames.Length == 1 && IsWuLuKangPairSubtree(frames[0])) { AssertWuLuKangWindows(); AssertWuLuKangPairProcessing(frames[0]); return; }
         if (frames.Length == 1 && IsDouyuPairSubtree(frames[0])) { AssertDouyuWindows(); AssertDouyuPairSubtreeProcessing(frames[0]); return; }
         if (frames.Length == 1 && IsPairPindianRevealSubtree(frames[0])) { AssertPindianRevealWindows(); return; }

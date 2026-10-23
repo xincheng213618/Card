@@ -184,7 +184,7 @@ internal static class ProgramCompositionValidator
                     !choiceTargetSelections.Values.Any(producer => ImpliesChoiceBranch(effect.Condition, producer.Condition)))
                     Fail("conditional selectedTarget requires its matching choice branch");
                 if (hpPairProduced && resource is SelectSingleTarget or ReplaceSingleTarget or SelectTargetSet or
-                    NarrowTargetSetToSingle or ConsumeTargetSet or ReleaseTargetSet)
+                    ReplaceSingleTargetWithSet or NarrowTargetSetToSingle or ConsumeTargetSet or ReleaseTargetSet)
                     Fail("A frozen HP pair cannot rebuild its selected participants.");
                 if (hpPairProduced && effect.Op == SkillProgramEffectOp.InsertPhase)
                     Fail("A frozen HP pair cannot cross an independent inserted phase.");
@@ -584,6 +584,11 @@ internal static class ProgramCompositionValidator
                             break; // The activation's own single target selection satisfies a one-target read.
                         var minimum = selection?.MinimumTargets ?? initialTargetSetCount;
                         var maximum = selection?.MaximumTargets ?? initialTargetSetMaximum;
+                        if (read.AllowEmptyChainedDraw && minimum == 0 &&
+                            (index == 0 || !ReferenceEquals(selection, effects[index - 1]) || selection is not
+                                { Op: SkillProgramEffectOp.SelectTargets, TargetKind: SkillProgramTargetKind.AnyLivingChained,
+                                    MinimumTargets: 0, ReplaceSelection: true }))
+                            Fail("an empty selected-target draw requires its immediately preceding committed chained replacement selection");
                         if (!targetSetAvailable || minimum < read.Minimum ||
                             read.Maximum is { } exactMaximum && maximum > exactMaximum)
                             Fail("the required selected target set must be produced before it is read");
@@ -679,6 +684,20 @@ internal static class ProgramCompositionValidator
                         if (selectedTarget || targetSetAvailable || choiceTargetSelections.Count > 0)
                             Fail("a composition may select its targets only once");
                         targetSetAvailable = true;
+                        break;
+                    case ReplaceSingleTargetWithSet:
+                        if (!selectedTarget || targetSetAvailable || hpPairProduced ||
+                            choiceTargetSelections.Count != 0 || choiceResults.Count != 0 ||
+                            effects.Take(index).Any(item => item.Condition.Kind != SkillProgramConditionKind.Always) ||
+                            index == 0 || effects[index - 1] is not
+                                { Op: SkillProgramEffectOp.SetChainedState, Target: SkillProgramEffectTarget.SelectedTarget,
+                                    Chained: true, Condition.Kind: SkillProgramConditionKind.Always } ||
+                            effect is not { Op: SkillProgramEffectOp.SelectTargets, TargetKind: SkillProgramTargetKind.AnyLivingChained,
+                                MinimumTargets: 0, ReplaceSelection: true })
+                            Fail("a chained replacement set requires one unconditional single target immediately after chaining it");
+                        selectedTarget = false;
+                        targetSetAvailable = true;
+                        targetSetConsumed = false;
                         break;
                     case ConsumeTargetSet:
                         if (!targetSetAvailable || targetSetConsumed)

@@ -14,6 +14,10 @@ public sealed partial class GameEngine
             _ => 0
         };
         if (id <= 0) return payload;
+        // Jinzhi discards these entities to create a separate virtual basic
+        // card. Its public use must not borrow a cost card's printed suit/rank.
+        if (payload is CardUseDeclaredEvent declared && LifecycleCardUse(declared.ResolutionId)?.Action is { } action &&
+            action.ConversionChain.Any(IsWushuangJinzhiSource)) return payload;
         foreach (var frame in _resolutionStack.Reverse())
         {
             var payment = frame is CardDeclarationFrame declaration ? declaration.Payment : frame.AcceptedDeclarationPayment;

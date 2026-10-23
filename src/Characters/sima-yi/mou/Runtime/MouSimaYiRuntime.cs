@@ -36,7 +36,16 @@ internal sealed partial class MouSimaYiRuntime(IMouSimaYiFacts facts,IMouSimaYiN
         var r=f.MouSimaYi!;PromptChoice C(string key,string label,int? target=null,IReadOnlyList<int>? cards=null)=>new(new($"mou-sm.{f.Id}.{r.Stage}.{r.Cursor}.{r.Targets.Count}.{key}.{target}"),label,cards??[],target is{}t?[t]:[],new Dictionary<string,string>{{"program-action",Action},{"branch",key},{"frame-id",f.Id.ToString(CultureInfo.InvariantCulture)}});
         if(r.Stage==MouSmStage.Polarity)return[C("yang","阳：防止对方下一次伤害"),C("yin","阴：伤害后可伤害其他角色")];
         if(r.Stage==MouSmStage.Target)return Eligible(f.OwnerSeat).Select(t=>C("target",$"令{facts.Name(t)}交给你一张牌",t)).ToArray();
-        if(r.Stage==MouSmStage.Give)return facts.Gifts(f,r.Target).Select(c=>C("give",c.Label,cards:[c.Id])).ToArray();
+        if(r.Stage==MouSmStage.Give)
+        {
+            var gifts=facts.Gifts(f,r.Target);
+            // A previously accepted human Give could only have had one option. Keep its recorded ID replayable.
+            return gifts.Select(c=>
+            {
+                var choice=C("give",$"权谋 · 将【{c.Label}】交给{facts.Name(f.OwnerSeat)}",cards:[c.Id]);
+                return gifts.Count==1?choice:choice with{Id=new ChoiceId($"mou-sm.{f.Id}.{r.Stage}.{r.Cursor}.{r.Targets.Count}.give.{c.Id}")};
+            }).ToArray();
+        }
         if(r.Stage==MouSmStage.Respondent)return facts.Plays(f).Select((p,i)=>PlayedChoice(p,i)).Append(C("decline","不打出红色基本牌")).ToArray();
         PromptChoice PlayedChoice(MouSmPlayedPlan p,int i)
         {

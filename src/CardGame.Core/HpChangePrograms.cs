@@ -1,14 +1,18 @@
 namespace CardGame.Core;
 
 public enum HpChangeKind { Loss, Recovery, Damage = 600, MaximumHp = 601, Setting = 40012 }
-public enum PostEventContinuation { WenyiDamageHealth = 28100, Boundary = 0, Program, CardUse, GroupRecovery, AwaitedProgramMovement, VirtualBasicCardUse, RecoveryReplacement = 2700, RecoveryProducer = 2701, RecoveryPaidCardUse = 2702, EquipmentRecast = 2703, FactionRequestCost = 2705, DrawPhaseObligation = 3800, ColorFireAttackPayment = 4400, CounterspellPayment = 4401, HistoricalEndingCardUse = 7901, DrawFundedDistinctBasic = 8800, ResponseCompletion = 9050, CardSupplyCompletion = 9051, FriendDuelResponse = 20300, GuoSiCardUse = 24301, DenglouCardUse = 24602, AmountSupport = 26030, SoleIncomingRangeDraw = 1243, SkillInvocation = 38700, NativeCardEffectDraw = 27578, WenheCardEffect = 550, WenhePoison = 555, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000 }
+public enum PostEventContinuation { WenyiDamageHealth = 28100, HappyQiaoDamageHealth = 42400, HappyQiaoCardMaximumHealth = 42401, Boundary = 0, Program, CardUse, GroupRecovery, AwaitedProgramMovement, VirtualBasicCardUse, RecoveryReplacement = 2700, RecoveryProducer = 2701, RecoveryPaidCardUse = 2702, EquipmentRecast = 2703, FactionRequestCost = 2705, DrawPhaseObligation = 3800, ColorFireAttackPayment = 4400, CounterspellPayment = 4401, HistoricalEndingCardUse = 7901, DrawFundedDistinctBasic = 8800, ResponseCompletion = 9050, CardSupplyCompletion = 9051, FriendDuelResponse = 20300, GuoSiCardUse = 24301, DenglouCardUse = 24602, AmountSupport = 26030, SoleIncomingRangeDraw = 1243, SkillInvocation = 38700, NativeCardEffectDraw = 27578, WenheCardEffect = 550, WenhePoison = 555, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000, KemingEcho = 39700 }
 
 /// <summary>Actual committed HP delta. Damage and setting HP are separate rules operations.</summary>
 public sealed record HpChangeContext(
     long Id, long? ParentFrameId, int? SourceSeat, int TargetSeat,
     HpChangeKind Kind, int Amount, int HpBefore, int HpAfter,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] LossOccurrence? LossOccurrence = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ProgramTriggerCandidate>? FrozenLossCandidates = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ProgramTriggerCandidate>? FrozenLossCandidates = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public HappyQiaoPool? HappyQiaoPool { get; init; }
+}
 
 public sealed record LossOccurrence(int ActualTurnNumber, int TurnOwnerSeat, TurnPhase Phase);
 

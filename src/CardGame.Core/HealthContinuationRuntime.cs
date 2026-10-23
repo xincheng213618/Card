@@ -462,7 +462,7 @@ internal sealed partial class HealthContinuationRuntime
             change.Kind != HpChangeKind.Recovery || change.Amount <= 0 || change.HpAfter != change.HpBefore + change.Amount) return false;
         if (recovery.CandidateIndex is not { } index)
             return change.SourceSeat == attempt.SourceSeat && change.TargetSeat == attempt.TargetSeat &&
-                change.HpBefore == protocols.SupportedRecoveryHpBefore(recovery, attempt.HpBefore) && change.Amount == recovery.OriginalRecovered &&
+                change.HpBefore == protocols.SupportedRecoveryHpBefore(recovery, HappyQiaoRecoveryProof.HpBefore(recovery)) && change.Amount == recovery.OriginalRecovered &&
                 change.Amount <= protocols.SupportedRecoveryAmount(recovery, attempt.Amount);
         if (!TypedRecoveryChosenCandidateMatches(recovery, history)) return false;
         var candidate = attempt.Candidates[index];
@@ -509,7 +509,7 @@ internal sealed partial class HealthContinuationRuntime
             movement.ResumeColorFireAttackFrameId is not null || movement.ResumeCounterspellPaymentFrameId is not null ||
             movement.ResumeHistoricalEndingUseFrameId is not null || movement.ResumeRoundPileAlcoholUseFrameId is not null ||
             movement.ResumeGuoSiUseFrameId is not null || movement.ResumeDenglouUseFrameId is not null ||
-            movement.ResumeDrawPhaseObligationFrameId is not null || movement.ResumeFactionRequestCostFrameId is not null ||
+            movement.ResumeDrawPhaseObligationFrameId is not null || movement.ResumeManualDiscardFrameId is not null || movement.ResumeFactionRequestCostFrameId is not null ||
             movement.ResumeCardSupplyCompletionFrameId is not null || movement.ResumeResponseCompletionFrameId is not null ||
             movement.DeferredTurnEndReturn is not null || batch.Movements.Count == 0) return false;
         if (batch.OriginSkillId != origin?.SkillId || batch.OriginSkillInstanceId != origin?.SkillInstanceId ||

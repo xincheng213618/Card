@@ -6,8 +6,9 @@ public sealed partial class GameEngine
     // returns; no revision cache can survive a command or a skill/seat mutation.
     private ActionQuery? _actionQuery;
 
-    private sealed class ActionQuery(int players)
+    private sealed class ActionQuery(int players, (int Seat, Card Card)? printedTargetTemplate = null)
     {
+        internal readonly (int Seat, Card Card)? PrintedTargetTemplate = printedTargetTemplate;
         internal readonly SkillBindingShard?[] Bindings = new SkillBindingShard?[players];
         internal readonly Dictionary<(int Seat, Card Card), IReadOnlyList<ProgramCardIdentityMatch>> Identities = [];
         internal readonly Dictionary<(int Seat, Card Card, CardKind Kind, bool Response, bool Dying),
@@ -24,21 +25,41 @@ public sealed partial class GameEngine
         return new ActionQueryScope(this);
     }
 
-    private readonly struct ActionQueryScope(GameEngine? engine) : IDisposable
+    private readonly struct ActionQueryScope(GameEngine? engine, ActionQuery? previous = null) : IDisposable
     {
         public void Dispose()
         {
-            if (engine is not null) engine._actionQuery = null;
+            if (engine is not null) engine._actionQuery = previous;
         }
     }
 
     private IReadOnlyList<ProgramCardIdentityMatch> GetProgramCardIdentityMatches(CharacterState owner, Card card)
     {
         if (_actionQuery is not { } query) return FindProgramCardIdentityMatches(owner, card);
+        if (query.PrintedTargetTemplate is { } printed && printed.Seat == owner.Seat && printed.Card == card)
+            return [];
         var key = (owner.Seat, card);
         if (!query.Identities.TryGetValue(key, out var result))
             query.Identities[key] = result = FindProgramCardIdentityMatches(owner, card);
         return result;
+    }
+
+    // Read only the original entity's native target choices. The separate cache
+    // prevents temporary identity suppression from leaking into the enclosing
+    // legal-action read, response choices, or a later command.
+    private IReadOnlyList<LegalAction> BuildMobileWumouPrintedTargetActions(CharacterState actor, Card card)
+    {
+        var previous = _actionQuery;
+        _actionQuery = new ActionQuery(_players.Count, (actor.Seat, card));
+        using var scope = new ActionQueryScope(this, previous);
+        return Array.AsReadOnly(BuildLegalActionsCore(actor, includeProgramActions: false,
+                selectedPhysicalCardId: card.Id, nativeOriginalCard: card)
+            .Where(action => action.CardId == card.Id && action.ConversionSource is null &&
+                (action.AdditionalConversionSources is null || action.AdditionalConversionSources.Count == 0) &&
+                action.Kind is not (LegalActionKind.Recast or LegalActionKind.EndPlay or
+                    LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill or LegalActionKind.RevealGeneral) &&
+                action.MaxCardCount <= 1 && (action.PlayedCardKind ?? card.Kind) == card.Kind)
+            .ToArray());
     }
 
     private IReadOnlyList<CardConversionSource> GetProgramViewAsConversions(CharacterState owner, Card card,

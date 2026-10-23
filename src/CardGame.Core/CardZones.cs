@@ -323,6 +323,24 @@ internal sealed class CardZoneStore
         GetZone(CardLocation.OutsideGame).Add(card);
     }
 
+    // The producer proves generation and owns the rule that changes this face.
+    // Zone identity and every non-face attribute stay unchanged; this is not a move.
+    internal void ReplaceGeneratedCardFace(Card expected, Card replacement)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        ArgumentNullException.ThrowIfNull(replacement);
+        if (expected.Id <= 0 || replacement.Id != expected.Id ||
+            (replacement with { Kind = expected.Kind, Suit = expected.Suit, Rank = expected.Rank,
+                PrintedName = expected.PrintedName }) != expected ||
+            !_locations.TryGetValue(expected.Id, out var location))
+            throw new InvalidOperationException("A generated face change must retain its physical identity and non-face attributes.");
+        var cards = GetZone(location);
+        var index = cards.FindIndex(card => card.Id == expected.Id);
+        if (index < 0 || cards[index] != expected)
+            throw new InvalidOperationException("A generated face change lost its exact original card in the current zone.");
+        cards[index] = replacement;
+    }
+
     public IReadOnlyList<Card> CardsAt(CardLocation location) =>
         _zoneViews.TryGetValue(location, out var cards)
             ? cards

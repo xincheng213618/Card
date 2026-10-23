@@ -100,6 +100,11 @@ public sealed partial class GameEngine
     // mature observer helpers: those helpers may themselves query ActiveDying.
     private bool DyingSuitsStructuralEdge(ResolutionFrame parent, ResolutionFrame child)
     {
+        if (HappyQiaoDamageHealthStructuralEdge(parent, child)) return true;
+        if (HappyQiaoCardMaximumHealthStructuralEdge(parent, child)) return true;
+        if (child is ProgramSkillFrame zhiti && MobileZhitiProgramRidesOn(zhiti, parent)) return true;
+        if (KemingSkillEchoFrameRidesOn(child, parent)) return true;
+        if (MobileSimaRenjieStructuralEdge(parent, child)) return true;
         if (SkillInvocationStructuralEdge(parent, child)) return true;
         if (child is ProgramSkillFrame observer)
         {

@@ -73,7 +73,8 @@ public sealed partial class GameEngine
         if (card.Id == 0 && use.CardKind == CardKind.Alcohol && IsIssuedWeijieUse(use)) return;
         if (TryFinishLeiluanAlcoholCost(use, card)) return;
         if (TryFinishRoundDistinctBasicAlcoholCost(use, card)) return;
-        if (FinishMouJsAlcoholCost(use, card)) return;
+        if (TryFinishAnniversaryYizanAlcoholCost(use, card)) return;
+        if (FinishMouJsAlcoholCost(use, card) || FinishHappyQiaoAlcoholCost(use, card)) return;
         if (SkipTieredRoundZeroFinishedMovement(use.Id, card)) return;
         if (SkipChainedStateBasicFinishedMovement(use.Id, card)) return;
         if (SkipDrawFundedDistinctBasicFinishedMovement(use.Id, card)) return;

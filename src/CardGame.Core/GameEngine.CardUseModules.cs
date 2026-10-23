@@ -25,6 +25,7 @@ public sealed partial class GameEngine
         CardLegality.IsUseForbidden(ProgramCardLegalityStage.BeforeIntrinsicUseBan,
             new(actorSeat, effectiveKind, actionType, existingUseFrameId)) ||
         effectiveKind == CardKind.Poison ||
+        effectiveKind == CardKind.Peach && actionType == CardActionType.Use && !AllowsHappySimaPeach(actorSeat) ||
         CardLegality.IsUseForbidden(ProgramCardLegalityStage.BeforeTurnUseBan,
             new(actorSeat, effectiveKind, actionType, existingUseFrameId)) ||
         !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
@@ -73,6 +74,7 @@ public sealed partial class GameEngine
         int actorSeat,
         SkillProgramCardTargetRestriction restriction,
         int? targetSeat = null) =>
+        restriction == SkillProgramCardTargetRestriction.SelfOnly && HasHappyLearningPlaySelfOnly(actorSeat) ||
         _turnCardUseEffects.HasTargetRestriction(
             _turnNumber, _currentSeat, actorSeat, restriction, targetSeat);
 

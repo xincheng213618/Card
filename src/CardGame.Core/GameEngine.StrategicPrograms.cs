@@ -60,7 +60,8 @@ public sealed partial class GameEngine
     {
         if (query == SkillRuleQuery.HandLimit && _strategicHandLimitPenaltyTurns.GetValueOrDefault(player.Seat, -1) == _turnNumber)
             yield return new FiniteRuleQueryContribution($"turn:{_turnNumber}:hand-discard-share:{player.Seat}", SkillRuleOperation.Add, -1);
-        var wounded = _players.Count(other => other.IsAlive && IsRuleWounded(other));
+        int? wounded = null;
+        int WoundedCount() => wounded ??= _players.Count(other => other.IsAlive && IsRuleWounded(other));
         foreach (var source in _players.Where(source => source.IsAlive))
         foreach (var instance in GetSkillBindingShard(source).ProgramInstances)
         foreach (var policy in instance.Program.CardPolicies)
@@ -80,8 +81,8 @@ public sealed partial class GameEngine
             {
                 SkillProgramCardPolicyKind.ChainedHandLimitAura when query == SkillRuleQuery.HandLimit && player.IsChained => 2,
                 SkillProgramCardPolicyKind.MarkerTurnBonuses when player.MarkerSourceCounts.GetValueOrDefault((PlayerMarkerKind.Camp, source.Seat)) > 0 && query is SkillRuleQuery.DrawCount or SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit => 1,
-                SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.HandLimit && wounded >= 1 => 1,
-                SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.DrawCount && wounded >= 3 => 1,
+                SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.HandLimit && WoundedCount() >= 1 => 1,
+                SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.DrawCount && WoundedCount() >= 3 => 1,
                 SkillProgramCardPolicyKind.WoundedInRangeHandLimitPenalty when query == SkillRuleQuery.HandLimit && source.Seat != player.Seat && IsRuleWounded(player) && IsWithinAttackRange(source.Seat, player.Seat) => -1,
                 _ => 0
             };
@@ -173,7 +174,7 @@ public sealed partial class GameEngine
             case SkillProgramEffectOp.SelectDistinctSuitHandDiscards:
                 var candidates = GetHand(owner).Where(card => !IsSelfHandCategoryDiscardForbidden(owner.Seat, card, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).Concat(GetHand(_players[targetSeat])).Select(card => card.Id).ToArray();
                 ReplaceRuntimeTop(frame = frame with
-                { StrategicDraft = new(effect.Op, targetSeat, effect.ResultBind, 4) { Candidates = candidates } });
+                { StrategicDraft = new(effect.Op, targetSeat, effect.ResultBind, effect.Amount == 3 ? 3 : 4) { Candidates = candidates } });
                 PublishStrategicPrompt(frame);
                 return SkillProgramStepOutcome.AwaitChoice;
             case SkillProgramEffectOp.ApplyHandDiscardShare:
@@ -289,7 +290,7 @@ public sealed partial class GameEngine
                 if (!draft.Candidates.Contains(cardId) || location.Zone != CardZoneKind.Hand || location.OwnerSeat is not { } seat || seat != frame.OwnerSeat && seat != draft.TargetSeat) throw new InvalidOperationException("Discard selection no longer owns the card.");
                 var selected = draft.Selected.Append(cardId).ToArray();
                 if (selected.Select(card => _cardZones.CardsAt(_cardZones.GetLocation(card)).Single(item => item.Id == card).Suit).Distinct().Count() != selected.Length) throw new InvalidOperationException("Discard selection repeats a suit.");
-                if (selected.Length < 4)
+                if (selected.Length < draft.Maximum)
                 {
                     ReplaceRuntimeTop(frame = frame with { StrategicDraft = draft with { Selected = selected } });
                     PublishStrategicPrompt(frame); return;
@@ -366,7 +367,8 @@ public sealed partial class GameEngine
                 choice.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString() ||
                 choice.Parameters.GetValueOrDefault("selection-index") != draft.Selected.Count.ToString()))
             throw new InvalidOperationException("Strategic selection lost its suspended instruction or validated prompt.");
-        if (draft.Op == SkillProgramEffectOp.SelectDistinctSuitHandDiscards && !prompt.IsPrivate)
+        if (draft.Op == SkillProgramEffectOp.SelectDistinctSuitHandDiscards &&
+            (!prompt.IsPrivate || draft.Maximum != (paused.Amount == 3 ? 3 : 4)))
             throw new InvalidOperationException("Cross-owner hand selection must remain private.");
     }
 }

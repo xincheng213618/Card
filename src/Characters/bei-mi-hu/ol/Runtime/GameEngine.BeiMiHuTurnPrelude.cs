@@ -40,11 +40,17 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.MarkUnmarkedOtherBeforeActualTurn) &&
             !_players.Any(player => HasBeiMiHuPreludeBindings(player, SkillProgramTriggerWindow.RoundStarting,
                 SkillProgramEffectOp.MarkLowestHpUnmarkedOtherAtRoundStart)) &&
+            !_players.Any(player => HasBeiMiHuPreludeBindings(player, SkillProgramTriggerWindow.RoundStarting,
+                SkillProgramEffectOp.ResolveAnniversaryLiuLiDehua)) &&
             !(_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) &&
                 HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
                     SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) && SimaHuiOwnTurns(owner.Seat) == 0) &&
             !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
                 SkillProgramEffectOp.ResolveShenTaishiCiPowei) &&
+            !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
+                SkillProgramEffectOp.ResolveHappyTaishiCiChongwei) &&
+            !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
+                SkillProgramEffectOp.ObtainHappyTaishiCiStartSlash) &&
             !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
                 SkillProgramEffectOp.EditDinghanNames) &&
             !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
@@ -130,12 +136,18 @@ public sealed partial class GameEngine
                 var facts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
                 var candidates = participants.SelectMany(player => CollectEligibleProgramTriggerCandidates(player, window, facts[player.Seat]))
                     .Where(candidate => ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(operation) ||
+                        isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveAnniversaryLiuLiDehua) ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.AssignOrderedDragonPhoenixOnFirstActualTurn) &&
                         SimaHuiOwnTurns(candidate.OwnerSeat) == 0 ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveShenTaishiCiPowei) ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveHappyTaishiCiChongwei) ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ObtainHappyTaishiCiStartSlash) ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.EditDinghanNames) ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.AwakenJianghuo) ||
-                        isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveLinjieRound))
+                        isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveLinjieRound) ||
+                        isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.IssueHappyPangTongPlan) ||
+                        isRound && candidate.SkillId == "happy:huanshu" && candidate.BindingId == "round-phantoms" &&
+                        ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.GainHappyZuoCiPhantoms))
                     .OrderBy(candidate => RelativeTableOrder(parent.Proof.UpcomingOwnerSeat, candidate.OwnerSeat))
                     .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
                     .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();

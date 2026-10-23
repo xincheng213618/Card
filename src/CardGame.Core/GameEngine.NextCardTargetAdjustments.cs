@@ -95,7 +95,7 @@ public sealed partial class GameEngine
                 LegalActionKind.PeachGarden or LegalActionKind.FiveGrains ? normal : _players
                     .Where(player => CanBeExtraNextCardTarget(actor, player, action, kind)).Select(player => player.Seat).ToArray();
             foreach (var seat in possible.Except(normal)) Add(normal.Append(seat).ToArray());
-            if (normal.Length > 1)
+            if (normal.Length > 1 && !IsDuKuiFanyinTargetGrant(source))
                 foreach (var seat in normal) Add(normal.Where(item => item != seat).ToArray());
 
             void Add(IReadOnlyList<int> targets)
@@ -107,7 +107,8 @@ public sealed partial class GameEngine
                 {
                     TargetSeat = targets[0], TargetSeats = targets,
                     ProgramSkillId = source.SkillId, ProgramActivationId = source.BindingId,
-                    Description = action.Description + "（下一张牌增减一个目标）"
+                    Description = action.Description + (IsDuKuiFanyinTargetGrant(source)
+                        ? "（下一张牌额外选择一个目标）" : "（下一张牌增减一个目标）")
                 });
             }
         }

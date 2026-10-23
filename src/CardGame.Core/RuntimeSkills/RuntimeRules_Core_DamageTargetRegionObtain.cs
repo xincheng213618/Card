@@ -6,10 +6,10 @@ namespace CardGame.Core.RuntimeSkills;
 internal static class RuntimeRules_Core_DamageTargetRegionObtain
 {
     internal static int DamageTargetObtainedCount(ProgramDamageTargetObtain receipt) =>
-        receipt.RegionObtain?.ActualObtainedCount ?? (receipt.Receipt is null ? 0 : 1);
+        receipt.RegionObtain?.ActualObtainedCount ?? (receipt.Receipt?.To == CardLocation.Hand(receipt.OwnerSeat) ? 1 : 0);
 
     internal static bool DamageTargetObtainedEquipment(ProgramDamageTargetObtain receipt) =>
-        receipt.RegionObtain?.ContainsEquipment ?? (receipt.Receipt?.IsEquipment == true);
+        receipt.RegionObtain?.ContainsEquipment ?? (receipt.Receipt is { IsEquipment: true } material && material.To == CardLocation.Hand(receipt.OwnerSeat));
 
     internal static long DamageTargetObtainAnchor(ProgramDamageTargetObtain receipt) =>
         receipt.RegionObtain?.Movements.FirstOrDefault()?.MovementSequence ?? receipt.ObtainMovementSequence ?? 0;

@@ -118,7 +118,8 @@ public enum CardKind
     WumiaoFlood = 700,
     QizhengXiangsheng = 710,
     QiBaoDao = 33800,
-    BaiBiDao = 33801
+    BaiBiDao = 33801,
+    DagongChe = 43500
 }
 
 public enum Suit
@@ -159,6 +160,14 @@ public enum PlayerMarkerKind
     MobileWulingApe = 39104,
     MobileWulingDeer = 39105,
     LinCold = 39300,
+    MobileShenMaChaoTing = 40625,
+    HappyXue = 40940,
+    HappyMedicine = 41780,
+    HappyGuard = 41980,
+    HappyCharmSpade = 42220,
+    HappyCharmHeart = 42221,
+    HappyCharmClub = 42222,
+    HappyCharmDiamond = 42223,
     MouSunShangxiangZhu = 35100,
     MouDongZhuoGuanbian = 34700,
     MouKongRongXian = 34600,
@@ -232,6 +241,12 @@ public static class PlayerMarkerCatalog
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
         PlayerMarkerKind.Pingding => "平定",
+        PlayerMarkerKind.HappyMedicine => "药",
+        PlayerMarkerKind.HappyGuard => "卫",
+        PlayerMarkerKind.HappyCharmSpade => "魅惑♠",
+        PlayerMarkerKind.HappyCharmHeart => "魅惑♥",
+        PlayerMarkerKind.HappyCharmClub => "魅惑♣",
+        PlayerMarkerKind.HappyCharmDiamond => "魅惑♦",
         PlayerMarkerKind.ShenTaishiCiWei => "围",
         PlayerMarkerKind.Tianren => "天任",
         PlayerMarkerKind.ShencaiChi => "笞",
@@ -247,6 +262,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.MobileWulingApe => "猿",
         PlayerMarkerKind.MobileWulingDeer => "鹿",
         PlayerMarkerKind.LinCold => "凛",
+        PlayerMarkerKind.MobileShenMaChaoTing => "霆",
         PlayerMarkerKind.MouDongZhuoGuanbian => "观变",
         PlayerMarkerKind.MouSunShangxiangZhu => "助",
         PlayerMarkerKind.MouKongRongXian => "贤",
@@ -291,6 +307,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.QihuiTrick => "启诲·锦囊",
         PlayerMarkerKind.QihuiEquipment => "启诲·装备",
         PlayerMarkerKind.Nightmare => "梦魇",
+        PlayerMarkerKind.HappyXue => "学",
         PlayerMarkerKind.Huang => "黄",
         PlayerMarkerKind.Orange => "橘",
         PlayerMarkerKind.Yi => "裔",
@@ -508,6 +525,13 @@ public sealed record GameOptions
     public int HumanSeat { get; init; } = 0;
 
     /// <summary>
+    /// Explicit externally controlled seats for a multiplayer identity match.
+    /// Null preserves the legacy single-player HumanSeat contract.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? HumanSeats { get; init; }
+
+    /// <summary>
     /// The demo defaults to a human Lord so the first interaction is immediate.
     /// Set this to null to shuffle the human role as well.
     /// </summary>
@@ -676,6 +700,13 @@ public sealed record CardSnapshot(
     string DisplayName,
     string RankText)
 {
+    // Viewer-only sentinel. It is deliberately not a CardKind enum member or
+    // an implemented physical card and cannot be used as a command material.
+    public const CardKind UndisclosedKind = (CardKind)(-1);
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public EquipmentSlot? OccupiedEquipmentSlot { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsBone { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? PublicHandOwnerSeat { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -712,6 +743,8 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public HappyQiaoDualHealth? HappyQiaoHealth { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IdentityConcealed { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

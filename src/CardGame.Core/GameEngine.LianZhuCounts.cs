@@ -54,7 +54,7 @@ internal sealed class RecipientHpGiftSelectionAi : IProgramSelectionAiDecorator
         // An opportunity prior over the giver's own possible materials. Only
         // public target HP enters; no recipient card faces or deck order do.
         var blackPrior = ownCards.Length == 0 ? 0d : ownCards.Count(card => source.EffectiveSuit(context.OwnerSeat, card) is Suit.Spade or Suit.Club) / (double)ownCards.Length;
-        var expected = targets.Select(target => target.Hp).DefaultIfEmpty(0).Max() * blackPrior;
+        var expected = targets.Select(target => target.Hp).OfType<int>().DefaultIfEmpty(0).Max() * blackPrior;
         return hint with { OwnerDraw = checked(hint.OwnerDraw + (int)Math.Round(expected, MidpointRounding.AwayFromZero)), GivesSelected = true };
     }
 }

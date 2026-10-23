@@ -5,7 +5,7 @@ internal enum OwnedCardMoveIntent { Discard, Obtain, Transfer, Replacement, Clea
 public sealed partial class GameEngine
 {
     private bool HasForeignDiscardCapability =>
-        HasBianFuRenCapability ||
+        HasBianFuRenCapability || HasDagongCheCapability ||
         _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard) ||
         _contentRegistry.ProgramDependencies.HasCardPolicy(SkillProgramCardPolicyKind.XiaHuiBlackHandAndGainedEntityRestrictions) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.SelectEquipmentPairAndPayment) ||

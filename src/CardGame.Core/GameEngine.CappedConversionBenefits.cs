@@ -21,9 +21,11 @@ public sealed partial class GameEngine
     {
         var f = GetActiveProgramFrame(supplied.Id);
         if (f.CappedConversionBenefit is not null || f.InstructionIndex != 1 || !ExactCappedConversionParent(f, out var window) ||
-            _roundNumber < 1 || !_players[f.OwnerSeat].IsAlive || _winner != Winner.None ||
+            !_players[f.OwnerSeat].IsAlive || _winner != Winner.None ||
             !HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId))
             throw new InvalidOperationException("A capped conversion benefit lost its exact original damage recipient and current candidate.");
+        // Opening effects can deal damage before Round 1. The exact damage
+        // parent qualifies this benefit even while the current round is zero.
         var tier = TieredRoundTier(f.OwnerSeat, state);
         if (tier is < 0 or > 2) throw new InvalidOperationException("A conversion modification count cannot exceed its two defined versions.");
         var before = _cardMovements.LastOrDefault()?.Sequence ?? 0;

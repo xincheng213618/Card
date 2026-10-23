@@ -91,7 +91,7 @@ public sealed partial class GameEngine
         movement.ResumeDragonBoatCardEffectFrameId is null &&
         movement.ResumeEquipmentRecastFrameId is null && movement.ResumeColorFireAttackFrameId is null &&
         movement.ResumeCounterspellPaymentFrameId is null && movement.ResumeHistoricalEndingUseFrameId is null && movement.ResumeGuoSiUseFrameId is null && movement.ResumeDenglouUseFrameId is null &&
-        movement.ResumeRoundPileAlcoholUseFrameId is null && movement.ResumeDrawPhaseObligationFrameId is null &&
+        movement.ResumeRoundPileAlcoholUseFrameId is null && movement.ResumeDrawPhaseObligationFrameId is null && movement.ResumeManualDiscardFrameId is null &&
         movement.ResumeFactionRequestCostFrameId is null && movement.DeferredTurnEndReturn is null &&
         movement.ResumeCardSupplyCompletionFrameId is null && movement.ResumeResponseCompletionFrameId is null &&
         IsCardUsePaymentBatch(use, movement.Batch);

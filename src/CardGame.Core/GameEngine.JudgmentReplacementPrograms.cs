@@ -296,9 +296,11 @@ public sealed partial class GameEngine
                 _cardZones.GetLocation(replacement.Id) != replacementFrom || !_publicPersistentPiles.Values.Any(p => p.Location == replacementFrom && RiceProducer(p)) :
             replacementFrom.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment))
             throw new InvalidOperationException("The configured replacement card is not in an owned input zone.");
-        var oldTo = oldDestination == SkillProgramOldJudgmentCardDestination.OwnerHand
+        var requestedOldTo = oldDestination == SkillProgramOldJudgmentCardDestination.OwnerHand
             ? CardLocation.Hand(owner.Seat)
             : CardLocation.DiscardPile;
+        var oldGainDestination = PlanHappyWeiYanGainDestination(oldJudgmentCard, oldFrom, requestedOldTo, CardMoveReasons.ProgramJudgmentOldCard);
+        var oldTo = oldGainDestination?.ActualTo ?? requestedOldTo;
         var batch = BeginCardMovementBatch([oldFrom, replacementFrom, CardLocation.Processing], [oldTo, CardLocation.Processing, oldFrom]);
         var movements = new List<CardMovementRecord>(3);
         var committed = false;
@@ -317,7 +319,8 @@ public sealed partial class GameEngine
             });
 
             movements.Add(RecordMovement(
-                oldJudgmentCard, oldFrom, oldTo, CardMoveReasons.ProgramJudgmentOldCard));
+                oldJudgmentCard, oldFrom, oldTo, CardMoveReasons.ProgramJudgmentOldCard,
+                happyWeiYanGainDestination: oldGainDestination));
             ClearJudgmentEffectiveKindAfterMove(oldJudgmentCard, oldFrom, oldTo);
             movements.Add(RecordMovement(
                 replacement, replacementFrom, CardLocation.Processing,

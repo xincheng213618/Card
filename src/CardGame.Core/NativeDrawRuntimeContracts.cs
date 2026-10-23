@@ -61,6 +61,7 @@ internal interface INativeDrawAttemptQueries : IProgramSelectionQuery
     SkillProgramTriggerFacts CaptureTriggerFacts(int seat);
     IReadOnlyList<ProgramTriggerCandidate> CollectCandidates(int seat, SkillProgramTriggerFacts facts);
     IEnumerable<CardMovementRecord> Movements();
+    bool IsRedirectedGain(CardMovementRecord movement, CardLocation expectedTo);
     IEnumerable<NativeDrawAttemptStartedEvent> StartedEvents();
     IEnumerable<NativeDrawAttemptDecidedEvent> DecidedEvents();
     NativeDrawPileSlashProof? DrawPileSlashReplacementProof(ProgramSkillFrame frame, NativeDrawAttemptContext context);

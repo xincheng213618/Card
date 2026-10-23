@@ -7,6 +7,7 @@ namespace CardGame.Core;
 internal interface IProgramCommittedUseContract
 {
     string SkillId { get; }
+    bool AllowsSingleActionInstance => false;
     void ValidateTrigger(SkillProgramTrigger trigger);
 }
 
@@ -38,4 +39,7 @@ internal static class ProgramCommittedUseContracts
         contract.ValidateTrigger(trigger);
         return true;
     }
+
+    internal static bool AllowsSingleActionInstance(string skillId) =>
+        BuiltIn.Value.TryGetValue(skillId, out var contract) && contract.AllowsSingleActionInstance;
 }

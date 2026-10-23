@@ -49,6 +49,9 @@ internal sealed class ShenXuChuHandler(SkillProgramEffectOp op) : ISkillProgramE
 internal static class ShenXuChuComposition
 {
     internal const string Zhengqing = "anniversary:zhengqing", Zhuangpo = "anniversary:zhuangpo", ViewAs = "printed-sha-duel";
+    internal const string HappyZhengqing = "happy:zhengqing", HappyZhuangpo = "happy:zhuangpo";
+    internal static bool IsZhengqing(string id) => id is Zhengqing or HappyZhengqing;
+    internal static bool IsZhuangpo(string id) => id is Zhuangpo or HappyZhuangpo;
     [ProgramCatalogValidation(38800)] internal static void Validate(string path, SkillProgram p)
     {
         if (!p.Triggers.SelectMany(t => t.Effects).Any(e => e.Op is SkillProgramEffectOp.SettleZhengqingRound or SkillProgramEffectOp.ResolveZhuangpoTarget)) return;
@@ -56,11 +59,11 @@ internal static class ShenXuChuComposition
             p.Triggers is not [var t] || t.Optional || t.UsageLimit is not null || t.MarkerCost is not null || t.Condition.Kind != SkillProgramTriggerConditionKind.Always ||
             t.Effects is not [{ Target: SkillProgramEffectTarget.Owner, Condition.Kind: SkillProgramConditionKind.Always } e])
             throw new InvalidOperationException(path + ": Shen Xu Chu requires his exact native round/designation composition.");
-        var valid = p.Id == Zhengqing ? p.ViewAs.Count == 0 && t.Id == "round-maximum-damage" && t.Window == SkillProgramTriggerWindow.RoundEnding && t.Subject == SkillProgramTriggerSubject.Owner && e.Op == SkillProgramEffectOp.SettleZhengqingRound :
-            p.Id == Zhuangpo && t.Id == "converted-duel-target" && t.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized && t.OwnerRelation == SkillProgramCardActionOwnerRelation.ConversionSource &&
-            t.SourceSkillId == Zhuangpo && t.SourceViewAsId == ViewAs && t.CardKinds.Count == 0 && e.Op == SkillProgramEffectOp.ResolveZhuangpoTarget &&
+        var valid = IsZhengqing(p.Id) ? p.ViewAs.Count == 0 && t.Id == "round-maximum-damage" && t.Window == SkillProgramTriggerWindow.RoundEnding && t.Subject == SkillProgramTriggerSubject.Owner && e.Op == SkillProgramEffectOp.SettleZhengqingRound :
+            IsZhuangpo(p.Id) && t.Id == "converted-duel-target" && t.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized && t.OwnerRelation == SkillProgramCardActionOwnerRelation.ConversionSource &&
+            t.SourceSkillId == p.Id && t.SourceViewAsId == ViewAs && t.CardKinds.Count == 0 && e.Op == SkillProgramEffectOp.ResolveZhuangpoTarget &&
             p.ViewAs is [var v] && v.Id == ViewAs && v.OutputKind == CardKind.Duel && v.InputCount == 1 && v.ForPlay && !v.ForResponse && v.AllowSameKind && v.SingleCardTrickUse &&
             v.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) && v.InputKinds.Order().SequenceEqual(CardPrintedInfo.SlashKinds);
-        if (!valid) throw new InvalidOperationException(path + ": Shen Xu Chu requires the official printed-face conversion and current enhanced skills.");
+        if (!valid) throw new InvalidOperationException(path + ": Shen Xu Chu requires his complete edition-bound round settlement and printed-face conversion.");
     }
 }

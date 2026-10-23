@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool ShenDaHasMaterialDomain(int actor, IReadOnlyList<int>? ids, ShenDengAiDomain domain) =>
-        ids is { Count: > 0 } && HasRuntimeSkill(_players[actor], ShenDaTuoYu) &&
+        ids is { Count: > 0 } && ShenDaTuoYuId(_players[actor]) is not null &&
         ids.Any(id => _cardZones.GetLocation(id) == CardLocation.Hand(actor) && ShenDaAssignment(actor, id)?.Domain == domain);
     private bool ShenDaHasIssuedDomain(long? id, int actor, ShenDengAiDomain domain) => id is { } useId &&
         LifecycleCardUse(useId) is { ShenDengAiDomain: { } r, Action: { } a } && r.ActorSeat == actor &&
@@ -13,14 +13,14 @@ public sealed partial class GameEngine
     private void IssueShenDengAiDomains(CardUseDeclaredEvent declared)
     {
         if (LifecycleCardUse(declared.ResolutionId) is not { Action: { Type: CardActionType.Use, PhysicalCards.Count: > 0 } a } use ||
-            a.ActorSeat != a.ProviderSeat || !HasRuntimeSkill(_players[a.ActorSeat], ShenDaTuoYu)) return;
+            a.ActorSeat != a.ProviderSeat || ShenDaTuoYuId(_players[a.ActorSeat]) is not { } skillId) return;
         var domains = a.PhysicalCards.Where(c => c.From == CardLocation.Hand(a.ActorSeat)).Select(c => ShenDaAssignment(a.ActorSeat, c.CardId, true)?.Domain)
             .Where(d => d is not null).Select(d => d!.Value).Distinct().ToArray();
         if (domains.Length == 0) return;
         var mask = domains.Aggregate(0, (n, d) => n | (1 << (int)d));
         var noResponse = use.IssuedNoResponse;
         if (domains.Contains(ShenDengAiDomain.Junshan) && noResponse is null)
-            noResponse = new(a.ActionId, use.Id, new(ShenDaTuoYu, "junshan-entity", a.ActorSeat, GetRuntimeSkillInstanceId(_players[a.ActorSeat], ShenDaTuoYu)), _turnNumber, _cardUseDebitPhaseInstanceId);
+            noResponse = new(a.ActionId, use.Id, new(skillId, "junshan-entity", a.ActorSeat, GetRuntimeSkillInstanceId(_players[a.ActorSeat], skillId)), _turnNumber, _cardUseDebitPhaseInstanceId);
         UpdateLifecycleCardUse(use.Id, u => u with { ShenDengAiDomain = new(a.ActionId, a.ActorSeat, mask), IssuedNoResponse = noResponse });
         AdvanceEventRulesAndQueueFact(new ShenDengAiDomainIssuedEvent(use.Id, a.ActionId, a.ActorSeat, mask));
         if (noResponse is not null && use.IssuedNoResponse is null) AdvanceEventRulesAndQueueFact(new IssuedCardNoResponseEvent(noResponse));

@@ -141,13 +141,15 @@ public sealed partial class GameEngine
     {
         var pending = ActiveNullificationWindow ?? throw new InvalidOperationException("Jueyan counterspell lost its actual trick response window.");
         var policy = FreezeUnrespondableCounterspellSource(actor, []); ClearPendingDecision();
+        pending = (NullificationWindowFrame)_resolutionStack.Single(x => x.Id == pending.Id);
         pending = ReplaceNullificationWindowFrame(pending with { EffectNullified = !pending.EffectNullified, ChainDepth = pending.ChainDepth + 1,
             CandidateSeats = BuildNullificationCandidateSeats(actor.Seat), CandidateIndex = 0, Step = ResolutionFrameStep.AwaitingResponse });
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, NullificationParentActionId(pending), CardActionType.Response, actor.Seat, actor.Seat,
             null, actor.Seat, pending.SourceSeat, CardKind.Nullification, [], [], [grant.Source], effectiveSuit: Suit.None, effectiveRank: 0));
         SignMouXqResponse(pending, grant, action);
         AdvanceEventRulesAndQueueFact(new CardRespondedEvent(0, actor.Seat, pending.SourceSeat, CardKind.Nullification));
-        AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind, actor.Seat, 0, pending.EffectNullified, pending.ChainDepth));
+        AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind, actor.Seat, 0, pending.EffectNullified, pending.ChainDepth)
+            { WindowFrameId = pending.Id, TargetSeat = GetNullificationTargetSeat(pending) });
         RecordActualPlayPhaseUse(action); AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action)); CaptureCaoXiNativeCounterspellOffset(pending, action, false);
         pending = (NullificationWindowFrame)_resolutionStack.Single(x => x.Id == pending.Id);
         if (TryBeginPolicyCounterspellPayment(pending, action, policy, [])) return;

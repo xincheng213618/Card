@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool IsShenDaCarrier(int id) => id > 0 && _generatedPhysicalCardIds.Contains(id) &&
         ProgramEventHistory<ShenDengAiCarrierCreatedEvent>().Where(e => e.CardId == id).ToArray() is [var f] &&
-        f.Source.SkillId == ShenDaCuixin && _contentRegistry.GetSkill(f.Source.SkillId).Program?.GameplayHash == f.GameplayHash &&
+        IsShenDaCuixin(f.Source.SkillId) && _contentRegistry.GetSkill(f.Source.SkillId).Program?.GameplayHash == f.GameplayHash &&
         GetAdvancedCard(id) is { Suit: Suit.None, Rank: 0 } c && c.Kind == f.Kind && IsDelayedCard(c.Kind);
     private CardLocation NormalizeShenDaCarrierDestination(Card card, CardLocation from, CardLocation to)
     {

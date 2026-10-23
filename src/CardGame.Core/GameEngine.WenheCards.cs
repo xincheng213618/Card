@@ -180,10 +180,10 @@ public sealed partial class GameEngine
     {
         var all = _players.Where(p => p.IsAlive).SelectMany(p => GetEquipment(p).Select(card => (Card: card, Owner: p.Seat))).ToArray();
         var moves = new List<WenheRedistributionMaterial>();
-        foreach (var group in all.Where(item => !item.Card.IsGeneralWeapon).GroupBy(item => EquipmentCatalog.Get(item.Card.Kind).Slot).OrderBy(group => group.Key))
+        foreach (var group in all.Where(item => !item.Card.IsGeneralWeapon).GroupBy(item => FieldEquipmentSlot(item.Card)).OrderBy(group => group.Key))
         {
             var tickets = _players.Where(p => p.IsAlive).SelectMany(p => Enumerable.Repeat(p.Seat,
-                Math.Max(0, p.EquipmentSlotCapacity(group.Key) - all.Count(item => item.Owner == p.Seat && item.Card.IsGeneralWeapon && EquipmentCatalog.Get(item.Card.Kind).Slot == group.Key)))).ToList();
+                Math.Max(0, p.EquipmentSlotCapacity(group.Key) - all.Count(item => item.Owner == p.Seat && item.Card.IsGeneralWeapon && FieldEquipmentSlot(item.Card) == group.Key)))).ToList();
             var equipment = group.OrderBy(item => item.Card.Id).ToList();
             if (tickets.Count < equipment.Count) throw new InvalidOperationException("Existing movable equipment exceeds the living legal capacity.");
             _random.Shuffle(tickets); _random.Shuffle(equipment);

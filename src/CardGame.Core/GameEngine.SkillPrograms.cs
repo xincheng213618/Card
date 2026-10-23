@@ -67,6 +67,9 @@ public sealed partial class GameEngine
         };
 
     private IEnumerable<LegalAction> BuildProgramActions(CharacterState owner)
+        => HappyQiaoActionQueryUnion(() => BuildProgramActionsCore(owner).ToArray());
+
+    private IEnumerable<LegalAction> BuildProgramActionsCore(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play) yield break;
         PlayerSkillContext? ordinaryContext = null;
@@ -121,7 +124,7 @@ public sealed partial class GameEngine
                         .Where(card => ProgramSelections.AllowsCard(ProgramSelectionStage.CardAfterDeclaration, selection, card))
                         .Where(card => activation.EquipmentSlots.Count == 0 ||
                             EquipmentCatalog.IsEquipment(card.Kind) &&
-                            activation.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot))
+                            activation.EquipmentSlots.Contains(FieldEquipmentSlot(card)))
                         .Select(card => card.Id).Distinct().Order().ToArray();
                 if (!ProgramSelections.Apply(ProgramSelectionStage.AfterCards, selection, candidates)) continue;
                 if (!ProgramSelections.TryBuildSourceTargets(selection, candidates))
@@ -266,9 +269,9 @@ public sealed partial class GameEngine
     private bool HasFreeEquipmentSlotForOwnedHandEquipment(CharacterState owner, CharacterState target)
     {
         var occupiedSlots = GetEquipment(target)
-            .Select(item => EquipmentCatalog.Get(item.Kind).Slot).ToHashSet();
+            .Select(item => FieldEquipmentSlot(item)).ToHashSet();
         return GetHand(owner).Any(card => EquipmentCatalog.IsEquipment(card.Kind) &&
-            !occupiedSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot));
+            !occupiedSlots.Contains(FieldEquipmentSlot(card)));
     }
 
     private int GetProgramActivationMinimumCards(int ownerSeat, string skillId, SkillProgramActivation activation) =>
@@ -277,6 +280,7 @@ public sealed partial class GameEngine
             null => activation.MinCards,
             SkillProgramCardCountExpression.NextPhaseActivationOrdinal =>
                 checked(_programPhaseUses.GetValueOrDefault((ownerSeat, skillId, activation.UsageGroup)) + 1),
+            SkillProgramCardCountExpression.OwnerHpAtLeastOne => HpScaledCardCount(_players[ownerSeat]),
             _ => throw new InvalidOperationException("Unsupported activation card-count expression.")
         };
 
@@ -475,6 +479,7 @@ public sealed partial class GameEngine
         PushRuntimeFrame(frame);
         IssueWuLuKangPindianSelection(frame);
         AdvanceEventRulesAndQueueFact(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
+        IssueHpScaledProgramSelection(frame, activation);
         AddLog("ActiveSkill", $"{owner.Name} 发动【{_contentRegistry!.Skills[program.Id].Name}】。", owner.Seat);
         AdvanceRuntimeProgram(frame.Id);
     }
@@ -518,6 +523,7 @@ public sealed partial class GameEngine
 
     private void FinishProgramSkill(ProgramSkillFrame frame, bool completed)
     {
+        if (TryCompleteKemingProgram(frame, completed)) return;
         frame = CompleteFrameNativeLogicalDiscard(frame);
         CleanupProgramBoundCards(frame, completed);
         if (TryCompleteShenwuTransplantProgram(frame, completed)) return;
@@ -548,7 +554,7 @@ public sealed partial class GameEngine
         var responders = Array.AsReadOnly(BuildDyingResponderSeats(victim.Seat).ToArray());
         var id = ++_resolutionSequence;
         PushRuntimeFrame(new DyingFrame(id, parentFrameId, victim.Seat, null, responders, 0,
-            DyingContinuationKind.ProgramSkill));
+            DyingContinuationKind.ProgramSkill) { HappyQiaoPool = CurrentHappyQiaoPool(victim.Seat, parentFrameId) });
         AdvanceEventRulesAndQueueFact(new PlayerDyingEvent(id, victim.Seat, null));
         _status = EngineStatus.Running;
         if (!TryBeginMandatorySelfDyingProgram(ActiveDying!) && !TryBeginDyingEntryProgramWindow(ActiveDying!)) ExposeHumanDyingPrompt();
@@ -574,7 +580,8 @@ public sealed partial class GameEngine
             nature, sourceLess, explicitSourceSeat, out var recoveryOrigin, out var recoveryDamageWindowId);
         if (CurrentDamageAttempt is not null && !judgmentNested && !damageWindowNested && !recoveryNested &&
             !RuntimeHooks.AllowsNestedDamage(ProgramNestedDamageProofPhase.BeforeFactionDebts, frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
-            frame.FactionRecoveryDraft?.SettlingDebts != true && !RuntimeHooks.AllowsNestedDamage(ProgramNestedDamageProofPhase.AfterFactionDebts, frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null && !recoveryNested ||
+            frame.FactionRecoveryDraft?.SettlingDebts != true && !RuntimeHooks.AllowsNestedDamage(ProgramNestedDamageProofPhase.AfterFactionDebts, frame, targetSeat, amount, sourceReference, nature, sourceLess) ||
+            ActiveDying is not null && !recoveryNested && !IsMobileJwShenpeiDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess, explicitSourceSeat) ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
@@ -1261,7 +1268,10 @@ public sealed partial class GameEngine
                     context.OwnerSeat != frame.OwnerSeat || context.Window != trigger.Window ||
                     frame.ActivationId != triggerId || frame.SelectedCardIds.Count != 0 ||
                     executedSelection is null && frame.SelectedTargetSeats.Count != 0 && !(trigger.DeferredTurnEndOnly && IsExactDeferredChild(frame)) &&
-                    !HasExactShenwuBoundParticipantSelection(frame) && !HasExactShenwuYanyuParticipant(frame) && !HasExactHellKingParticipantSelection(frame))
+                    !HasExactShenwuBoundParticipantSelection(frame) && !HasExactShenwuYanyuParticipant(frame) && !HasExactHellKingParticipantSelection(frame) &&
+                    !HasExactHappyGongxinParticipantSelection(frame) && !HasExactHappyHuaTuoParticipantSelection(frame) &&
+                    !HasExactHappyDianWeiElaiSelection(frame) && !HasExactAnniversaryYangBiaoParticipantSelection(frame) &&
+                    !HasExactAnniversaryZhangXunFollowupSelection(frame))
                     throw new InvalidOperationException("An active trigger program has an invalid cursor or context.");
                 continue;
             }
@@ -1272,8 +1282,9 @@ public sealed partial class GameEngine
                 frame.SelectedCardIds.Count > activation.MaxCards ||
                 frame.WangYunPlan is not { CostPaid: true } && frame.FriendEventFlow is null && frame.MatchingRecast is null && frame.PhaseHandSeizure is null && frame.SourceCurseReceipt is null && frame.DiamondDelayed is null && frame.BlackGiftContest is null && !HasPaidWeifuInitialSelection(frame) && !HasPaidShuziInitialSelection(frame) && !HasPaidLiuYanInitialSelection(frame) && !HasPaidZixiPlacement(frame) && !HasPaidWeiwanSelection(frame) && !HasPaidLeZhouFeiXianshuSelection(frame) && !HasPaidMouXiahouShiSelection(frame) && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(plan,
                     _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), frame.OwnerSeat, frame.SkillId)) ||
-                activation.CardCountExpression is not null && frame.SelectedCardIds.Count !=
+                activation.CardCountExpression == SkillProgramCardCountExpression.NextPhaseActivationOrdinal && frame.SelectedCardIds.Count !=
                     _programPhaseUses.GetValueOrDefault((frame.OwnerSeat, frame.SkillId, activation.UsageGroup)) ||
+                activation.CardCountExpression == SkillProgramCardCountExpression.OwnerHpAtLeastOne && !HpScaledProgramSelectionIsExact(frame) ||
                 executedSelection is null &&
                 (frame.SelectedTargetSeats.Count < activation.MinTargets ||
                  frame.SelectedTargetSeats.Count > activation.MaxTargets) && !HasExactNextActualUseProgramSelection(frame, plan) && !HasExactHpLossSlashSelection(frame, plan) && !HasExactKuangfuProgramSelection(frame, plan))
@@ -1317,7 +1328,12 @@ public sealed partial class GameEngine
 
 public sealed record ProgramSkillStartedEvent(long FrameId, int OwnerSeat, string SkillId, string ActivationId) : IGameEvent;
 public sealed record ProgramSkillResolvedEvent(long FrameId, int OwnerSeat, string SkillId, string ActivationId, bool Completed) : IGameEvent;
-public sealed record ProgramSkillHpLostEvent(long FrameId, string SkillId, int TargetSeat, int Amount, int RemainingHp) : IGameEvent;
+public sealed record ProgramSkillHpLostEvent(long FrameId, string SkillId, int TargetSeat, int Amount, int RemainingHp) : IGameEvent
+{
+    /// <summary>The exact public card use whose completion triggered this loss; absent for unrelated or earlier payments.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? CompletedCardUseResolutionId { get; init; }
+}
 public sealed record ProgramSkillContributionResolvedEvent(long ActionId, int ProviderSeat, int SkillOwnerSeat,
     string SkillId, string ContributionId, int CardId, CardKind CardKind, Suit CardSuit,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

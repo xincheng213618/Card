@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse, ChainedStateBasic, SoleIncomingRangeDraw = 1243, SkillInvocation = 38700, NativeCardEffectDraw = 27578, WenheCardEffect = 550, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000 }
+public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse, ChainedStateBasic, SoleIncomingRangeDraw = 1243, SkillInvocation = 38700, NativeCardEffectDraw = 27578, WenheCardEffect = 550, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000, KemingEcho = 39700 }
 public sealed record CharacterStateChangeContext(long Id, long? ParentFrameId, int TargetSeat, SkillProgramTriggerWindow Window)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -69,6 +69,11 @@ public sealed partial class GameEngine
         switch (continuation)
         {
             case CharacterStateContinuation.Program: AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value); break;
+            case CharacterStateContinuation.KemingEcho:
+                if (_resolutionStack.LastOrDefault() is not KemingSkillEchoFrame echo || echo.Id != frame.ResumeProgramFrameId ||
+                    !KemingSkillEchoFrameRidesOn(frame, echo))
+                    throw new InvalidOperationException("Keming echo lost its exact character-state return.");
+                AdvanceRuntimeFrame(echo.Id); break;
             case CharacterStateContinuation.SkillInvocation:
                 if (_resolutionStack.LastOrDefault() is not SkillInvocationFrame invocation || invocation.Id != frame.ResumeProgramFrameId)
                     throw new InvalidOperationException("A skill invocation lost its exact character-state return.");

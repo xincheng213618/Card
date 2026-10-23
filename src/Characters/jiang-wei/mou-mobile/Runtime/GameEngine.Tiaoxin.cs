@@ -23,7 +23,15 @@ public sealed partial class GameEngine
         var f = GetActiveProgramFrame(supplied.Id);
         if (op == SkillProgramEffectOp.InitializeMouJiangWei)
         {
-            if (f.WindowContext?.Window != SkillProgramTriggerWindow.GameStarting || f.WindowContext.SourceSeat != f.OwnerSeat) throw new InvalidOperationException("Jiang Wei's initial charge needs its actual game-start owner.");
+            if (f.WindowContext is not { Window: SkillProgramTriggerWindow.GameStarting } context || context.OwnerSeat != f.OwnerSeat ||
+                f.SkillId != MouJiangWeiComposition.Tiaoxin || f.TriggerId != "initial-charge" || f.ActivationId != f.TriggerId || f.InstructionIndex != 1 ||
+                _resolutionStack.SingleOrDefault(frame => frame.Id == context.ParentFrameId) is not ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.GameStarting } window ||
+                context.SourceSeat != window.OwnerSeat || context.TargetSeat != window.OwnerSeat || window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count ||
+                !MountObserverCandidateMatches(f, window.Candidates[window.CandidateIndex]) || window.ParticipantFacts?.GetValueOrDefault(f.OwnerSeat) is not { } ownerFacts ||
+                System.Text.Json.JsonSerializer.Serialize(context.Facts) != System.Text.Json.JsonSerializer.Serialize(ownerFacts) ||
+                ProgramEventHistory<ProgramBindingStartedEvent>().Count(e => e.FrameId == f.Id && e.SkillId == f.SkillId && e.BindingId == f.TriggerId &&
+                    e.SkillInstanceId == f.SkillInstanceId && e.OwnerSeat == f.OwnerSeat && e.Window == SkillProgramTriggerWindow.GameStarting) != 1)
+                throw new InvalidOperationException("Jiang Wei's initial charge needs its exact game-start owner, participant facts and current original candidate; the shared window source is not the skill owner.");
             if (!ProgramEventHistory<MouJiangWeiInitializedEvent>().Any(e => e.OwnerSeat == f.OwnerSeat))
             { ChangeMouJwCharge(f.Id, f.OwnerSeat, 4); AdvanceEventRulesAndQueueFact(new MouJiangWeiInitializedEvent(f.Id, f.OwnerSeat, MouJwSource(f), 4)); }
             return SkillProgramStepOutcome.Continue;

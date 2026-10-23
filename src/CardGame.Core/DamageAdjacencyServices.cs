@@ -32,6 +32,7 @@ internal interface IDamageAdjacencyProtocols : IProgramRuntimeOperations
     bool IsWenhePoisonDyingChild(ResolutionFrame parent, DyingFrame child);
     bool IsPaidCardUseMovementReturn(CardUseFrame use, CardsMovedTriggerWindowFrame movement);
     bool IsWenyiDamageHealthReturn(DamageFrame damage, HpChangedTriggerWindowFrame health);
+    bool IsHappyQiaoDamageHealthReturn(DamageFrame damage, HpChangedTriggerWindowFrame health);
     bool IsAmountSupportHealthChild(ResolutionFrame parent, HpChangedTriggerWindowFrame health);
     TypedRecoveryDamageCursorProjection ProjectTypedRecoveryDamageCursor(long windowId);
     ProgramSkillFrame? MouLixianDamageCursorRoot(DamageTriggerWindowFrame window, out long? dyingId);
@@ -126,6 +127,8 @@ public sealed partial class GameEngine
             engine.IsPaidCardUseMovementReturn(use, movement);
         public bool IsWenyiDamageHealthReturn(DamageFrame damage, HpChangedTriggerWindowFrame health) =>
             engine.IsWenyiDamageHealthReturn(damage, health);
+        public bool IsHappyQiaoDamageHealthReturn(DamageFrame damage, HpChangedTriggerWindowFrame health) =>
+            engine.IsHappyQiaoDamageHealthReturn(damage, health);
         public bool IsAmountSupportHealthChild(ResolutionFrame parent, HpChangedTriggerWindowFrame health) =>
             engine.IsAmountSupportHealthChild(parent, health);
         public TypedRecoveryDamageCursorProjection ProjectTypedRecoveryDamageCursor(long windowId) =>

@@ -108,6 +108,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(pair.Id,pair.SkillId,result));
         AddLog("Pindian",$"{_players[result.SourceSeat].Name} 以 {result.SourceRank} 点与 {_players[result.OpponentSeat].Name} 的 {result.OpponentRank} 点拼点，" +
             (result.SourceWon ? "发起者获胜。" : "发起者未赢。"),result.SourceSeat,result.OpponentSeat);
+        if (TryBeginMobileZhitiPindianPrograms(pair)) return;
         if (!BeginPindianClaims(pair)) CompletePindian((PindianFrame)_resolutionStack[^1]);
     }
     private bool IsPairPindianRevealSubtree(PindianFrame pair) => HasPindianRevealCapability &&

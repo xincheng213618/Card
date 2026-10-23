@@ -120,7 +120,7 @@ public sealed partial class GameEngine
     private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards, CardConversionSource? conversionSource = null) =>
         HasWuHfOrWuyouMaterialPrivilege(actor, CardKind.Slash, cards.Select(c => c.Id).ToArray()) || HasWeiwanUseDistance(actor, _players[targetSeat], CardKind.Slash) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || SlashKinds.Any(k=>HasSiruiSlashDistance(actor,k,cards.Select(c=>c.Id).ToArray(),conversionSource)) ||
         HasSayingRoundRange(actor.Seat, targetSeat) || (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
-        !cards.Any(card => _cardZones.GetLocation(card.Id) == CardLocation.Equipment(actor.Seat) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ||
+        !cards.Any(card => _cardZones.GetLocation(card.Id) == CardLocation.Equipment(actor.Seat) && FieldEquipmentSlot(card) == EquipmentSlot.Weapon) ||
         HasLiYiWeaponPaymentRange(actor, targetSeat, cards) ||
         GetCombatDistance(actor.Seat, targetSeat) <= 1;
 
@@ -239,6 +239,7 @@ public sealed partial class GameEngine
             PublishOtherCardSelection((ProgramSkillFrame)_resolutionStack[^1]);
             return;
         }
+        var reason = new CardMoveReason($"skill-program.{frame.SkillId}.take-selected-target-cards");
         var moves = slots.Select(slot =>
         {
             var from = new CardLocation(slot.Zone, draft.SourceSeat);
@@ -246,24 +247,8 @@ public sealed partial class GameEngine
             return (Card: card, From: from, To: NormalizeEphemeralCardDestination(card, from, card.IsGeneralWeapon && slot.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.Hand(frame.OwnerSeat)));
         }).ToArray();
         ReplaceRuntimeTop(frame with { OtherCardSelection = null, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
-        var batch = BeginCardMovementBatch(moves.Select(move => move.From), moves.Select(move => move.To));
-        var records = new List<CardMovementRecord>();
-        var committed = false;
-        var reason = new CardMoveReason($"skill-program.{frame.SkillId}.take-selected-target-cards");
-        try
-        {
-            foreach (var move in moves) _cardZones.Move(move.Card.Id, move.From, move.To);
-            foreach (var move in moves)
-            {
-                records.Add(RecordMovement(move.Card, move.From, move.To, reason));
-                ResolveEquipmentSkillGrant(move.Card, move.From, move.To);
-                ClearJudgmentEffectiveKindAfterMove(move.Card, move.From, move.To);
-                ResolveSilverLionRemoval(move.Card, move.From, reason);
-                ResolveWoodenOxMove(move.Card, move.From, move.To);
-            }
-            committed = true;
-        }
-        finally { CompleteCardMovementBatch(batch, records, committed); }
+        MoveProgramCardsFromMultipleSources(moves.Select(move => move.Card.Id).ToArray(), CardLocation.Hand(frame.OwnerSeat), reason,
+            destinationForCard: (card, _) => moves.Single(move => move.Card.Id == card.Id).To);
         if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 

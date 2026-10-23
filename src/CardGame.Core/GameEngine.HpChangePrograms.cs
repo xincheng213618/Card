@@ -11,7 +11,8 @@ public sealed partial class GameEngine
         var amount = kind == HpChangeKind.Setting ? Math.Abs(after - before) : kind == HpChangeKind.Loss ? before - after : after - before;
         if (!_setupComplete || amount <= 0 || _winner != Winner.None || _status == EngineStatus.Completed) return null;
         var change = new HpChangeContext(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
-            kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null);
+            kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null)
+        { HappyQiaoPool = CurrentHappyQiaoPool(targetSeat, parentFrameId) };
         _pendingHpChanges.Add(change);
         CaptureMouKurouNativeLoss(change);
         CaptureYintianRecoveryQualification(change);
@@ -135,6 +136,12 @@ public sealed partial class GameEngine
             case PostEventContinuation.WenyiDamageHealth:
                 ReturnWenyiDamageHealth(frame);
                 break;
+            case PostEventContinuation.HappyQiaoDamageHealth:
+                ReturnHappyQiaoDamageHealth(frame);
+                break;
+            case PostEventContinuation.HappyQiaoCardMaximumHealth:
+                ReturnHappyQiaoCardMaximumHealth(frame);
+                break;
             case PostEventContinuation.Program:
                 AdvanceRuntimeProgram(frame.ResumeFrameId!.Value);
                 break;
@@ -157,6 +164,11 @@ public sealed partial class GameEngine
                 if (_resolutionStack.LastOrDefault() is not SkillInvocationFrame invocation || !IsSkillInvocationHealthChild(invocation, frame))
                     throw new InvalidOperationException("A skill invocation lost its exact paid health return.");
                 AdvanceRuntimeFrame(invocation.Id); break;
+            case PostEventContinuation.KemingEcho:
+                if (_resolutionStack.LastOrDefault() is not KemingSkillEchoFrame echo || echo.Id != frame.ResumeFrameId ||
+                    !KemingSkillEchoFrameRidesOn(frame, echo))
+                    throw new InvalidOperationException("Keming echo lost its exact health-change return.");
+                AdvanceRuntimeFrame(echo.Id); break;
             case PostEventContinuation.AmountSupport:
                 if (!IsAmountSupportHealthChild(_resolutionStack.LastOrDefault(), frame))
                     throw new InvalidOperationException("Amount support lost its exact health-change return.");
@@ -263,6 +275,8 @@ public sealed partial class GameEngine
             var parentMatches = hp.Continuation switch
             {
                 PostEventContinuation.WenyiDamageHealth => parent is DamageFrame damage && IsWenyiDamageHealthReturn(damage, hp),
+                PostEventContinuation.HappyQiaoDamageHealth => parent is DamageFrame damage && IsHappyQiaoDamageHealthReturn(damage, hp),
+                PostEventContinuation.HappyQiaoCardMaximumHealth => parent is not null && IsHappyQiaoCardMaximumHealthReturn(parent, hp),
                 PostEventContinuation.Boundary => parent is null,
                 PostEventContinuation.FriendDuelResponse => parent is FriendDuelResponseFrame friend && friend.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == friend.Id && IsFriendResponseParent(friend),
                 PostEventContinuation.Program => parent is ProgramSkillFrame program && program.Id == hp.ResumeFrameId,
@@ -274,6 +288,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
                 PostEventContinuation.SkillInvocation => parent is SkillInvocationFrame invocation && IsSkillInvocationHealthChild(invocation, hp),
+                PostEventContinuation.KemingEcho => parent is KemingSkillEchoFrame echo && KemingSkillEchoFrameRidesOn(hp, echo),
                 PostEventContinuation.AmountSupport => IsAmountSupportHealthChild(parent, hp),
                 PostEventContinuation.WenhePoison => IsWenhePoisonHealthChild(parent, hp),
                 PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,

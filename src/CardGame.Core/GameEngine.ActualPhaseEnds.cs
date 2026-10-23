@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool TracksActualPhaseEnds => HasLishiCapability || HasMouSimaShi || HasMouHuCheEr || IsGuanduActivity || _contentRegistry.ProgramDependencies
+    private bool TracksActualPhaseEnds => HasLishiCapability || HasMouSimaShi || HasMouHuCheEr || IsGuanduActivity || HasOlLuShi || _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaNextActualPhaseUse) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap);
 
     private void ConfirmActualDiscardPhaseExecution()

@@ -78,7 +78,7 @@ public sealed partial class GameEngine
         var responder = _players[aid.ResponderSeats[aid.ResponderIndex]];
         var target = _players[aid.TargetSeat];
         var choices = GetEquipment(responder)
-            .Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
+            .Where(card => FieldEquipmentSlot(card) == EquipmentSlot.Weapon)
             .OrderBy(card => card.Id)
             .Select(card => new PromptChoice(
                 new ChoiceId(
@@ -154,7 +154,7 @@ public sealed partial class GameEngine
             {
                 var weapon = GetEquipment(responder).SingleOrDefault(card =>
                     card.Id == selected.Cards.Single() &&
-                    EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ??
+                    FieldEquipmentSlot(card) == EquipmentSlot.Weapon) ??
                     throw new InvalidOperationException("The selected aid-response weapon is no longer equipped.");
                 discardedWeaponCardId = weapon.Id;
                 var discardInvocation = CaptureNativeLogicalDiscardInvocation(frame.OwnerSeat,
@@ -237,7 +237,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The attack-range aid responder cursor is invalid.");
         var responderSeat = aid.ResponderSeats[aid.ResponderIndex];
         var weapons = GetEquipment(_players[responderSeat])
-            .Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
+            .Where(card => FieldEquipmentSlot(card) == EquipmentSlot.Weapon)
             .ToArray();
         var expectedReason = $"skill-program.{frame.SkillId}.{paused.Op}";
         if (frame.SelectedTargetSeats.Count != 1 || frame.SelectedTargetSeats.Single() != aid.TargetSeat ||

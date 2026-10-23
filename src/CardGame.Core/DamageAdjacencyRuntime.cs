@@ -185,6 +185,8 @@ internal sealed class DamageAdjacencyRuntime(
                   movement.Batch.AwaitingProgramFrameId is null && movement.Batch.ParentFrameId == beneath.Id,
         HpChangedTriggerWindowFrame changed when changed.Continuation == PostEventContinuation.WenyiDamageHealth =>
             beneath is DamageFrame damage && protocols.IsWenyiDamageHealthReturn(damage, changed),
+        HpChangedTriggerWindowFrame changed when changed.Continuation == PostEventContinuation.HappyQiaoDamageHealth =>
+            beneath is DamageFrame damage && protocols.IsHappyQiaoDamageHealthReturn(damage, changed),
         HpChangedTriggerWindowFrame changed when changed.Continuation == PostEventContinuation.AmountSupport =>
             protocols.IsAmountSupportHealthChild(beneath, changed),
         HpChangedTriggerWindowFrame changed => beneath is RecoveryReplacementFrame

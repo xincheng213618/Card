@@ -8,6 +8,7 @@ public sealed partial class GameEngine
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 160)]
     private void ObserveProgramHealthChange(IGameEvent payload)
     {
+        if (payload is MaximumHpChangedEvent qiaoMaximum && HasHappyQiaoHealth(qiaoMaximum.PlayerSeat)) return;
         if (payload is DamageAppliedEvent paidDamage)
             ObserveDongBaiHpDecreased(paidDamage.TargetSeat,
                 paidDamage.ArmorPayment?.HpBefore ?? _players[paidDamage.TargetSeat].Hp + paidDamage.Amount,
@@ -30,7 +31,8 @@ public sealed partial class GameEngine
             payload is MaximumHpChangedEvent { HpBeforeClamp: { } beforeClamp } ? beforeClamp : owner.Hp;
         var after = payload is DamageAppliedEvent { ArmorPayment: { } payment } ? payment.HpAfter : owner.Hp;
         var change = new HpChangeContext(++_resolutionSequence, healthOwner, null, owner.Seat,
-            changed.Item2, changed.Item3, before, after);
+            changed.Item2, changed.Item3, before, after)
+        { HappyQiaoPool = CurrentHappyQiaoPool(owner.Seat, healthOwner) };
         _pendingHpChanges.Add(change);
         CaptureQimeiHpQualification(change);
         CaptureMouSunJianOlHp(change);
@@ -42,8 +44,11 @@ public sealed partial class GameEngine
         var target = _players[attack.TargetSeat];
         var amount = CalculateCardDamageLayer(attack);
         if (TryBeginIdentityAppearanceForDamage(attack, amount)) return true;
+        if (TryBeginHappyQiaoAttackHpLossChoice(attack)) return true;
+        var qiaoOwner = HasHappyQiaoHealth(target.Seat) ? _resolutionStack.Last().Id : (long?)null;
         var before = target.Hp;
         target.Hp -= amount;
+        if (qiaoOwner is { } ownerId) CompleteHappyQiaoHealthPayment(ownerId, target.Seat, HpChangeKind.Loss, before, target.Hp);
         RecordHpChange(attack.ResolutionId, null, target.Seat, before, target.Hp, HpChangeKind.Loss);
         AdvanceEventRulesAndQueueFact(new DamageReplacedWithHpLossEvent(attack.ResolutionId, attack.SourceSeat, target.Seat, amount, target.Hp));
         AddLog("HpLost", $"{target.Name} 失去 {amount} 点体力，剩余 {target.Hp} 点体力。", target.Seat);
@@ -52,7 +57,7 @@ public sealed partial class GameEngine
         var responders = Array.AsReadOnly(BuildDyingResponderSeats(target.Seat).ToArray());
         var id = ++_resolutionSequence;
         PushRuntimeFrame(new DyingFrame(id, attack.ResolutionId, target.Seat, null, responders, 0,
-            DyingContinuationKind.AttackHpLoss));
+            DyingContinuationKind.AttackHpLoss) { HappyQiaoPool = CurrentHappyQiaoPool(target.Seat) });
         AdvanceEventRulesAndQueueFact(new PlayerDyingEvent(id, target.Seat, null));
         _status = EngineStatus.Running;
         if (!TryBeginMandatorySelfDyingProgram(ActiveDying!) && !TryBeginDyingEntryProgramWindow(ActiveDying!)) ExposeHumanDyingPrompt();

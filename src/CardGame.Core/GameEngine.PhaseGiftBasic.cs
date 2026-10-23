@@ -11,16 +11,25 @@ public sealed partial class GameEngine
         var payment = frame.SelectedCardPayment ?? throw new InvalidOperationException("A phase gift requires an owning physical payment.");
         if (!payment.MovementCommitted || payment.Operation != SkillProgramEffectOp.GiveSelected || frame.PhaseGiftReceipt is not null)
             throw new InvalidOperationException("A phase gift cannot be counted before payment or twice.");
+        var actualIds = payment.CardIds;
+        if (payment.GainRequestSettlement is { } settlement)
+        {
+            ValidateHappyWeiYanGainRequestSettlement(settlement, frame.Id, payment.CardIds,
+                CardLocation.Hand(payment.RecipientSeat), settlement.SequenceBefore);
+            actualIds = settlement.Movements.Where(move => move.To == CardLocation.Hand(payment.RecipientSeat))
+                .Select(move => move.CardId).ToArray();
+        }
         var before = _skillRuntimeState.GetUsage(frame.OwnerSeat, frame.SkillId, PaidPhaseGiftUsage, SkillUsageScope.Phase);
-        foreach (var cardId in payment.CardIds)
+        foreach (var cardId in actualIds)
         {
             if (_cardZones.GetLocation(cardId) != CardLocation.Hand(payment.RecipientSeat))
                 throw new InvalidOperationException("The committed gift entity lost its recipient before children.");
             if (!_skillRuntimeState.TryConsumeUsage(frame.OwnerSeat, frame.SkillId, PaidPhaseGiftUsage, SkillUsageScope.Phase, int.MaxValue))
                 throw new InvalidOperationException("The actual phase gift count could not advance.");
         }
-        ReplaceRuntimeTop(frame with { PhaseGiftReceipt = new(payment.InstructionIndex, _cardUseDebitPhaseInstanceId, before, payment.CardIds.Count) });
-        AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(frame.OwnerSeat, frame.SkillId, PaidPhaseGiftUsage, SkillUsageScope.Phase, payment.CardIds.Count));
+        ReplaceRuntimeTop(frame with { PhaseGiftReceipt = new(payment.InstructionIndex, _cardUseDebitPhaseInstanceId, before, actualIds.Count) });
+        if (actualIds.Count > 0)
+            AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(frame.OwnerSeat, frame.SkillId, PaidPhaseGiftUsage, SkillUsageScope.Phase, actualIds.Count));
     }
 
     private void AccumulatePaidPhaseGift(ProgramSkillFrame frame, string resultBind, int threshold)

@@ -90,7 +90,9 @@ public sealed partial class GameEngine
         var pending = ActiveNullificationWindow!;
         var policy = FreezeUnrespondableCounterspellSource(actor, []);
         ConsumeTieredRoundConversion(source); ClearPendingDecision();
-        pending = HasMouCyMatchingName(actor.Seat, CardKind.Nullification) ? PrepareNamedAmbushCounterspell(pending, actor.Seat, 0) : ReplaceNullificationWindowFrame(pending with { EffectNullified = !pending.EffectNullified,
+        // Policy preparation attaches its response admission to the live frame.
+        pending = (NullificationWindowFrame)_resolutionStack.Single(f => f.Id == pending.Id);
+        pending = HasMouCyMatchingName(actor.Seat, CardKind.Nullification) || HasAnniversaryHzPendingInvalidation(actor.Seat) ? PrepareNamedAmbushCounterspell(pending, actor.Seat, 0) : ReplaceNullificationWindowFrame(pending with { EffectNullified = !pending.EffectNullified,
             ChainDepth = pending.ChainDepth + 1, CandidateSeats = BuildNullificationCandidateSeats(actor.Seat), CandidateIndex = 0,
             Step = ResolutionFrameStep.AwaitingResponse });
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, NullificationParentActionId(pending),
@@ -100,7 +102,8 @@ public sealed partial class GameEngine
         if (pending.NamedAmbushResponse is not null) BindNamedAmbushCounterspell(pending.Id, action);
         AdvanceEventRulesAndQueueFact(new CardRespondedEvent(0, actor.Seat, pending.SourceSeat, CardKind.Nullification));
         if (pending.NamedAmbushResponse is null) AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind,
-            actor.Seat, 0, pending.EffectNullified, pending.ChainDepth));
+            actor.Seat, 0, pending.EffectNullified, pending.ChainDepth)
+            { WindowFrameId = pending.Id, TargetSeat = GetNullificationTargetSeat(pending) });
         RecordActualPlayPhaseUse(action); AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         if (pending.NamedAmbushResponse is null) CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: false);
         pending = (NullificationWindowFrame)_resolutionStack.Single(f => f.Id == pending.Id);

@@ -224,6 +224,10 @@ public sealed partial class GameEngine
     }
     private bool ValidProgramVirtualOrdinaryTrickUse(CardUseFrame use)
     {
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == "anniversary:zhuning") return IsAnniversaryLiuYongVirtualUse(use);
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == "anniversary:dehua") return IsAnniversaryLiuLiVirtualUse(use);
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == "anniversary:juee") return IsAnniversaryYangBiaoVirtualUse(use);
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == "happy:zuoxing") return IsHappyGuoJiaVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin?.SkillId == "mobile:zuoxing") return IsShenGuoJiaVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin?.SkillId == MouXunYuAnniversaryRuntime.Shimou) return IsMouXyVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin is not { } origin || use.CardId != 0 ||
@@ -356,7 +360,11 @@ public sealed partial class GameEngine
     private void ReturnProgramVirtualOrdinaryTrick(CardUseFrame use)
     {
         if (use.VirtualOrdinaryTrickOrigin is not { } origin) return;
+        if (TryReturnHappyGuoJiaVirtualUse(use)) return;
         if (TryReturnShenGuoJiaVirtualUse(use)) return;
+        if (TryReturnAnniversaryLiuYongVirtualUse(use)) return;
+        if (TryReturnAnniversaryLiuLiVirtualUse(use)) return;
+        if (TryReturnAnniversaryYangBiaoVirtualUse(use)) return;
         if (ReturnMouXyVirtualUse(use)) return;
         if (ReturnMouLuXunNativeUse(use)) return;
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != origin.ParentProgramFrameId ||

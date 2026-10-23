@@ -4,6 +4,8 @@ public sealed partial class GameEngine
 {
     private void ResolveEquipmentSkillGrant(Card card, CardLocation from, CardLocation to)
     {
+        if (to.Zone == CardZoneKind.Equipment && IsHappyWeiYanBone(card.Id))
+            to = CardLocation.Processing;
         ResolveDynamicEquipmentSkillGrants(card, from, to);
         if (ResolveHulaoEquipmentSkillGrant(card, from, to)) return;
         if (ResolveShenwuEquipmentSkillGrant(card, from, to)) return;

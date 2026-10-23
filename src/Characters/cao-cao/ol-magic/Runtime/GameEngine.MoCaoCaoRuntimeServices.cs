@@ -26,6 +26,7 @@ public sealed partial class GameEngine
                 .FirstOrDefault(c => c.SkillId == MoCaoCaoComposition.Fuzai);
             return c is null ? null : new(new(c.SkillId,c.BindingId,c.OwnerSeat,c.SkillInstanceId),c.GameplayHash);
         }
+        public ContentSkillDefinition Skill(string id) => engine._contentRegistry.GetSkill(id);
         public SkillProgram? Program(string id) => engine._contentRegistry.Skills.TryGetValue(id,out var skill) ? skill.Program : null;
         public ActualDiscardRecoveryPhaseKey? Phase => engine.CurrentActualDiscardRecoveryPhase();
         public IReadOnlyList<int> Hand(int seat) => Array.AsReadOnly(engine.GetHand(engine._players[seat]).Select(c=>c.Id).ToArray());

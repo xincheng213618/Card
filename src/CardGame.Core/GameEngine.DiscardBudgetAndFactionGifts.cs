@@ -152,10 +152,7 @@ public sealed partial class GameEngine
         if(GetEffectiveFactionId(_players[d.ProviderSeat])!=effect.ProviderFactionId||FactionGiftUsed(d.ProviderSeat)||!AvailableFactionGiftCosts(FactionGiftAction(f)).SequenceEqual(d.CardIds))throw new InvalidOperationException("Faction gift lost its exact phase, physical costs or faction.");
         AdvanceEventRulesAndQueueFact(new CompletedFactionCostGiftedEvent(f.Id,d.ActionId,d.ProviderSeat,f.OwnerSeat,f.SkillId,f.SkillInstanceId,_turnNumber,d.PhaseInstanceId,d.CardIds));
         f=f with { CompletedFactionGiftDraft=d with { Stage="movement" } };ReplaceRuntimeTop(f);
-        var moves=d.CardIds.Select(id=>{var from=_cardZones.GetLocation(id);return (Card:_cardZones.CardsAt(from).Single(card=>card.Id==id),From:from);}).ToArray();
-        var batch=BeginCardMovementBatch(moves.Select(m=>m.From),[CardLocation.Hand(f.OwnerSeat)]);var records=new List<CardMovementRecord>();var committed=false;
-        try {foreach(var m in moves)_cardZones.Move(m.Card.Id,m.From,CardLocation.Hand(f.OwnerSeat));foreach(var m in moves)records.Add(RecordMovement(m.Card,m.From,CardLocation.Hand(f.OwnerSeat),new("skill-program.faction-cost-gift.obtain")));committed=true;}
-        finally {CompleteCardMovementBatch(batch,records,committed);}
+        MoveProgramCardsFromMultipleSources(d.CardIds,CardLocation.Hand(f.OwnerSeat),new("skill-program.faction-cost-gift.obtain"));
         if(AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(f.Id);
     }
     private void AssertBudgetGiftDraft(ProgramSkillFrame f,SkillProgramEffect paused)

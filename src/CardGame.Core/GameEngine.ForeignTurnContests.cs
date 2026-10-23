@@ -5,7 +5,10 @@ public sealed partial class GameEngine
     private const string ForeignTurnContestClaimReason = "program.foreign-turn-contest.claim";
     private bool HasForeignTurnContests =>
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveForeignTurnPindian) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShenTaishiCiPowei);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShenTaishiCiPowei) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveHappyTaishiCiChongwei) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveAnniversaryZhangLiaoCuixi) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveAnniversaryXiahouEnShiwu);
     private CardConversionSource ForeignContestSource(ProgramSkillFrame f) =>
         new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
 
@@ -88,9 +91,9 @@ public sealed partial class GameEngine
     {
         var owner = _players[candidate.OwnerSeat];
         return context.Window == SkillProgramTriggerWindow.OtherActualTurnStarted &&
-            owner.IsAlive && (candidate.SkillId == "mobile-god:powei" || owner.Hp > 0 && IsRuleWounded(owner)) &&
+            owner.IsAlive && (candidate.SkillId is "mobile-god:powei" or "happy:chongwei" or "anniversary:cuixi" or "anniversary:shiwu" || owner.Hp > 0 && IsRuleWounded(owner)) &&
             context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat && owner.Seat != _currentSeat &&
-            _players[_currentSeat].IsAlive && (candidate.SkillId == "mobile-god:powei" ||
+            _players[_currentSeat].IsAlive && (candidate.SkillId is "mobile-god:powei" or "happy:chongwei" or "anniversary:cuixi" or "anniversary:shiwu" ||
                 HasWuLuKangPindianInput(owner) && HasWuLuKangPindianInput(_players[_currentSeat]) && CanBePindianTarget(owner.Seat, _currentSeat)) &&
             _resolutionStack.OfType<ForeignActualTurnStartWindowFrame>().LastOrDefault() is { } parent &&
             parent.Id == context.ParentFrameId && parent.OwnerSeat == _currentSeat && parent.ActualTurnNumber == _turnNumber &&

@@ -27,7 +27,7 @@ public sealed partial class GameEngine
                 : [];
             var playerEquipment = GetEquipment(player);
             var equipment = playerEquipment
-                .Select(ToSnapshot)
+                .Select(card => ProjectEquipmentCard(card, viewerSeat, revealAll))
                 .ToArray();
             var judgment = GetJudgment(player)
                 .Select(ToJudgmentSnapshot)
@@ -78,8 +78,8 @@ public sealed partial class GameEngine
                 general.Id,
                 general.Name,
                 general.PortraitKey,
-                player.HasHpValue ? player.Hp : 0,
-                player.HasHpValue ? player.MaxHp : 0,
+                player.HasHpValue && player.HappyQiaoHealth is null ? player.Hp : 0,
+                player.HasHpValue && player.HappyQiaoHealth is null ? player.MaxHp : 0,
                 player.IsAlive,
                 playerHand.Count,
                 hand,
@@ -87,6 +87,7 @@ public sealed partial class GameEngine
                 player.HasAlcoholEffect)
             {
                 IdentityConcealed = player.IdentityConcealed,
+                HappyQiaoHealth = player.HasHpValue ? player.HappyQiaoHealth : null,
                 WushuangTacticIds = IsWushuangMode
                     ? Array.AsReadOnly(_wushuangPlayers.GetValueOrDefault(player.Seat)?.Tactics.ToArray() ?? []) : null,
                 Armor = player.Armor,
@@ -95,7 +96,7 @@ public sealed partial class GameEngine
                         .OfType<string>().ToHashSet(StringComparer.Ordinal)),
                 SurvivalRank = WenheSurvivalRank(player.Seat),
                 WenheChampionMarkUsed = IsSurvivalMode && WenheChampionMarkUsed(player.Seat) ? true : null,
-                HpUndefined = !player.HasHpValue,
+                HpUndefined = !player.HasHpValue || player.HappyQiaoHealth is not null,
                 HandLimit = _setupComplete && player.Seat == _currentSeat && player.HasHpValue
                     ? GetHandLimit(player) : null,
                 AlcoholDamageBonus = player.AlcoholDamageBonus >= 2 ? player.AlcoholDamageBonus : null,
@@ -254,7 +255,7 @@ public sealed partial class GameEngine
 
         return FreezePlayerView(new GameSnapshot(
             revealAll ? _options.Seed : null,
-            _options.HumanSeat,
+            _options.HumanSeats is null ? _options.HumanSeat : viewerSeat,
             _status,
             _winner,
             _turnNumber,

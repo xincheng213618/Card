@@ -54,15 +54,21 @@ internal sealed class ShenZhongHuiHandler(SkillProgramEffectOp op) : ISkillProgr
 internal static class ShenZhongHuiComposition
 {
     internal const string Linjie = "anniversary:linjie", Duzhang = "anniversary:duzhang", Jianghuo = "anniversary:jianghuo", Lishi = "anniversary:lishi", Curse = "anniversary:lishi-curse";
+    internal const string HappyLinjie = "happy:linjie", HappyDuzhang = "happy:duzhang", HappyJianghuo = "happy:jianghuo", HappyLishi = "happy:lishi", HappyCurse = "happy:lishi-curse";
+    internal static bool IsHappy(string id) => id is HappyLinjie or HappyDuzhang or HappyJianghuo or HappyLishi or HappyCurse;
+    private static string Canonical(string id) => id switch
+    { HappyLinjie => Linjie, HappyDuzhang => Duzhang, HappyJianghuo => Jianghuo, HappyLishi => Lishi, HappyCurse => Curse, _ => id };
+    internal static string SameEdition(string source, string anniversary) => !IsHappy(source) ? anniversary : anniversary switch
+    { Linjie => HappyLinjie, Duzhang => HappyDuzhang, Jianghuo => HappyJianghuo, Lishi => HappyLishi, Curse => HappyCurse, _ => throw new InvalidOperationException("Unknown Zhong Hui derived skill.") };
     [ProgramCatalogValidation(39300)] internal static void Validate(string path, SkillProgram p)
     {
         if (!p.Triggers.SelectMany(t => t.Effects).Any(e => e.Op is >= SkillProgramEffectOp.ResolveLinjieRound and <= SkillProgramEffectOp.ResolveLishiPhase)) return;
         if (p.Activations.Count != 0 || p.ViewAs.Count != 0 || p.CardIdentities.Count != 0 || p.CardPolicies.Count != 0 || p.BooleanStates.Count != 0 || p.Contributions.Count != 0 ||
             p.Triggers.Any(t => t.Effects is not [{ Target: SkillProgramEffectTarget.Owner, Condition.Kind: SkillProgramConditionKind.Always }])) throw new InvalidOperationException(path + ": Shen Zhong Hui requires his exact original bindings.");
-        bool valid = p.Id switch
+        bool valid = Canonical(p.Id) switch
         {
             Linjie => p.Modifiers.Count == 0 && p.Triggers is [{ Id: "round-lin", Window: SkillProgramTriggerWindow.RoundStarting, Subject: SkillProgramTriggerSubject.Owner, Optional: true, Effects: [{ Op: SkillProgramEffectOp.ResolveLinjieRound }] }, { Id: "marked-damage", Window: SkillProgramTriggerWindow.AfterDamageApplied, Subject: SkillProgramTriggerSubject.Any, Optional: false, Effects: [{ Op: SkillProgramEffectOp.ResolveLinjieDamage }] }],
-            Duzhang => p.Modifiers is [{ Query: SkillRuleQuery.HandLimit, Operation: SkillRuleOperation.Add, ValueExpression: SkillRuleValueExpression.OwnerMarkerCount, ValueMarker: PlayerMarkerKind.LinCold }] && p.Triggers is [{ Id: "sole-black-target", Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, OwnerRelation: SkillProgramCardActionOwnerRelation.Observer, Optional: false, UsageScope: SkillUsageScope.Turn, UsageLimit: 1, Effects: [{ Op: SkillProgramEffectOp.ResolveDuzhang }] }],
+            Duzhang => p.Modifiers is [{ Query: SkillRuleQuery.HandLimit, Operation: SkillRuleOperation.Add, ValueExpression: SkillRuleValueExpression.OwnerMarkerCount, ValueMarker: PlayerMarkerKind.LinCold }] && p.Triggers is [{ Id: "sole-black-target", Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, OwnerRelation: SkillProgramCardActionOwnerRelation.Observer, Optional: false, UsageScope: SkillUsageScope.Turn, Effects: [{ Op: SkillProgramEffectOp.ResolveDuzhang }] }] && p.Triggers[0].UsageLimit == (IsHappy(p.Id) ? 2 : 1),
             Jianghuo => p.Modifiers.Count == 0 && p.Triggers is [{ Id: "all-living-damaged", Window: SkillProgramTriggerWindow.TurnBeforeStart, Subject: SkillProgramTriggerSubject.Owner, Optional: false, UsageScope: SkillUsageScope.Game, UsageLimit: 1, Effects: [{ Op: SkillProgramEffectOp.AwakenJianghuo }] }],
             Lishi => p.Modifiers.Count == 0 && p.Triggers is [{ Id: "ending-punishments", Window: SkillProgramTriggerWindow.TurnEnding, Subject: SkillProgramTriggerSubject.Owner, Optional: false, Effects: [{ Op: SkillProgramEffectOp.ChooseLishiPunishments }] }],
             Curse => p.Modifiers.Count == 0 && p.Triggers is [{ Id: "judge-debt", Window: SkillProgramTriggerWindow.JudgmentPhaseStarting, Subject: SkillProgramTriggerSubject.Owner, Optional: false, Effects: [{ Op: SkillProgramEffectOp.ResolveLishiPhase }] }, { Id: "draw-debt", Window: SkillProgramTriggerWindow.DrawPhaseEnded, Subject: SkillProgramTriggerSubject.Owner, Optional: false, Effects: [{ Op: SkillProgramEffectOp.ResolveLishiPhase }] }],

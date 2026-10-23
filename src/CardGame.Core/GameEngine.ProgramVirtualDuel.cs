@@ -15,8 +15,9 @@ public sealed partial class GameEngine
         // Completed attacks may remain as receipts while the program advances.
         // A live attack must still own the paused instruction checked above.
         if (instructionIndex > plan.Instructions.Count ||
-            plan.GetPausedInstruction(instructionIndex).Effect.Op != SkillProgramEffectOp.StartVirtualDuel)
-            throw new InvalidOperationException("A program Duel use must remain on its issued StartVirtualDuel instruction.");
+            plan.GetPausedInstruction(instructionIndex).Effect.Op is not
+                (SkillProgramEffectOp.StartVirtualDuel or SkillProgramEffectOp.JuanxiaDeclareTricks))
+            throw new InvalidOperationException("A program Duel use must retain its issued virtual Duel instruction.");
         return instructionIndex;
     }
 
@@ -32,11 +33,18 @@ public sealed partial class GameEngine
             _contentRegistry.Skills.GetValueOrDefault(owner.SkillId)?.Program is not { } program ||
             program.GameplayHash != owner.GameplayHash || owner.InstructionIndex < 1) return false;
         var plan = ProgramInstructionResolver.Default.Resolve(owner, program);
-        if (state.ProgramUseInstructionIndex != owner.InstructionIndex || owner.InstructionIndex > plan.Instructions.Count ||
-            plan.GetPausedInstruction(owner.InstructionIndex).Effect.Op != SkillProgramEffectOp.StartVirtualDuel) return false;
+        if (state.ProgramUseInstructionIndex != owner.InstructionIndex || owner.InstructionIndex > plan.Instructions.Count)
+            return false;
+        var operation = plan.GetPausedInstruction(owner.InstructionIndex).Effect.Op;
         int originalSource;
         int originalTarget;
-        if (owner.TriggerId is null)
+        if (operation == SkillProgramEffectOp.JuanxiaDeclareTricks)
+        {
+            if (!IsJuanxiaDuelOrigin(owner, out originalTarget)) return false;
+            originalSource = owner.OwnerSeat;
+        }
+        else if (operation != SkillProgramEffectOp.StartVirtualDuel) return false;
+        else if (owner.TriggerId is null)
         {
             if (owner.SelectedTargetSeats is not [var source, var target]) return false;
             originalSource = source; originalTarget = target;

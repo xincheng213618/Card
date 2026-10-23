@@ -8,7 +8,7 @@ public sealed partial class GameEngine
         PromptChoice C(string option,string label,IReadOnlyList<int>? cards=null,IReadOnlyList<int>? targets=null)=>new(new("shen-lu-su."+f.Id+"."+option),label,cards??[],targets??[],
             new Dictionary<string,string>{{"program-action","shen-lu-su"},{"option",option},{"frame-id",f.Id.ToString(CultureInfo.InvariantCulture)}});
         if(r.Stage==ShenLuSuStage.SeatChoice)return r.OriginalOrder.Except(r.Order).Select(s=>C("seat:"+s,"下一座次：“"+_players[s].Name+"”",targets:[s])).ToArray();
-        if(r.Stage==ShenLuSuStage.PeerChoice)return ShenLsPeers(f.OwnerSeat).Select(s=>C("peer:"+s,"与“"+_players[s].Name+"”随机平分双方手牌",targets:[s])).ToArray();
+        if(r.Stage==ShenLuSuStage.PeerChoice)return ShenLsPeers(f.OwnerSeat,f.SkillId).Select(s=>C("peer:"+s,"与“"+_players[s].Name+"”随机平分双方手牌",targets:[s])).ToArray();
         if(r.Stage==ShenLuSuStage.GiftChoice)return BuildOwnedCardPaymentChoices(f.Id,f.OwnerSeat,f.OwnerSeat,[CardZoneKind.Hand,CardZoneKind.Equipment],OwnedCardMoveIntent.Transfer)
             .Where(c=>c.Cards is [var id]&&ShenLsGiveable(f.OwnerSeat).Contains(id)&&!r.Cards.Contains(id)).Select(c=>C("give:"+c.Cards.Single(),c.Description,c.Cards)).ToArray();
         return [];
@@ -45,7 +45,7 @@ public sealed partial class GameEngine
     }
     private void DivideShenLs(ProgramSkillFrame f,int target)
     {
-        if(!ShenLsPeers(f.OwnerSeat).Contains(target))throw new InvalidOperationException("Zhimeng lost its legal other participant.");
+        if(!ShenLsPeers(f.OwnerSeat,f.SkillId).Contains(target))throw new InvalidOperationException("Zhimeng lost its legal other participant.");
         var pool=GetHand(_players[f.OwnerSeat]).Concat(GetHand(_players[target])).Select(c=>c.Id).ToArray();
         var random=pool.ToArray();for(var i=random.Length-1;i>0;i--){var j=_random.Next(i+1);(random[i],random[j])=(random[j],random[i]);}
         var ownerShare=random.Take((random.Length+1)/2).ToHashSet();
@@ -95,9 +95,9 @@ public sealed partial class GameEngine
         var issued=ProgramEventHistory<ShenLuSuStartedEvent>().Where(e=>e.FrameId==applied.FrameId).ToArray();
         if(frame.OwnerSeat!=_currentSeat||applied.Count!=_playerCount||CurrentTableOrder()[0]!=applied.FirstSeat||
             issued is not[var source]||source.Operation!=SkillProgramEffectOp.ResolveShenLuSuTamo||source.ParentId!=frame.Id||source.Source.OwnerSeat!=applied.OwnerSeat||
-            source.Source.SkillId!=ShenLuSuComposition.Tamo||source.GameplayHash!=_contentRegistry.GetSkill(ShenLuSuComposition.Tamo).Program!.GameplayHash||
+            source.Source.SkillId is not(ShenLuSuComposition.Tamo or "happy:tamo")||source.GameplayHash!=_contentRegistry.GetSkill(source.Source.SkillId).Program!.GameplayHash||
             !frame.Candidates.Any(c=>c.OwnerSeat==applied.OwnerSeat&&c.SkillId==source.Source.SkillId&&c.SkillInstanceId==source.Source.SkillInstanceId&&c.BindingId==source.Source.BindingId&&c.GameplayHash==source.GameplayHash)||
-            ProgramEventHistory<ProgramBindingResolvedEvent>().Count(e=>e.FrameId==applied.FrameId&&e.OwnerSeat==applied.OwnerSeat&&e.SkillId==ShenLuSuComposition.Tamo&&e.SkillInstanceId==source.Source.SkillInstanceId&&e.BindingId=="redistribute-seats"&&e.Activated&&e.Completed)!=1)
+            ProgramEventHistory<ProgramBindingResolvedEvent>().Count(e=>e.FrameId==applied.FrameId&&e.OwnerSeat==applied.OwnerSeat&&e.SkillId==source.Source.SkillId&&e.SkillInstanceId==source.Source.SkillInstanceId&&e.BindingId=="redistribute-seats"&&e.Activated&&e.Completed)!=1)
             throw new InvalidOperationException("Tamo lost its completed original setup permutation before selecting the real first actor.");
         _currentSeat=applied.FirstSeat;return true;
     }

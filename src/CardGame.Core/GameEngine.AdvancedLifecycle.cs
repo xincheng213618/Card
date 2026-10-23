@@ -104,7 +104,7 @@ public sealed partial class GameEngine
                 return BeginWeaponReclaim(frame, effect);
             case SkillProgramEffectOp.InheritWeapon:
                 var weapons = _players.Where(player => player.IsAlive).SelectMany(GetEquipment)
-                    .Concat(GetHand(owner)).Where(card => EquipmentCatalog.IsEquipment(card.Kind) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
+                    .Concat(GetHand(owner)).Where(card => EquipmentCatalog.IsEquipment(card.Kind) && FieldEquipmentSlot(card) == EquipmentSlot.Weapon)
                     .DistinctBy(card => card.Id).Select(card => card.Id.ToString()).ToArray();
                 return BeginAdvancedSelection(frame, effect, weapons);
             default: throw new InvalidOperationException("Unsupported advanced lifecycle operation.");
@@ -119,7 +119,7 @@ public sealed partial class GameEngine
     {
         if (capacity < 0 || capacity > 5) throw new InvalidOperationException("Equipment slot capacity must be between zero and five.");
         player.EquipmentSlotCapacities[slot] = capacity;
-        foreach (var card in GetEquipment(player).Where(card => EquipmentCatalog.Get(card.Kind).Slot == slot).Skip(capacity).ToArray())
+        foreach (var card in GetEquipment(player).Where(card => FieldEquipmentSlot(card) == slot).Skip(capacity).ToArray())
             MoveCard(card, CardLocation.Equipment(player.Seat), CardLocation.DiscardPile, new("equipment.slot-abolished"));
         AdvanceEventRulesAndQueueFact(new EquipmentSlotCapacityChangedEvent(player.Seat, slot, capacity));
     }

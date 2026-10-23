@@ -6,7 +6,8 @@ namespace CardGame.Core;
 /// </summary>
 public sealed class HumanActionView
 {
-    internal HumanActionView(long revision, IReadOnlyList<LegalAction> actions, IReadOnlyList<HandCardGuidance> handGuidance)
+    internal HumanActionView(long revision, IReadOnlyList<LegalAction> actions, IReadOnlyList<HandCardGuidance> handGuidance,
+        WushuangJinzhiMaterialSelection? jinzhiMaterials = null)
     {
         Revision = revision;
         LegalActions = Array.AsReadOnly(actions.Select(action => action with
@@ -23,9 +24,12 @@ public sealed class HumanActionView
                 ? Array.AsReadOnly(sources.ToArray()) : null
         }).ToArray());
         HandGuidance = Array.AsReadOnly(handGuidance.ToArray());
+        JinzhiMaterials = jinzhiMaterials is null ? null : jinzhiMaterials with
+        { CardIds = Array.AsReadOnly(jinzhiMaterials.CardIds.ToArray()) };
     }
 
     public long Revision { get; }
     public IReadOnlyList<LegalAction> LegalActions { get; }
     public IReadOnlyList<HandCardGuidance> HandGuidance { get; }
+    public WushuangJinzhiMaterialSelection? JinzhiMaterials { get; }
 }

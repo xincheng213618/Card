@@ -34,15 +34,7 @@ public sealed partial class GameEngine
         if (cards.Count > 0)
         {
             var destination = CardLocation.Hand(frame.OwnerSeat);
-            var batch = BeginCardMovementBatch(cards.Select(c => c.From), [destination]);
-            var movements = new List<CardMovementRecord>(); var committed = false;
-            try
-            {
-                _cardZones.MoveBatch(cards.Select(c => new CardTransfer(c.Card.Id, c.From, destination)));
-                foreach (var item in cards) movements.Add(RecordMovement(item.Card, item.From, destination, reason));
-                committed = true;
-            }
-            finally { CompleteCardMovementBatch(batch, movements, committed); }
+            MoveProgramCardsFromMultipleSources(cards.Select(c => c.Card.Id).ToArray(), destination, reason);
         }
         AdvanceEventRulesAndQueueFact(new ProgramRandomHandCardsTakenEvent(frame.Id, frame.SkillId,
             GetProgramBindingId(frame), frame.OwnerSeat, Array.AsReadOnly(seats.ToArray()), cards.Count));

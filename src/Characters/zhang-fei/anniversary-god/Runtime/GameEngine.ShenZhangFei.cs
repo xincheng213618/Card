@@ -9,8 +9,9 @@ public sealed partial class GameEngine
     private static CardConversionSource ShenZfSource(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId ?? f.ActivationId, f.OwnerSeat, f.SkillInstanceId);
     private int ShenZfMark(int seat, PlayerMarkerKind kind) => _players[seat].Markers.GetValueOrDefault(kind);
     private string ShenZfIssuedInstance(int seat) => "shencai-issued:" + seat.ToString(CultureInfo.InvariantCulture);
-    private bool ShenZfIssued(int seat) => IsValidPlayerSeat(seat) && ProgramEventHistory<ShenZhangFeiSentenceEvent>().Any(e => e.TargetSeat == seat &&
-        e.GameplayHash == _contentRegistry.GetSkill(ShenZhangFeiComposition.Shencai).Program!.GameplayHash);
+    private bool ShenZfValidSentence(ShenZhangFeiSentenceEvent e) => ShenZhangFeiComposition.IsShencai(e.Source.SkillId) && _contentRegistry.Skills.TryGetValue(e.Source.SkillId,out var skill) && e.GameplayHash == skill.Program?.GameplayHash;
+    private string? ShenZfIssuedSkill(int seat) => IsValidPlayerSeat(seat) ? ProgramEventHistory<ShenZhangFeiSentenceEvent>().LastOrDefault(e => e.TargetSeat == seat && ShenZfValidSentence(e))?.Source.SkillId : null;
+    private bool ShenZfIssued(int seat) => ShenZfIssuedSkill(seat) is not null;
     private int ShenZfLimit(int seat) => Math.Min(5, 1 + ProgramEventHistory<ShenZhangFeiXunshiEvent>().Count(e => e.Source.OwnerSeat == seat));
     [ProgramCapability] private sealed class ShenZhangFeiCapability(GameEngine e) : IShenZhangFeiHost
     { public SkillProgramStepOutcome Execute(ProgramSkillFrame f, SkillProgramEffectOp op) => e.BeginShenZf(f, op); }
@@ -34,7 +35,8 @@ public sealed partial class GameEngine
         var amount = f.TriggerId == "chi-damage" ? f.WindowContext!.Amount : 1;
         var r = new ShenZhangFeiReceipt(ShenZfSource(f), f.GameplayHash, op, f.WindowContext?.ParentFrameId ?? 0, target, amount,
             op == SkillProgramEffectOp.ResolveShenZhangFeiShencai && !claiming ? ShenZhangFeiStage.Judging : claiming ? ShenZhangFeiStage.GainChildren : ShenZhangFeiStage.PenaltyChildren)
-        { Before = _movementSequence, After = _movementSequence, BatchId = f.WindowContext?.MovementBatch?.Id ?? 0 };
+        { Before = _movementSequence, After = _movementSequence, BatchId = f.WindowContext?.MovementBatch?.Id ?? 0,
+            TakeBeforeDeath = f.SkillId == ShenZhangFeiComposition.HappyShencai && f.TriggerId is null ? true : null };
         ReplaceRuntimeTop(f = f with { ShenZhangFei = r });
         AdvanceEventRulesAndQueueFact(new ShenZhangFeiStartedEvent(f.Id,r.Source,r.GameplayHash,op,r.ParentId,target,amount));
         if (claiming) ClaimShenZfJudgment(f);
@@ -74,19 +76,34 @@ public sealed partial class GameEngine
             if (!_players[f.OwnerSeat].IsAlive || _winner != Winner.None) { FinishShenZf(f); return; }
             if (r.Stage == ShenZhangFeiStage.JudgmentReturned)
             {
+                if(r.TakeBeforeDeath == true && r.ResultKind is {} resultKind && (CardPrintedInfo.Terms(resultKind) & (PrintedCardTerms.Hp|PrintedCardTerms.Weapon|PrintedCardTerms.Play|PrintedCardTerms.Distance)) == PrintedCardTerms.None && _players[r.TargetSeat].IsAlive)
+                {
+                    ReplaceRuntimeTop(f = f with { ShenZhangFei = r with { Stage = ShenZhangFeiStage.TakeChoice }, PendingMovementContinuation = null });
+                    continue;
+                }
                 ReplaceRuntimeTop(f = f with { ShenZhangFei = r with { Stage = ShenZhangFeiStage.MarkChildren }, PendingMovementContinuation = null });
                 SentenceShenZf(f); continue;
+            }
+            if(r.Stage == ShenZhangFeiStage.TakeChildren && r.TakeBeforeDeath == true)
+            {
+                ReplaceRuntimeTop(f = f with { ShenZhangFei = r with { Stage = ShenZhangFeiStage.MarkChildren }, PendingMovementContinuation = null });
+                SentenceShenZf(f);continue;
             }
             if (r.Stage is ShenZhangFeiStage.MarkChildren or ShenZhangFeiStage.TakeChoice)
             {
                 var terms = r.ResultKind is { } kind ? CardPrintedInfo.Terms(kind) & (PrintedCardTerms.Hp|PrintedCardTerms.Weapon|PrintedCardTerms.Play|PrintedCardTerms.Distance) : PrintedCardTerms.None;
-                if (r.ResultCardId is not null && terms == PrintedCardTerms.None && _players[r.TargetSeat].IsAlive)
+                if (r.ResultCardId is not null && terms == PrintedCardTerms.None && _players[r.TargetSeat].IsAlive && !(r.TakeBeforeDeath == true && r.Stage == ShenZhangFeiStage.MarkChildren))
                 {
                     var choices = ShenZfTakeChoices(f);
                     if (choices.Count > 0)
                     {
                         ReplaceRuntimeTop(f = f with { ShenZhangFei = r with { Stage = ShenZhangFeiStage.TakeChoice } });
                         PublishShenZfTake(f, choices); return;
+                    }
+                    if(r.TakeBeforeDeath == true)
+                    {
+                        ReplaceRuntimeTop(f = f with { ShenZhangFei = r with { Stage = ShenZhangFeiStage.MarkChildren }, PendingMovementContinuation = null });
+                        SentenceShenZf(f);continue;
                     }
                 }
             }
@@ -166,7 +183,7 @@ public sealed partial class GameEngine
     [ProgramContinuation(ProgramContinuationKind.Movement,38600)] private bool ReturnShenZfMovement(ProgramSkillFrame f) => f.ShenZhangFei is not null && ResumeShenZf(f.Id);
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath,38600)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,38600)] private bool KeepShenZfPaid(ProgramSkillFrame f) =>
-        f.ShenZhangFei is not null || f.SkillId == ShenZhangFeiComposition.Shencai && f.TriggerId is { } binding &&
+        f.ShenZhangFei is not null || ShenZhangFeiComposition.IsShencai(f.SkillId) && f.TriggerId is { } binding &&
         ShenZfPenaltyMarker(binding) is not null && f.ActivationId == binding && f.InstructionIndex == 0 &&
         f.WindowContext is { } context && CanRunIssuedShenZf(ShenZfFrameCandidate(f),context);
     [ProgramAiChoice(SkillProgramEffectOp.ResolveShenZhangFeiShencai)] private PromptChoice AiShenZf(PendingDecision d,ProgramSkillFrame f) => d.Choices.First();

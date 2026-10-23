@@ -227,7 +227,7 @@ public sealed partial class GameEngine
             context.TargetSeat is not { } target || ActiveCardAttack is not { IsChainPropagation: false } attack ||
             attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))
             throw new InvalidOperationException("Weapon damage choice requires the owner's direct Slash damage.");
-        var weapon = GetEquipment(_players[frame.OwnerSeat]).Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
+        var weapon = GetEquipment(_players[frame.OwnerSeat]).Where(card => FieldEquipmentSlot(card) == EquipmentSlot.Weapon)
             .OrderByDescending(card => GetWeaponAttackRange(_players[frame.OwnerSeat], card)).ThenBy(card => card.Id).FirstOrDefault();
         if (weapon is null) return SkillProgramStepOutcome.Continue;
         ReplaceRuntimeTop(frame with { WeaponDamageDraft = new(target, weapon.Id, Math.Max(0, GetWeaponAttackRange(_players[frame.OwnerSeat], weapon)), []) });

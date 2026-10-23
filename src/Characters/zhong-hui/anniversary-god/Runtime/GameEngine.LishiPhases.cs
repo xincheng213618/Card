@@ -34,13 +34,22 @@ public sealed partial class GameEngine
         phase.Kind is ActualDiscardRecoveryPhaseKind.Preparation or ActualDiscardRecoveryPhaseKind.Ending && LishiActiveEffects(phase).Any(e => e.Option == 1);
     private static string LishiCategory(CardKind kind) => CardUseCategoryCatalog.Get(kind) switch
     { CardUseCategories.Basic => "basic", CardUseCategories.Equipment => "equipment", _ => "trick" };
-    private bool LishiHandTypeSpent(int actor, CardKind kind, IReadOnlyList<int> ids, long? existing = null) =>
-        HasLishiCapability && CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase && phase.ActorSeat == actor &&
-        LishiActiveEffects(phase).Any(e => e.Option == 4) && ids.Any(id => _cardZones.GetLocation(id) == CardLocation.Hand(actor)) &&
-        ProgramEventHistory<LishiHandTypeUsedEvent>().Any(e => e.Phase == phase && e.ActorSeat == actor && e.Category == LishiCategory(kind) && e.ActionId != existing);
+    private bool HasHappyLishiActualUseParticipant(int actor) => HasLishiCapability &&
+        CurrentActualDiscardRecoveryPhase() is { Kind: ActualDiscardRecoveryPhaseKind.Play } phase && phase.ActorSeat == actor &&
+        LishiActiveEffects(phase).Any(e => e.Option == 4 && e.Source.SkillId == ShenZhongHuiComposition.HappyLishi);
+    private bool LishiHandTypeSpent(int actor, CardKind kind, IReadOnlyList<int> ids, long? existing = null)
+    {
+        if (!HasLishiCapability || CurrentActualDiscardRecoveryPhase() is not { Kind: ActualDiscardRecoveryPhaseKind.Play } phase || phase.ActorSeat != actor) return false;
+        var hasHand = ids.Any(id => id > 0 && _cardZones.GetLocation(id) == CardLocation.Hand(actor));
+        if (!LishiActiveEffects(phase).Any(e => e.Option == 4 && (hasHand || e.Source.SkillId == ShenZhongHuiComposition.HappyLishi))) return false;
+        return ProgramEventHistory<LishiHandTypeUsedEvent>().Any(e => e.Phase == phase && e.ActorSeat == actor && e.Category == LishiCategory(kind) && e.ActionId != existing);
+    }
+    [ProgramCardLegality(ProgramCardLegalityStage.BeforeTurnUseBan, 42100)]
+    private bool HappyLishiAnyUseForbidden(ProgramCardUseQuery q) => q.ActionType == CardActionType.Use && HasHappyLishiActualUseParticipant(q.ActorSeat) &&
+        LishiHandTypeSpent(q.ActorSeat, q.Kind, [], q.ExistingUseFrameId is { } id ? LifecycleCardUse(id)?.Action?.ActionId : null);
     [ProgramCardLegality(ProgramCardLegalityStage.SubmittedUseValidation, 39300)] private void LishiSubmittedHandForbidden(ProgramSubmittedUseQuery q)
     { if (LishiHandTypeSpent(q.ActorSeat, q.Kind, q.CardIds)) throw new InvalidOperationException("Lishi permits only one actual hand-card use of each type in the issued Play phase."); }
-    [ProgramCardLegality(ProgramCardLegalityStage.BeforeLegalActionKind, 39300)] private bool LishiProjectedHandForbidden(ProgramLegalActionQuery q) =>
+    [ProgramCardLegality(ProgramCardLegalityStage.AfterLegalActionKind, 39300)] private bool LishiProjectedHandForbidden(ProgramLegalActionQuery q) =>
         q.Action.CardId is { } id && q.EffectiveKind is { } kind && LishiHandTypeSpent(q.Actor.Seat, kind, [id]);
     [ProgramCardLegality(ProgramCardLegalityStage.MaterialUseBan, 39300)] private bool LishiMaterialForbidden(ProgramCardMaterialQuery q) => !q.IsResponse && LishiHandTypeSpent(q.ActorSeat, q.Kind, q.CardIds.ToArray());
     private bool IsLishiResponseUse(int actor, CardKind kind) => kind == CardKind.Nullification || kind == CardKind.Dodge && ActiveCardAttack is { } attack && attack.TargetSeat == actor && attack.EffectiveCardKind is { } incoming && IsSlashCard(incoming);
@@ -49,7 +58,7 @@ public sealed partial class GameEngine
     [ProgramCardUsePayment(ProgramCardUsePaymentStage.AcceptedConversionCost, 39301)] private void RecordLishiHandUse(CardActionContext action)
     {
         if (!HasLishiCapability || CurrentActualDiscardRecoveryPhase() is not { Kind: ActualDiscardRecoveryPhaseKind.Play } phase || phase.ActorSeat != action.ActorSeat ||
-            action.Type != CardActionType.Use && !(IsLishiResponseUse(action.ActorSeat, action.EffectiveKind) && IsCompletedResponseUse(action, action.EffectiveKind == CardKind.Nullification ? ProgramCardContinuation.NullificationResponse : ProgramCardContinuation.Dodge)) || !action.PhysicalCards.Any(c => c.From == CardLocation.Hand(action.ActorSeat)) || !LishiActiveEffects(phase).Any(e => e.Option == 4) ||
+            action.Type != CardActionType.Use && !(IsLishiResponseUse(action.ActorSeat, action.EffectiveKind) && IsCompletedResponseUse(action, action.EffectiveKind == CardKind.Nullification ? ProgramCardContinuation.NullificationResponse : ProgramCardContinuation.Dodge)) || !LishiActiveEffects(phase).Any(e => e.Option == 4 && (e.Source.SkillId == ShenZhongHuiComposition.HappyLishi || action.PhysicalCards.Any(c => c.From == CardLocation.Hand(action.ActorSeat)))) ||
             ProgramEventHistory<LishiHandTypeUsedEvent>().Any(e => e.ActionId == action.ActionId)) return;
         AdvanceEventRulesAndQueueFact(new LishiHandTypeUsedEvent(action.ActionId, action.ActorSeat, LishiCategory(action.EffectiveKind), phase));
     }
@@ -100,7 +109,7 @@ public sealed partial class GameEngine
     }
     private string LishiJudgmentReason(ShenZhongHuiReceipt r) => CardCatalog.Get(r.Judgments[r.JudgmentIndex]).DisplayName;
     private bool CanBeginLishiJudgment(ProgramSkillFrame f, int targetSeat, string reason, string bind, SkillProgramCardSetVisibility visibility) =>
-        f.SkillId == ShenZhongHuiComposition.Curse && f.TriggerId == "judge-debt" && f.ShenZhongHui is { Operation: SkillProgramEffectOp.ResolveLishiPhase, Stage: ShenZhongHuiStage.PhaseJudging, JudgmentId: > 0, Phase: { Kind: ActualDiscardRecoveryPhaseKind.Judgment } phase } r &&
+        f.SkillId is (ShenZhongHuiComposition.Curse or ShenZhongHuiComposition.HappyCurse) && f.TriggerId == "judge-debt" && f.ShenZhongHui is { Operation: SkillProgramEffectOp.ResolveLishiPhase, Stage: ShenZhongHuiStage.PhaseJudging, JudgmentId: > 0, Phase: { Kind: ActualDiscardRecoveryPhaseKind.Judgment } phase } r &&
         r.Judgments.Count == 2 && r.JudgmentIndex < 2 && targetSeat == f.OwnerSeat && phase.ActorSeat == targetSeat && CurrentActualDiscardRecoveryPhase() == phase && reason == LishiJudgmentReason(r) && bind == "lishi-judgment" && visibility == SkillProgramCardSetVisibility.Public && LishiActiveEffects(phase).Any(e => e.Option == 2);
     private bool IsLishiJudgment(JudgmentFrame j, ProgramSkillFrame f) => j.Continuation == JudgmentContinuationKind.ProgramSkill && j.ParentFrameId == f.Id && f.ShenZhongHui!.JudgmentId == j.Id && j.SourceSeat == f.OwnerSeat &&
         CanBeginLishiJudgment(f, j.TargetSeat, j.Reason, j.ProgramResultBind ?? "", j.ProgramResultVisibility ?? SkillProgramCardSetVisibility.Private);

@@ -11,7 +11,8 @@ public sealed partial class GameEngine
 
     private bool DrawFundedDistinctBasicQualified(CharacterState actor)
     {
-        if (!actor.IsAlive || _winner != Winner.None) return false;
+        if (!actor.IsAlive || _winner != Winner.None || !GetSkillBindingShard(actor).ProgramInstances
+            .Any(instance => instance.Program.ViewAs.Any(rule => rule.DrawFundedDistinctBasic is not null))) return false;
         var hand = GetHand(actor);
         if (hand.Count == 0 || hand.Count != actor.Hp) return false;
         var color = SuitColor(EffectiveSuit(actor, hand[0]));

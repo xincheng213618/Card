@@ -132,7 +132,7 @@ public sealed partial class GameEngine
             CardKind.StarShift or CardKind.HandRedistribution => CanBeWenheAdditionalTarget(use, target),
             CardKind.Intoxication or CardKind.StoreGrain or CardKind.Reinforcements => CanBeGuanduAdditionalTarget(use, target),
             CardKind.SameBoat or CardKind.AgainstCurrent or CardKind.Zong => CanBeDragonBoatAdditionalTarget(use, target),
-            CardKind.BorrowedSword => GetEquipment(target).Any(c => EquipmentCatalog.Get(c.Kind).Slot == EquipmentSlot.Weapon) &&
+            CardKind.BorrowedSword => GetEquipment(target).Any(c => FieldEquipmentSlot(c) == EquipmentSlot.Weapon) &&
                 _players.Any(victim => IsLegalBorrowedSwordSlashTarget(target, victim)),
             CardKind.Duel => target.Seat != actor.Seat,
             CardKind.FireAttack => GetHand(target).Count > 0,

@@ -46,7 +46,7 @@ public sealed partial class GameEngine
     {
         var parent = _resolutionStack.LastOrDefault() ?? throw new InvalidOperationException("Equipment invocation requires a live native owner.");
         var equipment = NativeInvocationEquipment(kind);
-        var cardId = GetEquipment(_players[actorSeat]).FirstOrDefault(c => c.Kind == equipment)?.Id ?? 0;
+        var cardId = KongwuEffectiveEquipment(_players[actorSeat]).FirstOrDefault(c => c.Kind == equipment)?.Id ?? 0;
         var ordinal = ProgramEventHistory<NativeEquipmentInvocationIssuedEvent>().Count(e => e.ParentFrameId == parent.Id && e.Kind == kind && e.ActorSeat == actorSeat);
         var nonce = $"{_random.Next(int.MaxValue):X8}{_random.Next(int.MaxValue):X8}";
         return new(parent.Id, attack.ResolutionId, kind, actorSeat, targetSeat, CardCatalog.Get(equipment).DisplayName,

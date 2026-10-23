@@ -141,7 +141,8 @@ public sealed partial class GameEngine
         if (!_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ReplaceOwnSkillsAfterAlcoholSlashDamage) &&
             !_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolvePrepPoisonOutcomeByRound) &&
             !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveShenHuaTuoHuandao) &&
-            !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.TeachMobileShenHuaTuoWuling)) return false;
+            !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.TeachMobileShenHuaTuoWuling) &&
+            !_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMobileShenLuBuWuqian)) return false;
         var history = CompleteProgramEventHistory().ToArray();
         var lossIndex = Array.FindIndex(history, e => ReferenceEquals(e, originalLoss));
         if (lossIndex < 0) throw new InvalidOperationException("Permanent grant restoration validation lost its original issued loss fact.");
@@ -151,6 +152,8 @@ public sealed partial class GameEngine
             history.Skip(lossIndex + 1).OfType<ShenHuaTuoSkillRevokedEvent>().Any(e => e.TargetSeat == ownerSeat &&
                 e.GrantId == grant.GrantId && e.SkillId == grant.SkillId && e.SkillInstanceId == grant.SkillInstanceId && e.SourceId == grant.SourceId) ||
             history.Skip(lossIndex + 1).OfType<MobileWulingGrantRevokedEvent>().Any(e => e.TargetSeat == ownerSeat &&
+                e.GrantId == grant.GrantId && e.SkillId == grant.SkillId && e.SkillInstanceId == grant.SkillInstanceId && e.SourceId == grant.SourceId) ||
+            history.Skip(lossIndex + 1).OfType<MobileLuBuWushuangRevokedEvent>().Any(e => e.TargetSeat == ownerSeat &&
                 e.GrantId == grant.GrantId && e.SkillId == grant.SkillId && e.SkillInstanceId == grant.SkillInstanceId && e.SourceId == grant.SourceId);
     }
 

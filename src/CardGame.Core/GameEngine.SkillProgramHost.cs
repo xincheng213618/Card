@@ -88,6 +88,9 @@ public sealed partial class GameEngine
             engine.TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.Program) ||
             engine.TryBeginCardsMovedProgramWindow(frameId) || engine.TryBeginAdvancedSkillsChanged(frameId) || engine.TryContinueAdvancedDamage(frameId);
 
+        public bool TryStartInstructionHealthQuery(ProgramSkillFrame frame, SkillProgramEffect effect) =>
+            engine.TryBeginHappyQiaoInstructionQuery(frame, effect);
+
         public void UpdateFrame(ProgramSkillFrame frame)
         {
             if (GetActiveFrame(frame.Id) is null)
@@ -136,6 +139,13 @@ public sealed partial class GameEngine
                 _ => throw new InvalidOperationException(
                     $"Unsupported recovery number expression '{numberExpression}'.")
             };
+            if (target.HappyQiaoHealth is not null)
+            {
+                if (engine.HappyQiaoAnyWounded(targetSeat))
+                    _ = engine.TryQueueRecoveryReplacement(frameId, ownerSeat, targetSeat, requested,
+                        new(RecoveryAttemptProducer.Program, engine.GetActiveProgramFrame(frameId).InstructionIndex));
+                return;
+            }
             var recovered = Math.Min(requested, target.MaxHp - target.Hp);
             if (recovered <= 0) return;
             if (engine.GetActiveProgramFrame(frameId).FixedRecipient is not null) engine.CaptureFixedRecipientRecovery(frameId, ownerSeat, targetSeat, recovered);
@@ -167,8 +177,14 @@ public sealed partial class GameEngine
                     Recover(frameId, ownerSeat, seat, amount, null, null);
         }
 
-        public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount) =>
-            engine.ApplyProgramHpLoss(frameId, skillId, targetSeat, amount);
+        public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount)
+        {
+            if (!engine.HasHappyQiaoHealth(targetSeat)) return engine.ApplyProgramHpLoss(frameId, skillId, targetSeat, amount);
+            if (engine.TryBeginHappyQiaoProgramHealthChoice(engine.GetActiveProgramFrame(frameId), targetSeat, HpChangeKind.Loss, amount))
+                return SkillProgramStepOutcome.AwaitChild;
+            return engine.ApplyProgramHpLoss(frameId, skillId, targetSeat, amount,
+                (before, after, _) => engine.CompleteHappyQiaoHealthPayment(frameId, targetSeat, HpChangeKind.Loss, before, after));
+        }
 
         public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
             ProgramParticipantReference? sourceReference = null, DamageNature? nature = null) =>
@@ -258,6 +274,16 @@ public sealed partial class GameEngine
             else if (toDiscard && engine.HasHellShiyouCapability)
                 engine.MoveProgramCardsFromMultipleSources(cardIds, destination, reason,
                     disclosure: CardMovementDisclosure.FaceUp);
+            else if (!toDiscard && selected.Any(item =>
+                engine.PlanHappyWeiYanGainDestination(item.Card, item.Location, destination, reason) is not null))
+                engine.MoveNativeGivenCards(frame.Id, frame.OwnerSeat, targetSeat, cardIds, reason, settlement =>
+                {
+                    var paid = engine.GetActiveProgramFrame(frame.Id);
+                    engine.ReplaceRuntimeTop(paid with
+                    {
+                        SelectedCardPayment = paid.SelectedCardPayment! with { GainRequestSettlement = settlement }
+                    });
+                }, CardMovementDisclosure.FaceDown);
             else foreach (var group in selected.GroupBy(item => item.Location))
                 engine.MoveCards(group.Select(item => item.Card).ToArray(), group.Key, destination, reason,
                     toDiscard ? null : engine.NativeGiveCompletion(frame.Id, frame.OwnerSeat, targetSeat, cardIds, nativeGiveBefore),

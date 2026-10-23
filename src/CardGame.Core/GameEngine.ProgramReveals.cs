@@ -20,7 +20,8 @@ public sealed partial class GameEngine
         var chooserSeat = ResolveProgramParticipant(active, chooserRef);
         var holderSeat = ResolveProgramParticipant(active, cardOwnerRef);
         if (chooserSeat != frame.OwnerSeat || holderSeat == frame.OwnerSeat &&
-            mode != SkillProgramRevealMode.SelfChoiceOtherwiseRandom)
+            mode != SkillProgramRevealMode.SelfChoiceOtherwiseRandom &&
+            !(mode == SkillProgramRevealMode.Chooser && IsExactHappyGongxinSelfReveal(active)))
             throw new InvalidOperationException(
                 "A hand reveal must target another character's hand and be chosen by the skill owner.");
         var candidates = GetHand(_players[holderSeat]).Select(card => card.Id).ToArray();
@@ -169,7 +170,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A suspended reveal lost its private draft.");
         var expectedChoices = draft.EligibleCardIds.Count + (draft.AllowDecline ? 1 : 0);
         if (draft.ResultBind != paused.ResultBind || draft.ChooserSeat != frame.OwnerSeat ||
-            (draft.HolderSeat == frame.OwnerSeat && paused.RevealMode != SkillProgramRevealMode.SelfChoiceOtherwiseRandom) ||
+            (draft.HolderSeat == frame.OwnerSeat && paused.RevealMode != SkillProgramRevealMode.SelfChoiceOtherwiseRandom &&
+                !(paused.RevealMode == SkillProgramRevealMode.Chooser && IsExactHappyGongxinSelfReveal(frame))) ||
             draft.AllowDecline != paused.AllowDecline ||
             draft.CandidateCardIds.Count == 0 ||
             draft.CandidateCardIds.Distinct().Count() != draft.CandidateCardIds.Count ||

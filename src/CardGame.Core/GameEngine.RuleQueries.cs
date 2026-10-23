@@ -166,7 +166,8 @@ public sealed partial class GameEngine
             woundCount > 0
                 ? new RuleQueryBaseTerm($"state:{player.Seat}:classic:buqu:wounds", woundCount)
                 : new RuleQueryBaseTerm($"state:{player.Seat}:current-hp",
-                    GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.HandLimit) ?? Math.Max(0, player.Hp))
+                    GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.HandLimit) ??
+                    player.HappyQiaoHealth?.HandLimitBase ?? Math.Max(0, player.Hp))
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.HandLimit).ToList();
         AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-mobile:yingzi:hand-limit", MouZyMobileHandLimit(player.Seat));
@@ -179,6 +180,7 @@ public sealed partial class GameEngine
         contributions.AddRange(PersistentHandLimitContributions(player));
         contributions.AddRange(ShenJiangWeiPingxiangHandLimitContributions(player));
         contributions.AddRange(ShenZfHandLimitContributions(player));
+        contributions.AddRange(AnniversaryLiuLiHandLimitContributions(player));
         if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ApplyLiushiEffect))
             AddFiniteContribution(contributions, $"state:{player.Seat}:liushi:hand-limit", -player.Markers.GetValueOrDefault(PlayerMarkerKind.LiuShi));
         contributions.AddRange(ActorHandLimitPenaltyContributions(player));
@@ -234,10 +236,13 @@ public sealed partial class GameEngine
                 !_contentRegistry.GetSkill(binding.Source.SkillId).Tags.HasFlag(SkillTag.Lord) ||
                 HasSkillRoleQualification(player, binding.Source.SkillId, binding.Source.SkillInstanceId, Role.Lord)).ToArray();
         if (bindings.Length == 0) return CollectStrategicRuleContributions(player, query)
+            .Concat(MobileWuqianRuleContributions(player, query))
             .Concat(WushuangSkillsBNumericContributions(player, query))
             .Concat(WushuangNumericRuleContributions(player, query))
             .Concat(ActivityRuleContributions(player, query))
-            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query)).ToArray();
+            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query))
+            .Concat(HappyZlNumericContributions(player, query))
+            .Concat(AnniversaryZhangXunSlashContributions(player, query)).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),
@@ -270,10 +275,13 @@ public sealed partial class GameEngine
             context,
             bindings);
         return programContributions.Concat(CollectStrategicRuleContributions(player, query))
+            .Concat(MobileWuqianRuleContributions(player, query))
             .Concat(WushuangSkillsBNumericContributions(player, query))
             .Concat(WushuangNumericRuleContributions(player, query))
             .Concat(ActivityRuleContributions(player, query))
-            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query)).ToArray();
+            .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query))
+            .Concat(HappyZlNumericContributions(player, query))
+            .Concat(AnniversaryZhangXunSlashContributions(player, query)).ToArray();
     }
 
     private static void AddFiniteContribution(
@@ -294,6 +302,7 @@ public sealed partial class GameEngine
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
         (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
+         IsHappyQiaoShutuCardQuery(player, physicalCard?.Id) ||
          TargetRules.HasSlashQuotaBeforeLimit(new(player, target, effectiveKind, physicalCard, effectiveRank,
              excludedEquipmentId, physicalCardIds, excludedEquipmentSlot, ignoreMoQuanyu)) ||
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||

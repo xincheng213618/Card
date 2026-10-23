@@ -25,6 +25,7 @@ public sealed partial class GameEngine
 
     private bool HasNullificationEffectOwner(NullificationWindowFrame window)
     {
+        if (window.GroupTargetReturn is not null) return IsGroupTargetNullification(window);
         if (window.DelayedReturn is not { } delayed)
             return LifecycleCardUse(window.ParentFrameId) is not null;
         var index = _resolutionStack.FindIndex(frame => frame.Id == window.Id);

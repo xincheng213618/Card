@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool IsArmorIneffectiveForTurn(CharacterState target) => ShenwuZhaohuoDisablesArmor(target.Seat) || _turnCardUseEffects.TargetRestrictions.Any(restriction =>
+    private bool IsArmorIneffectiveForTurn(CharacterState target) => HasMobileWuqianArmorDisabled(target.Seat) || ShenwuZhaohuoDisablesArmor(target.Seat) || _turnCardUseEffects.TargetRestrictions.Any(restriction =>
         restriction.TurnNumber == _turnNumber && restriction.Restriction == SkillProgramCardTargetRestriction.ArmorIneffectiveForTurn && restriction.TargetSeat == target.Seat);
     private bool TryResolveExtendedAiResponse(CharacterState owner, Card card, CardKind kind)
     {
@@ -17,7 +17,7 @@ public sealed partial class GameEngine
         if (kind == CardKind.Peach && ActiveDying is { } dying && !CanUsePeachToRescue(owner.Seat, dying.VictimSeat)) return [];
         return GetProgramMultiCardViewAsSelections(owner, kind, true).Where(selection =>
             (kind != CardKind.Peach || !IsShieldedRescueSelection(owner, selection)) &&
-            (kind != CardKind.Alcohol || IsWushuangJinzhiSelection(selection) || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null || ViewAsRule(selection.Source)?.LeiluanBasicUse is not null)).Select(selection =>
+            (kind != CardKind.Alcohol || IsWushuangJinzhiSelection(selection) || IsAnniversaryYizanSelection(selection) || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null || ViewAsRule(selection.Source)?.LeiluanBasicUse is not null)).Select(selection =>
         {
             var parameters = new Dictionary<string, string> { ["response"] = "extended-view-as", ["output-kind"] = kind.ToString() };
             AddConversionParameters(parameters, selection.Source);
@@ -50,6 +50,7 @@ public sealed partial class GameEngine
             TryCompleteXieweiFactionDefense(defense, owner, selection)) return;
         if (TryResolveLeiluanDyingResponse(owner, selection)) return;
         if (TryResolveWushuangJinzhiDyingAlcohol(owner, selection)) return;
+        if (TryResolveAnniversaryYizanDyingAlcohol(owner, selection)) return;
         if (TryResolveRoundDistinctBasicDyingResponse(owner, selection)) return;
         if (kind == CardKind.Peach)
         {
@@ -78,8 +79,9 @@ public sealed partial class GameEngine
             var unrespondableSource = FreezeUnrespondableCounterspellSource(owner, selection.Cards.Select(card => card.Id).ToArray());
             var action = MoveProgramMultiCardResponse(owner, selection, pending.ParentFrameId, pending.SourceSeat);
             FinishProgramMultiCardResponse(selection);
+            pending = (NullificationWindowFrame)_resolutionStack.Single(f => f.Id == pending.Id);
             pending = (action.PhysicalCards.Count > 0 && action.ActorSeat == action.ProviderSeat &&
-                action.PhysicalCards.All(c => c.From == CardLocation.Hand(owner.Seat)) && HasEnabledMatchingNamedAmbush(owner.Seat, CardKind.Nullification)) || HasMouCyMatchingName(owner.Seat, CardKind.Nullification)
+                action.PhysicalCards.All(c => c.From == CardLocation.Hand(owner.Seat)) && HasEnabledMatchingNamedAmbush(owner.Seat, CardKind.Nullification)) || HasMouCyMatchingName(owner.Seat, CardKind.Nullification) || HasAnniversaryHzPendingInvalidation(owner.Seat) || HasHappyWeiYanPotentialCancellation(owner.Seat)
                 ? PrepareNamedAmbushCounterspell(pending, owner.Seat, selection.Cards[0].Id) : ReplaceNullificationWindowFrame(pending with
             {
                 EffectNullified = !pending.EffectNullified,
@@ -90,7 +92,8 @@ public sealed partial class GameEngine
             });
             if (pending.NamedAmbushResponse is not null) BindNamedAmbushCounterspell(pending.Id, action);
             else AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId,
-                pending.EffectCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
+                pending.EffectCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth)
+                { WindowFrameId = pending.Id, TargetSeat = GetNullificationTargetSeat(pending) });
             if (pending.NamedAmbushResponse is null) CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: false);
             if (TryBeginPolicyCounterspellPayment(pending, action, unrespondableSource, selection.Cards.Select(card => card.Id).ToArray())) return;
             if (TryBeginCommittedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse)) return;

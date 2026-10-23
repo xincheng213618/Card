@@ -27,7 +27,8 @@ public sealed partial class GameEngine
         var plan = ProgramInstructionResolver.Default.Resolve(parent, program);
         if (parent.InstructionIndex > plan.Instructions.Count) return false;
         var paused = plan.GetPausedInstruction(parent.InstructionIndex).Effect;
-        return paused is { Op: SkillProgramEffectOp.UseVirtualCard, OutputKind: CardKind.Slash, UseCardActionWindows: false } &&
+        return paused is { Op: SkillProgramEffectOp.UseVirtualCard, OutputKind: CardKind.Slash } &&
+            (!paused.UseCardActionWindows || IsHappyLuBuTrueVirtualProducer(use, parent, paused)) &&
             paused.TargetRestriction is (SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget or SkillProgramCardTargetRestriction.NormalSlashTarget) &&
             action.ConversionChain.SequenceEqual([new CardConversionSource(parent.SkillId, GetProgramBindingId(parent), parent.OwnerSeat, parent.SkillInstanceId)]);
     }

@@ -452,7 +452,7 @@ public sealed partial class GameEngine
 
     private bool HasExactHellWuhunDirectDeath(ProgramSkillFrame causer, DeathFrame death)
     {
-        if (causer.Id != death.ParentFrameId || death.KillerSeat is not null || causer.SkillId != "classic:wuhun" || causer.TriggerId != "death-judgment" ||
+        if (causer.Id != death.ParentFrameId || death.KillerSeat is not null || causer.SkillId is not ("classic:wuhun" or "mobile:wuhun" or "anniversary-god:wuhun") || causer.TriggerId != "death-judgment" ||
             causer.InstructionIndex < 1 || !causer.SelectedTargetSeats.SequenceEqual([death.VictimSeat])) return false;
         var effect = ProgramInstructionResolver.Default.Resolve(causer, _contentRegistry.GetSkill(causer.SkillId).Program!).GetPausedInstruction(causer.InstructionIndex).Effect;
         if (effect is not { Op: SkillProgramEffectOp.CauseDeathUnlessBoundCardKind, Target: SkillProgramEffectTarget.SelectedTarget, Condition.Kind: SkillProgramConditionKind.Always, SourceBind: { } bind } ||

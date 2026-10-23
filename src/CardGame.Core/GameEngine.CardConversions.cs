@@ -212,7 +212,7 @@ public sealed partial class GameEngine
     }
 
     private bool IgnoresProgramSlashLimit(CharacterState owner, CardConversionSource? source) =>
-        ShouliIgnoresSlashLimit(owner, source) || SiruiIgnoresSlashLimit(owner, source) || source is not null && source.OwnerSeat == owner.Seat &&
+        ShouliIgnoresSlashLimit(owner, source) || SiruiIgnoresSlashLimit(owner, source) || IsAnniversaryChouxiSource(owner, source) || source is not null && source.OwnerSeat == owner.Seat &&
         GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashLimit).Any(binding =>
             binding.Source.SkillId == source.SkillId && binding.Source.SkillInstanceId == source.SkillInstanceId &&
             binding.Modifier.Operation == SkillRuleOperation.Unlimited && binding.Modifier.SourceCardIdentityId == source.BindingId &&
@@ -274,7 +274,7 @@ public sealed partial class GameEngine
                 {
                     var (instance, rule) = item;
                     return (!wuyouJuewuIdentity || instance.SkillId == "wumiao:juewu" && rule.RankTwoDamageUse) &&
-                               instance.SkillId != WushuangJinzhiSkill && rule.KenshangUse != true && !(rule.VariableInputCount && rule.CostDestination == SkillProgramCardDestination.DrawPileBottom) && rule.InputCount == 1 &&
+                               instance.SkillId != WushuangJinzhiSkill && rule.KenshangUse != true && !(rule.VariableInputCount && rule.CostDestination == SkillProgramCardDestination.DrawPileBottom) && EffectiveProgramViewAsInputCount(owner, rule) == 1 &&
                                (rule.OutputKind == outputKind || CardLegality.AllowsNativeSlashAlias(new(owner, instance, rule, outputKind, forResponse)) || instance.SkillId == "le:fule" && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && FuleSlashAliasAllowed(owner, forResponse) || rule.EqualNameLengthUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && SiruiSlashAliasAllowed(owner, forResponse) || rule.RankTwoDamageUse && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind) && JuewuSlashAliasAllowed(owner, forResponse) || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                MatchesZhongshenRoundGain(owner, card, rule) &&
@@ -351,7 +351,7 @@ public sealed partial class GameEngine
         var bindings = GetSkillBindingShard(owner).ProgramInstances;
         var leiluan = LeiluanSelections(owner, outputKind, forResponse, ignoreSuitUseProhibition);
         var jinzhi = WushuangJinzhiSelections(owner, outputKind, forResponse);
-        if (leiluan.Count == 0 && jinzhi.Count == 0 && !bindings.Any(instance => instance.Program.ViewAs.Any(rule => rule.InputCount > 1 && !rule.VariableInputCount))) return [];
+        if (leiluan.Count == 0 && jinzhi.Count == 0 && !bindings.Any(instance => instance.Program.ViewAs.Any(rule => EffectiveProgramViewAsInputCount(owner, rule) > 1 && !rule.VariableInputCount))) return [];
         var context = CreateSkillContext(owner);
         var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
             ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
@@ -364,7 +364,7 @@ public sealed partial class GameEngine
         foreach (var instance in bindings.Where(instance =>
                      instance.Program.ViewAs.Count != 0))
         foreach (var rule in instance.Program.ViewAs.Where(rule =>
-                     rule.InputCount > 1 && !rule.VariableInputCount &&
+                     EffectiveProgramViewAsInputCount(owner, rule) > 1 && !rule.VariableInputCount &&
                      (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash ||
                          !forResponse && rule.RoundDistinctBasicUse is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                      (requestedUseTarget is not null ? rule.ForResponse || rule.ForPlay : forResponse ? rule.ForResponse || rule.RoundDistinctBasicUse is not null && dyingUse && rule.ForPlay : rule.ForPlay) &&
@@ -379,13 +379,14 @@ public sealed partial class GameEngine
                     rule.RoundDistinctBasicUse is not null && IsRoundDistinctBasicMaterial(owner, card)) &&
                 (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card))) &&
                 (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit))).ToArray();
-            if (candidates.Length < rule.InputCount) continue;
+            var inputCount = EffectiveProgramViewAsInputCount(owner, rule);
+            if (candidates.Length < inputCount) continue;
             var source = new CardConversionSource(
                 instance.SkillId,
                 rule.Id,
                 owner.Seat,
                 instance.SkillInstanceId);
-            foreach (var cards in EnumerateCardCombinations(candidates, rule.InputCount))
+            foreach (var cards in EnumerateCardCombinations(candidates, inputCount))
                 if ((!rule.SameSuit || cards.Select(card => card.Suit).Distinct().Count() == 1) &&
                     MatchesRoundDistinctBasicMaterials(owner, rule, cards))
                     selections.Add(new(cards, source, rule.RoundDistinctBasicUse is null ? outputKind : rule.OutputKind));

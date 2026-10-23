@@ -36,12 +36,20 @@ internal static class RuntimeRules_Core_CommonRules
         {
             throw new ArgumentOutOfRangeException(nameof(options.MaxTurns));
         }
+        if (options.HumanSeats is { } humans &&
+            (humans.Count == 0 || humans.Distinct().Count() != humans.Count ||
+             humans.Any(seat => seat < 0 || seat >= options.PlayerCount) || !humans.Contains(options.HumanSeat)))
+            throw new ArgumentException("HumanSeats must contain distinct valid seats including HumanSeat.", nameof(options));
+        if (options.HumanSeats is not null && options.ConfirmOpeningHand)
+            throw new ArgumentException("Multiplayer opening-hand rerolls are not supported.", nameof(options));
     }
 
     internal static void ValidateModeOptions(
         GameOptions options,
         ContentModeDefinition mode)
     {
+        if (options.HumanSeats is not null && (mode.ModeKind != ContentModeKind.Identity || options.ShanheBattle is not null))
+            throw new ArgumentException("Multiplayer currently supports identity tables only.", nameof(options));
         if (options.HumanGuanduRole is not null && mode.GuanduActivity is null)
             throw new ArgumentException("Guandu role is only valid in Guandu.", nameof(options.HumanGuanduRole));
         if (options.WenheAspirationRank is { } goal &&
@@ -579,13 +587,14 @@ internal static class RuntimeRules_Core_CommonRules
         movement.ResumeFriendDuelResponseFrameId is not null || movement.ResumeDeclarationFrameId is not null || movement.ResumeDrawFundedDistinctBasicFrameId is not null ||
         movement.ResumeRecoveryReplacementFrameId is not null || movement.ResumePaidCardUseFrameId is not null ||
         movement.ResumeSoleIncomingRangeDrawFrameId is not null ||
+        movement.ResumeKemingEchoFrameId is not null ||
         movement.ResumeNativeCardEffectDrawFrameId is not null ||
         movement.ResumeWenheCardEffectFrameId is not null ||
         movement.ResumeGuanduCardEffectFrameId is not null ||
         movement.ResumeWumiaoFloodFrameId is not null || movement.ResumeDragonBoatCardEffectFrameId is not null ||
         movement.ResumeEquipmentRecastFrameId is not null || movement.ResumeColorFireAttackFrameId is not null ||
         movement.ResumeCounterspellPaymentFrameId is not null || movement.ResumeHistoricalEndingUseFrameId is not null || movement.ResumeGuoSiUseFrameId is not null || movement.ResumeDenglouUseFrameId is not null ||
-        movement.ResumeRoundPileAlcoholUseFrameId is not null || movement.ResumeDrawPhaseObligationFrameId is not null || movement.ResumeActualPhaseEndFrameId is not null ||
+        movement.ResumeRoundPileAlcoholUseFrameId is not null || movement.ResumeDrawPhaseObligationFrameId is not null || movement.ResumeManualDiscardFrameId is not null || movement.ResumeActualPhaseEndFrameId is not null ||
         movement.ResumeCardSupplyCompletionFrameId is not null || movement.ResumeResponseCompletionFrameId is not null ||
         movement.DeferredTurnEndReturn is not null || !allowFactionRequestCost && movement.ResumeFactionRequestCostFrameId is not null;
 

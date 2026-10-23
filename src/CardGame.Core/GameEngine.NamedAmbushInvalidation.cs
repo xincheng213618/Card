@@ -61,7 +61,7 @@ public sealed partial class GameEngine
     }
     private bool IsNamedAmbushUseIneffective(CardUseFrame use)
     {
-        if (IsMouCyUseIneffective(use)) return true;
+        if (IsHappyWeiYanUseIneffective(use) || IsMouCyUseIneffective(use) || IsAnniversaryHzUseIneffective(use)) return true;
         if (use.NamedAmbushInvalidation is not { } proof) return false;
         if (use.Action is not { } action || !IsExactNamedAmbushInvalidation(proof, action, use.Id))
             throw new InvalidOperationException("A globally invalidated use lost its exact paid ambush proof.");
@@ -69,7 +69,8 @@ public sealed partial class GameEngine
     }
     private bool ContinueNamedAmbushIneffectiveDodge(CardAttackHandle attack, CardActionContext action, ProgramCardContinuation continuation)
     {
-        if (ContinueMouCyIneffectiveDodge(attack, action, continuation)) return true;
+        if (ContinueHappyWeiYanIneffectiveDodge(attack, action, continuation) || ContinueMouCyIneffectiveDodge(attack, action, continuation) ||
+            ContinueAnniversaryHzIneffectiveDodge(attack, action, continuation)) return true;
         if (continuation != ProgramCardContinuation.Dodge || LifecycleCardUse(attack.ResolutionId)?.NamedAmbushResponseInvalidations is not { } proofs) return false;
         var matches = proofs.Where(p => p.Use.ActionId == action.ActionId).ToArray(); if (matches.Length == 0) return false;
         if (action.ParentActionId != LifecycleCardUse(attack.ResolutionId)?.Action?.ActionId || attack.TargetSeat != action.ActorSeat ||
@@ -81,7 +82,7 @@ public sealed partial class GameEngine
     }
     private NullificationWindowFrame PrepareNamedAmbushCounterspell(NullificationWindowFrame pending, int responder, int cardId)
     {
-        if (!HasNamedAmbushCapability && !HasMouChengYuAnniversary) return pending;
+        if (!HasNamedAmbushCapability && !HasMouChengYuAnniversary && !HasAnniversaryHuangZhongCapability && !HasHappyWeiYanEzhiCapability) return pending;
         if (pending.NamedAmbushResponse is not null) throw new InvalidOperationException("A counterspell already awaits its actual response use.");
         return ReplaceNullificationWindowFrame(pending with { NamedAmbushResponse = new(0, responder, cardId, pending.EffectNullified, pending.ChainDepth),
             ChainDepth = pending.ChainDepth + 1, CandidateSeats = BuildNullificationCandidateSeats(responder), CandidateIndex = 0 });
@@ -93,14 +94,21 @@ public sealed partial class GameEngine
                     LiveAmbushDeposits(owner.Seat, b.SkillId, b.SkillInstanceId).Any(d => d.RecordedKind == AmbushCardName(kind))));
     private void BindNamedAmbushCounterspell(long id, CardActionContext action)
     {
-        if (!HasNamedAmbushCapability && !HasMouChengYuAnniversary) return;
+        if (!HasNamedAmbushCapability && !HasMouChengYuAnniversary && !HasAnniversaryHuangZhongCapability && !HasHappyWeiYanEzhiCapability) return;
         var pending = _resolutionStack.OfType<NullificationWindowFrame>().Single(f => f.Id == id);
         if (pending.NamedAmbushResponse is not { ActionId: 0 } r || action.EffectiveKind != CardKind.Nullification || action.Type != CardActionType.Response ||
-            action.ActorSeat != r.ResponderSeat || (!action.PhysicalCards.Any(c => c.CardId == r.CardId) && !IsMouCyZeroCounterspell(pending, action, r)))
+            action.ActorSeat != r.ResponderSeat || (!action.PhysicalCards.Any(c => c.CardId == r.CardId) && !IsDeferredZeroCounterspell(pending, action, r)))
             throw new InvalidOperationException("A deferred counterspell lost its committed paid response.");
         ReplaceNullificationWindowFrame(pending with { NamedAmbushResponse = r with { ActionId = action.ActionId } });
         CaptureLiJueCompletedNullificationUse(pending.Id, action);
     }
+    private bool IsDeferredZeroCounterspell(NullificationWindowFrame pending, CardActionContext action,
+        NamedAmbushCounterspellResponse response) =>
+        response.CardId == 0 && action.PhysicalCards.Count == 0 &&
+        pending.TieredRoundResponseUse is { } receipt && receipt.OwnerFrameId == pending.Id &&
+        receipt.CardActionId == action.ActionId && receipt.ActorSeat == action.ActorSeat &&
+        receipt.EffectiveKind == CardKind.Nullification &&
+        ProgramEventHistory<TieredRoundConversionUseIssuedEvent>().Count(e => e.Receipt == receipt) == 1;
     private NullificationWindowFrame CompleteNamedAmbushCounterspell(NullificationWindowFrame pending)
     {
         if (pending.NamedAmbushResponse is not { } r) return pending;
@@ -111,13 +119,16 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Deferred counterspell lost its real response use.");
         if (r.Invalidated is { } invalidation && !IsExactNamedAmbushInvalidation(invalidation, action, pending.Id))
             throw new InvalidOperationException("Counterspell cancellation lost paid ambush provenance.");
-        var ineffective = r.Invalidated is not null || MouCyCounterspellInvalidated(pending, action);
+        var ineffective = r.Invalidated is not null || MouCyCounterspellInvalidated(pending, action) ||
+            AnniversaryHzCounterspellInvalidated(pending, action) || HappyWeiYanCounterspellInvalidated(pending, action);
         pending = ReplaceNullificationWindowFrame(pending with { NamedAmbushResponse = null, MouCyResponseInvalidation = null,
+            AnniversaryHzInvalidation = null, HappyWeiYanCancellation = null,
             EffectNullified = !ineffective ? !r.PreviousEffectNullified : r.PreviousEffectNullified,
             ChainDepth = r.PreviousChainDepth + 1, CandidateSeats = BuildNullificationCandidateSeats(r.ResponderSeat), CandidateIndex = 0 });
         CaptureCaoXiNativeCounterspellOffset(pending, action, invalidated: ineffective);
         AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId, pending.EffectCardKind,
-            r.ResponderSeat, r.CardId, pending.EffectNullified, pending.ChainDepth));
+            r.ResponderSeat, r.CardId, pending.EffectNullified, pending.ChainDepth)
+            { WindowFrameId = pending.Id, TargetSeat = GetNullificationTargetSeat(pending) });
         AddLog("NullificationResponded", ineffective ? $"{_players[r.ResponderSeat].Name} 使用的【无懈可击】无效。" :
             pending.EffectNullified ? $"{_players[r.ResponderSeat].Name} 使用【无懈可击】，使【{CardCatalog.Get(pending.EffectCardKind).DisplayName}】失效。" :
             $"{_players[r.ResponderSeat].Name} 使用【无懈可击】，使【{CardCatalog.Get(pending.EffectCardKind).DisplayName}】恢复。", r.ResponderSeat, pending.SourceSeat);

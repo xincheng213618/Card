@@ -19,6 +19,13 @@ public sealed partial class GameEngine
             };
         var action = decision.Choices.FirstOrDefault(choice => choice.Cards.Count == 1)?
             .Parameters.GetValueOrDefault("program-action");
+        if (action == "alternating-suit-top" &&
+            frame.AlternatingSuitTop is { Mode: "alternating", Stage: "discard" } alternating)
+            return decision with
+            {
+                RequiredCardCount = alternating.Required - alternating.SelectedIds.Count,
+                MinimumCardCount = 1
+            };
         int? remaining = action switch
         {
             "lianzhu" when frame.LianZhu is { Stage: LianZhuStage.SelectingDiscard, CountPolicy: { } count } cost => count.Amount - cost.Selected.Count,

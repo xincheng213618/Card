@@ -140,7 +140,8 @@ public sealed partial class GameEngine
         GetSkillBindingShard(player).ActiveGrants;
 
     private bool HasRuntimeSkillInstance(CharacterState player, string skillId, string skillInstanceId) =>
-        GetSkillBindingShard(player).HasInstance(skillId, skillInstanceId);
+        GetSkillBindingShard(player).HasInstance(skillId, skillInstanceId) ||
+        HasKemingBorrowedSkillInstance(player, skillId, skillInstanceId);
 
     private string GetRuntimeSkillInstanceId(CharacterState player, string skillId) =>
         PreferredQualifiedPrintedLordInstance(player, skillId) ?? EnabledRuntimeSkillGrants(player)
@@ -148,10 +149,11 @@ public sealed partial class GameEngine
             .OrderBy(grant => grant.SkillInstanceId, StringComparer.Ordinal)
             .Select(grant => grant.SkillInstanceId)
             .FirstOrDefault() ??
+        KemingBorrowedSkillInstance(player, skillId) ??
         throw new InvalidOperationException($"Player {player.Seat} does not own enabled skill '{skillId}'.");
 
     private bool HasRuntimeSkill(CharacterState player, string skillId) =>
-        GetSkillBindingShard(player).HasSkill(skillId);
+        GetSkillBindingShard(player).HasSkill(skillId) || HasKemingBorrowedSkill(player, skillId);
 
     private string EnabledSkillNames(CharacterState player)
     {

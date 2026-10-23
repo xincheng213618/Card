@@ -21,6 +21,7 @@ public sealed partial class GameEngine
         if (f.ShenZhangFei is not { } r) return;
         if (r.Source != ShenZfSource(f) || r.GameplayHash != f.GameplayHash || r.ParentId != (f.WindowContext?.ParentFrameId ?? 0) ||
             f.InstructionIndex != 1 || !Enum.IsDefined(r.Stage) || r.Before < 0 || r.After < r.Before || r.After > _movementSequence ||
+            r.TakeBeforeDeath != (f.SkillId == ShenZhangFeiComposition.HappyShencai && f.TriggerId is null ? (bool?)true : null) ||
             ProgramEventHistory<ShenZhangFeiStartedEvent>().Count(e=>e == new ShenZhangFeiStartedEvent(f.Id,r.Source,r.GameplayHash,r.Operation,r.ParentId,r.TargetSeat,r.Amount)) != 1)
             throw new InvalidOperationException("Shencai lost its original source, native occurrence, owning frame or once-paid instruction.");
         if (r.ParentId != 0)
@@ -41,6 +42,8 @@ public sealed partial class GameEngine
         }
         if (r.Operation == SkillProgramEffectOp.ResolveShenZhangFeiShencai && f.TriggerId is null)
         {
+            if(r.TakeBeforeDeath == true && r.Stage is ShenZhangFeiStage.TakeChoice or ShenZhangFeiStage.TakeChildren && ProgramEventHistory<ShenZhangFeiSentenceEvent>().Any(e=>e.FrameId == f.Id))
+                throw new InvalidOperationException("Happy Shencai cannot add a death mark before the real take and its original native children have returned.");
             if (f.SelectedTargetSeats is not [var seat] || seat != r.TargetSeat || seat == f.OwnerSeat || r.JudgmentId <= 0)
                 throw new InvalidOperationException("Shencai lost its original other participant and native judgment.");
             if (r.Stage == ShenZhangFeiStage.Judging && !_resolutionStack.OfType<JudgmentFrame>().Any(j=>j.Id == r.JudgmentId && IsShenZfJudgment(j,f)))

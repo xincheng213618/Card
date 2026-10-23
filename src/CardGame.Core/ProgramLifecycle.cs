@@ -323,6 +323,8 @@ public sealed record ProgramPhaseSchedule(
 
 public enum ProgramLifecycleContinuation
 {
+    HappyPlanSettled = 42180,
+    HappyGuardRemoved = 41980,
     CompleteActualSkippedPhase = 34200,
     MouGuoHuaiActualStart = 32000,
     ResumeHellAppearance = 40110,

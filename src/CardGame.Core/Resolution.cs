@@ -18,9 +18,13 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    HappyQiaoHealthChoice = 42400,
+    MobileSimaRenjie = 40425,
+    KemingSkillEcho = 39700,
     SkillInvocation = 38700,
     PublicHandRevealWindow = 34003,
     WushuangIntermission = 61000,
+    ManualDiscard = 61001,
     WuLuKangPindian = 29700,
     NativeDrawAttempt = 27570,
     DouyuWindow = 28134,
@@ -127,6 +131,7 @@ internal interface IProgramChildResolutionFrame
 [JsonDerivedType(typeof(RecoveryReplacementFrame), "recovery-replacement")]
 [JsonDerivedType(typeof(EquipmentRecastFrame), "equipment-recast")]
 [JsonDerivedType(typeof(DrawPhaseObligationFrame), "draw-phase-obligation")]
+[JsonDerivedType(typeof(ManualDiscardFrame), "manual-discard")]
 [JsonDerivedType(typeof(HpChangedTriggerWindowFrame), "hp-changed-trigger-window")]
 [JsonDerivedType(typeof(DyingFrame), "dying")]
 [JsonDerivedType(typeof(DeathFrame), "death")]
@@ -821,7 +826,7 @@ public sealed partial record DamageTriggerWindowFrame(
     public int? EventTargetDamageInstancesTakenThisTurn { get; init; }
 }
 
-public sealed record RecoveryFrame(
+public sealed partial record RecoveryFrame(
     long Id,
     long ParentFrameId,
     int SourceSeat,

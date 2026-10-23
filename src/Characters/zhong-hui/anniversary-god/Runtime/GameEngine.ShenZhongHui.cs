@@ -52,23 +52,23 @@ public sealed partial class GameEngine
             var card = choices[_random.Next(choices.Count)]; var chosen = card.Id;
             var before = _movementSequence; var last = GetHand(_players[target]).Count == 1;
             ReplaceRuntimeTop(f = f with { ShenZhongHui = r = r with { LastHandDiscarded = last, Before = before, After = before }, PendingMovementContinuation = new(target, 0, null) });
-            MoveLogicalDiscard(f.OwnerSeat, target, card, CardLocation.Hand(target), new("skill-program.anniversary:linjie.random-discard"));
+            MoveLogicalDiscard(f.OwnerSeat, target, card, CardLocation.Hand(target), new($"skill-program.{ShenZhongHuiComposition.SameEdition(f.SkillId, ShenZhongHuiComposition.Linjie)}.random-discard"));
             var paid = _cardMovements.Any(m => m.Sequence > before && m.CardId == chosen && m.From == CardLocation.Hand(target) && m.To == CardLocation.DiscardPile);
             last &= paid && GetHand(_players[target]).Count == 0;
             ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { ShenZhongHui = r with { LastHandDiscarded = last, After = _movementSequence } });
             AdvanceEventRulesAndQueueFact(new LinjieRandomDiscardedEvent(f.Id, target, chosen, last, before, _movementSequence));
         }
-        else if (op == SkillProgramEffectOp.ResolveDuzhang) { BeginOperationProgramDraw(f, f.OwnerSeat, 1, new("skill-program.anniversary:duzhang.draw")); return SkillProgramStepOutcome.AwaitChild; }
+        else if (op == SkillProgramEffectOp.ResolveDuzhang) { BeginOperationProgramDraw(f, f.OwnerSeat, 1, new($"skill-program.{f.SkillId}.draw")); return SkillProgramStepOutcome.AwaitChild; }
         else if (op == SkillProgramEffectOp.AwakenJianghuo)
         {
             var count = _players.Sum(p => LinCold(p.Seat));
             foreach (var p in _players) if (LinCold(p.Seat) is > 0 and var marks) MutateParticipantMarker(f, p.Seat, PlayerMarkerKind.LinCold, -marks);
             if (count > 0) MutateParticipantMarker(f, f.OwnerSeat, PlayerMarkerKind.LinCold, count);
             ReplaceRuntimeTop(f = GetActiveProgramFrame(f.Id) with { ShenZhongHui = r with { Count = count, Stage = count > 0 ? ShenZhongHuiStage.DrawAttempt : ShenZhongHuiStage.AwakenFinish } });
-            if (count > 0) { BeginOperationProgramDraw(f, f.OwnerSeat, count, new("skill-program.anniversary:jianghuo.draw")); return SkillProgramStepOutcome.AwaitChild; }
+            if (count > 0) { BeginOperationProgramDraw(f, f.OwnerSeat, count, new($"skill-program.{f.SkillId}.draw")); return SkillProgramStepOutcome.AwaitChild; }
         }
         else if (op == SkillProgramEffectOp.ChooseLishiPunishments && LinCold(f.OwnerSeat) == 0)
-        { BeginProgramSkillDamage(f, f.OwnerSeat, 1, nature: DamageNature.Thunder, sourceLess: true); return SkillProgramStepOutcome.AwaitChild; }
+        { BeginProgramSkillDamage(f, f.OwnerSeat, 1, nature: DamageNature.Thunder, sourceLess: !ShenZhongHuiComposition.IsHappy(f.SkillId)); return SkillProgramStepOutcome.AwaitChild; }
         else if (op == SkillProgramEffectOp.ResolveLishiPhase && w.Window == SkillProgramTriggerWindow.DrawPhaseEnded) SettleLishiDrawPhase(f);
         ContinueShenZh(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
@@ -107,10 +107,12 @@ public sealed partial class GameEngine
             if (r.Stage == ShenZhongHuiStage.AwakenFinish)
             {
                 ReplaceRuntimeTop(f = f with { ShenZhongHui = r with { Stage = ShenZhongHuiStage.Complete } });
-                ChangeProgramMaximumHp(f, 1); GrantProgramSkills(f, [ShenZhongHuiComposition.Lishi]);
+                var linjie = ShenZhongHuiComposition.SameEdition(f.SkillId, ShenZhongHuiComposition.Linjie);
+                var lishi = ShenZhongHuiComposition.SameEdition(f.SkillId, ShenZhongHuiComposition.Lishi);
+                ChangeProgramMaximumHp(f, 1); GrantProgramSkills(f, [lishi]);
                 var owner = _players[f.OwnerSeat];
-                foreach (var grant in owner.SkillGrants.Grants.Where(g => g.IsEnabled && g.SkillId == ShenZhongHuiComposition.Linjie).ToArray()) owner.SkillGrants.RemoveGrant(grant.GrantId);
-                AdvanceEventRulesAndQueueFact(new ProgramOwnerSkillsReplacedEvent(f.Id, f.SkillId, f.OwnerSeat, Array.AsReadOnly(new[] { ShenZhongHuiComposition.Linjie }), ShenZhongHuiComposition.Lishi));
+                foreach (var grant in owner.SkillGrants.Grants.Where(g => g.IsEnabled && g.SkillId == linjie).ToArray()) owner.SkillGrants.RemoveGrant(grant.GrantId);
+                AdvanceEventRulesAndQueueFact(new ProgramOwnerSkillsReplacedEvent(f.Id, f.SkillId, f.OwnerSeat, Array.AsReadOnly(new[] { linjie }), lishi));
                 continue;
             }
             if (r.Stage is ShenZhongHuiStage.PhaseResult or ShenZhongHuiStage.PhaseCleanup or ShenZhongHuiStage.PhaseNext) { ContinueLishiJudgments(f); return; }
@@ -160,7 +162,7 @@ public sealed partial class GameEngine
             foreach (var option in Enumerable.Range(1, 5).Where(n => (value & (1 << (n - 1))) != 0))
             {
                 AdvanceEventRulesAndQueueFact(new LishiPunishmentIssuedEvent(f.Id, r.Source, r.GameplayHash, p.Seat, option, token));
-                AcquireRuntimeSkills(p, ShenZhongHuiComposition.Lishi, [ShenZhongHuiComposition.Curse]);
+                AcquireRuntimeSkills(p, f.SkillId, [ShenZhongHuiComposition.SameEdition(f.SkillId, ShenZhongHuiComposition.Curse)]);
             }
         }
         else if (r.Stage == ShenZhongHuiStage.PhaseChoice)
@@ -199,7 +201,7 @@ public sealed partial class GameEngine
         {
             var paid = ProgramEventHistory<LinjieRandomDiscardedEvent>().Where(e => e.FrameId == f.Id).ToArray();
             return paid is [var e] && e.TargetSeat == r.TargetSeat && e.Before == r.Before && e.After == r.After && e.LastHand == r.LastHandDiscarded &&
-                moves.Count(m => m.CardId == e.CardId && m.From == CardLocation.Hand(r.TargetSeat) && m.Reason.Value == "skill-program.anniversary:linjie.random-discard" &&
+                moves.Count(m => m.CardId == e.CardId && m.From == CardLocation.Hand(r.TargetSeat) && m.Reason.Value == $"skill-program.{ShenZhongHuiComposition.SameEdition(f.SkillId, ShenZhongHuiComposition.Linjie)}.random-discard" &&
                     (m.To == CardLocation.DiscardPile || IsLishiPaidDiscardMovement(m, CardLocation.Hand(r.TargetSeat), m.Reason))) == 1;
         }
         if (r.Operation != SkillProgramEffectOp.ResolveLishiPhase || r.Phase is not { } phase || !IsRecordedActualDiscardRecoveryPhase(phase)) return false;

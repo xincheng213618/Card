@@ -17,9 +17,13 @@ public sealed record RecoveryReplacementCandidate(int OwnerSeat, string SkillId,
     string SkillInstanceId, string PolicyId, int RecoveryAmount, int ProviderDrawCount);
 
 /// <summary>A produced recovery belongs to its exact live rules frame, before any HP delta.</summary>
-public sealed record RecoveryAttempt(long Id, int SourceSeat, int TargetSeat, int Amount,
-    int HpBefore, int ActualTurnNumber, int ActualTurnOwnerSeat,
-    IReadOnlyList<RecoveryReplacementCandidate> Candidates, RecoveryAttemptCompletion Completion);
+public sealed partial record RecoveryAttempt(long Id, int SourceSeat, int TargetSeat, int Amount,
+    int? HpBefore, int ActualTurnNumber, int ActualTurnOwnerSeat,
+    IReadOnlyList<RecoveryReplacementCandidate> Candidates, RecoveryAttemptCompletion Completion)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public HappyQiaoDualHealth? HappyQiaoBefore { get; init; }
+}
 
 public enum RecoveryReplacementStage { Choosing, RecoveryApplied, RewardApplied }
 
@@ -194,9 +198,13 @@ public sealed partial class GameEngine
     {
         var target = _players[seat];
         if (!HasRecoveryReplacementCapability || !target.IsAlive || !target.HasHpValue || _currentSeat != seat ||
-            _turnNumber <= 0 || target.Hp >= target.MaxHp || _winner != Winner.None) return [];
+            _turnNumber <= 0 || !HappyQiaoAnyWounded(seat) || _winner != Winner.None) return [];
         var faction = GetEffectiveFactionId(target);
-        return Array.AsReadOnly(_players.Where(p => p.IsAlive && p.HasHpValue && p.Seat != seat && p.Hp <= target.Hp)
+        // Before a pool is selected this is a candidate union, not a resolved
+        // comparison. The actual selected-pool comparison is checked below.
+        var thresholds = target.HappyQiaoHealth is { } dual ? new[] { dual.DaQiaoHp, dual.XiaoQiaoHp } : new[] { target.Hp };
+        return Array.AsReadOnly(_players.Where(p => p.IsAlive && p.HasHpValue && p.Seat != seat && thresholds.Any(h =>
+                p.HappyQiaoHealth is { } other ? other.DaQiaoHp <= h || other.XiaoQiaoHp <= h : p.Hp <= h))
             .OrderBy(p => RelativeTableOrder(seat, p.Seat))
             .SelectMany(owner => CardPolicies(owner, SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery)
                 .Where(item => item.Policy.FactionId == faction)
@@ -206,18 +214,19 @@ public sealed partial class GameEngine
     }
 
     private bool TryQueueRecoveryReplacement(long parentFrameId, int sourceSeat, int targetSeat,
-        int amount, RecoveryAttemptCompletion completion)
+        int amount, RecoveryAttemptCompletion completion, HappyQiaoRecoverToOrigin? happyQiaoRecoverToOrigin = null)
     {
-        if (amount <= 0 || !_players[targetSeat].IsAlive || !_players[targetSeat].HasHpValue ||
-            _players[targetSeat].Hp >= _players[targetSeat].MaxHp) return false;
-        if (!HasRecoveryReplacementCapability && !HasRecoveryAmountSupport(targetSeat) && !HasOwnRecoveryAmountSupport(targetSeat)) return false;
+        if (amount <= 0 || !_players[targetSeat].IsAlive || !_players[targetSeat].HasHpValue || !HappyQiaoAnyWounded(targetSeat)) return false;
+        var qiao = _players[targetSeat].HappyQiaoHealth;
+        if (qiao is null && !HasRecoveryReplacementCapability && !HasRecoveryAmountSupport(targetSeat) && !HasOwnRecoveryAmountSupport(targetSeat)) return false;
         var parent = parentFrameId > 0 ? _resolutionStack.Single(f => f.Id == parentFrameId) : null;
         var candidates = RecoveryReplacementCandidates(targetSeat);
-        if (candidates.Count == 0 && !HasRecoveryAmountSupport(targetSeat) && !HasOwnRecoveryAmountSupport(targetSeat) &&
+        if (qiao is null && candidates.Count == 0 && !HasRecoveryAmountSupport(targetSeat) && !HasOwnRecoveryAmountSupport(targetSeat) &&
             parent?.PendingRecoveryAttempts is not { Count: > 0 }) return false;
         var request = new RecoveryAttempt(++_resolutionSequence, sourceSeat, targetSeat, amount,
-            _players[targetSeat].Hp, _turnNumber, _currentSeat, candidates, completion with
-            { Policies = completion.Policies is { } policies ? Array.AsReadOnly(policies.ToArray()) : null });
+            qiao is null ? _players[targetSeat].Hp : null, _turnNumber, _currentSeat, candidates, completion with
+            { Policies = completion.Policies is { } policies ? Array.AsReadOnly(policies.ToArray()) : null })
+        { HappyQiaoBefore = qiao, HappyQiaoRecoverToOrigin = happyQiaoRecoverToOrigin };
         if (parent is null)
         {
             PushRuntimeFrame(new RecoveryReplacementFrame(request.Id, 0, request,
@@ -256,7 +265,7 @@ public sealed partial class GameEngine
             !_players[c.OwnerSeat].IsAlive || !_players[attempt.TargetSeat].IsAlive ||
             !_players[c.OwnerSeat].HasHpValue || !_players[attempt.TargetSeat].HasHpValue ||
             attempt.ActualTurnNumber != _turnNumber || attempt.ActualTurnOwnerSeat != _currentSeat ||
-            attempt.TargetSeat != _currentSeat || _players[c.OwnerSeat].Hp > attempt.HpBefore) return false;
+            attempt.TargetSeat != _currentSeat || _players[c.OwnerSeat].Hp > HappyQiaoRecoveryHpBefore(frame)) return false;
         return CardPolicies(_players[c.OwnerSeat], SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery)
             .Any(item => item.Source.SkillId == c.SkillId && item.Source.SkillInstanceId == c.SkillInstanceId &&
                 item.Policy.Id == c.PolicyId && item.Policy.FactionId == GetEffectiveFactionId(_players[attempt.TargetSeat]));
@@ -281,6 +290,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not RecoveryReplacementFrame frame) return;
         if (frame.Stage == RecoveryReplacementStage.Choosing)
         {
+            if (TryBeginHappyQiaoRecoveryRequestChoice(frame)) return;
             if (frame.PendingApplication is { } pending)
             {
                 ApplyRecoveryReplacement(frame, pending.CandidateIndex);
@@ -348,6 +358,7 @@ public sealed partial class GameEngine
         var candidate = candidateIndex is { } index ? attempt.Candidates[index] : null;
         var recipient = _players[application.TargetSeat];
         var source = application.SourceSeat;
+        if (TryBeginHappyQiaoRecoveryChoice(frame, application)) return;
         // No child or cost is opened between the live passive decision and this
         // single HP payment. Existing paid Cao Song support has already returned.
         var bonus = PrepareOwnRecoveryAmountBonus(application);
@@ -369,11 +380,14 @@ public sealed partial class GameEngine
                 ReplaceRuntimeFrame(frame.Id, owning with { AmountBonus = bonus });
             }
             recipient.Hp += amount;
+            if (HasHappyQiaoHealth(recipient.Seat))
+                CompleteHappyQiaoHealthPayment(frame.Id, recipient.Seat, HpChangeKind.Recovery, frame.HappyQiaoHealth!.Before.Hp(frame.HappyQiaoHealth.Pool!.Value), recipient.Hp);
             if (bonus is not null)
                 AdvanceEventRulesAndQueueFact(new RecoveryAmountBonusAppliedEvent(frame.Id, bonus));
             AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(source, recipient.Seat, amount, recipient.Hp));
             PopResolutionFrame(child, ResolutionFrameKind.Recovery);
         }
+        else ReleaseHappyQiaoHealthSelection(frame.Id);
         ApplyRecoveryAttemptProducerFacts(frame.Id, attempt, candidate is null ? amount : 0);
         ContinueRecoveryReplacement();
     }
@@ -447,6 +461,11 @@ public sealed partial class GameEngine
                 if (_resolutionStack.LastOrDefault() is not SkillInvocationFrame invocation || !IsSkillInvocationHealthChild(invocation, completed))
                     throw new InvalidOperationException("A skill invocation lost its exact recovery producer return.");
                 AdvanceRuntimeFrame(invocation.Id); break;
+            case PostEventContinuation.KemingEcho:
+                if (_resolutionStack.LastOrDefault() is not KemingSkillEchoFrame echo || echo.Id != continuation.ResumeFrameId ||
+                    !KemingSkillEchoFrameRidesOn(completed, echo))
+                    throw new InvalidOperationException("Keming echo lost its exact recovery producer return.");
+                AdvanceRuntimeFrame(echo.Id); break;
             case PostEventContinuation.FriendDuelResponse: ContinueFriendDuelResponse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.AwaitedProgramMovement:
                 if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(continuation.ResumeFrameId!.Value); break;

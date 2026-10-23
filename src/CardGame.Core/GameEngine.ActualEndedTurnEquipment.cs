@@ -133,8 +133,8 @@ public sealed partial class GameEngine
             var from = CardLocation.Equipment(r.Qualification.TurnOwnerSeat); var card = _cardZones.CardsAt(from).Single(c => c.Id == cardId);
             if (card.IsGeneralWeapon || !CanPlaceOwnedEquipment(r.Qualification.TurnOwnerSeat, f.OwnerSeat, card, from))
                 throw new InvalidOperationException("The current equipment cannot survive actual placement.");
-            var slot = EquipmentCatalog.Get(card.Kind).Slot;
-            var equipped = GetEquipment(_players[f.OwnerSeat]).Where(c => EquipmentCatalog.Get(c.Kind).Slot == slot).ToArray();
+            var slot = FieldEquipmentSlot(card);
+            var equipped = GetEquipment(_players[f.OwnerSeat]).Where(c => FieldEquipmentSlot(c) == slot).ToArray();
             var replaced = equipped.Length >= _players[f.OwnerSeat].EquipmentSlotCapacity(slot) ? equipped[0] : null;
             replacedId = replaced?.Id; replacedGeneral = replaced?.IsGeneralWeapon == true;
             if (replaced is not null)

@@ -71,7 +71,7 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome ResolveShenTscPowei(ProgramSkillFrame supplied)
     {
         var f = GetActiveProgramFrame(supplied.Id);
-        if (f.SkillId != ShenTscPowei || f.WindowContext is not { } c || f.ShenTaishiCiPowei is not null)
+        if (!IsShenTscPoweiFamily(f.SkillId) || f.WindowContext is not { } c || f.ShenTaishiCiPowei is not null)
             throw new InvalidOperationException("Powei requires its original owning trigger.");
         if (f.TriggerId == "initialize")
         { foreach (var p in _players.Where(p => p.IsAlive && p.Seat != f.OwnerSeat)) ShenTscSetWei(f, p.Seat, 1); return SkillProgramStepOutcome.Continue; }
@@ -114,14 +114,14 @@ public sealed partial class GameEngine
             foreach (var old in BuildOwnedCardPaymentChoices(f.Id, f.OwnerSeat, r.TargetSeat, [CardZoneKind.Hand], OwnedCardMoveIntent.Transfer,
                 destination: SkillProgramCardDestination.OwnerHand, destinationSeat: f.OwnerSeat))
                 choices.Add(old with { Parameters = new Dictionary<string, string>(old.Parameters) { ["program-action"] = "shen-taishi-ci-powei", ["branch"] = "take" } });
-        choices.Add(new(new($"shen-taishi-ci.{f.Id}.cancel"), "取消破围", [], [], Args("cancel")));
+        choices.Add(new(new($"shen-taishi-ci.{f.Id}.cancel"), f.SkillId == HappyTscChongwei ? "取消重围" : "取消破围", [], [], Args("cancel")));
         return Array.AsReadOnly(choices.Select(PromptChoiceProjection.Freeze).ToArray());
     }
     private void PublishShenTscPowei(ProgramSkillFrame f)
     {
         var choices = ShenTscChoices(f); var skill = _contentRegistry.GetSkill(f.SkillId);
         ReplaceRuntimeTop(f with { Step = ResolutionFrameStep.AwaitingResponse });
-        _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, "破围：弃手牌造成伤害，或获得一张手牌。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), [f.ShenTaishiCiPowei!.TargetSeat], f.OwnerSeat)
+        _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, (f.SkillId == HappyTscChongwei ? "重围" : "破围") + "：弃手牌造成伤害，或获得一张手牌。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), [f.ShenTaishiCiPowei!.TargetSeat], f.OwnerSeat)
         { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = f.ShenTaishiCiPowei.TargetSeat, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running; AdvanceRulesAndPublishState();
     }
@@ -182,14 +182,14 @@ public sealed partial class GameEngine
         f.SkillId == ShenTscPowei && ProgramEventHistory<ShenTaishiCiPoweiMissionEvent>().Any(e => e.FrameId == f.Id && e.OwnerSeat == f.OwnerSeat);
     [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 38200)]
     private bool ShenTscPoweiMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) =>
-        e?.Op == SkillProgramEffectOp.ResolveShenTaishiCiPowei && f.ShenTaishiCiPowei is { Stage: ShenTaishiCiPoweiStage.MovementChildren } &&
+        e?.Op is (SkillProgramEffectOp.ResolveShenTaishiCiPowei or SkillProgramEffectOp.ResolveHappyTaishiCiChongwei) && f.ShenTaishiCiPowei is { Stage: ShenTaishiCiPoweiStage.MovementChildren } &&
         p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 38200)]
     private void AssertShenTscPowei(ProgramSkillFrame f)
     {
         if (f.ShenTaishiCiPowei is not { } r) return;
         if (r.Source != ShenTscSource(f) || r.GameplayHash != f.GameplayHash || r.WindowId != f.WindowContext?.ParentFrameId || r.ActualTurn != _turnNumber || r.InstructionIndex != f.InstructionIndex ||
-            f.SkillId != ShenTscPowei || f.TriggerId != "marked-turn" || f.WindowContext.SourceSeat != r.TargetSeat ||
+            !IsShenTscPoweiFamily(f.SkillId) || f.TriggerId != "marked-turn" || f.WindowContext.SourceSeat != r.TargetSeat ||
             ProgramEventHistory<ShenTaishiCiPoweiStartedEvent>().Count(e => e == new ShenTaishiCiPoweiStartedEvent(f.Id, r.Source, r.GameplayHash, r.WindowId, r.ActualTurn, r.TargetSeat, r.InstructionIndex)) != 1)
             throw new InvalidOperationException("Powei lost its source, hash, original marked actual turn or owning instruction.");
         if (r.Stage == ShenTaishiCiPoweiStage.Choice) return;
@@ -207,7 +207,7 @@ public sealed partial class GameEngine
     }
     private void ResolveShenTscDulie(ProgramSkillFrame f)
     {
-        if (f.SkillId != ShenTscDulie || f.WindowContext?.CardUse is not { } c || LifecycleCardUse(c.ParentCardUseFrameId) is not { } use ||
+        if (f.SkillId is not (ShenTscDulie or HappyTscDulie) || f.WindowContext?.CardUse is not { } c || LifecycleCardUse(c.ParentCardUseFrameId) is not { } use ||
             use.Action?.ActionId != c.CardActionId || !IsSlashCard(use.CardKind)) throw new InvalidOperationException("Dulie lost its original incoming Slash.");
         if (f.JudgmentOutcomeBindings?.SingleOrDefault(b => b.Name == "dulie-outcome")?.Suit != Suit.Heart) return;
         if (!use.TargetSeats.Contains(f.OwnerSeat)) return;

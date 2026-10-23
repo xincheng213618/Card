@@ -44,10 +44,12 @@ public sealed partial class GameEngine
         IsCurrentTurnOwnSkillGrantQualified(owner, grant) &&
         WushuangYashiGrantQualified(owner, grant) &&
         (!IsLishiPhaseSuppressed(owner.Seat) || _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
+        (!IsYinzhiSkillSuppressed(owner.Seat) || _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
         (!_currentTurnSkillSuppressions.Any(s => s.TurnNumber == _turnNumber &&
             s.TurnOwnerSeat == _currentSeat && s.TargetSeat == owner.Seat) ||
          _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
-        IsDyingWindowGrantQualified(owner, grant) && IsMiuyanGrantQualified(owner, grant) && YunzhengNonLockedGrantQualified(owner, grant);
+        IsDyingWindowGrantQualified(owner, grant) && IsMiuyanGrantQualified(owner, grant) && YunzhengNonLockedGrantQualified(owner, grant) &&
+        IsMobileDuoruiGrantQualified(owner, grant) && IsMobileMaChaoTingweiGrantQualified(owner, grant);
 
     private long CaptureCurrentTurnQualificationStamp()
     {

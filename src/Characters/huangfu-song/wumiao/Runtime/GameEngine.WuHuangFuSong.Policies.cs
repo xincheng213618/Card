@@ -20,7 +20,10 @@ public sealed partial class GameEngine
         TargetRules.HasMaterialPrivilege(new(actor.Seat, kind, Array.AsReadOnly((ids ?? []).ToArray()), source));
     private bool HasWuHfOrWuyouMaterialPrivilege(CharacterState actor, CardKind kind, IReadOnlyList<int>? ids, long? useId = null) =>
         (useId is { } id ? HasIssuedWuHfUse(id, actor.Seat) : HasWuHfMaterialPrivilege(actor, ids)) || HasWuyouMaterialPrivilege(actor, kind, ids, useId);
-    private CardActionContext CaptureWuHfUseAction(CardActionContext a) => !HasWuHuangFuSongCapability || a.EffectiveRank is not null ? a :
+    // Jinzhi's material is a discard cost; its separate virtual card has an
+    // explicitly absent rank. Keep that appearance stable before Use observers.
+    private CardActionContext CaptureWuHfUseAction(CardActionContext a) =>
+        !HasWuHuangFuSongCapability || a.EffectiveRank is not null || a.ConversionChain.Any(IsWushuangJinzhiSource) ? a :
         new(a.ActionId, a.ParentActionId, a.Type, a.ActorSeat, a.ProviderSeat, a.RequesterSeat, a.ResponderSeat, a.OpponentSeat, a.EffectiveKind, a.TargetSeats,
             a.PhysicalCards, a.ConversionChain, a.DesignatedTargetSeats, a.EffectiveSuit, 0, a.EffectiveIsRed, a.FactionOrigin);
     [ProgramCardUsePayment(ProgramCardUsePaymentStage.BeforeSlashDebit, 10)]

@@ -64,7 +64,7 @@ internal sealed partial class ProgramPaidCardRuntime
                     new ChoiceId($"program-own-card.frame-{frameId}.zone-{zone}.slot-{slot}"),
                     zone == CardZoneKind.Hand
                         ? $"弃置手牌【{cards[slot].DisplayName}】。"
-                        : $"弃置装备区的【{cards[slot].DisplayName}】。",
+                        : $"弃置装备区的【{_facts.Snapshot(cards[slot]).DisplayName}】。",
                     [cards[slot].Id],
                     [chooserSeat],
                     new Dictionary<string, string>

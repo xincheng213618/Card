@@ -108,20 +108,10 @@ public sealed partial class GameEngine
         if (materials.Length > 0)
         {
             var destination = CardLocation.Hand(recipient!.Value);
-            var batch = BeginCardMovementBatch([CardLocation.Processing], [destination]);
-            var records = new List<CardMovementRecord>(); var committed = false;
-            try
+            MoveProgramCardsFromMultipleSources(materials, destination, new(OverflowMaterialReason), (batchId, _) =>
             {
-                foreach (var id in materials)
-                {
-                    var card = EntityAtCurrentLocation(id);
-                    _cardZones.Move(id, CardLocation.Processing, destination);
-                    records.Add(RecordMovement(card, CardLocation.Processing, destination, new(OverflowMaterialReason)));
-                }
-                committed = true;
-            }
-            finally { CompleteCardMovementBatch(batch, records, committed); }
-            receipt = receipt with { SequenceAfter = OverflowMovementSequence, MovementBatchId = batch.Id, MovementIssued = true };
+                receipt = receipt with { SequenceAfter = OverflowMovementSequence, MovementBatchId = batchId, MovementIssued = true };
+            });
             ReplaceRuntimeTop(frame = GetActiveProgramFrame(frame.Id) with { OverflowTargetCancellation = receipt });
             AdvanceEventRulesAndQueueFact(new OverflowUseMaterialTransferIssuedEvent(frame.Id, use.Id, beforeAction.ActionId, recipient.Value,
                 materials.Length, receipt.SequenceBefore, receipt.SequenceAfter, receipt.MovementBatchId));
@@ -178,7 +168,9 @@ public sealed partial class GameEngine
             IsOverflowTargetCancellationFact(use, e, e.Receipt.BeforeTargetSeats) &&
             CompleteProgramEventHistory().OfType<OverflowUseMaterialTransferIssuedEvent>().Any(m => m.ProgramFrameId == e.ProgramFrameId &&
                 _cardMovements.Count(move => move.CardId == cardId && move.Sequence > m.SequenceBefore && move.Sequence <= m.SequenceAfter &&
-                    move.From == CardLocation.Processing && move.To == CardLocation.Hand(m.RecipientSeat) && move.Reason.Value == OverflowMaterialReason) == 1));
+                    move.From == CardLocation.Processing &&
+                    (move.To == CardLocation.Hand(m.RecipientSeat) || IsHappyWeiYanRedirectedGain(move, CardLocation.Hand(m.RecipientSeat))) &&
+                    move.Reason.Value == OverflowMaterialReason) == 1));
 
     private bool TryCompleteOverflowCanceledUse(ProgramCardTriggerWindowFrame window)
     {

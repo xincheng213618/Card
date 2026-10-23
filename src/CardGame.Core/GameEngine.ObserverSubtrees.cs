@@ -22,7 +22,7 @@ public sealed partial class GameEngine
 
             CompleteDamageAttack(new ProgramAttackHandle(this, attack.Id));
         }
-        else if (top is ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or
+        else if (top is HappyQiaoHealthChoiceFrame or ProgramSkillFrame or CardsMovedTriggerWindowFrame or HpChangedTriggerWindowFrame or
             ProgramLifecycleTriggerWindowFrame or ProgramCardTriggerWindowFrame or BeforeDamageProgramWindowFrame or
             ProgramDeathTriggerWindowFrame or ProgramKillTriggerWindowFrame ||
             advanceRecoveryReplacement && top is RecoveryReplacementFrame)
@@ -92,12 +92,12 @@ public sealed partial class GameEngine
     {
         var parent = _resolutionStack[child - 1];
         var current = _resolutionStack[child];
-        return IsObserverSkillsChangedEdge(parent, current) || DyingSuitsStructuralEdge(parent, current) ||
+        return HappyQiaoHealthChoiceRidesOn(current, parent) || HappyQiaoShutuDeclarationEdge(child) || IsObserverSkillsChangedEdge(parent, current) || DyingSuitsStructuralEdge(parent, current) ||
             SameNameHandStructuralEdge(parent, current) || CompletedUndamagedTargetRevealStructuralEdge(parent, current) ||
             RecipientCategoryMarkStructuralEdge(parent, current) || OffTurnUsedCardGiftStructuralEdge(parent, current) ||
             CardSupplyCompletionStructuralEdge(parent, current) || ResponseCompletionStructuralEdge(parent, current) ||
             OriginalHandEntityStructuralEdge(parent, current) || OutsidePhaseDrawDiscardStructuralEdge(parent, current) ||
-            HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child) || IsYanPuDyingExitEdge(child);
+            HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child) || IsYanPuDyingExitEdge(child) || HappyDianWeiStructuralEdge(current, parent) || HappyPangTongStructuralEdge(current, parent) || HappyDiaoChanStructuralEdge(current, parent);
     }
 
     private bool HasHandGainDebtObserverSuffix(int rootIndex) => HasObserverSuffix(rootIndex,

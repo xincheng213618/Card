@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-internal readonly record struct ProgramSelectionParticipant(int Seat, bool IsAlive, int Hp, int MaxHp,
+internal readonly record struct ProgramSelectionParticipant(int Seat, bool IsAlive, int? Hp, int MaxHp,
     bool HasHpValue, int HandCount, int EquipmentCount, bool? RuleWounded = null);
 
 internal interface IProgramSelectionSourceQuery : IProgramSelectionQuery

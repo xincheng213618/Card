@@ -181,6 +181,7 @@ public sealed partial class GameEngine
                 ReplaceRuntimeTop(f = f with { SimultaneousPindian = r });
                 AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(f.Id,f.SkillId,pair));
             }
+            if (TryBeginMobileZhitiSimultaneousPrograms(GetActiveProgramFrame(f.Id), pair)) return true;
             if (TryBeginDouyuSimultaneousWinDraws(f, pair)) return true;
             if (TryBeginWuLuKangPostComparison(f, pair, r.ComparisonIndex)) return true;
             f = GetActiveProgramFrame(f.Id); r = f.SimultaneousPindian!;

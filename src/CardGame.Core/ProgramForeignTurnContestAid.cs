@@ -100,7 +100,13 @@ internal static class ForeignTurnContestAidComposition
             effects.Any(e => e.Op == SkillProgramEffectOp.ResolveForeignTurnPindian))
         {
             if (window == SkillProgramTriggerWindow.OtherActualTurnStarted && subject == SkillProgramTriggerSubject.Owner &&
-                !optional && effects is [{ Op: SkillProgramEffectOp.ResolveShenTaishiCiPowei, Target: SkillProgramEffectTarget.Owner,
+                !optional && effects is [{ Op: SkillProgramEffectOp.ResolveShenTaishiCiPowei or SkillProgramEffectOp.ResolveHappyTaishiCiChongwei, Target: SkillProgramEffectTarget.Owner,
+                    Condition.Kind: SkillProgramConditionKind.Always }]) return;
+            if (window == SkillProgramTriggerWindow.OtherActualTurnStarted && subject == SkillProgramTriggerSubject.Owner &&
+                optional && effects is [{ Op: SkillProgramEffectOp.ResolveAnniversaryZhangLiaoCuixi, Target: SkillProgramEffectTarget.Owner,
+                    Condition.Kind: SkillProgramConditionKind.Always }]) return;
+            if (window == SkillProgramTriggerWindow.OtherActualTurnStarted && subject == SkillProgramTriggerSubject.Owner &&
+                optional && effects is [{ Op: SkillProgramEffectOp.ResolveAnniversaryXiahouEnShiwu, Target: SkillProgramEffectTarget.Owner,
                     Condition.Kind: SkillProgramConditionKind.Always }]) return;
             if (window != SkillProgramTriggerWindow.OtherActualTurnStarted || subject != SkillProgramTriggerSubject.Owner ||
                 !optional || effects.Count != 3 ||

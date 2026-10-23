@@ -66,6 +66,9 @@ internal static class ShenTaishiCiComposition
     [ProgramCatalogValidation(38200)]
     internal static void Validate(string path, SkillProgram p)
     {
+        // This edition shares the exact finalized-judgment/cancellation primitive;
+        // its complete immutable shape is checked by HappyTaishiCiComposition.
+        if (p.Id == "happy:dulie") return;
         if (p.Id is not ("mobile-god:dulie" or "mobile-god:powei" or "mobile-god:shenzhu"))
         {
             if (p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects)).Any(e =>

@@ -27,6 +27,8 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.HappyPlanSettled or
+        SkillProgramTriggerWindow.HappyGuardRemoved or
         SkillProgramTriggerWindow.PublicHandRevealed or
         SkillProgramTriggerWindow.ActualPhaseSkipped or
         SkillProgramTriggerWindow.WuLuKangPindian or
@@ -36,6 +38,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.IdentityGeneralAppeared or
         SkillProgramTriggerWindow.PindianBeforeReveal or
         SkillProgramTriggerWindow.PindianResultDetermined or
+        SkillProgramTriggerWindow.DuelResponseFailed or
         SkillProgramTriggerWindow.PindianCardsRevealed or
         SkillProgramTriggerWindow.OtherActualTurnStarted or
         SkillProgramTriggerWindow.OtherActualUseTargeted or
@@ -132,6 +135,7 @@ internal static class ProgramEntryCapabilities
             Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,
+        SkillProgramTriggerWindow.DyingExited => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.CharacterDied => Common | ProgramContextCapability.Death,
         SkillProgramTriggerWindow.JudgmentReplacing =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.JudgmentReplacement,

@@ -42,11 +42,11 @@ public sealed partial class SimpleAiBrain
                 var movable = equipment.Where(item => item.Card.Kind is not (CardKind.GeneralWeapon or CardKind.Xuanjian)).ToArray();
                 if (movable.Length == 0) { result = Score(-40, "场上没有可重新分配的普通装备，保留偷梁换柱。"); return true; }
                 var value = 0d;
-                foreach (var group in movable.GroupBy(item => EquipmentCatalog.Get(item.Card.Kind).Slot))
+                foreach (var group in movable.GroupBy(item => item.Card.OccupiedEquipmentSlot ?? EquipmentCatalog.Get(item.Card.Kind).Slot))
                 {
                     int Capacity(PlayerSnapshot p) => p.IsEquipmentAreaAbolished ? 0 : Math.Max(0,
                         (p.EquipmentSlotCapacities?.GetValueOrDefault(group.Key, 1) ?? 1) - equipment.Count(item => item.Owner == p.Seat &&
-                            (item.Card.Kind is CardKind.GeneralWeapon or CardKind.Xuanjian) && EquipmentCatalog.Get(item.Card.Kind).Slot == group.Key));
+                            (item.Card.Kind is CardKind.GeneralWeapon or CardKind.Xuanjian) && (item.Card.OccupiedEquipmentSlot ?? EquipmentCatalog.Get(item.Card.Kind).Slot) == group.Key));
                     var capacity = living.Sum(Capacity);
                     if (capacity <= 0) continue;
                     var total = group.Sum(item => (double)CardCatalog.Get(item.Card.Kind).AiPlayValue);

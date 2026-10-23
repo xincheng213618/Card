@@ -635,6 +635,7 @@ internal sealed partial class ProgramAiEstimateContext
         var targetHp = effect.NumberExpression switch
         {
             SkillProgramNumberExpression.IntegerConstant => effect.MinimumValue,
+            SkillProgramNumberExpression.CurrentHp => Math.Max(effect.MinimumValue, _player.Hp),
             SkillProgramNumberExpression.LivingFactionCount =>
                 Math.Max(effect.MinimumValue, _publicContext.LivingFactionCount),
             SkillProgramNumberExpression.LivingPlayersMinHp =>

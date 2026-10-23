@@ -37,21 +37,7 @@ public sealed partial class GameEngine
         // Issue the owning receipt before movements: a movement observer can
         // inspect or continue the parent use without treating these entities as leaks.
         AdvanceEventRulesAndQueueFact(new ProgramCurrentUsePhysicalCardsClaimedEvent(receipt));
-        var batch = BeginCardMovementBatch([CardLocation.Processing], [CardLocation.Hand(target)]);
-        var movements = new List<CardMovementRecord>();
-        var committed = false;
-        try
-        {
-            foreach (var id in ids)
-            {
-                var card = EntityAtCurrentLocation(id);
-                _cardZones.Move(id, CardLocation.Processing, CardLocation.Hand(target));
-                movements.Add(RecordMovement(card, CardLocation.Processing, CardLocation.Hand(target),
-                    new("skill-program.current-use-physical-claim")));
-            }
-            committed = true;
-        }
-        finally { CompleteCardMovementBatch(batch, movements, committed); }
+        MoveProgramCardsFromMultipleSources(ids, CardLocation.Hand(target), new("skill-program.current-use-physical-claim"));
         return TryBeginCardsMovedProgramWindow(frame.Id) ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
     }
 

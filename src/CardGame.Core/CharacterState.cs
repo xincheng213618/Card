@@ -78,9 +78,18 @@ public sealed partial class CharacterState
     public required int MaxHp
     {
         get => HasShenPangTongKunyu ? 1 : _maxHp;
-        set => _maxHp = HasShenPangTongKunyu ? 1 : SkillGrants.Grants.Any(g => g.IsEnabled && g.SkillId == "wushuang:tactic-2020") ? 7 : value;
+        set
+        {
+            _maxHp = HasShenPangTongKunyu ? 1 : SkillGrants.Grants.Any(g => g.IsEnabled && g.SkillId == "wushuang:tactic-2020") ? 7 : value;
+            SynchronizeHappyQiaoMaximum(_maxHp);
+        }
     }
-    public required int Hp { get; set; }
+    private int _hp;
+    public required int Hp
+    {
+        get => ReadHappyQiaoHpOrOrdinary(_hp);
+        set { if (!TryWriteHappyQiaoHp(value)) _hp = value; }
+    }
     public GeneralGender? GenderOverride { get; set; }
     internal Func<CharacterState,GeneralGender?>? GeneralLibraryGenderQuery {get;set;}
     public GeneralGender Gender => IdentityConcealed ? GeneralGender.Male : GeneralLibraryGenderQuery?.Invoke(this) ?? GenderOverride ?? General.Gender;

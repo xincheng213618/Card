@@ -123,6 +123,7 @@ public sealed record GroupCardState
     public long? CurrentAttackOwnerId { get; init; }
     public IReadOnlyList<int> DamageClaimedPhysicalCardIds { get; init; } = [];
     public IReadOnlyList<int> RevealedCardIds { get; init; } = [];
+    public int? NullificationCompletedTargetIndex { get; init; }
 }
 
 public sealed record CardResolutionContinuations

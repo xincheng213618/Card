@@ -99,8 +99,9 @@ public sealed partial class GameEngine
         use.NativeCardEffectDraw is { Stage: NativeCardEffectDrawStage.DrawingChildren, Outcome: { } outcome } receipt &&
         batch.ParentFrameId == use.Id && batch.AwaitingProgramFrameId == receipt.AwaitingProgramFrameId && batch.Movements.Count > 0 &&
         batch.Movements.All(m => m.Sequence > outcome.SequenceBefore && m.Sequence <= outcome.SequenceAfter &&
-            (outcome.ActualDrawIds.Contains(m.CardId) && m.From == CardLocation.DrawPile &&
-                m.To == CardLocation.Hand(outcome.RecipientSeat) && m.Reason == CardMoveReasons.Draw ||
+            (m.From == CardLocation.DrawPile && m.Reason == CardMoveReasons.Draw &&
+                (outcome.ActualDrawIds.Contains(m.CardId) && m.To == CardLocation.Hand(outcome.RecipientSeat) ||
+                 IsHappyWeiYanRedirectedGain(m, CardLocation.Hand(outcome.RecipientSeat))) ||
              m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile && m.Reason == CardMoveReasons.Reshuffle));
 
     private bool IsNativeCardEffectDrawMovementReturn(CardUseFrame use, CardsMovedTriggerWindowFrame frame) =>

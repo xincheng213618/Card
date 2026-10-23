@@ -2,6 +2,11 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public enum AnniversaryZhangJiaoStage { SanshouSnapshot, Obtained, Shuffled, Choosing, Damaging }
+public sealed record ZhangJiaoAcquisitionPayment(long Before, long After)
+{
+    private readonly IReadOnlyList<CardMovementRecord> _movements = Array.AsReadOnly(Array.Empty<CardMovementRecord>());
+    public IReadOnlyList<CardMovementRecord> Movements { get => _movements; init => _movements = Array.AsReadOnly(value.ToArray()); }
+}
 public sealed record AnniversaryZhangJiaoReceipt(CardConversionSource Source, string GameplayHash,
     SkillProgramEffectOp Op, int InstructionIndex, AnniversaryZhangJiaoStage Stage,
     int UsedCategories = 0, int Rank = 0, int MarkerBefore = 0, int MarkerAfter = 0,
@@ -10,6 +15,7 @@ public sealed record AnniversaryZhangJiaoReceipt(CardConversionSource Source, st
     private IReadOnlyList<int> _cards = Array.AsReadOnly(Array.Empty<int>()), _targets = Array.AsReadOnly(Array.Empty<int>());
     public IReadOnlyList<int> Cards { get => _cards; init => _cards = Array.AsReadOnly(value.ToArray()); }
     public IReadOnlyList<int> Targets { get => _targets; init => _targets = Array.AsReadOnly(value.ToArray()); }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ZhangJiaoAcquisitionPayment? HappySijunPayment { get; init; }
 }
 public sealed partial record ProgramSkillFrame
 {
@@ -72,13 +78,17 @@ internal static class AnniversaryZhangJiaoComposition
                 p.Triggers.Count(t => t.Window == SkillProgramTriggerWindow.CardUseCommitted && t.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor) == 1 &&
                 p.Triggers.Count(t => t.Window == SkillProgramTriggerWindow.CardResponseAccepted && t.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor) == 1 &&
                 p.Triggers.Count(t => t.Window == SkillProgramTriggerWindow.DiscardPileReceived && t.MovementDiscardOnly && t.DiscardOwnerScope == SkillProgramDiscardOwnerScope.Own && t.MovementOccurrence == SkillProgramMovementOccurrence.PerCard) == 1,
-            "anniversary-god:sanshou" => p.Triggers is [{ Window: SkillProgramTriggerWindow.BeforeDamageApplied, Optional: true, IsSkillInvocation: true,
+            "happy:yizhao" => p.Triggers.Count == 2 &&
+                p.Triggers.All(t => !t.Optional && t.IsSkillInvocation && One(t, SkillProgramEffectOp.ResolveAnniversaryZhangJiaoYizhao)) &&
+                p.Triggers.Count(t => t.Window == SkillProgramTriggerWindow.CardUseCommitted && t.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor) == 1 &&
+                p.Triggers.Count(t => t.Window == SkillProgramTriggerWindow.CardResponseAccepted && t.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor) == 1,
+            "anniversary-god:sanshou" or "happy:sanshou" => p.Triggers is [{ Window: SkillProgramTriggerWindow.BeforeDamageApplied, Optional: true, IsSkillInvocation: true,
                 Effects: [{ Op: SkillProgramEffectOp.ResolveAnniversaryZhangJiaoSanshou, SourceBind: null },
                     { Op: SkillProgramEffectOp.RevealTopCards, Amount: 3, ResultBind: "sanshou-top", Visibility: SkillProgramCardSetVisibility.Public },
                     { Op: SkillProgramEffectOp.ResolveAnniversaryZhangJiaoSanshou, SourceBind: "sanshou-top" },
                     { Op: SkillProgramEffectOp.MoveBoundCards, SourceBind: "sanshou-top", Destination: SkillProgramCardDestination.DiscardPile }] }],
-            "anniversary-god:sijun" => p.Triggers is [{ Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, Optional: true, IsSkillInvocation: true } t] && One(t, SkillProgramEffectOp.ResolveAnniversaryZhangJiaoSijun),
-            "anniversary-god:tianjie" => p.Triggers.Count == 2 && p.Triggers.All(t => t.Window == SkillProgramTriggerWindow.TurnEnding && t.Optional && t.IsSkillInvocation && One(t, SkillProgramEffectOp.ResolveAnniversaryZhangJiaoTianjie)) &&
+            "anniversary-god:sijun" or "happy:sijun" => p.Triggers is [{ Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, Optional: true, IsSkillInvocation: true } t] && One(t, SkillProgramEffectOp.ResolveAnniversaryZhangJiaoSijun),
+            "anniversary-god:tianjie" or "happy:tianjie" => p.Triggers.Count == 2 && p.Triggers.All(t => t.Window == SkillProgramTriggerWindow.TurnEnding && t.Optional && t.IsSkillInvocation && One(t, SkillProgramEffectOp.ResolveAnniversaryZhangJiaoTianjie)) &&
                 p.Triggers.Select(t => t.TurnOwnerScope).ToHashSet().SetEquals([SkillProgramTurnOwnerScope.Own, SkillProgramTurnOwnerScope.OtherLiving]),
             _ => false
         });

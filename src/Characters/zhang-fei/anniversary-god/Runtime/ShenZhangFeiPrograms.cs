@@ -51,6 +51,7 @@ public sealed record ShenZhangFeiReceipt(CardConversionSource Source, string Gam
     public long After { get; init; }
     public long BatchId { get; init; }
     public bool Paid { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public bool? TakeBeforeDeath { get; init; }
 }
 public sealed partial record ProgramSkillFrame
 { [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ShenZhangFeiReceipt? ShenZhangFei { get; init; } }
@@ -65,7 +66,8 @@ public sealed record ShenZhangFeiXunshiEvent(CardConversionSource Source, string
 
 internal static class ShenZhangFeiComposition
 {
-    internal const string Shencai = "anniversary:shencai", Xunshi = "anniversary:xunshi";
+    internal const string Shencai = "anniversary:shencai", HappyShencai = "happy:shencai", Xunshi = "anniversary:xunshi";
+    internal static bool IsShencai(string id) => id is Shencai or HappyShencai;
     internal static readonly CardKind[] MultiTricks = [CardKind.BarbarianAssault, CardKind.ArrowBarrage, CardKind.FiveGrains, CardKind.PeachGarden, CardKind.IronChain];
     [ProgramCatalogValidation(38600)] internal static void Validate(string path, SkillProgram p)
     {
@@ -75,7 +77,7 @@ internal static class ShenZhangFeiComposition
         static bool Trigger(SkillProgramTrigger t, string id, SkillProgramTriggerWindow w, SkillProgramEffectOp op) => t.Id == id && t.Window == w && !t.Optional && t.UsageLimit is null && t.UsageScope is null && Effect(t.Effects, op);
         var valid = p.Id switch
         {
-            Shencai => p.Activations is [{ Id: "sentence", MinCards: 0, MaxCards: 0, MinTargets: 1, MaxTargets: 1, TargetKind: SkillProgramTargetKind.OtherLiving, UsesPerTurn: null, UsesPerPhase: 5, UsesPerGame: null } a] &&
+            Shencai or HappyShencai => p.Activations is [{ Id: "sentence", MinCards: 0, MaxCards: 0, MinTargets: 1, MaxTargets: 1, TargetKind: SkillProgramTargetKind.OtherLiving, UsesPerTurn: null, UsesPerPhase: 5, UsesPerGame: null } a] &&
                 Effect(a.Effects, SkillProgramEffectOp.ResolveShenZhangFeiShencai) && p.Triggers is [var gain, var chi, var tu, var liu, var si] &&
                 Trigger(gain,"judgment-first-gain",SkillProgramTriggerWindow.JudgmentFinalized,SkillProgramEffectOp.ResolveShenZhangFeiShencai) && gain.Subject == SkillProgramTriggerSubject.Any && gain.JudgmentReasons.SequenceEqual(["anniversary-shencai"]) &&
                 Trigger(chi,"chi-damage",SkillProgramTriggerWindow.AfterDamageApplied,SkillProgramEffectOp.ResolveShenZhangFeiPunishment) && chi.Subject == SkillProgramTriggerSubject.Owner && chi.DamageOccurrence == SkillProgramDamageOccurrence.PerDamage &&

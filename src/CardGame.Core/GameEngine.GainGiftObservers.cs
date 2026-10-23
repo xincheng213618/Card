@@ -52,11 +52,25 @@ public sealed partial class GameEngine
             if (issued is not [var fact] || fact.Source != GainGiftSource(f) || fact.GameplayHash != f.GameplayHash ||
                 fact.BatchId != r.BatchId || fact.Phase != phase) return false;
             var gifts = CompleteProgramEventHistory().OfType<GainGiftPaidEvent>().Where(e => e.ProgramFrameId == f.Id).ToArray();
+            bool GiftSettled(GainGiftPaidEvent gift)
+            {
+                if (gift.After < gift.Before || gift.From.OwnerSeat != f.OwnerSeat ||
+                    gift.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)) return false;
+                var destination = CardLocation.Hand(gift.TargetSeat);
+                var reason = new CardMoveReason("program.batch-gain.gift");
+                var movements = _cardMovements.Where(m => m.Sequence > gift.Before && m.Sequence <= gift.After &&
+                    m.CardId == gift.CardId && m.From == gift.From && m.Reason == reason).ToArray();
+                var retained = (f.HappyWeiYanRetainedGains ?? []).Where(item => item.InstructionIndex == r.InstructionIndex &&
+                    item.Plan.CardId == gift.CardId && item.Plan.From == gift.From && item.Plan.RequestedTo == destination &&
+                    item.Plan.Reason == reason && item.Plan.SequenceBefore == gift.Before).ToArray();
+                return retained is [var payment]
+                    ? gift.After == gift.Before && gift.From == CardLocation.Hand(f.OwnerSeat) && movements.Length == 0 &&
+                        IsHappyWeiYanRetainedGainSettlement(payment, f.Id, gift.CardId, destination, gift.Before)
+                    : retained.Length == 0 && movements is [var movement] &&
+                        (movement.To == destination || IsHappyWeiYanRedirectedGain(movement, destination));
+            }
             if (gifts.Length != r.GivenTargets.Count || !gifts.Select(e => e.CardId).SequenceEqual(r.GivenCards) ||
-                !gifts.Select(e => e.TargetSeat).SequenceEqual(r.GivenTargets) || gifts.Any(e => e.After <= e.Before ||
-                e.From.OwnerSeat != f.OwnerSeat || e.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) ||
-                _cardMovements.Count(m => m.Sequence > e.Before && m.Sequence <= e.After && m.CardId == e.CardId &&
-                    m.From == e.From && m.To == CardLocation.Hand(e.TargetSeat) && m.Reason.Value == "program.batch-gain.gift") != 1)) return false;
+                !gifts.Select(e => e.TargetSeat).SequenceEqual(r.GivenTargets) || gifts.Any(gift => !GiftSettled(gift))) return false;
             var last = gifts[^1];
             return r.PaymentCardId == last.CardId && r.PaymentFrom == last.From && r.PaymentTarget == last.TargetSeat &&
                 r.Before == last.Before && r.After >= last.After;

@@ -80,9 +80,10 @@ public sealed partial class GameEngine
                 string.IsNullOrWhiteSpace(conversion.SkillInstanceId) ||
                 _contentRegistry.Skills.GetValueOrDefault(conversion.SkillId)?.Program?.ViewAs.SingleOrDefault(r => r.Id == conversion.BindingId) is not { } rule ||
                 rule.OutputKind != rescue.CardKind || !rule.ForResponse && !(rule.UseOnly && rule.ForPlay) ||
-                rule.InputCount != action.PhysicalCards.Count || action.PhysicalCards.Any(cost => !rule.SourceZones.Contains(cost.From.Zone))) return false;
+                (rule.InputCountExpression is null ? rule.InputCount != action.PhysicalCards.Count :
+                    !HasPaidHpScaledViewAsAction(action)) || action.PhysicalCards.Any(cost => !rule.SourceZones.Contains(cost.From.Zone))) return false;
             // Validate frozen provenance, never the giver's post-payment skill availability, condition or rewritten suits.
-            if (response.UsedPeach && response.UsedPeachPhysicalCardKind != (rule.InputCount > 1 || action.PhysicalCards[0].CardKind == CardKind.Peach
+            if (response.UsedPeach && response.UsedPeachPhysicalCardKind != (action.PhysicalCards.Count > 1 || action.PhysicalCards[0].CardKind == CardKind.Peach
                 ? (CardKind?)null : action.PhysicalCards[0].CardKind)) return false;
         }
         var index = _resolutionStack.Count - 1;

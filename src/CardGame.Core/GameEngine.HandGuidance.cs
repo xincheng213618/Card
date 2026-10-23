@@ -16,7 +16,7 @@ public sealed partial class GameEngine
     public HumanActionView GetHumanActionView()
     {
         var actions = GetHumanLegalActions();
-        return new HumanActionView(Revision, actions, BuildHumanHandGuidance(actions));
+        return new HumanActionView(Revision, actions, BuildHumanHandGuidance(actions), HumanWushuangJinzhiMaterials());
     }
 
     /// <summary>

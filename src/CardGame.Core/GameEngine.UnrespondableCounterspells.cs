@@ -58,8 +58,15 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(window with { Step = ResolutionFrameStep.Completed });
             PopResolutionFrame(window.Id, ResolutionFrameKind.NullificationWindow);
             AdvanceEventRulesAndQueueFact(new NullificationResolvedEvent(window.ParentFrameId,
-                window.EffectCardId, window.EffectCardKind, window.EffectNullified, window.ChainDepth));
+                window.EffectCardId, window.EffectCardKind, window.EffectNullified, window.ChainDepth)
+                { WindowFrameId = window.Id, TargetSeat = GetNullificationTargetSeat(window) });
             ClearPendingDecision();
+            if (window.GroupTargetReturn is not null)
+            {
+                SetCardUseStep(window.ParentFrameId, ResolutionFrameStep.ResolvingEffect);
+                CompleteGroupTargetNullification(window);
+                return true;
+            }
             foreach (var physical in GetCardUsePhysicalCards(window.ParentFrameId))
                 MoveFinishedTrickCard(window.ParentFrameId, physical);
             FinishCardUse(window.ParentFrameId, GetNullificationEffectCard(window), window.EffectCardKind);

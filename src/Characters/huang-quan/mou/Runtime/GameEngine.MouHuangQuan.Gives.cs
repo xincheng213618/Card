@@ -4,13 +4,17 @@ public sealed partial class GameEngine
     private bool HasMouHuangQuan=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangQuanTuicheng);
     // Called only by an original, audited Give producer in its physical-record callback.
     // The whole intended operation is supplied, so a HE or Processing split seals once.
-    private void RecordNativeGivenCards(long producerId,int giver,int recipient,IReadOnlyList<int> intended,long before)
+    private void RecordNativeGivenCards(long producerId,int giver,int recipient,IReadOnlyList<int> intended,long before,
+        HappyWeiYanGainRequestSettlement? requestSettlement = null)
     {
         if(!HasMouHuangQuan||intended.Count==0||giver==recipient)return;
         if(producerId<=0||!IsValidPlayerSeat(giver)||!IsValidPlayerSeat(recipient)||intended.Distinct().Count()!=intended.Count||before<0||before>_movementSequence)
             throw new InvalidOperationException("A native Give requires its original producer and distinct intended physical entities.");
-        var terminal=intended.Select(id=>_cardMovements.LastOrDefault(m=>m.CardId==id&&m.Sequence>before)).ToArray();
-        if(terminal.Any(m=>m is null||m.To!=CardLocation.Hand(recipient)&&m.To!=CardLocation.OutsideGame))return;
+        if (requestSettlement is not null)
+            ValidateHappyWeiYanGainRequestSettlement(requestSettlement, producerId, intended, CardLocation.Hand(recipient), before);
+        var retained = requestSettlement?.RetainedGains.Select(receipt => receipt.Plan.CardId).ToHashSet() ?? [];
+        var terminal=intended.Where(id => !retained.Contains(id)).Select(id=>_cardMovements.LastOrDefault(m=>m.CardId==id&&m.Sequence>before)).ToArray();
+        if(terminal.Any(m=>m is null||m.To!=CardLocation.Hand(recipient)&&m.To!=CardLocation.OutsideGame&&!IsHappyWeiYanRedirectedGain(m,CardLocation.Hand(recipient))))return;
         var delivered=terminal.Where(m=>m!.To==CardLocation.Hand(recipient)).Cast<CardMovementRecord>().OrderBy(m=>m.Sequence).ToArray();
         if(delivered.Length==0)return;
         var last=terminal.Max(m=>(long)m!.Sequence);
@@ -24,6 +28,13 @@ public sealed partial class GameEngine
     {original?.Invoke(m);RecordNativeGivenCards(producer,giver,recipient,ids,before);};
     private Action<long,IReadOnlyList<CardMovementRecord>> NativeGiveCompletionRecords(long producer,int giver,int recipient,IReadOnlyList<int> ids,long before,Action<long,IReadOnlyList<CardMovementRecord>>? original=null)=>(batch,moves)=>
     {original?.Invoke(batch,moves);RecordNativeGivenCards(producer,giver,recipient,ids,before);};
+    private Action<HappyWeiYanGainRequestSettlement> NativeGiveRequestCompletion(long producer,int giver,int recipient,
+        IReadOnlyList<int> ids,long before,Action<HappyWeiYanGainRequestSettlement>? original=null)=>settlement=>
+    {
+        ValidateHappyWeiYanGainRequestSettlement(settlement,producer,ids,CardLocation.Hand(recipient),before);
+        original?.Invoke(settlement);
+        RecordNativeGivenCards(producer,giver,recipient,ids,before,settlement);
+    };
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent,35700)]
     private void ExpireMouHqGivenEntities(TurnEndedEvent ended)
     {foreach(var p in _players)if(p.MouHqActualGifts is{}gifts)p.MouHqActualGifts=gifts.Where(g=>g.Turn!=ended.TurnNumber||g.TurnOwner!=ended.ActorSeat).ToArray()is{Length:>0}left?Array.AsReadOnly(left):null;}

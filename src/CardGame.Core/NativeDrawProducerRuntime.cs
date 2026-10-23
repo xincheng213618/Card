@@ -13,9 +13,16 @@ internal sealed class NativeDrawProducerRuntime(IProgramRuntimeFrames frames,
         if (instruction.TargetReference is { } reference) targetSeat = queries.ResolveParticipant(frame, reference);
         var selected = instruction.Target == SkillProgramEffectTarget.SelectedTargets;
         var recipients = selected ? frame.SelectedTargetSeats : new[] { targetSeat };
-        if (selected && (instruction.Amount is not FixedProgramAmount { Value: > 0 } || recipients.Count == 0 ||
+        if (selected && (instruction.Amount is not FixedProgramAmount { Value: > 0 } ||
             recipients.Distinct().Count() != recipients.Count))
             throw new InvalidOperationException("The selected-target draw has invalid participants or amount.");
+        if (selected && recipients.Count == 0)
+        {
+            if (!IsCommittedEmptyTargetDraw(frames.ActiveProgram(frame.Id), queries.ResolvePlan(frame),
+                    ((FixedProgramAmount)instruction.Amount).Value))
+                throw new InvalidOperationException("An empty draw requires its committed optional target selection.");
+            return SkillProgramStepOutcome.Continue;
+        }
         var requested = instruction.Amount switch
         {
             BoundCardCountProgramAmount bound => queries.BoundCardCount(frame, bound.SourceBind),
@@ -40,6 +47,20 @@ internal sealed class NativeDrawProducerRuntime(IProgramRuntimeFrames frames,
         return ContinueProgramNativeDraw(frame.Id)
             ? SkillProgramStepOutcome.AwaitChild : SkillProgramStepOutcome.Continue;
     }
+
+    internal static bool IsCommittedEmptyTargetDraw(ProgramSkillFrame frame, ProgramExecutionPlan plan, int amount) =>
+        frame.SelectedTargetSeats.Count == 0 && frame.NativeDraw is null && amount > 0 &&
+        frame.InstructionIndex >= 2 && frame.InstructionIndex <= plan.Instructions.Count &&
+        plan.BindingId == (frame.TriggerId ?? frame.ActivationId) &&
+        plan.Instructions[frame.InstructionIndex - 1] is
+            { Op: SkillProgramEffectOp.Draw, Target: SkillProgramEffectTarget.SelectedTargets,
+                NumberExpression: null, SourceBind: null, ResultBind: null } draw && draw.Amount == amount &&
+        // The preceding selection was validated and committed by the ordinary
+        // answer path on this same cursor. An unselected/default empty list is
+        // not sufficient to turn an arbitrary multi-recipient draw into a no-op.
+        plan.Instructions[frame.InstructionIndex - 2] is
+            { Op: SkillProgramEffectOp.SelectTargets, Target: SkillProgramEffectTarget.Owner,
+                MinimumTargets: 0, TargetKind: SkillProgramTargetKind.AnyLivingChained, SourceBind: null, ReplaceSelection: true };
 
     public SkillProgramStepOutcome BeginOperationProgramDraw(ProgramSkillFrame frame,
         int recipientSeat, int requestedCount, CardMoveReason reason)

@@ -22,6 +22,8 @@ internal abstract class StrategicProgramOperationDescriptor : ProgramOperationDe
             throw new InvalidOperationException("Attributed marker operations require a marker.");
         if (Op == SkillProgramEffectOp.SelectDistinctSuitHandDiscards && (resultBind is null || target != SkillProgramEffectTarget.SelectedTarget))
             throw new InvalidOperationException("Cross-owner hand selection requires a selected target and result binding.");
+        if (Op == SkillProgramEffectOp.SelectDistinctSuitHandDiscards && amount is not (0 or 3 or 4))
+            throw new InvalidOperationException("Cross-owner distinct-suit hand selection requires three or four cards; omission retains the legacy four-card default.");
         if (Op == SkillProgramEffectOp.ApplyHandDiscardShare && sourceBind is null)
             throw new InvalidOperationException("Hand discard outcomes require a source binding.");
         if (Op == SkillProgramEffectOp.DamageOtherLiving && amount < 1)
@@ -31,7 +33,7 @@ internal abstract class StrategicProgramOperationDescriptor : ProgramOperationDe
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => Op switch
     {
-        SkillProgramEffectOp.SelectDistinctSuitHandDiscards => [new ReadSelectedTarget(), new CaptureSourceCard(e.ResultBind!, 4)],
+        SkillProgramEffectOp.SelectDistinctSuitHandDiscards => [new ReadSelectedTarget(), new CaptureSourceCard(e.ResultBind!, e.Amount == 3 ? 3 : 4)],
         SkillProgramEffectOp.ApplyHandDiscardShare => [new ReadCardSet(e.SourceBind!)],
         SkillProgramEffectOp.SelectChainedByMarker => [new SelectTargetSet(0, 32)],
         SkillProgramEffectOp.DiscardTargetEquipment => [new ReadTargetSet(0)],

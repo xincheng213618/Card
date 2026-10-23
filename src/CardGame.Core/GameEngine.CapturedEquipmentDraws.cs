@@ -27,8 +27,8 @@ public sealed partial class GameEngine
         if(_currentSeat!=f.OwnerSeat ||_phase!=TurnPhase.Play ||!CanPlaceCapturedEquipmentCost(f.OwnerSeat,recipient,id) ||
             _cardZones.GetLocation(id)!=from ||!HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId))
         {CancelProgramBindingAndCleanup(f,"直置前参与者、所选实体或技能来源已失效，未支付装备。");return SkillProgramStepOutcome.AwaitChild;}
-        var card=GetAdvancedCard(id);var slot=EquipmentCatalog.Get(card.Kind).Slot;
-        var equipped=GetEquipment(_players[recipient]).Where(c=>EquipmentCatalog.Get(c.Kind).Slot==slot).ToArray();
+        var card=GetAdvancedCard(id);var slot=FieldEquipmentSlot(card);
+        var equipped=GetEquipment(_players[recipient]).Where(c=>FieldEquipmentSlot(c)==slot).ToArray();
         var replaced=equipped.Length>=_players[recipient].EquipmentSlotCapacity(slot) ? equipped[0] : null;
         var before=_cardMovements.LastOrDefault()?.Sequence??0;
         var source=new CardConversionSource(f.SkillId,GetProgramBindingId(f),f.OwnerSeat,f.SkillInstanceId);

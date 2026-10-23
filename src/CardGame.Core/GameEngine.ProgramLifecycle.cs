@@ -408,10 +408,11 @@ public sealed partial class GameEngine
     {
         _ = GetActiveProgramFrame(frameId);
         var target = _players[targetSeat];
-        if (!target.HasHpValue) return;
+        if (!target.HasHpValue || expression == SkillProgramNumberExpression.CurrentHp && !_players[ownerSeat].HasHpValue) return;
         var value = expression switch
         {
             SkillProgramNumberExpression.IntegerConstant => minimumValue,
+            SkillProgramNumberExpression.CurrentHp => _players[ownerSeat].Hp,
             SkillProgramNumberExpression.LivingFactionCount => GetLivingFactionCount(),
             SkillProgramNumberExpression.LivingPlayersMinHp => GetLivingPlayersMinHp(),
             _ => throw new InvalidOperationException($"Unsupported numeric expression '{expression}'.")
@@ -420,6 +421,7 @@ public sealed partial class GameEngine
         // Recovery never raises HP above MaxHp. The flag remains part of the
         // serialized primitive contract for forward-compatible numeric policies.
         value = Math.Min(target.MaxHp, value);
+        if (TryHandleHappyQiaoRecoverTo(frameId, ownerSeat, targetSeat, value)) return;
         var amount = Math.Max(0, value - target.Hp);
         if (amount == 0) return;
         if (TryQueueRecoveryReplacement(frameId, ownerSeat, targetSeat, amount,
@@ -525,11 +527,13 @@ public sealed partial class GameEngine
 
         var owner = _players[frame.OwnerSeat];
         var previous = owner.MaxHp;
-        var hpBeforeClamp = owner.Hp;
         if (sourceSkillId is not null && sourceSkillId != frame.SkillId &&
             !HasRuntimeSkillInstance(owner, sourceSkillId, GetRuntimeSkillInstanceId(owner, sourceSkillId)))
             throw new InvalidOperationException("Maximum-HP attribution requires the owner's actual source skill instance.");
-        owner.MaxHp = HasWushuangTactic(owner.Seat, 2020) ? 7 : Math.Max(1, checked(owner.MaxHp + amount));
+        var newMaximum = HasWushuangTactic(owner.Seat, 2020) ? 7 : Math.Max(1, checked(owner.MaxHp + amount));
+        if (TryApplyHappyQiaoMaximumHp(frame.Id, owner.Seat, newMaximum, sourceSkillId ?? frame.SkillId)) return;
+        var hpBeforeClamp = owner.Hp;
+        owner.MaxHp = newMaximum;
         owner.Hp = Math.Min(owner.Hp, owner.MaxHp);
         AdvanceEventRulesAndQueueFact(new MaximumHpChangedEvent(
             owner.Seat,
@@ -797,7 +801,8 @@ public sealed partial class GameEngine
         SkillProgramNumberExpression? numberExpression)
     {
         var target = _players[targetSeat];
-        if ((numberExpression is SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.OwnerMaxHp) && !_players[frame.OwnerSeat].HasHpValue ||
+        if ((numberExpression is SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.OwnerMaxHp or
+                SkillProgramNumberExpression.CurrentHp or SkillProgramNumberExpression.LiveOwnerLostHp) && !_players[frame.OwnerSeat].HasHpValue ||
             (numberExpression is SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount) && !target.HasHpValue ||
             numberExpression == SkillProgramNumberExpression.LivingPlayersMinHp && _players.Any(p => p.IsAlive && !p.HasHpValue) && !_players.Any(p => p.IsAlive && p.HasHpValue))
         { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算此效果。"); return null; }
@@ -805,6 +810,9 @@ public sealed partial class GameEngine
         {
             null => amount,
             SkillProgramNumberExpression.OwnerMaxHp => Math.Max(0, _players[frame.OwnerSeat].MaxHp),
+            SkillProgramNumberExpression.CurrentHp => Math.Max(0, _players[frame.OwnerSeat].Hp),
+            SkillProgramNumberExpression.LiveOwnerLostHp => Math.Max(0,
+                _players[frame.OwnerSeat].MaxHp - _players[frame.OwnerSeat].Hp),
             SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => GetHand(target).Count == 0 ? 2 : 1,
             SkillProgramNumberExpression.EquipmentHalfCeilingPlusOne => (GetEquipment(target).Count + 1) / 2 + 1,
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => CurrentTurnCategoryDrawCount(frame, targetSeat),
@@ -860,9 +868,16 @@ public sealed partial class GameEngine
     private void DrawProgramSelectedTargets(long frameId, int amount, CardMoveReason reason)
     {
         var frame = GetActiveProgramFrame(frameId);
-        if (amount < 1 || frame.SelectedTargetSeats.Count == 0 ||
+        if (amount < 1 ||
             frame.SelectedTargetSeats.Distinct().Count() != frame.SelectedTargetSeats.Count)
             throw new InvalidOperationException("The selected-target draw has invalid participants.");
+        if (frame.SelectedTargetSeats.Count == 0)
+        {
+            var plan = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!);
+            if (!NativeDrawProducerRuntime.IsCommittedEmptyTargetDraw(frame, plan, amount))
+                throw new InvalidOperationException("An empty draw requires its committed optional target selection.");
+            return;
+        }
         foreach (var seat in frame.SelectedTargetSeats)
         {
             if (_players[seat].IsAlive)
@@ -970,11 +985,13 @@ public sealed partial class GameEngine
                     IsWithinAttackRange(actorSeat, target.Seat))
                 .Select(target => target.Seat).Order().ToArray();
         }
-        if (targetKind == SkillProgramTargetKind.MaximumAttributedMarker)
+        if (targetKind is SkillProgramTargetKind.MaximumAttributedMarker or SkillProgramTargetKind.MaximumOtherAttributedMarker)
         {
             if (marker is not { } markerKind)
                 throw new InvalidOperationException("Maximum attributed-marker selection requires a marker kind.");
-            return GameRules.GetMaximumMarkerCandidates(_players.Select(player =>
+            return GameRules.GetMaximumMarkerCandidates(_players
+                .Where(player => targetKind != SkillProgramTargetKind.MaximumOtherAttributedMarker || player.Seat != ownerSeat)
+                .Select(player =>
                 new PlayerMarkerCandidateState(
                     player.Seat,
                     player.IsAlive,
@@ -986,6 +1003,7 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.OtherLivingHpAtLeastOwner => target.Seat != ownerSeat && target.HasHpValue &&
                     _players[ownerSeat].HasHpValue && target.Hp >= _players[ownerSeat].Hp,
                 SkillProgramTargetKind.OtherLivingChained => target.Seat != ownerSeat && target.IsChained,
+                SkillProgramTargetKind.AnyLivingChained => target.IsChained,
                 SkillProgramTargetKind.PublicTeamEnemies => PublicTeamEnemy(ownerSeat, target),
                 SkillProgramTargetKind.PublicTeamWoundedAllies => SamePublicTeam(_players[ownerSeat], target) && IsRuleWounded(target),
                 SkillProgramTargetKind.OtherPublicTeamWoundedAllies => target.Seat != ownerSeat && SamePublicTeam(_players[ownerSeat], target) && IsRuleWounded(target),
@@ -1116,6 +1134,12 @@ public sealed partial class GameEngine
         if (paused is { Op: SkillProgramEffectOp.SelectTargets,
                 NumberExpression: SkillProgramNumberExpression.BoundCardCount, SourceBind: not null })
             return SelectProgramNamedBoundTargets(frame, paused);
+        if (paused.ReplaceSelection == true)
+        {
+            if (frame.SelectedTargetSeats.Count != 1)
+                throw new InvalidOperationException("A chained replacement selection lost its original single target.");
+            ReplaceRuntimeTop(frame = frame with { SelectedTargetSeats = Array.AsReadOnly(Array.Empty<int>()) });
+        }
         var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext);
         if ((numberExpression is SkillProgramNumberExpression.CurrentHp or SkillProgramNumberExpression.OwnerLostHpAtLeastOne) && !_players[ownerSeat].HasHpValue)
         { CancelProgramBindingAndCleanup(frame, "体力值未定义，无法计算技能目标数量。"); return SkillProgramStepOutcome.Continue; }
@@ -1479,7 +1503,7 @@ public sealed partial class GameEngine
         if (zones.Contains(CardZoneKind.Equipment))
         {
             foreach (var card in GetEquipment(_players[sourceSeat.Value]).Where(card =>
-                         equipmentSlots.Count == 0 || equipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot)))
+                         equipmentSlots.Count == 0 || equipmentSlots.Contains(FieldEquipmentSlot(card))))
             {
                 choices.Add(new PromptChoice(
                     new ChoiceId($"program-source-card.frame-{frameId}.equipment-{card.Id}"),
@@ -1910,7 +1934,7 @@ public sealed partial class GameEngine
                 IsValidPlayerSeat(phaseSeat) => CardLocation.Hand(phaseSeat),
             SkillProgramCardDestination.OwnerPersistentZone when destinationZone is
                 CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or
-                CardZoneKind.Chunlao => new CardLocation(destinationZone.Value, ownerSeat),
+                CardZoneKind.Chunlao or CardZoneKind.PrivateReserve => new CardLocation(destinationZone.Value, ownerSeat),
             _ => throw new InvalidOperationException($"Unsupported program card destination '{destination}'.")
         };
         if (destination == SkillProgramCardDestination.SelectedTargetHand &&
@@ -2229,6 +2253,7 @@ public sealed partial class GameEngine
         if (IsIssuedWenYangQingjiaoEndingCandidate(candidate, context)) return true;
         if (IsIssuedTongduCandidate(candidate, context)) return true;
         if (IsIssuedMouCaoHongCandidate(candidate, context)) return true;
+        if (IsIssuedAnniversaryZhangXunCandidate(candidate, context)) return true;
         if (IsXiangxuMinimumCandidate(candidate, context)) return true;
         if (IsIssuedMouSmPrivateCandidate(candidate, context)) return true;
         if (IsIssuedMouLuSuDamageCandidate(candidate, context)) return true;
@@ -2245,6 +2270,7 @@ public sealed partial class GameEngine
         if (IsIssuedSunHaoCanshiCandidate(candidate, context)) return true;
         if (IsIssuedLiWanCandidate(candidate)) return CanRunIssuedLiWanCandidate(candidate, context);
         if (IsIssuedRuanHuiCandidate(candidate)) return CanRunIssuedRuanHuiCandidate(candidate, context);
+        if (IsIssuedAnniversaryGuoZhaoCandidate(candidate)) return CanRunIssuedAnniversaryGuoZhaoCandidate(candidate, context);
         if (IsIssuedKenshangCandidate(candidate)) return CanRunIssuedKenshangCandidate(candidate, context);
         if (IsIssuedFulueCandidate(candidate)) return CanRunIssuedFulueCandidate(candidate, context);
         if (CanRunIssuedMouZhangXiuOl(candidate, context)) return true;
@@ -2398,7 +2424,9 @@ public sealed partial class GameEngine
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat ||
                  IsYanPuDrawContext(candidate, context) || IsGuanduForeignDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
-            SkillProgramTriggerWindow.DyingExited => IsMouJiangWeiFuzhanExitContext(candidate, context) || IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context) || IsWushuangDyingExitContext(candidate, context),
+            SkillProgramTriggerWindow.HappyGuardRemoved => IsHappyDianWeiElaiCandidate(candidate, context),
+            SkillProgramTriggerWindow.HappyPlanSettled => CanRunHappyPangTongSettled(candidate, context),
+            SkillProgramTriggerWindow.DyingExited => IsMouJiangWeiFuzhanExitContext(candidate, context) || IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context) || IsWushuangDyingExitContext(candidate, context) || IsHappyGuanYuDyingExitContext(candidate, context),
             SkillProgramTriggerWindow.CardEffectBeforeApply => CanRunCardEffectCandidate(candidate, context),
             SkillProgramTriggerWindow.AfterTurnEnded =>
                 CanRunAfterTurnEndedCandidate(candidate, context, trigger),
@@ -2435,6 +2463,8 @@ public sealed partial class GameEngine
                     ? MatchesFrozenOwnOrPreviousEnding(candidate, context)
                     : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
                         ? owner.Seat == _currentSeat
+                        : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.AnyLiving
+                        ? _players[_currentSeat].IsAlive
                         : owner.Seat != _currentSeat && _players[_currentSeat].IsAlive)) &&
                 _resolutionStack.OfType<TurnEndingBoundaryFrame>().LastOrDefault() is { } ending &&
                 ending.Id == context.ParentFrameId && ending.OwnerSeat == _currentSeat,
@@ -2486,7 +2516,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.OtherActualTurnStarted => CanRunForeignActualTurnContest(candidate, context),
             SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged =>
                 context.HpChange is { } change &&
-                (candidate.SkillId == BChunlao ? change.Kind == HpChangeKind.Loss && _cardZones.Count(CardLocation.Chunlao(owner.Seat)) > 0 : IsShenwuJicaiTrigger(trigger) ? IsShenwuRecoveryCandidate(candidate, context) : IsNianRecoveryTrigger(trigger) ? IsNianRecoveryCandidate(candidate, context) : IsYintianRecoveryTrigger(trigger) ? CanRunYintianRecovery(candidate, context) : IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : IsSpSunShangxiangLiangzhuTrigger(trigger) ? CanRunSpSunShangxiangLiangzhu(candidate, context) : IsMouCyForeignHealthCandidate(candidate, context) || change.TargetSeat == owner.Seat) && change.Amount > 0 &&
+                (candidate.SkillId == BChunlao ? change.Kind == HpChangeKind.Loss && _cardZones.Count(CardLocation.Chunlao(owner.Seat)) > 0 : IsShenwuJicaiTrigger(trigger) ? IsShenwuRecoveryCandidate(candidate, context) : IsNianRecoveryTrigger(trigger) ? IsNianRecoveryCandidate(candidate, context) : IsYintianRecoveryTrigger(trigger) ? CanRunYintianRecovery(candidate, context) : IsWenyiHpTrigger(trigger) ? CanOfferWenyi(candidate, trigger, context) : IsQimeiEqualityTrigger(trigger) ? CanRunQimeiEquality(candidate, context) : IsXianfuEchoTrigger(trigger) ? CanRunXianfuEcho(candidate, context) : IsDianhuDrawTrigger(trigger) ? CanRunDianhu(candidate, context) : IsSpSunShangxiangLiangzhuTrigger(trigger) ? CanRunSpSunShangxiangLiangzhu(candidate, context) : IsMouCyForeignHealthCandidate(candidate, context) || IsHappyQiaoForeignHealthCandidate(candidate, context) || change.TargetSeat == owner.Seat) && change.Amount > 0 &&
                 _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
                 hpWindow.Id == context.ParentFrameId && hpWindow.Change == change &&
                 hpWindow.Candidates[hpWindow.CandidateIndex] == candidate,
@@ -2494,7 +2524,11 @@ public sealed partial class GameEngine
                 context.MovementBatch is { } batch &&
                 batch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
-                (features.HasOperation(SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick)
+                (candidate.SkillId == AnniversaryLiuYongComposition.Fengxiang && candidate.BindingId == "xi-leader-changes"
+                    ? IsAnniversaryLiuYongMovementCandidate(candidate, context)
+                    : candidate.SkillId == HappyZuoCiComposition.Huanshu && candidate.BindingId == "foreign-phantom"
+                    ? IsHappyZuoCiForeignRewardCandidate(candidate, context)
+                    : features.HasOperation(SkillProgramEffectOp.PayMaxHpAndObtainActualUsedTrick)
                     ? MatchingLiJueUseDiscardIndexes(batch, candidate).Length > 0
                     : IsMouCaFengmin(trigger) ? CanRunMouCaEquipment(candidate, context)
                     : IsHellZhiwangTrigger(trigger) ? CanRunHellZhiwangCandidate(candidate, context)
@@ -2606,6 +2640,8 @@ public sealed partial class GameEngine
                 slashFrame.Candidates.Any(item => item.OwnerSeat == candidate.OwnerSeat &&
                     item.SkillId == candidate.SkillId && item.SkillInstanceId == candidate.SkillInstanceId &&
                     item.TriggerId == candidate.BindingId && item.GameplayHash == candidate.GameplayHash),
+            SkillProgramTriggerWindow.PindianResultDetermined or SkillProgramTriggerWindow.DuelResponseFailed =>
+                MobileZhitiContestCandidateMatches(candidate, context),
             SkillProgramTriggerWindow.DiscardPhaseStarting =>
                 context.SourceSeat == _currentSeat && _phase == TurnPhase.Discard &&
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
@@ -2701,7 +2737,7 @@ public sealed partial class GameEngine
                             CardZoneKind.Hand => GetHand(_players[resolvedSourceSeat]).Count > 0,
                             CardZoneKind.Equipment => GetEquipment(_players[resolvedSourceSeat]).Any(card =>
                                 effect.EquipmentSlots.Count == 0 ||
-                                effect.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot)),
+                                effect.EquipmentSlots.Contains(FieldEquipmentSlot(card))),
                             _ => false
                         }))
                         return false;
@@ -2739,8 +2775,34 @@ public sealed partial class GameEngine
         return $"{usageBinding}@{candidate.SkillInstanceId}";
     }
 
+    private SkillProgramUnselectedDualHpFacts? CaptureProgramUnselectedHp(CharacterState player) =>
+        UnambiguousHp(player) is null && player.HappyQiaoHealth is { } health
+            ? new(player.Seat, health.DaQiaoHp, health.XiaoQiaoHp, health.MaximumHp) : null;
+
+    private (int Value, bool Undefined, int? FixedMinimum, IReadOnlyList<SkillProgramUnselectedDualHpFacts>? Unselected)
+        CaptureProgramLivingHpFacts()
+    {
+        int? minimum = null;
+        List<SkillProgramUnselectedDualHpFacts>? unselected = null;
+        foreach (var player in _players.Where(player => player.IsAlive && player.HasHpValue))
+        {
+            if (UnambiguousHp(player) is { } hp) minimum = minimum is { } prior ? Math.Min(prior, hp) : hp;
+            else if (CaptureProgramUnselectedHp(player) is { } dual) (unselected ??= []).Add(dual);
+        }
+        return unselected is not null
+            ? (0, true, minimum, Array.AsReadOnly(unselected.ToArray()))
+            : (minimum ?? 0, minimum is null && _players.Any(player => player.IsAlive && !player.HasHpValue), null, null);
+    }
+
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner)
     {
+        var ownerHp = UnambiguousHp(owner);
+        var ownerDual = CaptureProgramUnselectedHp(owner);
+        var turnOwner = _players[_currentSeat];
+        var turnOwnerHp = UnambiguousHp(turnOwner);
+        var turnOwnerDual = CaptureProgramUnselectedHp(turnOwner);
+        if (turnOwnerHp is null && turnOwnerDual is null) turnOwnerHp = turnOwner.Hp;
+        var livingHp = CaptureProgramLivingHpFacts();
         var turnDeaths = _contentRegistry.ProgramDependencies.UsesActualTurnDeathBenefits
             ? ActualTurnDeathCounts(owner.Seat) : ((int Deaths, int Kills)?)null;
         var states = new Dictionary<string, bool>(StringComparer.Ordinal);
@@ -2753,7 +2815,7 @@ public sealed partial class GameEngine
             }
         return new(
             CountCardsUsedByCurrentPlayerThisTurn(owner.Seat),
-            owner.Hp,
+            ownerHp ?? (ownerDual is null ? owner.Hp : 0),
             UsesClassicBattleRules,
             CardsUsedOrRespondedThisTurn: CountCardsUsedOrRespondedByPlayerThisTurn(owner.Seat),
             OwnerIsTurnPlayer: owner.Seat == _currentSeat,
@@ -2771,7 +2833,7 @@ public sealed partial class GameEngine
             CurrentAvailableEquipmentSlotCount: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.CurrentAvailableEquipmentSlotCount) ? Enum.GetValues<EquipmentSlot>().Count(slot => owner.EquipmentSlotCapacity(slot) > 0) : null,
             CurrentHandCount: GetHand(owner).Count,
             TurnDiscardSuitMask: TracksTurnDiscardSuits ? CurrentTurnDiscardSuitMask : null,
-            LivingPlayersMinHp: GetLivingPlayersMinHp(),
+            LivingPlayersMinHp: livingHp.Value,
             TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
             DiscardPhaseSuitsAllDistinct: owner.Seat == _currentSeat && FullDiscardPhaseSuitsAllDistinct,
             LordGeneralId: _players.SingleOrDefault(player => player.Role == Role.Lord)?.General.Id,
@@ -2798,12 +2860,20 @@ public sealed partial class GameEngine
             PlayPhaseDamageTakenByAny: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.PlayPhaseDamageTakenByAny)
                 ? CountPlayPhaseDamageTakenByAny() : 0,
             LowHandPopulationSeats: _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawAndDraftLowHandPopulation)
-                ? _players.Where(player => player.IsAlive && player.HasHpValue && GetHand(player).Count < player.Hp).Select(player => player.Seat).ToArray() : null,
+                ? _players.Where(player => player.IsAlive && player.HasHpValue &&
+                    (UnambiguousHp(player) is { } hp ? GetHand(player).Count < hp :
+                        player.HappyQiaoHealth is { } health &&
+                        (GetHand(player).Count < health.DaQiaoHp || GetHand(player).Count < health.XiaoQiaoHp)))
+                    .Select(player => player.Seat).ToArray() : null,
             GlobalMarkerCounts: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.GlobalMarkerCount)
                 ? Enum.GetValues<PlayerMarkerKind>().Where(marker => marker is PlayerMarkerKind.Camp or PlayerMarkerKind.Junlue).ToDictionary(marker => marker,
                     marker => _players.Where(player => player.IsAlive).Sum(player => player.Markers.GetValueOrDefault(marker))) : null)
-        { OwnerHpUndefined = !owner.HasHpValue, OwnerRuleWounded = UsesTreatedWounded ? IsRuleWounded(owner) : null, TurnOwnerHpUndefined = !_players[_currentSeat].HasHpValue, LivingMinHpUndefined = _players.Any(p => p.IsAlive && !p.HasHpValue) && !_players.Any(p => p.IsAlive && p.HasHpValue), TurnOwnerHp = _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerHp)
-              ? _players[_currentSeat].Hp : null,
+        { OwnerHpUndefined = !owner.HasHpValue || ownerDual is not null, OwnerRuleWounded = UsesTreatedWounded ? IsRuleWounded(owner) : null,
+          TurnOwnerHpUndefined = !turnOwner.HasHpValue || turnOwnerDual is not null, LivingMinHpUndefined = livingHp.Undefined,
+          UnselectedOwnerHp = ownerDual, UnselectedTurnOwnerHp = turnOwnerDual,
+          UnselectedLivingHp = livingHp.Unselected, LivingFixedHpMinimum = livingHp.FixedMinimum,
+          TurnOwnerHp = _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerHp)
+              ? turnOwnerHp : null,
           RoundTurnSeatCount = _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.RoundTurnSeatCount)
               ? _roundTurnSeats.Count : null,
           ActualTurnDeathCount = turnDeaths?.Deaths,
@@ -3082,7 +3152,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
-        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0 && !IssuedZhuijiEndingCandidates(owner).Any() && !IssuedQingzhongEndingCandidates(owner).Any() && !IssuedWeiluEndingCandidates(owner).Any() && !HasOutstandingHongjiPhase(owner, SkillProgramTriggerWindow.PlayEnding) && !IssuedWangKuangRenxiaEndingCandidates(owner).Any() && !IssuedTongduPlayEndingCandidates(owner).Any() && !IssuedMouCaoHongPlayEndingCandidates(owner).Any())
+        if (!HasLivingProgramTriggerBindings(SkillProgramTriggerWindow.PlayEnding) && _phaseNamePredictions.Count == 0 && !IssuedZhuijiEndingCandidates(owner).Any() && !IssuedQingzhongEndingCandidates(owner).Any() && !IssuedWeiluEndingCandidates(owner).Any() && !HasOutstandingHongjiPhase(owner, SkillProgramTriggerWindow.PlayEnding) && !IssuedWangKuangRenxiaEndingCandidates(owner).Any() && !IssuedTongduPlayEndingCandidates(owner).Any() && !IssuedMouCaoHongPlayEndingCandidates(owner).Any() && !IssuedAnniversaryZhangXunPlayEndingCandidates(owner).Any())
             return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
@@ -3105,6 +3175,8 @@ public sealed partial class GameEngine
         foreach (var issued in IssuedTongduPlayEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
         foreach (var issued in IssuedMouCaoHongPlayEndingCandidates(owner))
+            if (!candidates.Contains(issued)) candidates.Add(issued);
+        foreach (var issued in IssuedAnniversaryZhangXunPlayEndingCandidates(owner))
             if (!candidates.Contains(issued)) candidates.Add(issued);
         var orderedCandidates = candidates.OrderBy(candidate => RelativeTableOrder(owner.Seat, candidate.OwnerSeat))
             .ThenByDescending(candidate => candidate.Priority)
@@ -4092,7 +4164,7 @@ public sealed partial class GameEngine
                             .SingleOrDefault(item => item.Id == selected.Cards.Single()) ??
                             throw new InvalidOperationException("The selected equipment is no longer available.");
                         if (effect.EquipmentSlots.Count > 0 &&
-                            !effect.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot))
+                            !effect.EquipmentSlots.Contains(FieldEquipmentSlot(card)))
                             throw new InvalidOperationException("The selected equipment slot is no longer legal.");
                     }
                     else if (effect.CardSource == SkillProgramCardSource.Owner && zone is
@@ -4238,6 +4310,8 @@ public sealed partial class GameEngine
     private (ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
         GetPendingProgramTriggerCandidate()
     {
+        if (TryGetMobileZhitiContestTrigger(out var zhitiCandidate, out var zhitiContext))
+            return (zhitiCandidate, zhitiContext);
         if (TryGetDrivenProgramTriggerCandidate(out var drivenCandidate, out var drivenContext))
             return (drivenCandidate, drivenContext);
         if (TryGetPindianRevealTrigger(out var revealCandidate,out var revealContext)) return (revealCandidate,revealContext);
@@ -4287,6 +4361,7 @@ public sealed partial class GameEngine
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (TrySkipMobileZhitiContestTrigger(candidate)) return;
         if (TrySkipDrivenProgramCandidate(candidate)) return;
         if (_resolutionStack.LastOrDefault() is PindianRevealWindowFrame reveal && reveal.Candidates[reveal.CandidateIndex] == candidate)
         { CompletePindianRevealBinding(candidate,PindianRevealContext(reveal,candidate)); return; }
@@ -4591,7 +4666,7 @@ public sealed partial class GameEngine
             AttackRangeCoverageDecreased: _ => _players.Where(player => player.IsAlive && player.Seat != owner.Seat)
                 .Any(player => GetEquipment(player).Any(card =>
                     WouldEquipmentRemovalReduceCoverage(player.Seat, card.Id))),
-            LivingPlayersMinHp: GetLivingPlayersMinHp(),
+            LivingPlayersMinHp: CaptureProgramLivingHpFacts() is { Undefined: false } livingHp ? livingHp.Value : null,
             TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
             CurrentTurnUsedCardCategoryCount: TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
             PublicLivingFactionCount: TracksTurnDrawDebt ? GetPublicLivingFactionCount() : null,

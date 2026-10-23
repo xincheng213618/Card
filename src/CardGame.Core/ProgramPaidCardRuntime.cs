@@ -14,6 +14,7 @@ internal interface IProgramPaidCardFacts : IProgramSelectionQuery
     bool EquipmentAreaAbolished(int seat);
     bool JudgmentAreaAbolished(int seat);
     int EquipmentSlotCapacity(int seat, EquipmentSlot slot);
+    EquipmentSlot FieldEquipmentSlot(Card card);
     bool HasSkillInstance(int seat, string skillId, string instanceId);
     ContentSkillDefinition Skill(string skillId);
     PlayerSkillContext SkillContext(int seat);
@@ -53,6 +54,8 @@ internal interface IProgramPaidCardOperations : IProgramRuntimeOperations
     void CompleteLogicalDiscard(NativeLogicalDiscardInvocationDraft? invocation);
     void Move(Card card, CardLocation source, CardLocation destination, CardMoveReason reason,
         CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified);
+    bool SettleRetainedGain(ProgramSkillFrame frame, Card card, CardLocation source,
+        CardLocation destination, CardMoveReason reason);
     void Give(ProgramSkillFrame frame, int giver, Card card, CardLocation source, CardLocation destination, CardMoveReason reason, bool throughProcessing, CardMovementDisclosure disclosure);
     bool BeginMovementWindow();
     bool BeginPublicHandReveal(long frameId, string returnKey);
@@ -99,6 +102,7 @@ public sealed partial class GameEngine
         public bool EquipmentAreaAbolished(int seat) => engine._players[seat].EquipmentAreaAbolished;
         public bool JudgmentAreaAbolished(int seat) => engine._players[seat].JudgmentAreaAbolished;
         public int EquipmentSlotCapacity(int seat, EquipmentSlot slot) => engine._players[seat].EquipmentSlotCapacity(slot);
+        public EquipmentSlot FieldEquipmentSlot(Card card) => engine.FieldEquipmentSlot(card);
         public bool HasSkillInstance(int seat, string skillId, string instanceId) =>
             engine.HasRuntimeSkillInstance(engine._players[seat], skillId, instanceId);
         public ContentSkillDefinition Skill(string skillId) => engine._contentRegistry!.GetSkill(skillId);
@@ -150,8 +154,12 @@ public sealed partial class GameEngine
         public void Move(Card card, CardLocation source, CardLocation destination, CardMoveReason reason,
             CardMovementDisclosure disclosure = CardMovementDisclosure.Unspecified) =>
             engine.MoveCard(card, source, destination, reason, disclosure: disclosure);
+        public bool SettleRetainedGain(ProgramSkillFrame frame, Card card, CardLocation source,
+            CardLocation destination, CardMoveReason reason) =>
+            engine.TrySettleHappyWeiYanRetainedGain(card, source, destination, reason, frame.Id);
         public void Give(ProgramSkillFrame frame, int giver, Card card, CardLocation source, CardLocation destination, CardMoveReason reason, bool throughProcessing, CardMovementDisclosure disclosure)
         {
+            if (SettleRetainedGain(frame, card, source, destination, reason)) return;
             var before = engine._movementSequence;
             if (throughProcessing) engine.MoveCard(card, source, CardLocation.Processing, reason, disclosure: disclosure);
             engine.MoveCard(card, throughProcessing ? CardLocation.Processing : source, destination, reason,

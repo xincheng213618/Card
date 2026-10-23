@@ -31,8 +31,13 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Attributed marker mutation requires an owner or event source.");
         }
         var targetSeat = ResolveProgramParticipant(active, targetReference);
+        var isHappyWuhunSelfDamage = targetReference.Kind == ProgramParticipantRef.EventSource &&
+            active.SkillId == HappyGuanYuComposition.Wuhun && active.TriggerId == "damage-nightmare" &&
+            marker == PlayerMarkerKind.Nightmare && amount == 1 &&
+            active.WindowContext is { Window: SkillProgramTriggerWindow.DamageAppliedBeforeDying } damage &&
+            damage.SourceSeat == active.OwnerSeat && damage.TargetSeat == active.OwnerSeat;
         if (!IsValidPlayerSeat(targetSeat) ||
-            targetSeat == active.OwnerSeat && targetReference.Kind != ProgramParticipantRef.Owner)
+            targetSeat == active.OwnerSeat && targetReference.Kind != ProgramParticipantRef.Owner && !isHappyWuhunSelfDamage)
             return;
 
         var target = _players[targetSeat];
@@ -527,7 +532,13 @@ public sealed partial class GameEngine
         // windows. End the interrupted phase only after those children return.
         if (!_players[death.VictimSeat].IsAlive && death.VictimSeat == _currentSeat && _phase == TurnPhase.Play)
             CloseCurrentPlayPhaseSkillGrants("phase-actor-died");
-        ClearAttributedMarkerSources(_players[death.VictimSeat], death.Id);
+        if (!death.HappyGuardMarkerCleanupCompleted)
+        {
+            ClearAttributedMarkerSources(_players[death.VictimSeat], death.Id);
+            UpdateDeathFrame(death.Id, current => current with { HappyGuardMarkerCleanupCompleted = true });
+            death = GetCurrentDeathFrame(death.Id);
+        }
+        if (TryBeginHappyDianWeiDeathRemovals(death)) return;
         PopResolutionFrame(death.Id, ResolutionFrameKind.Death);
 
         if (_resolutionStack.LastOrDefault()?.Id != death.ParentFrameId)
@@ -552,6 +563,7 @@ public sealed partial class GameEngine
             if (ActiveCardAttack is not { } attack || attack.ResolutionId != death.ParentFrameId ||
                 !IsExactMaximumHpReplacementDeathParent(death, _resolutionStack[^1]))
                 throw new InvalidOperationException("Maximum-HP death lost its exact card attack return.");
+            if (TryBeginHappyQiaoCardMaximumHealth(attack.ResolutionId)) return;
             CompleteAttack(attack);
             return;
         }
@@ -597,7 +609,7 @@ public sealed partial class GameEngine
         {
             var attributed = player.MarkerSourceCounts
                 .Where(item => item.Key.SkillOwnerSeat == owner.Seat && item.Key.Marker is not (PlayerMarkerKind.Kui or PlayerMarkerKind.DragonSeal or PlayerMarkerKind.PhoenixSeal or PlayerMarkerKind.Pingding or
-                    PlayerMarkerKind.ShencaiChi or PlayerMarkerKind.ShencaiZhang or PlayerMarkerKind.ShencaiTu or PlayerMarkerKind.ShencaiLiu or PlayerMarkerKind.ShencaiSi))
+                    PlayerMarkerKind.ShencaiChi or PlayerMarkerKind.ShencaiZhang or PlayerMarkerKind.ShencaiTu or PlayerMarkerKind.ShencaiLiu or PlayerMarkerKind.ShencaiSi or PlayerMarkerKind.HappyXue))
                 // Issued Liushi hand-limit effects belong to the affected role;
                 // their original source's death does not withdraw them.
                 .Where(item => item.Key.Marker != PlayerMarkerKind.LiuShi ||

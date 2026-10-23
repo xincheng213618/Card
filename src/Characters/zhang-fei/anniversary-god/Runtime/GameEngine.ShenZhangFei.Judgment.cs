@@ -3,7 +3,7 @@ public sealed partial class GameEngine
 {
     private bool CanBeginShenZfJudgment(ProgramSkillFrame f,int targetSeat,string reason,string bind,SkillProgramCardSetVisibility visibility) =>
         f.ShenZhangFei is { Operation:SkillProgramEffectOp.ResolveShenZhangFeiShencai,Stage:ShenZhangFeiStage.Judging,JudgmentId:>0 } r &&
-        f.ActivationId == "sentence" && f.TriggerId is null && f.SkillId == ShenZhangFeiComposition.Shencai && targetSeat == r.TargetSeat &&
+        f.ActivationId == "sentence" && f.TriggerId is null && ShenZhangFeiComposition.IsShencai(f.SkillId) && targetSeat == r.TargetSeat &&
         reason == "anniversary-shencai" && bind == "shencai-judgment" && visibility == SkillProgramCardSetVisibility.Public && r.Source == ShenZfSource(f) &&
         r.GameplayHash == f.GameplayHash && f.SelectedTargetSeats.SequenceEqual([targetSeat]);
     private bool IsShenZfJudgment(JudgmentFrame j,ProgramSkillFrame f) => CanBeginShenZfJudgment(f,j.TargetSeat,j.Reason,j.ProgramResultBind ?? "",j.ProgramResultVisibility ?? SkillProgramCardSetVisibility.Private) &&
@@ -12,7 +12,7 @@ public sealed partial class GameEngine
     {
         // The innate disposition is issued by the paid parent. It runs before
         // final-judgment skills such as Tiandu, regardless of table order.
-        var retained = candidates.Where(c => c.SkillId != ShenZhangFeiComposition.Shencai || c.TriggerId != "judgment-first-gain").ToArray();
+        var retained = candidates.Where(c => !ShenZhangFeiComposition.IsShencai(c.SkillId) || c.TriggerId != "judgment-first-gain").ToArray();
         if (_resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == j.ParentFrameId) is not { } root ||
             !IsShenZfJudgment(j,root) || !_players[root.OwnerSeat].IsAlive || GetJudgmentCard(j) is not { } card ||
             _cardZones.GetLocation(card.Id) != CardLocation.Judgment(j.TargetSeat)) return retained;
@@ -20,7 +20,7 @@ public sealed partial class GameEngine
     }
     private bool IsShenZfGainCandidate(ProgramTriggerCandidate c,ProgramSkillWindowContext w)
     {
-        if (c.SkillId != ShenZhangFeiComposition.Shencai || c.BindingId != "judgment-first-gain" || w.Window != SkillProgramTriggerWindow.JudgmentFinalized ||
+        if (!ShenZhangFeiComposition.IsShencai(c.SkillId) || c.BindingId != "judgment-first-gain" || w.Window != SkillProgramTriggerWindow.JudgmentFinalized ||
             w.Judgment is not { } result || !_players[c.OwnerSeat].IsAlive || ActiveJudgment is not { } j || j.Id != result.JudgmentFrameId ||
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == j.ParentFrameId) is not { } root || !IsShenZfJudgment(j,root) ||
             root.OwnerSeat != c.OwnerSeat || root.SkillInstanceId != c.SkillInstanceId || root.GameplayHash != c.GameplayHash || result.SubjectSeat != j.TargetSeat ||

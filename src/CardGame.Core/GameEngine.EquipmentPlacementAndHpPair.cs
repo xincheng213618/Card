@@ -9,7 +9,7 @@ public sealed partial class GameEngine
         source.OwnerSeat == ownerSeat && source.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
         _cardZones.GetLocation(card.Id) == source && EquipmentCatalog.IsEquipment(card.Kind) &&
         source != CardLocation.Equipment(targetSeat) && !_players[targetSeat].EquipmentAreaAbolished &&
-        _players[targetSeat].EquipmentSlotCapacity(EquipmentCatalog.Get(card.Kind).Slot) > 0;
+        _players[targetSeat].EquipmentSlotCapacity(FieldEquipmentSlot(card)) > 0;
 
     private bool CanPlaceActivationEquipment(int ownerSeat, int targetSeat, int cardId) =>
         CanPlaceOwnedEquipment(ownerSeat, targetSeat, GetAdvancedCard(cardId), _cardZones.GetLocation(cardId));
@@ -30,8 +30,8 @@ public sealed partial class GameEngine
             SelectedCardPayment = new(active.InstructionIndex, SkillProgramEffectOp.PlaceSelectedEquipment,
                 Array.AsReadOnly(source.CardIds.ToArray()), targetSeat) { PlacementSourceLocation = from }
         });
-        var slot = EquipmentCatalog.Get(card.Kind).Slot;
-        var equipped = GetEquipment(_players[targetSeat]).Where(item => EquipmentCatalog.Get(item.Kind).Slot == slot).ToArray();
+        var slot = FieldEquipmentSlot(card);
+        var equipped = GetEquipment(_players[targetSeat]).Where(item => FieldEquipmentSlot(item) == slot).ToArray();
         Card? replaced = equipped.Length >= _players[targetSeat].EquipmentSlotCapacity(slot) ? equipped[0] : null;
         if (replaced is not null)
         {

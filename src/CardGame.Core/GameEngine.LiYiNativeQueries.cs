@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     private int? LiYiPaidSlashWeapon(CharacterState actor, IReadOnlyList<int> materialIds) =>
         actor.IsAlive && HasCardPolicy(actor, SkillProgramCardPolicyKind.EmptyWeaponStoneAxe)
             ? GetEquipment(actor).Where(card => materialIds.Contains(card.Id) &&
-                EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
+                FieldEquipmentSlot(card) == EquipmentSlot.Weapon)
                 .Select(card => (int?)card.Id).SingleOrDefault()
             : null;
 
@@ -19,7 +19,7 @@ public sealed partial class GameEngine
     private bool HasLiYiProspectiveWeaponSlashTarget(CharacterState actor, CharacterState target)
     {
         if (!actor.IsAlive || !HasCardPolicy(actor, SkillProgramCardPolicyKind.EmptyWeaponStoneAxe)) return false;
-        foreach (var weapon in GetEquipment(actor).Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon))
+        foreach (var weapon in GetEquipment(actor).Where(card => FieldEquipmentSlot(card) == EquipmentSlot.Weapon))
             foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash })
                 foreach (var source in GetProgramViewAsConversions(actor, weapon, kind, forResponse: false))
                     if (CanUseSlashTarget(actor, target, weapon, source, kind, physicalCardIds: [weapon.Id], excludedEquipmentId: weapon.Id))

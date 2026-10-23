@@ -3,6 +3,8 @@ namespace CardGame.Core;
 public sealed record WushuangJinzhiPaidEvent(long FrameId, int Owner, int RoundNumber, int Ordinal,
     int ActualTurn, int MovementBefore, CardActionContext Action) : IGameEvent;
 
+public sealed record WushuangJinzhiMaterialSelection(int RequiredCount, IReadOnlyList<int> CardIds);
+
 public sealed partial class GameEngine
 {
     private const string WushuangJinzhiSkill = "wushuang:skill-3252";
@@ -19,6 +21,22 @@ public sealed partial class GameEngine
     private int WushuangJinzhiNextCount(int owner) => checked(ProgramEventHistory<WushuangJinzhiPaidEvent>()
         .Count(e => e.Owner == owner && e.RoundNumber == _roundNumber) + 1);
 
+    // An unpaid UI draft remains available even when no complete same-color set
+    // exists. Only the ordinary legal-action query can authorize its final use.
+    private WushuangJinzhiMaterialSelection? HumanWushuangJinzhiMaterials()
+    {
+        if (_options.HumanSeat < 0 || _pendingDecision is not { Kind: DecisionKind.PlayCard } prompt ||
+            prompt.PlayerSeat != _options.HumanSeat || _winner != Winner.None) return null;
+        var owner = _players[_options.HumanSeat];
+        if (!owner.IsAlive || !GetSkillBindingShard(owner).ProgramInstances.Any(p => p.SkillId == WushuangJinzhiSkill)) return null;
+        return new(WushuangJinzhiNextCount(owner.Seat), Array.AsReadOnly(WushuangJinzhiDiscardableCards(owner)
+            .Select(card => card.Id).ToArray()));
+    }
+
+    private IEnumerable<Card> WushuangJinzhiDiscardableCards(CharacterState owner) =>
+        GuanduOwnedCards(owner.Seat).Where(c => !c.IsGeneralWeapon &&
+            !IsSelfHandCategoryDiscardForbidden(owner.Seat, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard));
+
     private IReadOnlyList<ProgramMultiCardViewAsSelection> WushuangJinzhiSelections(CharacterState owner, CardKind kind, bool response)
     {
         var instances = GetSkillBindingShard(owner).ProgramInstances.Where(p => p.SkillId == WushuangJinzhiSkill).ToArray();
@@ -27,8 +45,7 @@ public sealed partial class GameEngine
         var count = WushuangJinzhiNextCount(owner.Seat);
         // These entities pay a discard. They are not the virtual basic card's
         // hand materials, so use/response-only hand bans do not forbid payment.
-        var cards = GuanduOwnedCards(owner.Seat).Where(c => !c.IsGeneralWeapon &&
-            !IsSelfHandCategoryDiscardForbidden(owner.Seat, c, _cardZones.GetLocation(c.Id), OwnedCardMoveIntent.Discard))
+        var cards = WushuangJinzhiDiscardableCards(owner)
             .GroupBy(c => IsRedSuit(EffectiveSuit(owner, c))).ToArray();
         var selections = new List<ProgramMultiCardViewAsSelection>();
         foreach (var instance in instances)

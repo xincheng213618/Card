@@ -142,17 +142,8 @@ public sealed partial class GameEngine
             var recipient = selected.Targets.Single();
             var cards = selected.Cards.Select(id => { var from = _cardZones.GetLocation(id); return _cardZones.CardsAt(from).Single(card => card.Id == id); }).ToArray();
             var red = cards.All(card => card.Suit is Suit.Heart or Suit.Diamond);
-            var moves = cards.Select(card => (Card: card, From: _cardZones.GetLocation(card.Id))).ToArray();
-            var batch = BeginCardMovementBatch(moves.Select(move => move.From), [CardLocation.Hand(recipient)]);
-            var movements = new List<CardMovementRecord>(); var committed = false;
-            try
-            {
-                foreach (var move in moves) _cardZones.Move(move.Card.Id, move.From, CardLocation.Hand(recipient));
-                foreach (var move in moves) movements.Add(RecordMovement(move.Card, move.From, CardLocation.Hand(recipient),
-                    new CardMoveReason($"skill-program.{frame.SkillId}.completed-card-gift")));
-                committed = true;
-            }
-            finally { CompleteCardMovementBatch(batch, movements, committed); }
+            MoveProgramCardsFromMultipleSources(cards.Select(card => card.Id).ToArray(), CardLocation.Hand(recipient),
+                new($"skill-program.{frame.SkillId}.completed-card-gift"));
             AdvanceEventRulesAndQueueFact(new CompletedCardGiftedEvent(frame.Id, draft.CardActionId, frame.OwnerSeat, recipient, selected.Cards, red));
             if (!red || !_players[recipient].IsAlive) { CompleteProgramCardGift(frame); return; }
             frame = frame with { CompletedCardGiftDraft = draft with { RecipientSeat = recipient, GiftWasRed = true }, SelectedTargetSeats = [recipient] };

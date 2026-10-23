@@ -80,13 +80,15 @@ internal sealed class NativeDrawAttemptRuntime(IProgramRuntimeFrames frames,
             gainedIds.Count > native.RequestedCount || gainedIds.Distinct().Count() != gainedIds.Count)
             throw new InvalidOperationException("A draw replacement lost its exact live request or paid materials.");
         var after = queries.MovementSequence;
-        var actual = queries.Movements().Where(m => m.Sequence > sequenceBefore && m.Sequence <= after &&
-            m.To == CardLocation.Hand(native.RecipientSeat) && m.Reason == reason).OrderBy(m => m.Sequence).ToArray();
-        if (!actual.Select(m => m.CardId).SequenceEqual(gainedIds) || actual.Any(m =>
+        var paid = queries.Movements().Where(m => m.Sequence > sequenceBefore && m.Sequence <= after &&
+            m.Reason == reason && (m.To == CardLocation.Hand(native.RecipientSeat) ||
+                queries.IsRedirectedGain(m, CardLocation.Hand(native.RecipientSeat)))).OrderBy(m => m.Sequence).ToArray();
+        if (!paid.Select(m => m.CardId).SequenceEqual(gainedIds) || paid.Any(m =>
                 m.From.OwnerSeat != sourceSeat || m.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
             throw new InvalidOperationException("Replacement gains must be the exact original HE materials, never drawn cards.");
+        var actual = paid.Where(m => m.To == CardLocation.Hand(native.RecipientSeat)).Select(m => m.CardId).ToArray();
         var replacement = new NativeDrawReplacementResult(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId,
-            frame.ActivationId, sourceSeat, reason, sequenceBefore, after) { GainedIds = gainedIds };
+            frame.ActivationId, sourceSeat, reason, sequenceBefore, after) { GainedIds = actual };
         frames.Replace(attempt.Id, attempt with { Replacement = replacement });
         operations.CompleteLingkongReplacement(frame, attempt, replacement);
     }
@@ -206,6 +208,7 @@ internal sealed class NativeDrawAttemptRuntime(IProgramRuntimeFrames frames,
                     NativeDrawAttemptReturnKind.DragonBoatCardEffect => parent is not CardUseFrame { DragonBoatCardEffect.Stage: DragonBoatCardEffectStage.Drawing },
                     NativeDrawAttemptReturnKind.EquipmentRecast => parent is not EquipmentRecastFrame { DrawApplied: false },
                     NativeDrawAttemptReturnKind.SkillInvocation => parent is not SkillInvocationFrame { Stage: SkillInvocationStage.Drawing },
+                    NativeDrawAttemptReturnKind.KemingSkillEcho => parent is not KemingSkillEchoFrame { Stage: KemingSkillEchoStage.Drawing },
                     _ => parent is not ProgramSkillFrame
                 }) ||
                 queries.StartedEvents().Count(e => e.Context == context && e.Return == attempt.Return) != 1 ||

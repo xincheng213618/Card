@@ -36,7 +36,8 @@ public sealed partial class GameEngine
 
     private bool TryBeginEquipmentTargetPrograms(CharacterState source, Card equipment, long frameId)
     {
-        if (TryMouCyEquipmentCommitted(frameId, equipment)) return true;
+        if (TryHappyWeiYanEquipmentCommitted(frameId, equipment) || TryMouCyEquipmentCommitted(frameId, equipment) ||
+            TryAnniversaryHzEquipmentCommitted(frameId, equipment)) return true;
         if (!HasFinalizedTargetProgram(equipment.Kind)) return false;
         // Equipment commitment observes its installed slot, after target hooks finish.
         if (!TryBeginFinalizedSimpleCardPrograms(frameId,

@@ -13,7 +13,8 @@ public sealed partial class GameEngine
         !IsForeignEquipmentDiscardPrevented(seat,c,_cardZones.GetLocation(c.Id),OwnedCardMoveIntent.Transfer)).Select(c=>c.Id).ToArray();
     private bool ShenLsDingzhouTarget(int owner,int target)=>IsValidPlayerSeat(target)&&owner!=target&&_players[owner].IsAlive&&_players[target].IsAlive&&
         ShenLsField(target).Length is >0 and var count&&ShenLsGiveable(owner).Length>=count;
-    private int[] ShenLsPeers(int owner)=>CurrentTableOrder().Where(s=>s!=owner&&_players[s].IsAlive&&(!ShenLsTeam||GetHand(_players[s]).Count<=GetHand(_players[owner]).Count+1)).ToArray();
+    private int[] ShenLsPeers(int owner,string skillId)=>CurrentTableOrder().Where(s=>s!=owner&&_players[s].IsAlive&&
+        (skillId=="happy:zhimeng"||!ShenLsTeam||GetHand(_players[s]).Count<=GetHand(_players[owner]).Count+1)).ToArray();
     [ProgramCapability] private sealed class ShenLuSuCapability(GameEngine e):IShenLuSuHost
     { public SkillProgramStepOutcome Execute(ProgramSkillFrame f,SkillProgramEffectOp op)=>e.BeginShenLs(f,op); }
     [ProgramCapability] private sealed class ShenLuSuSelection(GameEngine e):IShenLuSuSelection
@@ -21,7 +22,7 @@ public sealed partial class GameEngine
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification,38900,SkillProgramEffectOp.ResolveShenLuSuTamo,SkillProgramEffectOp.ResolveShenLuSuZhimeng)]
     private bool ShenLsEligible(ProgramTriggerCandidate c,SkillProgramTrigger t,ProgramSkillWindowContext w)=>ShenLsMode&&
         (t.Effects[0].Op==SkillProgramEffectOp.ResolveShenLuSuTamo ? w.Window==SkillProgramTriggerWindow.GameStarting&&CurrentTableOrder().Count-(_modeDefinition.ModeKind==ContentModeKind.Identity?1:0)>1 :
-        w.Window==SkillProgramTriggerWindow.AfterTurnEnded&&w.SourceSeat==c.OwnerSeat&&ShenLsPeers(c.OwnerSeat).Length>0);
+        w.Window==SkillProgramTriggerWindow.AfterTurnEnded&&w.SourceSeat==c.OwnerSeat&&ShenLsPeers(c.OwnerSeat,c.SkillId).Length>0);
     private SkillProgramStepOutcome BeginShenLs(ProgramSkillFrame supplied,SkillProgramEffectOp op)
     {
         var f=GetActiveProgramFrame(supplied.Id);

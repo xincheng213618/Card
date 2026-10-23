@@ -107,6 +107,8 @@ public sealed partial class GameEngine
     {
         if (IsWenheDeadOwnerEndingCandidate(candidate, actualOwner)) return true;
         var scope = GetProgramTrigger(candidate).TurnOwnerScope;
+        if (scope == SkillProgramTurnOwnerScope.AnyLiving)
+            return _players[actualOwner].IsAlive;
         if (scope == SkillProgramTurnOwnerScope.OwnOrPreviousLiving)
             return candidate.OwnerSeat == actualOwner || PreviousLivingSeatFor(candidate.OwnerSeat) == actualOwner;
         return scope == (candidate.OwnerSeat == actualOwner ? SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving);

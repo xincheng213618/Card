@@ -4,11 +4,12 @@ public sealed partial class GameEngine
 {
     private sealed record ShenDaRepeatPlan(string Id, CardKind Kind, LegalActionKind ActionKind,
         IReadOnlyList<int> TargetSeats, string Description, int? TargetCardId = null, CardKind? RequiredKind = null);
-    private CardUseFrame? ShenDaCuixinOriginal(ProgramSkillWindowContext w, int owner) => w.CardUse is { } c &&
+    private CardUseFrame? ShenDaCuixinOriginal(ProgramSkillWindowContext w, int owner, string skillId) => w.CardUse is { } c &&
         w.Window == SkillProgramTriggerWindow.CardUseCompleted && LifecycleCardUse(c.ParentCardUseFrameId) is
-        { Step: ResolutionFrameStep.Completed, Action: { Type: CardActionType.Use, PhysicalCards.Count: > 0 } a } use &&
-        use.ShenDengAiCuixin is null && a.ActionId == c.CardActionId && a.ActorSeat == owner && a.ProviderSeat == owner &&
-        a.PhysicalCards.All(p => p.From == CardLocation.Hand(owner)) ? use : null;
+        { Step: ResolutionFrameStep.Completed, Action: { Type: CardActionType.Use } a } use &&
+        use.ShenDengAiCuixin is null && a.ActionId == c.CardActionId && a.ActorSeat == owner &&
+        (skillId == HappyDaCuixin || skillId == ShenDaCuixin && a.ProviderSeat == owner && a.PhysicalCards.Count > 0 &&
+            a.PhysicalCards.All(p => p.From == CardLocation.Hand(owner))) ? use : null;
     private IReadOnlyList<ShenDaRepeatPlan> ShenDaRepeatPlans(int owner, CardKind kind, IReadOnlyList<int> originalTargets)
     {
         var actor = _players[owner];
@@ -57,7 +58,7 @@ public sealed partial class GameEngine
     private void IssueShenDaCuixin(ProgramSkillFrame f, string option)
     {
         var r = f.ShenDengAi!;
-        var original = ShenDaCuixinOriginal(f.WindowContext!, f.OwnerSeat) ?? throw new InvalidOperationException("Cuixin lost its completed hand-card source.");
+        var original = ShenDaCuixinOriginal(f.WindowContext!, f.OwnerSeat, f.SkillId) ?? throw new InvalidOperationException("Cuixin lost its edition-qualified completed source.");
         var p = ShenDaRepeatPlans(f.OwnerSeat, r.OutputKind!.Value, original.TargetSeats).Single(o => o.Id == option);
         if (r.OriginalUseId != original.Id || r.OriginalActionId != original.Action!.ActionId || r.Stage != ShenDengAiStage.RepeatChoice)
             throw new InvalidOperationException("Cuixin cannot repeat a different original use.");
@@ -98,7 +99,7 @@ public sealed partial class GameEngine
     private CardActionContext PrepareShenDaCuixinAction(CardActionContext a)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { ShenDengAi: { Stage: ShenDengAiStage.NativeUse, UseId: 0 } r } f) return a;
-        if (f.SkillId != ShenDaCuixin || a.ActorSeat != f.OwnerSeat || a.ProviderSeat != f.OwnerSeat || a.PhysicalCards.Count != 0 || a.ConversionChain.Count != 0 || a.EffectiveKind != r.OutputKind)
+        if (!IsShenDaCuixin(f.SkillId) || a.ActorSeat != f.OwnerSeat || a.ProviderSeat != f.OwnerSeat || a.PhysicalCards.Count != 0 || a.ConversionChain.Count != 0 || a.EffectiveKind != r.OutputKind)
             throw new InvalidOperationException("Cuixin cannot normalize another producer's action.");
         return CaptureFactionAction(new CardActionContext(a.ActionId, a.ParentActionId, a.Type, a.ActorSeat, a.ProviderSeat, a.RequesterSeat, a.ResponderSeat,
             a.OpponentSeat, a.EffectiveKind, a.TargetSeats, a.PhysicalCards, a.ConversionChain, a.DesignatedTargetSeats, effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: null));
@@ -124,7 +125,7 @@ public sealed partial class GameEngine
         a.EffectiveSuit == Suit.None && a.EffectiveRank == 0 && a.ProviderSeat == o.ActorSeat && a.RequesterSeat is null &&
         ShownEntityUseActorMatches(use, o.ActorSeat, o.ActorSeat) &&
         _resolutionStack.SingleOrDefault(f => f.Id == o.FrameId) is ProgramSkillFrame { ShenDengAi: { Stage: ShenDengAiStage.NativeUse } r } f &&
-        r.UseId == id && r.ActionId == a.ActionId && r.Source == o.Source && r.GameplayHash == o.GameplayHash && f.SkillId == ShenDaCuixin &&
+        r.UseId == id && r.ActionId == a.ActionId && r.Source == o.Source && r.GameplayHash == o.GameplayHash && IsShenDaCuixin(f.SkillId) &&
         ProgramEventHistory<ShenDengAiNativeIssuedEvent>().Count(e => e.Origin == o) == 1;
     private bool IsShenDaCuixinTrick(long id) => LifecycleCardUse(id)?.CardKind is { } kind && IsOrdinaryTrick(kind) && IsShenDaCuixinUse(id);
     private Card ReadShenDaCuixinAppearance(long id, CardAppearanceReference a) => IsShenDaCuixinUse(id) &&
@@ -184,7 +185,7 @@ public sealed partial class GameEngine
         if (w.Continuation != ProgramCardContinuation.CompletedSlash || i < 1 || i + 1 >= _resolutionStack.Count ||
             _resolutionStack[i - 1] is not CardUseFrame { Step: ResolutionFrameStep.Completed, Action: { } a } u || u.Id != w.ParentFrameId ||
             a.ActionId != w.Action.ActionId || _resolutionStack[i + 1] is not ProgramSkillFrame { ShenDengAi: { OriginalAttackActive: true } r } f ||
-            f.SkillId != ShenDaCuixin || f.WindowContext?.ParentFrameId != w.Id || r.OriginalUseId != u.Id || r.OriginalActionId != a.ActionId || u.CardAttack?.Active != false) return false;
+            !IsShenDaCuixin(f.SkillId) || f.WindowContext?.ParentFrameId != w.Id || r.OriginalUseId != u.Id || r.OriginalActionId != a.ActionId || u.CardAttack?.Active != false) return false;
         return ProgramEventHistory<ShenDengAiCursorSuspendedEvent>().Count(e => e.FrameId == f.Id && e.OriginalUseId == u.Id && e.OriginalActionId == a.ActionId) == 1;
     }
     private void RestoreShenDaCuixinCursor(ProgramSkillFrame f)

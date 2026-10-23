@@ -43,7 +43,7 @@ public sealed partial class SimpleAiBrain
             if (action.TargetSeats.Count != 2) return (-1000, "借刀缺少原有序目标。");
             var armed = view.Players.Single(p => p.Seat == action.TargetSeats[0]);
             var victim = view.Players.Single(p => p.Seat == action.TargetSeats[1]);
-            var weapon = armed.Equipment.Where(c => EquipmentCatalog.Get(c.Kind).Slot == EquipmentSlot.Weapon)
+            var weapon = armed.Equipment.Where(c => !c.IsBone && (c.OccupiedEquipmentSlot ?? EquipmentCatalog.Get(c.Kind).Slot) == EquipmentSlot.Weapon)
                 .Select(c => CardCatalog.Get(c.Kind).AiPlayValue).DefaultIfEmpty(12).Max();
             return (profile.AiPlayValue + GetHostility(view, role, armed) * .45 + GetHostility(view, role, victim) * .65 +
                 weapon * .35 + (victim.Hp <= 1 ? 22 : 0) - roundCost, "按公开武器和有序目标评估借刀。");

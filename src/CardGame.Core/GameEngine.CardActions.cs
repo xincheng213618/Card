@@ -121,11 +121,11 @@ public sealed partial class GameEngine
         }
         CardLegality.ValidateSubmittedUse(new(actorSeat, effectiveKind, physicalIds, conversionChain));
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = HasHengwuCapability || _contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.NativeActionAppearance) || HasMoLuBu || HasWuHuangFuSongCapability || HasWuLuKangDixianCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuaXiongYaowu) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouGongsunZanJiaodi) || HasWuZhangFeiUseCapability || HasMouZuifengCapability || HasWuLuXunZhangcaiCapability || HasLeZouShiCapability || HasWuyouCapability || HasWuGuanYuJuewuCapability || HasSiruiCapability || HasLiFengCapability || HasCuiYanCapability || conversionChain.Any(source => ViewAsRule(source)?.SourcePileSkillId is not null) || HasLiuYanCapability || HasQuHuangCapability || HasRuanYuCapability || HasLiuPanCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || HasMaMiDiCapability || HasWuAnGuoCapability || HasFeiYiHezhong || HasBianFuRenCapability || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind is CardKind.UnexpectedAssault or CardKind.WumiaoFlood or CardKind.QizhengXiangsheng || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || (HasComparedBlackSlashPolicies || HasYuanchouCardPolicy) && IsSlashCard(effectiveKind);
+        var trackAppearance = HasHappyGuanYuHeartSlashCapability && IsSlashCard(effectiveKind) || HasHengwuCapability || _contentRegistry.ProgramDependencies.RequiresFact(ProgramTrackedFact.NativeActionAppearance) || HasMoLuBu || HasWuHuangFuSongCapability || HasWuLuKangDixianCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuaXiongYaowu) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouGongsunZanJiaodi) || HasWuZhangFeiUseCapability || HasMouZuifengCapability || HasWuLuXunZhangcaiCapability || HasLeZouShiCapability || HasWuyouCapability || HasWuGuanYuJuewuCapability || HasSiruiCapability || HasLiFengCapability || HasCuiYanCapability || conversionChain.Any(source => ViewAsRule(source)?.SourcePileSkillId is not null) || HasLiuYanCapability || HasQuHuangCapability || HasRuanYuCapability || HasLiuPanCapability || HasWuJingLiubing || HasWuJingHeji || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveKenshangTargetRewrite) || HasMaMiDiCapability || HasWuAnGuoCapability || HasFeiYiHezhong || HasBianFuRenCapability || TracksDamageTargetBudgetTargets || HasAdjacentRedTargetCapability || HasSoleTargetProtectionCapability || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RevealRecordedSuitSlash) || effectiveKind is CardKind.UnexpectedAssault or CardKind.WumiaoFlood or CardKind.QizhengXiangsheng || (TracksUniqueLeaderTrickTargets || TracksRoundGainedSourceUses || HasTargetedOrdinaryTrickAdjustment) && IsOrdinaryTrick(effectiveKind) || HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || (HasComparedBlackSlashPolicies || HasYuanchouCardPolicy) && IsSlashCard(effectiveKind);
         var usedSuit = WuJingLiubingUsedSuit(actorSeat, card, effectiveKind, physicalIds, conversionChain, trackAppearance ? CaptureUsedCardSuit(actorSeat, physicalIds, card) : null);
         if (IsCuiYanNextUseForbidden(actorSeat, physicalIds, usedSuit))
             throw new InvalidOperationException("The native use violates its issued next-use suit restriction.");
-        return CaptureWuHfUseAction(CaptureWuZhangFeiUseRankAction(CaptureFactionAction(new CardActionContext(++_cardActionSequence,
+        var captured = CaptureWuHfUseAction(CaptureWuZhangFeiUseRankAction(CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
             null, null, effectiveKind, targets, costs, conversionChain,
@@ -138,6 +138,7 @@ public sealed partial class GameEngine
                     : isTrueZhangbaSlash && physicalIds.Count == 2 && conversionChain.Count == 0
                         ? ZhangbaSpecificSlashRank(_players[actorSeat], physicalIds.Select(id => GetAttackCard(id)).ToArray(), _players[provider]) : null
                 : trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null), effectiveIsRed: CaptureActionColor(costs,usedSuit)))));
+        return CaptureHpScaledCardUseAction(captured);
     }
 
     private bool TryBeginCardResponsePrograms(CardAttackHandle attack, CharacterState actor,
@@ -176,7 +177,8 @@ public sealed partial class GameEngine
         if (TryBeginCommittedResponseUsePrograms(attack, action, continuation)) return true;
         if (TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardResponseAccepted,
                 [opponentSeat], continuation)) return true;
-        if (!HasResponseUseCompletionObserver(action, continuation) && !HasCardResponseCompletedObserver(action, continuation)) return false;
+        if (!HasResponseUseCompletionObserver(action, continuation) && !HasCardResponseCompletedObserver(action, continuation) &&
+            !HasAnniversaryHzIneffectiveResponse(attack, action, continuation) && !HasHappyWeiYanIneffectiveResponse(attack, action, continuation)) return false;
         ContinueAcceptedCardResponse(attack, action, continuation);
         return true;
     }
@@ -556,6 +558,7 @@ public sealed partial class GameEngine
     private ProgramTriggerWindowPreparation<ProgramCardTriggerWindowFrame> PrepareProgramCardWindow(ProgramCardTriggerWindowFrame frame)
     {
         if (TryBeginConvertedSkillInvocations(frame)) return new(ProgramTriggerWindowFlow.Yield, frame);
+        if (TryCompleteKemingConverted(frame)) return new(ProgramTriggerWindowFlow.Yield, frame);
         if (TryDrainCardSupplyCompletionCosts(frame)) return new(ProgramTriggerWindowFlow.Yield, frame);
         frame = (ProgramCardTriggerWindowFrame)_resolutionStack[^1];
         if (TryDrainCardResponseCompletionCosts(frame)) return new(ProgramTriggerWindowFlow.Yield, frame);
@@ -925,6 +928,7 @@ public sealed partial class GameEngine
                      !(frame.Action.Type == CardActionType.Use && IsJiyunClaimedUseEntity(frame.ParentFrameId, cost.CardId)) &&
                      !(frame.CompletedResponseReturn is { } jiyunResponse &&
                        IsJiyunClaimedResponseEntity(frame.Action, jiyunResponse.Kind, cost.CardId)) &&
+                     !IsHappyFeifuClaimedResponseEntity(frame.Action, cost.CardId) &&
                      !IsSoleTargetQuarantinedMaterial(frame.ParentFrameId, cost.CardId) &&
                      GuanduChariotResponsePayment(frame.Action, frame.ParentFrameId, cost) is null &&
                      !(frame.Action.Type == CardActionType.Use &&

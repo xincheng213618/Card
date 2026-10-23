@@ -37,6 +37,8 @@ public static class EquipmentCatalog
     private static readonly IReadOnlyDictionary<CardKind, EquipmentDefinition> Definitions =
         new Dictionary<CardKind, EquipmentDefinition>
         {
+            [CardKind.DagongChe] = new(CardKind.DagongChe, "大攻车", EquipmentSlot.Treasure,
+                "出牌阶段开始时，你可视为使用一张杀（不计入次数）；此杀造成伤害后，你弃置目标一张牌。升级选项：无视距离和防具；目标数+1；弃牌数+1，每个大攻车最多升级5次。未升级时不能被弃置，离开装备区时销毁。"),
             [CardKind.QiBaoDao] = new(CardKind.QiBaoDao, "七宝刀", EquipmentSlot.Weapon, "锁定技，你使用【杀】无视目标防具；你使用【杀】对未受伤目标造成伤害+1。", WeaponAttackRange: 2, IgnoresArmor: true),
             [CardKind.BaiBiDao] = new(CardKind.BaiBiDao, "百辟刀", EquipmentSlot.Weapon, "当你使用杀造成伤害后，可以获得目标一张手牌。", WeaponAttackRange: 2),
             [CardKind.ThunderChariot] = new(CardKind.ThunderChariot, "霹雳车", EquipmentSlot.Weapon,

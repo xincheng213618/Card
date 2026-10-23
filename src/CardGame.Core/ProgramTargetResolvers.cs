@@ -67,10 +67,10 @@ internal sealed class ProgramTargetResolverCatalog
 internal sealed class ProgramTargetResolverRegistry(ProgramTargetResolverCatalog catalog, IProgramSelectionQueries queries)
 {
     internal int MinimumTargets(SkillProgramTargetKind kind) => catalog.TryResolve(kind, out var resolver)
-        ? resolver!.MinimumTargets : kind == SkillProgramTargetKind.OtherLivingWithHand ? 0 : 1;
+        ? resolver!.MinimumTargets : kind is SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.AnyLivingChained ? 0 : 1;
 
     internal string EmptySelectionLabel(SkillProgramTargetKind kind) => catalog.TryResolve(kind, out var resolver)
-        ? resolver!.EmptySelectionLabel : "不获得手牌。";
+        ? resolver!.EmptySelectionLabel : kind is SkillProgramTargetKind.OtherLiving or SkillProgramTargetKind.AnyLivingChained ? "不选择角色。" : "不获得手牌。";
 
     internal bool TryResolve(ProgramTargetResolverContext context, out IReadOnlyList<int> targets)
     {

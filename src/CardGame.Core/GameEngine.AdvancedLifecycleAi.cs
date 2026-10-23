@@ -29,7 +29,7 @@ public sealed partial class GameEngine
         {
             case SkillProgramEffectOp.EquipSampledGenerals:
                 var emptySlots = owner.EquipmentSlotCapacity(EquipmentSlot.Weapon) -
-                    GetEquipment(owner).Count(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon);
+                    GetEquipment(owner).Count(card => FieldEquipmentSlot(card) == EquipmentSlot.Weapon);
                 if (draft.Selected.Count >= Math.Max(0, emptySlots) && finish is not null) return finish;
                 return candidates.OrderByDescending(choice =>
                         _contentRegistry.Generals[Value(choice)].BaseHp +

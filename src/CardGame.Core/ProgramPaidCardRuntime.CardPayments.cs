@@ -151,7 +151,7 @@ internal sealed partial class ProgramPaidCardRuntime
                 if (prohibitReplacingEquipment && correspondingZoneSeat is { } recipientSeat &&
                     EquipmentCatalog.IsEquipment(cards[slot].Kind) &&
                     _facts.Equipment(recipientSeat).Any(item =>
-                        EquipmentCatalog.Get(item.Kind).Slot == EquipmentCatalog.Get(cards[slot].Kind).Slot))
+                        _facts.FieldEquipmentSlot(item) == _facts.FieldEquipmentSlot(cards[slot])))
                     continue;
                 var hidden = zone == CardZoneKind.Hand && chooserSeat != cardOwnerSeat;
                 var parameters = new Dictionary<string, string>
@@ -164,7 +164,7 @@ internal sealed partial class ProgramPaidCardRuntime
                 };
                 result.Add(new PromptChoice(
                     new ChoiceId($"program-owned-card.frame-{frameId}.zone-{zone}.slot-{slot}"),
-                    hidden ? $"选择第 {slot + 1} 张手牌" : $"选择【{cards[slot].DisplayName}】",
+                    hidden ? $"选择第 {slot + 1} 张手牌" : $"选择【{_facts.Snapshot(cards[slot]).DisplayName}】",
                     hidden ? [] : [cards[slot].Id], [], parameters));
             }
         }
@@ -307,9 +307,9 @@ internal sealed partial class ProgramPaidCardRuntime
             destination.Zone == CardZoneKind.Equipment)
         {
             var recipient = destination.OwnerSeat!.Value;
-            var replacedSlot = EquipmentCatalog.Get(card.Kind).Slot;
+            var replacedSlot = _facts.FieldEquipmentSlot(card);
             var replaced = _facts.Equipment(recipient)
-                .SingleOrDefault(item => EquipmentCatalog.Get(item.Kind).Slot == replacedSlot);
+                .SingleOrDefault(item => _facts.FieldEquipmentSlot(item) == replacedSlot);
             if (replaced is not null && replaced.Id != card.Id)
             {
                 if (effect.ProhibitReplacingEquipment)
@@ -346,6 +346,8 @@ internal sealed partial class ProgramPaidCardRuntime
             if(_operations.BeginPublicHandReveal(frame.Id,"selected-card-pre-move"))return;
             ContinueSelectedCardAfterPublicReveal(_frames.ActiveProgram(frame.Id));return;
         }
+        if (TryCompleteRetainedSelectedCard(frame, effect, card, source, destination, reason,
+            ownerSeat, beforeCoverage, frozenMovedSuit)) return;
         var disclosure = effect.RevealBeforeMove || destination.Zone is CardZoneKind.DiscardPile or CardZoneKind.Equipment or CardZoneKind.Judgment
             ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown;
         if (destination.Zone == CardZoneKind.Hand && NativeGiveSemantics.Selected(frame, effect))
@@ -372,7 +374,7 @@ internal sealed partial class ProgramPaidCardRuntime
             _operations.SetCardSet(frame.Id, bind, [card.Id],
                 effect.RevealBeforeMove || effect.SkipIfNoCards && effect.FreezeMovedCardSuit && effect.Destination == SkillProgramCardDestination.DiscardPile && effect.CardOwnerRef?.Kind == ProgramParticipantRef.SelectedTarget
                     ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
-                [destination], frozenMovedSuit ?? (effect.RevealBeforeMove ? card.Suit : null));
+                [_facts.Location(card.Id)], frozenMovedSuit ?? (effect.RevealBeforeMove ? card.Suit : null));
         if (effect.AwaitMovementTriggers)
         {
             if (!_operations.BeginMovementWindow())
@@ -446,11 +448,31 @@ internal sealed partial class ProgramPaidCardRuntime
     internal bool CanEnterEquipmentSlot(int recipientSeat, Card card) =>
         EquipmentCatalog.IsEquipment(card.Kind) &&
         _facts.Equipment(recipientSeat).Count(equipped =>
-            EquipmentCatalog.Get(equipped.Kind).Slot == EquipmentCatalog.Get(card.Kind).Slot) <
+            _facts.FieldEquipmentSlot(equipped) == _facts.FieldEquipmentSlot(card)) <
         _facts.EquipmentSlotCapacity(recipientSeat, EquipmentCatalog.Get(card.Kind).Slot);
 
     internal static SkillProgramCardCategory GetProgramCardCategory(CardKind kind) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ProgramCardPayments.GetProgramCardCategory(kind);
+
+    private bool TryCompleteRetainedSelectedCard(ProgramSkillFrame frame, SkillProgramEffect effect,
+        Card card, CardLocation source, CardLocation destination, CardMoveReason reason,
+        int ownerSeat, int beforeCoverage, Suit? frozenMovedSuit)
+    {
+        if (destination.Zone != CardZoneKind.Hand ||
+            !_operations.SettleRetainedGain(frame, card, source, destination, reason)) return false;
+        var active = _frames.ActiveProgram(frame.Id);
+        _frames.ReplaceTop(active with { PendingMovementContinuation = null });
+        if (effect.ResultBind is { } bind)
+            _operations.SetCardSet(frame.Id, bind, [card.Id], effect.RevealBeforeMove
+                ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
+                [source], frozenMovedSuit ?? (effect.RevealBeforeMove ? card.Suit : null));
+        if (effect.CoverageResultBind is { } coverageBind)
+            SetProgramAttackRangeCoverage(frame.Id, coverageBind, ownerSeat, beforeCoverage,
+                _facts.CountLivingInAttackRange(ownerSeat));
+        _frames.AdvanceProgram(frame.Id);
+        return true;
+    }
+
     [PublicHandRevealReturn("selected-card-pre-move")]
     private void ContinueSelectedCardAfterPublicReveal(ProgramSkillFrame frame)
     {
@@ -461,6 +483,8 @@ internal sealed partial class ProgramPaidCardRuntime
         var card=_facts.CardsAt(source).SingleOrDefault(c=>c.Id==r.CardId&&c.Kind==r.PrintedKind);
         if(card is null||destination.OwnerSeat is{}recipient&&!_facts.IsAlive(recipient)){_operations.Cancel(frame,"展示后原支付实体或受牌人已失效。");return;}
         var reason=new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
+        if (TryCompleteRetainedSelectedCard(frame, effect, card, source, destination, reason,
+            ownerSeat, beforeCoverage, frozenMovedSuit)) return;
         if(effect.AwaitMovementTriggers)_frames.ReplaceTop(frame=frame with{PendingMovementContinuation=new(ownerSeat,beforeCoverage,effect.CoverageResultBind)});
         var disclosure = effect.RevealBeforeMove || destination.Zone is CardZoneKind.DiscardPile or CardZoneKind.Equipment or CardZoneKind.Judgment
             ? CardMovementDisclosure.FaceUp : CardMovementDisclosure.FaceDown;
@@ -488,7 +512,7 @@ internal sealed partial class ProgramPaidCardRuntime
             _operations.SetCardSet(frame.Id, bind, [card.Id],
                 effect.RevealBeforeMove || effect.SkipIfNoCards && effect.FreezeMovedCardSuit && effect.Destination == SkillProgramCardDestination.DiscardPile && effect.CardOwnerRef?.Kind == ProgramParticipantRef.SelectedTarget
                     ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
-                [destination], frozenMovedSuit ?? (effect.RevealBeforeMove ? card.Suit : null));
+                [_facts.Location(card.Id)], frozenMovedSuit ?? (effect.RevealBeforeMove ? card.Suit : null));
         if (effect.AwaitMovementTriggers)
         {
             if (!_operations.BeginMovementWindow())

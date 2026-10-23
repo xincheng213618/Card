@@ -1,9 +1,9 @@
 namespace CardGame.Core;
 
 /// <summary>A frozen replacement owned by the real card's attack state.</summary>
-public sealed record CardDamageMaximumHpReplacementReceipt(CardUseEffectSource Source, int RoundNumber,
+public sealed partial record CardDamageMaximumHpReplacementReceipt(CardUseEffectSource Source, int RoundNumber,
     int SourceSeat, int TargetSeat, CardKind CardKind, int Amount,
-    int MaximumHpBefore, int MaximumHpAfter, int HpBefore, int HpAfter);
+    int MaximumHpBefore, int MaximumHpAfter, int? HpBefore, int? HpAfter);
 
 public sealed record CardDamageReplacedWithMaximumHpLossEvent(long ParentResolutionId,
     CardDamageMaximumHpReplacementReceipt Receipt) : IGameEvent;
@@ -53,16 +53,22 @@ public sealed partial class GameEngine
             if (TryBeginIdentityAppearanceForDamage(attack, amount)) { pending = true; return true; }
             var target = _players[attack.TargetSeat];
             var afterMaximum = target.HasShenPangTongKunyu ? 1 : Math.Max(0, target.MaxHp - amount);
+            var qiaoMaximum = PrepareHappyQiaoCardMaximumHp(attack, afterMaximum);
+            int? hpBefore = qiaoMaximum is null ? target.Hp : null;
             var receipt = new CardDamageMaximumHpReplacementReceipt(new(binding.Source.SkillId, binding.Policy.Id,
                 attack.SourceSeat, binding.Source.SkillInstanceId), _roundNumber, attack.SourceSeat, target.Seat,
-                kind, amount, target.MaxHp, afterMaximum, target.Hp, Math.Min(target.Hp, afterMaximum));
+                kind, amount, target.MaxHp, afterMaximum, hpBefore, hpBefore is { } beforeHp ? Math.Min(beforeHp, afterMaximum) : null)
+            { HappyQiaoMaximumProof = qiaoMaximum };
             if (GetCardAttackState(attack.ResolutionId).MaximumHpReplacement is not null ||
                 !_skillRuntimeState.TryConsumeUsage(attack.SourceSeat, binding.Source.SkillId, usage, SkillUsageScope.Round, 1))
                 throw new InvalidOperationException("The card damage replacement was already issued.");
             UpdateCardAttackState(attack.ResolutionId, state => state! with { MaximumHpReplacement = receipt });
             AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(attack.SourceSeat, binding.Source.SkillId, usage, SkillUsageScope.Round, 1));
-            target.MaxHp = receipt.MaximumHpAfter;
-            target.Hp = receipt.HpAfter;
+            if (!ApplyHappyQiaoCardMaximumHp(attack.ResolutionId, receipt))
+            {
+                target.MaxHp = receipt.MaximumHpAfter;
+                target.Hp = receipt.HpAfter ?? throw new InvalidOperationException("Ordinary maximum-HP replacement lost its HP payment.");
+            }
             AdvanceEventRulesAndQueueFact(new CardDamageReplacedWithMaximumHpLossEvent(attack.ResolutionId, receipt));
             AddLog("MaximumHpLost", $"{target.Name} 的体力上限减少 {receipt.MaximumHpBefore - receipt.MaximumHpAfter} 点，剩余 {target.MaxHp}。",
                 attack.SourceSeat, target.Seat);
@@ -75,7 +81,11 @@ public sealed partial class GameEngine
                 BeginPlayerDeath(attack.ResolutionId, target, null, attack, null,
                     causingCardDamageReplacementId: attack.ResolutionId);
             }
-            else PublishMaximumHpDamageReplacement(attack.ResolutionId);
+            else
+            {
+                PublishMaximumHpDamageReplacement(attack.ResolutionId);
+                pending = TryBeginHappyQiaoCardMaximumHealth(attack.ResolutionId);
+            }
             return true;
         }
         return false;
@@ -85,6 +95,7 @@ public sealed partial class GameEngine
     {
         var receipt = GetCardAttackState(ownerId).MaximumHpReplacement ??
             throw new InvalidOperationException("Maximum-HP replacement lost its owning attack receipt.");
+        if (PublishHappyQiaoCardMaximumHp(ownerId, receipt)) return;
         AdvanceEventRulesAndQueueFact(new MaximumHpChangedEvent(receipt.TargetSeat,
             receipt.MaximumHpAfter - receipt.MaximumHpBefore, receipt.MaximumHpAfter, receipt.Source.SkillId)
             { HpBeforeClamp = receipt.HpBefore });
@@ -121,7 +132,8 @@ public sealed partial class GameEngine
                 receipt.SourceSeat != state.SourceSeat || receipt.TargetSeat != state.TargetSeat ||
                 receipt.CardKind != state.EffectiveCardKind || receipt.Amount <= 0 || receipt.Amount != state.CardDamageLayerAmount ||
                 receipt.MaximumHpBefore <= 0 || receipt.MaximumHpAfter != Math.Max(0, receipt.MaximumHpBefore - receipt.Amount) ||
-                receipt.HpAfter != Math.Min(receipt.HpBefore, receipt.MaximumHpAfter) ||
+                (receipt.HappyQiaoMaximumProof is not null ? !MatchesHappyQiaoCardMaximumHp(receipt) :
+                    receipt.HpBefore is not { } before || receipt.HpAfter is not { } after || after != Math.Min(before, receipt.MaximumHpAfter)) ||
                 state.DamageWasApplied || state.DamageAmountFinalized || state.IsChainPropagation ||
                 _skillRuntimeState.GetUsage(receipt.SourceSeat, receipt.Source.SkillId,
                     MaximumHpReplacementUsage(receipt.Source.BindingId), SkillUsageScope.Round) != 1 ||

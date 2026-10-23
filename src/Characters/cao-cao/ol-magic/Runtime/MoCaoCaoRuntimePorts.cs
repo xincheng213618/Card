@@ -11,6 +11,7 @@ internal interface IMoCaoCaoFacts : IProgramSelectionQuery
     IReadOnlyList<int> Seats { get; }
     MoCaoCaoParticipant Participant(int seat);
     MoCaoCaoBinding? FuzaiBinding(int seat);
+    ContentSkillDefinition Skill(string skillId);
     SkillProgram? Program(string skillId);
     ActualDiscardRecoveryPhaseKey? Phase { get; }
     IReadOnlyList<int> Hand(int seat);

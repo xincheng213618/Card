@@ -18,6 +18,12 @@ public sealed record PlayerSkillContext(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] bool? HasUsableHandCard = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] bool? PreviousPlayCardIsBasic = null)
 {
+    private int _hp = Hp;
+    public int Hp { get => HpValueProvider?.Invoke() ?? _hp; init => _hp = value; }
+    // Trusted rule contexts defer a dual-pool read until a rule actually asks
+    // for HP. Constructing unrelated skill metadata does not select a sister.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Func<int>? HpValueProvider { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public int Armor { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

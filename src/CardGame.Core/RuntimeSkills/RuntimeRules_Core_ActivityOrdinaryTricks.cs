@@ -19,7 +19,7 @@ internal static class RuntimeRules_Core_ActivityOrdinaryTricks
         new(bindingId ?? r.Id, r.InputKinds, r.InputSuits, kind, r.ForPlay, forResponse ?? r.ForResponse, r.Condition, r.InputCount,
             r.SourceZones, r.AllowChainedInput, r.InputCategories, r.SameSuit, r.UsesPerPhase, r.UsageGroup, r.InheritPreviousPlaySuit)
         {
-            UsesPerActualTurn = r.UsesPerActualTurn, KenshangUse = r.KenshangUse, VariableInputCount = r.VariableInputCount,
+            InputCountExpression = r.InputCountExpression, UsesPerActualTurn = r.UsesPerActualTurn, KenshangUse = r.KenshangUse, VariableInputCount = r.VariableInputCount,
             AllHandCardsOfSelectedSuit = r.AllHandCardsOfSelectedSuit, DistanceUnlimited = r.DistanceUnlimited,
             EqualNameLengthUse = r.EqualNameLengthUse,
             RankTwoDamageUse = r.RankTwoDamageUse,

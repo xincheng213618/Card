@@ -24,7 +24,7 @@ public sealed partial class GameEngine
     }
     private int[] ShenDaUnassigned(int owner) => GetHand(_players[owner]).Where(c => ShenDaAssignment(owner, c.Id) is null).Select(c => c.Id).ToArray();
     private CardSnapshot ProjectShenDengAiHandCard(CharacterState owner, Card card, CardSnapshot snapshot) =>
-        HasRuntimeSkill(owner, ShenDaTuoYu) && ShenDaAssignment(owner.Seat, card.Id) is { } a
+        ShenDaTuoYuId(owner) is not null && ShenDaAssignment(owner.Seat, card.Id) is { } a
             ? snapshot with { SkillMarkLabel = ShenDaDomainName(a.Domain) } : snapshot;
     private static string ShenDaDomainName(ShenDengAiDomain d) => d switch { ShenDengAiDomain.Qingqu => "清渠", ShenDengAiDomain.Fengtian => "丰田", _ => "峻山" };
 
@@ -35,16 +35,17 @@ public sealed partial class GameEngine
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 38500)]
     private bool CanOfferShenDengAi(ProgramTriggerLegalityContext g)
     {
-        if (g.SkillId == ShenDaTuoYu) return g.Trigger.Id == "initialize-domains" || ShenDaDeveloped(g.OwnerSeat).Length > 0 && ShenDaUnassigned(g.OwnerSeat).Length > 0;
-        if (g.SkillId == ShenDaXianjin)
+        if (IsShenDaTuoYu(g.SkillId)) return g.Trigger.Id == "initialize-domains" || ShenDaDeveloped(g.OwnerSeat).Length > 0 &&
+            (g.SkillId == HappyDaTuoYu ? GetHand(g.Owner).Count > 0 : ShenDaUnassigned(g.OwnerSeat).Length > 0);
+        if (IsShenDaXianjin(g.SkillId))
         {
             var count = ShenDaDamageCount(g.OwnerSeat);
             return count > 0 && count % 2 == 0 &&
                 !ProgramEventHistory<ShenDengAiXianjinReservedEvent>().Any(e => e.OwnerSeat == g.OwnerSeat && e.DamageCount >= count) &&
                 (g.Context.SourceSeat == g.OwnerSeat || g.Context.TargetSeat == g.OwnerSeat);
         }
-        if (g.SkillId == ShenDaQijing) return !ShenDaAwakened(g.OwnerSeat) && ShenDaDeveloped(g.OwnerSeat).Length == 3;
-        if (g.SkillId == ShenDaCuixin) return ShenDaCuixinOriginal(g.Context, g.OwnerSeat) is { } use && ShenDaRepeatPlans(g.OwnerSeat, use.CardKind, use.TargetSeats).Count > 0;
+        if (IsShenDaQijing(g.SkillId)) return !ShenDaAwakened(g.OwnerSeat) && ShenDaDeveloped(g.OwnerSeat).Length == 3;
+        if (IsShenDaCuixin(g.SkillId)) return ShenDaCuixinOriginal(g.Context, g.OwnerSeat, g.SkillId) is { } use && ShenDaRepeatPlans(g.OwnerSeat, use.CardKind, use.TargetSeats).Count > 0;
         return true;
     }
     private SkillProgramStepOutcome BeginShenDa(ProgramSkillFrame supplied, SkillProgramEffectOp op)
@@ -64,7 +65,7 @@ public sealed partial class GameEngine
             DamageCount: stage == ShenDengAiStage.Develop ? ShenDaDamageCount(f.OwnerSeat) : 0);
         if (stage == ShenDengAiStage.RepeatChoice)
         {
-            var original = ShenDaCuixinOriginal(w, f.OwnerSeat) ?? throw new InvalidOperationException("Cuixin lost its genuine completed hand Use.");
+            var original = ShenDaCuixinOriginal(w, f.OwnerSeat, f.SkillId) ?? throw new InvalidOperationException("Cuixin lost its edition-qualified genuine completed Use.");
             r = r with { OriginalUseId = original.Id, OriginalActionId = original.Action!.ActionId, OutputKind = original.CardKind };
         }
         ReplaceRuntimeTop(f = f with { ShenDengAi = r });
@@ -83,7 +84,12 @@ public sealed partial class GameEngine
                 ["program-action"] = "shen-deng-ai", ["frame-id"] = f.Id.ToString(CultureInfo.InvariantCulture), ["option"] = key });
         if (r.Stage == ShenDengAiStage.Allocate)
         {
-            var id = ShenDaUnassigned(f.OwnerSeat).FirstOrDefault();
+            var cards = ShenDaAllocationCards(f);
+            if (cards.Length == 0) return [];
+            if (f.SkillId == HappyDaTuoYu) return cards.SelectMany(cardId => ShenDaDeveloped(f.OwnerSeat)
+                .Select(d => Choice("assign:" + (int)d + ":" + cardId, "将此手牌分配至“" + ShenDaDomainName(d) + "”", [cardId])))
+                .Append(Choice("skip", "完成分配，保留其余手牌的当前区域")).ToArray();
+            var id = cards[0];
             return id == 0 ? [] : ShenDaDeveloped(f.OwnerSeat).Select(d => Choice("assign:" + (int)d, "将当前手牌分配至“" + ShenDaDomainName(d) + "”", [id])).ToArray();
         }
         if (r.Stage == ShenDengAiStage.Develop) return Enum.GetValues<ShenDengAiDomain>().Except(ShenDaDeveloped(f.OwnerSeat))
@@ -120,6 +126,7 @@ public sealed partial class GameEngine
         var parts = choice.Parameters["option"].Split(':');
         if (r.Stage == ShenDengAiStage.Allocate)
         {
+            if (parts[0] == "skip") { FinishShenDa(f); return; }
             AdvanceEventRulesAndQueueFact(new ShenDengAiAssignedEvent(f.Id, f.OwnerSeat, choice.Cards.Single(), (ShenDengAiDomain)int.Parse(parts[1], CultureInfo.InvariantCulture), _movementSequence));
             ContinueShenDa(f.Id); return;
         }
@@ -142,7 +149,7 @@ public sealed partial class GameEngine
     private void DrawShenDaXianjin(ProgramSkillFrame f)
     {
         var count = GetHand(_players[f.OwnerSeat]).Count;
-        var draw = _players.Where(p => p.IsAlive).All(p => GetHand(p).Count <= count) ? 1 : ShenDaDeveloped(f.OwnerSeat).Length;
+        var draw = f.SkillId != HappyDaXianjin && _players.Where(p => p.IsAlive).All(p => GetHand(p).Count <= count) ? 1 : ShenDaDeveloped(f.OwnerSeat).Length;
         ReplaceRuntimeTop(f = f with { ShenDengAi = f.ShenDengAi! with { Stage = ShenDengAiStage.DrawAttempt, DrawCount = draw }, PendingMovementContinuation = null });
         BeginOperationProgramDraw(f, f.OwnerSeat, draw, new("skill-program.shen-deng-ai.xianjin.draw"));
     }
@@ -186,7 +193,7 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 38500)]
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 38500)]
     private bool ContinueIssuedShenDa(ProgramSkillFrame f) => f.ShenDengAi is { Stage: ShenDengAiStage.DrawAttempt or ShenDengAiStage.DrawChildren or ShenDengAiStage.NativeUse or ShenDengAiStage.NativeChildren } ||
-        f.SkillId == ShenDaQijing && ProgramEventHistory<ShenDengAiAwakenedEvent>().Any(e => e.FrameId == f.Id);
+        IsShenDaQijing(f.SkillId) && ProgramEventHistory<ShenDengAiAwakenedEvent>().Any(e => e.FrameId == f.Id);
     [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 38500)]
     private bool ShenDaMovementProof(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) =>
         f.ShenDengAi is { Stage: ShenDengAiStage.DrawChildren or ShenDengAiStage.NativeChildren } && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null;

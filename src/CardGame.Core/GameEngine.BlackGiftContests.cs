@@ -35,13 +35,14 @@ public sealed partial class GameEngine
         var receipt = new BlackGiftContestReceipt(1, RecipientConsequencesSource(f), f.GameplayHash, _turnNumber, _currentSeat,
             recipient, id, EffectiveSuit(_players[f.OwnerSeat], card), before, before);
         ReplaceRuntimeTop(f with { BlackGiftContest = receipt, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
-        MoveProgramCardsFromMultipleSources([id], CardLocation.Hand(recipient), new(BlackGiftReason(f)), NativeGiveCompletionRecords(f.Id,f.OwnerSeat,recipient,[id],_movementSequence,(_, records) =>
+        MoveNativeGivenCards(f.Id, f.OwnerSeat, recipient, [id], new(BlackGiftReason(f)), settlement =>
         {
-            var active = GetActiveProgramFrame(f.Id); var paid = receipt with { GiftAfter = records.Single().Sequence };
+            var active = GetActiveProgramFrame(f.Id);
+            var paid = receipt with { GiftAfter = settlement.Movements.Select(m => (long)m.Sequence).DefaultIfEmpty(before).Max() };
             ReplaceRuntimeTop(active with { BlackGiftContest = paid });
             AdvanceEventRulesAndQueueFact(new BlackGiftContestGiftPaidEvent(f.Id, paid.Source, paid.GameplayHash,
                 paid.ActualTurn, paid.TurnOwnerSeat, recipient, before, paid.GiftAfter));
-        }));
+        });
         AdvanceRuntimeProgram(f.Id); return SkillProgramStepOutcome.AwaitChild;
     }
 

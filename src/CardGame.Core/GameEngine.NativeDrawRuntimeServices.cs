@@ -67,6 +67,8 @@ public sealed partial class GameEngine
         {
             foreach (var movement in engine._cardMovements) yield return movement;
         }
+        public bool IsRedirectedGain(CardMovementRecord movement, CardLocation expectedTo) =>
+            engine.IsHappyWeiYanRedirectedGain(movement, expectedTo);
         public IEnumerable<NativeDrawAttemptStartedEvent> StartedEvents() => engine.ProgramEventHistory<NativeDrawAttemptStartedEvent>();
         public IEnumerable<NativeDrawAttemptDecidedEvent> DecidedEvents() => engine.ProgramEventHistory<NativeDrawAttemptDecidedEvent>();
         public NativeDrawPileSlashProof? DrawPileSlashReplacementProof(ProgramSkillFrame frame, NativeDrawAttemptContext context) =>

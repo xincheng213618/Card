@@ -166,14 +166,14 @@ public sealed partial class GameEngine
     private void BeginAssistedProgramFactionSlashRequest(ProgramSkillFrame frame, int actorSeat, int targetSeat, string resultBind)
     {
         if (ActiveFactionCardRequest is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
-            !IsSayingFactionOrigin(current, actorSeat, targetSeat, resultBind) && !IsChanshuangFactionOrigin(current, actorSeat, targetSeat, resultBind) && (current.SelectedTargetSeats is not [var selected] || selected != actorSeat || current.OwnerSeat == actorSeat) ||
+            !IsSayingFactionOrigin(current, actorSeat, targetSeat, resultBind) && !IsChanshuangFactionOrigin(current, actorSeat, targetSeat, resultBind) && !IsHappyPangTongFactionOrigin(current, actorSeat, targetSeat, resultBind) && (current.SelectedTargetSeats is not [var selected] || selected != actorSeat || current.OwnerSeat == actorSeat) ||
             !(current.CompletedCardGiftDraft is { RecipientSeat: { } recipient, RequestTargetSeat: { } giftTarget } && recipient == actorSeat && giftTarget == targetSeat
                 ? CompletedGiftSlashTargets(current, actorSeat).Contains(targetSeat) && GetFactionResponsePolicy(_players[actorSeat], CardKind.Slash) is not null
                 : CanRequestAssistedProgramFactionSlash(actorSeat, targetSeat)))
             throw new InvalidOperationException("An assisted faction Slash lost its program parent, actor or target.");
         var instruction = ProgramInstructionResolver.Default.Resolve(current, _contentRegistry.GetSkill(current.SkillId).Program!).GetPausedInstruction(current.InstructionIndex).Effect;
         if (!(instruction.Op == SkillProgramEffectOp.RequestSlashAgainstChosenTarget && instruction.ResultBind == resultBind ||
-              instruction.Op == SkillProgramEffectOp.OfferCompletedCardGift && resultBind == CompletedGiftFactionResultBind && current.CompletedCardGiftDraft is not null || IsNearestLegalFactionOrigin(current, actorSeat, targetSeat, resultBind) || IsChanshuangFactionOrigin(current, actorSeat, targetSeat, resultBind) || IsSayingFactionOrigin(current, actorSeat, targetSeat, resultBind)) ||
+              instruction.Op == SkillProgramEffectOp.OfferCompletedCardGift && resultBind == CompletedGiftFactionResultBind && current.CompletedCardGiftDraft is not null || IsNearestLegalFactionOrigin(current, actorSeat, targetSeat, resultBind) || IsChanshuangFactionOrigin(current, actorSeat, targetSeat, resultBind) || IsSayingFactionOrigin(current, actorSeat, targetSeat, resultBind) || IsHappyPangTongFactionOrigin(current, actorSeat, targetSeat, resultBind)) ||
             current.ChoiceBindings.Any(binding => binding.Name == resultBind))
             throw new InvalidOperationException("An assisted faction Slash must answer its paused card request exactly once.");
         var policy = GetFactionResponsePolicy(_players[actorSeat], CardKind.Slash)!;
@@ -189,6 +189,7 @@ public sealed partial class GameEngine
 
     private void ValidateAssistedFactionSlashParent(FactionCardRequestHandle pending, ProgramSkillFrame frame)
     {
+        if (ValidateHappyPangTongFactionParent(pending, frame)) return;
         if (ValidateQigongFactionSlashParent(pending,frame)) return;
         if (ValidateCaoChunFactionSlashParent(pending,frame)) return;
         if (ValidateMouJwFactionParent(pending, frame)) return;

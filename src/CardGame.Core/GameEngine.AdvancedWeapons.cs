@@ -69,11 +69,11 @@ public sealed partial class GameEngine
     private void PlaceAdvancedEquipment(Card card, int targetSeat)
     {
         var target = _players[targetSeat];
-        var slot = EquipmentCatalog.Get(card.Kind).Slot;
+        var slot = FieldEquipmentSlot(card);
         if (target.EquipmentSlotCapacity(slot) == 0) return;
         var from = _cardZones.GetLocation(card.Id);
         if (from == CardLocation.Equipment(targetSeat)) return;
-        var equipped = GetEquipment(target).Where(item => EquipmentCatalog.Get(item.Kind).Slot == slot).ToArray();
+        var equipped = GetEquipment(target).Where(item => FieldEquipmentSlot(item) == slot).ToArray();
         if (equipped.Length >= target.EquipmentSlotCapacity(slot))
         {
             var replaced = equipped[0];
@@ -84,7 +84,7 @@ public sealed partial class GameEngine
     }
     private void CopyFirstReplacedWeapon(Card card, Card replaced)
     {
-        if (card.Kind != CardKind.RedBloodBlade || EquipmentCatalog.Get(replaced.Kind).Slot != EquipmentSlot.Weapon || !_weaponCopyConsumed.Add(card.Id)) return;
+        if (card.Kind != CardKind.RedBloodBlade || FieldEquipmentSlot(replaced) != EquipmentSlot.Weapon || !_weaponCopyConsumed.Add(card.Id)) return;
         _copiedWeaponAbilities[card.Id] = GetWeaponAbilityKinds(replaced).ToArray();
         var skills = replaced.GrantedSkillIds.Concat(replaced.Kind == CardKind.XingtianAxe ? new[] { "special:xingtian-axe-effect" } : []).ToArray();
         _copiedWeaponSkills[card.Id] = skills;
@@ -101,7 +101,7 @@ public sealed partial class GameEngine
     {
         IReadOnlyList<Card> physical = KongwuEffectiveEquipment(player);
         if (excludedEquipmentSlot is not null)
-            physical = physical.Where(card => EquipmentCatalog.Get(card.Kind).Slot != excludedEquipmentSlot).ToArray();
+            physical = physical.Where(card => FieldEquipmentSlot(card) != excludedEquipmentSlot).ToArray();
         var kinds = physical.Where(card => !card.IsGeneralWeapon).SelectMany(GetWeaponAbilityKinds)
             .Concat(_inheritedWeaponAbilities.GetValueOrDefault(player.Seat) ?? [])
             .Concat(ProgramVirtualEquipment(player.Seat, EquipmentSlot.Weapon) is { } virtualWeapon ? new[] { virtualWeapon } : []).Distinct().ToArray();
@@ -112,7 +112,7 @@ public sealed partial class GameEngine
     {
         var card = GetAdvancedCard(cardId);
         var location = _cardZones.GetLocation(cardId);
-        if (EquipmentCatalog.Get(card.Kind).Slot != EquipmentSlot.Weapon || location.Zone != CardZoneKind.Equipment && location != CardLocation.Hand(frame.OwnerSeat))
+        if (FieldEquipmentSlot(card) != EquipmentSlot.Weapon || location.Zone != CardZoneKind.Equipment && location != CardLocation.Hand(frame.OwnerSeat))
             throw new InvalidOperationException("Only an equipped weapon or owner's hand weapon can be inherited.");
         var range = location.OwnerSeat is { } seat ? GetWeaponAttackRange(_players[seat], card) : EquipmentCatalog.Get(card.Kind).WeaponAttackRange ?? 1;
         _inheritedWeaponAbilities[frame.OwnerSeat] = (_inheritedWeaponAbilities.GetValueOrDefault(frame.OwnerSeat) ?? [])

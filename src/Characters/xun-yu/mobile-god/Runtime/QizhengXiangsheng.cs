@@ -96,7 +96,7 @@ public sealed partial class GameEngine
             foreach (var slot in Enumerable.Range(0, GetHand(responder).Count))
                 choices.Add(new(new(Id($"hand.{slot}")), $"获得一张手牌（牌位{slot+1}）", [], [r.Target], QizhengParameters("hand", slot.ToString(CultureInfo.InvariantCulture))));
             foreach (var card in GetEquipment(responder).Where(c => !IsForeignEquipmentDiscardPrevented(use.SourceSeat, c, CardLocation.Equipment(r.Target), OwnedCardMoveIntent.Obtain)))
-                choices.Add(new(new(Id($"equipment.{card.Id}")), $"获得装备【{card.DisplayName}】", [card.Id], [r.Target], QizhengParameters("equipment", card.Id.ToString(CultureInfo.InvariantCulture))));
+                choices.Add(new(new(Id($"equipment.{card.Id}")), $"获得装备【{ToSnapshot(card).DisplayName}】", [card.Id], [r.Target], QizhengParameters("equipment", card.Id.ToString(CultureInfo.InvariantCulture))));
         }
         return Array.AsReadOnly(choices.Select(PromptChoiceProjection.Freeze).ToArray());
     }
@@ -199,6 +199,7 @@ public sealed partial class GameEngine
     private void ResolveQizhengAfterResponse(long id)
     {
         var use = LifecycleCardUse(id)!; var r = use.Qizheng!;
+        if (TryBeginMobileSimaRenjieQizheng(use)) return;
         AdvanceEventRulesAndQueueFact(new QizhengResolvedEvent(id, r.NullificationId, r.Target, r.Ambush, r.ResponseKind));
         var answered = r.Ambush ? r.ResponseKind is { } kind && IsSlashCard(kind) : r.ResponseKind == CardKind.Dodge;
         if (answered || !_players[r.Target].IsAlive || !r.Ambush && !_players[use.SourceSeat].IsAlive) { FinishQizhengWithoutDamage(use); return; }

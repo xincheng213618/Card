@@ -23,7 +23,7 @@ public sealed partial class GameEngine
     private bool IsFirstCategoryUse(int owner,string skill,CardActionContext action)=>action.ActorSeat==owner &&
         _firstTurnCategoryUses.GetValueOrDefault((_turnNumber,owner,skill,GetProgramCardCategory(action.EffectiveKind)),-1)==action.ActionId;
     private CardActionContext CompletedTopAction(ProgramSkillFrame f)=>_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w=>w.Id==f.WindowContext!.ParentFrameId).Action;
-    private int[] AvailableCompletedTopCosts(CardActionContext a,long parentFrameId)=>a.PhysicalCards.Where(c=>
+    private int[] AvailableCompletedTopCosts(CardActionContext a,long parentFrameId)=>a.PhysicalCards.Count!=1?[]:a.PhysicalCards.Where(c=>
     {
         var at=_cardZones.GetLocation(c.CardId);
         return at.Zone is CardZoneKind.Processing or CardZoneKind.DiscardPile ||
@@ -64,8 +64,9 @@ public sealed partial class GameEngine
         var a=window.Action;
         if(!IsFirstCategoryUse(f.OwnerSeat,f.SkillId,a)||f.WindowContext!.Window!=SkillProgramTriggerWindow.CardUseCompleted)throw new InvalidOperationException("Completed top requires exact first-category use.");
         var ids=AvailableCompletedTopCosts(a,window.ParentFrameId);
-        if(ids.Length==0)return SkillProgramStepOutcome.Continue;
-        f=f with {AlternatingSuitTop=new("completed","order",ids.Length,ids,[],a.ActionId)};ReplaceRuntimeTop(f);PublishAlternatingSuitTop(f);return SkillProgramStepOutcome.AwaitChoice;
+        if(ids.Length!=1)return SkillProgramStepOutcome.Continue;
+        f=f with {AlternatingSuitTop=new("completed","order",1,ids,ids,a.ActionId)};ReplaceRuntimeTop(f);
+        CommitAlternatingSuitTop(f);return SkillProgramStepOutcome.AwaitChild;
     }
     [ProgramContinuation(ProgramContinuationKind.Resume, 950)]
     private bool ResumeAlternatingSuitTop(long id)

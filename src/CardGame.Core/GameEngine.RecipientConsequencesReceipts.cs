@@ -25,19 +25,28 @@ public sealed partial class GameEngine
             r.TurnOwnerSeat != f.OwnerSeat || f.OwnerSeat != _currentSeat || (_phase != TurnPhase.Play && !RecipientConsequencesGameEnded()) ||
             f.TriggerId is not null || f.WindowContext is not null || f.SelectedCardIds is not [var card] || card != r.GiftCardId ||
             f.SelectedTargetSeats is not [var recipient] || recipient != r.RecipientSeat || recipient == f.OwnerSeat || !IsValidPlayerSeat(recipient) ||
-            r.GiftSuit is not (Suit.Spade or Suit.Club) || r.GiftCardId <= 0 || r.GiftBefore < 0 || r.GiftAfter <= r.GiftBefore ||
+            r.GiftSuit is not (Suit.Spade or Suit.Club) || r.GiftCardId <= 0 || r.GiftBefore < 0 || r.GiftAfter < r.GiftBefore ||
             !Enum.IsDefined(r.Stage) || r.RequiredDiscards is < 0 or > 2 || r.SelectedDiscardIds.Count > r.RequiredDiscards ||
             r.SelectedDiscardIds.Distinct().Count() != r.SelectedDiscardIds.Count ||
             r.Stage != BlackGiftContestStage.ChoosingDiscard && r.SelectedDiscardIds.Count != 0 ||
             ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!).Instructions is not
                 [{ Op: SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest }]) return false;
         var facts = CompleteProgramEventHistory().ToArray();
+        var giftReason = new CardMoveReason(BlackGiftReason(f));
+        var giftMovements = _cardMovements.Where(m => m.Sequence > r.GiftBefore && m.Sequence <= r.GiftAfter).ToArray();
+        var retained = (f.HappyWeiYanRetainedGains ?? []).Where(item => item.InstructionIndex == r.InstructionIndex &&
+            item.Plan.CardId == card && item.Plan.RequestedTo == CardLocation.Hand(recipient) &&
+            item.Plan.Reason == giftReason && item.Plan.SequenceBefore == r.GiftBefore).ToArray();
+        var giftSettled = retained is [var payment]
+            ? giftMovements.Length == 0 && r.GiftAfter == r.GiftBefore && payment.Plan.From == CardLocation.Hand(f.OwnerSeat) &&
+                IsHappyWeiYanRetainedGainSettlement(payment, f.Id, card, CardLocation.Hand(recipient), r.GiftBefore)
+            : retained.Length == 0 && giftMovements is [var movement] && movement.CardId == card &&
+                movement.From == CardLocation.Hand(f.OwnerSeat) && movement.Reason == giftReason &&
+                (movement.To == CardLocation.Hand(recipient) || IsHappyWeiYanRedirectedGain(movement, CardLocation.Hand(recipient)));
         if (facts.OfType<ProgramSkillStartedEvent>().Count(e => e.FrameId == f.Id && e.OwnerSeat == f.OwnerSeat && e.SkillId == f.SkillId && e.ActivationId == f.ActivationId) != 1 ||
             facts.OfType<BlackGiftContestGiftPaidEvent>().Count(e => e == new BlackGiftContestGiftPaidEvent(f.Id, r.Source, r.GameplayHash,
                 r.ActualTurn, r.TurnOwnerSeat, recipient, r.GiftBefore, r.GiftAfter)) != 1 ||
-            _cardMovements.Count(m => m.Sequence > r.GiftBefore && m.Sequence <= r.GiftAfter && m.CardId == card &&
-                m.From == CardLocation.Hand(f.OwnerSeat) && m.To == CardLocation.Hand(recipient) && m.Reason.Value == BlackGiftReason(f)) != 1 ||
-            _cardMovements.Count(m => m.Sequence > r.GiftBefore && m.Sequence <= r.GiftAfter) != 1) return false;
+            !giftSettled) return false;
         if (r.Stage is BlackGiftContestStage.GiftPaid or BlackGiftContestStage.ChoosingSecond)
         {
             if (r.SecondSeat is not null || r.PindianFrameId is not null || r.Result is not null || r.Discard is not null || r.LossIndex != 0 || r.Losses.Count != 0) return false;

@@ -7,21 +7,23 @@ public sealed partial class GameEngine
         ShenZfUseAction(w) is { } action && action.ActorSeat == c.OwnerSeat && ShenZfColorless(action);
     private ProgramTriggerCandidate ShenZfFrameCandidate(ProgramSkillFrame f) => new(f.OwnerSeat,f.SkillId,f.TriggerId!,f.SkillInstanceId,f.GameplayHash,
         _contentRegistry.GetSkill(f.SkillId).Program!.Triggers.Single(t => t.Id == f.TriggerId).Priority);
-    private ProgramTriggerCandidate ShenZfPenaltyCandidate(int seat,string binding)
+    private ProgramTriggerCandidate ShenZfPenaltyCandidate(int seat,string binding,string? capturedHash = null)
     {
-        var p = _contentRegistry.GetSkill(ShenZhangFeiComposition.Shencai).Program!; var t = p.Triggers.Single(t => t.Id == binding);
+        var skill = capturedHash is null ? ShenZfIssuedSkill(seat) : new[]{ShenZhangFeiComposition.Shencai,ShenZhangFeiComposition.HappyShencai}.SingleOrDefault(id => _contentRegistry.Skills.TryGetValue(id,out var s) && s.Program?.GameplayHash == capturedHash);
+        var p = _contentRegistry.GetSkill(skill ?? throw new InvalidOperationException("An issued Shencai punishment requires its exact registered family source.")).Program!; var t = p.Triggers.Single(t => t.Id == binding);
         return new(seat,p.Id,binding,ShenZfIssuedInstance(seat),p.GameplayHash,t.Priority);
     }
     private static PlayerMarkerKind? ShenZfPenaltyMarker(string binding) => binding switch
     { "chi-damage" => PlayerMarkerKind.ShencaiChi,"tu-hand-loss" => PlayerMarkerKind.ShencaiTu,"liu-turn-ending" => PlayerMarkerKind.ShencaiLiu,"si-turn-ended" => PlayerMarkerKind.ShencaiSi,_ => null };
-    private bool ShenZfPenaltyExists(int seat,string binding) => _contentRegistry.Skills.ContainsKey(ShenZhangFeiComposition.Shencai) && _players[seat].IsAlive &&
+    private bool ShenZfPenaltyExists(int seat,string binding) => _players[seat].IsAlive &&
         ShenZfPenaltyMarker(binding) is { } marker && ShenZfMark(seat,marker) > 0 && ShenZfIssued(seat);
     private void AppendShenZfMovementCandidates(CardMovementBatchContext batch,List<ProgramTriggerCandidate> candidates)
     {
-        foreach (var seat in ProgramEventHistory<ShenZhangFeiTuLossEvent>().Where(e=>e.BatchId == batch.Id).Select(e=>e.TargetSeat).Distinct())
+        foreach (var loss in ProgramEventHistory<ShenZhangFeiTuLossEvent>().Where(e=>e.BatchId == batch.Id).DistinctBy(e=>e.TargetSeat))
         {
+            var seat = loss.TargetSeat;
             if (!_players[seat].IsAlive) continue;
-            var c = ShenZfPenaltyCandidate(seat,"tu-hand-loss");
+            var c = ShenZfPenaltyCandidate(seat,"tu-hand-loss",loss.GameplayHash);
             if (!candidates.Any(p=>p.OwnerSeat == seat && p.SkillId == c.SkillId && p.BindingId == c.BindingId && p.SkillInstanceId == c.SkillInstanceId)) candidates.Add(c);
         }
     }
@@ -29,12 +31,12 @@ public sealed partial class GameEngine
     {
         foreach (var seat in batch.Movements.Where(m=>m.From.Zone == CardZoneKind.Hand && m.From.OwnerSeat is not null && m.To != m.From &&
             !m.Reason.Value.StartsWith(ShenZfReason,StringComparison.Ordinal)).Select(m=>m.From.OwnerSeat!.Value).Distinct())
-            if (ShenZfPenaltyExists(seat,"tu-hand-loss")) AdvanceEventRulesAndQueueFact(new ShenZhangFeiTuLossEvent(batch.Id,seat,_contentRegistry.GetSkill(ShenZhangFeiComposition.Shencai).Program!.GameplayHash));
+            if (ShenZfPenaltyExists(seat,"tu-hand-loss")) AdvanceEventRulesAndQueueFact(new ShenZhangFeiTuLossEvent(batch.Id,seat,_contentRegistry.GetSkill(ShenZfIssuedSkill(seat)!).Program!.GameplayHash));
     }
     [ProgramPipelineHook(ProgramPipelinePhase.IncludeTriggerCandidate,38600)]
     private IReadOnlyList<ProgramTriggerCandidate> IncludeShenZfPenalties(CharacterState owner,SkillProgramTriggerWindow window,IReadOnlyList<ProgramTriggerCandidate> candidates)
     {
-        var retained = candidates.Where(c => c.SkillId != ShenZhangFeiComposition.Shencai || ShenZfPenaltyMarker(c.BindingId) is null).ToArray();
+        var retained = candidates.Where(c => !ShenZhangFeiComposition.IsShencai(c.SkillId) || ShenZfPenaltyMarker(c.BindingId) is null).ToArray();
         var binding = window switch { SkillProgramTriggerWindow.AfterDamageApplied=>"chi-damage",SkillProgramTriggerWindow.CardsMoved=>"tu-hand-loss",SkillProgramTriggerWindow.TurnEnding=>"liu-turn-ending",SkillProgramTriggerWindow.AfterTurnEnded=>"si-turn-ended",_=>null };
         if (binding is null || !ShenZfPenaltyExists(owner.Seat,binding)) return retained;
         return [..retained,ShenZfPenaltyCandidate(owner.Seat,binding)];
@@ -42,7 +44,7 @@ public sealed partial class GameEngine
     [ProgramPipelineHook(ProgramPipelinePhase.IssuedTriggerCandidate,38600)]
     private bool CanRunIssuedShenZf(ProgramTriggerCandidate c,ProgramSkillWindowContext w)
     {
-        if (c.SkillId != ShenZhangFeiComposition.Shencai) return false;
+        if (!ShenZhangFeiComposition.IsShencai(c.SkillId)) return false;
         if (c.BindingId == "judgment-first-gain") return IsShenZfGainCandidate(c,w);
         if (!IsValidPlayerSeat(c.OwnerSeat) || !_players[c.OwnerSeat].IsAlive ||
             c.BindingId != "tu-hand-loss" && !ShenZfPenaltyExists(c.OwnerSeat,c.BindingId) || c.SkillInstanceId != ShenZfIssuedInstance(c.OwnerSeat) ||

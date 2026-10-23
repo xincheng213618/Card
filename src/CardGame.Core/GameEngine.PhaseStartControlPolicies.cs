@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool HasPhaseStartCardUseParticipant(int actor) => HasOtherPlayRestrictionPolicy(actor) ||
+    private bool HasPhaseStartCardUseParticipant(int actor) => HasOtherPlayRestrictionPolicy(actor) || HasHappyLishiActualUseParticipant(actor) ||
         _turnCardUseEffects.ActionProhibitions.Any(ban => ban.TurnNumber == _turnNumber && ban.TurnSeat == _currentSeat &&
             ban.Source.OwnerSeat == actor && CompleteProgramEventHistory().OfType<PhaseStartCardControlPaidEvent>().Any(e =>
                 e.Receipt.ProgramFrameId == ban.ParentFrameId && e.Receipt.Kind == PhaseStartCardControlKind.StartingEquipment &&

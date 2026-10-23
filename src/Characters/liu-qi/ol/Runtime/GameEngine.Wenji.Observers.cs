@@ -5,6 +5,7 @@ public sealed partial class GameEngine
         global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_qi_ol_Wenji_Observers.WenjiName(kind);
  private bool IsWenjiResponseForbidden(CardActionContext originalUse,int responderSeat)
  {
+  if(HappyZlCannotRespond(originalUse,responderSeat))return true;
   if(!_hasIssuedLiuQi||originalUse.Type!=CardActionType.Use||!IsValidPlayerSeat(originalUse.ActorSeat)||responderSeat==originalUse.ActorSeat||originalUse.ActorSeat!=_currentSeat||_turnNumber<1)return false;
   var grants=_players[originalUse.ActorSeat].WenjiTurnNameGrants;if(grants is not{Count:>0})return false;
   foreach(var grant in grants)if(grant.ActualTurn==_turnNumber&&grant.Source.OwnerSeat==originalUse.ActorSeat&&WenjiName(grant.Name)==WenjiName(originalUse.EffectiveKind)&&CompleteProgramEventHistory().OfType<WenjiNameArmedEvent>().Count(e=>e.Grant==grant)==1)return true;
@@ -12,6 +13,7 @@ public sealed partial class GameEngine
  }
  private bool IsWenjiResponseForbidden(long useId,int responderSeat)
  {
+  if(HappyZlCannotRespond(useId,responderSeat))return true;
   if(!_hasIssuedLiuQi||LifecycleCardUse(useId)is not{}use)return false;
   if(use.Action is{}action)return IsWenjiResponseForbidden(action,responderSeat);
   if(use.SourceSeat!=_currentSeat||responderSeat==use.SourceSeat||use.CardId!=0||use.PhysicalCardIds is not{Count:0}||!IsActualTurnLegacyVirtualUse(use)||!CompleteProgramEventHistory().OfType<CardUseDeclaredEvent>().Any(e=>e.ResolutionId==use.Id&&e.SourceSeat==use.SourceSeat&&e.CardId==0&&e.CardKind==use.CardKind))return false;
@@ -19,6 +21,7 @@ public sealed partial class GameEngine
  }
  private bool IsWenjiNullificationResponseForbidden(NullificationWindowFrame window,int responderSeat)
  {
+  if(HappyZlNullificationForbidden(window,responderSeat))return true;
   if(!_hasIssuedLiuQi)return false;
   if(window.DelayedReturn is null&&IsWenjiResponseForbidden(window.ParentFrameId,responderSeat))return true;
   if(window.WenjiCounterspell is not{}q||q.WindowId!=window.Id||q.ParentFrameId!=window.ParentFrameId||q.ChainDepth!=window.ChainDepth||q.Grant.ActualTurn!=_turnNumber||q.Grant.Source.OwnerSeat!=q.Action.ActorSeat||responderSeat==q.Action.ActorSeat||q.Action.ActorSeat!=_currentSeat||q.Action.Type!=CardActionType.Response||q.Action.EffectiveKind!=CardKind.Nullification||q.Action.ParentActionId!=NullificationParentActionId(window)||q.Action.ActorSeat!=q.Action.ProviderSeat||q.Action.ResponderSeat!=q.Action.ActorSeat||q.Action.RequesterSeat is not null||!HasNullificationEffectOwner(window))return false;

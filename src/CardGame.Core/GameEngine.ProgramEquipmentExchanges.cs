@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         var occupied = new Dictionary<(int Seat, EquipmentSlot Slot), int>();
         var equipmentMoves = incoming.Select(item =>
         {
-            var slot = EquipmentCatalog.Get(item.Card.Kind).Slot;
+            var slot = FieldEquipmentSlot(item.Card);
             var key = (item.Recipient, slot);
             var count = occupied.GetValueOrDefault(key);
             var destination = item.Card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(item.Card,

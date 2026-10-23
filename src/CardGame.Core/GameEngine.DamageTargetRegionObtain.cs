@@ -94,6 +94,8 @@ public sealed partial class GameEngine
                 item.From != new CardLocation(receipt.SelectedZone, draft.VictimSeat) || item.Reason != DamageTargetObtainReason ||
                 item.IsEquipment != EquipmentCatalog.IsEquipment(item.PrintedKind) ||
                 item.To != CardLocation.Hand(draft.OwnerSeat) &&
+                    !_cardMovements.Any(move => move.Sequence == item.MovementSequence &&
+                        IsHappyWeiYanRedirectedGain(move, CardLocation.Hand(draft.OwnerSeat))) &&
                     !(item.To == CardLocation.OutsideGame && item.From.Zone == CardZoneKind.Equipment &&
                       (item.PrintedKind == CardKind.GeneralWeapon ||
                        IsGuanduThunderChariotDeparture(GetAdvancedCard(item.CardId), item.From, CardLocation.Hand(draft.OwnerSeat)))) ||

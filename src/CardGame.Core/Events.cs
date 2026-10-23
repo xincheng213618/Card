@@ -466,7 +466,11 @@ public sealed record NullificationRequestedEvent(
     int SourceSeat,
     int ResponderSeat,
     bool EffectCurrentlyNullified,
-    int ChainDepth) : IGameEvent;
+    int ChainDepth) : IGameEvent
+{
+    public long WindowFrameId { get; init; }
+    public int? TargetSeat { get; init; }
+}
 
 /// <summary>Public result of one played Nullification card.</summary>
 public sealed record NullificationRespondedEvent(
@@ -476,7 +480,11 @@ public sealed record NullificationRespondedEvent(
     int ResponderSeat,
     int NullificationCardId,
     bool EffectNullified,
-    int ChainDepth) : IGameEvent;
+    int ChainDepth) : IGameEvent
+{
+    public long WindowFrameId { get; init; }
+    public int? TargetSeat { get; init; }
+}
 
 /// <summary>Public terminal result of the layered trick-effect response window.</summary>
 public sealed record NullificationResolvedEvent(
@@ -484,7 +492,11 @@ public sealed record NullificationResolvedEvent(
     int EffectCardId,
     CardKind EffectCardKind,
     bool EffectNullified,
-    int ChainDepth) : IGameEvent;
+    int ChainDepth) : IGameEvent
+{
+    public long WindowFrameId { get; init; }
+    public int? TargetSeat { get; init; }
+}
 
 /// <summary>
 /// Public cursor notification for the source-side hidden-hand choice. It
@@ -510,6 +522,9 @@ public sealed record IronChainResolvedEvent(
     long ResolutionId,
     int SourceSeat,
     IReadOnlyList<int> TargetSeats) : IGameEvent;
+
+/// <summary>Actual cards drawn into one hand; identities and the producing skill remain private.</summary>
+public sealed record CardsDrawnEvent(int PlayerSeat, int Count) : IGameEvent;
 
 /// <summary>The recast card is public; the newly drawn card identities remain private.</summary>
 public sealed record CardRecastEvent(int ActorSeat, int CardId, CardKind CardKind, int DrawCount) : IGameEvent
@@ -605,6 +620,9 @@ public sealed record DamageAppliedEvent(
     public bool SourceLess { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DamageArmorPaymentReceipt? ArmorPayment { get; init; }
+    /// <summary>The owning public card use, when this damage belongs to a card rather than a standalone skill or judgment.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public long? SourceCardUseResolutionId { get; init; }
 }
 
 /// <summary>

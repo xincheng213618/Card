@@ -11,6 +11,26 @@ public sealed partial class GameEngine
 
 
  private bool HasCaoChunCapability=>_contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.DrawAndRequestShanjiaSlash);
+ [ProgramRuleObserver(ProgramRulePhase.AfterEvent,24500)]
+ private void ObserveAcquiredCaoChun(SkillsAcquiredEvent acquired)
+ {
+  foreach(var skillId in acquired.SkillIds)InitializeAcquiredCaoChun(acquired.PlayerSeat,skillId);
+ }
+ [ProgramRuleObserver(ProgramRulePhase.AfterEvent,24501)]
+ private void ObservePurchasedCaoChun(WushuangOfferBoughtEvent bought)
+ {
+  if(bought.SkillId is{}skillId)InitializeAcquiredCaoChun(bought.Seat,skillId);
+ }
+ private void InitializeAcquiredCaoChun(int seat,string skillId)
+ {
+  if(!HasCaoChunCapability||_players[seat]is not{IsAlive:true,Shanjia:null}owner||
+   _contentRegistry.GetSkill(skillId).Program is not{}program)return;
+  var trigger=program.Triggers.SingleOrDefault(t=>ProgramInstructionResolver.Default.Features(t).HasOperation(SkillProgramEffectOp.InitializeShanjiaLossMarkers));
+  if(trigger is null)return;
+  var source=new CardConversionSource(skillId,trigger.Id,seat,GetRuntimeSkillInstanceId(owner,skillId));
+  owner.Shanjia=new(source,program.GameplayHash,3);
+  AdvanceEventRulesAndQueueFact(new ShanjiaMarksChangedEvent(source,program.GameplayHash,0,3,0));
+ }
  private bool HasIssuedCaoChunDebt {get{foreach(var p in _players)if(p.Shanjia?.Debt is not null)return true;return false;}}
  private static bool ShanjiaHeld(CardLocation location,int owner) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_cao_chun_ol_CaoChunObservers.ShanjiaHeld(location,owner);

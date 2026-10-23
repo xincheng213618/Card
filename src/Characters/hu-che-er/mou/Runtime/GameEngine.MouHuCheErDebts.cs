@@ -3,7 +3,7 @@ public sealed partial class GameEngine
 {
     private IEnumerable<MouHuCheErDebtEvent> ActiveMouHuCheErDebts(int target) => !HasMouHuCheEr ? [] : ProgramEventHistory<MouHuCheErDebtEvent>().Where(d => d.Target == target && !ProgramEventHistory<MouHuCheErDebtExpiredEvent>().Any(e => e.FrameId == d.FrameId));
     private bool MouHuCheErEquipmentDisabled(int target) => ActiveMouHuCheErDebts(target).Any();
-    private IReadOnlyList<Card> KongwuEffectiveEquipment(CharacterState player) => MouHuCheErEquipmentDisabled(player.Seat) ? [] : GetEquipment(player);
+    private IReadOnlyList<Card> KongwuEffectiveEquipment(CharacterState player) => MouHuCheErEquipmentDisabled(player.Seat) ? [] : GetEquipment(player).Where(card => !IsHappyWeiYanBone(card.Id)).ToArray();
     private IReadOnlyList<Card> KongwuEffectiveEquipment(int seat) => KongwuEffectiveEquipment(_players[seat]);
     private IReadOnlyList<Card> KongwuUsableWoodenOxGrain(CharacterState player) => MouHuCheErEquipmentDisabled(player.Seat) ? [] : GetWoodenOxGrain(player);
     private bool MouHuCheErEquipmentGrantQualified(CharacterState owner, SkillGrant grant) => !grant.SourceId.StartsWith("equipment:", StringComparison.Ordinal) || !MouHuCheErEquipmentDisabled(owner.Seat);

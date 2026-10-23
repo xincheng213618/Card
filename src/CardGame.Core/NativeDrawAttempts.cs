@@ -8,7 +8,7 @@ public sealed record NativeDrawAttemptContext(long AttemptFrameId, long ParentFr
     int ActualTurnOwnerSeat, ActualDiscardRecoveryPhaseKey? ActualPhase, long SequenceBefore);
 
 public enum NativeDrawAttemptStage { Programs, Returning }
-public enum NativeDrawAttemptReturnKind { ProgramInstruction, ProgramOperation, DrawPhase, CardUseDrawTwo, SoleIncomingRange = 1243, SkillInvocation = 38700, EquipmentRecast = 40081, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000 }
+public enum NativeDrawAttemptReturnKind { ProgramInstruction, ProgramOperation, DrawPhase, CardUseDrawTwo, SoleIncomingRange = 1243, SkillInvocation = 38700, KemingSkillEcho = 39700, EquipmentRecast = 40081, WumiaoFlood = 28510, DragonBoatCardEffect = 43000, GuanduCardEffect = 45000 }
 public sealed record NativeDrawAttemptReturn(NativeDrawAttemptReturnKind Kind, int InstructionIndex,
     int RecipientIndex);
 

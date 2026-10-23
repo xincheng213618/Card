@@ -2263,7 +2263,7 @@ public sealed partial class SimpleAiBrain
         {
             var equipment = EquipmentCatalog.Get(card.Kind);
             var existing = self.Equipment.FirstOrDefault(existingCard =>
-                EquipmentCatalog.Get(existingCard.Kind).Slot == equipment.Slot);
+                (existingCard.OccupiedEquipmentSlot ?? EquipmentCatalog.Get(existingCard.Kind).Slot) == equipment.Slot);
             var replacementAdjustment = existing is null ? 8d : -6d;
             return (
                 cardProfile.AiPlayValue + replacementAdjustment,
@@ -2406,7 +2406,7 @@ public sealed partial class SimpleAiBrain
             var ownerHostility = GetHostility(view, selfRole, weaponOwner);
             var targetHostility = GetHostility(view, selfRole, slashTarget);
             var weaponValue = weaponOwner.Equipment
-                .Where(equipment => EquipmentCatalog.Get(equipment.Kind).Slot == EquipmentSlot.Weapon)
+                .Where(equipment => !equipment.IsBone && (equipment.OccupiedEquipmentSlot ?? EquipmentCatalog.Get(equipment.Kind).Slot) == EquipmentSlot.Weapon)
                 .Select(equipment => CardCatalog.Get(equipment.Kind).AiPlayValue)
                 .DefaultIfEmpty(12)
                 .Max();

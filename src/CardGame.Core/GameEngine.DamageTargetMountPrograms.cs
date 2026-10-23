@@ -137,7 +137,8 @@ public sealed partial class GameEngine
             r.IsMount==IsPrintedMount(r.PrintedKind) &&
             (d.ClaimMovementSequence is null ? !d.ClaimIssued : d.ClaimIssued && _cardMovements.Any(m=>
                 m.Sequence==d.ClaimMovementSequence && m.CardId==r.CardId && m.CardKind==r.PrintedKind &&
-                m.From==r.To && m.To==CardLocation.Hand(d.OwnerSeat) && m.Reason.Value=="skill-program.damage-target-mount.claim"));
+                m.From==r.To && (m.To==CardLocation.Hand(d.OwnerSeat) || IsHappyWeiYanRedirectedGain(m,CardLocation.Hand(d.OwnerSeat))) &&
+                m.Reason.Value=="skill-program.damage-target-mount.claim"));
     }
     [ProgramContinuation(ProgramContinuationKind.Resume, 840)]
     private bool ResumeDamageTargetMount(long id)

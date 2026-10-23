@@ -11,7 +11,7 @@ public sealed partial class GameEngine
             paid.After != r.After || paid.Count != r.RequiredDiscards || r.Selected.Count != paid.Count) return false;
         return r.Selected.All(id => _cardMovements.Count(m => m.Sequence > paid.Before && m.Sequence <= paid.After &&
             m.CardId == id && m.From.OwnerSeat == r.TargetSeat && m.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
-            m.To == CardLocation.DiscardPile && m.Reason.Value == ZhuangpoDiscardReason) == 1);
+            m.To == CardLocation.DiscardPile && m.Reason.Value == ZhuangpoDiscardReason(f)) == 1);
     }
     [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 38800)]
     private void RequireShenXuChu(ProgramSkillFrame f)
@@ -33,7 +33,7 @@ public sealed partial class GameEngine
             // exposes the settled result without revealing later secret rolls.
             var random = new DeterministicRandom(unchecked((int)r.RandomBefore));
             var winner = ZhengqingWinner(r.MaximumSeats, f.OwnerSeat, random);
-            if (f.SkillId != ShenXuChuComposition.Zhengqing || _resolutionStack[index - 1] is not ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.RoundEnding } parent ||
+            if (!ShenXuChuComposition.IsZhengqing(f.SkillId) || _resolutionStack[index - 1] is not ProgramLifecycleTriggerWindowFrame { Window: SkillProgramTriggerWindow.RoundEnding } parent ||
                 parent.CandidateIndex >= parent.Candidates.Count || !MountObserverCandidateMatches(f, parent.Candidates[parent.CandidateIndex]) ||
                 _resolutionStack.FirstOrDefault() is not RoundEndingBoundaryFrame boundary ||
                 ProgramEventHistory<ZhengqingSettledEvent>().Where(e => e.FrameId == f.Id).ToArray() is not [var settled] || settled.Source != r.Source ||
@@ -41,12 +41,12 @@ public sealed partial class GameEngine
                 r.RandomBefore == 0 || random.State != r.RandomAfter || winner != r.TargetSeat ||
                 r.MaximumSeats is not System.Collections.IList { IsReadOnly: true } || r.MaximumSeats.Distinct().Count() != r.MaximumSeats.Count ||
                 r.MaximumSeats.Any(s => !IsValidPlayerSeat(s)) || (r.PaidMarks == 0) != (r.MaximumSeats.Count == 0) ||
-                !r.Draws.SequenceEqual(r.TargetSeat < 0 ? [] : r.TargetSeat == f.OwnerSeat ? [new ShenXuChuDraw(f.OwnerSeat, Math.Min(5, r.PaidMarks))] : [new ShenXuChuDraw(r.TargetSeat, 1), new ShenXuChuDraw(f.OwnerSeat, 1)]))
+                !r.Draws.SequenceEqual(ShenXuChuRoundDraws(f, r.TargetSeat, r.PaidMarks)))
                 throw new InvalidOperationException("Zhengqing lost its settled actual round and fixed draw entitlement.");
         }
         else if (r.Operation == SkillProgramEffectOp.ResolveZhuangpoTarget)
         {
-            if (f.SkillId != ShenXuChuComposition.Zhuangpo || _resolutionStack[index - 1] is not ProgramCardTriggerWindowFrame parent ||
+            if (!ShenXuChuComposition.IsZhuangpo(f.SkillId) || _resolutionStack[index - 1] is not ProgramCardTriggerWindowFrame parent ||
                 f.WindowContext?.Window != SkillProgramTriggerWindow.CardUseTargetsFinalized || parent.ParentFrameId != r.UseId || parent.Action.ActionId != r.ActionId ||
                 parent.CandidateIndex >= parent.Candidates.Count || !MountObserverCandidateMatches(f, ToSharedCandidate(parent.Candidates[parent.CandidateIndex])) ||
                 r.Targets.Count == 0 || r.Targets.Distinct().Count() != r.Targets.Count || r.Targets.Any(s => !IsValidPlayerSeat(s) || s == f.OwnerSeat) ||
@@ -54,7 +54,7 @@ public sealed partial class GameEngine
                 !r.Targets.SequenceEqual(parent.Action.TargetSeats) ||
                 ProgramEventHistory<ZhuangpoTargetIssuedEvent>().Where(e => e.FrameId == f.Id).ToArray() is not [var issued] || issued.Source != r.Source || issued.GameplayHash != r.GameplayHash ||
                 issued.UseId != r.UseId || issued.ActionId != r.ActionId || issued.TargetMarked != r.TargetMarked ||
-                !r.Draws.SequenceEqual(r.TargetMarked ? [new ShenXuChuDraw(f.OwnerSeat, 1)] : []))
+                !r.Draws.SequenceEqual(ShenXuChuTargetDraws(f, r.TargetMarked)))
                 throw new InvalidOperationException("Zhuangpo lost its original converted Duel designation and fixed marked-target benefit.");
             if (r.Stage is ShenXuChuStage.DiscardChoice or ShenXuChuStage.DiscardChildren &&
                 ProgramEventHistory<ZhuangpoMarksPaidEvent>().Count(e => e.FrameId == f.Id && e.TargetSeat == r.TargetSeat && e.OwnerSeat == f.OwnerSeat &&

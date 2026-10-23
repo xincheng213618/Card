@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private const string ShenHtJingyu = "anniversary-god:jingyu", ShenHtLuxin = "anniversary-god:luxin", ShenHtHuandao = "anniversary-god:huandao";
     private bool HasSkillInvocationObservers => _players.Any(p => p.IsAlive && HasRuntimeSkill(p, ShenHtJingyu)) ||
+        HasKemingInvocationObservers ||
         ProgramEventHistory<ShenHuaTuoLuxinArmedEvent>().Any(a => !ProgramEventHistory<ShenHuaTuoLuxinConsumedEvent>().Any(c => c.LuxinFrameId == a.FrameId));
     private static string InvocationSourceKey(int actor, string skill, string occurrence) => actor + "|" + skill + "|" + occurrence;
     private static string SkillInvocationSourceFingerprint(ResolutionFrame frame) => Convert.ToHexString(
@@ -18,7 +19,8 @@ public sealed partial class GameEngine
     }
     private bool HasConvertedSkillInvocations(CardActionContext action, SkillProgramTriggerWindow window) =>
         HasSkillInvocationObservers && window is SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted &&
-        (action.ConversionChain.Any(IsAcceptedViewAsInvocation) || SkillInvocationEquipmentSources(action).Count > 0);
+        (action.ConversionChain.Any(IsAcceptedViewAsInvocation) || SkillInvocationEquipmentSources(action).Count > 0 ||
+            HasKemingCompletedCardEffect(action, window));
     private bool IsAcceptedViewAsInvocation(CardConversionSource source) => _contentRegistry.Skills.GetValueOrDefault(source.SkillId)?.Program?
         .ViewAs.Any(v => v.Id == source.BindingId) == true;
     private IReadOnlyList<(string Skill, string Occurrence, int Actor)> SkillInvocationEquipmentSources(CardActionContext action)
@@ -82,6 +84,7 @@ public sealed partial class GameEngine
         var definition = _contentRegistry.Skills.GetValueOrDefault(skillKey);
         var name = definition?.Name ?? skillKey;
         var id = ++_resolutionSequence;
+        CaptureKemingInvocation(id, parentFrameId, actorSeat, skillKey, occurrenceKey, skillInstanceId ?? "");
         var reactions = new List<SkillInvocationReaction>();
         foreach (var armed in ProgramEventHistory<ShenHuaTuoLuxinArmedEvent>().Where(a => a.TargetSeat == actorSeat &&
                      !ProgramEventHistory<ShenHuaTuoLuxinConsumedEvent>().Any(c => c.LuxinFrameId == a.FrameId)).ToArray())

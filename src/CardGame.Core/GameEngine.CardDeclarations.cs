@@ -338,7 +338,7 @@ public sealed partial class GameEngine
         if (ReturnMouGyzDeclaration(frame, success)) return;
         if (TryReturnKeBiNengPingduanDeclaration(frame, success)) return;
         if (ReturnMouSmPlayedDeclaration(frame, success)) return;
-        if (ReturnMouJsDeclaration(frame, success)) return;
+        if (ReturnMouJsDeclaration(frame, success) || ReturnHappyQiaoShutuDeclaration(frame, success)) return;
         if (ReturnMouLuSuPlayedDeclaration(frame, success)) return;
         if (cancelled) return;
         if (success)

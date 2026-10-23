@@ -232,12 +232,35 @@ public sealed partial class GameEngine
             card: null, damageAmount: 1, playedCardKind: CardKind.Duel, programSkillFrameId: active.Id);
         ActiveCardAttack = attack;
         ActiveDuel = new DuelHandle(this, attack);
+        UpdateCardAttackState(active.Id, state => state! with { ProgramUseInstructionIndex = active.InstructionIndex });
         AddLog("SkillTriggered",
             $"{_players[active.OwnerSeat].Name} 发动【{_contentRegistry!.GetSkill(active.SkillId).Name}】，视为对 {_players[state.TargetSeat].Name} 使用【决斗】。",
             active.OwnerSeat, state.TargetSeat);
         AdvanceEventRulesAndQueueFact(new ProgramJuanxiaTrickUsedEvent(active.Id, active.SkillId,
             GetProgramBindingId(active), active.OwnerSeat, state.TargetSeat, CardKind.Duel.ToString(), 0, false));
         BeginDuelResponse(ActiveDuel);
+    }
+
+    private bool IsJuanxiaDuelOrigin(ProgramSkillFrame frame, out int targetSeat)
+    {
+        targetSeat = -1;
+        if (frame.JuanxiaLaunch is not { Stage: JuanxiaStage.Child, PendingKind: null } launch ||
+            frame.SelectedTargetSeats is not [var target] || target != launch.TargetSeat ||
+            launch.UsedCount != launch.UsedKinds.Count || launch.UsedCount is < 1 or > MaximumJuanxiaTrickCount ||
+            launch.UsedKinds.Count(kind => kind == nameof(CardKind.Duel)) != 1 ||
+            frame.WindowContext is not { Window: SkillProgramTriggerWindow.TurnEnding } context ||
+            frame.TriggerId is null || frame.ActivationId != frame.TriggerId ||
+            context.OwnerSeat != frame.OwnerSeat || context.SourceSeat != frame.OwnerSeat || context.TargetSeat != frame.OwnerSeat)
+            return false;
+        var index = _resolutionStack.FindIndex(item => item.Id == frame.Id);
+        if (index < 1 || _resolutionStack[index - 1] is not TurnEndingBoundaryFrame ending ||
+            ending.Id != context.ParentFrameId || ending.OwnerSeat != frame.OwnerSeat ||
+            ending.OwnerSeat != _currentSeat || ending.TurnNumber != _turnNumber ||
+            ending.ItemIndex < 0 || ending.ItemIndex >= ending.Items.Count ||
+            ending.Items[ending.ItemIndex] is not { Kind: TurnEndingBoundaryItemKind.Program, Candidate: { } candidate } ||
+            !MountObserverCandidateMatches(frame, candidate)) return false;
+        targetSeat = target;
+        return true;
     }
 
     private void PresentJuanxiaTargetCardPrompt(ProgramSkillFrame frame, CardKind kind)

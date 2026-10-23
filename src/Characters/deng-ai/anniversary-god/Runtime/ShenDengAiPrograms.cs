@@ -80,33 +80,35 @@ internal static class ShenDengAiComposition
                 SkillProgramEffectOp.DevelopShenDengAiXianjin or SkillProgramEffectOp.AwakenShenDengAiQijing or SkillProgramEffectOp.RepeatShenDengAiCuixin);
         if (!native) return;
         if (p.Activations.Count != 0 || p.ViewAs.Count != 0 || p.Modifiers.Count != 0 || p.CardPolicies.Count != 0 ||
-            p.Triggers.Any(t => t.Optional || t.UsageLimit is not null || t.MarkerCost is not null || t.Condition.Kind != SkillProgramTriggerConditionKind.Always))
+            p.Triggers.Any(t => t.UsageLimit is not null || t.MarkerCost is not null || t.Condition.Kind != SkillProgramTriggerConditionKind.Always))
             throw new InvalidOperationException(path + ": Shen Deng Ai requires its complete native locked occurrence composition.");
-        var valid = p.Id switch
+        var happy = p.Id is "happy:tuoyu" or "happy:xianjin" or "happy:qijing" or "happy:cuixin";
+        var editionKind = happy ? "anniversary-god:" + p.Id[6..] : p.Id;
+        var valid = editionKind switch
         {
             "anniversary-god:tuoyu" => p.Triggers is [var init, var start, var end] &&
                 Exact(init, "initialize-domains", SkillProgramTriggerWindow.GameStarting, SkillProgramEffectOp.InitializeShenDengAiTuoYu) &&
-                Exact(start, "allocate-play-start", SkillProgramTriggerWindow.PlayPhaseStarting, SkillProgramEffectOp.AllocateShenDengAiTuoYu) &&
-                Exact(end, "allocate-play-end", SkillProgramTriggerWindow.PlayEnding, SkillProgramEffectOp.AllocateShenDengAiTuoYu) &&
+                Exact(start, "allocate-play-start", SkillProgramTriggerWindow.PlayPhaseStarting, SkillProgramEffectOp.AllocateShenDengAiTuoYu, optional: happy) &&
+                Exact(end, "allocate-play-end", SkillProgramTriggerWindow.PlayEnding, SkillProgramEffectOp.AllocateShenDengAiTuoYu, optional: happy) &&
                 start.TurnOwnerScope == SkillProgramTurnOwnerScope.Own,
             "anniversary-god:xianjin" => p.Triggers is [var damage] &&
                 Exact(damage, "two-damage-occurrences", SkillProgramTriggerWindow.AfterDamageApplied, SkillProgramEffectOp.DevelopShenDengAiXianjin, SkillProgramTriggerSubject.Any) &&
                 damage.DamageOccurrence == SkillProgramDamageOccurrence.PerDamage,
             "anniversary-god:qijing" => p.Triggers is [{ Id: "all-domains-developed", Window: SkillProgramTriggerWindow.AfterTurnEnded,
-                Subject: SkillProgramTriggerSubject.Owner, TurnOwnerScope: SkillProgramTurnOwnerScope.AnyLiving, Effects:
+                Subject: SkillProgramTriggerSubject.Owner, TurnOwnerScope: SkillProgramTurnOwnerScope.AnyLiving, Optional: false, Effects:
                 [{ Op: SkillProgramEffectOp.AwakenShenDengAiQijing, Target: SkillProgramEffectTarget.Owner },
                  { Op: SkillProgramEffectOp.ChangeMaximumHp, Target: SkillProgramEffectTarget.Owner, Amount: -1 },
-                 { Op: SkillProgramEffectOp.GrantSkills, Target: SkillProgramEffectTarget.Owner, SkillIds: ["anniversary-god:cuixin"] },
-                 { Op: SkillProgramEffectOp.AwakenShenDengAiQijing, Target: SkillProgramEffectTarget.Owner }] }],
+                 { Op: SkillProgramEffectOp.GrantSkills, Target: SkillProgramEffectTarget.Owner, SkillIds: [var granted] },
+                 { Op: SkillProgramEffectOp.AwakenShenDengAiQijing, Target: SkillProgramEffectTarget.Owner }] }] && granted == (happy ? "happy:cuixin" : "anniversary-god:cuixin"),
             "anniversary-god:cuixin" => p.Triggers is [var use] &&
-                Exact(use, "repeat-neighbor-hand-use", SkillProgramTriggerWindow.CardUseCompleted, SkillProgramEffectOp.RepeatShenDengAiCuixin, null) &&
+                Exact(use, happy ? "repeat-neighbor-use" : "repeat-neighbor-hand-use", SkillProgramTriggerWindow.CardUseCompleted, SkillProgramEffectOp.RepeatShenDengAiCuixin, null) &&
                 use.OwnerRelation == SkillProgramCardActionOwnerRelation.Actor && use.CardKinds.Count == 0 && use.CardCategories.Count == 0,
             _ => false
         };
         if (!valid || p.Triggers.SelectMany(t => t.Effects).Any(e => e.Condition.Kind != SkillProgramConditionKind.Always || e.TargetReference is not null || e.ActorReference is not null))
-            throw new InvalidOperationException(path + ": Shen Deng Ai lost its exact initialization, allocation, combined damage counting, awakening pipeline or completed-hand-use origin.");
+            throw new InvalidOperationException(path + ": Shen Deng Ai lost its exact edition, initialization, allocation, damage counting, awakening or completed-use origin.");
     }
     private static bool Exact(SkillProgramTrigger t, string id, SkillProgramTriggerWindow window, SkillProgramEffectOp op,
-        SkillProgramTriggerSubject? subject = SkillProgramTriggerSubject.Owner) => t.Id == id && t.Window == window && t.Subject == subject &&
+        SkillProgramTriggerSubject? subject = SkillProgramTriggerSubject.Owner, bool optional = false) => t.Id == id && t.Window == window && t.Subject == subject && t.Optional == optional &&
         t.Effects is [{ Target: SkillProgramEffectTarget.Owner } e] && e.Op == op;
 }

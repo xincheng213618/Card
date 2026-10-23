@@ -15,6 +15,8 @@ public sealed record ProgramSelectedCardPayment(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardLocation? PlacementSourceLocation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public HappyWeiYanGainRequestSettlement? GainRequestSettlement { get; init; }
 }
 
 /// <summary>The result returned to the parent after its movement windows finish.</summary>

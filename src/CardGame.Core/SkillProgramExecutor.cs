@@ -21,6 +21,7 @@ public interface ISkillProgramExecutionHost
 {
     ProgramSkillFrame? GetActiveFrame(long frameId);
     bool TryStartPostInstructionWindow(long frameId) => false;
+    bool TryStartInstructionHealthQuery(ProgramSkillFrame frame, SkillProgramEffect effect) => false;
     SkillProgram GetProgram(string skillId);
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
@@ -1496,6 +1497,8 @@ public sealed class SkillProgramExecutor
             // Commit the cursor before any primitive can suspend into a child.
             frame = frame with { InstructionIndex = frame.InstructionIndex + 1 };
             state.UpdateFrame(frame);
+            if (state.TryStartInstructionHealthQuery(frame, effect)) return;
+            frame = state.GetActiveFrame(frameId) ?? throw new InvalidOperationException("The instruction health query lost its original program frame.");
             if (!state.EvaluateCondition(frame, effect.Condition, actor.Context))
             {
                 if (frame.StrategicDamageBatch?.InstructionIndex == frame.InstructionIndex)

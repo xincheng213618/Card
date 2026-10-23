@@ -9,6 +9,8 @@ public sealed partial class GameEngine
     {
         // Lifecycle facts are frozen before earlier candidates can change HP.
         var facts = frame.WindowContext?.Facts;
+        if (facts?.UnselectedOwnerHp is { } dual && CurrentHappyQiaoPool(frame.OwnerSeat) is { } pool)
+            return Math.Max(0, dual.MaximumHp - (pool == HappyQiaoPool.DaQiao ? dual.FirstHp : dual.SecondHp));
         if (facts?.OwnerHpUndefined == true || !_players[frame.OwnerSeat].HasHpValue) throw new InvalidOperationException("Undefined HP cannot supply a numeric program operand.");
         return facts is not null
             ? Math.Max(0, facts.CurrentMaxHp - facts.CurrentHp)
@@ -20,7 +22,8 @@ public sealed partial class GameEngine
         int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (expression == SkillProgramNumberExpression.OwnerLostHp && (active.WindowContext?.Facts?.OwnerHpUndefined == true || !_players[active.OwnerSeat].HasHpValue) ||
+        if (expression == SkillProgramNumberExpression.OwnerLostHp &&
+            (active.WindowContext?.Facts is { OwnerHpUndefined: true, UnselectedOwnerHp: null } || !_players[active.OwnerSeat].HasHpValue) ||
             expression == SkillProgramNumberExpression.LivingPlayersMinHp && !_players.Any(p => p.IsAlive && p.HasHpValue))
         { CancelProgramBindingAndCleanup(active, "体力值未定义，无法计算选牌数量。"); return SkillProgramStepOutcome.Continue; }
         if (active.OwnedCardSelection is not null || active.CardSetBindings.Any(binding => binding.Name == resultBind))
