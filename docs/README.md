@@ -9,6 +9,7 @@
 | 主题 | 文档 |
 | --- | --- |
 | 开局与模式 | [本地对局](LOCAL_PLAY.md)、[模式与规则](MODES_AND_RULESETS.md)、[团队对局](TEAM_EXPERIENCE.md)、[国战体验](NATIONAL_WAR_EXPERIENCE.md) |
+| 局域网房间 | [服务端启动、真人与 AI 入座、准备与开局](LAN_PROTOTYPE.md) |
 | 剧情征程 | [山河图版本、战法组合与诸侯伐董](SHANHE_CAMPAIGN.md) |
 | 单机成长对战 | [单骑无双：1v1 AI、虎符商店与双技能槽](WUSHUANG_SOLO.md) |
 | 活动场 | [版本与进度](ACTIVITY_MODES.md)、[剑阁决战](JIANGE_ACTIVITY.md)、[驱鬼逐邪](GHOST_ACTIVITY.md)、[虎牢关](HULAO_ACTIVITY.md)、[神武再世](SHENWU_ACTIVITY.md)、[挑战年兽](NIAN_ACTIVITY.md)、[十殿阎罗](HELL_ACTIVITY.md)、[文和乱武](WENHE_ACTIVITY.md)、[龙舟争渡](DRAGON_BOAT_ACTIVITY.md) |

@@ -18,7 +18,7 @@ This is an independent community implementation, without affiliation with or end
 | Study resolution and replay | Command validation, nested resolution frames, atomic card movement, private player views and checkpoint replay; [architecture](docs/ARCHITECTURE.md) |
 | Explore AI decisions | Existing rule queries and [SimpleAi.cs](src/CardGame.Core/SimpleAi.cs); [AI documentation](docs/TACTICAL_AI.md) |
 
-Use the project from source. Content extensions are compiled into the application; a stable external SDK, binary plugin protocol and online server are not currently promised. The desktop client requires Windows. Core and the headless example target `net8.0`; CI validates them on Windows.
+Use the project from source. Content extensions are compiled into the application; a stable external SDK, binary plugin protocol and public online service are not currently promised. A [LAN room prototype](docs/LAN_PROTOTYPE.md) supports five/eight-seat identity matches with human players and AI. The desktop client requires Windows. Core, the LAN server and the headless example target `net8.0`; CI validates them on Windows.
 
 ## Quick start
 
@@ -35,7 +35,7 @@ dotnet run --project .\samples\CardGame.Headless\CardGame.Headless.csproj
 dotnet run --project .\src\CardGame.Wpf\CardGame.Wpf.csproj
 ```
 
-On Windows, [Play.cmd](Play.cmd) starts an existing local distribution or builds and starts the development client. The headless example does not read desktop saves or require artwork, audio or WPF.
+On Windows, [Play.cmd](Play.cmd) builds and starts the current development client in a source checkout. Distribution-only folders start the existing package; use `tools\Start-Game.ps1 -UsePackage` to explicitly open a package from a checkout. The headless example does not read desktop saves or require artwork, audio or WPF.
 
 ## Source map
 

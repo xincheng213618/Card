@@ -13,12 +13,13 @@
 | 你想做的事 | 已有基础与入口 |
 | --- | --- |
 | 运行本地游戏 | WPF 牌桌、AI 对手、身份场、2v2、国战及活动场；见[玩家指南](docs/PLAYER_GUIDE.md) |
+| 局域网开房 | 五人/八人标准身份局，真人与 AI 混合入座、准备、开始；见[联机原型](docs/LAN_PROTOTYPE.md) |
 | 接入自己的界面 | Core 不依赖 WPF；用命令提交操作，用当前座位的快照展示信息；见[可运行示例](samples/CardGame.Headless/README.md) |
 | 扩展武将和技能 | 按人物、版本组织的内容声明、技能 JSON 和运行模块；见[开发起步](docs/GETTING_STARTED.md)和[人物模块](docs/CHARACTER_MODULES.md) |
 | 研究结算和回放 | 命令校验、嵌套结算、原子牌区移动、玩家隐私投影、checkpoint 与命令回放；见[架构说明](docs/ARCHITECTURE.md) |
 | 尝试 AI 策略 | 可读的规则查询与现有决策实现；见[AI 说明](docs/TACTICAL_AI.md)和 [SimpleAi.cs](src/CardGame.Core/SimpleAi.cs) |
 
-当前以源码方式使用，扩展内容随项目编译；尚未承诺稳定的外部 SDK、二进制插件协议或联机服务。桌面界面需要 Windows；Core 和无界面示例以 `net8.0` 为目标，CI 在 Windows 上验证。
+当前以源码方式使用，扩展内容随项目编译；尚未承诺稳定的外部 SDK、二进制插件协议或公网联机服务。局域网房间处于原型阶段。桌面界面需要 Windows；Core、联机服务端和无界面示例以 `net8.0` 为目标，CI 在 Windows 上验证。
 
 ## 快速运行
 
@@ -35,7 +36,7 @@ dotnet run --project .\samples\CardGame.Headless\CardGame.Headless.csproj
 dotnet run --project .\src\CardGame.Wpf\CardGame.Wpf.csproj
 ```
 
-Windows 用户也可以双击 [Play.cmd](Play.cmd)：有本地发行包时启动该包，否则构建并启动开发版本。无界面示例不读取桌面存档，不需要图片、音频或 WPF。
+Windows 用户也可以双击 [Play.cmd](Play.cmd)：源码目录会构建并启动当前开发版本；只有分发目录才默认启动已有游戏包。源码目录要打开旧包，可运行 `tools\Start-Game.ps1 -UsePackage`。无界面示例不读取桌面存档，不需要图片、音频或 WPF。
 
 接入自己的界面时请使用 `CreateSnapshot(viewerSeat)` 生成玩家视图。结算栈与 checkpoint 属于可信宿主数据，可能包含私有信息，不应直接发送给其他玩家。
 

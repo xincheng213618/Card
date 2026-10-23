@@ -2,9 +2,9 @@
 
 这是支持 Windows x64 的离线单机卡牌游戏，已包含 .NET 8 运行时。解压整个 ZIP，双击 `CardGame/CardGame.Wpf.exe` 即可进入游戏，无须安装开发工具。保留程序旁的文件和 Assets 文件夹。
 
-在源码目录内，双击根目录的 `Play.cmd` 可打开最近一次验证通过的本地游戏包。
+在源码目录内，双击根目录的 `Play.cmd` 可构建并打开当前代码的游戏界面。
 
-如果源码目录尚未生成游戏包，`Play.cmd` 会使用项目要求的 .NET SDK 构建并启动 Debug 开发版，无须先打包。已有游戏包时仍优先启动游戏包。`tools\Start-Game.ps1 -VerifyOnly` 只检查现有启动路径，不执行构建。
+在源码目录中，`Play.cmd` 使用项目要求的 .NET SDK 构建并启动当前 Debug 开发版；即使存在旧游戏包，也不会遮住新代码。需要打开已有游戏包时运行 `tools\Start-Game.ps1 -UsePackage`。没有源码的分发目录仍启动游戏包。`tools\Start-Game.ps1 -VerifyOnly` 只检查当前启动路径，不执行构建；加 `-UsePackage` 可检查游戏包路径。
 
 ## 第一局
 
@@ -81,6 +81,6 @@
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\Build-GamePackage.ps1
 ```
 
-默认打包运行时为 8.0.31，可用 `-RuntimeVersion 8.0.x` 指定实际存在的 .NET 8 补丁版本。脚本每次创建独立输出，保留之前的游戏包和构建产物；仅在 ZIP 解压、实际程序启动、运行时、界面渲染和音效文件检查通过后更新 `Play.cmd` 使用的指针。检查不会显示桌面窗口，也不会读取或写入玩家存档。它不代表真实鼠标、键盘、多 DPI 或声音实听验收。
+默认打包运行时为 8.0.31，可用 `-RuntimeVersion 8.0.x` 指定实际存在的 .NET 8 补丁版本。脚本每次创建独立输出，保留之前的游戏包和构建产物；仅在 ZIP 解压、实际程序启动、运行时、界面渲染和音效文件检查通过后更新游戏包指针。检查不会显示桌面窗口，也不会读取或写入玩家存档。它不代表真实鼠标、键盘、多 DPI 或声音实听验收。
 
-输出位于 `dist/releases/<构建编号>/`：完整游戏目录、ZIP、SHA-256 校验文件、验证报告和开局预览。脚本逐一对比发布目录和已恢复运行时包中的 DLL，再校验 ZIP 解压后的全部文件；游戏目录内保留 `package-files.json` 文件校验清单。使用 `tools\Start-Game.ps1 -VerifyOnly` 可检查启动路径而不打开游戏。
+输出位于 `dist/releases/<构建编号>/`：完整游戏目录、ZIP、SHA-256 校验文件、验证报告和开局预览。脚本逐一对比发布目录和已恢复运行时包中的 DLL，再校验 ZIP 解压后的全部文件；游戏目录内保留 `package-files.json` 文件校验清单。使用 `tools\Start-Game.ps1 -UsePackage -VerifyOnly` 可检查游戏包路径而不打开游戏。
