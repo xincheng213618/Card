@@ -19,6 +19,8 @@ internal static class SkillDrawFeedbackChecks
 {
     public static void NativeSkillsAndColdRestore(string output)
     {
+        NativeRendeGift(output);
+        NativeRendeReceipt(output);
         NativeNormalDraw(output);
         var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());
         var game = GameEngine.CreateStandard(new GameOptions
@@ -284,6 +286,237 @@ internal static class SkillDrawFeedbackChecks
             metadata.SetQuery("/grctlext/Delay", (ushort)4); metadata.SetQuery("/grctlext/Disposal", (byte)2);
             movie.Frames.Add(BitmapFrame.Create(bitmap, null, metadata, null));
         }
+    }
+
+    private static void NativeRendeGift(string output)
+    {
+        // Seed 1 offers the real Rende general in the existing eight-seat showcase.
+        using var model = ActiveSkillChecks.CreateShowcase(1);
+        var game = Engine(model);
+        Console.WriteLine($"Native Rende fixture seed={game.Seed}.");
+        model.SelectGeneralChoiceCommand.Execute(model.GeneralChoices.Single(choice => choice.SkillName == "仁德"));
+        AdvanceToDecision(model);
+        Assert(model.CanUseActiveSkill && game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
+            "The existing Rende fixture must reach its actual human Play boundary.");
+        model.IsMotionEnabled = true;
+        using var host = new NativeHost(model);
+        host.Capture(output, "native-rende-gift-before", 1120);
+        var panel = Find<HandPanel>(host.Root).Single(candidate => candidate.IsVisible);
+        panel.Clock = host.Clock;
+        panel.InvalidateArrange();
+        host.Root.UpdateLayout();
+        var captured = new List<BattleCue>();
+        model.BattleCues.CollectionChanged += CaptureCues;
+        try
+        {
+            var before = game.CreateSnapshot(0);
+            var eventCursor = game.Events.Count;
+            var movementCursor = game.CardMovements.Count;
+            var commands = game.AcceptedCommands.Count;
+            model.UseActiveSkillCommand.Execute(null);
+            var cards = model.Hand.OrderBy(card => card.Id).Take(2).ToArray();
+            foreach (var card in cards) model.SelectCardCommand.Execute(card);
+            var recipient = model.Seats.First(seat => seat.IsLegalTarget);
+            model.SelectTargetCommand.Execute(recipient);
+            Assert(cards.Length == 2 && cards.All(card => card.IsSelected) && recipient.IsSelectedTarget &&
+                game.AcceptedCommands.Count == commands,
+                "The native two-card Rende draft must retain its cards and recipient without committing early.");
+            model.UseActiveSkillCommand.Execute(null);
+            Assert(game.AcceptedCommands.Count == commands + 1 && game.AcceptedCommands.Last() is UseProgramSkillCommand use &&
+                use.SkillId is "standard:rende" or "classic:rende" &&
+                use.CardIds.Order().SequenceEqual(cards.Select(card => card.Id).Order()) && use.TargetSeats.SequenceEqual([recipient.Seat]),
+                "Native Rende must submit the two selected physical cards and actual recipient in one real command.");
+            var after = game.CreateSnapshot(0);
+            var moves = game.CardMovements.Skip(movementCursor).Where(move =>
+                move.From == CardLocation.Hand(0) && move.To == CardLocation.Hand(recipient.Seat)).ToArray();
+            Assert(moves.Length == 2 && moves.Select(move => move.CardId).Order().SequenceEqual(cards.Select(card => card.Id).Order()) &&
+                moves.All(move => move.Reason.Value is "skill-program.standard:rende.GiveSelected" or "skill-program.classic:rende.GiveSelected") &&
+                after.Players[0].HandCount == before.Players[0].HandCount - 2 &&
+                after.Players[recipient.Seat].HandCount == before.Players[recipient.Seat].HandCount + 2,
+                "The gift animation must follow the two actual native hand-to-hand movements.");
+            var transfers = captured.Where(cue => cue.Kind == BattleCueKind.CardTransfer).ToArray();
+            Assert(transfers.Length == 1 && transfers[0] is
+                { SourceSeat: 0, TransferCount: 2, OriginZone: CardZoneKind.Hand, PublicCardId: null, PublicCard: null, CardKind: null } &&
+                transfers[0].TargetSeats.SequenceEqual([recipient.Seat]) && transfers[0].Revision == game.Revision &&
+                !captured.Any(cue => cue.Kind is BattleCueKind.Draw or BattleCueKind.Card),
+                $"Native Rende must expose one count-only giver-to-recipient cue for both cards, not a draw or public play: {JsonSerializer.Serialize(transfers)}.");
+            var events = game.Events.Skip(eventCursor).ToArray();
+            for (var viewer = 0; viewer < after.Players.Count; viewer++)
+            {
+                var projected = BattleCueProjector.Project(events, game.CreateSnapshot(viewer))
+                    .Where(cue => cue.Kind == BattleCueKind.CardTransfer).ToArray();
+                Assert(JsonSerializer.Serialize(projected) == JsonSerializer.Serialize(transfers),
+                    $"Rende's public gift quantity or hidden face fields changed for viewer {viewer}.");
+            }
+            var stable = Boundary();
+            var donor = SeatBounds(0);
+            var receiver = SeatBounds(recipient.Seat);
+            var launch = new Point(Center(donor).X > host.Layer.ActualWidth / 2 ? donor.Left - 36 : donor.Right + 36,
+                donor.Top + donor.Height * .4);
+            var destination = new Point(Center(receiver).X > host.Layer.ActualWidth / 2 ? receiver.Left - 14 : receiver.Right + 14,
+                Center(receiver).Y);
+            var clockOrigin = host.Clock.GetTimestamp();
+            var flightCenters = new Dictionary<int, Point[]>();
+            for (var milliseconds = 0; milliseconds <= 600; milliseconds += 20)
+            {
+                var targetTick = clockOrigin + (long)Math.Ceiling(milliseconds / 1000d * host.Clock.TimestampFrequency);
+                var ticks = targetTick - host.Clock.GetTimestamp();
+                if (ticks > 0) host.Clock.Advance((ticks + .25) / host.Clock.TimestampFrequency);
+                foreach (var surface in Find<CardLiftSurface>(panel)) surface.InvalidateVisual();
+                host.Layer.InvalidateVisual();
+                if (milliseconds is 120 or 240 or 420 or 600)
+                    host.Capture(output, $"native-rende-gift-{milliseconds}ms", 1120);
+                else Render(host.Root, 1120, 740, null);
+                var drawing = VisualTreeHelper.GetDrawing(host.Layer);
+                var backs = Shapes(drawing, Matrix.Identity, 1, null).Where(shape => shape.Opacity > .001 &&
+                    shape.Drawing is { Geometry: RectangleGeometry, Brush: SolidColorBrush brush } &&
+                    brush.Color == Color.FromRgb(31, 43, 43)).ToArray();
+                Assert(!Images(drawing).Any() && !host.Layer.IsHitTestVisible && !host.Layer.Focusable,
+                    "A hidden Rende gift must draw only backs and must not intercept gameplay input.");
+                if (milliseconds is >= 80 and <= 500)
+                    Assert(backs.Length == 2 && backs.All(back => back.Opacity > .1 &&
+                        back.Visible.GetArea() >= back.Raw.GetArea() * .99),
+                        $"Rende@{milliseconds}ms must retain both complete backs: " +
+                        string.Join("; ", backs.Select(back => $"{back.Raw.Bounds}, opacity={back.Opacity:F3}, visible={back.Visible.GetArea():F2}/{back.Raw.GetArea():F2}")));
+                if (milliseconds is 120 or 240 or 420 or 500)
+                    flightCenters[milliseconds] = backs.Select(back => Center(back.Raw.Bounds)).ToArray();
+                if (milliseconds is 0 or 600)
+                    Assert(backs.Length == 0, $"Rende@{milliseconds}ms retained a transfer outside its flight lifetime.");
+                Assert(Boundary() == stable,
+                    $"Rende@{milliseconds}ms changed commands, physical movements or a safe player snapshot while rendering.");
+            }
+            var early = flightCenters[120];
+            var later = flightCenters[240];
+            var direction = destination - launch; direction.Normalize();
+            Assert((early[0] - early[1]).Length > 4 && (later[0] - later[1]).Length > 4 &&
+                Vector.Multiply(Average(later) - Average(early), direction) > 10,
+                "Both native Rende backs must be visibly distinct and advance from the giver toward the recipient.");
+            Assert(flightCenters[420].Concat(flightCenters[500]).All(point => (point - destination).Length < .1),
+                "Both Rende backs must arrive at the actual recipient together at 420ms and fade in place.");
+            Console.WriteLine($"Native Rende seed={game.Seed}: giver=0; recipient={recipient.Seat}; moved=2; public-cues=1; " +
+                "public-faces=0; dual-back flight=80..500ms; arrival=420ms; gone=600ms; all-viewer snapshots unchanged.");
+
+            Rect SeatBounds(int seat)
+            {
+                var anchor = Find<Button>(host.Root).Single(button => button.IsVisible && BattleFeedbackLayer.GetSeatAnchor(button) == seat);
+                return anchor.TransformToVisual(host.Layer).TransformBounds(new Rect(anchor.RenderSize));
+            }
+            string Boundary() => JsonSerializer.Serialize(new
+            {
+                game.Revision, Commands = game.AcceptedCommands, Movements = game.CardMovements,
+                Views = Enumerable.Range(0, after.Players.Count).Select(viewer => SnapshotJson.Serialize(game.CreateSnapshot(viewer))).ToArray()
+            });
+            static Point Center(Rect bounds) => new(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
+            static Point Average(Point[] points) => new(points.Average(point => point.X), points.Average(point => point.Y));
+        }
+        finally { model.BattleCues.CollectionChanged -= CaptureCues; }
+        void CaptureCues(object? sender, NotifyCollectionChangedEventArgs args)
+        {
+            if (args.NewItems is not null) captured.AddRange(args.NewItems.Cast<BattleCue>());
+        }
+    }
+
+    private static void NativeRendeReceipt(string output)
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(rendePeers: true));
+        var setup = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Fixture.Mode,
+            UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false
+        }, registry);
+        Accept(setup.Submit(new StartGameCommand()));
+        Accept(setup.Submit(new SelectGeneralCommand(0, Fixture.Owner, setup.Revision, setup.PendingDecision!.PromptId)));
+        // The opening recipe deals real Dodge cards and gives the three AI
+        // generals the actual classic skill. Only the loyalist supports Lord 0.
+        var giver = Enumerable.Range(1, 3).Single(seat => setup.CreateSnapshot(seat).Players[seat].Role == Role.Loyalist);
+        for (var step = 0; step < 120 && !AtGiverPlay(); step++)
+        {
+            var pending = setup.PendingDecision;
+            Accept(setup.Submit(pending is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }
+                ? new EndPlayPhaseCommand(0, setup.Revision, pending.PromptId)
+                : new AdvanceOneStepCommand(setup.Revision)));
+        }
+        Assert(AtGiverPlay(), "The fixed classic Rende AI fixture did not reach its real loyalist Play boundary.");
+        using var model = Restore(setup.CreateCheckpoint(), registry);
+        var game = Engine(model);
+        using var host = new NativeHost(model);
+        host.Capture(output, "native-rende-receipt-before", 1120);
+        var panel = Find<HandPanel>(host.Root).Single(candidate => candidate.IsVisible);
+        panel.Clock = host.Clock;
+        panel.InvalidateArrange();
+        host.Root.UpdateLayout();
+        var before = game.CreateSnapshot(0);
+        var eventCursor = game.Events.Count;
+        var movementCursor = game.CardMovements.Count;
+        var commands = game.AcceptedCommands.Count;
+        Assert(model.CanStepAi && host.Layer.HandOwnerSeat == 0 && model.BattleCues.Count == 0,
+            "The native window must remain Lord 0's safe view before the actual loyalist AI acts.");
+        model.StepAiCommand.Execute(null);
+        var after = game.CreateSnapshot(0);
+        var incomingIds = after.Players[0].Hand.Select(card => card.Id).Except(before.Players[0].Hand.Select(card => card.Id)).ToArray();
+        var events = game.Events.Skip(eventCursor).ToArray();
+        var moves = game.CardMovements.Skip(movementCursor).Where(move => move.From == CardLocation.Hand(giver) &&
+            move.To == CardLocation.Hand(0) && move.Reason.Value == "skill-program.classic:rende.GiveSelected").ToArray();
+        Assert(game.AcceptedCommands.Count == commands + 1 && game.AcceptedCommands.Last() is AdvanceOneStepCommand &&
+            incomingIds.Length == 1 && moves.Length == 1 && moves[0].CardId == incomingIds[0] &&
+            events.Any(envelope => envelope.Payload is ProgramSkillResolvedEvent
+                { SkillId: "classic:rende", ActivationId: "give-and-heal-after-two", Completed: true } resolved && resolved.OwnerSeat == giver) &&
+            after.Players[0].HandCount == before.Players[0].HandCount + 1 &&
+            after.Players[giver].HandCount == before.Players[giver].HandCount - 1,
+            "One normal native AI step must execute classic Rende and give one actual hand card to the local Lord.");
+        var transfers = model.BattleCues.Where(cue => cue.Kind == BattleCueKind.CardTransfer).ToArray();
+        Assert(transfers.Length == 1 && transfers[0] is
+            { TargetSeats: [0], TransferCount: 1, OriginZone: CardZoneKind.Hand, PublicCardId: null, PublicCard: null, CardKind: null } &&
+            transfers[0].SourceSeat == giver && !model.BattleCues.Any(cue => cue.Kind is BattleCueKind.Draw or BattleCueKind.Card),
+            "The real local Rende receipt must publish one hidden transfer from its actual giver, without an invented draw or play.");
+        var stable = Boundary();
+        var clockOrigin = host.Clock.GetTimestamp();
+        foreach (var milliseconds in new[] { 0, 160, 300, 420, 500, 600 })
+        {
+            var targetTick = clockOrigin + (long)Math.Ceiling(milliseconds / 1000d * host.Clock.TimestampFrequency);
+            var ticks = targetTick - host.Clock.GetTimestamp();
+            if (ticks > 0) host.Clock.Advance((ticks + .25) / host.Clock.TimestampFrequency);
+            foreach (var surface in Find<CardLiftSurface>(panel)) surface.InvalidateVisual();
+            host.Layer.InvalidateVisual();
+            host.Capture(output, $"native-rende-receipt-{milliseconds}ms", 1120);
+            var incoming = Surfaces(panel, incomingIds);
+            var drawing = VisualTreeHelper.GetDrawing(host.Layer);
+            var backs = Shapes(drawing, Matrix.Identity, 1, null).Where(shape => shape.Opacity > .001 &&
+                shape.Drawing is { Geometry: RectangleGeometry, Brush: SolidColorBrush brush } &&
+                brush.Color == Color.FromRgb(31, 43, 43)).ToArray();
+            Assert(incoming.Length == 1 && ReferenceEquals(incoming[0].Clock, host.Clock) &&
+                !Images(drawing).Any() && Boundary() == stable,
+                $"Rende receipt@{milliseconds}ms must retain the real hand surface and all player states without leaking a public face.");
+            if (milliseconds is >= 160 and <= 500)
+                Assert(backs.Length == 1 && backs[0].Opacity > .1 && backs[0].Visible.GetArea() >= backs[0].Raw.GetArea() * .99,
+                    $"Rende receipt@{milliseconds}ms clipped or lost its back: " +
+                    string.Join("; ", backs.Select(back => $"{back.Raw.Bounds}, visible={back.Visible.GetArea():F2}/{back.Raw.GetArea():F2}")));
+            if (milliseconds <= 420)
+                Assert(incoming.All(IsStartingArrival),
+                    $"Rende receipt@{milliseconds}ms exposed a new local face before the giver's back arrived.");
+            if (milliseconds is 0 or 420) AssertCommonEntrance(host, incoming);
+            if (milliseconds == 420)
+            {
+                var hand = host.Layer.HandRoot!;
+                var destination = hand.TranslatePoint(new Point(hand.ActualWidth / 2, 7), host.Layer);
+                var bounds = backs.Single().Raw.Bounds;
+                Assert((new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2) - destination).Length < .1,
+                    "The real Rende back must hand off at the same local entrance as its actual incoming face.");
+            }
+            if (milliseconds == 500) AssertUnfolding(host, incoming);
+            if (milliseconds == 600)
+                Assert(backs.Length == 0 && incoming.All(surface => surface.OpacityMask is null),
+                    "At 600ms the real Rende face must settle in its slot and its public back must be gone.");
+        }
+        Console.WriteLine($"Native classic Rende receipt seed31: giver={giver}; recipient=0; moved=1; " +
+            "back=160/300/420/500ms; face hidden through420ms, unfolding500ms, settled600ms; all four safe views unchanged.");
+        bool AtGiverPlay() => setup.CreateSnapshot(0) is { Phase: TurnPhase.Play } view &&
+            view.CurrentSeat == giver && setup.PendingDecision is null;
+        string Boundary() => JsonSerializer.Serialize(new
+        {
+            game.Revision, Commands = game.AcceptedCommands, Movements = game.CardMovements,
+            Views = Enumerable.Range(0, after.Players.Count).Select(viewer => SnapshotJson.Serialize(game.CreateSnapshot(viewer))).ToArray()
+        });
     }
 
     private static void NativeNormalDraw(string output)
@@ -782,20 +1015,27 @@ internal static class SkillDrawFeedbackChecks
 
     private static void Accept(CommandResult result) => Assert(result.Accepted, result.Error?.Message ?? "Native skill-draw setup failed.");
 
-    private sealed class Fixture(int drawPerTurn = 0) : IGameContentPackage
+    private sealed class Fixture(int drawPerTurn = 0, bool rendePeers = false) : IGameContentPackage
     {
         public const string Mode = "identity:skill-draw-feedback", Owner = "fixture:skill-draw-owner";
         public PackageManifest Manifest { get; } = new("fixture-skill-draw-feedback", new(1, 0, 0));
         public void Register(IContentRegistryBuilder builder)
         {
             CharacterFixtureContent.Register(builder, "classic:sun-quan", "classic:han-dang");
-            builder.AddGeneral(new(Owner, "技能摸牌", "supporter", "classic:zhiheng", "wu", 4, ["classic:jiefan"]));
+            if (rendePeers)
+            {
+                CharacterFixtureContent.Register(builder, "classic:liu-bei");
+                builder.AddGeneral(new(Owner, "仁德接收", "supporter", "standard:none", "shu", 4));
+            }
+            else builder.AddGeneral(new(Owner, "技能摸牌", "supporter", "classic:zhiheng", "wu", 4, ["classic:jiefan"]));
             var peers = Enumerable.Range(1, 3).Select(seat => $"fixture:skill-draw-peer-{seat}").ToArray();
-            foreach (var peer in peers) builder.AddGeneral(new(peer, "邻座", "supporter", "standard:none", "wei", 4));
-            builder.AddDeck(new("fixture:skill-draw-deck", "固定原生牌堆", 4, drawPerTurn, [])
-            { PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard("standard:slash", Suit.Spade, index % 13 + 1)).ToArray() });
-            builder.AddMode(new(Mode, "技能摸牌", 4, 4, new Dictionary<string, int>
-                { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 }, "fixture:skill-draw-deck", GeneralCandidateCount: 4,
+            foreach (var peer in peers) builder.AddGeneral(new(peer, "邻座", "supporter", rendePeers ? "classic:rende" : "standard:none", "wei", 4));
+            builder.AddDeck(new("fixture:skill-draw-deck", "固定原生牌堆", rendePeers ? 2 : 4, drawPerTurn, [])
+            { PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard(
+                rendePeers ? "standard:dodge" : "standard:slash", Suit.Spade, index % 13 + 1)).ToArray() });
+            var roles = new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = rendePeers ? 2 : 3 };
+            if (rendePeers) roles[nameof(Role.Loyalist)] = 1;
+            builder.AddMode(new(Mode, "技能摸牌", 4, 4, roles, "fixture:skill-draw-deck", GeneralCandidateCount: 4,
                 GeneralPoolIds: [Owner, .. peers]));
         }
     }
