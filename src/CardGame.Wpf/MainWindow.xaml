@@ -9,7 +9,9 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Border x:Name="Grip" Width="6" Margin="0,1" Background="{TemplateBinding Background}" BorderBrush="#C2A46A" BorderThickness="1" CornerRadius="3" HorizontalAlignment="Center" />
+                        <Grid Background="Transparent">
+                            <Border x:Name="Grip" Width="6" Margin="0,1" Background="{TemplateBinding Background}" BorderBrush="#C2A46A" BorderThickness="1" CornerRadius="3" HorizontalAlignment="Center" />
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Grip" Property="Background" Value="#C7AA6B" /><Setter TargetName="Grip" Property="BorderBrush" Value="#E8CD93" /></Trigger>
                             <Trigger Property="IsDragging" Value="True"><Setter TargetName="Grip" Property="Background" Value="#E1C284" /><Setter TargetName="Grip" Property="BorderBrush" Value="#F6DFAD" /></Trigger>
@@ -1179,6 +1181,7 @@
                                 </Grid>
                                 <Border Grid.Column="1" Background="#191713" BorderBrush="#67573E" BorderThickness="1" Margin="18,0,0,0" Padding="14">
                                   <ScrollViewer x:Name="GeneralSelectionSkillsScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                                    <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                                         <Grid Margin="0,0,0,12">
@@ -1454,6 +1457,7 @@
                         <TextBlock Text="开始新对局会替换当前对局；返回大厅可保留当前进度。" Foreground="#778E80" FontSize="10" HorizontalAlignment="Center" Margin="0,13,0,0" />
                     </StackPanel>
                 <ScrollViewer x:Name="ModeSetupScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                    <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
                     <StackPanel>
                         <TextBlock Text="选 择 模 式" Visibility="{Binding IsModeSelectionOpen, Converter={StaticResource BoolToVisibility}}" FontFamily="KaiTi" FontSize="34" Foreground="#F1D298" HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding SetupRoomTitle}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" FontFamily="KaiTi" FontSize="34" Foreground="#F1D298" HorizontalAlignment="Center" />
@@ -1691,6 +1695,7 @@
                         </StackPanel>
                     </DockPanel>
                     <ScrollViewer x:Name="SettingsContentScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False" Margin="0,22,0,0" Padding="0,0,8,4" AutomationProperties.Name="游戏设置内容">
+                      <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
                       <StackPanel x:Name="SettingsContentHost">
                         <Border x:Name="SettingsPreferencesError" Background="#382B22" BorderBrush="#A57D4D" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,12" Visibility="{Binding HasPreferencesError, Converter={StaticResource BoolToVisibility}}">
                             <Grid>

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -1187,6 +1188,21 @@ internal static class GeneralSelectionChecks
                 }
                 Program.Assert(scroll.ScrollableHeight > 0 && presenter.ActualHeight > 0 && !scroll.Focusable,
                     "Thirteen unscaled portraits must scroll vertically without adding a candidate-pane Tab stop.");
+                var scrollbar = Program.Find<ScrollBar>(scroll).Single(bar => bar.Orientation == Orientation.Vertical);
+                var track = (Track)scrollbar.Template.FindName("PART_Track", scrollbar);
+                var thumb = track.Thumb!;
+                bool HitsThumb(double x)
+                {
+                    var hit = root.InputHitTest(thumb.TranslatePoint(new Point(x, thumb.ActualHeight / 2), root)) as DependencyObject;
+                    while (hit is not null && !ReferenceEquals(hit, thumb)) hit = VisualTreeHelper.GetParent(hit);
+                    return ReferenceEquals(hit, thumb);
+                }
+                Program.Assert(thumb.ActualWidth > 6 && HitsThumb(thumb.ActualWidth / 2),
+                    "The actual loaded candidate scrollbar must have a draggable visible thumb before checking its side edges.");
+                Console.WriteLine($"Candidate scrollbar thumb hit area: width={thumb.ActualWidth:F1}, " +
+                    $"left={HitsThumb(.5)}, center={HitsThumb(thumb.ActualWidth / 2)}, right={HitsThumb(thumb.ActualWidth - .5)}.");
+                Program.Assert(HitsThumb(.5) && HitsThumb(thumb.ActualWidth - .5),
+                    "The full allotted thumb width must remain draggable, including the transparent sides beside its narrow artwork.");
                 scroll.ScrollToEnd();
                 Pump();
                 Program.Render(root, 1120, 740, Path.Combine(output, "general-thirteen-candidates-last.png"));
@@ -1250,6 +1266,56 @@ internal static class GeneralSelectionChecks
                     }
                     finally { last.RemoveHandler(Keyboard.KeyDownEvent, observe); }
                 });
+            }
+            else
+            {
+                var scroll = (ScrollViewer)window.FindName("GeneralCandidateScroller");
+                var presenter = Program.Find<ScrollContentPresenter>(scroll).Single(item => ReferenceEquals(item.TemplatedParent, scroll));
+                void Settle() { root.UpdateLayout(); window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle); root.UpdateLayout(); }
+                scroll.ScrollToEnd();
+                Settle();
+                var beforeOffset = scroll.VerticalOffset;
+                var changeRole = Program.Find<Button>(root).Single(button => button.IsVisible &&
+                    ReferenceEquals(button.Command, vm.ChangeStartingIdentityCommand) &&
+                    button.CommandParameter is StartingRoleOption { Role: Role.Lord });
+                SetFocus(new WindowInteropHelper(window).Handle);
+                changeRole.Focus();
+                Program.Assert(beforeOffset > 0 && scroll.VerticalOffset == beforeOffset && ReferenceEquals(Keyboard.FocusedElement, changeRole) &&
+                    GetFocus() == new WindowInteropHelper(window).Handle && Boundary(game) == boundary,
+                    "The real thirteen-to-thirteen identity switch must start at the candidate tail with its actual role button focused and the original private boundary intact.");
+                var previewId = vm.SelectedGeneralChoice!.GeneralId;
+                vm.IsDeveloperView = true;
+                Settle();
+                vm.IsDeveloperView = false;
+                Settle();
+                Program.Assert(scroll.VerticalOffset == beforeOffset && vm.SelectedGeneralChoice!.GeneralId == previewId &&
+                    ReferenceEquals(Keyboard.FocusedElement, changeRole) && Boundary(game) == boundary,
+                    "Refreshing the same real prompt must preserve a manually scrolled candidate tail, its preview and the live role-button focus.");
+                var previewHandled = TableShortcutChecks.WithModifiers(ModifierKeys.None, () =>
+                {
+                    var input = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(changeRole)!, 0, Key.Enter)
+                        { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+                    OpeningCustomizationUiChecks.SetKeyRepeat(input, false);
+                    changeRole.RaiseEvent(input);
+                    var handled = input.Handled;
+                    if (!input.Handled) { input.RoutedEvent = Keyboard.KeyDownEvent; changeRole.RaiseEvent(input); }
+                    return handled;
+                });
+                Settle();
+                var switchedGame = Program.Engine(vm);
+                var first = Program.Find<Button>(candidates).First();
+                var firstBounds = first.TransformToAncestor(presenter).TransformBounds(new Rect(first.RenderSize));
+                Console.WriteLine($"Native identity candidate scroll: Renegade->Lord, offset={beforeOffset:F3}->{scroll.VerticalOffset:F3}/{scroll.ScrollableHeight:F3}, " +
+                    $"first={firstBounds}, viewport={presenter.RenderSize}, focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, " +
+                    $"preview={vm.SelectedGeneralChoice?.GeneralId}, prompt={game.PendingDecision?.PromptId}->{switchedGame.PendingDecision?.PromptId}, tunnel handled={previewHandled}.");
+                Program.Render(root, 1120, 740, Path.Combine(output, "general-identity-candidate-scroll.png"));
+                Program.Assert(!previewHandled && !ReferenceEquals(switchedGame, game) && Boundary(game) == boundary &&
+                    switchedGame.CreateSnapshot(0).Players.Single(player => player.IsHuman).Role == Role.Lord &&
+                    vm.IsGeneralSelectionPending && !vm.IsIdentityRevealOpen && !vm.IsCustomGeneralSelectionOpen && vm.GeneralChoices.Count == 13 &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, vm.GeneralChoices[0]) && ReferenceEquals(first.CommandParameter, vm.SelectedGeneralChoice) &&
+                    !switchedGame.AcceptedCommands.OfType<SelectGeneralCommand>().Any() && firstBounds.Left >= -1 && firstBounds.Top >= -1 &&
+                    firstBounds.Right <= presenter.ActualWidth + 1 && firstBounds.Bottom <= presenter.ActualHeight + 1,
+                    "Changing the real identity from thirteen candidates to thirteen must expose the new prompt's first preview without selecting a general or mutating the retired engine's player views and journal.");
             }
         }
         Program.Assert(unreadable.Count == 0,
