@@ -71,8 +71,6 @@ public sealed partial class BattleFeedbackLayer
                 ? new Point(Center(receiver).X > ActualWidth / 2 ? receiver.Left - 14 : receiver.Right + 14, Center(receiver).Y)
                 : new Point(hand.Left + hand.Width / 2, hand.Top + HandPanel.ArrivalEntryInset);
         }
-        var move = Math.Clamp(elapsed / DrawArrivalTime, 0, 1);
-        var eased = 1 - Math.Pow(1 - move, 2);
         // Use measured button and glyph ink, as for played-card routes. Full
         // TextBlock layout boxes can include large areas with no visible ink.
         // Portraits are protected whole; the hand is the arrival destination.
@@ -84,9 +82,6 @@ public sealed partial class BattleFeedbackLayer
             .Where(bounds => !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0 &&
                 (item.PublicChoiceOrigin.IsEmpty || !bounds.IntersectsWith(item.PublicChoiceOrigin))).ToArray();
         var path = item.GetTransferPath(launch, destination, obstacles, frame.FlightViewport);
-        var point = path.PositionAt(move);
-        var scale = (1 - .6 * eased) * path.ScaleAt(eased);
-        var alpha = Math.Min(1, elapsed / .035) * Math.Clamp((DrawArrivalTime + .16 - elapsed) / .16, 0, 1);
         var accent = Frozen(discard ? Color.FromRgb(233, 148, 110) : Color.FromRgb(121, 218, 197));
         // Preserve command/readout visibility while leaving the hand-entry
         // corridor open. The layer has no input hit area.
@@ -94,6 +89,27 @@ public sealed partial class BattleFeedbackLayer
         foreach (var area in obstacles)
             if (!area.IsEmpty) clip = new CombinedGeometry(GeometryCombineMode.Exclude, clip, new RectangleGeometry(area));
         dc.PushClip(clip);
+        // Stagger along the same validated route instead of offsetting a fan
+        // into nearby controls. Every back arrives at the shared handoff time.
+        // Larger gifts keep a bounded trail; the cue caption reports the full count.
+        for (var index = Math.Clamp(cue.TransferCount, 1, 3) - 1; index >= 0; index--)
+        {
+            var start = index * .04;
+            if (elapsed <= start) continue;
+            var move = Math.Clamp((elapsed - start) / (DrawArrivalTime - start), 0, 1);
+            var eased = 1 - Math.Pow(1 - move, 2);
+            var point = path.PositionAt(move);
+            var scale = (1 - .6 * eased) * path.ScaleAt(eased);
+            var alpha = Math.Min(1, (elapsed - start) / .035) * Math.Clamp((DrawArrivalTime + .16 - elapsed) / .16, 0, 1);
+            DrawTransferFace(dc, item, point, scale, move, alpha, accent, discard);
+        }
+        dc.Pop();
+    }
+
+    private static void DrawTransferFace(DrawingContext dc, TimedCue item, Point point, double scale,
+        double move, double alpha, Brush accent, bool discard)
+    {
+        var cue = item.Cue;
         dc.PushOpacity(alpha);
         dc.PushTransform(new RotateTransform((discard ? -10 : 8) * Math.Sin(Math.PI * move), point.X, point.Y));
         dc.PushTransform(new ScaleTransform(scale, scale, point.X, point.Y));
@@ -118,6 +134,6 @@ public sealed partial class BattleFeedbackLayer
             diamond.Freeze();
             dc.DrawGeometry(null, new Pen(accent, 1), diamond);
         }
-        dc.Pop(); dc.Pop(); dc.Pop(); dc.Pop();
+        dc.Pop(); dc.Pop(); dc.Pop();
     }
 }

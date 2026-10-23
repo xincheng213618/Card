@@ -131,6 +131,7 @@ internal static class FeedbackChecks
                    HasDrawCards: false, CardKind: null, PublicCardId: null, PublicCard: null }),
             "An attack-range aid response must keep its responder and beneficiary without fabricating recovery, a draw animation or private card faces from the selected response.");
         ProgramActivationFeedback(view);
+        PublicDraftRevealFeedback(view);
         foreach (var (paid, empty, owner, target, label) in new (IGameEvent, IGameEvent, int, int, string)[]
         {
             (new SilverLionRemovedRecoveryEvent(801, 1, CardMoveReasons.EquipmentReplace, 1, 3),
@@ -540,6 +541,44 @@ internal static class FeedbackChecks
                 "classic:i-field"))], iFieldView).Single();
         Assert(iFieldCue.Label == "I力场 · 锦囊伤害已防止",
             "Incoming trick prevention must display the skill that actually prevented damage.");
+    }
+
+    private static void PublicDraftRevealFeedback(GameSnapshot view)
+    {
+        var state = new BattleCueProjectionState();
+        var sequence = 20000L;
+        EventEnvelope E(IGameEvent payload, long revision) =>
+            new(new EventId(++sequence), null, sequence, revision, $"public-draft-{revision}", payload);
+        var firstFace = new CardSnapshot(9101, CardKind.Slash, Suit.Spade, 7, "杀", "7");
+        var extraFace = new CardSnapshot(9102, CardKind.Peach, Suit.Heart, 3, "桃", "3");
+        var begin = E(new GroupCardUsedEvent(900, 9100, CardKind.FiveGrains, 0, [0, 1, 2, 3]), 11);
+        var first = E(new CardsRevealedEvent(900, [firstFace]), 11);
+        var firstCues = BattleCueProjector.Project([begin, first], view, state)
+            .Where(cue => cue.Kind == BattleCueKind.PublicReveal).ToArray();
+        var extra = E(new CardsRevealedEvent(900, [extraFace]), 14);
+        var extraCues = BattleCueProjector.Project([extra], view, state);
+        Assert(firstCues is [{ Sequence: var firstSequence, RevealedCardIds: [9101], Revision: 11 }] &&
+               firstSequence == first.Sequence &&
+               extraCues is [{ Kind: BattleCueKind.PublicReveal, Sequence: var extraSequence,
+                   RevealedCardIds: [9102], Revision: 14 }] && extraSequence == extra.Sequence,
+            "An extra Five Grains effect round must reveal its new public pool across revisions without repeating GroupCardUsed or the first pool identity.");
+
+        Assert(!BattleCueProjector.Project(
+            [E(new GroupCardUsedEvent(901, 9200, CardKind.ArrowBarrage, 0, [1, 2, 3]), 15),
+             E(new CardsRevealedEvent(901, [firstFace]), 15),
+             E(new CardsRevealedEvent(902, [extraFace]), 15)], view, state)
+            .Any(cue => cue.Kind == BattleCueKind.PublicReveal),
+            "A reveal from another use or a non-Five-Grains group card must not inherit the previous public draft animation.");
+        BattleCueProjector.Project([E(new CardUseFinishedEvent(900, 9100, CardKind.FiveGrains), 16)], view, state);
+        Assert(!BattleCueProjector.Project([E(new CardsRevealedEvent(900, [firstFace]), 17)], view, state)
+            .Any(cue => cue.Kind == BattleCueKind.PublicReveal),
+            "Finishing the owning use must retire its public draft identity.");
+        BattleCueProjector.Project([E(new GroupCardUsedEvent(903, 9300, CardKind.FiveGrains, 0, [0, 1]), 18)], view, state);
+        state.Clear();
+        state.ObservePublicView(view with { PublicRevealedCards = [extraFace] });
+        Assert(!BattleCueProjector.Project([E(new CardsRevealedEvent(903, [extraFace]), 19)], view, state)
+            .Any(cue => cue.Kind == BattleCueKind.PublicReveal),
+            "Cold public faces may seed face lookup, but clearing presentation must not restore an earlier use's reveal animation identity.");
     }
 
     private static void ProgramActivationFeedback(GameSnapshot view)

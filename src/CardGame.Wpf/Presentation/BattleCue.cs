@@ -2,7 +2,7 @@ using CardGame.Core;
 
 namespace CardGame.Wpf.Presentation;
 
-public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Recovery, Turn, Dying, Death, Skill, ChainPropagation, Weapon, Rescued, Draw, HpLoss, CardTransfer, CardDiscard }
+public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Recovery, Turn, Dying, Death, Skill, ChainPropagation, Weapon, Rescued, Draw, HpLoss, CardTransfer, CardDiscard, PublicReveal }
 public enum JudgmentCueStage { Requested, Replaced, Resolved }
 
 /// <summary>Presentation data containing only actions and values that are already public.</summary>
@@ -31,6 +31,7 @@ public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat
     public CardKind? CardKind { get; init; }
     public int? PublicCardId { get; init; }
     public CardSnapshot? PublicCard { get; init; }
+    public IReadOnlyList<int> RevealedCardIds { get; init; } = [];
     public CardKind? WeaponKind { get; init; }
     public long? WeaponResolutionId { get; init; }
     public bool IsWeaponActivated { get; init; }
@@ -54,11 +55,12 @@ public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat
     public string CardActionLabel => Kind == BattleCueKind.Card ? Detail ?? "使用" : "打出";
 }
 
-/// <summary>Only program activations whose public banner was actually returned remain in flight.</summary>
+/// <summary>Public identities and faces retained across committed presentation batches.</summary>
 public sealed class BattleCueProjectionState
 {
     private readonly HashSet<ProgramFeedbackActivation> _announced = [];
     private readonly Dictionary<int, CardSnapshot> _publicFaces = [];
+    private readonly Dictionary<long, long> _publicDraftUses = [];
     internal void Remember(ProgramFeedbackActivation activation) => _announced.Add(activation);
     internal bool Complete(ProgramFeedbackActivation activation) => _announced.Remove(activation);
     internal void RememberPublicCards(IEnumerable<CardSnapshot> cards)
@@ -72,8 +74,17 @@ public sealed class BattleCueProjectionState
         }
     }
     internal CardSnapshot? PublicFace(int id) => _publicFaces.GetValueOrDefault(id);
+    internal void RememberPublicDraftUse(long resolutionId, long sequence)
+    {
+        _publicDraftUses.TryAdd(resolutionId, sequence);
+        // Completed uses normally leave immediately; keep partial event streams bounded too.
+        if (_publicDraftUses.Count > 64)
+            _publicDraftUses.Remove(_publicDraftUses.MinBy(entry => entry.Value).Key);
+    }
+    internal bool IsPublicDraftUse(long resolutionId) => _publicDraftUses.ContainsKey(resolutionId);
+    internal void FinishPublicDraftUse(long resolutionId) => _publicDraftUses.Remove(resolutionId);
     public void ObservePublicView(GameSnapshot view) => RememberPublicCards(view.PublicRevealedCards);
-    public void Clear() { _announced.Clear(); _publicFaces.Clear(); }
+    public void Clear() { _announced.Clear(); _publicFaces.Clear(); _publicDraftUses.Clear(); }
 }
 
 internal readonly record struct ProgramFeedbackActivation(long FrameId, int OwnerSeat, string SkillId, string ActivationId);
@@ -120,8 +131,31 @@ public static class BattleCueProjector
                 Array.AsReadOnly(new[] { group.Key.OwnerSeat }), $"摸牌 +{group.Sum(item => item.Count)}", Name(group.Key.OwnerSeat))
                 { DrawCount = group.Sum(item => item.Count) });
 
+        // These two Rende activations publicly give hand cards to another seat.
+        // The trusted movement payload also contains private faces: retain only
+        // the actual public source, recipient and count, never card identities.
+        var gifts = events.Where(envelope => envelope.Payload is CardMovedEvent
+            {
+                From: { Zone: CardZoneKind.Hand, OwnerSeat: { } giver },
+                To: { Zone: CardZoneKind.Hand, OwnerSeat: { } recipient },
+                Reason.Value: "skill-program.standard:rende.GiveSelected" or "skill-program.classic:rende.GiveSelected"
+            } && giver != recipient && playerView.Players.Any(player => player.Seat == giver) &&
+                playerView.Players.Any(player => player.Seat == recipient))
+            .GroupBy(envelope => (envelope.Revision,
+                Giver: ((CardMovedEvent)envelope.Payload).From.OwnerSeat!.Value,
+                Recipient: ((CardMovedEvent)envelope.Payload).To.OwnerSeat!.Value))
+            .ToDictionary(group => group.Max(envelope => envelope.Sequence), group =>
+                new BattleCue(group.Max(envelope => envelope.Sequence), BattleCueKind.CardTransfer, group.Key.Giver,
+                    Seats([group.Key.Recipient]), $"交给 {group.Count()} 张牌", Name(group.Key.Giver),
+                    Detail: $"交给{Name(group.Key.Recipient)}")
+                    { OriginZone = CardZoneKind.Hand, TransferCount = group.Count() });
+
         foreach (var envelope in events)
         {
+            if (envelope.Payload is GroupCardUsedEvent { CardKind: CardKind.FiveGrains } publicDraft)
+                projectionState.RememberPublicDraftUse(publicDraft.ResolutionId, envelope.Sequence);
+            if (envelope.Payload is CardUseFinishedEvent finishedUse)
+                projectionState.FinishPublicDraftUse(finishedUse.ResolutionId);
             if (envelope.Payload is CardsRevealedEvent revealedCards)
                 projectionState.RememberPublicCards(revealedCards.Cards);
             if (envelope.Payload is ProgramSkillResolvedEvent completed)
@@ -135,6 +169,9 @@ public static class BattleCueProjector
             }
             BattleCue? cue = envelope.Payload switch
             {
+                CardsRevealedEvent revealed when projectionState.IsPublicDraftUse(revealed.ResolutionId) =>
+                    new(envelope.Sequence, BattleCueKind.PublicReveal, -1, [], "五谷丰登", "亮牌")
+                    { RevealedCardIds = Array.AsReadOnly(revealed.Cards.Select(card => card.Id).ToArray()) },
                 TargetCardTakenEvent taken => new(envelope.Sequence, BattleCueKind.CardTransfer,
                     taken.TargetSeat, Seats([taken.SourceSeat]), "顺手牵羊 · 获得牌", Name(taken.SourceSeat),
                     Detail: "获得一张牌")
@@ -303,6 +340,7 @@ public static class BattleCueProjector
             };
 
             if (draws.TryGetValue(envelope.Sequence, out var draw)) cue = draw;
+            if (gifts.TryGetValue(envelope.Sequence, out var gift)) cue = gift;
 
             if (cardPlays.TryGetValue(envelope.Sequence, out var cardPlay))
                 cue = cardPlay with { TargetSeats = cue?.TargetSeats ?? cardPlay.TargetSeats,
