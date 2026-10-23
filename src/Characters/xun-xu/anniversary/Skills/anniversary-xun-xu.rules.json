@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:diyin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "next-discard",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveAnniversaryXunXuDiyin",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "same-hp",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveAnniversaryXunXuDiyin",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anniversary:boqia",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "boqia-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
+          "id": "boqia-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "inputCount": 3,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "extendedUse": true,
+          "allowSameKind": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "completed-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveAnniversaryXunXuBoqiaCompletion",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

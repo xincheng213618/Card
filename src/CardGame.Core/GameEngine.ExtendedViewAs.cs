@@ -17,7 +17,7 @@ public sealed partial class GameEngine
         if (kind == CardKind.Peach && ActiveDying is { } dying && !CanUsePeachToRescue(owner.Seat, dying.VictimSeat)) return [];
         return GetProgramMultiCardViewAsSelections(owner, kind, true).Where(selection =>
             (kind != CardKind.Peach || !IsShieldedRescueSelection(owner, selection)) &&
-            (kind != CardKind.Alcohol || IsWushuangJinzhiSelection(selection) || IsAnniversaryYizanSelection(selection) || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null || ViewAsRule(selection.Source)?.LeiluanBasicUse is not null)).Select(selection =>
+            (kind != CardKind.Alcohol || IsWushuangJinzhiSelection(selection) || IsAnniversaryYizanSelection(selection) || IsAnniversaryXunXuBoqiaSource(selection.Source) || ViewAsRule(selection.Source)?.RoundDistinctBasicUse is not null || ViewAsRule(selection.Source)?.LeiluanBasicUse is not null)).Select(selection =>
         {
             var parameters = new Dictionary<string, string> { ["response"] = "extended-view-as", ["output-kind"] = kind.ToString() };
             AddConversionParameters(parameters, selection.Source);
@@ -51,6 +51,7 @@ public sealed partial class GameEngine
         if (TryResolveLeiluanDyingResponse(owner, selection)) return;
         if (TryResolveWushuangJinzhiDyingAlcohol(owner, selection)) return;
         if (TryResolveAnniversaryYizanDyingAlcohol(owner, selection)) return;
+        if (TryResolveAnniversaryXunXuDyingAlcohol(owner, selection)) return;
         if (TryResolveRoundDistinctBasicDyingResponse(owner, selection)) return;
         if (kind == CardKind.Peach)
         {

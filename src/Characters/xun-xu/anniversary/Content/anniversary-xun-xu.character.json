@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xun-xu",
+  "skills": [
+    {
+      "registrationOrder": 46100,
+      "programBundle": "anniversary-xun-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:diyin",
+        "name": "笛音",
+        "description": "锁定技，你每失去七次牌后，你获得下一次进入弃牌堆的牌；当你受到伤害后，所有体力与你相同的角色各摸一张牌。",
+        "executionForms": "Trigger",
+        "tags": "Locked"
+      }
+    },
+    {
+      "registrationOrder": 46101,
+      "programBundle": "anniversary-xun-xu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "anniversary:boqia",
+        "name": "博洽",
+        "description": "每回合限一次，你可以将三张牌当一张基本牌或非伤害普通锦囊牌使用，若这三张牌的花色或类型均不同，此牌结算后你令一名角色将手牌调整至其体力上限，然后此技能可再次发动（每回合每种牌名限一次）。",
+        "actionForms": "Active",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 46102,
+      "pools": {
+        "current": 46102
+      },
+      "definition": {
+        "id": "anniversary:xun-xu",
+        "name": "荀勖",
+        "portraitKey": "anniversary-xun-xu",
+        "skillId": "anniversary:diyin",
+        "additionalSkillIds": [
+          "anniversary:boqia"
+        ],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:xun-xu",
+        "variantId": "anniversary",
+        "rulesetId": "sanguosha-anniversary"
+      }
+    }
+  ]
+}

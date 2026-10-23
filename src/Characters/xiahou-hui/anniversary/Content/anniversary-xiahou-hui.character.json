@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:xiahou-hui",
+  "skills": [
+    { "registrationOrder": 46200, "programBundle": "anniversary-xiahou-hui", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:dujun", "name": "笃君", "description": "游戏开始时，你选择一名其他角色，你不能响应其使用的牌。你与其每回合首次造成或受到伤害后，你可摸2张牌，然后将这些牌交给一名角色。", "executionForms": "Trigger" } },
+    { "registrationOrder": 46201, "programBundle": "anniversary-xiahou-hui", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:jikun", "name": "济困", "description": "每当你累计失去5张牌后，你可令一名其他角色随机获得手牌数最多的角色的1张牌。", "executionForms": "Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 46202, "pools": { "current": 46202 }, "definition": {
+    "id": "anniversary:xiahou-hui", "name": "夏侯徽", "portraitKey": "anniversary-xiahou-hui", "skillId": "anniversary:dujun", "additionalSkillIds": ["anniversary:jikun"],
+    "factionId": "wei", "baseHp": 3, "gender": "Female", "characterId": "character:xiahou-hui", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

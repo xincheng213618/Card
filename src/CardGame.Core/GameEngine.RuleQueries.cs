@@ -156,7 +156,7 @@ public sealed partial class GameEngine
             contributions), SkillRuleQuery.SlashLimit);
     }
 
-    private RuleQueryEvaluation EvaluateHandLimit(CharacterState player)
+    private RuleQueryEvaluation EvaluateHandLimit(CharacterState player, bool suppressHanSongYinbi = false)
     {
         var woundCount = HasProgramSkill(player, "classic:buqu") || HasProgramSkill(player, "boundary:buqu-current")
             ? GetBuquWounds(player).Count
@@ -197,11 +197,12 @@ public sealed partial class GameEngine
                 checked(allies * policy.Value));
         }
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
-        return ApplyZhangYiKangruiHandLimit(player, ApplyEquipmentSuitHandLimit(player, RuleQueryService.Evaluate(
+        var ordinary = ApplyZhangYiKangruiHandLimit(player, ApplyEquipmentSuitHandLimit(player, RuleQueryService.Evaluate(
             SkillRuleQuery.HandLimit,
             new RuleQueryBounds(0, int.MaxValue),
             baseTerms,
             contributions)));
+        return suppressHanSongYinbi ? ordinary : ApplyAnniversaryHanSongHandLimit(player, ordinary);
     }
 
     private RuleQueryEvaluation EvaluateCardTargetCount(CharacterState player, CardKind effectiveCardKind)
@@ -242,7 +243,8 @@ public sealed partial class GameEngine
             .Concat(ActivityRuleContributions(player, query))
             .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query))
             .Concat(HappyZlNumericContributions(player, query))
-            .Concat(AnniversaryZhangXunSlashContributions(player, query)).ToArray();
+            .Concat(AnniversaryZhangXunSlashContributions(player, query))
+            .Concat(AnniversaryHanSongNumericContributions(player, query)).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),
@@ -281,7 +283,8 @@ public sealed partial class GameEngine
             .Concat(ActivityRuleContributions(player, query))
             .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query))
             .Concat(HappyZlNumericContributions(player, query))
-            .Concat(AnniversaryZhangXunSlashContributions(player, query)).ToArray();
+            .Concat(AnniversaryZhangXunSlashContributions(player, query))
+            .Concat(AnniversaryHanSongNumericContributions(player, query)).ToArray();
     }
 
     private static void AddFiniteContribution(

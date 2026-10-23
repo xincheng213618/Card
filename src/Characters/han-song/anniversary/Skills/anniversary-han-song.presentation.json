@@ -1,0 +1,3 @@
+{"schemaVersion":3,"skills":{
+ "anniversary:shuaiyan":{"name":"率言","description":"其他角色摸牌阶段或弃牌阶段结束时，若其手牌数与你相等，你可以摸一张牌或弃置其一张牌。你的摸牌阶段或弃牌阶段结束时，你可以摸X张牌（X为与你手牌数相等的角色数）。","triggerLabels":{"own-draw-ended":"摸牌后率言","other-draw-ended":"他人摸牌后率言","own-discard-ended":"弃牌后率言","other-discard-ended":"他人弃牌后率言"}}
+}}

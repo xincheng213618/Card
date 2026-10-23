@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:dujun", "revision": 1, "triggers": [
+      { "id": "choose-partner", "window": "gameStarting", "subject": "owner", "optional": false, "effects": [
+        { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+        { "op": "bindAnniversaryXiahouHuiDujun", "target": "owner" }
+      ] },
+      { "id": "self-first-caused", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "optional": true, "effects": [
+        { "op": "draw", "target": "owner", "amount": 2, "resultBind": "dujun-drawn" },
+        { "op": "giveAnniversaryXiahouHuiDujunDrawnCards", "target": "owner", "sourceBind": "dujun-drawn" }
+      ] },
+      { "id": "self-first-received", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": true, "effects": [
+        { "op": "draw", "target": "owner", "amount": 2, "resultBind": "dujun-drawn" },
+        { "op": "giveAnniversaryXiahouHuiDujunDrawnCards", "target": "owner", "sourceBind": "dujun-drawn" }
+      ] },
+      { "id": "partner-first-caused", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": true, "effects": [
+        { "op": "draw", "target": "owner", "amount": 2, "resultBind": "dujun-drawn" },
+        { "op": "giveAnniversaryXiahouHuiDujunDrawnCards", "target": "owner", "sourceBind": "dujun-drawn" }
+      ] },
+      { "id": "partner-first-received", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": true, "effects": [
+        { "op": "draw", "target": "owner", "amount": 2, "resultBind": "dujun-drawn" },
+        { "op": "giveAnniversaryXiahouHuiDujunDrawnCards", "target": "owner", "sourceBind": "dujun-drawn" }
+      ] }
+    ] },
+    { "id": "anniversary:jikun", "revision": 1, "triggers": [
+      { "id": "five-hand-loss", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand"], "movementOccurrence": "perCard", "optional": true,
+        "effects": [ { "op": "resolveAnniversaryXiahouHuiJikun", "target": "owner" } ] },
+      { "id": "five-equipment-loss", "window": "cardsMoved", "subject": "owner", "sourceZones": ["equipment"], "movementOccurrence": "perCard", "optional": true,
+        "effects": [ { "op": "resolveAnniversaryXiahouHuiJikun", "target": "owner" } ] }
+    ] }
+  ]
+}

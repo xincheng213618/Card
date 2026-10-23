@@ -29,6 +29,7 @@ public sealed partial class GameEngine
 
     private bool HasCardPolicy(CharacterState owner, SkillProgramCardPolicyKind kind,
         CardKind? effectiveKind = null) =>
+        (kind is SkillProgramCardPolicyKind.IgnoreUseDistance or SkillProgramCardPolicyKind.UnlimitedAlcoholUse) && HasAnniversaryHanSongUniqueHand(owner) ||
         (kind is SkillProgramCardPolicyKind.IgnoreUseDistance or SkillProgramCardPolicyKind.UnlimitedAlcoholUse) && HasMouZhaJiangPreUsePrivilege(owner) ||
         kind == SkillProgramCardPolicyKind.UnlimitedAlcoholUse && HasBeifenPreUsePrivilege(owner) ||
         GetSkillBindingShard(owner).GetCardPolicies(kind).Count != 0 &&
@@ -45,6 +46,7 @@ public sealed partial class GameEngine
     private bool IsNearbyTargetResponseProhibited(int sourceSeat, int responderSeat,
         CardKind incomingKind, IReadOnlyList<int> targetSeats)
     {
+        if (AnniversaryXiahouHuiCannotRespond(sourceSeat, responderSeat)) return true;
         if (ShenZfCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
         if (ShenSunCeCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
         if (WushuangFuqiCannotRespond(sourceSeat, responderSeat)) return true;

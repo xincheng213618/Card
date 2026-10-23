@@ -74,6 +74,7 @@ public sealed partial class GameEngine
         if (TryFinishLeiluanAlcoholCost(use, card)) return;
         if (TryFinishRoundDistinctBasicAlcoholCost(use, card)) return;
         if (TryFinishAnniversaryYizanAlcoholCost(use, card)) return;
+        if (TryFinishAnniversaryXunXuAlcoholCost(use, card)) return;
         if (FinishMouJsAlcoholCost(use, card) || FinishHappyQiaoAlcoholCost(use, card)) return;
         if (SkipTieredRoundZeroFinishedMovement(use.Id, card)) return;
         if (SkipChainedStateBasicFinishedMovement(use.Id, card)) return;

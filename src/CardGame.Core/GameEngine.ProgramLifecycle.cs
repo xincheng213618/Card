@@ -2437,7 +2437,8 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.DrawPhaseSkipped => IsActualSkippedDrawContext(context),
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded =>
                 owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && _phase == TurnPhase.Draw ||
-                context.Window == SkillProgramTriggerWindow.DrawPhaseEnded && IsRecipientCategoryGiftDrawContext(candidate, context),
+                context.Window == SkillProgramTriggerWindow.DrawPhaseEnded &&
+                    (IsRecipientCategoryGiftDrawContext(candidate, context) || IsAnniversaryHanSongForeignDrawContext(candidate, context)),
             SkillProgramTriggerWindow.PlayEnding =>
                 context.SourceSeat == _currentSeat && _phase == TurnPhase.Play &&
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
@@ -3281,6 +3282,7 @@ public sealed partial class GameEngine
             owner, SkillProgramTriggerWindow.DrawPhaseEnded, facts);
         candidates = IncludeRecipientCategoryGiftObservers(owner, candidates);
         candidates = IncludeHongjiPhaseCandidates(owner, SkillProgramTriggerWindow.DrawPhaseEnded, candidates);
+        candidates = AppendAnniversaryHanSongDrawEndedCandidates(owner, candidates);
         if (candidates.Count == 0) return false;
         PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(
             ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.DrawPhaseEnded,

@@ -375,6 +375,9 @@ public static class GeneralGalleryCatalog
         groups.Add("anniversary:cai-yang", "other");
         groups.Add("anniversary:xing-dao-rong", "other");
         groups.Add("anniversary:zhu-zhi", "other");
+        groups.Add("anniversary:han-song", "other");
+        groups.Add("anniversary:xiahou-hui", "other");
+        groups.Add("anniversary:xun-xu", "other");
         groups.Add("ol:guan-hai", "other");
         groups.Add("ol:xie-ling-yu", "other");
         groups.Add("ol:li-feng", "other");

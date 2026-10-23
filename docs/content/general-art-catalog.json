@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-han-song",
+      "characterName": "韩嵩",
+      "defaultSkinId": "1135201",
+      "skins": [
+        {
+          "id": "1135201",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1352.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1135201.png",
+          "sha256": "216f1797ecd726e4f70d1e729e294e59d44dd6718961d2f8443422229a279b18",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-han-song.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-xiahou-hui",
+      "characterName": "夏侯徽",
+      "defaultSkinId": "1150501",
+      "skins": [
+        {
+          "id": "1150501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1505.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1150501.png",
+          "sha256": "c7995dcd4ecb272ec95653c9e491b4f21280f935009a0669754c0c56f305c1ce",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-xiahou-hui.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-xun-xu",
+      "characterName": "荀勖",
+      "defaultSkinId": "1172801",
+      "skins": [
+        {
+          "id": "1172801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1729.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1172801.png",
+          "sha256": "da1788c577ebef5a3f78b4ecad20bccb2bea8c5902ec6c69bc39773c114b0f4c",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-xun-xu.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-cai-yang",
       "characterName": "蔡阳",
       "defaultSkinId": "195501",

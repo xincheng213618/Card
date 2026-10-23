@@ -1,0 +1,8 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:shuaiyan","revision":1,"triggers":[
+  {"id":"own-draw-ended","window":"drawPhaseEnded","subject":"owner","turnOwnerScope":"own","optional":true,"effects":[{"op":"resolveAnniversaryHanSongShuaiyan","target":"owner"}]},
+  {"id":"other-draw-ended","window":"drawPhaseEnded","subject":"owner","turnOwnerScope":"otherLiving","optional":true,"effects":[{"op":"resolveAnniversaryHanSongShuaiyan","target":"owner"}]},
+  {"id":"own-discard-ended","window":"discardPhaseEnded","subject":"owner","turnOwnerScope":"own","allowOwnDiscardPhaseEnded":true,"optional":true,"effects":[{"op":"resolveAnniversaryHanSongShuaiyan","target":"owner"}]},
+  {"id":"other-discard-ended","window":"discardPhaseEnded","subject":"owner","turnOwnerScope":"otherLiving","optional":true,"effects":[{"op":"resolveAnniversaryHanSongShuaiyan","target":"owner"}]}
+ ]}
+]}

@@ -534,7 +534,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The configured Xiewei response has no exact issued public-pile payment.");
         var completedResponseUseSuit = HasHengwuCapability || actorSeat is null || actorSeat == responder.Seat
             ? FreezeCompletedResponseUseSuit(responder, current.Cards, selection.OutputKind) : null;
-        var leiluanAtomicPayment = ViewAsRule(current.Source)?.LeiluanBasicUse is not null;
+        var leiluanAtomicPayment = ViewAsRule(current.Source)?.LeiluanBasicUse is not null ||
+            IsAnniversaryXunXuBoqiaSource(current.Source);
         if (leiluanAtomicPayment && !xieweiPayment)
             MoveProgramCardsFromMultipleSources(current.Cards.Select(c => c.Id).ToArray(), CardLocation.Processing,
                 CardMoveReasons.Respond, disclosure: CardMovementDisclosure.FaceUp);
@@ -587,6 +588,7 @@ public sealed partial class GameEngine
 
     private void FinishProgramMultiCardResponse(ProgramMultiCardViewAsSelection selection)
     {
+        if (TryFinishAnniversaryXunXuResponseMaterials(selection)) return;
         foreach (var card in selection.Cards)
             if (!IsXieweiResponseRemovedMaterial(selection, card.Id) &&
                 !(IsWushuangJinzhiSelection(selection) && _cardZones.GetLocation(card.Id) != CardLocation.Processing))

@@ -1,0 +1,8 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:han-song",
+ "skills":[
+  {"registrationOrder":45900,"programBundle":null,"includeProgramPresentation":false,"definition":{"id":"anniversary:yinbi","name":"隐避","description":"锁定技，你的手牌上限等同于场上手牌上限最多的角色。若其他角色手牌数均与你不相等，你使用牌无距离及次数限制。","tags":"Locked","executionForms":"State"}},
+  {"registrationOrder":45901,"programBundle":"anniversary-han-song","includeProgramPresentation":true,"definition":{"id":"anniversary:shuaiyan","name":"率言","description":"其他角色摸牌阶段或弃牌阶段结束时，若其手牌数与你相等，你可以摸一张牌或弃置其一张牌。你的摸牌阶段或弃牌阶段结束时，你可以摸X张牌（X为与你手牌数相等的角色数）。","executionForms":"Trigger"}}
+ ],
+ "generals":[{"registrationOrder":45902,"pools":{"current":45902},"definition":{"id":"anniversary:han-song","name":"韩嵩","portraitKey":"anniversary-han-song","skillId":"anniversary:yinbi","additionalSkillIds":["anniversary:shuaiyan"],"factionId":"qun","baseHp":3,"gender":"Male","characterId":"character:han-song","variantId":"anniversary","rulesetId":"sanguosha-anniversary"}}]
+}

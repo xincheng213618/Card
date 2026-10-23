@@ -451,6 +451,12 @@ public enum SkillProgramEffectOp
     ResolveAnniversaryCaiYangJiaofeng = 45602,
     ResolveAnniversaryXingDaoRongXuHe = 45700,
     ResolveAnniversaryZhuZhiAnguo = 45800,
+    ResolveAnniversaryHanSongShuaiyan = 45900,
+    BindAnniversaryXiahouHuiDujun = 46200,
+    GiveAnniversaryXiahouHuiDujunDrawnCards = 46201,
+    ResolveAnniversaryXiahouHuiJikun = 46202,
+    ResolveAnniversaryXunXuDiyin = 46100,
+    ResolveAnniversaryXunXuBoqiaCompletion = 46101,
     InitializeMouDongChengBaojia = 37400, ResolveMouDongChengBaojia = 37401, ClaimMouDongChengBaojia = 37402, ResolveMouDongChengDouwei = 37403, ResolveMouDongChengDelayedSettlement = 37404,
     StartMouHuLieChuanyu = 37500,
     RegiveMouHuLieChuanyu = 37501,
@@ -4071,7 +4077,7 @@ public sealed class SkillProgramCatalog
             chainedStateCost.HasValue || tieredRound is not null || roundOnceCardless is not null || drawFunded is not null))
             Fail(path + ".sourcePileSkillId", "requires a single physical public-pile Slash or Dodge conversion");
         var fuleAlias = id.StartsWith("fu-alias-", StringComparison.Ordinal);
-        if (!(extended && inputCount == 1 && CardUseCategoryCatalog.Get(output) is CardUseCategories.Basic or CardUseCategories.DelayedTrick) && !fuleAlias && tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
+        if (!(extended && inputCount == 1 && CardUseCategoryCatalog.Get(output) is CardUseCategories.Basic or CardUseCategories.DelayedTrick) && !fuleAlias && !AnniversaryXunXuComposition.IsBoqiaRuleId(id) && tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
                 CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
                 CardKind.IronChain or CardKind.FireAttack or CardKind.UnexpectedAssault or CardKind.QizhengXiangsheng or CardKind.Nullification or CardKind.Peach or
                 CardKind.ArrowBarrage or CardKind.Alcohol or CardKind.Snatch))
@@ -4120,7 +4126,7 @@ public sealed class SkillProgramCatalog
         if (!forPlay && !forResponse) Fail(path, "at least one of forPlay or forResponse must be true");
         if (output == CardKind.Snatch && forResponse)
             Fail(path + ".forResponse", "snatch viewAs is play-only");
-        if (output == CardKind.Snatch && inputCount > 1)
+        if (output == CardKind.Snatch && inputCount > 1 && !AnniversaryXunXuComposition.IsBoqiaRuleId(id))
             Fail(path + ".inputCount", "snatch viewAs accepts one physical input only");
         if (output == CardKind.Dodge && forPlay)
             Fail(path + ".forPlay", "dodge is response-only and cannot be played proactively");
@@ -5559,7 +5565,7 @@ public sealed class SkillProgramCatalog
         // The provenance operation makes that existing boundary explicit without
         // changing the occurrence contract of historical discard programs.
         if (window == SkillProgramTriggerWindow.DiscardPileReceived &&
-            effects.Any(e => e.Op is SkillProgramEffectOp.ResolveAnniversaryZhangJiaoYizhao or SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance or SkillProgramEffectOp.StoreAdjacentDiscardedSlash or SkillProgramEffectOp.DrawFromOtherActualBasicDiscard or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard or SkillProgramEffectOp.GiveOffTurnUsedCards or SkillProgramEffectOp.ReclaimFriendXuanjian or SkillProgramEffectOp.YuejianRevealAndClaimUsedCard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi or SkillProgramEffectOp.ResolveAnniversaryXuJingShangyu))
+            effects.Any(e => e.Op is SkillProgramEffectOp.ResolveAnniversaryZhangJiaoYizhao or SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance or SkillProgramEffectOp.StoreAdjacentDiscardedSlash or SkillProgramEffectOp.DrawFromOtherActualBasicDiscard or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard or SkillProgramEffectOp.GiveOffTurnUsedCards or SkillProgramEffectOp.ReclaimFriendXuanjian or SkillProgramEffectOp.YuejianRevealAndClaimUsedCard or SkillProgramEffectOp.ReturnDiscardedSilvEntity or SkillProgramEffectOp.ResolveOrdinaryGuYongBingyi or SkillProgramEffectOp.ResolveAnniversaryXuJingShangyu or SkillProgramEffectOp.ResolveAnniversaryXunXuDiyin))
             movementOccurrence = node.TryGetProperty("movementOccurrence", out _)
                 ? EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path)
                 : effects.Any(e => e.Op is SkillProgramEffectOp.DrawFromOtherActualBasicDiscard or SkillProgramEffectOp.DiscardAfterActualOutsideDiscard or SkillProgramEffectOp.GiveOffTurnUsedCards)
@@ -5796,7 +5802,11 @@ public sealed class SkillProgramCatalog
             subject == SkillProgramTriggerSubject.Owner && condition.Kind == SkillProgramTriggerConditionKind.Always &&
             effects is [{ Op: SkillProgramEffectOp.ResolveHongjiGrantedPhase, Target: SkillProgramEffectTarget.Owner,
                 TargetReference: null, ActorReference: null, Condition.Kind: SkillProgramConditionKind.Always }];
-        if (window == SkillProgramTriggerWindow.DrawPhaseEnded && turnOwnerScope != SkillProgramTurnOwnerScope.Own && !isHongjiIssuedDraw &&
+        var isHanSongForeignDraw = skillId == "anniversary:shuaiyan" && turnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving && optional &&
+            subject == SkillProgramTriggerSubject.Owner && condition.Kind == SkillProgramTriggerConditionKind.Always &&
+            usageScope is null && usageLimit is null && effects is [{ Op: SkillProgramEffectOp.ResolveAnniversaryHanSongShuaiyan,
+                Target: SkillProgramEffectTarget.Owner, TargetReference: null, ActorReference: null, Condition.Kind: SkillProgramConditionKind.Always }];
+        if (window == SkillProgramTriggerWindow.DrawPhaseEnded && turnOwnerScope != SkillProgramTurnOwnerScope.Own && !isHongjiIssuedDraw && !isHanSongForeignDraw &&
             (turnOwnerScope != SkillProgramTurnOwnerScope.OtherLiving ||
              effects is not [{ Op: SkillProgramEffectOp.GiveHandAndGrantCategoryMark }]))
             Fail(path + ".turnOwnerScope", "other draw-phase completion requires the exact recipient category mark instruction");
