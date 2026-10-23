@@ -854,10 +854,10 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         var cue = item.Cue;
         if (cue.Kind == BattleCueKind.Draw || IsTransfer(cue)) return;
         if (cue.Kind == BattleCueKind.Card && !cue.IsInquiry && cue.Detail != "重铸" &&
-            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel &&
             seats.TryGetValue(cue.OriginSeat ?? cue.SourceSeat, out var source))
         {
-            // Both Slash painters retire at .65; the public card/highlight cue
+            // Declared blades retire at .65; the public card/highlight cue
             // remains alive longer, without needing further avoidance work.
             if (progress >= .65) return;
             foreach (var targetSeat in cue.TargetSeats)
@@ -866,7 +866,10 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
                 var route = item.GetSlashPath(targetSeat, source, target,
                     frame.SlashObstacles(cue.OriginSeat ?? cue.SourceSeat, targetSeat), frame.FlightViewport);
                 dc.PushClip(route.Clip);
-                BattleEffectPainter.Slash(dc, source, target, cue.CardKind.Value, progress, route);
+                if (cue.CardKind == CardKind.Duel)
+                    BattleEffectPainter.DuelChallenge(dc, source, target, progress, route);
+                else
+                    BattleEffectPainter.Slash(dc, source, target, cue.CardKind.Value, progress, route);
                 dc.Pop();
             }
             return;

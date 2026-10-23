@@ -13,9 +13,11 @@ namespace CardGame.Wpf;
 public partial class MainWindow
 {
     private sealed record CardAimGesture(MainViewModel Model, GameSnapshot Snapshot, CardViewModel Card,
-        Button Source, Point Start, MainViewModel.PlayCardAimDraft? Draft)
+        Button Source, HandPanel Hand, Point Start, MainViewModel.PlayCardAimDraft? Draft,
+        MainViewModel.PlayCardAimDraft? HandDraft)
     {
         public bool Started { get; set; }
+        public bool Reordering { get; set; }
     }
 
     private CardAimGesture? _cardAim;
@@ -60,7 +62,8 @@ public partial class MainWindow
     private void CardAimModelChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (_updatingCardAim || _cardAim is not { } gesture) return;
-        if (!IsCurrentCardAim(gesture) || gesture.Started && !gesture.Card.IsSelected) CancelCardAim();
+        if (!IsCurrentHandGesture(gesture) || gesture.Started && !gesture.Reordering &&
+            (!IsCurrentCardAim(gesture) || !gesture.Card.IsSelected)) CancelCardAim();
     }
 
     private void CardAimHandChanged(object? sender, NotifyCollectionChangedEventArgs e) => CancelCardAim();
@@ -90,46 +93,61 @@ public partial class MainWindow
     }
 
     // Press remains the ordinary hand click. Crossing the drag threshold turns
-    // that reversible selection into an aim; only release can confirm a play.
+    // that reversible selection into an aim or local reorder. Only an aim
+    // released on a valid table target can confirm a play.
     internal bool ArmCardAim(HandPanel hand, Point handPoint)
     {
         CancelCardAim();
         if (DataContext is not MainViewModel model || IsTableModalOpen(model) || !IsLoaded || !IsVisible ||
-            hand.CardButtonAt(handPoint) is not { IsEnabled: true, IsLoaded: true, IsVisible: true } source ||
-            source.DataContext is not CardViewModel card || !model.IsCardAimContext(card) ||
+            hand.CardButtonAt(handPoint) is not { IsLoaded: true, IsVisible: true } source ||
+            source.DataContext is not CardViewModel card ||
+            !model.CanReorderHandCard(card) && !model.IsCardAimContext(card) ||
             !ReferenceEquals(source.Command, model.SelectCardCommand) ||
             !ContainsAimPoint(HandViewport, hand.TranslatePoint(handPoint, CardTargeting))) return false;
-        _cardAim = new(model, model.ChoiceSnapshot, card, source,
-            hand.TranslatePoint(handPoint, CardTargeting), model.CapturePlayCardAimDraft(card));
+        _cardAim = new(model, model.ChoiceSnapshot, card, source, hand,
+            hand.TranslatePoint(handPoint, CardTargeting), model.CapturePlayCardAimDraft(card), model.CaptureHandOrderDraft(card));
         return true;
     }
 
-    private bool IsCurrentCardAim(CardAimGesture gesture) =>
+    private bool IsCurrentHandGesture(CardAimGesture gesture) =>
         ReferenceEquals(DataContext, gesture.Model) && ReferenceEquals(gesture.Model.ChoiceSnapshot, gesture.Snapshot) &&
-        !IsTableModalOpen(gesture.Model) && gesture.Model.IsCardAimContext(gesture.Card) &&
-        gesture.Source.IsLoaded && gesture.Source.IsVisible && gesture.Source.IsEnabled &&
+        !IsTableModalOpen(gesture.Model) &&
+        (gesture.Model.CanReorderHandCard(gesture.Card) || gesture.Model.IsCardAimContext(gesture.Card)) &&
+        gesture.Source.IsLoaded && gesture.Source.IsVisible &&
         ReferenceEquals(gesture.Source.DataContext, gesture.Card) && IsLoaded && IsVisible;
+
+    private bool IsCurrentCardAim(CardAimGesture gesture) => IsCurrentHandGesture(gesture) &&
+        gesture.Source.IsEnabled && gesture.Model.IsCardAimContext(gesture.Card);
 
     internal bool UpdateCardAim(Point point)
     {
         if (_cardAim is not { } gesture) return false;
-        if (!IsCurrentCardAim(gesture) || !double.IsFinite(point.X) || !double.IsFinite(point.Y))
+        if (!IsCurrentHandGesture(gesture) || !double.IsFinite(point.X) || !double.IsFinite(point.Y))
         { CancelCardAim(); return false; }
         if (!gesture.Started)
         {
             if (Math.Abs(point.X - gesture.Start.X) < SystemParameters.MinimumHorizontalDragDistance &&
                 Math.Abs(point.Y - gesture.Start.Y) < SystemParameters.MinimumVerticalDragDistance) return false;
+            gesture.Reordering = gesture.HandDraft is not null && ContainsAimPoint(HandViewport, point) &&
+                Math.Abs(point.X - gesture.Start.X) >= SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(point.X - gesture.Start.X) >= Math.Abs(point.Y - gesture.Start.Y);
             _updatingCardAim = true;
             try
             {
-                if (gesture.Draft is not null)
+                if (gesture.Reordering)
+                {
+                    if (!gesture.Model.RestorePlayCardAimDraft(gesture.HandDraft!)) { CancelCardAim(); return false; }
+                }
+                else if (!IsCurrentCardAim(gesture)) { CancelCardAim(); return false; }
+                else if (gesture.Draft is not null)
                 {
                     if (!gesture.Model.RestorePlayCardAimDraft(gesture.Draft)) { CancelCardAim(); return false; }
                 }
                 else if (!gesture.Card.IsSelected) gesture.Model.SelectCardCommand.Execute(gesture.Card);
             }
             finally { _updatingCardAim = false; }
-            if (!IsCurrentCardAim(gesture) || !gesture.Card.IsSelected) { CancelCardAim(); return false; }
+            if (!IsCurrentHandGesture(gesture) || !gesture.Reordering &&
+                (!IsCurrentCardAim(gesture) || !gesture.Card.IsSelected)) { CancelCardAim(); return false; }
             // Capture synchronizes the mouse and may synchronously re-enter
             // PreviewMouseMove before the original move has finished.
             _updatingCardAim = true;
@@ -140,8 +158,18 @@ public partial class MainWindow
             }
             finally { _updatingCardAim = false; }
         }
-        if (!ReferenceEquals(_cardAim, gesture) || !IsCurrentCardAim(gesture) ||
+        if (!ReferenceEquals(_cardAim, gesture) || !IsCurrentHandGesture(gesture) ||
             !ReferenceEquals(Mouse.Captured, this)) { CancelCardAim(); return false; }
+        if (gesture.Reordering)
+        {
+            SetAimTarget(null);
+            CardTargeting.PointerAimPoint = null;
+            CardTargeting.PointerAimAnchor = null;
+            CardTargeting.IsPointerAimValid = false;
+            CardTargeting.PointerAimLabel = ContainsAimPoint(HandViewport, point) ? "松开调整手牌顺序" : "移回手牌区调整顺序";
+            return true;
+        }
+        if (!IsCurrentCardAim(gesture)) { CancelCardAim(); return false; }
         var seatButton = SeatButtonAtAimPoint(point);
         var seat = seatButton?.CommandParameter as SeatViewModel;
         var validTarget = seat is { IsLegalTarget: true } && gesture.Model.Seats.Contains(seat);
@@ -165,7 +193,19 @@ public partial class MainWindow
         if (!gesture.Started) { CancelCardAim(); return false; }
         // Re-read the physical drop and current decision; a previous green
         // hover cannot authorize a later stale release.
-        if (!UpdateCardAim(point) || !IsCurrentCardAim(gesture)) { CancelCardAim(); return true; }
+        if (!UpdateCardAim(point)) { CancelCardAim(); return true; }
+        if (gesture.Reordering)
+        {
+            var target = ContainsAimPoint(HandViewport, point)
+                ? gesture.Hand.CardButtonAt(CardTargeting.TranslatePoint(point, gesture.Hand))?.DataContext as CardViewModel
+                : null;
+            // Unsubscribe the gesture before Move triggers CollectionChanged.
+            // The panel can then reflow the same containers from their poses.
+            CancelCardAim();
+            if (target is not null) gesture.Model.MoveHandCard(gesture.Card, target);
+            return true;
+        }
+        if (!IsCurrentCardAim(gesture)) { CancelCardAim(); return true; }
         var seat = CardTargeting.IsPointerAimValid ? _aimTarget?.CommandParameter as SeatViewModel : null;
         var openTable = CardTargeting.IsPointerAimValid && _aimTarget is null &&
             gesture.Model.CanAimCardWithoutTarget(gesture.Card);
