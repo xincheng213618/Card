@@ -84,7 +84,7 @@ internal static class PaidColorDamageClaimComposition
         SkillProgramTriggerWindow window, SkillProgramTriggerSubject? subject,
         SkillProgramTurnOwnerScope scope, bool optional)
     {
-        if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel) &&
+        if (effects.Any(e => PaidColorDuelOperation.IsPayment(e.Op)) &&
             (window != SkillProgramTriggerWindow.DrawPhaseEnded || subject != SkillProgramTriggerSubject.Owner ||
              scope != SkillProgramTurnOwnerScope.Own || !optional || effects.Count != 2 ||
              effects[0] is not { Op: SkillProgramEffectOp.SelectOwnedCards, Target: SkillProgramEffectTarget.Owner,
@@ -92,7 +92,7 @@ internal static class PaidColorDamageClaimComposition
              !selection.Zones.Contains(CardZoneKind.Hand) || !selection.Zones.Contains(CardZoneKind.Equipment) ||
              selection.CardKinds.Count != 0 || selection.Suits.Count != 0 || selection.TargetReference is not null ||
              selection.Condition.Kind != SkillProgramConditionKind.Always ||
-             effects[1].Op != SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel || effects[1].SourceBind != selection.ResultBind))
+             !PaidColorDuelOperation.IsPayment(effects[1].Op) || effects[1].SourceBind != selection.ResultBind))
             throw new InvalidOperationException($"Invalid skill program at {path}: paid opposite-color Duel requires one optional own completed-draw HE selection and its exact discard.");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ClaimActualTurnDamageEntities) &&
             (window != SkillProgramTriggerWindow.TurnEnding || subject != SkillProgramTriggerSubject.Owner ||

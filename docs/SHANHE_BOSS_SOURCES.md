@@ -509,6 +509,24 @@
 
 暴力复用 `damageSource` 来源加伤，新增最小的 `always` 条件合同，空牌种表示所有伤害，不能缩成部分牌或伪装为牌基础伤害。实际无来源伤害和失去体力不借用受害者的暴力；铁索沿现有本地继承金额、逐段重查有效来源的模型，不另造一次性去重，公开源没有专项传导FAQ。真实三条件、命中／闪／转移、已付摸牌孩子冷恢复、实体杀与无牌伤害、无来源／扣体力以及NPC发动已由[专项检查](../tests/CardGame.Core.Tests/ShanheZhulingChecks.cs)覆盖。
 
+### 当前S5：河北双雄2665、凉州猛将麹义2666与俊乂张郃2673
+
+2026-10-24重读公开[manifest](https://s.xiaochao.org/data/manifest.json)、[战斗表](https://s.xiaochao.org/data/battles.json)、[主组](https://s.xiaochao.org/data/enemy-groups.json)与[技能全文](https://s.xiaochao.org/data/enemy-references.json)，快照仍为 `generatedAt=2026-10-21T11:39:31.85Z`、S5。基础链与限制如下：
+
+| 原版章节与首领节点 | 战斗／主组与角色 | 基础技能 | 排除的固定牌 |
+| --- | --- | --- | --- |
+| chapter9小平津 → boss5098 | 2665河北双雄 → general550颜良文丑 | 14169双雄 | 噩梦20866 |
+| chapter9小平津 → boss5098 | 2666凉州猛将 → general374麹义 | 14170伏骑、14171骄恣 | 困难20611 |
+| chapter11河内 → boss5118 | 2673俊乂张郃 → general357张郃 | 14183周旋 | 困难20631 |
+
+三份战斗均为一名敌军，`groupId` 与主战斗同号、`startGeneralId=0`，各自新手组22665／22666／22673不解释为变身。原始面板均4/4、摸2／起手4／出杀1／护甲及增长0，基础固定牌和战法为空。本地分别投放大谷、虎牢、轘辕的基础单敌候选，三档无额外成长、装备或同行；胜利80铜钱、战后回复2点、位置和抽选为本地编排。群势力、男性与既有同名画像均为本地交互／美术映射。
+
+双雄不能直接复用固定伤害的普通版本。[独立包](../src/CardGame.Content.Standard/StandardShanheS5YanliangWenchouPackage.cs)和[规则](../src/Activities/Shanhe/Skills/shanhe-s5-yanliang-wenchou.rules.json)仅把实付手牌／装备牌后的转换增加本轮次数伤害：真实实付时固定X，后续异色原生决斗按本次已付转换来源绑定用牌ID，不在伤害时重读即时次数；双方反伤也沿同一决斗基础值。结束阶段领取本回合曾对自己造成伤害的实际实体仍沿既有致伤来源和逐批获牌流程。新轮重新计数，额外摸牌阶段可实际再发动，技能实例重获不抹掉角色本轮已付次数。
+
+麹义14170明确覆盖其他角色的使用／打出响应，没有普通伏骑的距离1限制；14171允许并列最多且加当前轮数，不能用普通骄恣的唯一最多、固定加1替代。[独立包](../src/CardGame.Content.Standard/StandardShanheS5QuyiPackage.cs)沿原生响应与来源／受害者伤害管线。无懈及反无懈依据当前窗口最后真实用牌者，不一直沿初始锦囊的使用者；同一角色自伤只计一次，无来源伤害不借占位来源的技能。铁索沿现有本地分段模型，公开源没有专项传导FAQ。
+
+张郃14183没有普通OL周旋的五张限制与下个出牌阶段结束期限。[官方SP张郃页](https://www.sanguosha.com/hero/357)支持普通版本确有这两项限制，也支持移去、首摸、再比较和追加摸牌的文字顺序；不能据官网把删掉的限制补回S5。[独立包](../src/CardGame.Content.Standard/StandardShanheS5ZhanghePackage.cs)通过[专版规则](../src/Activities/Shanhe/Skills/shanhe-s5-zhanghe.rules.json)增加不限量暗置并省去到期触发，消费沿原私密旋牌堆。额外X按移去一旋且首摸孩子返回后的剩余旋数量确定，这是沿既有顺序的本地执行消歧；专版与普通OL的数量、到期边界分离。
+
 ### 成长与阶段：已有字段不等于完整公式
 
 S5 的难度表可按 `seasonIds` 含 `5` 且 `id=1..25` 精确读取，分普通 / 中等 / 困难 / 噩梦 / 炼狱五组。静态叙述确认：中等 1 不再战后自动回血；困难 1 出现敌人护甲回复；噩梦 1 有难度突变；炼狱 1 从第二章起敌军伤害 +1。原始修正字段包括 `hp/draw/cardnum/skill/armor/getarmor/otherad/hprate/drawrate`；例如 S5 难度 25 为 `hp=2,draw=3,cardnum=4,skill=1,armor=6,getarmor=0,otherad=1,hprate=160,drawrate=160`。

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-shuangxiong-14169",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "completed-draw-round-paid-color",
+          "window": "drawPhaseEnded",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "selectOwnedCards", "target": "owner", "amount": 1, "zones": ["hand", "equipment"], "resultBind": "color-payment" },
+            { "op": "discardBoundCardForRoundScaledTurnDuel", "target": "owner", "sourceBind": "color-payment" }
+          ]
+        },
+        {
+          "id": "ending-causal-damage-entities",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            { "op": "claimActualTurnDamageEntities", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

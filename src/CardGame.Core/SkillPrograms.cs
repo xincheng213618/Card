@@ -215,6 +215,7 @@ public enum SkillProgramDamageModifierCondition
     SourceOutsideTargetAttackRange = 1,
     SourceNotFewerHandAndEquipmentThanTarget = 2,
     OwnerUniqueMaximumHand = 3,
+    OwnerMaximumHandCurrentRound = 5724,
     FaceStatesDiffer = 1021,
     ChainedFirePropagationOrigin = 1020,
     DamageSourceAttackRangeBelowThree = 1030,
@@ -905,6 +906,8 @@ public enum SkillProgramEffectOp
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     ChooseTrickOrAllHandDiscard = 5702, AllHandDiscardOrDifferenceDamageFromSelected = 5703,
     ResolveShanheS5Luoyi = 5710, BindOwnTurnEnemyHandGain = 5714, ResolveShanheS5Jixian = 5716,
+    DepositPersistentPrivateWhirl = 5730,
+    DiscardBoundCardForRoundScaledTurnDuel = 5720,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -3620,7 +3623,7 @@ public sealed class SkillProgramCatalog
         }
         else if (kind is not (SkillProgramCardPolicyKind.PindianRankBySuit or SkillProgramCardPolicyKind.PindianRankBonus) && (requiredKinds.Count != 0 || value != 0))
             Fail(path, "requiredCardKinds and value require a minimum response count policy");
-        if (kind is SkillProgramCardPolicyKind.XiaHuiBlackHandAndGainedEntityRestrictions or SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount or SkillProgramCardPolicyKind.RoundGainedOtherSourceUse or SkillProgramCardPolicyKind.DistanceOneToNotHigherHp or SkillProgramCardPolicyKind.SlashExtraTargetsByLostHp or SkillProgramCardPolicyKind.ClaimedEntitiesFaceDownUse or SkillProgramCardPolicyKind.SuppressOthersNonLockedDuringDying or SkillProgramCardPolicyKind.ProhibitBlackTrickTarget or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard or SkillProgramCardPolicyKind.OfferSkipDiscard or SkillProgramCardPolicyKind.DrawFromBottom or
+        if (kind is SkillProgramCardPolicyKind.ProhibitOthersResponse or SkillProgramCardPolicyKind.XiaHuiBlackHandAndGainedEntityRestrictions or SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount or SkillProgramCardPolicyKind.RoundGainedOtherSourceUse or SkillProgramCardPolicyKind.DistanceOneToNotHigherHp or SkillProgramCardPolicyKind.SlashExtraTargetsByLostHp or SkillProgramCardPolicyKind.ClaimedEntitiesFaceDownUse or SkillProgramCardPolicyKind.SuppressOthersNonLockedDuringDying or SkillProgramCardPolicyKind.ProhibitBlackTrickTarget or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard or SkillProgramCardPolicyKind.OfferSkipDiscard or SkillProgramCardPolicyKind.DrawFromBottom or
             SkillProgramCardPolicyKind.PreventEnteringChain or SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget or SkillProgramCardPolicyKind.ProhibitPindianTarget or
             SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianDiscardForMaximumDeck or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or SkillProgramCardPolicyKind.PindianRankBonus or
             SkillProgramCardPolicyKind.RewriteSuit or SkillProgramCardPolicyKind.EquipmentSuitHandLimitAtMaxHp or
@@ -3640,7 +3643,7 @@ public sealed class SkillProgramCatalog
                      SkillProgramCardPolicyKind.NextCardUnlimitedAfterNonLockedSkill or SkillProgramCardPolicyKind.DamageBecomesHpLoss or SkillProgramCardPolicyKind.OtherParticipantDamageBecomesHpLoss or
                      SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard))
             Fail(path + ".cardKinds", "this policy requires effective card kinds");
-        if (kind is SkillProgramCardPolicyKind.OtherParticipantDamageBecomesHpLoss or SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount &&
+        if (kind is SkillProgramCardPolicyKind.OtherParticipantDamageBecomesHpLoss or SkillProgramCardPolicyKind.StopUsingAfterTrickOrHpCount or SkillProgramCardPolicyKind.ProhibitOthersResponse &&
             (cardKinds.Count != 0 || requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null ||
              ownerRole is not null || factionId is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always))
             Fail(path, "This policy requires an unconditional unqualified definition.");
@@ -3721,7 +3724,7 @@ public sealed class SkillProgramCatalog
         if (kinds.Distinct().Count() != kinds.Count ||
             (kinds.Count == 0 && !unconditionalTargetCap && !unconditionalSourceDamage && !(
                 condition is
-                SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin
+                SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.OwnerMaximumHandCurrentRound or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin
                     or SkillProgramDamageModifierCondition.FaceStatesDiffer
                     or SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree
                     or SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree
@@ -3799,7 +3802,7 @@ public sealed class SkillProgramCatalog
             if (scope != SkillProgramDamageModifierSourceScope.DamageSource || kinds.Count != 0)
                 Fail(path, "source damage conditions require damageSource and every damage kind");
         }
-        else if (condition is SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin)
+        else if (condition is SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.OwnerMaximumHandCurrentRound or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin)
         {
             if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant || kinds.Count != 0)
                 Fail(path, "unique-maximum-hand damage requires damageParticipant and every damage kind");
@@ -3815,6 +3818,9 @@ public sealed class SkillProgramCatalog
             Fail(path + ".sourceScope", "card damage modifiers require ownerUsed");
         var damageLayer = node.TryGetProperty("damageLayer", out _)
             ? EnumValue<SkillProgramDamageLayer>(node, "damageLayer", path) : SkillProgramDamageLayer.AdditionalDamage;
+        if (condition == SkillProgramDamageModifierCondition.OwnerMaximumHandCurrentRound &&
+            (amount != 1 || capsToAmount || damageLayer != SkillProgramDamageLayer.AdditionalDamage))
+            Fail(path, "maximum-hand round damage requires amount 1, additionalDamage and no cap");
         if (damageLayer == SkillProgramDamageLayer.CardDamage && (scope != SkillProgramDamageModifierSourceScope.OwnerUsed || capsToAmount))
             Fail(path + ".damageLayer", "card damage requires an uncapped owner-used card modifier");
         if ((condition is SkillProgramDamageModifierCondition.BothParticipantsPublicEnemiesOfOwner or
@@ -5854,6 +5860,7 @@ public sealed class SkillProgramCatalog
         CaoYingContract.ValidateTrigger(path, parsedTrigger);
         FrozenHandRosterComposition.ValidateTrigger(path, parsedTrigger);
         PrivateWhirlContract.ValidateTrigger(path, parsedTrigger);
+        PersistentPrivateWhirlContract.ValidateTrigger(path, parsedTrigger);
         XuanGongZhuContract.ValidateTrigger(path, parsedTrigger);
         BuZhiComposition.ValidateTrigger(path, parsedTrigger);
         ZhaoXiangComposition.ValidateTrigger(path, parsedTrigger);

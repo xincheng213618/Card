@@ -325,6 +325,7 @@ internal sealed class ProgramAiChoiceSelector
 
     [ProgramAiChoice(
         SkillProgramEffectOp.DepositPrivateWhirlUntilNextPlayEnding,
+        SkillProgramEffectOp.DepositPersistentPrivateWhirl,
         SkillProgramEffectOp.ConsumePrivateWhirlForActualUse,
         SkillProgramEffectOp.ClearPrivateWhirlAtNextPlayEnding)]
     private static PromptChoice SelectAiPrivateWhirl(

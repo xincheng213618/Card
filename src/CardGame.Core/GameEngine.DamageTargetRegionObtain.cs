@@ -119,6 +119,7 @@ public sealed partial class GameEngine
 
     private int PrepareDamageTargetDuelDamage(long useId, int targetSeat)
     {
+        if (TryGetShanheS5ShuangxiongDuelBaseDamage(useId, out var scaled)) return scaled;
         if (LifecycleCardUse(useId)?.DamageTargetDuelOrigin is not { BaseDamage: { } amount } origin)
             return PrepareJueshengDuelDamage(useId, targetSeat);
         if (amount < 1 || LifecycleCardUse(useId) is not { } use || !use.TargetSeats.Contains(targetSeat) ||

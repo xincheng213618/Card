@@ -9,7 +9,7 @@ public sealed partial class GameEngine
         {
             var p = paid.Origin; var binding = GetProgramCardSet(root, paid.SourceBind);
             if (!MatchesPaidColorDrawOwner(root) || paid.InstructionIndex != root.InstructionIndex || root.InstructionIndex != 2 ||
-                plan.Instructions.Count != 2 || plan.Instructions[1].Op != SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel ||
+                plan.Instructions.Count != 2 || !PaidColorDuelOperation.IsPayment(plan.Instructions[1].Op) ||
                 plan.Instructions[1].SourceBind != paid.SourceBind || p.ActualTurnNumber != _turnNumber || p.TurnOwnerSeat != _currentSeat ||
                 p.GameplayHash != root.GameplayHash || !Enum.IsDefined(p.EffectiveSuit) || !IsActualPaidColorMovement(root.OwnerSeat, p) ||
                 binding.CardIds is not [var card] || card != p.CardId || binding.SourceLocations is not [var from] || from != p.From ||
@@ -129,7 +129,7 @@ public sealed partial class GameEngine
     [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 120)]
     private bool IsPaidColorDamageClaimMovement(ProgramSkillFrame root, SkillProgramEffect? op, ProgramMovementContinuation pending) =>
         pending.SubjectSeat == root.OwnerSeat && pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
-        (op?.Op == SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel && root.PaidColorConversion is not null ||
+        (op is not null && PaidColorDuelOperation.IsPayment(op.Op) && root.PaidColorConversion is not null ||
          op?.Op == SkillProgramEffectOp.ClaimActualTurnDamageEntities && root.ActualTurnDamageClaim is not null) && IsValidPaidColorDamageClaimFrame(root);
     private void AssertPaidColorDamageClaims()
     {

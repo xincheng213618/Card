@@ -68,6 +68,8 @@ public sealed partial class GameEngine
         var paidHand = action.CardId is { } id && ownHand.Any(card => card.Id == id) ? 1 : 0;
         var amount = kind is { } card && IsSlashCard(card)
             ? checked(1 + (_players[viewerSeat].HasAlcoholEffect ? Math.Max(1, _players[viewerSeat].AlcoholDamageBonus) : 0)) : 1;
+        if (damageKind == CardKind.Duel && TryGetShanheS5ShuangxiongPublicDuelBaseDamage(viewerSeat, action, out var scaled))
+            amount = scaled;
         return PredictVisibleDamage(view, viewerSeat, targetSeat, kind is null ? 0 : amount,
             kind, kind is not null, false, false, false, paidHand, HasArmorBypass(_players[viewerSeat]));
     }
@@ -139,6 +141,8 @@ public sealed partial class GameEngine
                 else additional = checked(additional + modifier.Amount);
             }
         }
+        if (!finalized)
+            additional = checked(additional + ShanheS5JiaoziPublicDamageBonus(view, sourceSeat, targetSeat, sourceLess, paidHandCards));
         cardLayer = Math.Max(0, cardLayer);
         if (!sourceLess && (HasVisiblePolicy(sourceState, sourceVisible, SkillProgramCardPolicyKind.DamageBecomesHpLoss) ||
             sourceSeat != targetSeat && (HasVisiblePolicy(sourceState, sourceVisible, SkillProgramCardPolicyKind.OtherParticipantDamageBecomesHpLoss) ||

@@ -55,7 +55,7 @@ public static partial class StandardShanheCampaignCatalog
     private static ShanheCampaignDefinition CreateCurrentBaseDefinition(int difficulty, string editionId) => editionId switch
     {
         LocalEditionId => CreateLegacyLocalDefinition(difficulty),
-        Returning2026EditionId => WithS5StrategyBossEncounters(WithS5CoalitionBossEncounters(WithS5ThreeBossEncounters(CreateReturning2026Definition(difficulty)))),
+        Returning2026EditionId => WithS5HebeiBossEncounters(WithS5StrategyBossEncounters(WithS5CoalitionBossEncounters(WithS5ThreeBossEncounters(CreateReturning2026Definition(difficulty))))),
         _ => throw new ArgumentException("Unknown Shanhe campaign edition.", nameof(editionId))
     };
 
@@ -79,7 +79,7 @@ public static partial class StandardShanheCampaignCatalog
         // Only the immediately preceding expedition content remains supported.
         if (editionId == Returning2026EditionId)
         {
-            var previous = WithS5CoalitionBossEncounters(WithS5ThreeBossEncounters(CreateReturning2026Definition(difficulty)));
+            var previous = WithS5StrategyBossEncounters(WithS5CoalitionBossEncounters(WithS5ThreeBossEncounters(CreateReturning2026Definition(difficulty))));
             if (checkpoint.Options.UseCodexRewardPool) previous = WithCodexRewards(previous, editionId);
             previous = WithSavedRoster(WithStartingResourcesContract(previous));
             if (string.Equals(ShanheCampaignContent.GetContentHash(previous), checkpoint.CampaignHash, StringComparison.Ordinal))

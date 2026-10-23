@@ -12,6 +12,7 @@ internal static class ShanheEncounterChecks
         var previous = catalog.GetMethod("CreateReturning2026Definition", BindingFlags.Static | BindingFlags.NonPublic)!;
         var threeBosses = catalog.GetMethod("WithS5ThreeBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var coalition = catalog.GetMethod("WithS5CoalitionBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var strategy = catalog.GetMethod("WithS5StrategyBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var codex = catalog.GetMethod("WithCodexRewards", BindingFlags.Static | BindingFlags.NonPublic)!;
         var resources = catalog.GetMethod("WithStartingResourcesContract", BindingFlags.Static | BindingFlags.NonPublic)!;
         foreach (var tier in new[] { 1, 2, 3 })
@@ -19,10 +20,11 @@ internal static class ShanheEncounterChecks
         {
             var old = (ShanheCampaignDefinition)previous.Invoke(null, [tier])!;
             old = (ShanheCampaignDefinition)threeBosses.Invoke(null, [old])!;
+            old = (ShanheCampaignDefinition)coalition.Invoke(null, [old])!;
             var earlier = useCodex ? (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])! : old;
             earlier = (ShanheCampaignDefinition)resources.Invoke(null, [earlier])!;
             var unsupportedEarlierHash = ShanheCampaignContent.GetContentHash(earlier);
-            old = (ShanheCampaignDefinition)coalition.Invoke(null, [old])!;
+            old = (ShanheCampaignDefinition)strategy.Invoke(null, [old])!;
             if (useCodex) old = (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])!;
             var unsupportedOlderHash = ShanheCampaignContent.GetContentHash(old);
             old = (ShanheCampaignDefinition)resources.Invoke(null, [old])!;
@@ -69,7 +71,7 @@ internal static class ShanheEncounterChecks
         const string edition = StandardShanheCampaignCatalog.Returning2026EditionId;
         var current = StandardShanheCampaignCatalog.CreateDefinition(1, edition);
         var encounters = current.Nodes.SelectMany(n => n.Encounters ?? []).Where(IsSourceEncounter).ToArray();
-        Need(encounters.Length == 9 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
+        Need(encounters.Length == 12 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
             .Nodes.SelectMany(n => n.Encounters ?? []).All(e => !IsSourceEncounter(e)), "Only the 2026 edition includes these verified source forms.");
         foreach (var encounter in encounters)
         {
@@ -112,11 +114,12 @@ internal static class ShanheEncounterChecks
     }
 
     private static bool IsCurrentAddition(ShanheEncounterDefinition encounter) => encounter.Id is
-        "hulao:zhuling-s5" or "huanyuan:zhouyu-s5" or "dagu:xuyou-jushou-s5" or "huanyuan:caoren-zhaoyun-s5";
+        "dagu:yanliang-wenchou-s5" or "hulao:quyi-s5" or "huanyuan:zhanghe-s5";
 
     private static bool IsSourceEncounter(ShanheEncounterDefinition encounter) => IsCurrentAddition(encounter) || encounter.Id is
         "guangcheng:zhangliang-s5" or "dagu:yuanshao-s5" or "huanyuan:xuchu-s5" or
-        "hulao:lukuang-luxiang-s5" or "huanyuan:chenlin-s5";
+        "hulao:lukuang-luxiang-s5" or "huanyuan:chenlin-s5" or "hulao:zhuling-s5" or "huanyuan:zhouyu-s5" or
+        "dagu:xuyou-jushou-s5" or "huanyuan:caoren-zhaoyun-s5";
 
     private static void Need(bool value, string message)
     {

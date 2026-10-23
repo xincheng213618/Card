@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-zhouxuan-14183",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-persistent-whirl",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [{ "op": "depositPersistentPrivateWhirl", "target": "owner" }]
+        },
+        {
+          "id": "use-persistent-whirl",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "effects": [{ "op": "consumePrivateWhirlForActualUse", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}
