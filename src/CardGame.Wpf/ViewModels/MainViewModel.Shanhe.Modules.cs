@@ -23,7 +23,7 @@ public sealed partial class MainViewModel
     public string ShanheShopNotice => IsShanheShopActive ? "行商已至 · 货品与价格以当前商店为准，购买后立即存档。" :
         "前往山河地图的「行商」节点交易。下方为本篇商旅货品图鉴，仅供预览，不代表当前库存。";
     public string ShanheBuildSummary => _shanheSession is { } session
-        ? $"基础整备 · 体力上限 +{session.Snapshot.Bonuses.MaxHp} · 起手 +{session.Snapshot.Bonuses.InitialHand} · 摸牌 +{session.Snapshot.Bonuses.Draw} · 出杀 +{session.Snapshot.Bonuses.Slash}   |   额外技能 {session.Snapshot.ExtraSkillIds.Count}/{session.Snapshot.ExtraSkillSlots} 槽"
+        ? $"{ShanheRankStatusText}   |   基础整备 · 体力上限 +{session.Snapshot.Bonuses.MaxHp} · 起手 +{session.Snapshot.Bonuses.InitialHand} · 摸牌 +{session.Snapshot.Bonuses.Draw} · 出杀 +{session.Snapshot.Bonuses.Slash}   |   额外技能 {session.Snapshot.ExtraSkillIds.Count}/{session.Snapshot.ExtraSkillSlots} 槽"
         : "尚未出征 · 可先浏览本篇战法，出征后在此查看基础整备与技能槽。";
     public string ShanheCodexNotice => ShanheCodexShowCollection ? "本次征程已获得的战法、额外技能与随身牌装备。" : "本篇全战法图鉴 · 查看效果，规划下一段征程。";
 

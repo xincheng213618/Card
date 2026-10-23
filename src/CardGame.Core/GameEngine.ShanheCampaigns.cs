@@ -16,6 +16,11 @@ public sealed partial class GameEngine
             return;
         }
         GodFactionSelectionRules.ValidateDefault(setup.DefaultGodFactionId);
+        _ = ShanheGeneralRanks.GetBonuses(setup.PlayerRank ?? 1);
+        if (setup.RebirthAvailable && setup.PlayerRank != 5 ||
+            setup.RebirthAvailable != setup.ExtraSkillIds.Contains(ShanheGeneralRanks.RebirthSkillId, StringComparer.Ordinal) ||
+            setup.TacticSkillIds.Contains(ShanheGeneralRanks.RebirthSkillId, StringComparer.Ordinal))
+            throw new ArgumentException("The Shanhe rebirth skill must match its fifth-rank expedition allowance.");
         var playerCount = 1 + setup.EnemyRoster.Count + setup.AllyRoster.Count;
         if (!isCampaignMode || mode.ModeKind != ContentModeKind.Team || options.Seed != setup.BattleSeed ||
             options.PlayerCount != playerCount || options.HumanSeat is not (0 or -1) || options.UseInteractiveSetup ||
@@ -31,7 +36,7 @@ public sealed partial class GameEngine
             throw new ArgumentException("The Shanhe opening recipe does not match this encounter mode.");
 
         ValidateMember(new(setup.PlayerGeneralId, setup.MaxHpBonus, setup.Hp, setup.InitialHandBonus,
-            setup.DrawBonus, setup.SlashBonus, setup.ExtraSkillIds));
+            setup.DrawBonus, setup.SlashBonus, setup.ExtraSkillIds), isPlayer: true);
         var tacticIdentities = new HashSet<string>(StringComparer.Ordinal);
         foreach (var id in setup.TacticSkillIds)
         {
@@ -54,13 +59,14 @@ public sealed partial class GameEngine
             setup.StartingEquipment.Select(c => EquipmentCatalog.Get(c.Kind).Slot).Distinct().Count() != setup.StartingEquipment.Count)
             throw new ArgumentException("Shanhe starting equipment needs one registered card per equipment slot.");
 
-        void ValidateMember(ShanheCombatantDefinition member)
+        void ValidateMember(ShanheCombatantDefinition member, bool isPlayer = false)
         {
             if (!registry.Generals.TryGetValue(member.GeneralId, out var general) ||
                 !registry.IsGeneralPlayable(member.GeneralId) || mode.GeneralPoolIds?.Contains(member.GeneralId) != true ||
                 member.MaxHpBonus is < 0 or > 40 || member.Hp is <= 0 || member.Hp > general.BaseHp + member.MaxHpBonus ||
                 member.InitialHandBonus is < 0 or > 20 || member.DrawBonus is < 0 or > 10 || member.SlashBonus is < 0 or > 10 ||
-                (member.ExtraSkillIds?.Count ?? 0) > 8 ||
+                (member.ExtraSkillIds?.Count ?? 0) > 8 + (isPlayer && setup.RebirthAvailable ? 1 : 0) ||
+                !isPlayer && (member.ExtraSkillIds ?? []).Contains(ShanheGeneralRanks.RebirthSkillId, StringComparer.Ordinal) ||
                 (member.ExtraSkillIds ?? []).Distinct(StringComparer.Ordinal).Count() != (member.ExtraSkillIds?.Count ?? 0) ||
                 (member.ExtraSkillIds ?? []).Any(id => !registry.Skills.TryGetValue(id, out var skill) ||
                     skill.ImplementationStatus != SkillImplementationStatus.Complete))

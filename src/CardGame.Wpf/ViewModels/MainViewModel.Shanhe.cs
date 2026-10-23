@@ -129,7 +129,7 @@ public sealed partial class MainViewModel
     }
     public string ShanheGoldText => $"铜币   {_shanheSession?.Snapshot.Gold ?? 0}";
     public string ShanheTacticsText => _shanheSession is { } session
-        ? $"基础整备：体力上限 +{session.Snapshot.Bonuses.MaxHp} · 起手 +{session.Snapshot.Bonuses.InitialHand} · 摸牌 +{session.Snapshot.Bonuses.Draw} · 出杀 +{session.Snapshot.Bonuses.Slash}\n战法 {session.Snapshot.TacticIds.Count} 项 · 可在「战法构筑」查看完整效果"
+        ? $"{ShanheRankStatusText}\n基础整备：体力上限 +{session.Snapshot.Bonuses.MaxHp} · 起手 +{session.Snapshot.Bonuses.InitialHand} · 摸牌 +{session.Snapshot.Bonuses.Draw} · 出杀 +{session.Snapshot.Bonuses.Slash}\n战法 {session.Snapshot.TacticIds.Count} 项 · 可在「战法构筑」查看完整效果"
         : "战法：征途中获得的成长会带入后续战斗。";
     public string ShanheBuildTabTitle => $"战法构筑 · {ShanheTacticCards.Count}";
     public string ShanheTacticEmptyText => ShanheTacticCards.Count == 0 ? "尚未获得战法。前往奇遇、战后奖励和行商，选择适合自己的组合。" : "战法在每场战斗中作为技能获得，由牌局规则处理触发、费用、次数与失效。";
@@ -225,7 +225,8 @@ public sealed partial class MainViewModel
             var difficulty = SelectedShanheDifficulty.Value;
             var definition = StandardShanheCampaignCatalog.CreateCodexDefinition(difficulty, SelectedShanheScenario.Id);
             var session = ShanheCampaignSession.Create(definition,
-                CreateCodexCampaignOptions(_seedOverride ?? RandomNumberGenerator.GetInt32(1, int.MaxValue), general.Id, definition),
+                CreateCodexCampaignOptions(_seedOverride ?? RandomNumberGenerator.GetInt32(1, int.MaxValue), general.Id, definition)
+                    with { PlayerRank = SelectedShanheRank.Value == 1 ? null : SelectedShanheRank.Value },
                 StandardShanheCampaignCatalog.CreateBattleRegistry);
             _shanheSession = session;
             _shanheResumeFailed = false;
@@ -254,9 +255,9 @@ public sealed partial class MainViewModel
             GameEngine? battle = null;
             if (session.PendingBattleSetup is { } setup)
             {
-                if (save.Battle is not { } checkpoint || checkpoint.Options.HumanSeat != 0 ||
-                    checkpoint.Options.Seed != setup.BattleSeed || checkpoint.ModeId != ShanheBattleSetup.BattleModeId ||
-                    !ShanheBattleSetup.ValueEquals(checkpoint.Options.ShanheBattle, setup))
+                if (save.Battle is not { } checkpoint || checkpoint.Options is not { } battleOptions || battleOptions.HumanSeat != 0 ||
+                    battleOptions.Seed != setup.BattleSeed || checkpoint.ModeId != ShanheBattleSetup.BattleModeId ||
+                    !ShanheBattleSetup.ValueEquals(battleOptions.ShanheBattle, setup))
                     throw new InvalidDataException("当前战斗与征程节点不一致。");
                 battle = GameReplay.Restore(checkpoint, StandardShanheCampaignCatalog.CreateBattleRegistry(setup));
             }
@@ -267,6 +268,7 @@ public sealed partial class MainViewModel
             SelectedShanheScenario = ShanheScenarios.Single(option => option.Id ==
                 StandardShanheCampaignCatalog.EditionIdForCampaign(session.Definition.Id, save.Difficulty));
             SelectedShanheDifficulty = ShanheDifficulties.Single(option => option.Value == save.Difficulty);
+            SelectedShanheRank = ShanheRanks.Single(option => option.Value == session.Snapshot.PlayerRank);
             if (battle is not null)
             {
                 _shanheTableGame = battle;
@@ -469,7 +471,7 @@ public sealed partial class MainViewModel
         RefreshShanheSettlement();
         ValidateShanheSkillReplacement();
         foreach (var property in new[] { nameof(ShanheCampaignTitle), nameof(ShanheRouteSummary), nameof(ShanheVitalText),
-            nameof(ShanheGoldText), nameof(ShanheTacticsText), nameof(ShanheSkillsText), nameof(ShanheContextTitle),
+            nameof(ShanheGoldText), nameof(ShanheTacticsText), nameof(ShanheSkillsText), nameof(ShanheRankStatusText), nameof(SelectedShanheRankDescription), nameof(ShanheContextTitle),
             nameof(ShanheContextDescription), nameof(IsShanheBattleActive), nameof(IsShanheBattleSession),
             nameof(ShanheBuildTabTitle), nameof(ShanheTacticEmptyText), nameof(ShanheStartingLoadoutText), nameof(ShanheEditionNotice), nameof(SelectedShanheGeneralMeta), nameof(HasShanheSession) }) RaisePropertyChanged(property);
         foreach (var command in new[] { StartShanheCommand, ContinueShanheCommand, ResumeShanheBattleCommand })

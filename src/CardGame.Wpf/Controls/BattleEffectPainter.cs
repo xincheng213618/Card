@@ -217,9 +217,14 @@ internal static class BattleEffectPainter
         }
     }
 
-    private static void DuelChallenge(DrawingContext dc, Rect source, Rect target, double p)
+    public static void DuelChallenge(DrawingContext dc, Rect source, Rect target, double p, SlashFlightPath? route = null)
     {
         if (source.Width <= 0 || target.IsEmpty || target.Width <= 0 || p >= .65) return;
+        if (route is { IsCompact: true })
+        {
+            RoutedDuelChallenge(dc, route, p);
+            return;
+        }
         var direction = Center(target) - Center(source);
         var distance = direction.Length;
         if (distance <= 1) return;
@@ -242,6 +247,50 @@ internal static class BattleEffectPainter
             // Opposed blades meet in the open table corridor. Neither one
             // strikes a portrait or predicts who will fail the Duel.
             DuelBlade(dc, head - facing * length, facing, length, side == 0 ? Gold : Cyan);
+        }
+        dc.Pop();
+    }
+
+    private static void RoutedDuelChallenge(DrawingContext dc, SlashFlightPath route, double p)
+    {
+        var travel = 1 - Math.Pow(1 - Math.Clamp(p / .36, 0, 1), 2);
+        var length = Math.Clamp(route.Length * .24, 18, 56);
+        var span = Math.Min(.24, length / Math.Max(1, route.Length));
+        var meeting = .5 - Math.Min(.04, 7 / Math.Max(1, route.Length));
+        var advance = span + (meeting - span) * travel;
+        dc.PushOpacity(Pulse(p, .01, .65));
+        for (var side = 0; side < 2; side++)
+        {
+            var sign = side == 0 ? 1 : -1;
+            var tip = side == 0 ? advance : 1 - advance;
+            var grip = tip - sign * span;
+            var edge = side == 0 ? Gold : Cyan;
+            const double breadth = 2.8;
+            var steps = Math.Max(2, (int)Math.Ceiling(span * route.Length / 4));
+            var blade = new StreamGeometry();
+            using (var path = blade.Open())
+            {
+                // Both blades follow the same clear corridor. A rigid blade
+                // would cut through its protected corners while turning.
+                path.BeginFigure(EdgePoint(0, -1), true, true);
+                for (var index = 1; index <= steps; index++) path.LineTo(EdgePoint(index / (double)steps, -1), true, false);
+                for (var index = steps - 1; index >= 0; index--) path.LineTo(EdgePoint(index / (double)steps, 1), true, false);
+            }
+            blade.Freeze();
+            dc.DrawGeometry(White, new Pen(edge, 1), blade);
+            var root = route.Position(grip);
+            var direction = route.Direction(grip) * sign;
+            var normal = new Vector(-direction.Y, direction.X);
+            dc.DrawLine(new Pen(edge, 2.3), root - normal * breadth * 2.5, root + normal * breadth * 2.5);
+            dc.DrawLine(new Pen(AshGold, 3) { EndLineCap = PenLineCap.Round }, root, root - direction * breadth * 3);
+
+            Point EdgePoint(double fraction, int sideSign)
+            {
+                var at = grip + (tip - grip) * fraction;
+                var tangent = route.Direction(at) * sign;
+                var width = breadth * Math.Min(1, (1 - fraction) / .22);
+                return route.Position(at) + new Vector(-tangent.Y, tangent.X) * width * sideSign;
+            }
         }
         dc.Pop();
     }

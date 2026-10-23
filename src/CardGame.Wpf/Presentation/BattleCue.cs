@@ -120,6 +120,25 @@ public static class BattleCueProjector
                 Array.AsReadOnly(new[] { group.Key.OwnerSeat }), $"摸牌 +{group.Sum(item => item.Count)}", Name(group.Key.OwnerSeat))
                 { DrawCount = group.Sum(item => item.Count) });
 
+        // These two Rende activations publicly give hand cards to another seat.
+        // The trusted movement payload also contains private faces: retain only
+        // the actual public source, recipient and count, never card identities.
+        var gifts = events.Where(envelope => envelope.Payload is CardMovedEvent
+            {
+                From: { Zone: CardZoneKind.Hand, OwnerSeat: { } giver },
+                To: { Zone: CardZoneKind.Hand, OwnerSeat: { } recipient },
+                Reason.Value: "skill-program.standard:rende.GiveSelected" or "skill-program.classic:rende.GiveSelected"
+            } && giver != recipient && playerView.Players.Any(player => player.Seat == giver) &&
+                playerView.Players.Any(player => player.Seat == recipient))
+            .GroupBy(envelope => (envelope.Revision,
+                Giver: ((CardMovedEvent)envelope.Payload).From.OwnerSeat!.Value,
+                Recipient: ((CardMovedEvent)envelope.Payload).To.OwnerSeat!.Value))
+            .ToDictionary(group => group.Max(envelope => envelope.Sequence), group =>
+                new BattleCue(group.Max(envelope => envelope.Sequence), BattleCueKind.CardTransfer, group.Key.Giver,
+                    Seats([group.Key.Recipient]), $"交给 {group.Count()} 张牌", Name(group.Key.Giver),
+                    Detail: $"交给{Name(group.Key.Recipient)}")
+                    { OriginZone = CardZoneKind.Hand, TransferCount = group.Count() });
+
         foreach (var envelope in events)
         {
             if (envelope.Payload is CardsRevealedEvent revealedCards)
@@ -303,6 +322,7 @@ public static class BattleCueProjector
             };
 
             if (draws.TryGetValue(envelope.Sequence, out var draw)) cue = draw;
+            if (gifts.TryGetValue(envelope.Sequence, out var gift)) cue = gift;
 
             if (cardPlays.TryGetValue(envelope.Sequence, out var cardPlay))
                 cue = cardPlay with { TargetSeats = cue?.TargetSeats ?? cardPlay.TargetSeats,

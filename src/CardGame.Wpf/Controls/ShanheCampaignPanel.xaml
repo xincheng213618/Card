@@ -238,15 +238,19 @@
           <TextBlock Text="{Binding ShanheGeneralPageText}" Foreground="#C7AC7D" FontSize="12" Margin="18,0" VerticalAlignment="Center"/>
           <Button x:Name="ShanheNextGeneralPageButton" Content="下一页" Command="{Binding NextShanheGeneralPageCommand}" Style="{StaticResource QuietCampaignButton}" Padding="12,4"/>
          </StackPanel>
-         <Grid Grid.Row="3" Margin="0,12,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="185"/></Grid.ColumnDefinitions>
+         <Grid Grid.Row="3" Margin="0,12,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="150"/><ColumnDefinition Width="12"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
           <StackPanel><TextBlock Text="征战剧本" Style="{StaticResource Caption}" Margin="0,0,0,4"/><ComboBox x:Name="ShanheScenarioSelector" ItemsSource="{Binding ShanheScenarios}" SelectedItem="{Binding SelectedShanheScenario, Mode=TwoWay}" DisplayMemberPath="Name" Style="{StaticResource SetupSelector}" AutomationProperties.Name="山河图剧本"/></StackPanel>
           <StackPanel Grid.Column="2"><TextBlock Text="征程难度" Style="{StaticResource Caption}" Margin="0,0,0,4"/><ComboBox x:Name="ShanheDifficultySelector" ItemsSource="{Binding ShanheDifficulties}" SelectedItem="{Binding SelectedShanheDifficulty, Mode=TwoWay}" DisplayMemberPath="Name" Style="{StaticResource SetupSelector}" AutomationProperties.Name="山河图难度"/></StackPanel>
+          <StackPanel Grid.Column="4"><TextBlock Text="出征将阶" Style="{StaticResource Caption}" Margin="0,0,0,4"/><ComboBox x:Name="ShanheRankSelector" ItemsSource="{Binding ShanheRanks}" SelectedItem="{Binding SelectedShanheRank, Mode=TwoWay}" DisplayMemberPath="Name" Style="{StaticResource SetupSelector}" IsEnabled="{Binding CanPrepareShanheExpedition}" AutomationProperties.Name="山河图出征将阶"/></StackPanel>
          </Grid>
-         <TextBlock Grid.Row="4" Text="{Binding SelectedShanheScenarioDescription}" Style="{StaticResource Caption}" FontSize="10" LineHeight="17" Margin="0,9,0,0"/>
+         <StackPanel Grid.Row="4" Margin="0,9,0,0">
+          <TextBlock Text="{Binding SelectedShanheRankDescription}" Foreground="#E8C779" FontSize="11" LineHeight="17" TextWrapping="Wrap"/>
+          <TextBlock Text="{Binding SelectedShanheScenarioDescription}" ToolTip="{Binding SelectedShanheScenarioDescription}" Style="{StaticResource Caption}" FontSize="10" LineHeight="17" MaxHeight="51" TextTrimming="CharacterEllipsis" Margin="0,5,0,0"/>
+         </StackPanel>
         </Grid>
        </Grid>
        <Grid Grid.Row="2" Margin="0,12,0,0">
-        <TextBlock VerticalAlignment="Center" MaxWidth="500" HorizontalAlignment="Left" Style="{StaticResource Caption}" Text="选择武将并确认出征。出征后，武将与初始战法固定至本次征程结束。"/>
+        <TextBlock VerticalAlignment="Center" MaxWidth="500" HorizontalAlignment="Left" Style="{StaticResource Caption}" Text="选择武将与将阶并确认出征。出征后，武将、将阶与初始战法固定至本次征程结束。"/>
         <Button x:Name="ShanheStartButton" Content="确 定 出 征" Command="{Binding StartShanheCommand}" Click="ExpeditionStarted" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" AutomationProperties.Name="使用已选武将与剧本开始新征程"/>
        </Grid>
       </Grid>

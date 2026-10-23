@@ -6,5 +6,6 @@ namespace CardGame.Core.RuntimeSkills;
 internal static class RuntimeRules_Core_SequentialDiscardPrograms
 {
     internal static bool IsSequentialDiscardOp(SkillProgramEffectOp op) => op is
-        SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected;
+        SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected or
+        SkillProgramEffectOp.ChooseTrickOrAllHandDiscard or SkillProgramEffectOp.AllHandDiscardOrDifferenceDamageFromSelected;
 }

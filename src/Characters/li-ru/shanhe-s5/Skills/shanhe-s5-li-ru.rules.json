@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "shanhe:s5-mieji-14175", "revision": 1,
+      "activations": [{ "id": "trick-or-all-hand", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLivingWithHand", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "chooseTrickOrAllHandDiscard", "target": "selectedTarget", "amount": 1 }] }] },
+    { "id": "shanhe:s5-fencheng-14176", "revision": 1,
+      "activations": [{ "id": "chosen-start-hand-difference-fire", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [{ "op": "allHandDiscardOrDifferenceDamageFromSelected", "target": "owner", "amount": 2 }] }] }
+  ]
+}

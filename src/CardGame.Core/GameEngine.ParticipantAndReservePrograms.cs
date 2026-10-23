@@ -270,6 +270,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or
                 SkillProgramEffectOp.EscalatingDiscardOrDamage or SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or
                 SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected or SkillProgramEffectOp.ChooseHandCountIntervention or
+                SkillProgramEffectOp.ChooseTrickOrAllHandDiscard or SkillProgramEffectOp.AllHandDiscardOrDifferenceDamageFromSelected or
                 SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or
                 SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge or SkillProgramEffectOp.DistributePublicPileIfAllSuits or
                 SkillProgramEffectOp.ObtainOneFromEachSelectedTarget or SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget or

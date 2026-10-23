@@ -10,7 +10,8 @@ public sealed partial class MainViewModel
     {
         private readonly MainViewModel _owner;
         private readonly GameEngine _game;
-        private readonly CardViewModel _card;
+        private readonly CardViewModel? _card;
+        private readonly int? _selectedCardId;
         private readonly long _revision;
         private readonly int _humanSeat;
         private readonly PromptId _promptId;
@@ -20,11 +21,12 @@ public sealed partial class MainViewModel
         private readonly int[] _targets;
         private readonly string _text;
 
-        internal PlayCardAimDraft(MainViewModel owner, CardViewModel card)
+        internal PlayCardAimDraft(MainViewModel owner, CardViewModel? card)
         {
             _owner = owner;
             _game = owner._game;
             _card = card;
+            _selectedCardId = owner._selectedCardId;
             _revision = owner._snapshot.Revision;
             _humanSeat = owner._snapshot.HumanSeat;
             _promptId = owner._snapshot.PendingDecision!.PromptId;
@@ -40,28 +42,28 @@ public sealed partial class MainViewModel
             if (!ReferenceEquals(owner, _owner) || !ReferenceEquals(owner._game, _game) ||
                 owner._snapshot.Revision != _revision || owner._game.Revision != _revision ||
                 owner._snapshot.HumanSeat != _humanSeat || owner._snapshot.PendingDecision?.PromptId != _promptId ||
-                !owner.IsCardAimContext(_card) ||
-                owner._selectedCardId is { } currentCardId && currentCardId != _card.Id)
+                (_card is null ? !owner.IsHandOrderContext() : !owner.IsCardAimContext(_card) ||
+                    owner._selectedCardId is { } currentCardId && currentCardId != _card.Id))
                 return false;
 
             // Re-resolve the captured source against this exact current view.
             // An incomplete physical-card draft can legitimately have no
             // source selected yet, so it need not already be confirmable.
-            var actions = owner.GetViewLegalActions().Where(action => action.CardId == _card.Id &&
+            var actions = owner.GetViewLegalActions().Where(action => action.CardId == _selectedCardId &&
                 action.ConversionSource == _conversion && (_playConversion is null || _playConversion.Mode?.Matches(action) == true)).ToArray();
-            if (_conversion is not null && actions.Length == 0 ||
+            if (_card is not null && (_conversion is not null && actions.Length == 0 ||
                 _target is { } target && !actions.Any(action => action.TargetSeats.Contains(target)) ||
-                _targets.Length > 0 && !actions.Any(action => _targets.All(action.TargetSeats.Contains)))
+                _targets.Length > 0 && !actions.Any(action => _targets.All(action.TargetSeats.Contains))))
                 return false;
 
-            owner._selectedCardId = _card.Id;
+            owner._selectedCardId = _selectedCardId;
             var changedPlayConversionMode = owner._playConversionSelection != _playConversion;
             owner._selectedConversionSource = _conversion;
             owner._playConversionSelection = _playConversion;
             owner._selectedTargetSeat = _target;
             owner._selectedCardTargetSeats.Clear();
             owner._selectedCardTargetSeats.UnionWith(_targets);
-            foreach (var card in owner.Hand) card.IsSelected = ReferenceEquals(card, _card);
+            foreach (var card in owner.Hand) card.IsSelected = card.Id == _selectedCardId;
             owner.SelectedCardText = _text;
             if (changedPlayConversionMode)
             {
@@ -70,6 +72,7 @@ public sealed partial class MainViewModel
                 return true;
             }
             owner.RebuildEquipmentPlayChoices(owner._snapshot.Players.Single(player => player.IsHuman), owner.GetViewLegalActions());
+            owner.RefreshEquipmentMaterialSelection();
             owner.RebuildPublicTargetChoices();
             owner.RebuildTargetCombinationChoices();
             owner.RefreshTargetHighlights();

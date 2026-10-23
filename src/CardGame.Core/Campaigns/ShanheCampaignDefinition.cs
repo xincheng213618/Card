@@ -51,6 +51,11 @@ public sealed record ShanheBattleSetup(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? DefaultGodFactionId { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? PlayerRank { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool RebirthAvailable { get; init; }
+
     public int BattleSeed => DeriveSeed(RunSeed, NodeId, EncounterOrdinal);
 
     public static bool ValueEquals(ShanheBattleSetup? left, ShanheBattleSetup? right) =>
@@ -61,6 +66,9 @@ public sealed record ShanheBattleSetup(
     {
         ArgumentNullException.ThrowIfNull(setup);
         GodFactionSelectionRules.ValidateDefault(setup.DefaultGodFactionId);
+        _ = ShanheGeneralRanks.GetBonuses(setup.PlayerRank ?? 1);
+        if (setup.RebirthAvailable && setup.PlayerRank != 5)
+            throw new ArgumentException("Only a fifth-rank Shanhe general may receive expedition rebirth.", nameof(setup));
         ArgumentNullException.ThrowIfNull(setup.ExtraSkillIds);
         ArgumentNullException.ThrowIfNull(setup.StartingCards);
         ArgumentNullException.ThrowIfNull(setup.StartingEquipment);

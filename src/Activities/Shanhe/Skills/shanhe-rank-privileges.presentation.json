@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:rank-five-rebirth": {
+      "name": "重生",
+      "description": "五阶特权，整次征程限一次，当你处于濒死状态时，你可以回复至5点体力，然后获得5张手牌。",
+      "triggerLabels": { "campaign-rebirth": "重生：回复至5体力，然后获得5张手牌" }
+    }
+  }
+}

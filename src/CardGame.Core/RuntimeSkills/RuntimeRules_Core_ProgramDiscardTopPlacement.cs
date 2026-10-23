@@ -66,6 +66,7 @@ internal static class RuntimeRules_Core_ProgramDiscardTopPlacement
                 nameof(SkillProgramEffectOp.DiscardTargetEquipment) or nameof(SkillProgramEffectOp.TakeSelectedTargetCards) or
                 nameof(SkillProgramEffectOp.ChooseCategoryAlternativeDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamage) or
                 nameof(SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected) or
+                nameof(SkillProgramEffectOp.ChooseTrickOrAllHandDiscard) or nameof(SkillProgramEffectOp.AllHandDiscardOrDifferenceDamageFromSelected) or
                 nameof(SkillProgramEffectOp.RequestAttackRangeAid) or nameof(SkillProgramEffectOp.PayEquipmentColorDiscard) or
                 nameof(SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp) or
                 nameof(SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage) or nameof(SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit) or nameof(SkillProgramEffectOp.PlaceMatchedJudgmentCard) or
