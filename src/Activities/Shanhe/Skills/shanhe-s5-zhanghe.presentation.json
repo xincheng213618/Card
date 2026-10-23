@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-zhouxuan-14183": {
+      "name": "周旋",
+      "description": "弃牌阶段开始时，你可以将任意张手牌暗置于你的武将牌上，称为“旋”。当你使用牌时，你移去一张“旋”并摸一张牌，若你的手牌不是唯一最多则额外摸X张牌（X为“旋”的数量）。",
+      "triggerLabels": {
+        "discard-persistent-whirl": "周旋：暗置任意张手牌为旋",
+        "use-persistent-whirl": "周旋：移去一旋，摸牌并比较当前手牌"
+      }
+    }
+  }
+}

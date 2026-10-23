@@ -4512,7 +4512,8 @@ public sealed partial class GameEngine
         while (pending.CandidateIndex < pending.CandidateSeats.Count)
         {
             var responder = _players[pending.CandidateSeats[pending.CandidateIndex]];
-            if (IsWenjiNullificationResponseForbidden(pending, responder.Seat) || WushuangFuqiNullificationBanned(responder.Seat))
+            if (IsWenjiNullificationResponseForbidden(pending, responder.Seat) || WushuangFuqiNullificationBanned(responder.Seat) ||
+                ShanheS5FuqiNullificationBanned(responder.Seat))
             {
                 pending = ReplaceNullificationWindowFrame(pending with { CandidateIndex = pending.CandidateIndex + 1, Step = ResolutionFrameStep.AwaitingResponse });
                 continue;
@@ -16226,6 +16227,10 @@ public sealed partial class GameEngine
                 ? item.modifier.Condition == SkillProgramDamageModifierCondition.BothParticipantsPublicEnemiesOfOwner &&
                   !attack.IsSourceLess && attack.SourceSeat != attack.TargetSeat &&
                   PublicTeamEnemy(item.seat, _players[attack.SourceSeat]) && PublicTeamEnemy(item.seat, _players[attack.TargetSeat])
+                : item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant &&
+                  item.modifier.Condition == SkillProgramDamageModifierCondition.OwnerMaximumHandCurrentRound
+                ? (item.seat == attack.TargetSeat || !attack.IsSourceLess && item.seat == attack.SourceSeat) &&
+                  IsShanheS5JiaoziQualified(item.seat)
                 : _players[attack.SourceSeat].IsAlive && (item.seat == attack.SourceSeat || item.seat == attack.TargetSeat) &&
                   (item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageSource
                 ? item.seat == attack.SourceSeat && !attack.IsSourceLess &&
@@ -16277,7 +16282,7 @@ public sealed partial class GameEngine
                       _ => false
                   }))))
             .Select(item => (new CardUseEffectSource(item.instance.SkillId, item.modifier.Id,
-                item.seat, item.instance.SkillInstanceId), item.modifier.Amount))
+                item.seat, item.instance.SkillInstanceId), ShanheS5JiaoziModifierAmount(item.modifier)))
             .ToArray();
     }
 

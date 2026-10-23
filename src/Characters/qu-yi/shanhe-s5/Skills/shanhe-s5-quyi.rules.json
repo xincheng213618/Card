@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-fuqi-14170", "revision": 1,
+      "cardPolicies": [
+        { "id": "other-players-cannot-respond", "kind": "prohibitOthersResponse", "cardKinds": [], "value": 0 }
+      ]
+    },
+    {
+      "id": "shanhe:s5-jiaozi-14171", "revision": 1,
+      "damageModifiers": [
+        { "id": "most-hand-current-round", "cardKinds": [], "amount": 1, "condition": "ownerMaximumHandCurrentRound", "sourceScope": "damageParticipant" }
+      ]
+    }
+  ]
+}

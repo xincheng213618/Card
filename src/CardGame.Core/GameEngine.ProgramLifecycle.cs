@@ -1012,6 +1012,7 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.PublicTeamEnemiesWithFaceDownAlly => PublicTeamEnemy(ownerSeat, target) &&
                     _players.Any(p => p.IsAlive && p.IsFaceDown && SamePublicTeam(_players[ownerSeat], p)),
                 SkillProgramTargetKind.OtherLiving => target.Seat != ownerSeat,
+                SkillProgramTargetKind.OtherLivingShanheS5Jixian => IsShanheS5JixianTarget(ownerSeat, target),
                 SkillProgramTargetKind.OtherLivingMale =>
                     target.Seat != ownerSeat && target.Gender == GeneralGender.Male,
                 SkillProgramTargetKind.AnyLivingMale => target.Gender == GeneralGender.Male,

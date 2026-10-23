@@ -144,7 +144,7 @@ public sealed partial class GameEngine
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 700)]
     private bool CanRunPaidColorDamageClaim(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
-        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel))
+        if (trigger.Effects.Any(e => PaidColorDuelOperation.IsPayment(e.Op)))
             return context.Window == SkillProgramTriggerWindow.DrawPhaseEnded && context.OwnerSeat == _currentSeat &&
                 GetHand(_players[candidate.OwnerSeat]).Count + GetEquipment(_players[candidate.OwnerSeat]).Count > 0;
         return true; // The mandatory Ending branch is independent, including an empty result.

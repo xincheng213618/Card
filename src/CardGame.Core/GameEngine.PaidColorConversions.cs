@@ -135,7 +135,7 @@ public sealed partial class GameEngine
             var program = _contentRegistry.GetSkill(g.Source.SkillId).Program;
             var trigger = program?.Triggers.SingleOrDefault(t => t.Id == g.Source.BindingId);
             if (program?.GameplayHash != p.GameplayHash || trigger is null || trigger.Window != SkillProgramTriggerWindow.DrawPhaseEnded ||
-                g.EffectIndex != 1 || trigger.Effects.Count != 2 || trigger.Effects[1].Op != SkillProgramEffectOp.DiscardBoundCardForOppositeTurnDuel ||
+                g.EffectIndex != 1 || trigger.Effects.Count != 2 || !PaidColorDuelOperation.IsPayment(trigger.Effects[1].Op) ||
                 trigger.Effects[1].SourceBind != g.SourceBind || p.ActualTurnNumber != g.TurnNumber || p.TurnOwnerSeat != g.TurnSeat ||
                 g.Source.OwnerSeat != g.TurnSeat || g.BoundCardIsRed != IsRedSuit(p.EffectiveSuit) || !HasActualRedOrBlackSuit(p.EffectiveSuit) ||
                 g.OutputKind != CardKind.Duel || !IsValidPlayerSeat(g.Source.OwnerSeat) || !IsActualPaidColorMovement(g.Source.OwnerSeat, p) ||

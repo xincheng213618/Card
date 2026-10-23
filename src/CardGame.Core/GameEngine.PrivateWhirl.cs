@@ -22,7 +22,7 @@ public sealed partial class GameEngine
     {
         if (trigger.Effects is not [var effect]) return true;
         var deposits = LiveWhirl(candidate.OwnerSeat, candidate.SkillId, candidate.SkillInstanceId);
-        if (effect.Op == SkillProgramEffectOp.DepositPrivateWhirlUntilNextPlayEnding) return LiveWhirl(candidate.OwnerSeat).Length < 5 && GetHand(_players[candidate.OwnerSeat]).Count > 0;
+        if (IsPrivateWhirlDeposit(effect.Op)) return LiveWhirl(candidate.OwnerSeat).Length < PrivateWhirlMaximum(candidate.SkillId) && GetHand(_players[candidate.OwnerSeat]).Count > 0;
         if (effect.Op == SkillProgramEffectOp.ClearPrivateWhirlAtNextPlayEnding) return deposits.Any(d => _cardUseDebitPhaseInstanceId > d.CreatedPlayInstance);
         if (effect.Op != SkillProgramEffectOp.ConsumePrivateWhirlForActualUse) return true;
         return deposits.Length > 0 && context.CardUse is { } card && LifecycleCardUse(card.ParentCardUseFrameId) is { Action: { Type: CardActionType.Use } action } &&
@@ -34,7 +34,7 @@ public sealed partial class GameEngine
         if (f.PrivateWhirl is not null || f.WindowContext is not { } context || !WhirlSourceCurrent(f) || !CanOfferPrivateWhirl(new(f.OwnerSeat, f.SkillId, f.TriggerId!, f.SkillInstanceId, f.GameplayHash, GetProgramTrigger(f).Priority), GetProgramTrigger(f), context)) throw new InvalidOperationException("Whirl requires an unpaid current source and exact offered boundary.");
         _hasIssuedPrivateWhirl = true;
         var r = new PrivateWhirlReceipt { InstructionIndex = f.InstructionIndex, Source = WhirlSource(f), GameplayHash = f.GameplayHash, WindowId = context.ParentFrameId, CreatedPlayInstance = _cardUseDebitPhaseInstanceId };
-        if (effect.Op == SkillProgramEffectOp.DepositPrivateWhirlUntilNextPlayEnding) r = r with { Stage = PrivateWhirlStage.SelectDeposit };
+        if (IsPrivateWhirlDeposit(effect.Op)) r = r with { Stage = PrivateWhirlStage.SelectDeposit };
         else if (effect.Op == SkillProgramEffectOp.ConsumePrivateWhirlForActualUse)
         { var use = LifecycleCardUse(context.CardUse!.ParentCardUseFrameId)!; r = r with { Stage = PrivateWhirlStage.SelectRemove, OriginalAction = use.Action, UseId = use.Id, Deposits = LiveWhirl(f.OwnerSeat, f.SkillId, f.SkillInstanceId) }; }
         else r = r with { Stage = PrivateWhirlStage.ExpiryChildren, Deposits = LiveWhirl(f.OwnerSeat, f.SkillId, f.SkillInstanceId).Where(d => _cardUseDebitPhaseInstanceId > d.CreatedPlayInstance).ToArray() };
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
         var r = f.PrivateWhirl!; var choices = new List<PromptChoice>();
         if (r.Stage == PrivateWhirlStage.SelectDeposit)
         {
-            if (r.Selected.Count + LiveWhirl(f.OwnerSeat).Length < 5) choices.AddRange(GetHand(_players[f.OwnerSeat]).Where(c => !r.Selected.Contains(c.Id)).Select(c => WhirlChoice(f, $"add-{c.Id}", $"暗置{c.DisplayName}（{c.Suit} {c.RankText}）", [c.Id])));
+            if (r.Selected.Count + LiveWhirl(f.OwnerSeat).Length < PrivateWhirlMaximum(f.SkillId)) choices.AddRange(GetHand(_players[f.OwnerSeat]).Where(c => !r.Selected.Contains(c.Id)).Select(c => WhirlChoice(f, $"add-{c.Id}", $"暗置{c.DisplayName}（{c.Suit} {c.RankText}）", [c.Id])));
             choices.Add(WhirlChoice(f, "confirm", $"确认暗置{r.Selected.Count}张手牌", r.Selected));
         }
         else if (r.Stage == PrivateWhirlStage.SelectRemove) choices.AddRange(r.Deposits.Where(d => _cardZones.GetLocation(d.CardId) == d.Location).Select(d => WhirlChoice(f, $"remove-{d.CardId}", $"移去旋中的{GetAttackCard(d.CardId).DisplayName}", [d.CardId])));
@@ -119,10 +119,10 @@ public sealed partial class GameEngine
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 60)]
     private bool CanContinuePrivateWhirl(ProgramSkillFrame f) { if (f.PrivateWhirl is not { } r || r.Stage is PrivateWhirlStage.SelectDeposit or PrivateWhirlStage.SelectRemove) return false; RequirePrivateWhirl(f); return true; }
     [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 80)]
-    private bool IsPrivateWhirlMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) => CanContinuePrivateWhirl(f) && (effect?.Op is SkillProgramEffectOp.DepositPrivateWhirlUntilNextPlayEnding or SkillProgramEffectOp.ConsumePrivateWhirlForActualUse or SkillProgramEffectOp.ClearPrivateWhirlAtNextPlayEnding) && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;
+    private bool IsPrivateWhirlMovement(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation pending) => CanContinuePrivateWhirl(f) && (effect?.Op is SkillProgramEffectOp.DepositPrivateWhirlUntilNextPlayEnding or SkillProgramEffectOp.DepositPersistentPrivateWhirl or SkillProgramEffectOp.ConsumePrivateWhirlForActualUse or SkillProgramEffectOp.ClearPrivateWhirlAtNextPlayEnding) && pending.SubjectSeat == f.OwnerSeat && pending.CoverageResultBind is null;
     private void RequirePrivateWhirl(ProgramSkillFrame f)
     {
-        if (f.PrivateWhirl is not { } r || r.Source != WhirlSource(f) || r.GameplayHash != f.GameplayHash || r.InstructionIndex != f.InstructionIndex || r.WindowId != f.WindowContext?.ParentFrameId || r.Selected.Distinct().Count() != r.Selected.Count || r.Selected.Count > 5 || r.Before > r.After || r.After > _movementSequence || r.DrawCount is < 0 or > 5) throw new InvalidOperationException("Whirl lost its immutable owning source, instruction, selection or paid movement.");
+        if (f.PrivateWhirl is not { } r || r.Source != WhirlSource(f) || r.GameplayHash != f.GameplayHash || r.InstructionIndex != f.InstructionIndex || r.WindowId != f.WindowContext?.ParentFrameId || r.Selected.Distinct().Count() != r.Selected.Count || r.Selected.Count > PrivateWhirlMaximum(f.SkillId) || r.Before > r.After || r.After > _movementSequence || r.DrawCount < 0 || r.DrawCount > PrivateWhirlMaximum(f.SkillId)) throw new InvalidOperationException("Whirl lost its immutable owning source, instruction, selection or paid movement.");
         if (r.OriginalAction is { } original && (original.Type != CardActionType.Use || original.ActorSeat != f.OwnerSeat || original.ActionId != f.WindowContext?.CardUse?.CardActionId || r.UseId != f.WindowContext?.CardUse?.ParentCardUseFrameId || LifecycleCardUse(r.UseId!.Value)?.Action is not { } actual || !SameOverflowAction(original, actual))) throw new InvalidOperationException("Whirl lost its exact committed actual use.");
         if (r.Stage is PrivateWhirlStage.SelectDeposit or PrivateWhirlStage.SelectRemove) return;
         var facts = CompleteProgramEventHistory().OfType<PrivateWhirlSegmentIssuedEvent>().Where(e => e.ProgramFrameId == f.Id && e.Source == r.Source && e.Stage == r.Stage && e.Before == r.Before && e.After == r.After).ToArray();

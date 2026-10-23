@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-fuqi-14170": {
+      "name": "伏骑",
+      "description": "锁定技，其他角色不能使用或打出牌响应你使用的牌。"
+    },
+    "shanhe:s5-jiaozi-14171": {
+      "name": "骄恣",
+      "description": "锁定技，若你的手牌数为全场最多，你造成或受到的伤害值+X。（X为当前轮数）"
+    }
+  }
+}

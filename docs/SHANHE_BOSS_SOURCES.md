@@ -481,11 +481,51 @@
 
 本地2026路线分别在虎牢、轘辕追加独立单敌候选，三档均保留基础形态；位置、抽选、胜利80铜钱及战后回复2点均为本地编排，不代表原版章节和成长。群势力吕旷吕翔、魏势力陈琳、男性及既有同名画像为本地交互／美术映射。仅实际角色配方加载两个独立包；已有普通技能的额外授予不导入对应S5角色，不新增规则节点、版本号或重复定义快照检查。
 
-### 当前S5：悍将朱灵2664的接入边界
+### 当前S5：年少风华周瑜2652与谋臣双璧2661
+
+2026-10-24重读同一公开[manifest](https://s.xiaochao.org/data/manifest.json)、[战斗](https://s.xiaochao.org/data/battles.json)、[主组](https://s.xiaochao.org/data/enemy-groups.json)及[技能全文](https://s.xiaochao.org/data/enemy-references.json)，生成时间仍为 `2026-10-21T11:39:31.85Z`、S5。周瑜链为 chapter6伊阙关 → 首领节点5068 → battle/group2652年少风华 → general308周瑜，单敌3/3，基础712英姿、713反间；困难20641赤炎镇魂琴与噩梦20636国风玉袍不属于基础形态。基础摸牌2不预先计入英姿的额外1张。
+
+712的锁定摸牌加一及手牌上限等于体力上限、713的展示交牌后由受牌者选择同花色弃牌或失去体力，与现有 `boundary:yingzi`／`boundary:fanjian` 相同。[官方界周瑜页](https://www.sanguosha.com/hero/308)支持这两条正文，[2014官方界周瑜说明](https://www.sanguosha.com/news/20140624_7195_0918)进一步说明反间的同花色弃牌含装备区。不能替换为可选英姿、猜花色造成伤害的经典版本。独立[周瑜包](../src/CardGame.Content.Standard/StandardShanheS5ZhouyuPackage.cs)复用原程序，不复制定义。
+
+谋臣双璧链为 chapter8孟津 → 首领节点5088 → battle/group2661 → general406许攸、330沮授，战斗明确 `enemyCount=2`。沮授虽标记 `boss:false`，仍是第二名敌军；两人均3/3。许攸814成略、815恃才、816寸目精确复用 `classic:chenglue`／`classic:shicai`／`classic:cunmu`；沮授491渐营、492矢北复用 `classic:jianying`／`classic:shibei`，不引入界渐营的基本牌转化。噩梦3314藏心、869观星排除。[双将包](../src/CardGame.Content.Standard/StandardShanheS5XuyouJushouPackage.cs)保留完整基础阵容。
+
+两份战斗均 `startGeneralId=0`，22652／22661分别指独立新手组，不作变身关系。各角色基础摸2／起手4／杀1／护甲及增长0，基础固定牌和战法为空。吴／群势力、男性及既有画像为本地交互和美术映射。[本地投放](../src/CardGame.Content.Standard/StandardShanheCampaignCatalog.S5StrategyBosses.cs)在轘辕增加周瑜单敌、大谷增加许攸／沮授双敌；三档基础形态不推算原版成长，胜利铜钱和回复、本地位置及抽选均另行编排，仅2026入口追加。
+
+### 当前S5：双雄际会曹仁与赵云2678
+
+同次公开快照闭合 S5 → chapter12酸枣（order3、openDifficulty11）→ 首领节点5128 → battle/group2678双雄际会 → general111曹仁、108赵云。战斗 `enemyCount=2`、`startGeneralId=0`、`cityIds=[5128]`；22678为独立新手组。完整基础阵容是曹仁4/4、赵云3/3，各摸2／起手4／杀1／护甲及增长0，无固定牌或战法，不缩成单敌候选。
+
+曹仁372伪溃、373励战与 `ol:weikui`／`ol:lizhan` 相符；赵云37龙胆、208冲阵与 `sp:longdan`／`sp:chongzhen` 成套相符，冲阵需要真实龙胆转换来源，不能替换成其他同名版本。[独立包](../src/CardGame.Content.Standard/StandardShanheS5CaorenZhaoyunPackage.cs)直接复用既有规则。曹仁困难7005夷灭、噩梦3296恶意与赵云困难34咆哮、噩梦301武神均排除。魏／群势力、男性及既有画像为本地映射。
+
+本地只向2026轘辕追加完整双敌候选，三档均不添加数值成长、装备或同行；原版酸枣位置、完整难度和500铜钱奖励不冒充已经还原，本地胜利100铜钱、战后回复2点及抽选另行编排。
+
+### 当前S5：悍将朱灵2664
 
 同一公开快照可闭合 chapter9小平津 → 首领节点5098 → battle/group2664悍将朱灵 → general489，基础4/4、摸2／起手4／杀1／护甲及增长0。基础3056急陷要求摸牌阶段结束时，按目标有防具、技能比自己多、未受伤三个条件的命中数量X，使用真实杀并摸X张牌；若没有伤害该原目标，自己失去1点体力。3327暴力是所有来源伤害+1。374伏骑、20871斩魂刀均标噩梦，不加入基础形态。
 
-该形态尚未接入。现有OL朱灵持有战意，`classic:jixian` 则是嵇康的激弦，均不能替代急陷。后续需补三条件候选与冻结X，并沿原生用牌结果核对原目标受伤，不能用整次用牌曾造成伤害代替。暴力还需扩展无条件来源伤害修正的加载合同和运行期条件，不能列举部分卡牌来缩窄其范围。
+本地新增[独立包](../src/CardGame.Content.Standard/StandardShanheS5ZhulingPackage.cs)与[独立规则](../src/Characters/zhu-ling/shanhe-s5/Skills/shanhe-s5-zhuling.rules.json)，不用持战意的普通OL朱灵或嵇康的 `classic:jixian` 激弦替代。虎牢追加4/4基础单敌，三档不加入伏骑、斩魂刀、额外成长或同行；胜利80铜钱、战后回复2点、虎牢位置和抽选均为本地编排，仅2026入口追加。魏、男性、`character:zhu-ling` 与既有头像是本地交互／美术映射。
+
+急陷在真实摸牌阶段结束时选择正常杀距离与禁止规则下的合法目标，选定后立即固定三条件的命中数X。防具取装备区真实实体；技能数取当前启用拥有的主／副将及获得技能，按内容ID去重；未受伤沿既有体力规则，无体力值不视为未受伤。这些计数与冻结时机为本地执行消歧。完整原生杀结算后真实摸X张牌，排空获牌孩子，再核对该次真实用牌ID对原目标的正伤害事实；只伤到转移后的其他人不会免除失去1点体力。X不因原杀造成受伤或后续子流程而重算，已发行杀的收益与代价按原帧续结。
+
+暴力复用 `damageSource` 来源加伤，新增最小的 `always` 条件合同，空牌种表示所有伤害，不能缩成部分牌或伪装为牌基础伤害。实际无来源伤害和失去体力不借用受害者的暴力；铁索沿现有本地继承金额、逐段重查有效来源的模型，不另造一次性去重，公开源没有专项传导FAQ。真实三条件、命中／闪／转移、已付摸牌孩子冷恢复、实体杀与无牌伤害、无来源／扣体力以及NPC发动已由[专项检查](../tests/CardGame.Core.Tests/ShanheZhulingChecks.cs)覆盖。
+
+### 当前S5：河北双雄2665、凉州猛将麹义2666与俊乂张郃2673
+
+2026-10-24重读公开[manifest](https://s.xiaochao.org/data/manifest.json)、[战斗表](https://s.xiaochao.org/data/battles.json)、[主组](https://s.xiaochao.org/data/enemy-groups.json)与[技能全文](https://s.xiaochao.org/data/enemy-references.json)，快照仍为 `generatedAt=2026-10-21T11:39:31.85Z`、S5。基础链与限制如下：
+
+| 原版章节与首领节点 | 战斗／主组与角色 | 基础技能 | 排除的固定牌 |
+| --- | --- | --- | --- |
+| chapter9小平津 → boss5098 | 2665河北双雄 → general550颜良文丑 | 14169双雄 | 噩梦20866 |
+| chapter9小平津 → boss5098 | 2666凉州猛将 → general374麹义 | 14170伏骑、14171骄恣 | 困难20611 |
+| chapter11河内 → boss5118 | 2673俊乂张郃 → general357张郃 | 14183周旋 | 困难20631 |
+
+三份战斗均为一名敌军，`groupId` 与主战斗同号、`startGeneralId=0`，各自新手组22665／22666／22673不解释为变身。原始面板均4/4、摸2／起手4／出杀1／护甲及增长0，基础固定牌和战法为空。本地分别投放大谷、虎牢、轘辕的基础单敌候选，三档无额外成长、装备或同行；胜利80铜钱、战后回复2点、位置和抽选为本地编排。群势力、男性与既有同名画像均为本地交互／美术映射。
+
+双雄不能直接复用固定伤害的普通版本。[独立包](../src/CardGame.Content.Standard/StandardShanheS5YanliangWenchouPackage.cs)和[规则](../src/Activities/Shanhe/Skills/shanhe-s5-yanliang-wenchou.rules.json)仅把实付手牌／装备牌后的转换增加本轮次数伤害：真实实付时固定X，后续异色原生决斗按本次已付转换来源绑定用牌ID，不在伤害时重读即时次数；双方反伤也沿同一决斗基础值。结束阶段领取本回合曾对自己造成伤害的实际实体仍沿既有致伤来源和逐批获牌流程。新轮重新计数，额外摸牌阶段可实际再发动，技能实例重获不抹掉角色本轮已付次数。
+
+麹义14170明确覆盖其他角色的使用／打出响应，没有普通伏骑的距离1限制；14171允许并列最多且加当前轮数，不能用普通骄恣的唯一最多、固定加1替代。[独立包](../src/CardGame.Content.Standard/StandardShanheS5QuyiPackage.cs)沿原生响应与来源／受害者伤害管线。无懈及反无懈依据当前窗口最后真实用牌者，不一直沿初始锦囊的使用者；同一角色自伤只计一次，无来源伤害不借占位来源的技能。铁索沿现有本地分段模型，公开源没有专项传导FAQ。
+
+张郃14183没有普通OL周旋的五张限制与下个出牌阶段结束期限。[官方SP张郃页](https://www.sanguosha.com/hero/357)支持普通版本确有这两项限制，也支持移去、首摸、再比较和追加摸牌的文字顺序；不能据官网把删掉的限制补回S5。[独立包](../src/CardGame.Content.Standard/StandardShanheS5ZhanghePackage.cs)通过[专版规则](../src/Activities/Shanhe/Skills/shanhe-s5-zhanghe.rules.json)增加不限量暗置并省去到期触发，消费沿原私密旋牌堆。额外X按移去一旋且首摸孩子返回后的剩余旋数量确定，这是沿既有顺序的本地执行消歧；专版与普通OL的数量、到期边界分离。
 
 ### 成长与阶段：已有字段不等于完整公式
 
