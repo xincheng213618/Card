@@ -878,11 +878,11 @@
     <DataTemplate x:Key="RevealedCardTemplate">
         <Button Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding CardHint}">
             <Border Width="78" Height="109" Background="{StaticResource CardPaper}" BorderBrush="#BAA375" BorderThickness="1" CornerRadius="4" Margin="4" ToolTip="{Binding CardHint}">
-                <Grid>
+                <controls:PublicRevealSurface CardId="{Binding Id}" IsHitTestVisible="False">
                     <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                     <TextBlock Text="{Binding OriginalHandTag}" Foreground="#F9EAC5" Background="#D074562A" FontSize="10" Padding="3,1" MaxWidth="52" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3" Visibility="{Binding HasOriginalHandTag, Converter={StaticResource BoolToVisibility}}" />
                     <TextBlock Text="{Binding PublicCardLabel}" FontSize="9" Foreground="#48341F" Background="#E8F4E6C8" Padding="3,1" VerticalAlignment="Bottom" HorizontalAlignment="Center" MaxWidth="76" TextTrimming="CharacterEllipsis" Margin="0,0,0,4" />
-                </Grid>
+                </controls:PublicRevealSurface>
             </Border>
         </Button>
     </DataTemplate>
@@ -892,10 +892,10 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="ChoiceFrame" Background="#3B443E" BorderBrush="#B99A61" BorderThickness="2" CornerRadius="4" Padding="3">
                         <StackPanel>
-                            <Grid Width="96" Height="134">
+                            <controls:PublicRevealSurface CardId="{Binding Id}" Width="96" Height="134" IsHitTestVisible="False">
                                 <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                                 <TextBlock Text="{Binding OriginalHandTag}" Foreground="#F9EAC5" Background="#D074562A" FontSize="10" Padding="3,1" MaxWidth="64" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3" Visibility="{Binding HasOriginalHandTag, Converter={StaticResource BoolToVisibility}}" />
-                            </Grid>
+                            </controls:PublicRevealSurface>
                             <Border x:Name="ChoiceCaption" Background="#314D43" CornerRadius="2" Margin="0,4,0,0" Padding="0,4">
                                 <TextBlock Text="点击选取" Foreground="#FFF1CB" FontSize="12" TextAlignment="Center" />
                             </Border>

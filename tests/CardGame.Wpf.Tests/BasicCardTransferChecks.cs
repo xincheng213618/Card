@@ -26,6 +26,7 @@ internal static class BasicCardTransferChecks
             foreach (var zone in new[] { CardZoneKind.Hand, CardZoneKind.Equipment })
                 TargetEffect(output, game, registry, kind, zone);
         }
+        HarvestReveal(output);
         Harvest(output);
     }
 
@@ -105,6 +106,178 @@ internal static class BasicCardTransferChecks
             $"destination={(kind == CardKind.Snatch ? "Hand0" : "Discard")}, public-id={cue.PublicCardId?.ToString() ?? "hidden"}.");
     }
 
+    private static void HarvestReveal(string output)
+    {
+        var (source, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture("standard:five_grains");
+        foreach (var (motion, earlyChoice) in new[] { (true, false), (true, true), (false, false) })
+        {
+            using var model = Restore(source, registry);
+            model.IsMotionEnabled = motion;
+            var game = Engine(model);
+            using var host = new NativeResponseStatusChecks.NativeHost(model);
+            ((Grid)host.Window.FindName("GameArea")).ColumnDefinitions[1].Width = new GridLength(300);
+            var label = earlyChoice ? "Harvest-reveal-early-choice" : motion ? "Harvest-reveal" : "Harvest-reveal-motion-off";
+            host.Capture(output, "basic-transfer-" + label + "-before", 1120);
+            var action = game.GetHumanLegalActions().First(candidate => candidate.Kind == LegalActionKind.FiveGrains);
+            var commands = game.AcceptedCommands.Count;
+            var cursor = game.Events.Count;
+            model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == action.CardId));
+            Assert(model.CanConfirmSelected && game.AcceptedCommands.Count == commands,
+                "The native Five Grains card must prepare its actual declaration without committing the selection draft.");
+            model.ConfirmSelectedCommand.Execute(null);
+            Assert(game.AcceptedCommands.Count == commands + 1 && game.AcceptedCommands.Last() is PlayCardCommand play &&
+                play.CardId == action.CardId && play.TargetSeats.SequenceEqual(action.TargetSeats),
+                "The native Five Grains confirmation must submit its actual physical card and published targets once.");
+            for (var step = 0; step < 40 && game.PendingDecision?.Kind != DecisionKind.SelectHarvestCard; step++)
+            {
+                Assert(model.CanStepAi, "The fixed native Five Grains reveal unexpectedly requires another human choice.");
+                model.StepAiCommand.Execute(null);
+            }
+            Assert(game.PendingDecision is { Kind: DecisionKind.SelectHarvestCard, PlayerSeat: 0 },
+                "The real Five Grains declaration must reach the first local public-card choice.");
+            var revealed = game.Events.Skip(cursor).Select(envelope => envelope.Payload).OfType<CardsRevealedEvent>().Single();
+            Assert(revealed.Cards.Count == 4 && revealed.Cards.Select(card => card.Id)
+                .SequenceEqual(game.CreateSnapshot(0).PublicRevealedCards.Select(card => card.Id)),
+                "The first displayed Harvest pool must be the four actual publicly revealed cards from this use.");
+            var stable = Boundary();
+            host.Capture(output, "basic-transfer-" + label + "-0ms", 1120);
+            var buttons = model.PublicRevealedCards.Select(card => BoundButton(host.Root, model.SelectRevealedCardCommand, card)).ToArray();
+            var surfaces = buttons.Select(button => Find<PublicRevealSurface>(button).SingleOrDefault()).ToArray();
+            Assert(surfaces.Length == revealed.Cards.Count && surfaces.All(surface => surface is not null),
+                "The first native Harvest layout needs a reveal surface for each public face instead of appearing instantly.");
+            var faces = surfaces.Select(surface => surface!).ToArray();
+            var bounds = buttons.Select(Bounds).ToArray();
+            var clockOrigin = host.Clock.GetTimestamp();
+            double[]? early = null;
+            foreach (var milliseconds in earlyChoice ? new[] { 0, 80, 160 } : motion ? new[] { 0, 80, 160, 600 } : new[] { 0, 600 })
+            {
+                var targetTick = clockOrigin + (long)Math.Ceiling(milliseconds / 1000d * host.Clock.TimestampFrequency);
+                var ticks = targetTick - host.Clock.GetTimestamp();
+                if (ticks > 0) host.Clock.Advance((ticks + .25) / host.Clock.TimestampFrequency);
+                var progress = faces.Select(face => face.RevealProgress).ToArray();
+                foreach (var face in faces) face.InvalidateVisual();
+                if (milliseconds != 0 && !earlyChoice) host.Capture(output, $"basic-transfer-{label}-{milliseconds}ms", 1120);
+                else if (milliseconds != 0) Render(host.Root, 1120, 740, null);
+                for (var index = 0; index < buttons.Length; index++)
+                {
+                    var button = buttons[index];
+                    var card = (CardViewModel)button.CommandParameter;
+                    var actual = revealed.Cards.Single(candidate => candidate.Id == card.Id);
+                    Assert(button.IsLoaded && button.IsVisible && button.IsEnabled && Bounds(button) == bounds[index] &&
+                        ReferenceEquals(button.Command, model.SelectRevealedCardCommand) && button.Command!.CanExecute(card) &&
+                        ReferenceEquals(button.CommandParameter, model.PublicRevealedCards[index]) && HitButton(button) &&
+                        card.Kind == actual.Kind && card.Name == actual.DisplayName && card.Rank == actual.RankText &&
+                        card.Artwork is not null && Find<Image>(faces[index]).Any(image => ReferenceEquals(image.Source, card.Artwork)),
+                        $"Harvest@{milliseconds}ms moved a hit target, changed its real face, or detached its original selectable card. " +
+                        $"scene={label}; index={index}; id={card.Id}; loaded={button.IsLoaded}; visible={button.IsVisible}; enabled={button.IsEnabled}; " +
+                        $"bounds={Bounds(button)}; originalBounds={bounds[index]}; sameBounds={Bounds(button) == bounds[index]}; " +
+                        $"commandRef={ReferenceEquals(button.Command, model.SelectRevealedCardCommand)}; canExecute={button.Command?.CanExecute(card)}; " +
+                        $"parameterRef={ReferenceEquals(button.CommandParameter, model.PublicRevealedCards[index])}; hit={HitButton(button)}; " +
+                        $"hitPoint={VisibleHitPoint(button)?.ToString() ?? "none"}; " +
+                        $"hitType={host.Root.InputHitTest(VisibleHitPoint(button) ?? new Point(-1, -1))?.GetType().Name ?? "null"}; " +
+                        $"kind={card.Kind}/{actual.Kind}; name='{card.Name}'/'{actual.DisplayName}'; rank='{card.Rank}'/'{actual.RankText}'; " +
+                        $"artwork={card.Artwork?.GetType().Name ?? "null"}; imageRefs=[{string.Join(',', Find<Image>(faces[index]).Select(image => ReferenceEquals(image.Source, card.Artwork)))}].");
+                }
+                if (!motion || milliseconds == 600)
+                    Assert(progress.All(value => value == 1) && faces.All(face => face.Opacity == 1 && face.RenderTransform.Value.IsIdentity),
+                        "Disabled or completed Harvest reveals must show every actual public face fully settled.");
+                else if (milliseconds == 0)
+                    Assert(progress.All(value => value == 0) && faces.All(face => face.Opacity is > 0 and < 1 &&
+                        face.RenderTransform.Value.M11 is > .6 and < 1),
+                        "The first live Harvest frame must begin visibly compact and translucent, before its final pose.");
+                else if (milliseconds == 80)
+                {
+                    Assert(progress[0] is > 0 and < 1 && progress[^1] == 0,
+                        "Harvest public faces must unfold in their actual revealed order with a visible stagger.");
+                    early = progress;
+                }
+                else
+                    Assert(early is not null && progress.Zip(early).All(pair => pair.First >= pair.Second) &&
+                        progress[0] > early[0] && progress[^1] > 0 && progress[^1] < 1,
+                        "The native Harvest faces must progress between sampled frames instead of snapping into place.");
+                Assert(Boundary() == stable, "Animating the first public Harvest pool must not submit a command or change any safe player view.");
+                Console.WriteLine($"Native {label}@{milliseconds}ms: progress={string.Join(',', progress.Select(value => value.ToString("F3")))}; stable hit targets={buttons.Length}.");
+            }
+            var selected = (CardViewModel)buttons[0].CommandParameter;
+            var choice = model.HarvestChoices.Single(candidate => candidate.Cards.SequenceEqual([selected.Id]));
+            var prompt = game.PendingDecision!.PromptId;
+            var beforeChoiceProgress = faces.ToDictionary(face => face.CardId, face => face.RevealProgress);
+            commands = game.AcceptedCommands.Count;
+            Click(buttons[0]);
+            Assert(game.AcceptedCommands.Count == commands + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
+                answer.PromptId == prompt && answer.Choice == choice.Id &&
+                game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == selected.Id),
+                "The original native Harvest button must still choose its actual published card after the reveal.");
+            if (earlyChoice)
+            {
+                Render(host.Root, 1120, 740, null);
+                var remaining = RemainingFaces();
+                Assert(remaining.Length == revealed.Cards.Count - 1 && remaining.All(face => face.CardId != selected.Id &&
+                    Math.Abs(face.RevealProgress - beforeChoiceProgress[face.CardId]) < .000001 && face.RevealProgress is > 0 and < 1),
+                    "Choosing a real Harvest card at 160ms must preserve the original reveal ages when the remaining faces rebuild.");
+                var afterChoice = Boundary();
+                host.Clock.Advance(.04);
+                Render(host.Root, 1120, 740, null);
+                Assert(remaining.All(face => face.RevealProgress > beforeChoiceProgress[face.CardId] + .05) && Boundary() == afterChoice,
+                    "The remaining Harvest faces must continue the original clock after an early choice without advancing the match.");
+
+                // The same tiny fixture naturally gives the next choice to an AI;
+                // retain ages across that actual pick as well, without a new seed.
+                var beforeAi = remaining.ToDictionary(face => face.CardId, face => face.RevealProgress);
+                var aiCursor = game.Events.Count;
+                for (var step = 0; step < 12 && !game.Events.Skip(aiCursor).Any(envelope =>
+                    envelope.Payload is HarvestCardSelectedEvent { PlayerSeat: not 0 }); step++)
+                {
+                    Assert(model.CanStepAi, "The first real AI Harvest pick unexpectedly requires human input.");
+                    model.StepAiCommand.Execute(null);
+                }
+                var aiPick = game.Events.Skip(aiCursor).Select(envelope => envelope.Payload)
+                    .OfType<HarvestCardSelectedEvent>().Single(pick => pick.PlayerSeat != 0);
+                Render(host.Root, 1120, 740, null);
+                remaining = RemainingFaces();
+                Assert(remaining.Length == revealed.Cards.Count - 2 && remaining.All(face => face.CardId != aiPick.CardId &&
+                    Math.Abs(face.RevealProgress - beforeAi[face.CardId]) < .000001 && face.RevealProgress is > 0 and < 1),
+                    "The first actual AI Harvest pick must preserve the original reveal ages of the remaining public faces.");
+                var beforeDisable = Boundary();
+                model.IsMotionEnabled = false;
+                Render(host.Root, 1120, 740, null);
+                Assert(remaining.All(face => face.RevealProgress == 1 && face.Opacity == 1 && face.RenderTransform.Value.IsIdentity) &&
+                    Boundary() == beforeDisable,
+                    "Disabling motion during the real Harvest entrance must settle every remaining face immediately without changing gameplay.");
+                model.IsMotionEnabled = true;
+                Render(host.Root, 1120, 740, null);
+                Assert(RemainingFaces().All(face => face.RevealProgress == 1 && face.Opacity == 1 && face.RenderTransform.Value.IsIdentity) &&
+                    Boundary() == beforeDisable,
+                    "Re-enabling motion must not replay a public Harvest pool already settled by disabling animation.");
+                Console.WriteLine($"Native Harvest early choice: Human0@160ms; AI{aiPick.PlayerSeat}@200ms; " +
+                    $"original ages retained for {remaining.Length} faces; dynamic motion-off settled immediately without replay.");
+            }
+
+            Rect Bounds(FrameworkElement element) => element.TransformToVisual(host.Root).TransformBounds(new Rect(element.RenderSize));
+            PublicRevealSurface[] RemainingFaces() => Find<PublicRevealSurface>(host.Root).Where(face => face.IsVisible).ToArray();
+            bool HitButton(Button button)
+            {
+                if (VisibleHitPoint(button) is not { } point) return false;
+                for (var current = host.Root.InputHitTest(point) as DependencyObject; current is not null; current = VisualTreeHelper.GetParent(current))
+                    if (ReferenceEquals(current, button)) return true;
+                return false;
+            }
+            Point? VisibleHitPoint(Button button)
+            {
+                var visible = Rect.Intersect(Bounds(button), new Rect(host.Root.RenderSize));
+                for (var parent = VisualTreeHelper.GetParent(button); parent is not null; parent = VisualTreeHelper.GetParent(parent))
+                    if (parent is ScrollContentPresenter viewport) visible.Intersect(Bounds(viewport));
+                return visible.IsEmpty || visible.Width <= 0 || visible.Height <= 0
+                    ? null : new Point(visible.X + visible.Width / 2, visible.Y + visible.Height / 2);
+            }
+            string Boundary() => JsonSerializer.Serialize(new
+            {
+                game.Revision, Commands = game.AcceptedCommands, Movements = game.CardMovements,
+                Views = Enumerable.Range(0, 4).Select(viewer => SnapshotJson.Serialize(game.CreateSnapshot(viewer))).ToArray()
+            });
+        }
+    }
+
     private static void Harvest(string output)
     {
         var (source, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture("standard:five_grains");
@@ -123,6 +296,10 @@ internal static class BasicCardTransferChecks
         // Keep the native regression at the narrow layout that exposed clipped transfers.
         ((Grid)host.Window.FindName("GameArea")).ColumnDefinitions[1].Width = new GridLength(300);
         host.Capture(output, "basic-transfer-Harvest-before", 1120);
+        var coldFaces = Find<PublicRevealSurface>(host.Root).Where(face => face.IsVisible).ToArray();
+        Assert(coldFaces.Length == model.PublicRevealedCards.Count && coldFaces.Length > 0 &&
+            coldFaces.All(face => face.RevealProgress == 1 && face.Opacity == 1 && face.RenderTransform.Value.IsIdentity),
+            "Cold loading an already revealed Harvest pool must show settled faces without replaying its entrance.");
         var hand = PrepareHand(host);
         var before = Enumerable.Range(0, 4).Select(seat => game.CreateSnapshot(seat)).ToArray();
         var choice = model.HarvestChoices.First();
