@@ -124,9 +124,10 @@ internal static class ShanheLingdongChecks
             originOnly.AtDamageChild();
             Need(originOnly.Events<DamageAppliedEvent>().Select(e => (e.TargetSeat, e.Amount))
                     .SequenceEqual(Enumerable.Range(1, recipient).Select(seat => (seat, 2))) &&
-                originOnly.G.ResolutionStack.OfType<CardUseFrame>().Single().CardAttack is { RangePreventionVisitedTargets: null } &&
+                (originOnly.G.ResolutionStack.OfType<CardUseFrame>().Single().CardAttack!.RangePreventionVisitedTargets ?? [])
+                    .SequenceEqual(Enumerable.Range(2, recipient - 1)) &&
                 originOnly.Events<JudgmentRequestedEvent>().Where(e => e.Reason == Reason).Select(e => e.TargetSeat).SequenceEqual([1]),
-                "An active origin's black Lingdong judgment does not stamp unrelated chained recipients merely because their registry contains the capability.");
+                "Only the origin holder judges; each later chained recipient is scanned once for prevention and still receives the unchanged native damage.");
             originOnly.Cold(); originOnly.Continue();
         }
         originOnly.Play();

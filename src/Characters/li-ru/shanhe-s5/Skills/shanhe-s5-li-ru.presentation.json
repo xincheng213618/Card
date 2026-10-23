@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-mieji-14175": { "name": "灭计", "description": "出牌阶段限一次，你可以令一名有手牌的其他角色选择一项：1.弃置一张锦囊牌；2.弃置所有手牌。", "activationLabels": { "trick-or-all-hand": "令目标弃一张锦囊或所有手牌" } },
+    "shanhe:s5-fencheng-14176": { "name": "焚城", "description": "每两轮限一次，出牌阶段，你可以选择一名其他角色开始，令所有其他角色依次选择一项：1.弃置所有手牌；2.受到你造成的X点火焰伤害。（X为你与其手牌差值）", "activationLabels": { "chosen-start-hand-difference-fire": "指定起始角色，依次弃手牌或承受手牌差火伤" } }
+  }
+}
