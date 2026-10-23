@@ -122,9 +122,161 @@ internal static class NativeActionFeedbackChecks
         }
         OptionalSkill(output);
         NormalDraft(output);
+        SlashAndDodgeMotion(output);
         GroupResponseMotion(output);
         NullificationMotion(output);
     }
+
+    private static void SlashAndDodgeMotion(string output)
+    {
+        var (prepared, registry) = StableHandResponseFixture.Create(DecisionKind.RespondDodge, output);
+        using (prepared)
+        {
+            var checkpoint = Engine(prepared).CreateCheckpoint();
+            Assert(Engine(prepared).PendingDecision is { IncomingCard: CardKind.Slash, PlayerSeat: 0 } &&
+                checkpoint.Commands.Last() is AdvanceOneStepCommand,
+                "The fixed native fixture must expose the physical ordinary Slash opened by its final AI step.");
+            var prefix = GameReplay.Replay(checkpoint.Options, checkpoint.Commands.SkipLast(1), registry);
+            var store = new MemorySaveStore();
+            store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, prefix.CreateCheckpoint()));
+            using var model = new MainViewModel(false, prefix.Seed, true, store, useExpandedContent: false,
+                contentRegistry: registry, historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore())
+                { IsMotionEnabled = true, IsSoundEnabled = false, IsMusicEnabled = false };
+            model.LoadManualGameCommand.Execute(null);
+            Assert(!model.HasSaveError && model.BattleCues.Count == 0 && model.CanStepAi,
+                "The native Slash sample must restore before its actual declaration without replaying old effects.");
+            using var host = new NativeResponseStatusChecks.NativeHost(model);
+            host.Capture(output, "native-slash-dodge-before", 1120);
+            var game = Engine(model);
+            var eventCursor = game.Events.Count;
+            var targetHp = game.CreateSnapshot(0).Players[0].Hp;
+            model.StepAiCommand.Execute(null);
+            var declaration = game.Events.Skip(eventCursor).Single(envelope =>
+                envelope.Payload is CardUseDeclaredEvent { CardKind: CardKind.Slash, SourceSeat: 1 });
+            var use = (CardUseDeclaredEvent)declaration.Payload;
+            var attack = model.BattleCues.Single(cue => cue.Sequence == declaration.Sequence);
+            Assert(game.PendingDecision is { Kind: DecisionKind.RespondDodge, IncomingCard: CardKind.Slash, PlayerSeat: 0 } &&
+                attack is { Kind: BattleCueKind.Card, CardKind: CardKind.Slash, SourceSeat: 1, PublicCard: not null } &&
+                attack.TargetSeats.SequenceEqual([0]) && attack.SourceCardUseResolutionId == use.ResolutionId &&
+                attack.PublicCardId == use.CardId,
+                "The live declaration must describe the AI's real physical Slash and its confirmed human target.");
+            var unpaidBoundary = Boundary(game);
+            var seats = Find<Button>(host.Root).Where(button => button.IsVisible && BattleFeedbackLayer.GetSeatAnchor(button) >= 0)
+                .ToDictionary(BattleFeedbackLayer.GetSeatAnchor,
+                    button => button.TransformToVisual(host.Layer).TransformBounds(new Rect(button.RenderSize)));
+            var direction = Center(seats[0]) - Center(seats[1]); direction.Normalize();
+            var time = 0;
+            Rect[] first = [], second = [];
+            var visibility = new List<double>();
+            for (var milliseconds = 100; milliseconds <= 500; milliseconds += 20)
+            {
+                AdvanceTo(milliseconds, milliseconds is 120 or 260 ? $"native-slash-{milliseconds}ms" : null, unpaidBoundary);
+                var drawing = VisualTreeHelper.GetDrawing(host.Layer);
+                var ink = InkEvidence(drawing).ToArray();
+                var totalArea = ink.Sum(sample => sample.TotalArea);
+                var visibleArea = ink.Sum(sample => sample.VisibleArea);
+                var ratio = totalArea > 0 ? visibleArea / totalArea : 0;
+                visibility.Add(ratio);
+                var complete = ink.Length > 0 && ink.All(sample => sample.Opacity > .1) &&
+                    totalArea > 1 && visibleArea > 1 && ratio >= .98;
+                Assert(complete,
+                    $"The real Slash must retain at least 98% of its main blade ink throughout its route: {milliseconds}ms, visible={ratio:P3}." +
+                    (complete ? string.Empty : " Diagnostic: " + JsonSerializer.Serialize(new
+                    {
+                        Cue = attack, Source = seats[1].ToString(), Target = seats[0].ToString(),
+                        TimeScale = model.BattleAnimationTimeScale, Ink = ink
+                    })));
+                if (milliseconds == 120) first = VisibleMotionShapes(drawing, IsSlashInk).ToArray();
+                if (milliseconds == 260) second = VisibleMotionShapes(drawing, IsSlashInk).ToArray();
+            }
+            Assert(first.Length > 0 && second.Length > 0 &&
+                Vector.Multiply(Center(Union(second)) - Center(Union(first)), direction) > 10,
+                "The actual ordinary Slash blade must visibly advance from its declared source toward its confirmed target.");
+            AdvanceTo(700, "native-slash-retired-700ms", unpaidBoundary);
+            Assert(!VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsSlashInk).Any() &&
+                game.PendingDecision?.Kind == DecisionKind.RespondDodge,
+                "The ordinary Slash blade must retire while an unanswered response keeps its real prompt open.");
+
+            var prompt = game.PendingDecision!;
+            var dodge = model.Hand.Last(card => card.IsPlayable && card.Kind == CardKind.Dodge);
+            var payment = prompt.Choices.Single(choice => choice.Cards.SequenceEqual([dodge.Id]));
+            var commands = game.AcceptedCommands.Count;
+            model.SelectCardCommand.Execute(dodge);
+            model.ConfirmSelectedCommand.Execute(null);
+            var response = model.BattleCues.Single(cue => cue.Kind == BattleCueKind.Response && cue.PublicCardId == dodge.Id);
+            Assert(game.AcceptedCommands.Count == commands + 1 &&
+                game.AcceptedCommands.Last() is AnswerPromptCommand answer && answer.PromptId == prompt.PromptId && answer.Choice == payment.Id &&
+                game.Events.Skip(eventCursor).Any(envelope => envelope.Payload is CardRespondedEvent paid &&
+                    paid.CardId == dodge.Id && paid.ResponderSeat == 0 && paid.EffectiveCardKind == CardKind.Dodge) &&
+                response is { CardKind: CardKind.Dodge, SourceSeat: 0, IsInquiry: false, PublicCard: not null },
+                "The sidestep must follow one exact native payment of the real physical Dodge, not an inquiry or fabricated cue.");
+            var paidBoundary = Boundary(game);
+            AdvanceTo(780, "native-dodge-80ms", paidBoundary);
+            var firstGhost = VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsDodgeGhost).ToArray();
+            AdvanceTo(940, "native-dodge-240ms", paidBoundary);
+            var secondGhost = VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsDodgeGhost).ToArray();
+            Assert(firstGhost.Length == 1 && secondGhost.Length == 1 &&
+                firstGhost.All(seats[0].Contains) && secondGhost.All(seats[0].Contains) &&
+                secondGhost[0].X > firstGhost[0].X + 2,
+                "The paid Dodge's visible leading silhouette must move sideways inside its responder's portrait.");
+            AdvanceTo(1340, "native-dodge-retired-640ms", paidBoundary);
+            Assert(!VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsDodgeGhost).Any(),
+                "The paid Dodge silhouette must retire rather than becoming a persistent success shield.");
+            Console.WriteLine($"Native Slash/Dodge: seed31 physical Slash{use.CardId} use{use.ResolutionId}; " +
+                $"{visibility.Count} blade samples 100..500ms every20ms, minimum visible ink={visibility.Min():P3}; " +
+                $"blade shapes {first.Length}/{second.Length} at 120/260ms, retired700ms awaiting response; " +
+                $"paid Dodge{dodge.Id}, leading ghost X {firstGhost[0].X:F2}->{secondGhost[0].X:F2} at 80/240ms, retired640ms; " +
+                "no premature hit; commands, physical movements and all viewer snapshots unchanged during both animations.");
+
+            void AdvanceTo(int milliseconds, string? label, string boundary)
+            {
+                host.Clock.Advance((milliseconds - time) / 1000d); time = milliseconds;
+                host.Layer.InvalidateVisual();
+                if (label is null) Render(host.Root, 1120, 740, null);
+                else host.Capture(output, label, 1120);
+                Assert(Boundary(game) == boundary && game.CreateSnapshot(0).Players[0].Hp == targetHp &&
+                    !game.Events.Skip(eventCursor).Any(envelope => envelope.Payload is DamageAppliedEvent) &&
+                    !model.BattleCues.Any(cue => cue.Kind == BattleCueKind.Damage) &&
+                    !VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsHitInk).Any(),
+                    "Animating an unpaid Slash or a paid Dodge must not invent a portrait hit, lose HP, or alter any committed viewer boundary.");
+            }
+        }
+        static bool IsSlashInk(GeometryDrawing shape) => shape is
+            { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen: null } && fill.Color == Color.FromRgb(255, 203, 100);
+        static bool IsDodgeGhost(GeometryDrawing shape) => shape is
+            { Geometry: StreamGeometry, Brush: null, Pen: { Thickness: 2.6, Brush: SolidColorBrush edge } } && edge.Color == Color.FromRgb(116, 231, 255);
+        static bool IsHitInk(GeometryDrawing shape) =>
+            shape.Brush is SolidColorBrush fill && fill.Color == Color.FromRgb(255, 91, 62) ||
+            shape.Pen?.Brush is SolidColorBrush edge && edge.Color == Color.FromRgb(255, 91, 62);
+        static Point Center(Rect rect) => new(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+        static Rect Union(IEnumerable<Rect> bounds) => bounds.Aggregate(Rect.Empty, Rect.Union);
+        static IEnumerable<MotionInkSample> InkEvidence(Drawing? drawing, Matrix? inherited = null, Geometry? inheritedClip = null, double opacity = 1)
+        {
+            var transform = inherited ?? Matrix.Identity;
+            if (drawing is DrawingGroup group)
+            {
+                var next = group.Transform?.Value ?? Matrix.Identity; next.Append(transform);
+                var clip = inheritedClip;
+                if (group.ClipGeometry is { } own)
+                {
+                    var current = own.Clone(); current.Transform = new MatrixTransform(next);
+                    clip = clip is null ? current : new CombinedGeometry(GeometryCombineMode.Intersect, clip, current);
+                }
+                foreach (var child in group.Children)
+                    foreach (var evidence in InkEvidence(child, next, clip, opacity * group.Opacity)) yield return evidence;
+            }
+            else if (drawing is GeometryDrawing shape && IsSlashInk(shape))
+            {
+                var whole = shape.Geometry.Clone(); whole.Transform = new MatrixTransform(transform);
+                Geometry visible = inheritedClip is null ? whole : new CombinedGeometry(GeometryCombineMode.Intersect, whole, inheritedClip);
+                yield return new(opacity, whole.Bounds.ToString(), inheritedClip?.Bounds.ToString(),
+                    visible.Bounds.ToString(), whole.GetArea(), visible.GetArea());
+            }
+        }
+    }
+
+    private sealed record MotionInkSample(double Opacity, string Bounds, string? ClipBounds,
+        string VisibleBounds, double TotalArea, double VisibleArea);
 
     internal static void VerifyDuelMotion(NativeResponseStatusChecks.NativeHost host, BattleCue response, string? output = null)
     {
@@ -372,7 +524,11 @@ internal static class NativeActionFeedbackChecks
         }
         else if (opacity > .1 && drawing is GeometryDrawing tip && select(tip))
         {
-            Geometry visible = tip.Geometry.Clone(); visible.Transform = new MatrixTransform(transform);
+            // Unfilled Dodge silhouettes are strokes: their open centerline has
+            // no painted area. Measure the actual widened ink before clipping.
+            Geometry visible = (tip.Brush is null && tip.Pen is not null
+                ? tip.Geometry.GetWidenedPathGeometry(tip.Pen) : tip.Geometry).Clone();
+            visible.Transform = new MatrixTransform(transform);
             if (inheritedClip is not null) visible = new CombinedGeometry(GeometryCombineMode.Intersect, visible, inheritedClip);
             if (visible.GetArea() > 1) yield return visible.Bounds;
         }
