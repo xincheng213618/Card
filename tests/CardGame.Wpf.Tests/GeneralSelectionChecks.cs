@@ -291,6 +291,16 @@ internal static class GeneralSelectionChecks
                     Rect Bounds(FrameworkElement control) => control.TransformToAncestor(root).TransformBounds(new Rect(control.RenderSize));
                     Rect DetailBounds(FrameworkElement control) => control.TransformToAncestor(presenter).TransformBounds(new Rect(control.RenderSize));
                     var preview = vm.SelectedGeneralChoice;
+                    var previewName = (TextBlock)window.FindName("GeneralSelectionPreviewName");
+                    var rulesLabel = (TextBlock)window.FindName("GeneralSelectionRulesLabel");
+                    var detailViewport = new Rect(presenter.RenderSize);
+                    detailViewport.Inflate(1, 1);
+                    Program.Assert(preview is { GeneralId: "ol:shen-zhao-yun", Name: "神赵云·可选弃牌" } &&
+                        previewName.Text == "神赵云" && rulesLabel.Text == "可选弃牌" && rulesLabel.IsVisible &&
+                        DetailBounds(rulesLabel).Top >= DetailBounds(previewName).Bottom - 1 &&
+                        detailViewport.Contains(DetailBounds(previewName)) && detailViewport.Contains(DetailBounds(rulesLabel)) &&
+                        Boundary(engine) == boundary,
+                        "The enlarged preview must show the complete person name and separate gameplay label inside its real detail viewport without changing the full edition identity or native boundary.");
                     var confirmationPosition = confirm.TranslatePoint(new Point(), root);
                     Console.WriteLine($"Enlarged selection: card={Bounds(cards[0])}, skills={Bounds(skills)}, confirm={Bounds(confirm)}, " +
                         $"versions={string.Join(";", versions.Select(button => Bounds(button).ToString()))}.");
@@ -350,6 +360,13 @@ internal static class GeneralSelectionChecks
             {
                 root.UpdateLayout();
                 root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+                var preview = vm.SelectedGeneralChoice!;
+                var previewName = (TextBlock)window.FindName("GeneralSelectionPreviewName");
+                var rulesLabel = (TextBlock)window.FindName("GeneralSelectionRulesLabel");
+                Program.Assert(previewName.Text == preview.CardName && Equals(previewName.ToolTip, preview.Name) &&
+                    rulesLabel.Text == preview.RulesLabel &&
+                    rulesLabel.Visibility == (preview.HasRulesLabel ? Visibility.Visible : Visibility.Collapsed),
+                    $"{label} must bind the current person's complete name and gameplay label, hide an absent label, and preserve the full edition name in its tooltip.");
                 var buttons = Program.Find<Button>((ItemsControl)window.FindName("GeneralVariantChoices")).ToArray();
                 foreach (var button in buttons)
                 {
