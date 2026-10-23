@@ -56,6 +56,10 @@ public sealed record ShanheBattleSetup(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool RebirthAvailable { get; init; }
 
+    /// <summary>Initial cards and equipment enter hand and leave play instead of their ordinary post-use discard.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool StartingResourcesExpireOnUse { get; init; }
+
     public int BattleSeed => DeriveSeed(RunSeed, NodeId, EncounterOrdinal);
 
     public static bool ValueEquals(ShanheBattleSetup? left, ShanheBattleSetup? right) =>
@@ -158,6 +162,9 @@ public sealed record ShanheCampaignDefinition(
     public string VictoryText { get; init; } = "";
     public string DefeatText { get; init; } = "";
     public bool RandomStartingNode { get; init; }
+    /// <summary>Applies the initial-resource contract to every battle in this expedition; false preserves legacy recipes.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool StartingResourcesExpireOnUse { get; init; }
     /// <summary>Optional edition-specific default; explicit effective factions retain precedence.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? DefaultGodFactionId { get; init; }

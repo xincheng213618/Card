@@ -8,7 +8,10 @@ public static partial class StandardShanheCampaignCatalog
 {
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<ContentRegistry>> BattleRegistries = new(StringComparer.Ordinal);
 
-    public static ShanheCampaignDefinition CreateDefinition(int difficulty = 1)
+    public static ShanheCampaignDefinition CreateDefinition(int difficulty = 1) =>
+        WithStartingResourcesContract(CreateLegacyLocalDefinition(difficulty));
+
+    private static ShanheCampaignDefinition CreateLegacyLocalDefinition(int difficulty)
     {
         if (difficulty is < 1 or > 3) throw new ArgumentOutOfRangeException(nameof(difficulty));
         var growth = difficulty - 1;

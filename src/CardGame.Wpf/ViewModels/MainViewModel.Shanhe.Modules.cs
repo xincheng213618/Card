@@ -76,7 +76,8 @@ public sealed partial class MainViewModel
             if (state is not null)
             {
                 foreach (var card in state.StartingCards) AddLoadout(card, "随身牌 · 每战起手获得");
-                foreach (var card in state.StartingEquipment) AddLoadout(card, "开场装备 · 每战装备");
+                foreach (var card in state.StartingEquipment) AddLoadout(card, ShanheStartingResourcesExpireOnUse
+                    ? "随身装备 · 每战起手获得" : "开场装备 · 每战装备");
             }
         }
         else
@@ -106,7 +107,7 @@ public sealed partial class MainViewModel
     private string RewardRule(ShanheRewardDefinition reward) => reward.TacticSkillId is { } id && CurrentPresentationRegistry.Skills.TryGetValue(id, out var skill) ? skill.Description :
         reward.SkillId is { } extra && CurrentPresentationRegistry.Skills.TryGetValue(extra, out var learned) ? learned.Description : string.Empty;
     private void AddLoadout(ShanheStartingCard card, string source) => ShanheCodexCards.Add(new(card.Kind.ToString(), CardCatalog.Get(card.Kind).DisplayName,
-        $"{GetSuitGlyph(card.Suit)}{(card.Rank switch { 1 => "A", 11 => "J", 12 => "Q", 13 => "K", _ => card.Rank.ToString() })}", string.Empty, source));
+        $"{GetSuitGlyph(card.Suit)}{(card.Rank switch { 1 => "A", 11 => "J", 12 => "Q", 13 => "K", _ => card.Rank.ToString() })}", ShanheStartingResourceNotice, source));
 }
 public sealed record ShanheShopItem(string Id, string Name, string Description, string RuleDescription, int Price, string Status, ShanheCampaignChoice? Choice, int HpCost = 0, string Category = "货品", ShanheShopItemState? State = null)
 {
