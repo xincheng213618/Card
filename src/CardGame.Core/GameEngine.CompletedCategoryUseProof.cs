@@ -125,6 +125,11 @@ public sealed partial class GameEngine
                 if (canceled.Receipt.Source.OwnerSeat != actor || !IsOverflowTargetCancellationFact(use, canceled, actual)) return false;
                 designated = canceled.Receipt.ResultTargetSeats.ToList(); actual = canceled.Receipt.ResultTargetSeats.ToList();
             }
+            else if (fact is AnniversaryCuiLieUseChangedEvent changed && changed.UseId == use.Id)
+            {
+                if (!actual.SequenceEqual(designated) || !IsAnniversaryCuiLieTargetMutationFact(use, changed, actual, actor)) return false;
+                designated = changed.AfterTargets.ToList(); actual = changed.AfterTargets.ToList();
+            }
             else if (fact is ProgramCardUseTargetAddedEvent added && added.CardUseFrameId == use.Id)
             {
                 // These producers also emit a typed issuance proof; consume that

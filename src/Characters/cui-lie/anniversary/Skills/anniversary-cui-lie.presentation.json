@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "anniversary:zijue":{"name":"赀爵","description":"令其他角色声明2~4；交给其等量牌并回复1点体力，得到直到下回合的距离与拼点加成，或摸等量牌。","activationLabels":{"declare-number":"赀爵：令所选角色声明数字"}},
+ "anniversary:chibi":{"name":"斥避","description":"其他角色指定远距离目标时与其拼点：赢则此牌无效并获得之，否则成为额外目标且本回合失效。","triggerLabels":{"far-target-contest":"斥避：与实际用牌者拼点"}}
+}}

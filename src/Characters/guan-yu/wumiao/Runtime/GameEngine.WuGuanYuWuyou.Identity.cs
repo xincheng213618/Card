@@ -79,6 +79,8 @@ public sealed partial class GameEngine
     {
         if (!HasWuyouCapability || use.Action is not { Type: CardActionType.Use, PhysicalCards: [var material] } action ||
             material.From.Zone != CardZoneKind.Hand || material.From.OwnerSeat != action.ProviderSeat) return;
+        if (use.CardKind == CardKind.Alcohol && action.EffectiveKind == CardKind.Alcohol &&
+            HouChengWineMark(material.CardId) is { } wine && action.ConversionChain.Contains(wine.Source)) return;
         var payment = use.AcceptedDeclarationPayment ?? UnclaimedDeclarationPayment(action.ProviderSeat, material.CardId);
         var lease = payment is { Wuyou: { } original } && payment.Cost.CardId == material.CardId &&
             payment.ActorSeat == action.ActorSeat && ValidWuyouDeclaration(payment, original)
@@ -152,6 +154,7 @@ public sealed partial class GameEngine
             var kind = lease.EffectiveKind; var source = lease.Source; var suit = EffectiveSuit(actor, card); var color = SuitColor(suit);
             if (kind == CardKind.IronChain)
                 actions.Add(new(LegalActionKind.Recast, card.Id, null, "武佑：重铸【铁索连环】", kind) { ConversionSource = source });
+            if (IsAnniversaryHouChengWineCard(card.Id)) continue;
             if (IsTurnHandCardRestricted(actor, card) || IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) continue;
             if (IsOrdinaryTrick(kind) && kind != CardKind.Nullification)
             {

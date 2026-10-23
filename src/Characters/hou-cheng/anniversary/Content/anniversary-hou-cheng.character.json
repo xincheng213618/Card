@@ -1,0 +1,8 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hou-cheng",
+  "skills": [{ "registrationOrder": 47100, "programBundle": "anniversary-hou-cheng", "includeProgramPresentation": true,
+    "definition": { "id": "anniversary:xianniang", "name": "献酿", "description": "每轮每项限一次，当你的牌被其他角色弃置或受到伤害后，你可以获得一名手牌数不小于你的角色至多两张牌，并可以交给另一名其他角色至多等量张牌；因此获得或交出的基本牌只能当【酒】使用。若你本轮因此技能获得的牌超过两张，则你失去1点体力。", "executionForms": "Trigger, State" } }],
+  "generals": [{ "registrationOrder": 47101, "pools": { "current": 47101 }, "definition": { "id": "anniversary:hou-cheng", "name": "侯成", "portraitKey": "anniversary-hou-cheng", "skillId": "anniversary:xianniang", "factionId": "qun", "baseHp": 5, "gender": "Male", "characterId": "character:hou-cheng", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary" } }]
+}

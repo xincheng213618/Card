@@ -1,0 +1,46 @@
+namespace CardGame.Core;
+public sealed partial class GameEngine
+{
+    private bool ValidHouCheng(ProgramSkillFrame f)
+    {
+        if (f.AnniversaryHouCheng is not { } r || !HouChengParent(f) || r.Source != HouChengSource(f) || r.Hash != f.GameplayHash || r.Hash != _contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash || r.ParentId != f.WindowContext?.ParentFrameId || r.Round != _roundNumber || r.Turn != _turnNumber || r.TurnOwner != _turnProgression.OwnerSeat || !Enum.IsDefined(r.Stage) || r.Obtained is < 0 or > 2 || r.Selected.Count > 2 || r.Selected.Distinct().Count() != r.Selected.Count || r.Before < 0 || r.After < r.Before || r.After > _movementSequence ||
+            ProgramEventHistory<AnniversaryHouChengStartedEvent>().Count(e => e == new AnniversaryHouChengStartedEvent(f.Id, r.Source, r.Hash, r.ParentId, r.Round, r.Turn, r.TurnOwner)) != 1 || ProgramEventHistory<ProgramBindingStartedEvent>().Count(e => e.FrameId == f.Id && e.OwnerSeat == f.OwnerSeat && e.SkillId == f.SkillId && e.BindingId == f.TriggerId && e.SkillInstanceId == f.SkillInstanceId && e.Window == f.WindowContext!.Window) != 1) return false;
+        if (r.Stage != AnniversaryHouChengStage.Source && r.Victim != -1 && !IsValidPlayerSeat(r.Victim) || r.Recipient != -1 && (!IsValidPlayerSeat(r.Recipient) || r.Recipient == r.Victim || r.Recipient == f.OwnerSeat)) return false;
+        var obtains = ProgramEventHistory<AnniversaryHouChengMovementEvent>().Where(e => e.FrameId == f.Id && !e.Giving).ToArray();
+        if (obtains.Length > 1 || obtains.Any(e => !ValidHouChengMovement(e) || e.CardOwner != r.Victim || e.Recipient != f.OwnerSeat || e.ActualCount != r.Obtained) || obtains.Length == 0 && r.Obtained != 0 ||
+            r.Stage is AnniversaryHouChengStage.Recipient or AnniversaryHouChengStage.Give or AnniversaryHouChengStage.GiveChildren && (obtains.Length != 1 || r.Obtained == 0) ||
+            r.Stage == AnniversaryHouChengStage.Give && r.Selected.Count > r.Obtained ||
+            r.Stage is AnniversaryHouChengStage.Source or AnniversaryHouChengStage.Obtain && obtains.Length != 0) return false;
+        if (r.Stage is AnniversaryHouChengStage.ObtainChildren or AnniversaryHouChengStage.GiveChildren)
+        {
+            var giving = r.Stage == AnniversaryHouChengStage.GiveChildren;
+            return f.PendingMovementContinuation is not null && r.BatchId > 0 && r.Moves.Count == r.Selected.Count && r.Moves.Select(m => m.CardId).Order().SequenceEqual(r.Selected.Order()) && r.Moves.All(_cardMovements.Contains) &&
+                ProgramEventHistory<AnniversaryHouChengMovementEvent>().Where(e => e.FrameId == f.Id && e.Giving == giving).ToArray() is [var paid] && ValidHouChengMovement(paid) && paid.Before == r.Before && paid.After == r.After && paid.BatchId == r.BatchId && paid.CardOwner == (giving ? f.OwnerSeat : r.Victim) && paid.Recipient == (giving ? r.Recipient : f.OwnerSeat) && (giving || paid.ActualCount == r.Obtained);
+        }
+        if (r.Stage == AnniversaryHouChengStage.HpChildren && r.HpPaid) return r.HpBefore - r.HpAfter == 1 && ProgramEventHistory<AnniversaryHouChengHpPaidEvent>().Count(e => e == new AnniversaryHouChengHpPaidEvent(f.Id, r.HpBefore, r.HpAfter, 1)) == 1 &&
+            ProgramEventHistory<ProgramSkillHpLostEvent>().Count(e => e.FrameId == f.Id && e.TargetSeat == f.OwnerSeat && e.Amount == 1 && e.RemainingHp == r.HpAfter) == 1;
+        return f.PendingMovementContinuation is null && !r.HpPaid;
+    }
+    private bool HasAnniversaryHouChengPrompt() => _pendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } p && _resolutionStack.LastOrDefault() is ProgramSkillFrame { AnniversaryHouCheng.Stage: AnniversaryHouChengStage.Source or AnniversaryHouChengStage.Obtain or AnniversaryHouChengStage.Recipient or AnniversaryHouChengStage.Give, Step: ResolutionFrameStep.AwaitingResponse } f && p.PlayerSeat == f.OwnerSeat && ValidHouCheng(f) && AssistedChoicesEqual(p.Choices, HouChengChoices(f));
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 47100)] private void AssertHouCheng(ProgramSkillFrame f)
+    { if (f.AnniversaryHouCheng is not null && (!ValidHouCheng(f) || f.PendingMovementContinuation is { } p && !HouChengMovementProof(f, GetPausedPrivateOfferEffect(f), p))) throw new InvalidOperationException("Xianniang lost its original frame, once-paid physical movement or actual HP loss."); }
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 47100)]
+    private bool HouChengMovementProof(ProgramSkillFrame f, SkillProgramEffect? effect, ProgramMovementContinuation p) => effect?.Op == SkillProgramEffectOp.ResolveAnniversaryHouChengXianniang && f.AnniversaryHouCheng is { Stage: AnniversaryHouChengStage.ObtainChildren or AnniversaryHouChengStage.GiveChildren } && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && ValidHouCheng(f);
+    private bool HouChengFirstChild(ProgramSkillFrame f, ResolutionFrame child)
+    {
+        if (!ValidHouCheng(f)) return false; var r = f.AnniversaryHouCheng!;
+        if (child is CardsMovedTriggerWindowFrame moved) return f.PendingMovementContinuation is { } p && HouChengMovementProof(f, GetPausedPrivateOfferEffect(f), p) && ProgramMovementReturnMatches(f, moved) && moved.Batch.ParentFrameId == f.Id && moved.Batch.Movements.All(r.Moves.Contains);
+        if (child is DyingFrame dying) return r.Stage == AnniversaryHouChengStage.HpChildren && r.HpPaid && dying.ParentFrameId == f.Id && dying.VictimSeat == f.OwnerSeat && dying.KillerSeat is null && dying.Continuation == DyingContinuationKind.ProgramSkill;
+        if (child is RecoveryReplacementFrame recovery) return ProgramRecoveryReplacementReceiptMatches(f, recovery, CompleteProgramEventHistory().ToArray());
+        if (child is HpChangedTriggerWindowFrame hp) return ProgramHpReturnMatches(f, hp) && r.Stage == AnniversaryHouChengStage.HpChildren && r.HpPaid && hp.Change.Kind == HpChangeKind.Loss && hp.Change.TargetSeat == f.OwnerSeat && hp.Change.Amount == 1;
+        return child is ProgramLifecycleTriggerWindowFrame state && state.ResumeProgramFrameId == f.Id && (state.Window == SkillProgramTriggerWindow.SkillsChanged && state.Continuation == ProgramLifecycleContinuation.ResumeParentProgram || state.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange && state.CharacterStateContinuation == CharacterStateContinuation.Program);
+    }
+    private bool HouChengSuffix(int root) => HasObserverSuffix(root, static (g, i) => g.IsMovementObserverEdge(i) || g.IsSameNameHandObserverEdge(i) || g.IsYanPuDyingExitEdge(i) || g.TypedDamagePostEventEdge(g._resolutionStack[i - 1], g._resolutionStack[i]) || g.DamageFrameRidesOn(g._resolutionStack[i], g._resolutionStack[i - 1]) || DamageObserverRidesOn(g._resolutionStack[i], g._resolutionStack[i - 1]) || g._resolutionStack[i - 1] is ProgramSkillFrame f && g.HouChengFirstChild(f, g._resolutionStack[i]) || NativeDrawAttemptRidesOn(g._resolutionStack[i], g._resolutionStack[i - 1]) || g.RecoveryReplacementFrameRidesOn(g._resolutionStack[i], g._resolutionStack[i - 1]), static (g, i, dying) => g.IsSuspendedOrPaidRescueObserverSuffix(i, dying) || g.TieredRoundZeroDyingRescueRide(i, dying) || g.DrawFundedDistinctBasicDyingRescueRide(i, dying) || g.HuanpeiDyingRescueRide(i, dying));
+    private ProgramSkillFrame? HouChengObserverRoot() => FindProgramObserverRoot(static (g, f, c) => g.HouChengFirstChild(f, c), static (g, i) => g.HouChengSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 47100)] [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 47100)] private bool HouChengDamageObserver(long id) => HouChengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 47100)] private bool HouChengBeforeDamageObserver(long id) => HouChengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 47100)] [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 47100)] private bool HouChengDyingObserver() => ActiveDying is { } dying && HouChengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == dying.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 47100)] [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 47100)] private bool HouChengRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame child)
+    { var a = _resolutionStack.FindIndex(x => x.Id == f.Id); var b = _resolutionStack.FindIndex(x => x.Id == child.Id); return ValidHouCheng(f) && a >= 0 && b > a && HouChengFirstChild(f, _resolutionStack[a + 1]) && (b == a + 1 || HouChengSuffix(a)) && RecoveryReplacementFrameRidesOn(child, _resolutionStack[b - 1]); }
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 47100)] private bool AdvanceHouChengChildren() => _pendingDecision is null && HouChengObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+}

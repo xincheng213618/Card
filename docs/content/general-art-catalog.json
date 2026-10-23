@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-hou-cheng",
+      "characterName": "侯成",
+      "defaultSkinId": "1120901",
+      "skins": [
+        {
+          "id": "1120901",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1209.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1120901.png",
+          "sha256": "07c98f15f52fde225f09e40edccc2a9a1526d854435c80ce4dd97bc87309e944",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-hou-cheng.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-ma-miao",
+      "characterName": "马邈",
+      "defaultSkinId": "1103701",
+      "skins": [
+        {
+          "id": "1103701",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1037.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1103701.png",
+          "sha256": "c29ba2729e8011f1bc698a5da8c8709665bb960cad0db441a3637e845cfc82bc",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-ma-miao.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-cui-lie",
+      "characterName": "崔烈",
+      "defaultSkinId": "165401",
+      "skins": [
+        {
+          "id": "165401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/654.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/165401.png",
+          "sha256": "efd98f08348dd472b0252382e4cc2132487605621f85dc0c44581e3daaa6dee7",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-cui-lie.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-wu-fu",
       "characterName": "伍孚",
       "defaultSkinId": "1172101",

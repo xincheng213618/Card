@@ -13,7 +13,7 @@ public sealed partial class GameEngine
         // discarded-card and owned-card conversion producers. Their paid
         // movement children and committed-use observers have drained before
         // entering this method, including when protection will end the use.
-        if (!(HasDinghanCapability || HasMouChenLin || HasMouSimaShi || HasMouHuangQuan || HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
+        if (!(HasAnniversaryCuiLieCapability || HasDinghanCapability || HasMouChenLin || HasMouSimaShi || HasMouHuangQuan || HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) ||
             LifecycleCardUse(frameId) is not { } use || !IsDelayedCard(use.CardKind) ||
             use.FinalizedTrickProgramsStarted) return false;
         if (_resolutionStack.LastOrDefault()?.Id != frameId ||
@@ -37,7 +37,7 @@ public sealed partial class GameEngine
 
     private bool IsExactFinalizedDelayedPlacementWindow(ProgramCardTriggerWindowFrame window) =>
         IsOriginalUseLightningFinalizedWindow(window) ||
-        (HasDinghanCapability || HasMouChenLin || HasMouSimaShi || HasMouHuangQuan || HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
+        (HasAnniversaryCuiLieCapability || HasDinghanCapability || HasMouChenLin || HasMouSimaShi || HasMouHuangQuan || HasMouXuHuangCapability || HasDiouCapability || HasLiuYanCapability || HasBianFuRenCapability || HasCaoChunCapability || HasNeifaCapability || HasSoleTargetProtectionCapability || HasSuFeiCapability || HasJianjiNativeUseCapability || HasFanChouCapability || HasGuoSiCapability) && window.Continuation == ProgramCardContinuation.FinalizedDelayedPlacement &&
         window.TrickContinuation is { TargetCardId: null, RequiredCardKind: null } continuation &&
         window.SimpleContinuation is null && window.CompletedResponseReturn is null && window.AttackOwnerFrameId is null &&
         LifecycleCardUse(window.ParentFrameId) is
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
         continuation.ActionKind == DelayedPlacementActionKind(use.CardKind) &&
         continuation.EffectCardId == use.CardId && (action.PhysicalCards.Any(cost => cost.CardId == use.CardId) || IsDiouUse(use.Id)) &&
         window.Action.PhysicalCards.SequenceEqual(action.PhysicalCards) &&
-        (action.TargetSeats is [var target] && IsValidPlayerSeat(target) || action.TargetSeats.Count == 0 && HasDinghanCancellation(use)) &&
+        (action.TargetSeats is [var target] && IsValidPlayerSeat(target) || HasAnniversaryCuiLieDelayedTail(use) || action.TargetSeats.Count == 0 && (HasDinghanCancellation(use) || HasAnniversaryCuiLieCancellation(use))) &&
         action.TargetSeats.SequenceEqual(use.TargetSeats);
 
     private void ContinueFinalizedDelayedPlacement(ProgramCardTriggerWindowFrame completedWindow)
@@ -61,6 +61,7 @@ public sealed partial class GameEngine
         if (!IsExactFinalizedDelayedPlacementWindow(completedWindow) ||
             _resolutionStack.LastOrDefault()?.Id != completedWindow.ParentFrameId)
             throw new InvalidOperationException("A finalized delayed placement lost its native typed return.");
+        if (TryBeginAnniversaryCuiLieDelayedPlacement(completedWindow)) return;
         var continuation = completedWindow.TrickContinuation!;
         var use = LifecycleCardUse(completedWindow.ParentFrameId)!;
         var action = use.Action!;
