@@ -15,6 +15,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9D62AB7F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGame.Wpf.Tests", "tests\CardGame.Wpf.Tests\CardGame.Wpf.Tests.csproj", "{54354F2F-92F6-41FA-8699-A7CB62E5CA7F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{93B0EC94-1ABC-4A22-B3FE-10AC7A20B237}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGame.Lan", "src\CardGame.Lan\CardGame.Lan.csproj", "{17F08FE4-5E0D-42FC-9A1C-73EDEB705CF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGame.Server", "src\CardGame.Server\CardGame.Server.csproj", "{8262E8C2-5B68-4434-95A2-82544C5325BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +47,14 @@ Global
 		{54354F2F-92F6-41FA-8699-A7CB62E5CA7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54354F2F-92F6-41FA-8699-A7CB62E5CA7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54354F2F-92F6-41FA-8699-A7CB62E5CA7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17F08FE4-5E0D-42FC-9A1C-73EDEB705CF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17F08FE4-5E0D-42FC-9A1C-73EDEB705CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17F08FE4-5E0D-42FC-9A1C-73EDEB705CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17F08FE4-5E0D-42FC-9A1C-73EDEB705CF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8262E8C2-5B68-4434-95A2-82544C5325BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8262E8C2-5B68-4434-95A2-82544C5325BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8262E8C2-5B68-4434-95A2-82544C5325BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8262E8C2-5B68-4434-95A2-82544C5325BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +62,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{675CB958-A95A-4FDB-8698-2C5A284A25FC} = {9D62AB7F-FC0B-4E84-8335-D527E418A344}
 		{54354F2F-92F6-41FA-8699-A7CB62E5CA7F} = {9D62AB7F-FC0B-4E84-8335-D527E418A344}
+		{17F08FE4-5E0D-42FC-9A1C-73EDEB705CF5} = {93B0EC94-1ABC-4A22-B3FE-10AC7A20B237}
+		{8262E8C2-5B68-4434-95A2-82544C5325BE} = {93B0EC94-1ABC-4A22-B3FE-10AC7A20B237}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {59896EB3-6128-4887-AA3E-726D7A90486F}
