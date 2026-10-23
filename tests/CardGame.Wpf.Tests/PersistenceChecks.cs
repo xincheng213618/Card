@@ -13,7 +13,8 @@ internal static class PersistenceChecks
     private static GameEngine Engine(MainViewModel vm) => (GameEngine)typeof(MainViewModel)
         .GetField("_game", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(vm)!;
     private static string State(MainViewModel vm) => SnapshotJson.Serialize(Engine(vm).CreateSnapshot(0, true));
-    private static MainViewModel Create(IGameSaveStore store, bool showSetup = false) => new(false, 721019, showSetup, store);
+    private static MainViewModel Create(IGameSaveStore store, bool showSetup = false) =>
+        new(false, 721019, showSetup, store, wushuangSaveStore: new MemorySaveStore());
 
     private static FileGameSaveStore FileStore(string output, string name) =>
         new(Path.Combine(output, "save-fixtures", $"{name}-{Guid.NewGuid():N}"));
@@ -182,7 +183,7 @@ internal static class PersistenceChecks
         }
         Require(File.ReadAllText(automaticPath) == "{ invalid automatic save",
             "Initializing and closing after a failed continue must preserve the unreadable autosave.");
-        using (var unexpected = Create(new ThrowingReadSaveStore(store), showSetup: true))
+        using (var unexpected = Create(new SwitchingSaveStore(store) { FailReads = true }, showSetup: true))
         {
             var previous = Engine(unexpected);
             unexpected.ContinueGameCommand.Execute(null);
@@ -211,24 +212,40 @@ internal static class PersistenceChecks
         }
     }
 
-    private sealed class ThrowingReadSaveStore(IGameSaveStore inner) : IGameSaveStore
+    private sealed class SwitchingSaveStore(IGameSaveStore inner) : IGameSaveStore
     {
+        public bool FailReads { get; set; }
+        public bool FailWrites { get; set; }
+        public int ReadCount { get; private set; }
+        public int WriteCount { get; private set; }
         public DateTimeOffset? GetSavedAt(GameSaveSlot slot) => inner.GetSavedAt(slot);
-        public GameSaveFile Read(GameSaveSlot slot) => throw new ArithmeticException("fixture unexpected restore failure");
-        public void Write(GameSaveSlot slot, GameSaveFile save) => inner.Write(slot, save);
+        public GameSaveFile Read(GameSaveSlot slot)
+        {
+            ReadCount++;
+            return FailReads ? throw new ArithmeticException("fixture unexpected restore failure") : inner.Read(slot);
+        }
+        public void Write(GameSaveSlot slot, GameSaveFile save)
+        {
+            if (FailWrites) throw new IOException("fixture automatic save failure");
+            inner.Write(slot, save);
+            WriteCount++;
+        }
     }
 
     public static void FaultedSessionPreservesSavesAndExplainsRecovery()
     {
         var store = new MemorySaveStore();
         using var vm = new MainViewModel(false, 721019, false, store,
-            exceptionReportStore: new ExceptionReportChecks.IgnoredReports());
+            exceptionReportStore: new ExceptionReportChecks.IgnoredReports(), wushuangSaveStore: new MemorySaveStore());
         vm.StartNewGameCommand.Execute(null);
         Step(vm);
         vm.SaveGameCommand.Execute(null);
         Require(!vm.HasSaveError && vm.FlushPendingSave(), vm.SaveStatus);
         var saved = store.Read(GameSaveSlot.Manual);
+        var savedState = State(vm);
+        Require(vm.HasAutomaticSave, "The fault-recovery fixture must retain a valid automatic save.");
         var writes = store.WriteCount;
+        Step(vm);
         var engine = Engine(vm);
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Action fail = () => typeof(GameEngine).GetMethod("ExecuteExclusive", flags)!.Invoke(engine,
@@ -242,6 +259,12 @@ internal static class PersistenceChecks
             !vm.SaveStatus.Contains("不兼容") && !vm.SaveStatus.Contains("仍可继续") && store.WriteCount == writes &&
             ReferenceEquals(saved, store.Read(GameSaveSlot.Manual)),
             "A faulted session must preserve saves and must not be described as incompatible or still playable.");
+        vm.ContinueGameCommand.Execute(null);
+        Require(!vm.HasSaveError && !Engine(vm).IsFaulted && !ReferenceEquals(engine, Engine(vm)) && State(vm) == savedState,
+            "Explicit automatic recovery must still read the trusted save when the faulted live session cannot flush its pending work.");
+        engine = Engine(vm);
+        typeof(MainViewModel).GetMethod("ExecuteSafely", flags)!.Invoke(vm, [fail]);
+        Require(engine.IsFaulted, "The retained manual-recovery check must begin from a faulted restored session.");
         vm.LoadManualGameCommand.Execute(null);
         Require(!vm.HasSaveError && !Engine(vm).IsFaulted && !ReferenceEquals(engine, Engine(vm)),
             "An existing valid save must recover the UI with a separate healthy engine.");
@@ -249,10 +272,12 @@ internal static class PersistenceChecks
 
     public static void AutomaticAndExit()
     {
-        var store = new MemorySaveStore();
+        var memory = new MemorySaveStore();
+        var store = new SwitchingSaveStore(memory);
         using (var emptyStartup = Create(store, showSetup: true)) { }
         Require(store.WriteCount == 0, "An unopened startup game should not replace the previous autosave.");
         string expected;
+        int writesBeforeClose;
         using (var vm = Create(store))
         {
             var window = new MainWindow(vm);
@@ -272,10 +297,50 @@ internal static class PersistenceChecks
                 "Autosave did not include the automatically committed progress.");
             vm.IsAutoAdvance = false;
             Step(vm);
+            var pendingGame = Engine(vm);
+            var pendingViews = SafeViews();
+            var pendingJournal = CommandJson.Serialize(pendingGame.AcceptedCommands);
+            Require(pendingGame.AcceptedCommands.Count > savedCommands,
+                "The lobby continue fixture must have a real accepted action beyond the existing autosave.");
+            vm.NewGameCommand.Execute(null);
+            vm.ContinueGameCommand.Execute(null);
+            Console.WriteLine($"Lobby continue pending progress: saved commands={savedCommands}, " +
+                $"pending={pendingGame.AcceptedCommands.Count}, restored={Engine(vm).AcceptedCommands.Count}, writes={store.WriteCount}.");
+            Require(!vm.IsNewGameSetupOpen && !vm.HasSaveError && SafeViews().SequenceEqual(pendingViews) &&
+                CommandJson.Serialize(Engine(vm).AcceptedCommands) == pendingJournal,
+                "Continuing immediately from the lobby must preserve every committed player view and command before the one-second autosave tick.");
+
+            Step(vm);
+            pendingGame = Engine(vm);
+            pendingViews = SafeViews();
+            pendingJournal = CommandJson.Serialize(pendingGame.AcceptedCommands);
+            var savedBeforeFailure = memory.Read(GameSaveSlot.Automatic);
+            var readsBeforeFailure = store.ReadCount;
+            store.FailWrites = true;
+            try
+            {
+                vm.NewGameCommand.Execute(null);
+                vm.ContinueGameCommand.Execute(null);
+                Require(vm.IsNewGameSetupOpen && vm.HasSaveError && vm.SaveStatus.Contains("保存失败") &&
+                    ReferenceEquals(Engine(vm), pendingGame) && SafeViews().SequenceEqual(pendingViews) &&
+                    CommandJson.Serialize(pendingGame.AcceptedCommands) == pendingJournal && store.ReadCount == readsBeforeFailure &&
+                    ReferenceEquals(memory.Read(GameSaveSlot.Automatic), savedBeforeFailure),
+                    "A failed pre-continue flush must leave the lobby and exact live progress intact without reading or replacing the older autosave.");
+            }
+            finally { store.FailWrites = false; }
+            vm.ContinueGameCommand.Execute(null);
+            Require(!vm.IsNewGameSetupOpen && !vm.HasSaveError && SafeViews().SequenceEqual(pendingViews) &&
+                CommandJson.Serialize(Engine(vm).AcceptedCommands) == pendingJournal,
+                "Retrying automatic continue must save and restore the retained committed progress after storage recovers.");
+            Step(vm);
             expected = State(vm);
+            writesBeforeClose = store.WriteCount;
             window.Close();
+
+            string[] SafeViews() => Enumerable.Range(0, Engine(vm).State.Players.Count)
+                .Select(seat => SnapshotJson.Serialize(Engine(vm).CreateSnapshot(seat))).ToArray();
         }
-        Require(store.WriteCount == 2, "Closing did not flush pending work.");
+        Require(store.WriteCount == writesBeforeClose + 1, "Closing did not flush pending work.");
         using var next = Create(store, showSetup: true);
         Require(next.HasAutomaticSave, "Next launch did not find autosave.");
         next.ContinueGameCommand.Execute(null);

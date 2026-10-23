@@ -24,10 +24,11 @@ public sealed partial class MainViewModel
         ? GameAudioCatalog.ForGeneral(entry.GeneralId).OrderByDescending(voice => voice.Binding.SkinId == entry.Portrait.SkinId)
             .ThenBy(voice => voice.SkinName).ThenBy(voice => voice.SkillName).ToArray() : [];
     public bool HasNoGeneralVoices => GeneralVoices.Count == 0;
-    public string GeneralVoiceStatus => IsAudioUnavailable ? "声音暂不可用 · 可关闭声音后重新开启重试"
-        : !IsSoundEnabled ? "游戏声音已关闭 · 可在设置中开启"
+    public string GeneralVoiceStatus => !IsSoundEnabled ? "游戏声音已关闭 · 可在设置中开启"
         : SoundVolume <= 0 ? "音量为 0 · 可在设置中调高音量"
-        : !IsVoiceEnabled ? "武将配音已关闭 · 可在设置中开启" : "点击试听 · 对局按当前皮肤播放已收录配音";
+        : !IsVoiceEnabled ? "武将配音已关闭 · 可在设置中开启"
+        : IsAudioUnavailable ? "声音暂不可用 · 可关闭声音后重新开启重试"
+        : "点击试听 · 对局按当前皮肤播放已收录配音";
     public ICommand PlayGeneralVoiceCommand { get; private set; } = null!;
     public ICommand PlayGeneralSkillVoiceCommand { get; private set; } = null!;
     public ICommand StopGeneralVoiceCommand { get; private set; } = null!;

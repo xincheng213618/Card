@@ -9,7 +9,9 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Border x:Name="Grip" Width="6" Margin="0,1" Background="{TemplateBinding Background}" BorderBrush="#C2A46A" BorderThickness="1" CornerRadius="3" HorizontalAlignment="Center" />
+                        <Grid Background="Transparent">
+                            <Border x:Name="Grip" Width="6" Margin="0,1" Background="{TemplateBinding Background}" BorderBrush="#C2A46A" BorderThickness="1" CornerRadius="3" HorizontalAlignment="Center" />
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Grip" Property="Background" Value="#C7AA6B" /><Setter TargetName="Grip" Property="BorderBrush" Value="#E8CD93" /></Trigger>
                             <Trigger Property="IsDragging" Value="True"><Setter TargetName="Grip" Property="Background" Value="#E1C284" /><Setter TargetName="Grip" Property="BorderBrush" Value="#F6DFAD" /></Trigger>
@@ -43,6 +45,21 @@
             <Setter Property="Background" Value="#44171310" /><Setter Property="BorderBrush" Value="#81735E" />
             <Setter Property="Foreground" Value="#C5B58E" />
         </Style>
+        <Style x:Key="SetupRoomSeatAction" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+            <Setter Property="Content" Value="添加 AI" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Background" Value="#302921" /><Setter Property="BorderBrush" Value="#746246" />
+            <Setter Property="Command" Value="{Binding DataContext.AddSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+            <Setter Property="AutomationProperties.Name" Value="{Binding Title, StringFormat={}{0}添加 AI}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Kind}" Value="Human"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                <DataTrigger Binding="{Binding CanRemoveAi}" Value="True">
+                    <Setter Property="Content" Value="移除 AI" />
+                    <Setter Property="Command" Value="{Binding DataContext.RemoveSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                    <Setter Property="AutomationProperties.Name" Value="{Binding Title, StringFormat={}{0}移除 AI}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="GeneralRosterCategoryButton" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
             <Setter Property="Background" Value="#29251E" /><Setter Property="BorderBrush" Value="#5B503B" />
             <Setter Property="Foreground" Value="#C7BDA4" /><Setter Property="Padding" Value="10,5" />
@@ -53,6 +70,13 @@
                     <Setter Property="Foreground" Value="#FFE4A7" />
                 </DataTrigger>
             </Style.Triggers>
+        </Style>
+        <Style x:Key="StartingIdentityButton" TargetType="Button" BasedOn="{StaticResource GeneralRosterCategoryButton}">
+            <Setter Property="ToolTip" Value="{Binding Description}" />
+            <Setter Property="Tag">
+                <Setter.Value><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding Path="Name" /><Binding Path="DataContext.HumanPlayer.RoleLabel" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Setter.Value>
+            </Setter>
+            <Style.Triggers><Trigger Property="Tag" Value="True"><Setter Property="AutomationProperties.ItemStatus" Value="当前身份" /></Trigger></Style.Triggers>
         </Style>
         <controls:PromptCardChoiceConverter x:Key="PromptCardChoiceConverter" />
         <DataTemplate x:Key="DragonBoatStandingTemplate">
@@ -206,13 +230,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border x:Name="ChoiceFrame" BorderBrush="#506358" Background="#142227" BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="ChoiceFrame" BorderBrush="#746246" Background="#1B1916" BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="ChoiceFrame" Property="BorderBrush" Value="#E2BE76" />
-                                <Setter TargetName="ChoiceFrame" Property="Background" Value="#344036" />
+                                <Setter TargetName="ChoiceFrame" Property="Background" Value="#594A30" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="ChoiceFrame" Property="BorderBrush" Value="#C6BB8C" />
@@ -1111,19 +1135,22 @@
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding CanCustomizeStartingIdentity, Converter={StaticResource BoolToVisibility}}">
                                         <TextBlock Text="改选身份" Foreground="#C6B895" VerticalAlignment="Center" Margin="0,0,10,0" />
                                         <ItemsControl ItemsSource="{Binding StartingRoles}" ItemsPanel="{StaticResource ChoicePanel}">
-                                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Padding="8,5" Margin="0,0,5,0" /></DataTemplate></ItemsControl.ItemTemplate>
+                                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource StartingIdentityButton}" Padding="8,5" Margin="0,0,5,0" /></DataTemplate></ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </StackPanel>
                                 </DockPanel>
                             </StackPanel>
                             <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="340" /></Grid.ColumnDefinitions>
-                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" MaxHeight="438" VerticalAlignment="Top">
-                                    <Viewbox.Style><Style TargetType="Viewbox"><Style.Triggers><DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></Viewbox.Style>
-                                    <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding CandidateGeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick">
-                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding DataContext.GeneralChoiceColumns, RelativeSource={RelativeSource AncestorType=ItemsControl}}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                    </ItemsControl>
-                                </Viewbox>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="360" /></Grid.ColumnDefinitions>
+                                <ScrollViewer x:Name="GeneralCandidateScroller" AutomationProperties.Name="候选武将" AutomationProperties.HelpText="候选较多时可上下滚动；数字键 1 至 9 预选，按 Tab 浏览其他候选。" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False" MaxHeight="438" VerticalAlignment="Top">
+                                    <ScrollViewer.Style><Style TargetType="ScrollViewer"><Style.Triggers><DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
+                                    <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
+                                    <Viewbox Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top">
+                                        <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding CandidateGeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" PreviewMouseDoubleClick="GeneralChoices_PreviewMouseDoubleClick" Focusable="False" IsTabStop="False">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding DataContext.GeneralChoiceColumns, RelativeSource={RelativeSource AncestorType=ItemsControl}}" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </Viewbox>
+                                </ScrollViewer>
                                 <Grid Visibility="{Binding IsCustomGeneralSelectionOpen, Converter={StaticResource BoolToVisibility}}">
                                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                                     <Grid Margin="0,0,0,9">
@@ -1162,6 +1189,7 @@
                                 </Grid>
                                 <Border Grid.Column="1" Background="#191713" BorderBrush="#67573E" BorderThickness="1" Margin="18,0,0,0" Padding="14">
                                   <ScrollViewer x:Name="GeneralSelectionSkillsScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                                    <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                                         <Grid Margin="0,0,0,12">
@@ -1169,9 +1197,10 @@
                                             <Border x:Name="GeneralSelectionPreviewPortrait" Width="90" Height="122" HorizontalAlignment="Left" BorderBrush="#967F54" BorderThickness="1" Background="{Binding SelectedGeneralChoice.Portrait.ThumbnailBrush}" />
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                                 <TextBlock Text="当前预选" Foreground="#B7A17B" FontSize="11" Margin="0,0,0,8" />
-                                                <TextBlock Text="{Binding SelectedGeneralChoice.Name}" FontFamily="KaiTi" FontSize="27" Foreground="#F7D898" TextWrapping="Wrap" />
+                                                <TextBlock x:Name="GeneralSelectionPreviewName" Text="{Binding SelectedGeneralChoice.CardName}" ToolTip="{Binding SelectedGeneralChoice.Name}" FontFamily="KaiTi" FontSize="25" Foreground="#F7D898" TextWrapping="Wrap" />
+                                                <TextBlock x:Name="GeneralSelectionRulesLabel" Text="{Binding SelectedGeneralChoice.RulesLabel}" Visibility="{Binding SelectedGeneralChoice.HasRulesLabel, Converter={StaticResource BoolToVisibility}}" Foreground="#E5C58A" FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0" />
                                                 <TextBlock Text="{Binding SelectedGeneralChoice.Kingdom}" Foreground="#BFC898" FontSize="12" Margin="0,7,0,0" />
-                                                <TextBlock Text="{Binding SelectedGeneralChoice.EditionText}" Foreground="#AD9A76" FontSize="11" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding SelectedGeneralChoice.EditionText}" Foreground="#C2AF8B" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap" />
                                             </StackPanel>
                                         </Grid>
                                         <TextBlock Grid.Row="1" Text="{Binding SelectedGeneralChoice.HealthText}" Foreground="#BDCCA0" FontSize="12" Margin="0,0,0,10" />
@@ -1212,8 +1241,17 @@
                             <Grid Grid.Row="2" Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="单击 / 数字键预选 · Enter 预选焦点项，再次确认 · 双击确认" Foreground="#D3BE8A" FontSize="12" />
-                                    <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#94866F" FontSize="10" Margin="0,5,12,0" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="GeneralSelectionInputHint" Foreground="#D3BE8A" FontSize="12" TextWrapping="Wrap" Margin="0,0,12,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding GeneralChoices.Count, StringFormat={}{0} 名候选 · 滚动 / Tab 浏览 · 数字键 1–9 预选 · Enter 预选焦点项，再次确认 · 双击确认}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Text" Value="滚动 / Tab 浏览 · 数字键 1–9 预选 · Enter 预选焦点项，再次确认 · 双击确认" /></DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#B7A68A" FontSize="11" Margin="0,6,12,0" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <Button x:Name="ConfirmGeneralChoiceButton" Grid.Column="1" Content="确 认 出 征" Command="{Binding ConfirmGeneralChoiceCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="132" Padding="17,9" />
                             </Grid>
@@ -1388,7 +1426,7 @@
                     <StackPanel Visibility="{Binding CanCustomizeStartingIdentity, Converter={StaticResource BoolToVisibility}}" Margin="0,18,0,0">
                         <TextBlock Text="自选身份" Foreground="#C6B895" HorizontalAlignment="Center" Margin="0,0,0,8" />
                         <ItemsControl x:Name="IdentityOverrideChoices" ItemsSource="{Binding StartingRoles}" ItemsPanel="{StaticResource ChoicePanel}" HorizontalAlignment="Center">
-                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Padding="10,6" Margin="3,0" /></DataTemplate></ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Name}" Command="{Binding DataContext.ChangeStartingIdentityCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource StartingIdentityButton}" Padding="10,6" Margin="3,0" /></DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                     <Border Background="#112127" BorderBrush="#465C53" BorderThickness="1" Padding="12,8" Margin="36,20,36,0">
@@ -1411,6 +1449,7 @@
             </Border.Style>
             <Grid>
                 <controls:HomeLobby x:Name="LobbyHome" Button.Click="WushuangSaveAccessRetry_Click">
+                    <controls:HomeLobby.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></controls:HomeLobby.Resources>
                     <controls:HomeLobby.Style>
                         <Style TargetType="controls:HomeLobby">
                             <Style.Triggers><DataTrigger Binding="{Binding IsLobbyConfigurationOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger></Style.Triggers>
@@ -1418,7 +1457,7 @@
                     </controls:HomeLobby.Style>
                 </controls:HomeLobby>
                 <Border x:Name="LobbyConfigurationOverlay" Background="#D9191818" Visibility="{Binding IsLobbyConfigurationOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="NewGameSetupPanel_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
-            <Border Width="1000" Background="#1A282D" BorderBrush="#A28750" BorderThickness="1" Padding="24" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
+            <Border Width="1000" Background="#201D19" BorderBrush="#A28750" BorderThickness="1" Padding="24" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
                         <TextBlock x:Name="LobbySaveErrorText" Text="{Binding SessionSaveStatus}" Visibility="{Binding HasSaveError, Converter={StaticResource BoolToVisibility}}" TextWrapping="Wrap" Foreground="#E5A396" Margin="4,0,4,12" />
@@ -1429,19 +1468,20 @@
                             </DockPanel>
                         </Border>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Content="{Binding LobbySetupBackText}" Command="{Binding BackInLobbySetupCommand}" Style="{StaticResource ToolbarButton}" MinWidth="130" />
-                            <Button Content="补齐 AI" Command="{Binding FillSetupRoomAiCommand}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" MinWidth="110" Margin="8,0" />
-                            <Button x:Name="StartNewGameButton" Content="快 速 开 始" ToolTip="沿用单机玩法，其他座位自动补齐 AI。" Command="{Binding StartNewGameFromLobbyCommand}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" MinWidth="140" Margin="0,0,8,0" />
+                            <Button Content="{Binding LobbySetupBackText}" Command="{Binding BackInLobbySetupCommand}" Style="{StaticResource ToolbarButton}" Background="#302921" BorderBrush="#746246" MinWidth="130" />
+                            <Button Content="补齐 AI" Command="{Binding FillSetupRoomAiCommand}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Background="#302921" BorderBrush="#746246" MinWidth="110" Margin="8,0" />
+                            <Button x:Name="StartNewGameButton" Content="快 速 开 始" ToolTip="沿用单机玩法，其他座位自动补齐 AI。" Command="{Binding StartNewGameFromLobbyCommand}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Background="#302921" BorderBrush="#746246" MinWidth="140" Margin="0,0,8,0" />
                             <Button x:Name="StartSetupRoomButton" Content="开 始 对 局" Command="{Binding StartSetupRoomCommand}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource PrimaryButton}" MinWidth="160" ToolTip="房间满员后开始对局。" />
                         </StackPanel>
-                        <TextBlock Text="开始新对局会替换当前对局；返回大厅可保留当前进度。" Foreground="#778E80" FontSize="10" HorizontalAlignment="Center" Margin="0,13,0,0" />
+                        <TextBlock Text="开始新对局会替换当前对局；返回大厅可保留当前进度。" Foreground="#B5A58B" FontSize="11" HorizontalAlignment="Center" Margin="0,13,0,0" />
                     </StackPanel>
                 <ScrollViewer x:Name="ModeSetupScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                    <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
                     <StackPanel>
                         <TextBlock Text="选 择 模 式" Visibility="{Binding IsModeSelectionOpen, Converter={StaticResource BoolToVisibility}}" FontFamily="KaiTi" FontSize="34" Foreground="#F1D298" HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding SetupRoomTitle}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" FontFamily="KaiTi" FontSize="34" Foreground="#F1D298" HorizontalAlignment="Center" />
-                        <TextBlock Text="选择想玩的模式，进入房间安排成员" Visibility="{Binding IsModeSelectionOpen, Converter={StaticResource BoolToVisibility}}" Foreground="#9BAC9F" FontSize="12" HorizontalAlignment="Center" Margin="0,9,0,16" />
-                        <TextBlock Text="{Binding SetupRoomStatus}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" Foreground="#9BAC9F" FontSize="12" HorizontalAlignment="Center" Margin="0,9,0,16" />
+                        <TextBlock Text="选择想玩的模式，进入房间安排成员" Visibility="{Binding IsModeSelectionOpen, Converter={StaticResource BoolToVisibility}}" Foreground="#C2B297" FontSize="12" HorizontalAlignment="Center" Margin="0,9,0,16" />
+                        <TextBlock Text="{Binding SetupRoomStatus}" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" Foreground="#C2B297" FontSize="13" HorizontalAlignment="Center" Margin="0,9,0,16" />
                         <StackPanel Visibility="{Binding IsModeSelectionOpen, Converter={StaticResource BoolToVisibility}}" x:Name="ModeSelectionPanel" IsVisibleChanged="LobbySetupStep_IsVisibleChanged">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
                             <Button x:Name="SetupTutorialButton" Content="四步新手演练" Command="{Binding StartTutorialCommand}" Style="{StaticResource PrimaryButton}" Padding="17,9" />
@@ -1449,7 +1489,7 @@
                             <Button x:Name="ConfigurationHistoryButton" Content="历史战绩" Command="{Binding OpenHistoryCommand}" Style="{StaticResource QuietButton}" Padding="14,9" />
                         </StackPanel>
                         <TextBlock Text="{Binding TutorialEntryError}" Visibility="{Binding HasTutorialEntryError, Converter={StaticResource BoolToVisibility}}" Foreground="#E5A396" HorizontalAlignment="Center" Margin="0,0,0,12" />
-                        <Border Visibility="{Binding HasAnySave, Converter={StaticResource BoolToVisibility}}" Background="#142227" BorderBrush="#53624E" BorderThickness="1" Padding="12,9" Margin="4,0,4,18">
+                        <Border Visibility="{Binding HasAnySave, Converter={StaticResource BoolToVisibility}}" Background="#1B1916" BorderBrush="#746246" BorderThickness="1" Padding="12,9" Margin="4,0,4,18">
                             <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -1458,14 +1498,14 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="续 接 战 局" FontFamily="KaiTi" FontSize="20" Foreground="#E6C58C" />
-                                    <TextBlock Text="{Binding AutomaticSaveText}" Foreground="#879C8D" FontSize="10" Margin="0,4,0,0" />
+                                    <TextBlock Text="{Binding AutomaticSaveText}" Foreground="#BCA98A" FontSize="11" Margin="0,4,0,0" />
                                 </StackPanel>
                                 <Button Grid.Column="1" Content="继续上次对局" Command="{Binding ContinueGameCommand}" Style="{StaticResource PrimaryButton}" Visibility="{Binding HasAutomaticSave, Converter={StaticResource BoolToVisibility}}" VerticalAlignment="Center" Padding="16,8" />
                                 <Button Grid.Column="2" Content="读取手动存档" Command="{Binding LoadManualGameCommand}" Style="{StaticResource ToolbarButton}" Visibility="{Binding HasManualSave, Converter={StaticResource BoolToVisibility}}" VerticalAlignment="Center" Padding="12,8" ToolTip="{Binding ManualSaveText}" />
                             </Grid>
                         </Border>
                         <DockPanel Margin="4,0,4,8">
-                            <TextBlock DockPanel.Dock="Right" Text="{Binding ModeLobbySummary}" Foreground="#758D82" FontSize="10" VerticalAlignment="Center" />
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding ModeLobbySummary}" Foreground="#B5A58B" FontSize="11" VerticalAlignment="Center" />
                             <TextBlock Text="模式大厅" Foreground="#CFB985" FontSize="13" />
                         </DockPanel>
                         <ListBox x:Name="ModeCategoryChoices" ItemsSource="{Binding ModeCategories}" SelectedItem="{Binding SelectedModeCategory}" Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,8" AutomationProperties.Name="模式分类">
@@ -1473,8 +1513,8 @@
                             <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ListBox.ItemTemplate>
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
-                                    <Setter Property="Foreground" Value="#93A99C" /><Setter Property="Padding" Value="15,6" /><Setter Property="Margin" Value="0,0,5,0" /><Setter Property="Cursor" Value="Hand" />
-                                    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="CategoryFrame" Background="#142329" BorderBrush="#40534B" BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}"><ContentPresenter /></Border><ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="CategoryFrame" Property="Background" Value="#8B7042" /><Setter TargetName="CategoryFrame" Property="BorderBrush" Value="#D2B46F" /><Setter Property="Foreground" Value="#FFF0C8" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+                                    <Setter Property="Foreground" Value="#C2B297" /><Setter Property="Padding" Value="15,6" /><Setter Property="Margin" Value="0,0,5,0" /><Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="CategoryFrame" Background="#1B1916" BorderBrush="#746246" BorderThickness="1" CornerRadius="3" Padding="{TemplateBinding Padding}"><ContentPresenter /></Border><ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="CategoryFrame" Property="Background" Value="#8B7042" /><Setter TargetName="CategoryFrame" Property="BorderBrush" Value="#D2B46F" /><Setter Property="Foreground" Value="#FFF0C8" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
                                 </Style>
                             </ListBox.ItemContainerStyle>
                         </ListBox>
@@ -1482,15 +1522,18 @@
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Command="{Binding DataContext.OpenModeConfigurationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" MinHeight="120" Padding="12" Margin="4" Background="#142329" BorderBrush="#53664F" AutomationProperties.Name="{Binding Name}">
+                                    <Button Command="{Binding DataContext.OpenModeConfigurationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" MinHeight="120" Padding="12" Margin="4" AutomationProperties.Name="{Binding Name}">
+                                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource GeneralRosterCategoryButton}"><Setter Property="Background" Value="#1B1916" /><Setter Property="BorderBrush" Value="#746246" /><Style.Triggers><Trigger Property="Tag" Value="True"><Setter Property="AutomationProperties.ItemStatus" Value="当前配置" /></Trigger></Style.Triggers></Style></Button.Style>
+                                        <Button.Tag><MultiBinding Converter="{StaticResource SelectionMatch}"><Binding /><Binding Path="DataContext.SelectedModeGroup" RelativeSource="{RelativeSource AncestorType=Window}" /></MultiBinding></Button.Tag>
                                         <StackPanel>
-                                            <DockPanel>
-                                                <TextBlock DockPanel.Dock="Right" Text="{Binding PlayerCountText}" Foreground="#789083" FontSize="10" VerticalAlignment="Center" />
-                                                <TextBlock Text="{Binding Name}" FontSize="17" Foreground="#E6C58C" TextWrapping="Wrap" />
-                                            </DockPanel>
-                                            <TextBlock Text="{Binding ModeBadge}" Foreground="#B39A65" FontSize="9" Margin="0,5,0,0" />
-                                            <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap" />
-                                            <TextBlock Text="{Binding SelectionHint}" Foreground="#D0B67E" FontSize="10" Margin="0,10,0,0" />
+                                            <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="20" Foreground="#E6C58C" TextWrapping="Wrap" />
+                                            <WrapPanel Margin="0,5,0,0">
+                                                <TextBlock Text="{Binding ModeBadge}" Foreground="#B39A65" FontSize="11" />
+                                                <TextBlock Text="{Binding PlayerCountText}" Foreground="#BCA98A" FontSize="11" Margin="12,0,0,0" />
+                                                <TextBlock Text="当前配置" Foreground="#FFE4A7" FontSize="11" Margin="8,0,0,0" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}, Converter={StaticResource BoolToVisibility}}" />
+                                            </WrapPanel>
+                                            <TextBlock Text="{Binding Description}" Foreground="#C5B69C" FontSize="12" LineHeight="19" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding SelectionHint}" Foreground="#D0B67E" FontSize="11" Margin="0,10,0,0" />
                                         </StackPanel>
                                     </Button>
                                 </DataTemplate>
@@ -1498,23 +1541,22 @@
                         </ItemsControl>
                         </StackPanel>
                         <StackPanel x:Name="ModeConfigurationPanel" Visibility="{Binding IsModeConfigurationOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="LobbySetupStep_IsVisibleChanged">
-                        <ItemsControl x:Name="SetupRoomSeatCards" ItemsSource="{Binding SetupRoomSeats}" Margin="0,0,0,10" AutomationProperties.Name="房间座位">
+                        <ItemsControl x:Name="SetupRoomSeatCards" ItemsSource="{Binding SetupRoomSeats}" Margin="0,0,0,10" Focusable="False" IsTabStop="False" AutomationProperties.Name="房间座位">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="4" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate><DataTemplate>
-                                <Border Background="#142227" BorderBrush="#8C744C" BorderThickness="1" CornerRadius="4" Padding="12" Margin="4" MinHeight="145">
+                                <Border Background="#1B1916" BorderBrush="#8C744C" BorderThickness="1" CornerRadius="4" Padding="12" Margin="4" MinHeight="145">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Title}" Foreground="#B39A65" FontSize="11" />
+                                        <TextBlock Text="{Binding Title}" Foreground="#B39A65" FontSize="12" />
                                         <TextBlock Text="{Binding Name}" Foreground="#E6C58C" FontFamily="KaiTi" FontSize="25" Margin="0,8,0,6" />
-                                        <TextBlock Text="{Binding Detail}" Foreground="#9FAF9F" FontSize="11" Margin="0,0,0,10" />
-                                        <Button Content="添加 AI" Command="{Binding DataContext.AddSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Visibility="{Binding CanAddAi, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Padding="10,6" AutomationProperties.Name="{Binding Title, StringFormat={}{0}添加 AI}" />
-                                        <Button Content="移除 AI" Command="{Binding DataContext.RemoveSetupRoomAiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Visibility="{Binding CanRemoveAi, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource QuietButton}" Padding="10,6" AutomationProperties.Name="{Binding Title, StringFormat={}{0}移除 AI}" />
+                                        <TextBlock Text="{Binding Detail}" Foreground="#C5B69C" FontSize="12" Margin="0,0,0,10" />
+                                        <Button CommandParameter="{Binding}" Style="{StaticResource SetupRoomSeatAction}" />
                                     </StackPanel>
                                 </Border>
                             </DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <DockPanel Margin="4,0,4,12">
                             <Button DockPanel.Dock="Right" Content="联机房间列表 ›" Click="OpenLanRooms" Visibility="{Binding CanOpenSelectedLanMode, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource ToolbarButton}" Padding="12,7" ToolTip="同一模式下创建或加入局域网房间，邀请真人与 AI 一起玩。" />
-                            <TextBlock Text="本地房间 · 你操作自己的角色，其余座位安排 AI。" Foreground="#8EA597" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <TextBlock Text="本地房间 · 你操作自己的角色，其余席位安排 AI。身份局开局后按主公位置确定牌桌号位。" Foreground="#C2B297" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
                         <TextBlock Text="房 间 设 置" Foreground="#CFB985" FontFamily="KaiTi" FontSize="22" Margin="4,6,4,12" />
                         <TextBlock Text="选择难度 / 版本" Visibility="{Binding HasModeVariantChoices, Converter={StaticResource BoolToVisibility}}" Foreground="#CFB985" FontSize="15" Margin="4,4,4,8" />
@@ -1528,19 +1570,19 @@
                                 <DataTemplate>
                                     <StackPanel Margin="6,5">
                                         <DockPanel>
-                                            <TextBlock DockPanel.Dock="Right" Text="{Binding PlayerCountText}" Foreground="#789083" FontSize="10" VerticalAlignment="Center" />
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding PlayerCountText}" Foreground="#B5A58B" FontSize="11" VerticalAlignment="Center" />
                                             <TextBlock Text="{Binding DifficultyName}" FontSize="17" Foreground="#E6C58C" TextWrapping="Wrap" />
                                         </DockPanel>
-                                        <TextBlock Text="{Binding ModeBadge}" Foreground="#B39A65" FontSize="9" Margin="0,5,0,0" />
-                                        <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding ModeBadge}" Foreground="#B39A65" FontSize="11" Margin="0,5,0,0" />
+                                        <TextBlock Text="{Binding Description}" Foreground="#C5B69C" FontSize="12" LineHeight="19" Margin="0,8,0,0" TextWrapping="Wrap" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <Border Background="#142227" BorderBrush="#53624E" BorderThickness="1" Padding="12,9" Margin="4,8">
+                        <Border Background="#1B1916" BorderBrush="#746246" BorderThickness="1" Padding="12,9" Margin="4,8">
                             <StackPanel>
                                 <TextBlock Text="{Binding SelectedTableMode.Name}" Foreground="#E6C58C" FontSize="16" />
-                                <TextBlock Text="{Binding SelectedTableMode.Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding SelectedTableMode.Description}" Foreground="#C5B69C" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
                         <StackPanel Orientation="Horizontal" Margin="4,4,4,8" Visibility="{Binding IsWushuangModeSelection, Converter={StaticResource BoolToVisibility}}">
@@ -1555,12 +1597,12 @@
                                     <DataTemplate>
                                         <StackPanel Margin="6,5">
                                             <TextBlock Text="{Binding Name}" FontSize="17" Foreground="#E6C58C" />
-                                            <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Description}" Foreground="#C5B69C" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                            <TextBlock Text="{Binding DeckSetupText}" Foreground="#80998C" FontSize="10" Margin="8,5,8,0" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding DeckSetupText}" Foreground="#B5A58B" FontSize="11" Margin="8,5,8,0" TextWrapping="Wrap" />
                         </StackPanel>
                         <TextBlock Text="{Binding SetupIdentityLabel}" Foreground="#CFB985" FontSize="13" Margin="4,16,0,8" />
                         <ListBox x:Name="RoleChoices" ItemsSource="{Binding StartingRoles}" SelectedItem="{Binding SelectedStartingRole}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsIdentityModeSelection, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="选择你的身份" PreviewMouseLeftButtonDown="RequiredSetupChoice_PreviewMouseLeftButtonDown" PreviewKeyDown="RequiredSetupChoice_PreviewKeyDown">
@@ -1573,7 +1615,7 @@
                                 <DataTemplate>
                                     <StackPanel Margin="4,6" MinHeight="73">
                                         <TextBlock Text="{Binding Name}" Foreground="#E6C58C" FontSize="20" FontFamily="KaiTi" FontWeight="Bold" />
-                                        <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" TextWrapping="Wrap" LineHeight="18" Margin="0,8,0,0" />
+                                        <TextBlock Text="{Binding Description}" Foreground="#C5B69C" FontSize="12" TextWrapping="Wrap" LineHeight="18" Margin="0,8,0,0" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -1584,14 +1626,14 @@
                                 <DataTemplate>
                                     <StackPanel Margin="6,5">
                                         <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="22" Foreground="#E6C58C" />
-                                        <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" Margin="0,6,0,0" />
+                                        <TextBlock Text="{Binding Description}" Foreground="#C5B69C" FontSize="12" Margin="0,6,0,0" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
                         <ListBox x:Name="GuanduRoleChoices" ItemsSource="{Binding GuanduRoles}" SelectedItem="{Binding SelectedGuanduRole}" ItemContainerStyle="{StaticResource SetupChoiceItem}" Visibility="{Binding IsGuanduActivityModeSelection, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="官渡主帅或部将">
                             <ListBox.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate></ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="6,5"><TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="22" Foreground="#E6C58C" /><TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
+                            <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="6,5"><TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="22" Foreground="#E6C58C" /><TextBlock Text="{Binding Description}" Foreground="#C5B69C" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                         <ListBox x:Name="WenheAspirationChoices" ItemsSource="{Binding WenheAspirations}" SelectedItem="{Binding SelectedWenheAspiration}" ItemContainerStyle="{StaticResource SetupChoiceItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Visibility="{Binding IsWenheAspirationSelection, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="选择本局免费志向">
                             <ListBox.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate></ListBox.ItemsPanel>
@@ -1599,19 +1641,19 @@
                                 <DataTemplate>
                                     <StackPanel Margin="6,5">
                                         <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontSize="22" Foreground="#E6C58C" />
-                                        <TextBlock Text="{Binding Description}" Foreground="#9FAF9F" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                        <TextBlock Text="{Binding Description}" Foreground="#C5B69C" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <Border Visibility="{Binding ShowModeSetupText, Converter={StaticResource BoolToVisibility}}" Background="#142A31" BorderBrush="#4C806D" BorderThickness="1" Padding="12,8" Margin="4,8,4,0">
+                        <Border Visibility="{Binding ShowModeSetupText, Converter={StaticResource BoolToVisibility}}" Background="#28251F" BorderBrush="#746246" BorderThickness="1" Padding="12,8" Margin="4,8,4,0">
                             <StackPanel>
-                                <TextBlock Text="{Binding TeamModeSetupText}" Foreground="#9FAF9F" FontSize="11" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding TeamModeSetupText}" Foreground="#C5B69C" FontSize="12" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
                         <CheckBox Content="自己选择回合末弃牌" IsChecked="{Binding ManualDiscardEnabled}" Style="{StaticResource PreferencesCheckBox}" Margin="8,16,0,7" />
-                        <TextBlock Text="{Binding NationalSetupText}" Visibility="{Binding IsNationalModeSelection, Converter={StaticResource BoolToVisibility}}" Foreground="#AEC0A9" FontSize="12" TextWrapping="Wrap" Margin="8,2,8,10" />
-                        <TextBlock Text="开启后，手牌超过体力时由你决定保留哪些牌。AI 自动行动，并在需要你出牌、弃牌或响应时暂停。" Foreground="#7F9B8B" TextWrapping="Wrap" LineHeight="20" FontSize="11" Margin="8,0,8,0" />
+                        <TextBlock Text="{Binding NationalSetupText}" Visibility="{Binding IsNationalModeSelection, Converter={StaticResource BoolToVisibility}}" Foreground="#D6C5A7" FontSize="12" TextWrapping="Wrap" Margin="8,2,8,10" />
+                        <TextBlock Text="开启后，手牌超过体力时由你决定保留哪些牌。AI 自动行动，并在需要你出牌、弃牌或响应时暂停。" Foreground="#BCA98A" TextWrapping="Wrap" LineHeight="20" FontSize="12" Margin="8,0,8,0" />
                         <WrapPanel HorizontalAlignment="Center" Margin="0,16,0,0">
                             <CheckBox x:Name="SetupSoundToggle" Content="游戏声音" IsChecked="{Binding IsSoundEnabled}" Style="{StaticResource PreferencesCheckBox}" VerticalAlignment="Center" ToolTip="{Binding SoundStatusText}" />
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,24,0">
@@ -1619,11 +1661,11 @@
                                 <TextBlock x:Name="SetupSoundVolumeValue" Text="{Binding SoundVolume, StringFormat={}{0:P0}}" Foreground="#D3B97F" FontSize="12" MinWidth="42" TextAlignment="Right" VerticalAlignment="Center" Margin="8,0,0,0" />
                             </StackPanel>
                             <CheckBox x:Name="SetupMotionToggle" Content="动画效果" IsChecked="{Binding IsMotionEnabled}" Style="{StaticResource PreferencesCheckBox}" VerticalAlignment="Center" />
-                            <TextBlock Text="下次启动沿用设置" Foreground="#80998C" FontSize="10" VerticalAlignment="Center" Margin="18,0,0,0" />
+                            <TextBlock Text="下次启动沿用设置" Foreground="#B5A58B" FontSize="11" VerticalAlignment="Center" Margin="18,0,0,0" />
                         </WrapPanel>
                         <DockPanel x:Name="SetupPreferencesError" Margin="8,8,8,0" Visibility="{Binding HasPreferencesError, Converter={StaticResource BoolToVisibility}}">
-                            <Button x:Name="RetrySetupPreferencesButton" DockPanel.Dock="Right" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySetupPreferences_Click" Style="{StaticResource QuietButton}" Padding="10,4" AutomationProperties.Name="重试读取或保存本机设置" />
-                            <TextBlock Text="{Binding PreferencesStatus}" Foreground="#D5AA85" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <Button x:Name="RetrySetupPreferencesButton" DockPanel.Dock="Right" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySetupPreferences_Click" IsKeyboardFocusWithinChanged="PreferencesRetry_IsKeyboardFocusWithinChanged" Style="{StaticResource QuietButton}" Padding="10,4" AutomationProperties.Name="重试读取或保存本机设置" />
+                            <TextBlock Text="{Binding PreferencesStatus}" Foreground="#D5AA85" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1643,8 +1685,8 @@
         <Border x:Name="HistoryOverlay" Background="#ED0B151A" Visibility="{Binding IsHistoryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="HistoryOverlay_IsVisibleChanged">
             <controls:MatchHistoryPanel x:Name="HistoryPanel" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}" />
         </Border>
-        <Border x:Name="SettingsOverlay" Background="#ED0B151A" Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="SettingsOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
-            <Border x:Name="SettingsPanel" Width="680" MaxHeight="650" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#F414242A" BorderBrush="#9A8158" BorderThickness="1" CornerRadius="5" Padding="28" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
+        <Border x:Name="SettingsOverlay" Background="#ED15120E" Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="SettingsOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
+            <Border x:Name="SettingsPanel" Width="680" MaxHeight="650" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#F4201D19" BorderBrush="#B29A68" BorderThickness="1" CornerRadius="5" Padding="28" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -1671,24 +1713,25 @@
                         </Button>
                         <StackPanel>
                             <TextBlock Text="牌 局 设 置" FontFamily="KaiTi" FontSize="28" Foreground="#E8CA8D" />
-                            <TextBlock Text="辅助表现独立于规则结算；调整后不会替你选牌或提交行动。" Foreground="#8EA397" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="声音与动画保存在本机，对局节奏随牌局存档恢复。" Foreground="#C2B297" FontSize="12" Margin="0,6,12,0" TextWrapping="Wrap" />
                         </StackPanel>
                     </DockPanel>
                     <ScrollViewer x:Name="SettingsContentScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False" Margin="0,22,0,0" Padding="0,0,8,4" AutomationProperties.Name="游戏设置内容">
+                      <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
                       <StackPanel x:Name="SettingsContentHost">
                         <Border x:Name="SettingsPreferencesError" Background="#382B22" BorderBrush="#A57D4D" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,12" Visibility="{Binding HasPreferencesError, Converter={StaticResource BoolToVisibility}}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding PreferencesStatus}" Foreground="#F0D0A8" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,14,0" />
-                                <Button x:Name="RetrySettingsPreferencesButton" Grid.Column="1" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySettingsPreferences_Click" Style="{StaticResource ToolbarButton}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="重试读取或保存本机设置" />
+                                <Button x:Name="RetrySettingsPreferencesButton" Grid.Column="1" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySettingsPreferences_Click" IsKeyboardFocusWithinChanged="PreferencesRetry_IsKeyboardFocusWithinChanged" Style="{StaticResource ToolbarButton}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="重试读取或保存本机设置" />
                             </Grid>
                         </Border>
-                    <Border Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18">
+                    <Border Background="#28251F" BorderBrush="#746246" BorderThickness="1" CornerRadius="4" Padding="16">
                         <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="126" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="基础表现" FontFamily="KaiTi" FontSize="20" Foreground="#DFC081" />
-                                <TextBlock Text="保存在本机" Foreground="#72887D" FontSize="10" Margin="0,4,0,0" />
+                                <TextBlock Text="保存在本机" Foreground="#BCA98A" FontSize="11" Margin="0,6,0,0" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <CheckBox x:Name="SettingsSoundToggle" Content="游戏声音" IsChecked="{Binding IsSoundEnabled}" Style="{StaticResource PreferencesCheckBox}" />
@@ -1696,7 +1739,7 @@
                                     <TextBlock x:Name="SettingsSoundVolumeValue" DockPanel.Dock="Right" Text="{Binding SoundVolume, StringFormat={}{0:P0}}" Foreground="#D3B97F" FontSize="12" MinWidth="42" TextAlignment="Right" VerticalAlignment="Center" Margin="12,0,0,0" />
                                     <Slider x:Name="SettingsSoundVolume" Style="{StaticResource PreferencesVolumeSlider}" Value="{Binding SoundVolume}" Minimum="0" Maximum="1" TickFrequency="0.05" SmallChange="0.05" LargeChange="0.1" IsMoveToPointEnabled="True" IsEnabled="{Binding IsSoundEnabled}" VerticalAlignment="Center" AutomationProperties.Name="游戏音量" AutomationProperties.HelpText="左右方向键调整音量。关闭游戏声音时保留当前音量。" ToolTip="{Binding SoundStatusText}" />
                                 </DockPanel>
-                                <TextBlock Text="{Binding SoundStatusText}" Foreground="#879C90" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding SoundStatusText}" Foreground="#C5B69C" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
                                 <WrapPanel Margin="0,12,0,0">
                                     <CheckBox x:Name="SettingsMusicToggle" Content="背景音乐" IsChecked="{Binding IsMusicEnabled}" Style="{StaticResource PreferencesCheckBox}" Margin="0,0,20,0" />
                                     <CheckBox x:Name="SettingsVoiceToggle" Content="武将配音" IsChecked="{Binding IsVoiceEnabled}" Style="{StaticResource PreferencesCheckBox}" />
@@ -1706,12 +1749,12 @@
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <Border Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18" Margin="0,12,0,0">
+                    <Border Background="#28251F" BorderBrush="#746246" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,16,0,0">
                         <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="126" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="对局节奏" FontFamily="KaiTi" FontSize="20" Foreground="#DFC081" />
-                                <TextBlock Text="随当前存档恢复" Foreground="#72887D" FontSize="10" Margin="0,4,0,0" />
+                                <TextBlock Text="随当前存档恢复" Foreground="#BCA98A" FontSize="11" Margin="0,6,0,0" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <CheckBox x:Name="SettingsAutoAdvanceToggle" Content="自动推进其他角色行动" IsChecked="{Binding IsAutoAdvance}" Style="{StaticResource PreferencesCheckBox}" />
@@ -1736,15 +1779,23 @@
                                         </Style>
                                     </ListBox.ItemContainerStyle>
                                 </ListBox>
-                                <TextBlock Text="调整自动行动的等待时间与战斗动画节奏；轮到你出牌、响应或选择时仍会停下。" Foreground="#879C90" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                <TextBlock Text="调整自动行动的等待时间与战斗动画节奏；轮到你出牌、响应或选择时仍会停下。" Foreground="#C5B69C" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" />
+                                <Border x:Name="SettingsSessionSaveError" Background="#382B22" BorderBrush="#A57D4D" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
+                                    <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions><Condition Binding="{Binding HasSaveError}" Value="True" /><Condition Binding="{Binding IsTutorialActive}" Value="False" /></MultiDataTrigger.Conditions><Setter Property="Visibility" Value="Visible" /></MultiDataTrigger></Style.Triggers></Style></Border.Style>
+                                    <StackPanel>
+                                        <TextBlock Text="牌局存档" Foreground="#EAC78B" FontSize="12" />
+                                        <TextBlock x:Name="SettingsSessionSaveStatus" Text="{Binding SessionSaveStatus}" Foreground="#F0D0A8" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+                                        <Button x:Name="SettingsSaveGameButton" Content="手动保存牌局" Command="{Binding SaveGameCommand}" Click="SettingsSaveGame_Click" Style="{StaticResource ToolbarButton}" Padding="10,5" Margin="0,8,0,0" HorizontalAlignment="Left" ToolTip="保存当前牌局和对局节奏，更新本局手动存档；声音与动画仍独立保存在本机。" AutomationProperties.Name="手动保存当前牌局和对局节奏" />
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <Border BorderBrush="#4B5D54" BorderThickness="1,0,0,0" Padding="14,0,0,0" Margin="0,18,0,0">
+                    <Border BorderBrush="#746246" BorderThickness="1,0,0,0" Padding="14,0,0,0" Margin="0,20,0,0">
                         <StackPanel>
                             <TextBlock Text="输入与隐私" FontFamily="KaiTi" FontSize="18" Foreground="#D3B97F" />
-                            <TextBlock Text="Esc 返回 · Tab 切换控件 · 空格切换复选框 · 聚焦音量后按左右方向键调整 · Ctrl+M 开关声音" Foreground="#9AADA2" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
-                            <TextBlock x:Name="SettingsPrivacyNotice" Text="设置只读取本方已知状态；不会展示暗置身份、其他角色手牌或 AI 私有判断。" Foreground="#71877B" FontSize="10" Margin="0,5,0,2" TextWrapping="Wrap" />
+                            <TextBlock Text="Esc 返回 · Tab 切换控件 · 空格切换复选框 · 聚焦音量后按左右方向键调整 · Ctrl+M 开关声音" Foreground="#D6C5A7" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
+                            <TextBlock x:Name="SettingsPrivacyNotice" Text="设置只读取本方已知状态；不会展示暗置身份、其他角色手牌或 AI 私有判断。" Foreground="#BCA98A" FontSize="11" Margin="0,7,0,2" TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                       </StackPanel>

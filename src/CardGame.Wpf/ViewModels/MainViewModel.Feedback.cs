@@ -20,7 +20,7 @@ public sealed partial class MainViewModel
     public bool IsMotionEnabled
     {
         get => _isMotionEnabled;
-        set { if (SetProperty(ref _isMotionEnabled, value)) { QueueAutoSave(); QueuePreferencesSave(); } }
+        set { if (SetProperty(ref _isMotionEnabled, value)) QueuePreferencesSave(); }
     }
 
     private void ResetBattleFeedback()

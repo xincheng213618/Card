@@ -262,7 +262,7 @@ internal static class Program
 
     private static void CheckModeLobby(string output)
     {
-        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true, wushuangSaveStore: new MemorySaveStore())
         {
             IsMotionEnabled = false
         };

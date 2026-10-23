@@ -777,6 +777,12 @@ public partial class MainWindow : Window
     private void RetrySettingsPreferences_Click(object sender, RoutedEventArgs e)
         => QueuePreferencesRetryFocus(RetrySettingsPreferencesButton, SettingsOverlay, SettingsSoundToggle);
 
+    private void SettingsSaveGame_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+            QueueRetryFocus(SettingsSaveGameButton, SettingsOverlay, () => !viewModel.HasSaveError, () => SettingsAutoAdvanceToggle);
+    }
+
     private void RetrySetupPreferences_Click(object sender, RoutedEventArgs e)
         => QueuePreferencesRetryFocus(RetrySetupPreferencesButton, NewGameSetupPanel, SetupSoundToggle);
 
@@ -784,6 +790,17 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainViewModel viewModel)
             QueueRetryFocus(retry, surface, () => !viewModel.HasPreferencesError, () => fallback);
+    }
+
+    private void PreferencesRetry_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.OldValue is not true || e.NewValue is not false || sender is not Button retry ||
+            DataContext is not MainViewModel { HasPreferencesError: false } viewModel) return;
+        // A debounced preferences write can retire the focused retry without a click.
+        if (ReferenceEquals(retry, RetrySettingsPreferencesButton))
+            QueueRetryFocus(retry, SettingsOverlay, () => !viewModel.HasPreferencesError, () => SettingsSoundToggle, focusWasWithin: true);
+        else if (ReferenceEquals(retry, RetrySetupPreferencesButton))
+            QueueRetryFocus(retry, NewGameSetupPanel, () => !viewModel.HasPreferencesError, () => SetupSoundToggle, focusWasWithin: true);
     }
 
     private void WushuangSaveAccessRetry_Click(object sender, RoutedEventArgs e)
@@ -802,10 +819,11 @@ public partial class MainWindow : Window
                 modeStep ? StartNewGameButton : ModeGroupChoices);
     }
 
-    private void QueueRetryFocus(Button retry, FrameworkElement surface, Func<bool> recovered, Func<UIElement> focusTarget)
+    private void QueueRetryFocus(Button retry, FrameworkElement surface, Func<bool> recovered, Func<UIElement> focusTarget,
+        bool focusWasWithin = false)
     {
         if (DataContext is not MainViewModel viewModel ||
-            !ReferenceEquals(Keyboard.FocusedElement, retry) ||
+            !focusWasWithin && !ReferenceEquals(Keyboard.FocusedElement, retry) ||
             !ReferenceEquals(CurrentFocusSurface(viewModel), surface)) return;
         var request = _overlayFocusRequest;
         // Click precedes the bound command. Wait for its error-banner bindings
