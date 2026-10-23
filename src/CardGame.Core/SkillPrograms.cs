@@ -191,6 +191,7 @@ public enum SkillProgramTargetKind
     AnyLivingHighestHand = 731,
     OtherLivingEmptyHand = 742,
     OtherLivingHandAtMostOwner = 5700,
+    OtherLivingShanheS5Jixian = 5716,
     OtherLivingDelayedTrickTarget = 800,
     OtherLegalCurrentCardTarget = 820,
     OtherLivingWithHandOrEquipment = 940,
@@ -903,7 +904,7 @@ public enum SkillProgramEffectOp
     DrawBeforeCappedConversionTierUpgrade = 6900,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     ChooseTrickOrAllHandDiscard = 5702, AllHandDiscardOrDifferenceDamageFromSelected = 5703,
-    ResolveShanheS5Luoyi = 5710, BindOwnTurnEnemyHandGain = 5714,
+    ResolveShanheS5Luoyi = 5710, BindOwnTurnEnemyHandGain = 5714, ResolveShanheS5Jixian = 5716,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -3712,9 +3713,13 @@ public sealed class SkillProgramCatalog
         var capsToAmount = node.TryGetProperty("capsToAmount", out _) && RequiredBool(node, "capsToAmount", path);
         var unconditionalTargetCap = capsToAmount && condition == SkillProgramDamageModifierCondition.Always &&
             scope == SkillProgramDamageModifierSourceScope.DamageParticipant;
+        var unconditionalSourceDamage = !capsToAmount && condition == SkillProgramDamageModifierCondition.Always &&
+            scope == SkillProgramDamageModifierSourceScope.DamageSource;
         var kinds = EnumArray<CardKind>(node, "cardKinds", path);
+        if (unconditionalSourceDamage && kinds.Count != 0)
+            Fail(path + ".cardKinds", "unconditional damage-source modifiers apply to every damage kind");
         if (kinds.Distinct().Count() != kinds.Count ||
-            (kinds.Count == 0 && !unconditionalTargetCap && !(
+            (kinds.Count == 0 && !unconditionalTargetCap && !unconditionalSourceDamage && !(
                 condition is
                 SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin
                     or SkillProgramDamageModifierCondition.FaceStatesDiffer
@@ -3804,7 +3809,7 @@ public sealed class SkillProgramCatalog
             if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant)
                 Fail(path + ".sourceScope", "face-state damage modifiers require damageParticipant");
         }
-        else if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed && !unconditionalTargetCap &&
+        else if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed && !unconditionalTargetCap && !unconditionalSourceDamage &&
                  condition is not (SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree or
                      SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree))
             Fail(path + ".sourceScope", "card damage modifiers require ownerUsed");

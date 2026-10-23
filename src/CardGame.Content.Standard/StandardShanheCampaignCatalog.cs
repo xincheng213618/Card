@@ -211,6 +211,8 @@ public static partial class StandardShanheCampaignCatalog
             StandardShanheS5ZhangliangPackage.BaoyuId, StandardShanheS5ZhangliangPackage.WuyingId);
         var s5Xuchu = RequiresThreeBossRegistry(setup, StandardShanheS5XuchuPackage.XuchuId,
             StandardShanheS5XuchuPackage.LuoyiId);
+        var s5Zhuling = RequiresThreeBossRegistry(setup, StandardShanheS5ZhulingPackage.ZhulingId,
+            StandardShanheS5ZhulingPackage.JixianId, StandardShanheS5ZhulingPackage.BaoliId);
         var s5Zaiqi = RequiresS5ZaiqiRegistry(setup);
         var key = $"{setup.AllyRoster.Count}/{setup.EnemyRoster.Count}/" + string.Join("|", ids) +
             (codexEquipment ? "/codex-equipment" : "") + (currentFarStrike ? "/current-yuanji-2129" : "") +
@@ -230,6 +232,7 @@ public static partial class StandardShanheCampaignCatalog
             (s5Yuanshao ? "/s5-yuanshao-2660" : "") +
             (s5Zhangliang ? "/s5-zhangliang-2656" : "") +
             (s5Xuchu ? "/s5-xuchu-2676" : "") +
+            (s5Zhuling ? "/s5-zhuling-2664" : "") +
             (s5Zaiqi ? "/s5-zaiqi-887" : "") +
             (setup.RebirthAvailable ? "/rank-five-rebirth" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
@@ -259,12 +262,21 @@ public static partial class StandardShanheCampaignCatalog
             if (s5Yuanshao) packages.Add(new StandardShanheS5YuanshaoPackage());
             if (s5Zhangliang) packages.Add(new StandardShanheS5ZhangliangPackage());
             if (s5Xuchu) packages.Add(new StandardShanheS5XuchuPackage());
+            if (s5Zhuling) packages.Add(new StandardShanheS5ZhulingPackage());
             // These forms reuse existing skills. The roster, already present
             // in the cache key, is their only additional package requirement.
             if (ids.Contains(StandardShanheS5LukuangLuxiangPackage.LukuangLuxiangId, StringComparer.Ordinal))
                 packages.Add(new StandardShanheS5LukuangLuxiangPackage());
             if (ids.Contains(StandardShanheS5ChenlinPackage.ChenlinId, StringComparer.Ordinal))
                 packages.Add(new StandardShanheS5ChenlinPackage());
+            if (ids.Contains(StandardShanheS5ZhouyuPackage.ZhouyuId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5ZhouyuPackage());
+            if (ids.Contains(StandardShanheS5XuyouJushouPackage.XuyouId, StringComparer.Ordinal) ||
+                ids.Contains(StandardShanheS5XuyouJushouPackage.JushouId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5XuyouJushouPackage());
+            if (ids.Contains(StandardShanheS5CaorenZhaoyunPackage.CaorenId, StringComparer.Ordinal) ||
+                ids.Contains(StandardShanheS5CaorenZhaoyunPackage.ZhaoyunId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5CaorenZhaoyunPackage());
             if (s5Chengxiong) packages.Add(new StandardShanheS5ChengxiongPackage());
             if (setup.RebirthAvailable) packages.Add(new StandardShanheRankPrivilegePackage());
             packages.Add(new ShanheEncounterPackage(setup));

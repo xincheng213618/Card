@@ -287,6 +287,8 @@ var tests = new (string Name, Action Body)[]
     ("Shanhe Liru: actual single enemy recipe conditional registry and recovery", ShanheLiruEncounterChecks.ActualSingleEnemyRecipeAndConditionalRegistryRecover),
     ("Shanhe encounters: immediate previous expeditions preserve routes and pending recipes cold", ShanheEncounterChecks.PreviousExpeditionsKeepExactRoutesAndPendingRecipesCold),
     ("Shanhe encounters: source recipes conditional packages and battle recovery", ShanheEncounterChecks.ActualEncounterRecipesAndConditionalPackagesRecoverCold),
+    ("Shanhe Zhuling: three conditions native Slash frozen draw and original target penalty cold", ShanheZhulingChecks.ThreeConditionsNativeSlashFrozenDrawAndOriginalTargetPenaltyCold),
+    ("Shanhe Zhuling: all source damage native cardless source-less HP loss and NPC flow cold", ShanheZhulingChecks.BaoliNativeAndCardlessSourceDamageExcludeSourceLessAndHpLossAndNpcUsesJixian),
     ("Shanhe Yuanshao: same color pairs and optional native Arrow targets cold", ShanheS5YuanshaoChecks.SameColorPairsAndOptionalNativeArrowTargetsRecoverCold),
     ("Shanhe Xuchu: frozen HP reveal native Slash Duel and owner expiry cold", ShanheXuchuChecks.HpRevealChoiceNativeSlashDuelAndOwnerExpiryCold),
     ("Shanhe Xuchu: revealed cards decline substitution and normal draw cold", ShanheXuchuChecks.RevealedCardsCanDeclineReplacementAndStillDrawNormallyCold),

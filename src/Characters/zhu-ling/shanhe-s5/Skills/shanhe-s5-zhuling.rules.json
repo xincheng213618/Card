@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "shanhe:s5-jixian-3056", "revision": 1, "triggers": [
+      { "id": "draw-ended-conditional-slash", "window": "drawPhaseEnded", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingShanheS5Jixian" },
+          { "op": "resolveShanheS5Jixian", "target": "owner", "stage": "prepare" },
+          { "op": "useVirtualSlash", "target": "selectedTarget" },
+          { "op": "resolveShanheS5Jixian", "target": "owner", "stage": "draw" },
+          { "op": "resolveShanheS5Jixian", "target": "owner", "stage": "penalty" }
+        ] }
+    ] },
+    { "id": "shanhe:s5-baoli-3327", "revision": 1, "damageModifiers": [
+      { "id": "all-source-plus-one", "cardKinds": [], "amount": 1, "condition": "always", "sourceScope": "damageSource" }
+    ] }
+  ]
+}

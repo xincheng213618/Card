@@ -8,6 +8,7 @@ internal static class RuntimeRules_Core_PassiveRulePolicies
     internal static bool MatchesPerOccurrenceSourceDamageModifier(SkillProgramDamageModifier modifier,
         bool sourceHasHp, int sourceHp, int sourceHandCount, int sourceToTargetDistance, int roundNumber) => modifier.Condition switch
     {
+        SkillProgramDamageModifierCondition.Always => true,
         SkillProgramDamageModifierCondition.SourceHandBelowHp => sourceHasHp && sourceHandCount < sourceHp,
         SkillProgramDamageModifierCondition.SourceToTargetDistanceGreaterThan =>
             modifier.DistanceThreshold is { } threshold && sourceToTargetDistance > threshold,

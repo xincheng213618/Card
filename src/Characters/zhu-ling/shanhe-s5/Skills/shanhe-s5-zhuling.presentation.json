@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-jixian-3056": {
+      "name": "急陷",
+      "description": "摸牌阶段结束时，你可以视为对满足以下任一条件的目标使用一张【杀】并摸X张牌（X为满足的条件数）：装备区有防具，技能数比你多，未受伤；若此【杀】没有对其造成伤害，你失去1点体力。",
+      "triggerChoices": { "draw-ended-conditional-slash": "选择满足条件的目标，使用杀并摸牌" }
+    },
+    "shanhe:s5-baoli-3327": { "name": "暴力", "description": "锁定技，你造成的伤害+1" }
+  }
+}
