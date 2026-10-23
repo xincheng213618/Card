@@ -10,6 +10,7 @@ public sealed partial class GameEngine
         if (ResolveHulaoEquipmentSkillGrant(card, from, to)) return;
         if (ResolveShenwuEquipmentSkillGrant(card, from, to)) return;
         if (ResolveGuanduEquipmentSkillGrant(card, from, to)) return;
+        if (ResolveShanheZhanhunDaoEquipmentSkillGrant(card, from, to)) return;
         if (card.Kind != CardKind.XingtianAxe ||
             !_contentRegistry!.Skills.ContainsKey("special:xingtian-axe-effect"))
             return;

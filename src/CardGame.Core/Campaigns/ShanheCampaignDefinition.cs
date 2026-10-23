@@ -17,6 +17,7 @@ public sealed record ShanheCombatantDefinition(
     int DrawBonus = 0, int SlashBonus = 0, IReadOnlyList<string>? ExtraSkillIds = null)
 {
     private readonly IReadOnlyList<ShanheStartingCard>? _startingHand;
+    private readonly IReadOnlyList<ShanheStartingCard>? _startingCards;
     private readonly IReadOnlyList<string>? _qualifiedPrintedLordSkillIds;
     /// <summary>Explicit scenario qualification for these original primary-general Lord skills only.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -31,6 +32,13 @@ public sealed record ShanheCombatantDefinition(
     {
         get => _startingHand;
         init => _startingHand = value is null ? null : Array.AsReadOnly(value.ToArray());
+    }
+    /// <summary>Extra physical cards added to hand after the ordinary or explicit opening hand has been dealt.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ShanheStartingCard>? StartingCards
+    {
+        get => _startingCards;
+        init => _startingCards = value is null ? null : Array.AsReadOnly(value.ToArray());
     }
 }
 

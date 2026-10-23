@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-duzuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "duzuo-grant",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "excludedMovementReasons": [
+            "skill-program.mobile:shi-duzuo.fire-slash-grant"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMobileShiDuzuoGrant",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-bihan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "bihan-guard",
+          "window": "beforeDamageApplied",
+          "subject": "any",
+          "optional": true,
+          "condition": {
+            "kind": "damageCardIsSlash"
+          },
+          "effects": [
+            {
+              "op": "resolveMobileShiBihanGuard",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

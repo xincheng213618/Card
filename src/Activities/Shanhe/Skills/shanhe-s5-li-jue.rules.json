@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-langxi-14113", "revision": 1,
+      "triggers": [
+        {
+          "id": "each-actual-prepare", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+          "turnOwnerScope": "anyLiving", "optional": true,
+          "effects": [{ "op": "chooseHpBoundOtherAndDealPositiveRandomDamage", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

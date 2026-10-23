@@ -151,6 +151,12 @@ public static class EquipmentCatalog
                 "装备至武器槽；攻击范围 2，你的杀无视目标防具，目标不能使用或打出手牌响应。",
                 WeaponAttackRange: 2,
                 IgnoresArmor: true),
+            [CardKind.ZhanhunDao] = new(
+                CardKind.ZhanhunDao,
+                "斩魂刀",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 3。对已受伤角色造成伤害时，可防止此伤害并令其体力值上限-1。",
+                WeaponAttackRange: 3),
             [CardKind.XingtianAxe] = new(
                 CardKind.XingtianAxe,
                 "刑天破军斧",

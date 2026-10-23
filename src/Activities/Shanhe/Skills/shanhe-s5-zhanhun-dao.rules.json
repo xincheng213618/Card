@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "shanhe:zhanhun-dao", "revision": 1, "triggers": [
+      { "id": "wounded-target-maximum", "window": "beforeDamageApplied", "subject": "any", "optional": true,
+        "effects": [{ "op": "resolveShanheZhanhunDao", "target": "owner" }] }
+    ] }
+  ]
+}
