@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-tongji-497", "revision": 1,
+      "cardPolicies": [
+        { "id": "over-hp-hand-forces-slash-target", "kind": "slashMustTargetOverHpHandOwner", "cardKinds": [], "value": 0 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-tishen-14203": {
+      "name": "替身",
+      "description": "准备阶段，你可以回复所有体力，然后摸X张牌（X为你回复的体力值）。",
+      "triggerLabels": {
+        "repeatable-preparation-recovery": "替身：回复至体力上限，摸实际回复量的牌"
+      }
+    }
+  }
+}

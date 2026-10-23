@@ -7,7 +7,7 @@ internal static class RuntimeRules_Core_FinalTargetSlash
         effects.Any(effect => effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.AddCurrentTargetSlashDamage or
             SkillProgramEffectOp.ZhuiLieEscalateTargetDamage or SkillProgramEffectOp.RevealRecordedSuitSlash or
             SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule or
-            SkillProgramEffectOp.ResolveMouTianYuZhenxi);
+            SkillProgramEffectOp.ResolveMouTianYuZhenxi or SkillProgramEffectOp.DiscardAttackRangeCardsFromSlashTarget);
 
     internal static bool MatchesFinalTargetComparison(ProgramFinalTargetComparison comparison, SkillProgramTriggerFacts facts) => comparison switch
     {

@@ -924,6 +924,10 @@ public sealed partial class GameEngine
         if (targetKind == SkillProgramTargetKind.EventTarget)
         {
             if (IsExactHellPreparationTargetContext(ownerSeat, windowContext)) return [windowContext!.TargetSeat!.Value];
+            if (windowContext is { Window: SkillProgramTriggerWindow.DyingResponse, TargetSeat: { } victimSeat })
+                return ActiveDying is { } dying && dying.FrameId == windowContext.ParentFrameId &&
+                    dying.VictimSeat == victimSeat && dying.ResponderSeat == ownerSeat &&
+                    _players[victimSeat].IsAlive && _players[victimSeat].Hp <= 0 ? [victimSeat] : [];
             if (windowContext is { Window: SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or
                 SkillProgramTriggerWindow.CharacterEnteredChain or SkillProgramTriggerWindow.DyingEntering or
                 SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or

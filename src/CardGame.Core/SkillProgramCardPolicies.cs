@@ -26,6 +26,7 @@ public enum SkillProgramCardPolicyKind
     RandomRevealColorFireAttack = 4400, UnrespondableNullification = 4401,
     CannotNullifyOwnOrdinaryTrick = 8102,
     ProhibitOthersResponse = 5724,
+    SlashMustTargetOverHpHandOwner = 5744,
     IgnoreUseDistanceBeforeDealingDamage = 3800,
     UnlimitedAlcoholUse = 3900,
     SuppressOthersNonLockedDuringDying = 4000, ExclusiveTurnPeachUse = 4001, ProhibitBlackTrickTarget = 4002,

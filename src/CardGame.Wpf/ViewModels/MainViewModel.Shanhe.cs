@@ -91,8 +91,14 @@ public sealed partial class MainViewModel
                 ? text + $" · 出征默认{FactionName(defaultFaction)}" : text;
         }
     }
-    public string SelectedShanheScenarioDescription => StandardShanheCampaignCatalog.Editions
-        .Single(edition => edition.Id == SelectedShanheScenario.Id).Description;
+    public string SelectedShanheScenarioDescription => SelectedShanheScenario.Id switch
+    {
+        StandardShanheCampaignCatalog.Returning2026EditionId =>
+            "携2026战法迎战专属首领，沿三章路线积累行装。地图、抽选与三档难度为本地编排；完整技能与来源说明见「玩法说明」。",
+        _ => "采用已核实的2024战法和技能版本。择路交锋、收取战利品，逐步构筑本次征程；剧情、地图与难度为本地编排。"
+    };
+    public string ShanheScenarioDetails => IsShanheRunInProgress && _shanheSession is { } session ? session.Definition.IntroText :
+        StandardShanheCampaignCatalog.CreateCodexDefinition(SelectedShanheDifficulty?.Value ?? 1, SelectedShanheScenario.Id).IntroText;
     public bool HasShanheSession => _shanheSession is not null;
     public bool IsShanheOpen
     {
@@ -476,7 +482,7 @@ public sealed partial class MainViewModel
         ValidateShanheSkillReplacement();
         foreach (var property in new[] { nameof(ShanheCampaignTitle), nameof(ShanheRouteSummary), nameof(ShanheVitalText),
             nameof(ShanheGoldText), nameof(ShanheTacticsText), nameof(ShanheSkillsText), nameof(ShanheRankStatusText), nameof(SelectedShanheRankDescription), nameof(ShanheContextTitle),
-            nameof(ShanheContextDescription), nameof(IsShanheBattleActive), nameof(IsShanheBattleSession),
+            nameof(ShanheContextDescription), nameof(ShanheScenarioDetails), nameof(IsShanheBattleActive), nameof(IsShanheBattleSession),
             nameof(ShanheBuildTabTitle), nameof(ShanheTacticEmptyText), nameof(ShanheStartingLoadoutText), nameof(ShanheCarryoverNotice), nameof(ShanheEditionNotice), nameof(SelectedShanheGeneralMeta), nameof(HasShanheSession) }) RaisePropertyChanged(property);
         foreach (var command in new[] { StartShanheCommand, ContinueShanheCommand, ResumeShanheBattleCommand })
             (command as RelayCommand)?.NotifyCanExecuteChanged();

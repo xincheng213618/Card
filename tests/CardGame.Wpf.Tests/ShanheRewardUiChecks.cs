@@ -382,6 +382,13 @@ internal static class ShanheRewardUiChecks
                 else Program.Assert(session.Snapshot.Phase == ShanheCampaignPhase.Won && vm.IsShanhePreparation &&
                     !vm.IsShanheRunInProgress && vm.CanPrepareShanheExpedition,
                     "The third boss's completed reward overview must finish the expedition and restore preparation.");
+                if (chapter == 3)
+                {
+                    vm.SelectedShanheScenario = vm.ShanheScenarios.Single(s => s.Id == StandardShanheCampaignCatalog.Returning2026EditionId);
+                    Program.Assert(vm.ShanheScenarioDetails == StandardShanheCampaignCatalog.CreateCodexDefinition(
+                        vm.SelectedShanheDifficulty.Value, StandardShanheCampaignCatalog.Returning2026EditionId).IntroText,
+                        "After a real completed expedition, preparation details follow the newly selected scenario rather than the retained finished session.");
+                }
                 var finished = Snapshot(session);
                 RawClick(finish);
                 vm.ConfirmShanheBossRewardCommand.Execute(null);

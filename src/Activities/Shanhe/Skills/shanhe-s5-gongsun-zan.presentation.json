@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-qiaomeng-14166": {
+      "name": "趫猛", "description": "当你使用【杀】指定目标后，你可以弃置其区域里的X张牌。（X为你的攻击范围）",
+      "triggerChoices": { "designated-slash-target": "弃置此目标攻击范围数量的区域牌" }
+    },
+    "shanhe:s5-jiuzhu-505": {
+      "name": "救主", "description": "当一名其他己方角色处于濒死状态时，若你的体力值大于1，你可以弃置一张牌并失去1点体力，然后令其回复1点体力。",
+      "triggerChoices": { "pay-for-other-ally": "弃一张牌并失去1点体力，令己方濒死角色回复1点体力" }
+    }
+  }
+}

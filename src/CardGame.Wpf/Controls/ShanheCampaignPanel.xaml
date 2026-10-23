@@ -157,8 +157,8 @@
        <Grid Margin="53,43,43,38"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="235"/></Grid.ColumnDefinitions>
         <Grid Margin="0,0,28,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
          <StackPanel><TextBlock Text="出 征 准 备" FontFamily="KaiTi" FontSize="45" Foreground="#58391E"/><TextBlock Text="{Binding SelectedShanheScenario.Name}" FontFamily="KaiTi" FontSize="24" Foreground="#80603B" Margin="0,13,0,0"/><Border Background="#885C3E23" Height="1" Margin="0,18,0,0"/></StackPanel>
-         <StackPanel Grid.Row="1" VerticalAlignment="Center"><TextBlock Text="{Binding SelectedShanheScenarioDescription}" Foreground="#624C32" FontSize="14" TextWrapping="Wrap" LineHeight="26"/><TextBlock Text="择一将，携战法，踏山河。" FontFamily="KaiTi" FontSize="25" Foreground="#7C5930" Margin="0,20,0,9"/><TextBlock Text="{Binding ShanhePreparationHint}" Foreground="#786246" FontSize="12" LineHeight="23" TextWrapping="Wrap"/></StackPanel>
-         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0"><Button x:Name="ShanhePrepareGeneralButton" Content="选择出征武将" Style="{StaticResource CampaignButton}" Click="PrepareExpedition" IsEnabled="{Binding CanPrepareShanheExpedition}"/><Button x:Name="ShanhePrepareCodexButton" Content="编辑山河册" Style="{StaticResource CampaignButton}" Click="PrepareCodex" Margin="12,0,0,0" IsEnabled="{Binding CanPrepareShanheExpedition}"/></StackPanel>
+         <ScrollViewer x:Name="ShanhePreparationCopy" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,14,0,0"><StackPanel VerticalAlignment="Center"><TextBlock x:Name="ShanheScenarioOverview" Text="{Binding SelectedShanheScenarioDescription}" Foreground="#624C32" FontSize="14" TextWrapping="Wrap" LineHeight="26"/><TextBlock Text="择一将，携战法，踏山河。" FontFamily="KaiTi" FontSize="25" Foreground="#7C5930" Margin="0,20,0,9"/><TextBlock Text="{Binding ShanhePreparationHint}" Foreground="#786246" FontSize="12" LineHeight="23" TextWrapping="Wrap"/></StackPanel></ScrollViewer>
+         <StackPanel x:Name="ShanhePreparationActions" Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0"><Button x:Name="ShanhePrepareGeneralButton" Content="选择出征武将" Style="{StaticResource CampaignButton}" Click="PrepareExpedition" IsEnabled="{Binding CanPrepareShanheExpedition}"/><Button x:Name="ShanhePrepareCodexButton" Content="编辑山河册" Style="{StaticResource CampaignButton}" Click="PrepareCodex" Margin="12,0,0,0" IsEnabled="{Binding CanPrepareShanheExpedition}"/></StackPanel>
         </Grid>
         <Border Grid.Column="1" Background="#45291E" BorderBrush="#9C753F" BorderThickness="2" Padding="6"><Grid><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><Border Background="{Binding SelectedShanhePortrait}"/><Border Grid.Row="1" Background="#42271B" Padding="8,13"><StackPanel><TextBlock Text="{Binding SelectedShanheGeneral.Name}" Foreground="#F2D79E" FontFamily="KaiTi" FontSize="31" TextAlignment="Center"/><TextBlock Text="{Binding SelectedShanheGeneralMeta}" Foreground="#BDA17A" FontSize="10" TextAlignment="Center" Margin="0,5,0,0"/></StackPanel></Border></Grid></Border>
        </Grid>
@@ -261,14 +261,17 @@
       <Grid><Grid.RowDefinitions><RowDefinition Height="55"/><RowDefinition Height="*"/></Grid.RowDefinitions>
        <TextBlock Text="山河图 · 玩法说明" FontFamily="KaiTi" FontSize="30" Foreground="#E5CB91"/>
        <Button x:Name="ShanheRulesCloseButton" Content="返回" Style="{StaticResource QuietCampaignButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Click="CloseRules"/>
-       <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel Margin="0,0,10,0">
+       <ScrollViewer x:Name="ShanheRulesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="0,0,10,0">
         <TextBlock Text="一卷山河，三章征途" FontFamily="KaiTi" FontSize="24" Foreground="#D7B472" Margin="0,8,0,12"/>
         <TextBlock Text="从北路虎牢或南路广成出发，沿连线选择亮起的节点。交锋与首领可先查看敌人与奖励，再确认挑战；奇遇、行商、营地会提供不同的选择。每场胜利后选择一项战利品，或放弃并额外领取铜币，再择路前行。" Style="{StaticResource Caption}" FontSize="14" LineHeight="27"/>
         <TextBlock Text="体力与行装" FontFamily="KaiTi" FontSize="24" Foreground="#D7B472" Margin="0,24,0,12"/>
         <TextBlock Text="{Binding ShanheCarryoverNotice}" Style="{StaticResource Caption}" FontSize="14" LineHeight="27"/>
         <TextBlock Text="山河册与本地存档" FontFamily="KaiTi" FontSize="24" Foreground="#D7B472" Margin="0,24,0,12"/>
         <TextBlock Text="出征准备时可编辑山河册，装备初始战法。出征后只能查看本次行装，武将与初始战法固定至征程结束。征程会自动保存在本机，也可从牌桌手动保存；返回大厅后，使用「继续征程」接着前进。征程胜利或战败后，可重新选将出征。" Style="{StaticResource Caption}" FontSize="14" LineHeight="27"/>
-        <TextBlock Text="{Binding ShanheEditionNotice}" Style="{StaticResource Caption}" FontSize="12" Margin="0,24,0,0"/>
+        <Expander x:Name="ShanheScenarioDetailsExpander" Header="本剧本的首领与战法详情" Foreground="#E5CB91" Margin="0,24,0,0"><StackPanel Margin="0,12,0,0">
+         <TextBlock Text="{Binding ShanheEditionNotice}" Style="{StaticResource Caption}" FontSize="12"/>
+         <TextBlock x:Name="ShanheScenarioDetailsText" Text="{Binding ShanheScenarioDetails}" Style="{StaticResource Caption}" FontSize="13" LineHeight="25" Margin="0,16,0,0"/>
+        </StackPanel></Expander>
        </StackPanel></ScrollViewer>
       </Grid>
      </Border>

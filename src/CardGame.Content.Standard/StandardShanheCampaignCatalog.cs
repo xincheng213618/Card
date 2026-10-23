@@ -219,6 +219,17 @@ public static partial class StandardShanheCampaignCatalog
             StandardShanheS5QuyiPackage.FuqiId, StandardShanheS5QuyiPackage.JiaoziId);
         var s5Zhanghe = RequiresThreeBossRegistry(setup, StandardShanheS5ZhanghePackage.ZhangheId,
             StandardShanheS5ZhanghePackage.ZhouxuanId);
+        var s5Yuanshu = RequiresThreeBossRegistry(setup, StandardShanheS5YuanshuPackage.YuanshuId,
+            StandardShanheS5YuanshuPackage.TongjiId, StandardShanheS5YuanshuPackage.WuzangId) ||
+            ids.Contains(StandardShanheS5YuanshuPackage.YuanyaoId, StringComparer.Ordinal) ||
+            ids.Contains(StandardShanheS5YuanshuPackage.YuanyinId, StringComparer.Ordinal);
+        var s5Gongsun = RequiresThreeBossRegistry(setup, StandardShanheS5GongsunZanPackage.GongsunZanId,
+            StandardShanheS5GongsunZanPackage.QiaomengId, StandardShanheS5GongsunZanPackage.JiuzhuId) ||
+            ids.Contains(StandardShanheS5GongsunZanPackage.GongsunYueId, StringComparer.Ordinal);
+        var s5Taoyuan = RequiresThreeBossRegistry(setup, StandardShanheS5TaoyuanPackage.ZhangfeiId,
+            StandardShanheS5TaoyuanPackage.TishenId) ||
+            ids.Contains(StandardShanheS5TaoyuanPackage.LiubeiId, StringComparer.Ordinal) ||
+            ids.Contains(StandardShanheS5TaoyuanPackage.GuanyuId, StringComparer.Ordinal);
         var s5Zaiqi = RequiresS5ZaiqiRegistry(setup);
         var key = $"{setup.AllyRoster.Count}/{setup.EnemyRoster.Count}/" + string.Join("|", ids) +
             (codexEquipment ? "/codex-equipment" : "") + (currentFarStrike ? "/current-yuanji-2129" : "") +
@@ -242,6 +253,9 @@ public static partial class StandardShanheCampaignCatalog
             (s5YanliangWenchou ? "/s5-yanliang-wenchou-2665" : "") +
             (s5Quyi ? "/s5-quyi-2666" : "") +
             (s5Zhanghe ? "/s5-zhanghe-2673" : "") +
+            (s5Yuanshu ? "/s5-yuanshu-2654" : "") +
+            (s5Gongsun ? "/s5-gongsun-2662" : "") +
+            (s5Taoyuan ? "/s5-taoyuan-2683" : "") +
             (s5Zaiqi ? "/s5-zaiqi-887" : "") +
             (setup.RebirthAvailable ? "/rank-five-rebirth" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
@@ -275,6 +289,9 @@ public static partial class StandardShanheCampaignCatalog
             if (s5YanliangWenchou) packages.Add(new StandardShanheS5YanliangWenchouPackage());
             if (s5Quyi) packages.Add(new StandardShanheS5QuyiPackage());
             if (s5Zhanghe) packages.Add(new StandardShanheS5ZhanghePackage());
+            if (s5Yuanshu) packages.Add(new StandardShanheS5YuanshuPackage());
+            if (s5Gongsun) packages.Add(new StandardShanheS5GongsunZanPackage());
+            if (s5Taoyuan) packages.Add(new StandardShanheS5TaoyuanPackage());
             // These forms reuse existing skills. The roster, already present
             // in the cache key, is their only additional package requirement.
             if (ids.Contains(StandardShanheS5LukuangLuxiangPackage.LukuangLuxiangId, StringComparer.Ordinal))

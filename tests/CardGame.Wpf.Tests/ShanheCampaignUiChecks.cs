@@ -337,6 +337,10 @@ internal static class ShanheCampaignUiChecks
             var root = (FrameworkElement)owner.Content;
             Layout(root);
             var panel = Program.Find<ShanheCampaignPanel>(root).Single();
+            vm.SelectedShanheScenario = vm.ShanheScenarios.Single(s => s.Id == StandardShanheCampaignCatalog.Returning2026EditionId);
+            Layout(root);
+            CheckPreparationLayout(panel);
+            Program.Render(root, 1440, 880, Path.Combine(output, "shanhe-launcher-2026.png"));
             ClickNavigation((Button)panel.FindName("ShanhePrepareButton"), root);
             var setup = (Border)panel.FindName("ShanheSetupOverlay");
             var generals = (ListBox)panel.FindName("ShanheGeneralSelector");
@@ -356,6 +360,18 @@ internal static class ShanheCampaignUiChecks
                 "Escape must close only preparation and must not begin or save an expedition.");
             ClickNavigation((Button)panel.FindName("ShanheRulesButton"), root);
             var rules = (Border)panel.FindName("ShanheRulesOverlay");
+            var details = (Expander)panel.FindName("ShanheScenarioDetailsExpander");
+            details.IsExpanded = true;
+            Layout(root);
+            Program.Assert(((TextBlock)panel.FindName("ShanheScenarioDetailsText")).Text ==
+                StandardShanheCampaignCatalog.CreateCodexDefinition(vm.SelectedShanheDifficulty.Value,
+                    StandardShanheCampaignCatalog.Returning2026EditionId).IntroText && !store.Exists,
+                "The short 2026 launcher keeps the exact full scenario introduction reachable through rules without starting or saving a run.");
+            var rulesScroll = (ScrollViewer)panel.FindName("ShanheRulesScroll");
+            rulesScroll.ScrollToBottom();
+            Layout(root);
+            Program.Assert(rulesScroll.VerticalOffset > 0 && rulesScroll.ScrollableHeight > 0,
+                "The expanded full introduction can actually scroll to its ending inside the rules surface.");
             Program.Render(root, 1440, 880, Path.Combine(output, "shanhe-rules.png"));
             Program.Assert(rules.Visibility == Visibility.Visible && TableShortcutChecks.Input(owner, Key.Escape) &&
                 rules.Visibility == Visibility.Collapsed && vm.IsShanheOpen,
@@ -367,6 +383,12 @@ internal static class ShanheCampaignUiChecks
                 !detached.CampaignPanel.ShowDetachButton,
                 "Opening again must activate one owned campaign window with the shared model and one visible panel.");
             var detachedRoot = (FrameworkElement)detached.Content;
+            detached.Width = 960; detached.Height = 680;
+            detached.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
+            detached.UpdateLayout();
+            CheckPreparationLayout(detached.CampaignPanel);
+            Program.Render(detached, (int)detached.ActualWidth, (int)detached.ActualHeight,
+                Path.Combine(output, "shanhe-launcher-compact.png"));
             ClickNavigation((Button)detached.CampaignPanel.FindName("ShanhePrepareButton"), detachedRoot);
             Click((Button)detached.CampaignPanel.FindName("ShanheStartButton"), detachedRoot);
             Program.Assert(store.Exists && vm.HasShanheSession && vm.ShanheMapNodes.Count > 1 &&
@@ -406,6 +428,18 @@ internal static class ShanheCampaignUiChecks
                 "Closing a campaign window must keep its shared view model alive for the next entry.");
         }
         finally { store.FailWrites = false; owner.Close(); }
+
+        static void CheckPreparationLayout(ShanheCampaignPanel target)
+        {
+            var copy = (ScrollViewer)target.FindName("ShanhePreparationCopy");
+            var actions = (StackPanel)target.FindName("ShanhePreparationActions");
+            var overview = (TextBlock)target.FindName("ShanheScenarioOverview");
+            var copyBounds = copy.TransformToAncestor(target).TransformBounds(new Rect(copy.RenderSize));
+            var actionsBounds = actions.TransformToAncestor(target).TransformBounds(new Rect(actions.RenderSize));
+            Program.Assert(copy.ViewportHeight > 0 && overview.ActualHeight <= copy.ViewportHeight &&
+                copyBounds.Bottom <= actionsBounds.Top && actions.IsVisible,
+                "The entire overview stays visible above the real preparation actions, including the minimum detached window.");
+        }
     }
 
     public static void FullRosterSearchPagesAndSelection(string output)

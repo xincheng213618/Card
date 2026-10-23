@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-tishen-14203",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "repeatable-preparation-recovery",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "recoverToMaximum", "target": "owner" },
+            { "op": "drawRecoveryReceipt", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
