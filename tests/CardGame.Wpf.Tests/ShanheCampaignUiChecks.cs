@@ -174,16 +174,19 @@ internal static class ShanheCampaignUiChecks
         var saved = campaign.Read();
         var savedBattle = saved.Battle!;
         var wrongBattle = savedBattle with { Options = savedBattle.Options with { Seed = savedBattle.Options.Seed ^ 1 } };
-        var mismatchedStore = new MemoryShanheCampaignSaveStore();
-        mismatchedStore.Write(saved with { Battle = wrongBattle });
-        using (var invalid = Create(ordinary, mismatchedStore))
+        foreach (var invalidBattle in new[] { wrongBattle, savedBattle with { Options = null! } })
         {
+            var mismatchedStore = new MemoryShanheCampaignSaveStore();
+            mismatchedStore.Write(saved with { Battle = invalidBattle });
+            var source = JsonSerializer.Serialize(mismatchedStore.Read());
+            using var invalid = Create(ordinary, mismatchedStore);
             var untouched = SnapshotJson.Serialize(Program.Engine(invalid).CreateSnapshot(0));
             invalid.ContinueShanheCommand.Execute(null);
-            Program.Assert(!invalid.IsShanheBattleSession && invalid.ShanheStatusText.Contains("失败") &&
+            Program.Assert(!invalid.HasShanheSession && !invalid.IsShanheBattleSession && invalid.ShanheStatusText.Contains("失败") &&
+                invalid.CanPrepareShanheExpedition && invalid.StartShanheCommand.CanExecute(null) &&
                 SnapshotJson.Serialize(Program.Engine(invalid).CreateSnapshot(0)) == untouched &&
-                mismatchedStore.Read().Battle!.Options.Seed == wrongBattle.Options.Seed,
-                "A campaign paired with the wrong encounter seed must preserve both the active ordinary game and the original independent save.");
+                JsonSerializer.Serialize(mismatchedStore.Read()) == source,
+                "A campaign with the wrong encounter seed or missing battle options must fail safely, preserve its source and ordinary game, and allow a fresh expedition.");
         }
         using var cold = Create(ordinary, campaign);
         cold.ContinueShanheCommand.Execute(null);
