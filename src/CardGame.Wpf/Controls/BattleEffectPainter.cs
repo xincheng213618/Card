@@ -571,10 +571,15 @@ internal static class BattleEffectPainter
         dc.Pop();
     }
 
-    private static void Slash(DrawingContext dc, Rect source, Rect target, CardKind kind, double p)
+    public static void Slash(DrawingContext dc, Rect source, Rect target, CardKind kind, double p, SlashFlightPath? route = null)
     {
         var ink = kind == CardKind.FireSlash ? Red : kind == CardKind.ThunderSlash ? Violet : Gold;
         var glow = kind == CardKind.FireSlash ? FireGlow : kind == CardKind.ThunderSlash ? ThunderGlow : GoldGlow;
+        if (route is { IsCompact: true })
+        {
+            RoutedSlash(dc, route, kind, p, ink, glow);
+            return;
+        }
         var from = Center(source);
         var to = Center(target);
         var travel = Math.Clamp((p - .08) / .33, 0, 1);
@@ -607,20 +612,7 @@ internal static class BattleEffectPainter
         Ribbon(dc, tail + direction * Math.Min(16 * strokeScale, tailLength * .35), head, normal, 2 * strokeScale, White);
         // The blade approaches the portrait edge. Only a committed Damage cue
         // may strike the portrait; an attack declaration can still be dodged.
-        var bladeNormal = normal * strokeScale;
-        var bladeDirection = direction * strokeScale;
-        var sweep = new StreamGeometry();
-        using (var path = sweep.Open())
-        {
-            path.BeginFigure(head - bladeNormal * 43 - bladeDirection * 10, true, true);
-            path.BezierTo(head - bladeNormal * 18 + bladeDirection * 26, head + bladeNormal * 25 + bladeDirection * 24,
-                head + bladeNormal * 48 - bladeDirection * 20, true, false);
-            path.BezierTo(head + bladeNormal * 16 + bladeDirection * 7, head - bladeNormal * 20 + bladeDirection * 10,
-                head - bladeNormal * 43 - bladeDirection * 10, true, false);
-        }
-        sweep.Freeze();
-        dc.DrawGeometry(ink, null, sweep);
-        dc.DrawLine(new Pen(White, 2 * strokeScale), head - bladeNormal * 29, head + bladeNormal * 30 + bladeDirection * 7);
+        SlashBlade(dc, head, direction, normal, strokeScale, ink);
         if (kind == CardKind.FireSlash)
         {
             dc.PushOpacity(.45);
@@ -634,12 +626,90 @@ internal static class BattleEffectPainter
             {
                 path.BeginFigure(tail, false, false);
                 for (var i = 1; i <= 5; i++)
-                    path.LineTo(tail + (head - tail) * (i / 5d) + bladeNormal * (i == 5 ? 0 : Math.Sin(i * 2 + Math.Floor(p * 10)) * 16), true, false);
+                    path.LineTo(tail + (head - tail) * (i / 5d) + normal * strokeScale * (i == 5 ? 0 : Math.Sin(i * 2 + Math.Floor(p * 10)) * 16), true, false);
             }
             bolt.Freeze();
             dc.DrawGeometry(null, new Pen(White, 2 * strokeScale), bolt);
         }
         dc.Pop();
+    }
+
+    private static void RoutedSlash(DrawingContext dc, SlashFlightPath route, CardKind kind, double p, Brush ink, Brush glow)
+    {
+        if (p <= .02 || p >= .65) return;
+        var travel = Math.Clamp((p - .08) / .33, 0, 1);
+        var move = travel * travel;
+        var remaining = 1 - Math.Clamp((p - .41) / .24, 0, 1);
+        var size = (.55 + .45 * travel) * remaining;
+        var head = route.Position(move);
+        var direction = route.Direction(move);
+        var normal = new Vector(-direction.Y, direction.X);
+        var tailMove = Math.Max(0, move - Math.Min(145 / Math.Max(1, route.Length), move) * remaining * remaining);
+        var steps = Math.Max(1, (int)Math.Ceiling((move - tailMove) * route.Length / 4));
+        var ribbon = new StreamGeometry();
+        using (var path = ribbon.Open())
+        {
+            // Every point follows the safe route. A straight tail would cut
+            // across the protected corner as soon as its head turns.
+            path.BeginFigure(route.Position(tailMove), true, true);
+            for (var side = 0; side < 2; side++)
+                for (var index = 0; index <= steps; index++)
+                {
+                    var fraction = (side == 0 ? index : steps - index) / (double)steps;
+                    var at = tailMove + (move - tailMove) * fraction;
+                    var tangent = route.Direction(at);
+                    var width = 2.2 * size * fraction * (side == 0 ? 1 : -1);
+                    path.LineTo(route.Position(at) + new Vector(-tangent.Y, tangent.X) * width, true, false);
+                }
+        }
+        ribbon.Freeze();
+        dc.PushOpacity(Pulse(p, .02, .65));
+        dc.DrawGeometry(ink, null, ribbon);
+        dc.DrawEllipse(glow, null, head, 10 * size, 10 * size);
+        // All blade control points fit a 12px radius; the shared route adds
+        // another .75px clearance. Color and the curved blade retain identity.
+        SlashBlade(dc, head, direction, normal, .22 * size, ink);
+        if (kind == CardKind.FireSlash)
+        {
+            dc.PushTransform(new TranslateTransform(route.Position(tailMove).X, route.Position(tailMove).Y));
+            dc.PushTransform(new ScaleTransform(.18 * size, .18 * size));
+            Flames(dc, new Point(), 35, travel);
+            dc.Pop(); dc.Pop();
+        }
+        else if (kind == CardKind.ThunderSlash)
+        {
+            var bolt = new StreamGeometry();
+            using (var path = bolt.Open())
+            {
+                path.BeginFigure(route.Position(tailMove), false, false);
+                for (var index = 1; index <= steps; index++)
+                {
+                    var at = tailMove + (move - tailMove) * index / steps;
+                    var tangent = route.Direction(at);
+                    path.LineTo(route.Position(at) + new Vector(-tangent.Y, tangent.X) *
+                        (index == steps ? 0 : Math.Sin(index * 2 + Math.Floor(p * 10)) * 2.8 * size), true, false);
+                }
+            }
+            bolt.Freeze(); dc.DrawGeometry(null, new Pen(White, size), bolt);
+        }
+        dc.Pop();
+    }
+
+    private static void SlashBlade(DrawingContext dc, Point head, Vector direction, Vector normal, double scale, Brush ink)
+    {
+        var bladeNormal = normal * scale;
+        var bladeDirection = direction * scale;
+        var sweep = new StreamGeometry();
+        using (var path = sweep.Open())
+        {
+            path.BeginFigure(head - bladeNormal * 43 - bladeDirection * 10, true, true);
+            path.BezierTo(head - bladeNormal * 18 + bladeDirection * 26, head + bladeNormal * 25 + bladeDirection * 24,
+                head + bladeNormal * 48 - bladeDirection * 20, true, false);
+            path.BezierTo(head + bladeNormal * 16 + bladeDirection * 7, head - bladeNormal * 20 + bladeDirection * 10,
+                head - bladeNormal * 43 - bladeDirection * 10, true, false);
+        }
+        sweep.Freeze(); dc.DrawGeometry(ink, null, sweep);
+        dc.DrawLine(new Pen(White, 2 * scale), head - bladeNormal * 29, head + bladeNormal * 30 + bladeDirection * 7);
     }
 
     private static void Dodge(DrawingContext dc, Rect bounds, double p)

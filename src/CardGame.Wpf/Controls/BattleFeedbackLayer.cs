@@ -673,7 +673,7 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
             if (item.Cue.HasDrawCards)
                 DrawCards(dc, item.Cue, elapsed, seats, frame);
             if (IsTransfer(item.Cue)) DrawCardTransfer(dc, item, elapsed, seats, frame);
-            DrawBattleEffects(dc, item.Cue, progress, seats, frame);
+            DrawBattleEffects(dc, item, progress, seats, frame);
             DrawCue(dc, item, progress, seats, plays, center, i, frame);
         }
         DrawHealthChanges(dc, health, now, frame);
@@ -726,6 +726,12 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
             .Append(VisibleBounds(layer.Sidebar)).Append(VisibleBounds(layer.PhaseHud))
             .Append(layer.IsPromptVisible ? VisibleBounds(layer.CenterAnchor) : Rect.Empty)
             .Where(bounds => !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0).ToArray();
+
+        public Rect[] SlashObstacles(int sourceSeat, int targetSeat) => DrawInk()
+            .Concat(seats.Where(seat => seat.Key != sourceSeat && seat.Key != targetSeat).Select(seat => seat.Value))
+            .Append(VisibleBounds(layer.Sidebar)).Append(VisibleBounds(layer.PhaseHud))
+            .Append(layer.IsPromptVisible ? VisibleBounds(layer.CenterAnchor) : Rect.Empty)
+            .Where(bounds => !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0).Distinct().ToArray();
 
         private IReadOnlyList<Rect> DrawInk() => _drawInk ??= DrawReadouts(layer.AnchorRoot).ToArray();
 
@@ -840,9 +846,25 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         public IEnumerable<Rect> Corridor() => _corridor;
     }
 
-    private void DrawBattleEffects(DrawingContext dc, BattleCue cue, double progress, IReadOnlyDictionary<int, Rect> seats, FrameGeometry frame)
+    private void DrawBattleEffects(DrawingContext dc, TimedCue item, double progress, IReadOnlyDictionary<int, Rect> seats, FrameGeometry frame)
     {
+        var cue = item.Cue;
         if (cue.Kind == BattleCueKind.Draw || IsTransfer(cue)) return;
+        if (cue.Kind == BattleCueKind.Card && !cue.IsInquiry && cue.Detail != "重铸" &&
+            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+            seats.TryGetValue(cue.OriginSeat ?? cue.SourceSeat, out var source))
+        {
+            foreach (var targetSeat in cue.TargetSeats)
+            {
+                if (!seats.TryGetValue(targetSeat, out var target)) continue;
+                var route = item.GetSlashPath(targetSeat, source, target,
+                    frame.SlashObstacles(cue.OriginSeat ?? cue.SourceSeat, targetSeat), frame.FlightViewport);
+                dc.PushClip(route.Clip);
+                BattleEffectPainter.Slash(dc, source, target, cue.CardKind.Value, progress, route);
+                dc.Pop();
+            }
+            return;
+        }
         var groupResponse = cue.CardKind is CardKind.ArrowBarrage or CardKind.BarbarianAssault;
         // A declaration identifies all public targets; its portrait outlines
         // remain in DrawCue. The response focus belongs to the actual public
@@ -1598,6 +1620,15 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         private Point _transferLaunch, _transferDestination;
         private Rect _transferViewport;
         private Rect[]? _transferObstacles;
+        private Dictionary<int, SlashFlightPath>? _slashPaths;
+
+        public SlashFlightPath GetSlashPath(int targetSeat, Rect source, Rect target, Rect[] obstacles, Rect viewport)
+        {
+            _slashPaths ??= [];
+            if (!_slashPaths.TryGetValue(targetSeat, out var route) || !route.Matches(source, target, obstacles, viewport))
+                _slashPaths[targetSeat] = route = new SlashFlightPath(source, target, obstacles, viewport);
+            return route;
+        }
 
         public PublicCardFlightPath GetTransferPath(Point launch, Point destination, Rect[] obstacles, Rect viewport)
         {
