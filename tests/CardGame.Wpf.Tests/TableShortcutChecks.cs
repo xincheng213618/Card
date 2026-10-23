@@ -248,9 +248,16 @@ internal static class TableShortcutChecks
             ModifierKeys.Shift => (0x10, 0xA0, 0xA1), // VK_SHIFT, VK_LSHIFT, VK_RSHIFT
             _ => throw new ArgumentOutOfRangeException(nameof(modifiers))
         };
+        // WPF queries individual GetKeyState values. Observe those first, then
+        // capture one complete table rather than restoring an earlier table
+        // against a later WPF observation.
+        var originalWpfModifiers = Keyboard.Modifiers;
         var original = new byte[256];
         Program.Assert(GetKeyboardState(original), "A modifier route must preserve the test thread's original keyboard state.");
-        var originalModifiers = Keyboard.Modifiers;
+        var originalModifiers = ModifiersFrom(original);
+        Program.Assert(originalWpfModifiers == originalModifiers,
+            "The original WPF modifiers and complete keyboard table must form a coherent snapshot before changing any state or routing input. " +
+            $"WPF={originalWpfModifiers}; table=[{DescribeModifiers(original)}].");
         var modified = (byte[])original.Clone();
         // Native focus can inherit a user's held modifier. Define this route's
         // input explicitly, including None, without changing global input.
@@ -288,15 +295,40 @@ internal static class TableShortcutChecks
                 var differences = string.Join(", ", Enumerable.Range(0, original.Length)
                     .Where(key => original[key] != restored[key])
                     .Select(key => $"0x{key:X2}:0x{original[key]:X2}->0x{restored[key]:X2}"));
+                // A later observation is diagnostic only; it must not replace
+                // the complete restoration check or its WPF modifier check.
+                var restoredAfterModifiers = new byte[256];
+                var restoredAfterGet = GetKeyboardState(restoredAfterModifiers);
+                var restoredAfterGetError = restoredAfterGet ? 0 : Marshal.GetLastWin32Error();
+                var restoredAfterDifferences = restoredAfterGet
+                    ? string.Join(", ", Enumerable.Range(0, original.Length)
+                        .Where(key => original[key] != restoredAfterModifiers[key])
+                        .Select(key => $"0x{key:X2}:0x{original[key]:X2}->0x{restoredAfterModifiers[key]:X2}"))
+                    : "unavailable";
                 var restoreError = new InvalidOperationException(
                     "All 256 original keyboard bytes and WPF modifiers must be restored even when a routed assertion fails. " +
                     $"Route={modifiers}; SetKeyboardState={set}, error={setError}; GetKeyboardState={get}, error={getError}; " +
-                    $"bytesEqual={bytesEqual}; originalModifiers={originalModifiers}; restoredModifiers={restoredModifiers}; differences=[{differences}].");
+                    $"bytesEqual={bytesEqual}; originalModifiers={originalModifiers}; originalWpfModifiers={originalWpfModifiers}; restoredModifiers={restoredModifiers}; differences=[{differences}]; " +
+                    $"originalTable=[{DescribeModifiers(original)}]; " +
+                    $"restoredTable=[{DescribeModifiers(restored)}]; restoredAfterWpfGet={restoredAfterGet}, error={restoredAfterGetError}, " +
+                    $"differences=[{restoredAfterDifferences}], table=[{(restoredAfterGet ? DescribeModifiers(restoredAfterModifiers) : "unavailable")}].");
                 if (actionError is not null)
                     throw new AggregateException("The modifier route and restoration both failed.", actionError, restoreError);
                 throw restoreError;
             }
         }
+
+        static ModifierKeys ModifiersFrom(byte[] states)
+        {
+            var tableModifiers = ModifierKeys.None;
+            if (((states[0xA4] | states[0xA5]) & 0x80) != 0) tableModifiers |= ModifierKeys.Alt;
+            if (((states[0xA2] | states[0xA3]) & 0x80) != 0) tableModifiers |= ModifierKeys.Control;
+            if (((states[0xA0] | states[0xA1]) & 0x80) != 0) tableModifiers |= ModifierKeys.Shift;
+            return tableModifiers;
+        }
+
+        static string DescribeModifiers(byte[] states) => $"modifiers={ModifiersFrom(states)}, LAlt=0x{states[0xA4]:X2}, RAlt=0x{states[0xA5]:X2}, " +
+            $"LCtrl=0x{states[0xA2]:X2}, RCtrl=0x{states[0xA3]:X2}, LShift=0x{states[0xA0]:X2}, RShift=0x{states[0xA1]:X2}";
     }
 
     [DllImport("user32.dll", SetLastError = true)]

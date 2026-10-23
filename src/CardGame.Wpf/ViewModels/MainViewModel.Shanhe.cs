@@ -136,10 +136,14 @@ public sealed partial class MainViewModel
     public string ShanheStartingLoadoutText => _shanheSession is { } session
         ? "随身牌：" + (session.Snapshot.StartingCards.Count == 0 ? "无" :
             string.Join("、", session.Snapshot.StartingCards.Select(card => CardCatalog.Get(card.Kind).DisplayName))) +
-            "\n开场装备：" + (session.Snapshot.StartingEquipment.Count == 0 ? "无" :
+            "\n随身装备：" + (session.Snapshot.StartingEquipment.Count == 0 ? "无" :
                 string.Join("、", session.Snapshot.StartingEquipment.Select(card => CardCatalog.Get(card.Kind).DisplayName))) +
-            "\n这些牌在每场开局重新获得；普通手牌与装备不会直接跨战继承。"
-        : "在征途中获取随身牌和开场装备，完善你的构筑。";
+            "\n" + ShanheStartingResourceNotice + "普通手牌与装备不会直接跨战继承。"
+        : "在征途中获取随身牌和装备，每战加入手牌，完善你的构筑。";
+    private bool ShanheStartingResourcesExpireOnUse => _shanheSession?.Definition.StartingResourcesExpireOnUse ?? true;
+    private string ShanheStartingResourceNotice => ShanheStartingResourcesExpireOnUse
+        ? "随身牌和装备每战加入手牌；使用或响应后本应进入弃牌堆时移出本局，被技能提前取得则保留。"
+        : "随身牌每战加入手牌，初始装备每战直接装备。";
     public string ShanheSkillsText => _shanheSession is { } session
         ? $"额外技能 {session.Snapshot.ExtraSkillIds.Count}/{session.Snapshot.ExtraSkillSlots}：" +
             (session.Snapshot.ExtraSkillIds.Count == 0 ? "尚未习得" : string.Join("、", session.Snapshot.ExtraSkillIds.Select(ShanheSkillName))) +
@@ -155,7 +159,7 @@ public sealed partial class MainViewModel
     private string ShanheBattleObjective => $"你的目标：击败{ShanheBattleNodeName}的全部敌军。" +
         (ShanheAlliedSeatCount > 1 ? $"本战有 {ShanheAlliedSeatCount - 1} 名人机友军助战。" : "本战由你独自迎敌。") +
         "胜利后保留剩余体力，领取战利品再继续行军；本次征程战败后结束。";
-    public string ShanheCarryoverNotice => "胜利后保留剩余体力。战法持续本次征程，每战获得且不占技能槽；额外所学技能单独占槽，满槽时可替换。随身牌和装备每战开场重新获得。";
+    public string ShanheCarryoverNotice => "胜利后保留剩余体力。战法持续本次征程，每战获得且不占技能槽；额外所学技能单独占槽，满槽时可替换。" + ShanheStartingResourceNotice;
     public string ShanheContextTitle => _shanheSession?.Snapshot.Phase switch
     {
         ShanheCampaignPhase.Battle => "战 鼓 已 起",
@@ -473,7 +477,7 @@ public sealed partial class MainViewModel
         foreach (var property in new[] { nameof(ShanheCampaignTitle), nameof(ShanheRouteSummary), nameof(ShanheVitalText),
             nameof(ShanheGoldText), nameof(ShanheTacticsText), nameof(ShanheSkillsText), nameof(ShanheRankStatusText), nameof(SelectedShanheRankDescription), nameof(ShanheContextTitle),
             nameof(ShanheContextDescription), nameof(IsShanheBattleActive), nameof(IsShanheBattleSession),
-            nameof(ShanheBuildTabTitle), nameof(ShanheTacticEmptyText), nameof(ShanheStartingLoadoutText), nameof(ShanheEditionNotice), nameof(SelectedShanheGeneralMeta), nameof(HasShanheSession) }) RaisePropertyChanged(property);
+            nameof(ShanheBuildTabTitle), nameof(ShanheTacticEmptyText), nameof(ShanheStartingLoadoutText), nameof(ShanheCarryoverNotice), nameof(ShanheEditionNotice), nameof(SelectedShanheGeneralMeta), nameof(HasShanheSession) }) RaisePropertyChanged(property);
         foreach (var command in new[] { StartShanheCommand, ContinueShanheCommand, ResumeShanheBattleCommand })
             (command as RelayCommand)?.NotifyCanExecuteChanged();
     }

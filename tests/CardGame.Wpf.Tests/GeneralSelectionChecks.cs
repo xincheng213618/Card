@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -30,7 +31,7 @@ internal static class GeneralSelectionChecks
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
         using var vm = new MainViewModel(autoAdvance: false, seed: 31, showSetup: true, saveStore: store,
-            useExpandedContent: false, contentRegistry: registry) { IsMotionEnabled = false };
+            useExpandedContent: false, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
         vm.LoadManualGameCommand.Execute(null);
         var engine = Program.Engine(vm);
         var revision = engine.Revision;
@@ -67,6 +68,10 @@ internal static class GeneralSelectionChecks
                 $"The edition fixture must load a hidden Window: loaded={window.IsLoaded}, " +
                 $"WPF visible={window.IsVisible}, native visible={IsWindowVisible(handle)}, owns foreground={GetForegroundWindow() == handle}.");
             AssertHiddenFocusHost();
+            Program.Assert(vm.SelectedStartingRole.Role is null && engine.CreateSnapshot(0).Players.Single(player => player.IsHuman).Role == Role.Lord,
+                "The cold selection fixture must restore an actual Lord while the lobby's requested identity remains random.");
+            OpeningCustomizationUiChecks.AssertCurrentIdentityVisual(window, vm, (FrameworkElement)window.FindName("GeneralSelectionPanel"),
+                (UIElement)window.FindName("ConfirmGeneralChoiceButton"));
             var ling = vm.GeneralChoices.Single(choice => EditionPackage.Ling.Contains(choice.GeneralId));
             vm.PreviewGeneralChoiceCommand.Execute(ling);
             Program.Assert(vm.SelectedGeneralVariants.Select(choice => choice.GeneralId).ToHashSet().SetEquals(EditionPackage.Ling),
@@ -286,6 +291,16 @@ internal static class GeneralSelectionChecks
                     Rect Bounds(FrameworkElement control) => control.TransformToAncestor(root).TransformBounds(new Rect(control.RenderSize));
                     Rect DetailBounds(FrameworkElement control) => control.TransformToAncestor(presenter).TransformBounds(new Rect(control.RenderSize));
                     var preview = vm.SelectedGeneralChoice;
+                    var previewName = (TextBlock)window.FindName("GeneralSelectionPreviewName");
+                    var rulesLabel = (TextBlock)window.FindName("GeneralSelectionRulesLabel");
+                    var detailViewport = new Rect(presenter.RenderSize);
+                    detailViewport.Inflate(1, 1);
+                    Program.Assert(preview is { GeneralId: "ol:shen-zhao-yun", Name: "神赵云·可选弃牌" } &&
+                        previewName.Text == "神赵云" && rulesLabel.Text == "可选弃牌" && rulesLabel.IsVisible &&
+                        DetailBounds(rulesLabel).Top >= DetailBounds(previewName).Bottom - 1 &&
+                        detailViewport.Contains(DetailBounds(previewName)) && detailViewport.Contains(DetailBounds(rulesLabel)) &&
+                        Boundary(engine) == boundary,
+                        "The enlarged preview must show the complete person name and separate gameplay label inside its real detail viewport without changing the full edition identity or native boundary.");
                     var confirmationPosition = confirm.TranslatePoint(new Point(), root);
                     Console.WriteLine($"Enlarged selection: card={Bounds(cards[0])}, skills={Bounds(skills)}, confirm={Bounds(confirm)}, " +
                         $"versions={string.Join(";", versions.Select(button => Bounds(button).ToString()))}.");
@@ -345,6 +360,13 @@ internal static class GeneralSelectionChecks
             {
                 root.UpdateLayout();
                 root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+                var preview = vm.SelectedGeneralChoice!;
+                var previewName = (TextBlock)window.FindName("GeneralSelectionPreviewName");
+                var rulesLabel = (TextBlock)window.FindName("GeneralSelectionRulesLabel");
+                Program.Assert(previewName.Text == preview.CardName && Equals(previewName.ToolTip, preview.Name) &&
+                    rulesLabel.Text == preview.RulesLabel &&
+                    rulesLabel.Visibility == (preview.HasRulesLabel ? Visibility.Visible : Visibility.Collapsed),
+                    $"{label} must bind the current person's complete name and gameplay label, hide an absent label, and preserve the full edition name in its tooltip.");
                 var buttons = Program.Find<Button>((ItemsControl)window.FindName("GeneralVariantChoices")).ToArray();
                 foreach (var button in buttons)
                 {
@@ -503,7 +525,7 @@ internal static class GeneralSelectionChecks
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, checkpoint));
         using var vm = new MainViewModel(autoAdvance: false, seed: checkpoint.Options.Seed, showSetup: true,
-            saveStore: store, useExpandedContent: false, contentRegistry: registry)
+            saveStore: store, useExpandedContent: false, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore())
             { IsMotionEnabled = false, IsSoundEnabled = false, IsMusicEnabled = false };
         vm.LoadManualGameCommand.Execute(null);
         var engine = Program.Engine(vm);
@@ -836,7 +858,7 @@ internal static class GeneralSelectionChecks
         var store = new MemorySaveStore();
         store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, original));
         using var vm = new MainViewModel(autoAdvance: false, seed: 31, showSetup: true, saveStore: store,
-            useExpandedContent: false, contentRegistry: registry) { IsMotionEnabled = false };
+            useExpandedContent: false, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
         vm.LoadManualGameCommand.Execute(null);
         var previousGame = Program.Engine(vm);
         var previousBoundary = Boundary(previousGame);
@@ -912,7 +934,8 @@ internal static class GeneralSelectionChecks
 
     public static void InputBoundaries(string output)
     {
-        using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore(), useExpandedContent: true)
+        VerifyThirteenCandidateLayout(output);
+        using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore(), useExpandedContent: true, wushuangSaveStore: new MemorySaveStore())
         {
             IsMotionEnabled = false
         };
@@ -1109,6 +1132,215 @@ internal static class GeneralSelectionChecks
             window.Content = null;
             window.Close();
         }
+    }
+
+    private static void VerifyThirteenCandidateLayout(string output)
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var unreadable = new List<string>();
+        foreach (var role in new[] { Role.Lord, Role.Renegade })
+        {
+            using var vm = new MainViewModel(false, 31, true, new MemorySaveStore(),
+                useExpandedContent: true, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
+            vm.SelectedTableMode = vm.TableModes.Single(mode => mode.ModeId == "identity:classic-5");
+            vm.SelectedStartingRole = vm.StartingRoles.Single(option => option.Role == role);
+            vm.StartNewGameFromLobbyCommand.Execute(null);
+            vm.ContinueFromIdentityRevealCommand.Execute(null);
+            var game = Program.Engine(vm);
+            var boundary = Boundary(game);
+            Program.Assert(vm.IsGeneralSelectionPending && !vm.IsIdentityRevealOpen && !vm.IsCustomGeneralSelectionOpen &&
+                game.CreateSnapshot(0).Players.Single(player => player.IsHuman).Role == role && vm.GeneralChoices.Count == 13,
+                "The normal-size candidate fixture must use the real Standard identity role's thirteen published candidate families.");
+            using var host = new NativeResponseStatusChecks.NativeHost(vm);
+            var window = host.Window;
+            var root = host.Root;
+            window.Height = window.MinHeight;
+            root.Width = 1120; root.Height = 740;
+            window.UpdateLayout();
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            Program.Render(root, 1120, 740, Path.Combine(output, $"general-thirteen-candidates-{role}.png"));
+            var panel = (Border)window.FindName("GeneralSelectionPanel");
+            var candidates = (ItemsControl)window.FindName("GeneralCandidateCards");
+            var cards = Program.Find<Button>(candidates).ToArray();
+            Rect Bounds(FrameworkElement element) => element.TransformToAncestor(root).TransformBounds(new Rect(element.RenderSize));
+            var bounds = cards.Select(Bounds).ToArray();
+            var textScales = cards.Select(card =>
+            {
+                var text = Program.Find<TextBlock>(card).Single(item => item.Name == "ChoiceStatusText");
+                var transform = text.TransformToAncestor(root);
+                return (transform.Transform(new Point(1, 0)) - transform.Transform(new Point())).Length;
+            }).ToArray();
+            var minimumWidth = bounds.Min(rect => rect.Width);
+            var minimumTextScale = textScales.Min();
+            Console.WriteLine($"Normal thirteen-candidate layout: role={role}, root={root.RenderSize}, " +
+                $"window={window.ActualWidth:F3}x{window.ActualHeight:F3}, min-height={window.MinHeight:F0}, " +
+                $"cards={cards.Length}, columns={vm.GeneralChoiceColumns}, first={bounds[0]}, last={bounds[^1]}, " +
+                $"minimum width={minimumWidth:F3}/{cards[0].Width:F0}, minimum text scale={minimumTextScale:F4}, " +
+                $"10-DIP skill text={10 * minimumTextScale:F3}, same journal={Boundary(game) == boundary}.");
+            Program.Assert(root.RenderSize == new Size(1120, 740) && window.ActualHeight >= window.MinHeight &&
+                Math.Abs(window.ActualHeight - window.MinHeight) <= 1 &&
+                ((Grid)panel.Child).LayoutTransform.Value.IsIdentity && cards.Length == 13 &&
+                cards.All(card => ReferenceEquals(card.Command, vm.PreviewGeneralChoiceCommand) &&
+                    vm.GeneralChoices.Contains((GeneralChoiceViewModel)card.CommandParameter)) && Boundary(game) == boundary,
+                "Measuring the loaded ordinary-size selection must retain exact client bounds, current real candidates and the native private boundary without applying a text zoom.");
+            // The actual template declares a 142-DIP portrait and 10-DIP skill
+            // text. More legal candidates must add scrolling, not shrink both.
+            if (minimumWidth < cards[0].Width - 1 || minimumTextScale < .99)
+                unreadable.Add($"{role}: card {minimumWidth:F2}/{cards[0].Width:F0} DIP, text scale {minimumTextScale:F3}");
+            else if (role == Role.Lord)
+            {
+                var scroll = (ScrollViewer)window.FindName("GeneralCandidateScroller");
+                var presenter = Program.Find<ScrollContentPresenter>(scroll).Single(item => ReferenceEquals(item.TemplatedParent, scroll));
+                var confirm = (Button)window.FindName("ConfirmGeneralChoiceButton");
+                var confirmBounds = Bounds(confirm);
+                var last = cards[^1];
+                var lastChoice = (GeneralChoiceViewModel)last.CommandParameter;
+                Rect InViewport(FrameworkElement element) => element.TransformToAncestor(presenter).TransformBounds(new Rect(element.RenderSize));
+                bool FullyVisible(FrameworkElement element)
+                {
+                    var area = InViewport(element);
+                    return area.Left >= -1 && area.Top >= -1 && area.Right <= presenter.ActualWidth + 1 && area.Bottom <= presenter.ActualHeight + 1;
+                }
+                void Pump()
+                {
+                    root.UpdateLayout();
+                    window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                    root.UpdateLayout();
+                }
+                Program.Assert(scroll.ScrollableHeight > 0 && presenter.ActualHeight > 0 && !scroll.Focusable,
+                    "Thirteen unscaled portraits must scroll vertically without adding a candidate-pane Tab stop.");
+                var scrollbar = Program.Find<ScrollBar>(scroll).Single(bar => bar.Orientation == Orientation.Vertical);
+                var track = (Track)scrollbar.Template.FindName("PART_Track", scrollbar);
+                var thumb = track.Thumb!;
+                bool HitsThumb(double x)
+                {
+                    var hit = root.InputHitTest(thumb.TranslatePoint(new Point(x, thumb.ActualHeight / 2), root)) as DependencyObject;
+                    while (hit is not null && !ReferenceEquals(hit, thumb)) hit = VisualTreeHelper.GetParent(hit);
+                    return ReferenceEquals(hit, thumb);
+                }
+                Program.Assert(thumb.ActualWidth > 6 && HitsThumb(thumb.ActualWidth / 2),
+                    "The actual loaded candidate scrollbar must have a draggable visible thumb before checking its side edges.");
+                Console.WriteLine($"Candidate scrollbar thumb hit area: width={thumb.ActualWidth:F1}, " +
+                    $"left={HitsThumb(.5)}, center={HitsThumb(thumb.ActualWidth / 2)}, right={HitsThumb(thumb.ActualWidth - .5)}.");
+                Program.Assert(HitsThumb(.5) && HitsThumb(thumb.ActualWidth - .5),
+                    "The full allotted thumb width must remain draggable, including the transparent sides beside its narrow artwork.");
+                scroll.ScrollToEnd();
+                Pump();
+                Program.Render(root, 1120, 740, Path.Combine(output, "general-thirteen-candidates-last.png"));
+                Program.Assert(scroll.VerticalOffset > 0 && FullyVisible(last) && Bounds(last).Width >= last.Width - 1 &&
+                    Boundary(game) == boundary && Bounds(confirm) == confirmBounds,
+                    "Scrolling the real thirteen-choice pane must expose its entire last unscaled portrait while confirmation stays fixed and all player views remain unchanged.");
+                scroll.ScrollToHome();
+                SetFocus(new WindowInteropHelper(window).Handle);
+                cards[0].Focus();
+                Pump();
+                var tabCount = 0;
+                while (!ReferenceEquals(Keyboard.FocusedElement, last) && tabCount++ < cards.Length + 4)
+                {
+                    Program.Assert(!TableShortcutChecks.Input(window, Key.Tab) && Keyboard.FocusedElement is UIElement current &&
+                        current.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)),
+                        "The normal candidate pane must retain native forward Tab traversal through its real portraits.");
+                    Pump();
+                }
+                Program.Assert(ReferenceEquals(Keyboard.FocusedElement, last) && FullyVisible(last) && scroll.VerticalOffset > 0 &&
+                    !ReferenceEquals(vm.SelectedGeneralChoice, lastChoice) && Boundary(game) == boundary,
+                    "Tab must bring the thirteenth real candidate fully into view without previewing or confirming it.");
+                var accepted = game.AcceptedCommands.Count;
+                var first = Enter(repeat: false);
+                Pump();
+                Program.Assert(!first.PreviewHandled && first.Bubbles == 1 && first.Handled &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, lastChoice) && ReferenceEquals(Keyboard.FocusedElement, last) &&
+                    FullyVisible(last) && Boundary(game) == boundary,
+                    "Fresh Enter on the last unselected candidate must only preview its exact published choice while keeping its complete portrait visible.");
+                var held = Enter(repeat: true);
+                Pump();
+                Program.Assert(held.PreviewHandled && held.Bubbles == 0 && held.Handled &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, lastChoice) && Boundary(game) == boundary,
+                    "Holding the preview key must not turn the thirteenth candidate's reversible preview into a confirmation.");
+                var fresh = Enter(repeat: false);
+                Pump();
+                Program.Assert(fresh.PreviewHandled && fresh.Bubbles == 0 && fresh.Handled &&
+                    game.AcceptedCommands.Count == accepted + 1 && game.AcceptedCommands.Last() is SelectGeneralCommand selection &&
+                    selection.GeneralId == lastChoice.GeneralId && game.CreateSnapshot(0).Players.Single(player => player.IsHuman).GeneralId == lastChoice.GeneralId,
+                    "After releasing Enter, one fresh press must confirm the exact last real candidate once through the existing native command boundary.");
+                Console.WriteLine($"Thirteen-candidate native navigation: {tabCount} Tab moves, last={lastChoice.GeneralId}, " +
+                    $"preview-only=True, held preview consumed=True, confirmation commands={game.AcceptedCommands.Count - accepted}.");
+
+                (bool PreviewHandled, int Bubbles, bool Handled) Enter(bool repeat) => TableShortcutChecks.WithModifiers(ModifierKeys.None, () =>
+                {
+                    var handle = new WindowInteropHelper(window).Handle;
+                    Program.Assert(ReferenceEquals(Keyboard.FocusedElement, last) && GetFocus() == handle && IsMessageOnlyWindow(handle) &&
+                        !IsWindowVisible(handle) && GetForegroundWindow() != handle && last.IsVisible && last.IsEnabled,
+                        "Each candidate Enter must originate on the focused real Button in its hidden nonforeground native host.");
+                    var bubbles = 0;
+                    KeyEventHandler observe = (_, args) => { if (args.Key == Key.Enter) bubbles++; };
+                    last.AddHandler(Keyboard.KeyDownEvent, observe, handledEventsToo: true);
+                    try
+                    {
+                        var input = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(last)!, 0, Key.Enter)
+                            { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+                        OpeningCustomizationUiChecks.SetKeyRepeat(input, repeat);
+                        last.RaiseEvent(input);
+                        var previewHandled = input.Handled;
+                        if (!input.Handled) { input.RoutedEvent = Keyboard.KeyDownEvent; last.RaiseEvent(input); }
+                        return (previewHandled, bubbles, input.Handled);
+                    }
+                    finally { last.RemoveHandler(Keyboard.KeyDownEvent, observe); }
+                });
+            }
+            else
+            {
+                var scroll = (ScrollViewer)window.FindName("GeneralCandidateScroller");
+                var presenter = Program.Find<ScrollContentPresenter>(scroll).Single(item => ReferenceEquals(item.TemplatedParent, scroll));
+                void Settle() { root.UpdateLayout(); window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle); root.UpdateLayout(); }
+                scroll.ScrollToEnd();
+                Settle();
+                var beforeOffset = scroll.VerticalOffset;
+                var changeRole = Program.Find<Button>(root).Single(button => button.IsVisible &&
+                    ReferenceEquals(button.Command, vm.ChangeStartingIdentityCommand) &&
+                    button.CommandParameter is StartingRoleOption { Role: Role.Lord });
+                SetFocus(new WindowInteropHelper(window).Handle);
+                changeRole.Focus();
+                Program.Assert(beforeOffset > 0 && scroll.VerticalOffset == beforeOffset && ReferenceEquals(Keyboard.FocusedElement, changeRole) &&
+                    GetFocus() == new WindowInteropHelper(window).Handle && Boundary(game) == boundary,
+                    "The real thirteen-to-thirteen identity switch must start at the candidate tail with its actual role button focused and the original private boundary intact.");
+                var previewId = vm.SelectedGeneralChoice!.GeneralId;
+                vm.IsDeveloperView = true;
+                Settle();
+                vm.IsDeveloperView = false;
+                Settle();
+                Program.Assert(scroll.VerticalOffset == beforeOffset && vm.SelectedGeneralChoice!.GeneralId == previewId &&
+                    ReferenceEquals(Keyboard.FocusedElement, changeRole) && Boundary(game) == boundary,
+                    "Refreshing the same real prompt must preserve a manually scrolled candidate tail, its preview and the live role-button focus.");
+                var previewHandled = TableShortcutChecks.WithModifiers(ModifierKeys.None, () =>
+                {
+                    var input = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(changeRole)!, 0, Key.Enter)
+                        { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+                    OpeningCustomizationUiChecks.SetKeyRepeat(input, false);
+                    changeRole.RaiseEvent(input);
+                    var handled = input.Handled;
+                    if (!input.Handled) { input.RoutedEvent = Keyboard.KeyDownEvent; changeRole.RaiseEvent(input); }
+                    return handled;
+                });
+                Settle();
+                var switchedGame = Program.Engine(vm);
+                var first = Program.Find<Button>(candidates).First();
+                var firstBounds = first.TransformToAncestor(presenter).TransformBounds(new Rect(first.RenderSize));
+                Console.WriteLine($"Native identity candidate scroll: Renegade->Lord, offset={beforeOffset:F3}->{scroll.VerticalOffset:F3}/{scroll.ScrollableHeight:F3}, " +
+                    $"first={firstBounds}, viewport={presenter.RenderSize}, focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, " +
+                    $"preview={vm.SelectedGeneralChoice?.GeneralId}, prompt={game.PendingDecision?.PromptId}->{switchedGame.PendingDecision?.PromptId}, tunnel handled={previewHandled}.");
+                Program.Render(root, 1120, 740, Path.Combine(output, "general-identity-candidate-scroll.png"));
+                Program.Assert(!previewHandled && !ReferenceEquals(switchedGame, game) && Boundary(game) == boundary &&
+                    switchedGame.CreateSnapshot(0).Players.Single(player => player.IsHuman).Role == Role.Lord &&
+                    vm.IsGeneralSelectionPending && !vm.IsIdentityRevealOpen && !vm.IsCustomGeneralSelectionOpen && vm.GeneralChoices.Count == 13 &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, vm.GeneralChoices[0]) && ReferenceEquals(first.CommandParameter, vm.SelectedGeneralChoice) &&
+                    !switchedGame.AcceptedCommands.OfType<SelectGeneralCommand>().Any() && firstBounds.Left >= -1 && firstBounds.Top >= -1 &&
+                    firstBounds.Right <= presenter.ActualWidth + 1 && firstBounds.Bottom <= presenter.ActualHeight + 1,
+                    "Changing the real identity from thirteen candidates to thirteen must expose the new prompt's first preview without selecting a general or mutating the retired engine's player views and journal.");
+            }
+        }
+        Program.Assert(unreadable.Count == 0,
+            "Thirteen real identity candidates in the minimum-height window with a 1120x740 client must retain their declared card and text sizes: " + string.Join("; ", unreadable));
     }
 
     private static void VerifyHeldNationalConfirm(MainViewModel vm)

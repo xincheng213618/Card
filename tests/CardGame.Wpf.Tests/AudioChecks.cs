@@ -17,7 +17,9 @@ internal static class AudioChecks
     public static void CommandRouting()
     {
         var store = new MemorySaveStore();
-        using var vm = new MainViewModel(false, 721019, false, store) { IsMotionEnabled = false };
+        var preferences = new MemoryPlayerPreferencesStore();
+        using var vm = new MainViewModel(false, 721019, false, store, preferencesStore: preferences,
+            wushuangSaveStore: new MemorySaveStore()) { IsMotionEnabled = false };
         var output = new RecordingOutput();
         var clock = new TestClock();
         var constructed = 0;
@@ -86,9 +88,43 @@ internal static class AudioChecks
         PlaySlash(vm);
         Assert(output.Played.Count == before, "Disposed controller still receives commands.");
 
-        using var broken = new MainViewModel(false, 721019, false, new MemorySaveStore());
-        using var reference = new MainViewModel(false, 721019, false, new MemorySaveStore());
-        using var faultyAudio = new GameAudioController(broken, () => new RecordingOutput { ThrowOnPlay = true });
+        var game = Engine(vm);
+        Assert(game.State.Status == EngineStatus.Running && game.AcceptedCommands.Count > 0 && vm.FlushPendingSave(),
+            "Local-preference isolation requires an activated game with its committed commands already saved.");
+        var gameWrites = store.WriteCount;
+        var saveTimer = (DispatcherTimer)typeof(MainViewModel).GetField("_saveTimer",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(vm)!;
+        var views = Enumerable.Range(0, game.State.Players.Count)
+            .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+        var journal = CommandJson.Serialize(game.AcceptedCommands);
+        foreach (var (name, change) in new (string, Action)[]
+        {
+            ("master sound", () => vm.IsSoundEnabled = !vm.IsSoundEnabled),
+            ("sound volume", () => vm.SoundVolume = .61),
+            ("motion", () => vm.IsMotionEnabled = !vm.IsMotionEnabled)
+        })
+        {
+            change();
+            Assert(vm.FlushPreferences() && !vm.HasPreferencesError && preferences.Read() is { } savedPreferences &&
+                   savedPreferences.SoundEnabled == vm.IsSoundEnabled && savedPreferences.SoundVolume == vm.SoundVolume &&
+                   savedPreferences.MotionEnabled == vm.IsMotionEnabled,
+                $"Changing {name} must still persist the current local preferences successfully.");
+            var queuedGameSave = saveTimer.IsEnabled;
+            var flushed = vm.FlushPendingSave();
+            Assert(!queuedGameSave && flushed && !saveTimer.IsEnabled && store.WriteCount == gameWrites && !vm.HasSaveError &&
+                   ReferenceEquals(Engine(vm), game) && CommandJson.Serialize(game.AcceptedCommands) == journal &&
+                   Enumerable.Range(0, views.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(views),
+                $"Changing {name} must not queue or write another game save or change any committed player view: " +
+                $"queued={queuedGameSave}, writes={store.WriteCount - gameWrites}, flushed={flushed}, saveError={vm.HasSaveError}.");
+        }
+
+        using var broken = new MainViewModel(false, 721019, false, new MemorySaveStore(),
+            wushuangSaveStore: new MemorySaveStore());
+        using var reference = new MainViewModel(false, 721019, false, new MemorySaveStore(),
+            wushuangSaveStore: new MemorySaveStore());
+        var faultyOutput = new RecordingOutput { ThrowOnPlay = true };
+        var faultyConstructed = 0;
+        using var faultyAudio = new GameAudioController(broken, () => { faultyConstructed++; return faultyOutput; });
         faultyAudio.SetActive(true);
         foreach (var model in new[] { broken, reference })
         {
@@ -98,6 +134,31 @@ internal static class AudioChecks
             PlaySlash(model);
         }
         Assert(broken.IsAudioUnavailable && State(broken) == State(reference), "Audio failure interrupted or changed the actual rule command.");
+        var brokenGame = Engine(broken);
+        var brokenViews = Enumerable.Range(0, brokenGame.State.Players.Count)
+            .Select(seat => SnapshotJson.Serialize(brokenGame.CreateSnapshot(seat))).ToArray();
+        var brokenJournal = CommandJson.Serialize(brokenGame.AcceptedCommands);
+        var failedOutputCount = faultyConstructed;
+        broken.IsVoiceEnabled = false;
+        Assert(broken.IsAudioUnavailable && broken.SoundStatusText.Contains("声音暂不可用") &&
+               broken.GeneralVoiceStatus.Contains("武将配音已关闭") && faultyConstructed == failedOutputCount,
+            "A disabled voice channel must explain its own recovery even when the output has failed.");
+        broken.SoundVolume = 0;
+        Assert(broken.IsAudioUnavailable && broken.SoundStatusText.Contains("音量为 0") &&
+               broken.SoundStatusText.Contains("调高音量") && broken.GeneralVoiceStatus.Contains("调高音量") &&
+               faultyConstructed == failedOutputCount,
+            "Zero volume after an output failure must explain the level gate without rebuilding or clearing the failed output.");
+        broken.IsSoundEnabled = false;
+        Assert(broken.IsAudioUnavailable && broken.SoundVolume == 0 && broken.SoundStatusText.Contains("游戏声音已关闭") &&
+               broken.SoundStatusText.Contains("Ctrl+M") && broken.GeneralVoiceStatus.Contains("游戏声音已关闭") &&
+               faultyConstructed == failedOutputCount,
+            "Muting a failed zero-volume output must identify the master switch and retain the failed output.");
+        broken.IsSoundEnabled = true;
+        Assert(broken.IsAudioUnavailable && broken.SoundVolume == 0 && broken.SoundStatusText.Contains("调高音量") &&
+               broken.GeneralVoiceStatus.Contains("调高音量") && faultyConstructed == failedOutputCount &&
+               CommandJson.Serialize(brokenGame.AcceptedCommands) == brokenJournal &&
+               Enumerable.Range(0, brokenViews.Length).Select(seat => SnapshotJson.Serialize(brokenGame.CreateSnapshot(seat))).SequenceEqual(brokenViews),
+            "Re-enabling the failed output at zero must preserve its level recovery, output identity and committed game boundary.");
         Assert(GameSoundRules.SelectBatch([GameSound.Card, GameSound.Card, GameSound.Hit, GameSound.Prompt]).SequenceEqual([GameSound.Hit, GameSound.Prompt]), "Burst sounds displaced the player's decision cue.");
         Assert(GameSoundRules.SelectBatch([GameSound.Death, GameSound.Hit, GameSound.Victory]).SequenceEqual([GameSound.Victory]), "Result sound did not replace combat sounds.");
         foreach (var role in Enum.GetValues<Role>())

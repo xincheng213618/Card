@@ -923,6 +923,10 @@ public sealed partial class GameEngine
                            paid.Material == cost.CardId && _resolutionStack.OfType<ProgramSkillFrame>().Any(program =>
                                program.WindowContext?.ParentFrameId == frame.Id && GuoSiNativeRidesOn(program, use)))) &&
                      !IsWuZglReturnedCopyCost(frame.Action, cost) &&
+                     !_cardMovements.Any(m => IsShanheStartingResourceResponseFinish(frame.Action, cost, m)) &&
+                     !(frame.Action.Type == CardActionType.Use && LifecycleCardUse(frame.ParentFrameId)?.Action is { } startingUse &&
+                         startingUse.ActionId == frame.Action.ActionId && startingUse.PhysicalCards.Contains(cost) &&
+                         IsShanheStartingResourceDestroyedUseMaterial(frame.ParentFrameId, cost.CardId)) &&
                      !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
                      !TryGetSiruiDestroyedResponseCost(frame.Action,cost.CardId,out _) &&
                      !(frame.Action.Type == CardActionType.Use && IsJiyunClaimedUseEntity(frame.ParentFrameId, cost.CardId)) &&

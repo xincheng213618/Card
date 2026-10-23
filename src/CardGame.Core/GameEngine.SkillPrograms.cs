@@ -1071,7 +1071,7 @@ public sealed partial class GameEngine
                      frame.ChoiceBindings.Any(binding => binding.Name == effect.Condition.SourceBind &&
                          binding.OptionId == effect.Condition.OptionId)) &&
                     effect.Op is (
-                    SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or SkillProgramEffectOp.SelectAllPublicTeamTargets or SkillProgramEffectOp.SelectRandomPublicTeamTarget or
+                    SkillProgramEffectOp.BindOwnTurnEnemyHandGain or SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or SkillProgramEffectOp.SelectAllPublicTeamTargets or SkillProgramEffectOp.SelectRandomPublicTeamTarget or
                     SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget or
                     SkillProgramEffectOp.DamageFarthestCharacter or SkillProgramEffectOp.OfferCompletedCardGift or
                     SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash or
@@ -1094,6 +1094,7 @@ public sealed partial class GameEngine
                             executedSelection.Op == SkillProgramEffectOp.DamageFarthestCharacter ? "advanced-lifecycle" : "strategic-choice"));
             var dynamicTargetsValid = executedSelection is null || executedSelection.Op switch
             {
+                SkillProgramEffectOp.BindOwnTurnEnemyHandGain => HasExactOwnTurnEnemyHandGainSelection(frame),
                 SkillProgramEffectOp.SelectAllPublicTeamTargets or SkillProgramEffectOp.SelectRandomPublicTeamTarget => IsExactPublicTeamTargetSelection(frame, executedSelection, plan),
                 SkillProgramEffectOp.RequestFulueZeroDamageCounterSlash => HasIssuedFulueRequest(frame),
                 SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash =>

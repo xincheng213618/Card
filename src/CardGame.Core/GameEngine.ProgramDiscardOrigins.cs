@@ -10,7 +10,8 @@ public sealed partial class GameEngine
         if (movement.CardKind == CardKind.ThunderChariot && movement.To == CardLocation.OutsideGame &&
             movement.From.Zone == CardZoneKind.Equipment && _cardMovements.Contains(movement) &&
             IsProgramDiscardOriginReason(movement.Reason)) return movement.From;
-        if (movement.To != CardLocation.DiscardPile) return null;
+        if (movement.To != CardLocation.DiscardPile &&
+            !(movement.To == CardLocation.OutsideGame && IsShanheStartingResourceDestroyedMaterial(movement))) return null;
         if (IsOwnedDiscardSource(movement.From))
             return IsProgramDiscardOriginReason(movement.Reason) ? movement.From : null;
         if (movement.From != CardLocation.Processing) return null;

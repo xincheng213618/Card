@@ -73,7 +73,7 @@ public static partial class StandardShanheCampaignCatalog
 
     /// <summary>Adds the opt-in codex pool without altering the historical default campaign definition.</summary>
     public static ShanheCampaignDefinition CreateCodexDefinition(int difficulty, string editionId) =>
-        WithCodexRewards(CreateDefinition(difficulty, editionId), editionId);
+        WithStartingResourcesContract(WithCodexRewards(CreateCurrentBaseDefinition(difficulty, editionId), editionId));
 
     private static ShanheCampaignDefinition WithCodexRewards(ShanheCampaignDefinition original, string editionId)
     {

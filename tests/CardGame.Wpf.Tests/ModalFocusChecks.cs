@@ -33,13 +33,13 @@ internal static class ModalFocusChecks
         var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardTeamModePackage(),
             new GeneralGalleryFocusChecks.GalleryFixture());
         using var model = new MainViewModel(false, 1, true, new MemorySaveStore(), historyStore: historyStore,
-            preferencesStore: preferencesStore, contentRegistry: registry)
+            preferencesStore: preferencesStore, contentRegistry: registry, wushuangSaveStore: new MemorySaveStore())
         {
             IsMotionEnabled = false,
             IsMusicEnabled = false,
             IsSoundEnabled = false
         };
-        model.SelectedStartingRole = new StartingRoleOption("fixture", Role.Lord, string.Empty);
+        model.SelectedStartingRole = model.StartingRoles.Single(option => option.Role == Role.Lord);
         var window = new MainWindow(model)
         {
             ShowActivated = false, ShowInTaskbar = false,
@@ -86,6 +86,7 @@ internal static class ModalFocusChecks
                 $"loaded events={loadedCount}, unloaded events={unloadedCount}.");
             RequireFocusWithin("NewGameSetupPanel", "Initial loading did not focus the visible lobby.");
             ModeSelectionChecks.RequiredChoiceInput(model, window);
+            VerifySetupRoomSeatKeyboardFocus();
             VerifyModeStepFocusOwnership();
             VerifySetupPreferencesRecovery();
             var adviceButton = (Button)((FrameworkElement)window.FindName("PlayerGuide")).FindName("PlayAdviceButton");
@@ -556,6 +557,133 @@ internal static class ModalFocusChecks
             latestFocus = null;
         }
 
+        void VerifySetupRoomSeatKeyboardFocus()
+        {
+            var game = Program.Engine(model);
+            var views = Enumerable.Range(0, game.CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+            var commands = CommandJson.Serialize(game.AcceptedCommands);
+            var category = model.SelectedModeCategory;
+            var mode = model.SelectedTableMode;
+            var role = model.SelectedStartingRole;
+            var team = model.SelectedStartingTeam;
+            var originalFocus = Keyboard.FocusedElement;
+            var scroll = (ScrollViewer)window.FindName("ModeSetupScroll");
+            var offset = scroll.VerticalOffset;
+            var width = window.Width;
+            var height = window.Height;
+            SetupRoomSeat? editedSeat = null;
+            try
+            {
+                window.Width = 1120;
+                window.Height = 780;
+                model.OpenLobbyCategoryCommand.Execute("identity");
+                var identity = model.TableModes.Single(option => option.ModeId == "identity:standard-8");
+                model.SelectedTableMode = identity;
+                model.OpenModeConfigurationCommand.Execute(model.VisibleModeGroups.Single(group => group.Variants.Contains(identity)));
+                Pump(window);
+                var seats = (ItemsControl)window.FindName("SetupRoomSeatCards");
+                var presenter = Program.Find<ScrollContentPresenter>(scroll)
+                    .Single(item => ReferenceEquals(item.TemplatedParent, scroll));
+                Program.Assert(model.SelectedTableMode == identity && model.SetupRoomSeats.Count == 8,
+                    "The seat keyboard fixture must use the actual eight-player identity room.");
+                var seat = model.SetupRoomSeats.Single(item => item.Seat == 1);
+                Program.Assert(seat.CanAddAi && !seat.CanRemoveAi,
+                    "The seat keyboard fixture must begin with the actual empty second seat.");
+                editedSeat = seat;
+                var kinds = model.SetupRoomSeats.Select(item => item.Kind).ToArray();
+                var guide = model.GuideIdentity;
+                var add = SeatAction(model.AddSetupRoomAiCommand);
+                scroll.ScrollToTop();
+                Program.Assert(add.Focus(), "The empty second seat's actual Add AI button must accept native keyboard focus.");
+                Pump(window);
+                LogSeat("before add", add);
+                Program.Assert(ReferenceEquals(Keyboard.FocusedElement, add) && CompleteAction(add) && SameBoundary(),
+                    "The second seat's Add AI action must begin fully visible and focused in the actual compact room.");
+                Program.Assert(!RouteFocusedKey(Key.Enter, ModifierKeys.None),
+                    "Adding an AI must route fresh native Enter to the focused second-seat button.");
+                Pump(window);
+                var remove = SeatAction(model.RemoveSetupRoomAiCommand);
+                LogSeat("after add", remove);
+                if (output is not null)
+                    Program.Render((FrameworkElement)window.Content, (int)Math.Ceiling(((FrameworkElement)window.Content).ActualWidth),
+                        (int)Math.Ceiling(((FrameworkElement)window.Content).ActualHeight), Path.Combine(output, "room-native-seat-focus.png"));
+                Program.Assert(seat.CanRemoveAi && !seat.CanAddAi && ReferenceEquals(remove, add) &&
+                    ReferenceEquals(Keyboard.FocusedElement, remove) &&
+                    CompleteAction(remove) && SameBoundary(),
+                    "Native Enter must add an AI and retain its same fully visible button, keyboard focus and focus ring as the seat's Remove AI action.");
+                Program.Assert(RouteFocusedKey(Key.Enter, ModifierKeys.None, repeat: true),
+                    "A held Enter must stop before reversing the newly added second-seat AI.");
+                Pump(window);
+                Program.Assert(seat.CanRemoveAi && ReferenceEquals(Keyboard.FocusedElement, remove) &&
+                    CompleteAction(remove) && SameBoundary(),
+                    "Held Enter must preserve the second-seat AI, its current action focus and the suspended match.");
+                Program.Assert(!RouteFocusedKey(Key.Enter, ModifierKeys.None),
+                    "Removing the second-seat AI must route a fresh native Enter to its focused action.");
+                Pump(window);
+                var restoredAdd = SeatAction(model.AddSetupRoomAiCommand);
+                LogSeat("after remove", restoredAdd);
+                Program.Assert(seat.CanAddAi && !seat.CanRemoveAi && ReferenceEquals(restoredAdd, add) &&
+                    ReferenceEquals(Keyboard.FocusedElement, restoredAdd) &&
+                    CompleteAction(restoredAdd) && SameBoundary(),
+                    "A fresh Enter must remove the AI and retain its same fully visible button, keyboard focus and focus ring as the seat's Add AI action.");
+                Program.Assert(RouteFocusedKey(Key.Enter, ModifierKeys.None, repeat: true),
+                    "A held Enter must stop before adding the just-removed second-seat AI again.");
+                Pump(window);
+                Program.Assert(seat.CanAddAi && ReferenceEquals(Keyboard.FocusedElement, restoredAdd) &&
+                    CompleteAction(restoredAdd) && SameBoundary(),
+                    "Held Enter must retain the empty second seat and its visible Add AI action without changing the match.");
+
+                Button SeatAction(ICommand command) => Program.Find<Button>(seats).Single(button =>
+                    ReferenceEquals(button.Command, command) && ReferenceEquals(button.CommandParameter, seat) && button.IsVisible);
+                Rect ActionBounds(Button action) => action.TransformToAncestor(presenter).TransformBounds(new Rect(action.RenderSize));
+                bool CompleteAction(Button action)
+                {
+                    var bounds = ActionBounds(action);
+                    return action.IsVisible && action.IsEnabled && action.Focusable && action.IsKeyboardFocused &&
+                        action.Template.FindName("FocusRing", action) is Border { IsVisible: true, ActualWidth: > 0, ActualHeight: > 0 } &&
+                        bounds.Width > 0 && bounds.Height > 0 && bounds.Left >= -1 && bounds.Top >= -1 &&
+                        bounds.Right <= presenter.ActualWidth + 1 && bounds.Bottom <= presenter.ActualHeight + 1;
+                }
+                bool SameBoundary() => model.IsModeConfigurationOpen && model.SelectedTableMode == identity &&
+                    model.SelectedStartingRole == role && model.SelectedStartingTeam == team && model.GuideIdentity == guide &&
+                    model.SetupRoomSeats.Contains(seat) && model.SetupRoomSeats.Count == kinds.Length &&
+                    model.SetupRoomSeats.Where(item => !ReferenceEquals(item, seat)).All(item => item.Kind == kinds[item.Seat]) &&
+                    SameMatch();
+                void LogSeat(string stage, Button expected) => Console.WriteLine(
+                    $"Room seat native {stage}: seat={seat.Seat + 1}, kind={seat.Kind}, " +
+                    $"focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, " +
+                    $"same action={ReferenceEquals(Keyboard.FocusedElement, expected)}, target={expected.Content}, " +
+                    $"focus ring={expected.Template.FindName("FocusRing", expected) is Border { IsVisible: true }}, " +
+                    $"bounds={ActionBounds(expected)}, viewport={presenter.ActualWidth:F3}x{presenter.ActualHeight:F3}, " +
+                    $"same choices and match={SameBoundary()}.");
+            }
+            finally
+            {
+                if (editedSeat is { CanRemoveAi: true } && model.SetupRoomSeats.Contains(editedSeat))
+                    model.RemoveSetupRoomAiCommand.Execute(editedSeat);
+                window.Width = width;
+                window.Height = height;
+                model.SelectedModeCategory = category;
+                model.SelectedTableMode = mode;
+                model.SelectedStartingRole = role;
+                model.SelectedStartingTeam = team;
+                model.BackToLobbyCommand.Execute(null);
+                Pump(window);
+                scroll.ScrollToVerticalOffset(offset);
+                if (originalFocus is UIElement { IsVisible: true, IsEnabled: true, Focusable: true } previous) previous.Focus();
+            }
+            Program.Assert(model.IsNewGameSetupOpen && !model.IsLobbyConfigurationOpen &&
+                model.SelectedModeCategory == category && model.SelectedTableMode == mode &&
+                model.SelectedStartingRole == role && model.SelectedStartingTeam == team &&
+                editedSeat is { CanAddAi: true } && ReferenceEquals(Keyboard.FocusedElement, originalFocus) && SameMatch(),
+                "Seat keyboard verification must restore the empty seat, original lobby choices and focus while preserving every player view and accepted command.");
+
+            bool SameMatch() => ReferenceEquals(Program.Engine(model), game) &&
+                CommandJson.Serialize(game.AcceptedCommands) == commands &&
+                Enumerable.Range(0, views.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(views);
+        }
+
         void VerifyModeStepFocusOwnership()
         {
             var game = Program.Engine(model);
@@ -573,8 +701,75 @@ internal static class ModalFocusChecks
             var offset = scroll.VerticalOffset;
             var width = window.Width;
             var height = window.Height;
+            var client = (FrameworkElement)window.Content;
+            var clientWidth = client.Width;
+            var clientHeight = client.Height;
             try
             {
+                window.Width = 1120;
+                window.Height = window.MinHeight;
+                client.Width = 1120;
+                client.Height = 740;
+                Pump(window);
+                Program.Assert(Math.Abs(client.ActualWidth - 1120) < 1 && Math.Abs(client.ActualHeight - 740) < 1,
+                    "The home-return probe must use the ordinary 1120x740 native client without content zoom.");
+                var home = (FrameworkElement)window.FindName("LobbyHome");
+                var origin = (Button)home.FindName("TeamBattleButton");
+                Program.Assert(origin.IsVisible && origin.IsEnabled && origin.Focus() && ReferenceEquals(Keyboard.FocusedElement, origin),
+                    "The home-return probe must begin on the actual enabled Team lobby entry.");
+                Program.Assert(!RouteFocusedKey(Key.Enter, ModifierKeys.None),
+                    "A fresh Team entry Enter must pass through the native focused button.");
+                Pump(window);
+                Program.Assert(model.IsLobbyConfigurationOpen && model.IsModeSelectionOpen &&
+                    model.SelectedModeCategory.Id == "team" && SameModeBoundary(),
+                    "Native Enter must open the Team category without changing the suspended game.");
+                Program.Assert(RouteFocusedKey(Key.Escape, ModifierKeys.None),
+                    "A fresh Escape must return from mode selection to the home lobby.");
+                Pump(window);
+                Console.WriteLine($"Home Team return: client={client.ActualWidth:F3}x{client.ActualHeight:F3}, " +
+                    $"focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, " +
+                    $"origin retained={ReferenceEquals(Keyboard.FocusedElement, origin)}, same match={SameModeBoundary()}.");
+                Program.Assert(!model.IsLobbyConfigurationOpen && model.IsNewGameSetupOpen &&
+                    ReferenceEquals(Keyboard.FocusedElement, origin) && SameModeBoundary(),
+                    "Returning from the Team category must restore its actual home entry and preserve every player view and accepted command.");
+                model.OpenLobbyCategoryCommand.Execute("identity");
+                Pump(window);
+                var groupChoices = (ItemsControl)window.FindName("ModeGroupChoices");
+                var currentGroup = model.VisibleModeGroups.Single(item => item.Variants[0].PlayerCount == 5);
+                var currentEntry = Program.Find<Button>(groupChoices).Single(button => ReferenceEquals(button.CommandParameter, currentGroup));
+                Program.Assert(currentEntry.IsVisible && currentEntry.IsEnabled && currentEntry.Focus() &&
+                    !RouteFocusedKey(Key.Enter, ModifierKeys.None), "The current-group probe must open a real nondefault mode card through native Enter.");
+                Pump(window);
+                Program.Assert(model.IsModeConfigurationOpen && ReferenceEquals(model.SelectedModeGroup, currentGroup) &&
+                    RouteFocusedKey(Key.Escape, ModifierKeys.None), "The actual configured mode group must return one step through native Escape.");
+                Pump(window);
+                var groupBack = Program.Find<Button>((DependencyObject)window.FindName("LobbyConfigurationOverlay"))
+                    .Single(button => ReferenceEquals(button.Command, model.BackInLobbySetupCommand));
+                Program.Assert(groupBack.IsVisible && groupBack.IsEnabled && groupBack.Focus(),
+                    "The current-group probe must move real keyboard focus off the mode cards onto the fixed footer.");
+                Pump(window);
+                var groupCards = Program.Find<Button>(groupChoices).Where(button => ReferenceEquals(button.Command, model.OpenModeConfigurationCommand)).ToArray();
+                var currentChrome = (Border)currentEntry.Template.FindName("Chrome", currentEntry);
+                var otherEntry = groupCards.First(button => !ReferenceEquals(button, currentEntry));
+                var otherChrome = (Border)otherEntry.Template.FindName("Chrome", otherEntry);
+                var currentMark = Program.Find<TextBlock>(currentEntry).SingleOrDefault(text => text.Text == "当前配置");
+                Program.Assert(model.IsModeSelectionOpen && ReferenceEquals(Keyboard.FocusedElement, groupBack) &&
+                    ReferenceEquals(model.SelectedModeGroup, currentGroup) && groupCards.Count(button => button.Tag is true) == 1 &&
+                    currentEntry.Tag is true && !currentEntry.IsKeyboardFocusWithin &&
+                    currentEntry.Template.FindName("FocusRing", currentEntry) is Border { Visibility: Visibility.Collapsed } &&
+                    currentChrome.Background is SolidColorBrush selectedFill && otherChrome.Background is SolidColorBrush otherFill &&
+                    selectedFill.Color != otherFill.Color && currentMark is { IsVisible: true, ActualWidth: > 0, ActualHeight: > 0 } &&
+                    model.SelectedStartingRole == role && model.SelectedStartingTeam == team && SameModeBoundary(),
+                    "The actual mode group alone must retain a visible current marker and distinct fill after native return and focus leaves, without changing player views or accepted commands.");
+                Console.WriteLine($"Mode group persistent selection: group={currentGroup.Id}, selected={groupCards.Count(button => button.Tag is true)}, " +
+                    $"focus={Keyboard.FocusedElement?.GetType().Name}, marker={currentMark?.IsVisible}, same match={SameModeBoundary()}.");
+                if (output is not null) Program.Render(client, 1120, 740, System.IO.Path.Combine(output, "mode-current-configuration.png"));
+                model.SelectedTableMode = mode;
+                window.Width = width;
+                window.Height = height;
+                client.Width = clientWidth;
+                client.Height = clientHeight;
+                Pump(window);
                 model.OpenLobbyCategoryCommand.Execute("identity");
                 Pump(window);
                 var group = model.SelectedModeGroup!;
@@ -645,6 +840,10 @@ internal static class ModalFocusChecks
                 var beforeDefaultOffset = scroll.VerticalOffset;
                 var defaultChoices = (ListBox)window.FindName("RoleChoices");
                 var rememberedChoice = defaultChoices.SelectedItem;
+                var rememberedRow = defaultChoices.ItemContainerGenerator.ContainerFromItem(rememberedChoice) as ListBoxItem;
+                Program.Assert(rememberedChoice is not null && ReferenceEquals(model.SelectedStartingRole, rememberedChoice) &&
+                    rememberedRow is { IsVisible: true, IsEnabled: true, IsSelected: true },
+                    "Default navigation must retain a real configured identity option and its selected native row.");
                 var roomSection = window.FindName("SetupRoomSeatCards");
                 FrameworkElement expectedDefault;
                 if (roomSection is not null)
@@ -654,15 +853,18 @@ internal static class ModalFocusChecks
                     var roomSeats = (ItemsControl)roomSection;
                     Program.Assert(panel is Panel configuration && configuration.Children.Count > 0 &&
                         ReferenceEquals(configuration.Children[0], roomSeats) && roomSeats.IsVisible && roomSeats.IsEnabled &&
-                        roomSeats.Focusable && roomSeats.IsTabStop && roomSeats.Items.Count == model.SelectedTableMode.PlayerCount,
-                        "The current room layout must expose its populated, focusable first seat section as the default navigation target.");
-                    expectedDefault = roomSeats;
+                        !roomSeats.Focusable && !roomSeats.IsTabStop && roomSeats.Items.Count == model.SelectedTableMode.PlayerCount,
+                        "The current room layout must populate its first seat section without admitting its inert container into keyboard navigation.");
+                    var firstSeat = model.SetupRoomSeats.First(seat => seat.CanAddAi || seat.CanRemoveAi);
+                    var firstCommand = firstSeat.CanRemoveAi ? model.RemoveSetupRoomAiCommand : model.AddSetupRoomAiCommand;
+                    var firstAction = Program.Find<Button>(roomSeats).Single(button => button.IsVisible &&
+                        ReferenceEquals(button.CommandParameter, firstSeat) && ReferenceEquals(button.Command, firstCommand));
+                    Program.Assert(firstAction.IsEnabled && firstAction.Focusable && firstAction.IsTabStop,
+                        "The first editable model seat must expose its actual, enabled AI action as the default keyboard target.");
+                    expectedDefault = firstAction;
                 }
                 else
                 {
-                    var rememberedRow = defaultChoices.ItemContainerGenerator.ContainerFromItem(rememberedChoice) as ListBoxItem;
-                    Program.Assert(rememberedChoice is not null && rememberedRow is { IsVisible: true, IsEnabled: true },
-                        "The default-focus fixture must retain its actual remembered role choice and loaded row.");
                     expectedDefault = rememberedRow!;
                 }
                 Program.Assert(beforeDefaultOffset > 1 && Math.Abs(beforeDefaultOffset - scroll.ScrollableHeight) < 1,
@@ -681,11 +883,12 @@ internal static class ModalFocusChecks
                     $"same choices={SameChoices()}, same boundary={SameModeBoundary()}.");
                 Program.Assert(ReferenceEquals(defaultFocus, expectedDefault) &&
                     (roomSection is not null || ReferenceEquals(defaultOwner, defaultChoices)) &&
-                    ReferenceEquals(defaultChoices.SelectedItem, rememberedChoice) && !defaultBounds.IsEmpty &&
+                    ReferenceEquals(defaultChoices.SelectedItem, rememberedChoice) && rememberedRow!.IsSelected &&
+                    ReferenceEquals(model.SelectedStartingRole, rememberedChoice) && !defaultBounds.IsEmpty &&
                     defaultBounds.Width > 0 && defaultBounds.Height > 0 && defaultBounds.Left >= -1 && defaultBounds.Top >= -1 &&
                     defaultBounds.Right <= presenter.ActualWidth + 1 && defaultBounds.Bottom <= presenter.ActualHeight + 1 &&
                     beforeDefaultOffset - scroll.VerticalOffset > 1 && SameChoices() && SameModeBoundary(),
-                    "Default mode navigation must leave the old bottom and reveal its exact complete initial section or remembered selected action without changing choices or the suspended match.");
+                    "Default mode navigation must leave the old bottom and reveal its exact complete first seat action or remembered selected action without changing choices or the suspended match.");
                 Console.WriteLine("Mode-step focus: footer, enlarged sound/scroll, covering settings, expired step and default navigation preserve all player views and journal.");
 
                 void QueueConfiguration()
@@ -716,6 +919,8 @@ internal static class ModalFocusChecks
                 panel.LayoutTransform = transform;
                 window.Width = width;
                 window.Height = height;
+                client.Width = clientWidth;
+                client.Height = clientHeight;
                 model.SelectedModeCategory = category;
                 model.SelectedTableMode = mode;
                 model.SelectedStartingRole = role;
@@ -874,6 +1079,7 @@ internal static class ModalFocusChecks
             var retry = (Button)window.FindName("RetrySettingsPreferencesButton");
             var originalTransform = content.LayoutTransform;
             var originalVolume = model.SoundVolume;
+            var originalSoundEnabled = model.IsSoundEnabled;
             try
             {
                 model.OpenSettingsCommand.Execute(null);
@@ -1001,6 +1207,50 @@ internal static class ModalFocusChecks
                     back.IsVisible && back.IsEnabled && SameSettingsBoundary(),
                     "A delayed successful retry must retain the live return action the user reached before its callback.");
 
+                var preferencesTimer = (DispatcherTimer)typeof(MainViewModel).GetField("_preferencesTimer",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(model)!;
+                var preferencesTick = typeof(MainViewModel).GetMethod("OnPreferencesTick",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+                foreach (var moveBeforeRecovery in new[] { false, true })
+                {
+                    preferencesStore.FailWrite = true;
+                    model.SoundVolume = model.SoundVolume == .34 ? .35 : .34;
+                    Program.Assert(!model.FlushPreferences() && model.HasPreferencesError,
+                        "Timer recovery must begin with a genuine failed in-memory preferences write.");
+                    Pump(window);
+                    Program.Assert(retry.Focus() && ReferenceEquals(Keyboard.FocusedElement, retry),
+                        "The actual error retry must hold native focus before a sound shortcut schedules automatic recovery.");
+                    var writes = preferencesStore.Writes;
+                    var previousSound = model.IsSoundEnabled;
+                    preferencesStore.FailWrite = false;
+                    Program.Assert(RouteFocusedKey(Key.M, ModifierKeys.Control) && model.IsSoundEnabled != previousSound &&
+                        preferencesTimer.IsEnabled && preferencesStore.Writes == writes && model.HasPreferencesError &&
+                        ReferenceEquals(Keyboard.FocusedElement, retry),
+                        "Ctrl+M must schedule the real preferences timer while retaining its focused retry and pending error.");
+                    var expectedPreferences = preferencesStore.Value with
+                        { SoundEnabled = model.IsSoundEnabled, SoundVolume = model.SoundVolume };
+                    if (moveBeforeRecovery)
+                        Program.Assert(retry.MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous)) &&
+                            ReferenceEquals(Keyboard.FocusedElement, back),
+                            "Backward Tab from the pending error must let the user reach the fixed return action before recovery.");
+                    preferencesTick.Invoke(model, [null, EventArgs.Empty]);
+                    Pump(window);
+                    RenderSettings(moveBeforeRecovery ? "timer-moved" : "timer-recovered");
+                    UIElement expectedFocus = moveBeforeRecovery ? back : sound;
+                    var recoveredBounds = sound.TransformToAncestor(presenter).TransformBounds(new Rect(sound.RenderSize));
+                    Console.WriteLine($"Settings timer recovery: moved={moveBeforeRecovery}, error={error.Visibility}, " +
+                        $"focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, writes={preferencesStore.Writes - writes}.");
+                    Program.Assert(!model.HasPreferencesError && error.Visibility == Visibility.Collapsed && model.IsSettingsOpen &&
+                        !preferencesTimer.IsEnabled && preferencesStore.Writes == writes + 1 &&
+                        System.Text.Json.JsonSerializer.Serialize(preferencesStore.Value) == System.Text.Json.JsonSerializer.Serialize(expectedPreferences) &&
+                        ReferenceEquals(Keyboard.FocusedElement, expectedFocus) && expectedFocus.IsVisible && expectedFocus.IsEnabled &&
+                        expectedFocus.Focusable && expectedFocus.IsDescendantOf(overlay) &&
+                        (moveBeforeRecovery || recoveredBounds.Width > 0 && recoveredBounds.Height > 0 &&
+                            recoveredBounds.Left >= -1 && recoveredBounds.Top >= -1 && recoveredBounds.Right <= presenter.ActualWidth + 1 &&
+                            recoveredBounds.Bottom <= presenter.ActualHeight + 1) && SameSettingsBoundary(),
+                        "Automatic preferences recovery after Ctrl+M must retain usable settings focus, preserve a return action already reached and write the exact active preferences once without changing the game.");
+                }
+
                 void RenderSettings(string state)
                 {
                     if (output is not null)
@@ -1023,6 +1273,7 @@ internal static class ModalFocusChecks
             {
                 preferencesStore.FailRead = false;
                 preferencesStore.FailWrite = false;
+                model.IsSoundEnabled = originalSoundEnabled;
                 model.SoundVolume = originalVolume;
                 model.FlushPreferences();
                 content.LayoutTransform = originalTransform;

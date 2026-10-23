@@ -41,6 +41,7 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
 
     private readonly List<TimedCue> _active = [];
     public HandArrivalTimeline ArrivalTimeline { get; } = new();
+    public PublicRevealTimeline RevealTimeline { get; } = new();
     private readonly Dictionary<int, DrawFlightPath> _drawRouteCache = [];
     private const double DamageTextDuration = .72;
     internal const double DrawDuration = .85;
@@ -166,6 +167,7 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         var now = layer.Clock.GetTimestamp();
         var scale = (double)args.NewValue;
         layer.ArrivalTimeline.SetTimeScale(scale);
+        layer.RevealTimeline.SetTimeScale(scale);
         for (var index = 0; index < layer._active.Count; index++)
         {
             var item = layer._active[index];
@@ -286,6 +288,11 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         foreach (var cue in args.NewItems.OfType<BattleCue>())
             if (!cue.IsInquiry || cue.Revision >= CommittedRevision)
             {
+                if (cue.Kind == BattleCueKind.PublicReveal)
+                {
+                    RevealTimeline.Register(cue.RevealedCardIds, Clock, PlaybackTimeScale);
+                    continue;
+                }
                 // Public sequence orders life outcomes even when a short cue
                 // batch omitted an earlier dying window. A stale completion
                 // must not retire a newer outcome at the same seat.
@@ -372,6 +379,7 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         _timer.Stop();
         _active.Clear();
         ArrivalTimeline.Clear();
+        RevealTimeline.Clear();
         _drawRouteCache.Clear();
         _handOrigins.Clear();
         _publicChoiceOrigins.Clear();

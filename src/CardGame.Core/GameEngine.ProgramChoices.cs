@@ -27,6 +27,7 @@ public sealed partial class GameEngine
         var program = _contentRegistry!.GetSkill(frame.SkillId).Program!;
         var plan = ProgramInstructionResolver.Default.Resolve(frame, program);
         var effect = plan.GetPausedInstruction(frame.InstructionIndex).Effect;
+        if (TrySelectShanheS5LuoyiAiOption(decision, frame, plan, out var luoyiChoice)) return luoyiChoice;
         var alternating = plan.Instructions.Skip(frame.InstructionIndex).FirstOrDefault(e=>e.Op==SkillProgramEffectOp.ApplyAlternatingChoiceBenefit && e.SourceBind==effect.ResultBind);
         if(alternating is not null)
         {

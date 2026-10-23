@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-baoyu-14047": {
+      "name": "暴雨",
+      "description": "锁定技，防止你受到的火焰伤害；每轮开始时，对所有其他角色造成1点伤害。",
+      "triggerLabels": { "prevent-fire": "暴雨：防止火焰伤害", "round-rain": "暴雨：对所有其他角色造成1点伤害" }
+    },
+    "shanhe:s5-wuying-3388": {
+      "name": "无影",
+      "description": "锁定技，你的敌方若手牌数大于10，于其回合内获得手牌后（按次数），其受到你造成的1点伤害。",
+      "triggerLabels": { "enemy-own-turn-gain": "无影：对本回合获得手牌后手牌大于10的敌方造成1点伤害" }
+    }
+  }
+}

@@ -48,6 +48,7 @@ public sealed partial class GameEngine
         if (parent.AcceptedDeclarationPayment != payment) throw new InvalidOperationException("A declaration payment lost its actual continuation owner.");
         ReplaceRuntimeFrame(parent.Id, parent with { AcceptedDeclarationPayment = payment with { Claimed = true } });
         CaptureClaimedDeclarationTrueUse(payment);
+        CaptureShanheClaimedDeclarationUse(payment);
         CaptureBianFuRenClaimedDeclarationPayment(parent.Id);
         return true;
     }

@@ -1,17 +1,24 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CardGame.Wpf.Persistence;
 
 /// <summary>Account progression is independent of the replaceable expedition save.</summary>
 public sealed record ShanheCodexProfile
 {
-    public int FormatVersion { get; init; } = 1;
+    public int FormatVersion { get; init; } = FileShanheCodexStore.LegacyFormatVersion;
     public int Books { get; init; }
     public string[] UnlockedRewardIds { get; init; } = [];
     public string?[] EquippedTacticIds { get; init; } = new string?[6];
     public string[] ClaimedRewards { get; init; } = [];
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ShanheCodexLoadoutPlan[]? LoadoutPlans { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SelectedLoadoutPlanId { get; init; }
 }
+
+public sealed record ShanheCodexLoadoutPlan(string Id, string Name, string?[] EquippedTacticIds);
 
 public interface IShanheCodexStore
 {
@@ -30,6 +37,9 @@ public sealed class MemoryShanheCodexStore : IShanheCodexStore
 
 public sealed class FileShanheCodexStore : IShanheCodexStore
 {
+    public const int LegacyFormatVersion = 1;
+    public const int CurrentFormatVersion = 2;
+
     public FileShanheCodexStore(string? directory = null) => PathName = Path.Combine(Path.GetFullPath(directory ??
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CardGame", "Saves")), "shanhe-codex.json");
     public string PathName { get; }
@@ -67,9 +77,10 @@ public sealed class FileShanheCodexStore : IShanheCodexStore
         Validate(profile);
         return profile;
     }
-    private static void Validate(ShanheCodexProfile profile)
+    internal static void Validate(ShanheCodexProfile profile)
     {
-        if (profile.FormatVersion != 1 || profile.Books < 0 || profile.UnlockedRewardIds is null ||
+        if (profile is null || (profile.FormatVersion != LegacyFormatVersion && profile.FormatVersion != CurrentFormatVersion) ||
+            profile.Books < 0 || profile.UnlockedRewardIds is null ||
             profile.EquippedTacticIds is not { Length: 6 } || profile.ClaimedRewards is null ||
             profile.UnlockedRewardIds.Length > 2000 || profile.ClaimedRewards.Length > 20000 ||
             profile.UnlockedRewardIds.Any(string.IsNullOrWhiteSpace) || profile.ClaimedRewards.Any(string.IsNullOrWhiteSpace) ||
@@ -78,5 +89,6 @@ public sealed class FileShanheCodexStore : IShanheCodexStore
             profile.EquippedTacticIds.OfType<string>().Distinct(StringComparer.Ordinal).Count() != profile.EquippedTacticIds.OfType<string>().Count() ||
             profile.EquippedTacticIds.OfType<string>().Any(id => !profile.UnlockedRewardIds.Contains(id, StringComparer.Ordinal)))
             throw new InvalidDataException("山河册进度无效，原文件已保留。");
+        ShanheCodexLoadouts.ValidatePlans(profile);
     }
 }

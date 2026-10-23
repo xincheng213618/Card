@@ -138,8 +138,11 @@ public sealed partial class GameEngine
     private void PlaceShanheStartingCards()
     {
         if (_options.ShanheBattle is not { } setup) return;
-        foreach (var item in setup.StartingCards) PlaceShanhePhysicalCard(item, 0, equipment: false);
-        foreach (var item in setup.StartingEquipment) PlaceShanhePhysicalCard(item, 0, equipment: true);
+        for (var index = 0; index < setup.StartingCards.Count; index++)
+            PlaceShanhePhysicalCard(setup.StartingCards[index], 0, equipment: false);
+        for (var index = 0; index < setup.StartingEquipment.Count; index++)
+            PlaceShanhePhysicalCard(setup.StartingEquipment[index], 0, equipment: !setup.StartingResourcesExpireOnUse);
+        if (_started) PublishShanheStartingResourceOrigins();
     }
 
     private IReadOnlyList<ShanheStartingCard>? GetShanheStartingHand(int seat)

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-luanji-14162",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "red-hand-pair-as-arrow-barrage",
+          "inputKinds": [],
+          "inputSuits": ["heart", "diamond"],
+          "inputCount": 2,
+          "sourceZones": ["hand"],
+          "sameSuit": false,
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false
+        },
+        {
+          "id": "black-hand-pair-as-arrow-barrage",
+          "inputKinds": [],
+          "inputSuits": ["spade", "club"],
+          "inputCount": 2,
+          "sourceZones": ["hand"],
+          "sameSuit": false,
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false
+        }
+      ],
+      "activations": [
+        {
+          "id": "red-hand-pair-as-arrow-barrage",
+          "usesPerTurn": null,
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": ["hand"],
+          "cardSuits": ["heart", "diamond"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            { "op": "useSelectedCardsAs", "target": "owner", "sourceBind": "red-hand-pair-as-arrow-barrage", "outputKind": "arrowBarrage" }
+          ]
+        },
+        {
+          "id": "black-hand-pair-as-arrow-barrage",
+          "usesPerTurn": null,
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": ["hand"],
+          "cardSuits": ["spade", "club"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            { "op": "useSelectedCardsAs", "target": "owner", "sourceBind": "black-hand-pair-as-arrow-barrage", "outputKind": "arrowBarrage" }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "exclude-current-arrow-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": ["arrowBarrage"],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "currentArrowBarrageTargets",
+              "minimumTargets": 1,
+              "maximumTargets": 1,
+              "targetAiOrder": "cardEffectIntervention"
+            },
+            { "op": "removeSelectedCurrentArrowBarrageTarget", "target": "selectedTargets" }
+          ]
+        }
+      ]
+    }
+  ]
+}

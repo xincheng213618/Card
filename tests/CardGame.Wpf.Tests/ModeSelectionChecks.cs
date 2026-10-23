@@ -317,6 +317,7 @@ internal static class ModeSelectionChecks
             foreach (var (labelName, ownerName) in new[]
             {
                 ("LobbyWelcomeCaption", "LobbyWelcomeBanner"), ("LobbyFeaturedTitle", "EnterBattleButton"),
+                ("LobbyTutorialTitle", "StartTutorialButton"),
                 ("ActivityBattleTitle", "ActivityBattleButton"), ("ShanheCampaignTitle", "ShanheCampaignButton"),
                 ("WushuangBattleTitle", "WushuangBattleButton")
             })

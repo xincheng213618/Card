@@ -117,7 +117,7 @@ internal sealed class SkillProgramDependencies
         UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.GrantDamageTargetSkillAndDrawByRound) ||
             HasTriggerOperation(SkillProgramEffectOp.ResolvePrepPoisonOutcomeByRound);
         UsesRoundTracking |= HasActivationOperation(SkillProgramEffectOp.ResolveShenHuaTuoLuxin) ||
-            definitions.Any(skill => skill.Id is "anniversary-god:jingyu" or "mobile-god:renjie");
+            definitions.Any(skill => skill.Id is "anniversary-god:jingyu" or "mobile-god:renjie" or "mobile:shi-daozhuan");
         _maximumCardPolicyKind = _cardPolicyKinds.Select(kind => (int?)kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
         _finalizedCards = (from kind in Enum.GetValues<CardKind>()

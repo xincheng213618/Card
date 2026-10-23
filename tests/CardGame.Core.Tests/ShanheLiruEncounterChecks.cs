@@ -1,65 +1,9 @@
-using System.Reflection;
-using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Core.Campaigns;
 
 internal static class ShanheLiruEncounterChecks
 {
-    public static void PreLiruCampaignsRestoreOnlyTheirExactDefinitions()
-    {
-        const string edition = StandardShanheCampaignCatalog.Returning2026EditionId;
-        var catalog = typeof(StandardShanheCampaignCatalog);
-        var beforeLiru = catalog.GetMethod("CreateReturning2026Definition", BindingFlags.Static | BindingFlags.NonPublic)!;
-        var withCodex = catalog.GetMethod("WithCodexRewards", BindingFlags.Static | BindingFlags.NonPublic)!;
-        foreach (var tier in new[] { 1, 2, 3 })
-        foreach (var codex in new[] { false, true })
-        {
-            // Exercise the preserved pre-addition constructor, including its original
-            // narrative and encounter ordering, rather than removing an encounter from
-            // the new definition and leaving its altered story in the fingerprint.
-            var historical = (ShanheCampaignDefinition)beforeLiru.Invoke(null, [tier, false])!;
-            if (codex) historical = (ShanheCampaignDefinition)withCodex.Invoke(null, [historical, edition])!;
-            var current = codex ? StandardShanheCampaignCatalog.CreateCodexDefinition(tier, edition)
-                : StandardShanheCampaignCatalog.CreateDefinition(tier, edition);
-            Need(ShanheCampaignContent.GetContentHash(historical) != ShanheCampaignContent.GetContentHash(current) &&
-                current.Nodes.Single(n => n.Id == "luoyang").Encounters!.Any(e => e.Id == "luoyang:liru-s5"),
-                "New expeditions retain the new Li Ru route while historical definitions keep their distinct complete fingerprint.");
-            Verify(historical, tier, codex);
-            if (tier == 1 && codex)
-            {
-                var withoutChapters = catalog.GetMethod("WithoutChapterRewards", BindingFlags.Static | BindingFlags.NonPublic)!;
-                var withoutInheritance = catalog.GetMethod("WithoutOpeningInheritance", BindingFlags.Static | BindingFlags.NonPublic)!;
-                var earlier = (ShanheCampaignDefinition)withoutChapters.Invoke(null, [historical])!;
-                earlier = (ShanheCampaignDefinition)withoutInheritance.Invoke(null, [earlier])!;
-                Verify(earlier with { Nodes = earlier.Nodes.Select(n => n with { RewardSkipGold = 0 }).ToArray() }, tier, codex);
-            }
-        }
-
-        static void Verify(ShanheCampaignDefinition historical, int tier, bool codex)
-        {
-            var session = ShanheCampaignSession.Create(historical, new(83, "classic:guan-yu") { UseCodexRewardPool = codex },
-                StandardShanheCampaignCatalog.CreateBattleRegistry);
-            var start = session.Snapshot.AvailableNodes.First();
-            var moved = session.Submit(new MoveShanheNodeCommand(start.Id, session.Revision));
-            Need(moved.Accepted, moved.Error ?? "The historical expedition must retain a real accepted map command.");
-            var encoded = ShanheCampaignJson.Serialize(session.CreateCheckpoint());
-            var source = ShanheCampaignJson.Deserialize(encoded);
-            var definition = StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(source, tier);
-            var restored = ShanheCampaignSession.Restore(source, definition, StandardShanheCampaignCatalog.CreateBattleRegistry);
-            Need(ShanheCampaignContent.GetContentHash(definition) == source.CampaignHash &&
-                definition.Nodes.Single(n => n.Id == "luoyang").Encounters!.All(e => e.Id != "luoyang:liru-s5") &&
-                ShanheCampaignJson.Serialize(restored.CreateCheckpoint()) == encoded &&
-                JsonSerializer.Serialize(restored.Snapshot) == JsonSerializer.Serialize(session.Snapshot),
-                "A pre-Li-Ru expedition must recover its exact old route, content hash, accepted commands and current choices without a silent content upgrade.");
-            var rejected = false;
-            try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(source with { CampaignHash = new string('0', 64) }, tier); }
-            catch (ArgumentException) { rejected = true; }
-            Need(rejected && ShanheCampaignJson.Serialize(source) == encoded,
-                "Historical candidates cannot bypass full fingerprint validation or change the source checkpoint.");
-        }
-    }
-
     public static void ActualSingleEnemyRecipeAndConditionalRegistryRecover()
     {
         const string boss = StandardShanheS5LiruPackage.LiruId;

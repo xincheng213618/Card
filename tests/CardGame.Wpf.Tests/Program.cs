@@ -134,6 +134,10 @@ internal static class Program
             Check("Shanhe campaign UI: shop purchase states and codex navigation", () => ShanheModulesUiChecks.ShopPurchaseAndCodexNavigation(output));
             Check("Shanhe codex UI: unlock equip persist and market", () => ShanheCodexUiChecks.UnlockEquipPersistAndMarket(output));
             Check("Shanhe codex UI: failed profile write preserves progress", ShanheCodexUiChecks.FailedProfileWritePreservesProgress);
+            Check("Shanhe loadout plans: legacy JSON and detached operations", ShanheCodexLoadoutPersistenceChecks.LegacyJsonAndLoadoutOperationsStayDetached);
+            Check("Shanhe loadout plans: invalid metadata and operations rejected", ShanheCodexLoadoutPersistenceChecks.DamagedLoadoutsAndInvalidOperationsAreRejected);
+            Check("Shanhe loadout plans: real controls independent copies and frozen expedition", () => ShanheCodexLoadoutUiChecks.PlanControlsPersistIndependentCopiesAndFrozenExpedition(output));
+            Check("Shanhe loadout plans: failed reads and writes preserve current plan and books", ShanheCodexLoadoutUiChecks.FailedReadsAndWritesKeepTheCurrentPlanAndBooks);
             Check("Shanhe Dong Ji UI: dynamic exact card confirmation and locked gift", () => ShanheDongJiUiChecks.DynamicRecipientCountConfirmsExactCardsAndExcludesLockedGift(output));
             Check("Shanhe codex settlement: actual victory one-time books and rejected outcomes", () => ShanheCodexSettlementChecks.ActualCompletedVictoryCreditsOnceAndRejectsOtherOutcomes(output));
             Check("Shanhe reward UI: real victory cards confirmation skip skill and replacement", () => ShanheRewardUiChecks.RealVictoryRewardCardsConfirmSkipSkillAndReplacement(output));
@@ -258,7 +262,7 @@ internal static class Program
 
     private static void CheckModeLobby(string output)
     {
-        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
+        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true, wushuangSaveStore: new MemorySaveStore())
         {
             IsMotionEnabled = false
         };

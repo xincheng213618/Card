@@ -81,7 +81,7 @@ internal sealed partial class ResponseCompletionRuntime
             paid.Add(entered);
             if (_native.IsExchangedCardClaim(a.ActionId, cost.CardId)) continue;
             var finished = _facts.LastMovement(m => m.CardId == cost.CardId && m.Sequence > entered.Sequence &&
-                m.From == CardLocation.Processing && (m.To == CardLocation.DiscardPile || _native.IsWuZglReturnedCopyCost(a, cost, m)) && m.Reason == ResponseCompletionFinishReason(entered, continuation))
+                m.From == CardLocation.Processing && (m.To == CardLocation.DiscardPile || _native.IsWuZglReturnedCopyCost(a, cost, m) || _native.IsShanheStartingResourceResponseFinish(a, cost, m)) && m.Reason == ResponseCompletionFinishReason(entered, continuation))
                 ?? throw new InvalidOperationException("A completed response still owes its exact native finish movement.");
             paid.Add(finished);
         }
@@ -167,7 +167,7 @@ internal sealed partial class ResponseCompletionRuntime
         if (!IsResponseCompletionEntry(window.Action, r.OriginalContinuation, r.ParentFrameId, cost, enter)) return false;
         if (_native.IsExchangedCardClaim(window.Action.ActionId, cost.CardId)) return records.Length == 1;
         return records is [_, var finish] && finish.Sequence > enter.Sequence && finish.From == CardLocation.Processing &&
-            (finish.To == CardLocation.DiscardPile || _native.IsWuZglReturnedCopyCost(window.Action, cost, finish)) && finish.Reason == ResponseCompletionFinishReason(enter, r.OriginalContinuation);
+            (finish.To == CardLocation.DiscardPile || _native.IsWuZglReturnedCopyCost(window.Action, cost, finish) || _native.IsShanheStartingResourceResponseFinish(window.Action, cost, finish)) && finish.Reason == ResponseCompletionFinishReason(enter, r.OriginalContinuation);
     }
 
     internal bool IsResponseCompletionProgramDuelParent(ProgramSkillFrame frame, ProgramCardContinuation continuation)

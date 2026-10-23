@@ -70,10 +70,4 @@ public static partial class StandardShanheCampaignCatalog
         "henei" => "第三章 · 北渡归舟",
         _ => chapter == 1 ? "第一章 · 诸侯会盟" : chapter == 2 ? "第二章 · 西凉烽烟" : "第三章 · 山河抉择"
     };
-
-    private static ShanheCampaignDefinition WithoutChapterRewards(ShanheCampaignDefinition definition) => definition with
-    {
-        Rewards = definition.Rewards.Where(reward => ChapterLocalCards.All(card => card.Id != reward.Id)).ToArray(),
-        Nodes = definition.Nodes.Select(node => node with { ChapterNumber = 0, ChapterTitle = null, BossRewards = null }).ToArray()
-    };
 }

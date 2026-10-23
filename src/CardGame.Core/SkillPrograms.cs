@@ -557,6 +557,9 @@ public enum SkillProgramEffectOp
     ResolveWushuangCombatTactic = 61400,
     ClaimWushuangEndedCampHand = 63200,
     CaptureWushuangWangongUse = 63201,
+    ResolveMobileShiFujiGift = 63300,
+    ResolveMobileShiFujiUseEffects = 63301,
+    ResolveMobileShiFujiDodgeDraw = 63302,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,
@@ -900,6 +903,7 @@ public enum SkillProgramEffectOp
     DrawBeforeCappedConversionTierUpgrade = 6900,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     ChooseTrickOrAllHandDiscard = 5702, AllHandDiscardOrDifferenceDamageFromSelected = 5703,
+    ResolveShanheS5Luoyi = 5710, BindOwnTurnEnemyHandGain = 5714,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -5775,6 +5779,7 @@ public sealed class SkillProgramCatalog
                  { Op: SkillProgramEffectOp.KanggeGainDraw, Target: SkillProgramEffectTarget.Owner,
                    TargetReference: null, Condition.Kind: SkillProgramConditionKind.Always }))
             Fail(path, "kangge gain draw requires one mandatory owner cardsGained perThirdPartyHandGain instruction with hand destination");
+        OwnTurnEnemyHandGainComposition.ValidateTrigger(path, parsedTrigger);
         ZhuLingZhanyiEquipmentPunishDescriptor.ValidateTrigger(path, parsedTrigger);
         SharedPhaseSkillContract.ValidateTrigger(path, parsedTrigger);
         LiushiEffectContract.ValidateTrigger(path, skillId, parsedTrigger);

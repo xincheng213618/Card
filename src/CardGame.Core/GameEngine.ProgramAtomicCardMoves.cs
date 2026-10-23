@@ -20,7 +20,7 @@ public sealed partial class GameEngine
             var target = destinationForCard?.Invoke(card, source) ?? destination;
             var phantomDestination = PlanHappyZuoCiPhantomDestination(card, source, target, reason);
             if (source.Zone == CardZoneKind.Equipment && card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, source, target)) target = CardLocation.OutsideGame;
-            target = NormalizeEphemeralCardDestination(card, source, target);
+            target = NormalizeEphemeralCardDestination(card, source, target, reason);
             target = NormalizeLishiDiscardDestination(card, source, target, reason);
             var gainDestination = PlanHappyWeiYanGainDestination(card, source, target, reason);
             target = gainDestination?.ActualTo ?? target;

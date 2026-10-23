@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:s5-luoyi-14191", "revision": 1,
+    "triggers": [{
+      "id": "reveal-hp-then-optional-skip", "window": "drawPhaseStarting", "subject": "owner",
+      "optional": true, "priority": 80, "drawPhaseMode": "additive",
+      "effects": [
+        { "op": "resolveShanheS5Luoyi", "target": "owner", "stage": "reveal", "resultBind": "luoyi-revealed" },
+        { "op": "chooseOption", "target": "owner", "resultBind": "luoyi-draw-choice",
+          "options": [{ "id": "skip-draw" }, { "id": "normal-draw" }] },
+        { "op": "resolveShanheS5Luoyi", "target": "owner", "stage": "apply", "sourceBind": "luoyi-revealed",
+          "condition": { "kind": "choiceIs", "sourceBind": "luoyi-draw-choice", "optionId": "skip-draw" } },
+        { "op": "filterBoundCards", "target": "owner", "sourceBind": "luoyi-revealed", "resultBind": "luoyi-gained",
+          "categories": ["basic"], "equipmentSlots": ["weapon"], "cardKinds": ["duel"] },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "luoyi-gained", "destination": "ownerHand",
+          "condition": { "kind": "choiceIs", "sourceBind": "luoyi-draw-choice", "optionId": "skip-draw" } },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "luoyi-revealed", "exceptBind": "luoyi-gained", "destination": "discardPile",
+          "condition": { "kind": "choiceIs", "sourceBind": "luoyi-draw-choice", "optionId": "skip-draw" } },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "luoyi-revealed", "destination": "discardPile",
+          "condition": { "kind": "choiceIs", "sourceBind": "luoyi-draw-choice", "optionId": "normal-draw" } }
+      ]
+    }]
+  }]
+}
