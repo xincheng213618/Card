@@ -50,12 +50,13 @@ internal static class FeedbackChecks
             Envelope(new GeneralSelectionRequestedEvent(1, ["private-general"])),
             Envelope(new GeneralSelectedEvent(1, "private-general")),
             Envelope(new CardMovedEvent(9876, CardKind.Peach, CardLocation.DrawPile,
-                new CardLocation(CardZoneKind.Hand, 1), CardMoveReasons.Draw))
+                new CardLocation(CardZoneKind.Hand, 1), CardMoveReasons.Draw)),
+            Envelope(new CardsDrawnEvent(1, 1))
         };
         var privateQuantities = BattleCueProjector.Project(privateEvents, view);
         Assert(privateQuantities is [{ Kind: BattleCueKind.Draw, SourceSeat: 1, TargetSeats: [1], DrawCount: 1,
                 Label: "摸牌 +1", PublicCardId: null, PublicCard: null, CardKind: null }] &&
-               BattleCueProjector.Project(privateEvents.Take(2), view).Count == 0 &&
+               BattleCueProjector.Project(privateEvents.Take(3), view).Count == 0 &&
                BattleCueProjector.ProjectCardPlays(privateEvents, view).Count == 0,
             "Draw feedback may disclose only the public quantity; hidden generals and private physical faces must remain absent.");
         var drawState = SnapshotJson.Serialize(Engine(vm).CreateSnapshot(0, true));
@@ -66,17 +67,21 @@ internal static class FeedbackChecks
             Envelope(new CardMovedEvent(8902, CardKind.Peach, CardLocation.DrawPile, CardLocation.Hand(1), extraDraw)),
             Envelope(new CardMovedEvent(8903, CardKind.Dodge, CardLocation.DrawPile, CardLocation.Hand(0), CardMoveReasons.Draw)),
             Envelope(new CardMovedEvent(8904, CardKind.Nullification, CardLocation.DrawPile, CardLocation.Hand(1), CardMoveReasons.Draw)),
+            Envelope(new CardsDrawnEvent(0, 1)),
+            Envelope(new CardsDrawnEvent(0, 1)),
+            Envelope(new CardsDrawnEvent(1, 2)),
             Envelope(new ActualDrawPhaseCompletedEvent(100, 0, 1, false, false, 99)),
-            Envelope(new CardMovedEvent(8905, CardKind.IronChain, CardLocation.DrawPile, CardLocation.Hand(0), CardMoveReasons.Draw)) with { Revision = 2 }
+            Envelope(new CardMovedEvent(8905, CardKind.IronChain, CardLocation.DrawPile, CardLocation.Hand(0), CardMoveReasons.Draw)) with { Revision = 2 },
+            Envelope(new CardsDrawnEvent(0, 1)) with { Revision = 2 }
         };
         var drawCues = BattleCueProjector.Project(drawEvents, view);
         Assert(drawCues is
                [{ Kind: BattleCueKind.Draw, SourceSeat: 0, TargetSeats: [0], DrawCount: 2, Label: "摸牌 +2", Revision: 1 },
                 { Kind: BattleCueKind.Draw, SourceSeat: 1, TargetSeats: [1], DrawCount: 2, Label: "摸牌 +2", Revision: 1 },
                 { Kind: BattleCueKind.Draw, SourceSeat: 0, TargetSeats: [0], DrawCount: 1, Label: "摸牌 +1", Revision: 2 }] &&
-               drawCues.Select(cue => cue.Sequence).SequenceEqual(new[] { drawEvents[2].Sequence, drawEvents[3].Sequence, drawEvents[5].Sequence }) &&
+               drawCues.Select(cue => cue.Sequence).SequenceEqual(new[] { drawEvents[5].Sequence, drawEvents[6].Sequence, drawEvents[9].Sequence }) &&
                drawCues.All(cue => cue.ActorName == view.Players.Single(player => player.Seat == cue.SourceSeat).GeneralName),
-            "Actual normal/extra draws must aggregate once per committed revision and owner at the last movement, not use a requested phase quantity or another player's name.");
+            "Actual draw facts must aggregate once per committed revision and owner at the last fact, not use a requested phase quantity or another player's name.");
         Assert(drawCues.All(cue => cue.HasDrawCards && cue is
                 { IsInquiry: false, CardKind: null, PublicCardId: null, PublicCard: null, JudgmentCard: null,
                     WeaponKind: null, IsUseCompletion: false, HpDelta: 0, RemainingHp: null }) &&
@@ -95,18 +100,86 @@ internal static class FeedbackChecks
             Envelope(new CardMovedEvent(8913, CardKind.Slash, CardLocation.DrawPile, new(CardZoneKind.PrivateReserve, 0), CardMoveReasons.Draw)),
             Envelope(new CardMovedEvent(8914, CardKind.Slash, CardLocation.Hand(1), CardLocation.Hand(0), CardMoveReasons.Draw)),
             Envelope(new CardMovedEvent(8915, CardKind.Slash, CardLocation.DrawPile, CardLocation.Hand(999), CardMoveReasons.Draw)),
+            Envelope(new CardsDrawnEvent(0, 0)),
+            Envelope(new CardsDrawnEvent(0, -1)),
+            Envelope(new CardsDrawnEvent(-1, 2)),
+            Envelope(new CardsDrawnEvent(999, 2)),
             Envelope(new ActualDrawPhaseCompletedEvent(101, 0, 1, true, true, 2)),
             Envelope(new ActualDrawPhaseCompletedEvent(102, 0, 1, false, false, 0))
         };
         Assert(BattleCueProjector.Project(excludedDraws, view).Count == 0 &&
                BattleCueProjector.Project([], view).Count == 0,
-            "Initial/recast/unknown/private-zone/invalid-seat movements or skipped/empty phases must not invent an actual draw.");
+            "Private movements, skipped/requested phases and invalid quantities must not invent an actual public draw result.");
         var changedPrivateFaces = drawEvents.Select(envelope => envelope.Payload is CardMovedEvent moved
             ? envelope with { Payload = moved with { CardId = -777, CardKind = (CardKind)int.MaxValue } } : envelope).ToArray();
         Assert(JsonSerializer.Serialize(drawCues) == JsonSerializer.Serialize(BattleCueProjector.Project(changedPrivateFaces, view)) &&
+               JsonSerializer.Serialize(drawCues) == JsonSerializer.Serialize(BattleCueProjector.Project(
+                   drawEvents.Where(envelope => envelope.Payload is not CardMovedEvent), view)) &&
                JsonSerializer.Serialize(drawCues) == JsonSerializer.Serialize(BattleCueProjector.Project(drawEvents, Engine(vm).CreateSnapshot(1))) &&
                drawState == SnapshotJson.Serialize(Engine(vm).CreateSnapshot(0, true)),
             "Changing hidden draw identities/kinds or the safe viewer must not change public quantity feedback or mutate the engine.");
+        var aidResponses = BattleCueProjector.Project(
+        [Envelope(new ProgramAttackRangeAidChoiceResolvedEvent(110, "classic:jiefan", "aid", 0, 1, 2, null, [8920])),
+         Envelope(new ProgramAttackRangeAidChoiceResolvedEvent(110, "classic:jiefan", "aid", 0, 3, 2, null, [])),
+         Envelope(new ProgramAttackRangeAidChoiceResolvedEvent(110, "classic:jiefan", "aid", 0, 1, 2, 8921, []))], view);
+        Assert(aidResponses is
+               [{ Kind: BattleCueKind.Response, SourceSeat: 1, TargetSeats: [2], Detail: "令目标摸一张牌" },
+                { Kind: BattleCueKind.Response, SourceSeat: 3, TargetSeats: [2], Detail: "令目标摸一张牌" },
+                { Kind: BattleCueKind.Response, SourceSeat: 1, TargetSeats: [2], Detail: "弃置一张武器" }] &&
+               aidResponses.All(cue => cue is
+               { IsInquiry: false, HpDelta: 0, RemainingHp: null, MaximumHp: null, DrawCount: 0,
+                   HasDrawCards: false, CardKind: null, PublicCardId: null, PublicCard: null }),
+            "An attack-range aid response must keep its responder and beneficiary without fabricating recovery, a draw animation or private card faces from the selected response.");
+        ProgramActivationFeedback(view);
+        foreach (var (paid, empty, owner, target, label) in new (IGameEvent, IGameEvent, int, int, string)[]
+        {
+            (new SilverLionRemovedRecoveryEvent(801, 1, CardMoveReasons.EquipmentReplace, 1, 3),
+                new SilverLionRemovedRecoveryEvent(802, 1, CardMoveReasons.EquipmentReplace, 0, 3), 1, 1, "白银狮子 · 移除"),
+            (new ChunlaoRescueEvent(803, 1, 2, 8901, 1, 1),
+                new ChunlaoRescueEvent(804, 1, 2, 8902, 0, 0), 1, 2, "醇醪 · 酒救援"),
+            (new ProgramDyingRescueEvent(805, "classic:chunlao", 1, 2, 8903, 1, 1),
+                new ProgramDyingRescueEvent(806, "classic:chunlao", 1, 2, 8904, 0, 0), 1, 2, "酒救援")
+        })
+        {
+            var actual = Envelope(new RecoveryAppliedEvent(target, target, 1, 3));
+            var paidEnvelope = Envelope(paid);
+            var emptyEnvelope = Envelope(empty);
+            var projected = BattleCueProjector.Project([actual, paidEnvelope, emptyEnvelope], view);
+            Assert(projected.Where(cue => cue.Kind == BattleCueKind.Recovery).ToArray() is
+                    [{ HpDelta: 1, RemainingHp: 3, Sequence: var appliedSequence }] && appliedSequence == actual.Sequence,
+                $"{paid.GetType().Name} must explain its public result without duplicating the actual recovery or inventing healing for zero recovery.");
+            var explanations = projected.Where(cue => cue.Sequence != actual.Sequence).ToArray();
+            Assert(explanations.Length == 2 && explanations.All(cue => cue is
+                    { Kind: BattleCueKind.ResponseWindow, IsInquiry: false, HpDelta: 0, RemainingHp: null,
+                        MaximumHp: null, CardKind: null, PublicCardId: null, PublicCard: null } &&
+                    cue.SourceSeat == owner && cue.TargetSeats.SequenceEqual([target]) && cue.Label.Contains(label, StringComparison.Ordinal)) &&
+                explanations[0].Detail == "回复体力已结算" && explanations[1].Detail == "此次未回复体力",
+                $"{paid.GetType().Name} must retain the equipment/rescue identity and actual zero/success explanation without a numeric heal or false played face.");
+            Assert(!GameSoundRules.FromPublicCues([explanations[1]]).Contains(GameSound.Recover),
+                "A completed rescue/equipment result with zero actual recovery must not play a healing sound.");
+        }
+        var hpLossEvent = Envelope(new ProgramSkillHpLostEvent(810, "private:undisclosed-hp-loss", 1, 2, -1));
+        var hpLossCues = BattleCueProjector.Project([hpLossEvent,
+            Envelope(new ProgramSkillHpLostEvent(811, "private:undisclosed-hp-loss", 1, 0, -1))], view);
+        Assert(hpLossCues is [{ Kind: BattleCueKind.HpLoss, SourceSeat: -1, TargetSeats: [1], Label: "−2",
+                Detail: "失去体力", HpDelta: -2, RemainingHp: -1, SkillId: null, CardKind: null,
+                PublicCardId: null, PublicCard: null, IsInquiry: false, CompletedCardUseResolutionId: null }] &&
+            hpLossCues[0].Sequence == hpLossEvent.Sequence && hpLossCues[0].Revision == hpLossEvent.Revision &&
+            hpLossCues[0].MaximumHp == view.Players.Single(player => player.Seat == 1).MaxHp &&
+            hpLossCues[0].ActorName == view.Players.Single(player => player.Seat == 1).GeneralName &&
+            GameSoundRules.FromPublicCues(hpLossCues).Count == 0 &&
+            BattleCueProjector.ProjectCardPlays([hpLossEvent], view).Count == 0,
+            "Actual positive HP loss must retain its exact public amount/remaining HP without inventing an attacker, private skill identity, played card or damage/healing sound; zero loss has no effect.");
+        var afterUseLoss = hpLossEvent with
+        {
+            Revision = 2,
+            Payload = ((ProgramSkillHpLostEvent)hpLossEvent.Payload) with { CompletedCardUseResolutionId = 812 }
+        };
+        var afterUseCue = BattleCueProjector.Project([afterUseLoss], view).Single();
+        Assert(afterUseCue is { Kind: BattleCueKind.HpLoss, SourceSeat: -1, TargetSeats: [1], Revision: 2,
+                CompletedCardUseResolutionId: 812, SourceCardUseResolutionId: null, CardKind: null, SkillId: null } &&
+            GameSoundRules.FromPublicCues([afterUseCue]).Count == 0,
+            "An after-use loss must preserve only its explicit public completed-use identity across revisions, without inventing an attacker or damage sound.");
         int[] targets = [1, 1, -1, 99];
         var publicEvents = new[]
         {
@@ -326,6 +399,16 @@ internal static class FeedbackChecks
             "Response request, locked progress, or layered Nullification state was not projected exactly.");
         Assert(responseCues.Select(cue => cue.IsInquiry).SequenceEqual(new[] { true, false, true, false, true, false }),
             "Response progress, a played response or the final outcome was treated as an unanswered inquiry.");
+        foreach (var groupKind in new[] { CardKind.BarbarianAssault, CardKind.ArrowBarrage, CardKind.FiveGrains })
+        {
+            var groupCues = BattleCueProjector.Project(
+            [Envelope(new NullificationRequestedEvent(22, 50, groupKind, 0, 1, false, 0) { WindowFrameId = 23, TargetSeat = 2 }),
+             Envelope(new NullificationRespondedEvent(22, 50, groupKind, 1, 51, true, 1) { WindowFrameId = 23, TargetSeat = 2 }),
+             Envelope(new NullificationResolvedEvent(22, 50, groupKind, true, 1) { WindowFrameId = 23, TargetSeat = 2 })], view);
+            Assert(groupCues.Count == 3 && groupCues.All(cue => cue.TargetSeats.SequenceEqual([2]) &&
+                cue.Detail!.Contains($"对{view.Players[2].GeneralName}的效果")),
+                "Group counterspell inquiries, responses and outcomes must identify only the current recipient.");
+        }
         Assert(responseCues.Where(cue => cue.Sequence != responseCues[1].Sequence).All(cue =>
                 !cue.HasResponseProgress && cue.ResponseCount == 0 && cue.RequiredResponseCount == 0 &&
                 cue.RequiredResponseCardKind is null && cue.ResponseResolutionId is null),
@@ -457,6 +540,73 @@ internal static class FeedbackChecks
                 "classic:i-field"))], iFieldView).Single();
         Assert(iFieldCue.Label == "I力场 · 锦囊伤害已防止",
             "Incoming trick prevention must display the skill that actually prevented damage.");
+    }
+
+    private static void ProgramActivationFeedback(GameSnapshot view)
+    {
+        const string skill = "classic:jiefan";
+        const string activation = "aid-by-attack-range";
+        view = view with
+        {
+            Players = Array.AsReadOnly(view.Players.Select(player => player.Seat == 0 ? player with
+            {
+                IsGeneralPublic = true, IsSecondaryGeneralPublic = false,
+                Skills = [new GeneralSkillDefinition("解烦", "公开的技能发动检查") { ContentId = skill }]
+            } : player).ToArray())
+        };
+        var hidden = view with
+        {
+            Players = Array.AsReadOnly(view.Players.Select(player => player.Seat == 0 ? player with
+                { IsGeneralPublic = false, IsSecondaryGeneralPublic = false } : player).ToArray())
+        };
+        var sequence = 10000L;
+        var state = new BattleCueProjectionState();
+        EventEnvelope E(IGameEvent payload, long revision) => new(new EventId(++sequence), null, sequence, revision, $"revision-{revision}", payload);
+        EventEnvelope[] Begin(long frame, long revision, string usage = activation) =>
+        [E(new SkillUsageConsumedEvent(0, skill, usage, SkillUsageScope.Game, 1), revision),
+         E(new ProgramSkillStartedEvent(frame, 0, skill, activation), revision)];
+        EventEnvelope End(long frame, long revision, bool completed = true, string activationId = activation) =>
+            E(new ProgramSkillResolvedEvent(frame, 0, skill, activationId, completed), revision);
+        IReadOnlyList<BattleCue> Project(IEnumerable<EventEnvelope> events, GameSnapshot? snapshot = null) =>
+            BattleCueProjector.Project(events, snapshot ?? view, state);
+
+        Assert(Project(Begin(100, 11)) is [{ Kind: BattleCueKind.Skill, SkillId: skill, Revision: 11 }] &&
+               Project([End(100, 14)]).Count == 0,
+            "A real Jiefan usage/start must announce once, then suppress only its matching frame completion across committed revisions.");
+        var twice = Project(Begin(101, 15).Concat(Begin(102, 15)));
+        Assert(twice.Count == 2 && twice.All(cue => cue.Kind == BattleCueKind.Skill && cue.SkillId == skill) &&
+               Project([End(101, 16), End(102, 17)]).Count == 0,
+            "Distinct program frame identities must keep both genuine activations, including two under the same committed revision.");
+
+        Assert(Project([E(new ProgramSkillStartedEvent(200, 0, skill, activation), 20)]).Count == 0 &&
+               Project([End(200, 21)]) is [{ Kind: BattleCueKind.Skill, SkillId: skill }] &&
+               Project([End(201, 22), End(202, 22)]).Count == 2,
+            "Programs without a published usage payment must retain their actual completion banner and distinct frame identities.");
+        Assert(Project(Begin(300, 30), hidden).Count == 0 &&
+               Project([End(300, 31)]) is [{ Kind: BattleCueKind.Skill, SkillId: skill }],
+            "A usage/start hidden by the public snapshot must not suppress the later first public completion banner.");
+
+        Assert(Project(Begin(400, 40)).Count == 1 &&
+               Project([End(400, 41, activationId: "another-activation")]).Count == 1 &&
+               Project([End(400, 42, completed: false)]).Count == 0 &&
+               Project([End(400, 43)]).Count == 1,
+            "Only the full activation identity may consume an announced frame; failed completion must retire it too.");
+        Assert(Project(Begin(500, 50)).Count == 1, "The reset fixture must first retain a public activation.");
+        state.Clear();
+        Assert(Project([End(500, 51)]).Count == 1,
+            "Resetting presentation state must not retain an announcement from the previous table or restored session.");
+
+        var crowded = Project(Begin(600, 60).Concat(Enumerable.Range(1, 13)
+            .Select(turn => E(new TurnStartedEvent(turn, 0), 60))));
+        Assert(crowded.All(cue => cue.Kind != BattleCueKind.Skill) &&
+               Project([End(600, 61)]) is [{ Kind: BattleCueKind.Skill, SkillId: skill }],
+            "A banner discarded by the bounded output must not be recorded as shown and swallow its later completion.");
+        Assert(Project(Begin(700, 70, "shared-usage-group")).Count == 1 &&
+               Project([End(700, 71)]).Count == 1,
+            "A named usage group without the activation identity must remain unlinked instead of guessing by seat and skill.");
+        var sameCommit = Begin(800, 80).Append(End(800, 80)).ToArray();
+        Assert(Project(sameCommit) is [{ Kind: BattleCueKind.Skill, SkillId: skill }],
+            "A synchronous usage/start/completion must remain one banner after bounded public projection.");
     }
 
     private sealed class FrameClock : TimeProvider

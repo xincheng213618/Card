@@ -3,9 +3,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -77,6 +79,7 @@ internal static class GeneralSelectionChecks
                 "Zhao Yun must expose the requested ordinary, boundary, SP, God and Gundam editions.");
             Program.Render(root, 1120, 820, Path.Combine(output, "general-variant-before.png"));
             VerifyGeneralPreviewScroll();
+            VerifyEnlargedCandidateLayout();
             foreach (var id in EditionPackage.Zhao)
             {
                 var choices = (ItemsControl)window.FindName("GeneralVariantChoices");
@@ -98,11 +101,13 @@ internal static class GeneralSelectionChecks
                     vm.GeneralChoices.Count(choice => choice.IsPreviewSelected) == 1 && engine.Revision == revision &&
                     vm.SelectedGeneralChoice.HealthText.Contains((registry.Generals[id].BaseHp + 1).ToString()),
                     "An edition click must update portrait, health and skills without submitting or adding candidate slots.");
+                AssertVersionSelectionVisual($"edition {id}");
                 button.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
                 window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
                 Program.Assert(Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true } next &&
                                !ReferenceEquals(next, button) && next.IsDescendantOf((DependencyObject)window.FindName("GeneralSelectionOverlay")),
                     "Keyboard navigation after switching an edition must reach another visible selection control.");
+                AssertVersionSelectionVisual($"unfocused edition {id}", requireUnfocused: true);
                 ((UIElement)Keyboard.FocusedElement!).MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
                 window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
                 Program.Assert(ReferenceEquals(Keyboard.FocusedElement, button) &&
@@ -119,6 +124,7 @@ internal static class GeneralSelectionChecks
             Program.Assert(vm.SelectedGeneralVariants.Count == 2 && Keyboard.FocusedElement is UIElement { IsVisible: true, IsEnabled: true } familyFocus &&
                            familyFocus.IsDescendantOf((DependencyObject)window.FindName("GeneralSelectionOverlay")),
                 "Changing the candidate family must restore a visible selection action after retiring version controls.");
+            AssertVersionSelectionVisual("changed family");
             var lingButton = Program.Find<Button>((ItemsControl)window.FindName("GeneralVariantChoices")).First();
             lingButton.Focus();
             vm.PreviewGeneralChoiceCommand.Execute(zhaoChoice);
@@ -256,6 +262,114 @@ internal static class GeneralSelectionChecks
             VerifyChangedCandidateContract(registry, game.CreateCheckpoint(), EditionPackage.FewerCandidates, 2);
             VerifyChangedCandidateContract(registry, game.CreateCheckpoint(), EditionPackage.FewerVariants, 3);
 
+            void VerifyEnlargedCandidateLayout()
+            {
+                var panel = (Border)window.FindName("GeneralSelectionPanel");
+                var content = (Grid)panel.Child;
+                var originalTransform = content.LayoutTransform;
+                var originalId = vm.SelectedGeneralChoice!.GeneralId;
+                var boundary = Boundary(engine);
+                try
+                {
+                    vm.PreviewGeneralChoiceCommand.Execute(vm.SelectedGeneralVariants.Single(choice => choice.GeneralId == "ol:shen-zhao-yun"));
+                    content.LayoutTransform = new ScaleTransform(1.5, 1.5);
+                    Program.Render(root, 1120, 740, Path.Combine(output, "general-selection-compact-enlarged.png"));
+                    // Finish the preview's Loaded-priority scroll reset before testing new reading and focus actions.
+                    window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                    var cards = Program.Find<Button>((ItemsControl)window.FindName("GeneralCandidateCards")).ToArray();
+                    var versions = Program.Find<Button>((ItemsControl)window.FindName("GeneralVariantChoices")).ToArray();
+                    var confirm = (Button)window.FindName("ConfirmGeneralChoiceButton");
+                    var skills = (ScrollViewer)window.FindName("GeneralSelectionSkillsScroller");
+                    var description = (TextBlock)window.FindName("GeneralSelectionSkillDescription");
+                    var presenter = Program.Find<ScrollContentPresenter>(skills).Single(item => ReferenceEquals(item.TemplatedParent, skills));
+                    var viewport = new Rect(0, 0, 1120, 740);
+                    Rect Bounds(FrameworkElement control) => control.TransformToAncestor(root).TransformBounds(new Rect(control.RenderSize));
+                    Rect DetailBounds(FrameworkElement control) => control.TransformToAncestor(presenter).TransformBounds(new Rect(control.RenderSize));
+                    var preview = vm.SelectedGeneralChoice;
+                    var confirmationPosition = confirm.TranslatePoint(new Point(), root);
+                    Console.WriteLine($"Enlarged selection: card={Bounds(cards[0])}, skills={Bounds(skills)}, confirm={Bounds(confirm)}, " +
+                        $"versions={string.Join(";", versions.Select(button => Bounds(button).ToString()))}.");
+                    Program.Assert(cards.Length == vm.GeneralChoices.Count && cards.All(card => viewport.Contains(Bounds(card)) && Bounds(card).Width >= 100) &&
+                        versions.Length == vm.SelectedGeneralVariants.Count && versions.All(button => Bounds(button).Height >= 22) &&
+                        viewport.Contains(Bounds(confirm)) && viewport.Contains(Bounds(skills)) && Bounds(skills).Height >= 46 &&
+                        description.Text == preview!.SkillDescription && Boundary(engine) == boundary,
+                        "Enlarged selection at the minimum client size must retain readable cards, a useful detail viewport and the fixed complete confirmation action.");
+                    skills.ScrollToEnd();
+                    Program.Render(root, 1120, 740, Path.Combine(output, "general-selection-compact-skills-bottom.png"));
+                    var text = DetailBounds(description);
+                    Program.Assert(skills.ScrollableHeight > 0 && Math.Abs(skills.VerticalOffset - skills.ScrollableHeight) < 1 &&
+                        text.Bottom > 0 && text.Bottom <= presenter.ActualHeight + 1 && text.Left >= -1 && text.Right <= presenter.ActualWidth + 1 &&
+                        (confirm.TranslatePoint(new Point(), root) - confirmationPosition).Length < 1 && Boundary(engine) == boundary,
+                        "Scrolling enlarged details to the end must expose the complete skill text's final line and both edges while confirmation stays fixed.");
+                    foreach (var version in versions)
+                    {
+                        var sameFocusBefore = ReferenceEquals(Keyboard.FocusedElement, version);
+                        var focusedBefore = Keyboard.FocusedElement;
+                        var offsetBefore = skills.VerticalOffset;
+                        var boundsBefore = DetailBounds(version);
+                        var focusReturned = version.Focus();
+                        root.UpdateLayout();
+                        window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                        var button = DetailBounds(version);
+                        var choice = (GeneralChoiceViewModel)version.CommandParameter;
+                        Console.WriteLine($"Enlarged version focus: id={choice.GeneralId}, name={choice.Name}, before same={sameFocusBefore}, " +
+                            $"before focus={focusedBefore?.GetType().Name}/{(focusedBefore as FrameworkElement)?.Name}, Focus returned={focusReturned}, " +
+                            $"actual focus={Keyboard.FocusedElement?.GetType().Name}/{(Keyboard.FocusedElement as FrameworkElement)?.Name}, " +
+                            $"exact={ReferenceEquals(Keyboard.FocusedElement, version)}, offset={offsetBefore:F3}->{skills.VerticalOffset:F3}, " +
+                            $"scrollable={skills.ScrollableHeight:F3}, before bounds={boundsBefore}, bounds={button}, viewport={presenter.RenderSize}.");
+                        Program.Assert(ReferenceEquals(Keyboard.FocusedElement, version) && button.Top >= -1 &&
+                            button.Bottom <= presenter.ActualHeight + 1 && button.Left >= -1 && button.Right <= presenter.ActualWidth + 1 &&
+                            ReferenceEquals(vm.SelectedGeneralChoice, preview) && Boundary(engine) == boundary,
+                            "Every enlarged edition must scroll fully into its actual detail viewport when focused, without changing the current preview or journal.");
+                    }
+                    cards[0].Focus();
+                    for (var step = 0; step < 40 && !ReferenceEquals(Keyboard.FocusedElement, confirm); step++)
+                    {
+                        Program.Assert(Keyboard.FocusedElement is UIElement current &&
+                            current.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)),
+                            "Enlarged selection Tab navigation must continue through actual controls.");
+                        window.Dispatcher.Invoke(() => { }, DispatcherPriority.Input);
+                    }
+                    Program.Assert(ReferenceEquals(Keyboard.FocusedElement, confirm) && Boundary(engine) == boundary,
+                        "The enlarged candidate and edition controls must retain a real Tab route to confirmation without submitting the preview.");
+                }
+                finally
+                {
+                    content.LayoutTransform = originalTransform;
+                    vm.PreviewGeneralChoiceCommand.Execute(vm.SelectedGeneralVariants.Single(choice => choice.GeneralId == originalId));
+                    Program.Render(root, 1120, 820, null);
+                }
+            }
+
+            void AssertVersionSelectionVisual(string label, bool requireUnfocused = false)
+            {
+                root.UpdateLayout();
+                root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+                var buttons = Program.Find<Button>((ItemsControl)window.FindName("GeneralVariantChoices")).ToArray();
+                foreach (var button in buttons)
+                {
+                    var choice = (GeneralChoiceViewModel)button.CommandParameter;
+                    var text = Program.Find<TextBlock>(button).Where(block => block.IsVisible &&
+                        block.ActualWidth > 0 && block.ActualHeight > 0).Select(block => block.Text).ToArray();
+                    var accessibleName = AutomationProperties.GetName(button);
+                    Program.Assert(text.Contains(choice.Name) && text.Contains(choice.EditionLabel) &&
+                        accessibleName.Contains(choice.Name, StringComparison.Ordinal) && accessibleName.Contains(choice.EditionLabel, StringComparison.Ordinal),
+                        $"{label} must identify every actual version with its visible name and compact edition and expose both to assistive technology.");
+                }
+                var selected = buttons.Single(button => ReferenceEquals(button.CommandParameter, vm.SelectedGeneralChoice));
+                var background = selected.Background.ToString();
+                var chrome = (Border)selected.Template.FindName("Chrome", selected);
+                var focusRing = (Border)selected.Template.FindName("FocusRing", selected);
+                Program.Assert(selected.CommandParameter is GeneralChoiceViewModel { IsPreviewSelected: true } &&
+                    buttons.Count(button => button.Background.ToString() == background) == 1 &&
+                    chrome.Background.ToString() == background,
+                    $"{label} must visibly highlight exactly the current preview's actual version button without selecting another candidate.");
+                if (requireUnfocused)
+                    Program.Assert(!selected.IsKeyboardFocused && focusRing.Visibility != Visibility.Visible &&
+                        chrome.Background.ToString() == background,
+                        $"{label} must retain its selected background after the independent keyboard focus ring has moved away.");
+            }
+
             void VerifyGeneralPreviewScroll()
             {
                 var scroller = (ScrollViewer)window.FindName("GeneralSelectionSkillsScroller");
@@ -280,7 +394,7 @@ internal static class GeneralSelectionChecks
                     PumpPreview();
                     Program.Assert(vm.SelectedGeneralChoice?.GeneralId == "boundary:ling-tong" && scroller.VerticalOffset == 0 &&
                         ReferenceEquals(Keyboard.FocusedElement, version),
-                        "Switching the real edition button must show its skills from the top and retain that live button's focus.");
+                        "Switching the real edition button must show its details from the top and retain that live button's focus.");
 
                     var offset = ScrollDetails();
                     vm.PreviewGeneralChoiceCommand.Execute(vm.SelectedGeneralChoice!);
@@ -378,6 +492,7 @@ internal static class GeneralSelectionChecks
                                vm.GeneralChoices.Select(choice => choice.GeneralId).SequenceEqual(expectedEditionIds) &&
                                Boundary(currentGame) == selectionBoundary,
                     $"{label} must reject every retired candidate/version preview parameter without changing either family edition or submitting a command.");
+                AssertVersionSelectionVisual(label);
             }
         }
         finally { window.Content = null; window.Close(); }
@@ -504,23 +619,74 @@ internal static class GeneralSelectionChecks
                 "Enter on the actual dedicated confirmation button must execute its own native Button command once.");
             AssertConfirmed("dedicated confirm", currentGundam.GeneralId);
 
+            foreach (var firstNumber in new[] { Key.D1, Key.NumPad1 })
+            {
+                Reload();
+                var initial = vm.SelectedGeneralChoice!;
+                var initialButton = Candidate(initial);
+                var numberIndex = Enumerable.Range(0, vm.GeneralChoices.Count)
+                    .First(index => !ReferenceEquals(vm.GeneralChoices[index], initial));
+                var numbered = vm.GeneralChoices[numberIndex];
+                var keyNumber = firstNumber + numberIndex;
+                foreach (var modifier in new[] { ModifierKeys.Control, ModifierKeys.Shift })
+                {
+                    var modified = Press(initialButton, keyNumber, modifier);
+                    Program.Assert(!modified.PreviewHandled && !modified.Handled &&
+                        ReferenceEquals(vm.SelectedGeneralChoice, initial) && Boundary(Program.Engine(vm)) == boundary,
+                        "Modified number keys must stay with the focused control without previewing or confirming a general.");
+                }
+                Program.Assert(!TableShortcutChecks.Input(window, keyNumber, ModifierKeys.Alt) &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, initial) && Boundary(Program.Engine(vm)) == boundary,
+                    "Alt-number must not enter the selection shortcut branch.");
+                var numberPreview = Press(initialButton, keyNumber);
+                Program.Assert(numberPreview.PreviewHandled && numberPreview.BubbleCount == 0 && numberPreview.Handled &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, numbered) &&
+                    ReferenceEquals(Keyboard.FocusedElement, Candidate(numbered)) &&
+                    !ReferenceEquals(Keyboard.FocusedElement, initialButton) && Boundary(Program.Engine(vm)) == boundary,
+                    "An actual number key must preview the current candidate without native commands and move exact keyboard focus away from the old candidate.");
+                var heldNumber = Press(Candidate(numbered), keyNumber, repeat: true);
+                Program.Assert(heldNumber.PreviewHandled && heldNumber.BubbleCount == 0 && heldNumber.Handled &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, numbered) && ReferenceEquals(Keyboard.FocusedElement, Candidate(numbered)) &&
+                    Boundary(Program.Engine(vm)) == boundary,
+                    "Holding a number key must be consumed before another native activation, without changing or confirming its preview.");
+                Console.WriteLine($"Focused general number preview: key={keyNumber}, index={numberIndex + 1}, previous={initial.GeneralId}, selected={numbered.GeneralId}, exact candidate focus=True, added commands=0, same native boundary=True.");
+                var numberConfirm = Press(Candidate(numbered), Key.Enter);
+                Program.Assert(numberConfirm.PreviewHandled && numberConfirm.BubbleCount == 0 && numberConfirm.Handled,
+                    "Enter immediately after a number key must confirm the newly focused preview, without returning to the old candidate.");
+                AssertConfirmed(firstNumber + " then Enter", numbered.GeneralId);
+            }
+
             Reload();
-            var initial = vm.SelectedGeneralChoice!;
-            var initialButton = Candidate(initial);
-            var numberIndex = Enumerable.Range(0, vm.GeneralChoices.Count)
-                .First(index => !ReferenceEquals(vm.GeneralChoices[index], initial));
-            var numbered = vm.GeneralChoices[numberIndex];
-            var numberPreview = Press(initialButton, Key.D1 + numberIndex);
-            Program.Assert(numberPreview.PreviewHandled && numberPreview.BubbleCount == 0 && numberPreview.Handled &&
-                ReferenceEquals(vm.SelectedGeneralChoice, numbered) &&
-                ReferenceEquals(Keyboard.FocusedElement, Candidate(numbered)) &&
-                !ReferenceEquals(Keyboard.FocusedElement, initialButton) && Boundary(Program.Engine(vm)) == boundary,
-                "An actual number key must preview the current candidate without native commands and move exact keyboard focus away from the old candidate.");
-            Console.WriteLine($"Focused general number preview: index={numberIndex + 1}, previous={initial.GeneralId}, selected={numbered.GeneralId}, exact candidate focus=True, added commands=0, same native boundary=True.");
-            var numberConfirm = Press(Candidate(numbered), Key.Enter);
-            Program.Assert(numberConfirm.PreviewHandled && numberConfirm.BubbleCount == 0 && numberConfirm.Handled,
-                "Enter immediately after a number key must confirm the newly focused preview, without returning to the old candidate.");
-            AssertConfirmed("number then Enter", numbered.GeneralId);
+            vm.ToggleGeneralRosterCommand.Execute(null);
+            Pump();
+            var search = (TextBox)window.FindName("CustomGeneralSearchBox");
+            var searchPreview = vm.SelectedGeneralChoice;
+            var searchDraft = vm.CustomGeneralSearch;
+            var rosterBoundary = Boundary(Program.Engine(vm));
+            var searchNumber = Press(search, Key.NumPad1);
+            var searchRepeat = Press(search, Key.NumPad1, repeat: true);
+            Program.Assert(!searchNumber.PreviewHandled && !searchRepeat.PreviewHandled &&
+                searchNumber.BubbleCount == 1 && searchRepeat.BubbleCount == 1 &&
+                ReferenceEquals(Keyboard.FocusedElement, search) && ReferenceEquals(vm.SelectedGeneralChoice, searchPreview) &&
+                vm.CustomGeneralSearch == searchDraft && Boundary(Program.Engine(vm)) == rosterBoundary,
+                "Fresh and held keypad digits in the real roster search must remain text input without changing its preview or native match.");
+            vm.IsSettingsOpen = true;
+            Pump();
+            var settingsToggle = (CheckBox)window.FindName("SettingsSoundToggle");
+            var coveredNumber = Press(settingsToggle, Key.NumPad1);
+            var coveredRepeat = Press(settingsToggle, Key.NumPad1, repeat: true);
+            Program.Assert(!coveredNumber.PreviewHandled && !coveredRepeat.PreviewHandled &&
+                ReferenceEquals(Keyboard.FocusedElement, settingsToggle) && ReferenceEquals(vm.SelectedGeneralChoice, searchPreview) &&
+                vm.CustomGeneralSearch == searchDraft && Boundary(Program.Engine(vm)) == rosterBoundary,
+                "Fresh and held keypad digits in covering settings must not reach or refocus the hidden roster.");
+            vm.IsSettingsOpen = false;
+            vm.CustomGeneralSearch = "__no_keypad_general_match__";
+            var emptyNumber = Press(search, Key.NumPad1);
+            var emptyRepeat = Press(search, Key.NumPad1, repeat: true);
+            Program.Assert(!emptyNumber.PreviewHandled && !emptyRepeat.PreviewHandled &&
+                ReferenceEquals(Keyboard.FocusedElement, search) && vm.CustomGeneralChoices.Count == 0 &&
+                vm.SelectedGeneralChoice is null && !vm.CanConfirmGeneralChoice && Boundary(Program.Engine(vm)) == rosterBoundary,
+                "Keypad text input with no results must not revive or confirm a hidden general.");
 
             Reload();
             vm.PreviewGeneralChoiceCommand.Execute(vm.GeneralChoices.Single(choice => EditionPackage.Zhao.Contains(choice.GeneralId)));
@@ -567,7 +733,7 @@ internal static class GeneralSelectionChecks
                     "Each actual keyboard route must reload the same untouched native selection checkpoint.");
             }
 
-            (bool PreviewHandled, int BubbleCount, bool Handled) Press(Button button, Key pressed, ModifierKeys modifiers = ModifierKeys.None)
+            (bool PreviewHandled, int BubbleCount, bool Handled) Press(UIElement button, Key pressed, ModifierKeys modifiers = ModifierKeys.None, bool repeat = false)
             {
                 Pump();
                 button.Focus();
@@ -577,7 +743,7 @@ internal static class GeneralSelectionChecks
                     button.IsVisible && button.IsEnabled && button.IsDescendantOf(window) &&
                     ReferenceEquals(PresentationSource.FromVisual(button), PresentationSource.FromVisual(window)) &&
                     ReferenceEquals(Keyboard.FocusedElement, button) && Keyboard.Modifiers == ModifierKeys.None &&
-                    button.Command is not null && button.Command.CanExecute(button.CommandParameter),
+                    (button is not Button action || action.Command is not null && action.Command.CanExecute(action.CommandParameter)),
                     "Every keyboard route must start on its own loaded, enabled actual Button with exact focus in the hidden nonforeground message-only HWND.");
                 var tunnels = 0;
                 var bubbles = 0;
@@ -587,7 +753,7 @@ internal static class GeneralSelectionChecks
                 button.AddHandler(Keyboard.KeyDownEvent, observeKeyDown, handledEventsToo: true);
                 try
                 {
-                    return modifiers == ModifierKeys.Control ? TableShortcutChecks.WithControl(Route) : Route();
+                    return TableShortcutChecks.WithModifiers(modifiers, Route);
 
                     (bool PreviewHandled, int BubbleCount, bool Handled) Route()
                     {
@@ -595,6 +761,7 @@ internal static class GeneralSelectionChecks
                             "The actual focused Button and primary keyboard modifiers must remain current during the key route.");
                         var input = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(button)!, 0, pressed)
                             { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+                        OpeningCustomizationUiChecks.SetKeyRepeat(input, repeat);
                         button.RaiseEvent(input);
                         var wasPreviewHandled = input.Handled;
                         if (!input.Handled)
@@ -777,6 +944,8 @@ internal static class GeneralSelectionChecks
             {
                 setOpen(true);
                 Shortcut(window, Key.D1);
+                Shortcut(window, Key.NumPad1);
+                Shortcut(window, Key.NumPad1, repeat: true);
                 Shortcut(window, Key.Enter);
                 Program.Assert(engine.Revision == revision && ReferenceEquals(vm.SelectedGeneralChoice, selected),
                     $"The {name} overlay allowed keyboard input to change or confirm a hidden candidate.");
@@ -834,7 +1003,8 @@ internal static class GeneralSelectionChecks
             var secondaryRevision = engine.Revision;
             var secondaryPreview = vm.SelectedGeneralChoice;
             Program.Assert(Shortcut(window, Key.Enter, repeat: true) &&
-                           Shortcut(window, Key.D2, repeat: true) && engine.Revision == secondaryRevision &&
+                           Shortcut(window, Key.D2, repeat: true) &&
+                           Shortcut(window, Key.NumPad2, repeat: true) && engine.Revision == secondaryRevision &&
                            ReferenceEquals(vm.SelectedGeneralChoice, secondaryPreview),
                 "A held primary selection key changed or confirmed the separate secondary prompt.");
             Program.Assert(!DoubleClick(primaryButton) && engine.Revision == secondaryRevision,

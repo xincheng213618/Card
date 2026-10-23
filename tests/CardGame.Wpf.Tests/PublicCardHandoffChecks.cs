@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -14,7 +15,7 @@ internal static class PublicCardHandoffChecks
 {
     public static void ArrivalAndBoundaries(string output)
     {
-        var root = new Canvas { Width = 780, Height = 440, Background = Brushes.DarkSlateGray };
+        var root = new CountingCanvas { Width = 780, Height = 440, Background = Brushes.DarkSlateGray };
         for (var seat = 0; seat < 2; seat++)
         {
             var portrait = new Border { Width = 85, Height = 120, Background = Brushes.Black };
@@ -23,6 +24,8 @@ internal static class PublicCardHandoffChecks
         }
         var cues = new ObservableCollection<BattleCue>(); var clock = new FrameClock();
         var layer = new BattleFeedbackLayer { Width = 780, Height = 440, AnchorRoot = root, Cues = cues, Clock = clock };
+        var tick = typeof(BattleFeedbackLayer).GetMethod("OnTick", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<object?, EventArgs>>(layer);
         var slash = Play(1, CardKind.Slash, "关羽", "使用", 250);
         var dodge = Play(2, CardKind.Dodge, "赵云", "打出", 355);
         root.Children.Add(layer);
@@ -42,9 +45,14 @@ internal static class PublicCardHandoffChecks
         Assert(Faces(layer).SequenceEqual([CardArt.Get(CardKind.Dodge)]) &&
             slot == slashFace.TransformToVisual(layer).TransformBounds(new Rect(slashFace.RenderSize)),
             "The attack handoff moved its reserved slot or duplicated its arrived face.");
+        var movingReads = TickReads();
+        Assert(movingReads > 0, "A pending response flight stopped discovering its public landing row.");
         clock.Advance(.4); Capture("both-arrived");
         Revealed(slashFace); Revealed(dodgeFace);
         Assert(!Faces(layer).Any(), "An arrived attack/response retained a second transient face.");
+        var arrivedReads = TickReads();
+        Assert(layer.ActiveEffectCount == 2 && arrivedReads == 0,
+            "Timer ticks must stop walking the public row after both faces hand off, even while their highlights remain active.");
         Canvas.SetLeft(slash, 175); Capture();
         Revealed(slashFace);
         Assert(!Faces(layer).Any(), "Rearranging an arrived public row restarted its flight.");
@@ -59,7 +67,9 @@ internal static class PublicCardHandoffChecks
         Waiting(); layer.Cues = new ObservableCollection<BattleCue>(); Capture(); Revealed(slashFace);
         layer.Cues = cues;
         Waiting(); layer.AnchorRoot = null; Capture(); Revealed(slashFace);
-        layer.AnchorRoot = root; cues.Clear();
+        layer.AnchorRoot = root; Capture(); Pending(slashFace);
+        Assert(TickReads() > 0, "Restoring the anchor root stopped an unfinished public face from finding its row.");
+        cues.Clear();
 
         Waiting(); root.Children.Remove(slash); Capture(); Revealed(slashFace);
         var replacement = Play(++sequence, CardKind.Peach, "华佗", "使用", 250);
@@ -71,6 +81,20 @@ internal static class PublicCardHandoffChecks
         Assert(!Faces(layer).Any(), "Reattaching an old public row restarted its retired flight.");
         cues.Clear();
 
+        // A committed cue can precede generation of its ItemsControl container.
+        // The no-work gate must distinguish that from an already arrived face.
+        var lateSequence = ++sequence;
+        cues.Add(new(lateSequence, BattleCueKind.Card, 0, [], "桃", "华佗") { CardKind = CardKind.Peach });
+        clock.Advance(.01); Capture();
+        Assert(TickReads() > 0 && Faces(layer).SequenceEqual([CardArt.Get(CardKind.Peach)]),
+            "A cue without its first public container was prematurely treated as handed off.");
+        var late = Play(lateSequence, CardKind.Peach, "华佗", "使用", 250);
+        Capture(); Pending(Face(late));
+        clock.Advance(.34); Capture(); Revealed(Face(late));
+        Assert(TickReads() == 0 && !Faces(layer).Any(),
+            "A late public container failed to hand off once or retained timer tree walks afterward.");
+        root.Children.Remove(late); cues.Clear();
+
         Waiting(); clock.Advance(2); Capture(); Revealed(slashFace);
         Assert(layer.ActiveEffectCount == 0, "Expiry left a hidden static face after the final cue vanished.");
         layer.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
@@ -79,7 +103,8 @@ internal static class PublicCardHandoffChecks
         Assert(layer.ActiveEffectCount == 0 && !layer.IsFrameTimerRunning && !layer.IsHitTestVisible && !layer.Focusable,
             "Reloading replayed a handoff or captured table input.");
         layer.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent));
-        Console.WriteLine("Public handoff: reserved slot, delayed response, single arrived face, replaced row, expiry, reset, motion, root and unload boundaries passed.");
+        Console.WriteLine($"Public handoff: root-child reads per direct timer tick moving={movingReads}, handed-off={arrivedReads}; " +
+            "late/replaced/reattached rows, reserved slots, single faces, expiry, reset, motion, root and unload boundaries passed.");
 
         ContentControl Play(long id, CardKind kind, string actor, string action, double x)
         {
@@ -98,6 +123,13 @@ internal static class PublicCardHandoffChecks
             Capture(); slashFace = Face(slash);
             cues.Add(new(sequence, BattleCueKind.Card, 0, [1], "杀", "关羽") { CardKind = CardKind.Slash });
             clock.Advance(.01); Capture(); Pending(slashFace);
+            Assert(TickReads() > 0, "A new accepted card did not restart public-row discovery after the previous handoff.");
+        }
+        int TickReads()
+        {
+            root.ChildReads = 0;
+            tick(null, EventArgs.Empty);
+            return root.ChildReads;
         }
         void Capture(string? name = null)
         {
@@ -128,5 +160,11 @@ internal static class PublicCardHandoffChecks
         public override long TimestampFrequency => TimeSpan.TicksPerSecond;
         public override long GetTimestamp() => _ticks;
         public void Advance(double seconds) => _ticks += TimeSpan.FromSeconds(seconds).Ticks;
+    }
+
+    private sealed class CountingCanvas : Canvas
+    {
+        public int ChildReads { get; set; }
+        protected override Visual GetVisualChild(int index) { ChildReads++; return base.GetVisualChild(index); }
     }
 }

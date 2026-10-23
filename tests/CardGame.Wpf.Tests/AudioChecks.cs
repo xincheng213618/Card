@@ -38,8 +38,13 @@ internal static class AudioChecks
         var savedState = State(vm);
         SelectSlash(vm);
         Assert(output.Played.Count == before, "Selecting a card played an uncommitted sound.");
+        var eventCursor = Engine(vm).Events.Count;
+        clock.Advance(.121); // The setup draw already played Card at the clock's initial timestamp.
         vm.ConfirmSelectedCommand.Execute(null);
-        Assert(output.Played.Last() == GameSound.Card, "Committed Slash is silent with motion disabled.");
+        Assert(Engine(vm).Events.Skip(eventCursor).Any(envelope => envelope.Payload is
+                   CardUseDeclaredEvent { SourceSeat: 0, CardKind: CardKind.Slash }) &&
+               output.Played.Skip(before).SequenceEqual([GameSound.Card]),
+            "Committed Slash must emit exactly one new Card sound with motion disabled.");
         var stops = output.StopCount;
         vm.IsSoundEnabled = false;
         Assert(output.StopCount > stops, "Mute did not stop active voices.");
@@ -55,13 +60,25 @@ internal static class AudioChecks
         Assert(output.Played.Count == before, "Reactivation played missed background audio.");
         vm.LoadManualGameCommand.Execute(null);
         vm.SoundVolume = 0;
+        Assert(vm.SoundStatusText.Contains("音量为 0") && vm.SoundStatusText.Contains("调高音量") &&
+               vm.GeneralVoiceStatus.Contains("音量为 0") && vm.GeneralVoiceStatus.Contains("调高音量"),
+            "Zero volume must explain how to raise the level instead of suggesting that the master switch restores audio.");
+        vm.IsSoundEnabled = false;
+        Assert(vm.SoundVolume == 0 && vm.SoundStatusText.Contains("游戏声音已关闭") &&
+               vm.SoundStatusText.Contains("Ctrl+M") && vm.GeneralVoiceStatus.Contains("游戏声音已关闭"),
+            "The disabled master switch must retain zero volume and identify the separate switch recovery.");
+        vm.IsSoundEnabled = true;
+        Assert(vm.SoundVolume == 0 && vm.SoundStatusText.Contains("调高音量") && vm.GeneralVoiceStatus.Contains("调高音量"),
+            "Re-enabling the master switch must retain zero volume and its level-specific recovery instructions.");
         PlaySlash(vm);
-        Assert(output.Played.Count == before, "Zero volume still submitted a sound.");
+        Assert(output.Played.Count == before, "Zero volume still submitted a sound after cycling the master switch.");
         vm.LoadManualGameCommand.Execute(null);
         vm.SoundVolume = .23;
         clock.Advance(1);
         PlaySlash(vm);
-        Assert(output.LastVolume == .23, "App volume did not reach the output.");
+        Assert(output.LastVolume == .23 && output.Played.Count > before &&
+               vm.SoundStatusText.Contains(vm.SoundVolume.ToString("P0")) && vm.GeneralVoiceStatus.Contains("点击试听"),
+            "Raising zero volume must restore the normal level and audition status while real committed sounds reach the output.");
         audio.Dispose();
         Assert(output.Disposed, "Closing leaked the audio output.");
         vm.LoadManualGameCommand.Execute(null);

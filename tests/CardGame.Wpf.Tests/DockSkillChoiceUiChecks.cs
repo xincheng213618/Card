@@ -6,6 +6,7 @@ using System.Windows.Controls.Primitives;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
 using CardGame.Wpf.ViewModels;
 
@@ -13,6 +14,7 @@ internal static class DockSkillChoiceUiChecks
 {
     public static void DinghanNamesWrapAndCommit(string output)
     {
+        SharedCardNamePresentation();
         var registry = ContentRegistry.Build(new StandardContentPackage(), new DinghanFixture());
         var game = GameEngine.CreateStandard(new GameOptions
         {
@@ -58,17 +60,30 @@ internal static class DockSkillChoiceUiChecks
 
             void AssertChoices(int width, int height)
             {
+                var viewport = (ScrollViewer)window.FindName("CardNameSelectionViewport");
+                viewport.ScrollToTop();
                 Program.Render(root, width, height, Path.Combine(output, $"dinghan-choices-{width}.png"));
-                var choices = (ItemsControl)window.FindName("ScrollingSkillChoices");
-                var viewport = (ScrollViewer)window.FindName("ResponseViewport");
+                var choices = (ItemsControl)window.FindName("CardNameSelectionChoices");
                 var buttons = Program.Find<Button>(choices).Where(button => button.Command == model.SelectSkillChoiceCommand).ToArray();
-                Program.Assert(model.SkillChoices.Count > 12 && !model.HasDockSkillChoices && model.HasCenterChoices &&
-                    model.UngroupedCenterSkillChoices.Count == model.SkillChoices.Count && buttons.Length == model.SkillChoices.Count,
-                    "Dinghan's complete name catalog must use the center wrap/scroll surface instead of shrinking into one dock row.");
+                Program.Assert(model.SkillChoices.Count > 12 && !model.HasDockSkillChoices && !model.HasCenterChoices &&
+                    model.HasCardNameSelection && model.UngroupedCenterSkillChoices.Count == 0 &&
+                    model.CardNameSelectionChoices.SequenceEqual(model.SkillChoices, ReferenceEqualityComparer.Instance) &&
+                    buttons.Length == model.SkillChoices.Count,
+                    "Dinghan's complete catalog must use the lower name selection area with its exact original choices.");
+                var names = buttons.SelectMany(button => Program.Find<ContentControl>(button))
+                    .Select(control => control.Content).OfType<PromptCardChoicePresentation>()
+                    .Where(presentation => presentation.IsCardName).ToArray();
+                Program.Assert(names.Length == model.SkillChoices.Count - 1 && names.All(name => !name.IsCard && name.Face is null) &&
+                    names.Single(name => name.NamedCard!.Kind == CardKind.Duel).NamedCard!.IsRecorded ==
+                        model.SkillChoices.Single(choice => choice.Parameters.GetValueOrDefault("kind") == nameof(CardKind.Duel))
+                            .Description.StartsWith("移除", StringComparison.Ordinal),
+                    "Dinghan must show the shared card-name tiles with the current recorded state and no physical suit or rank.");
                 var bounds = buttons.Select(button => button.TransformToAncestor(root)
                     .TransformBounds(new Rect(button.RenderSize))).ToArray();
                 Program.Assert(buttons.All(button => button.IsEnabled) && bounds.All(rect => rect.Width >= 70 && rect.Height >= 28) &&
-                    bounds.Select(rect => Math.Round(rect.Top)).Distinct().Count() > 1 && viewport.ViewportHeight > 28,
+                    bounds.Select(rect => Math.Round(rect.Top)).Distinct().Count() > 1 && viewport.ViewportHeight > 28 &&
+                    viewport.TranslatePoint(new Point(), root).Y >=
+                        ((FrameworkElement)window.FindName("ActionBar")).TranslatePoint(new Point(), root).Y,
                     "The real name buttons must retain readable screen dimensions and wrap at both supported window sizes.");
                 viewport.ScrollToBottom(); root.UpdateLayout();
                 var cancel = buttons.Single(button => ((PromptChoice)button.CommandParameter).Parameters.GetValueOrDefault("kind") == "cancel");
@@ -80,7 +95,7 @@ internal static class DockSkillChoiceUiChecks
             void Click(string kind)
             {
                 var choice = model.SkillChoices.Single(candidate => candidate.Parameters.GetValueOrDefault("kind") == kind);
-                var button = Program.Find<Button>((ItemsControl)window.FindName("ScrollingSkillChoices"))
+                var button = Program.Find<Button>((ItemsControl)window.FindName("CardNameSelectionChoices"))
                     .Single(candidate => ReferenceEquals(candidate.CommandParameter, choice));
                 var revision = game.Revision;
                 typeof(ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(button, null);
@@ -108,6 +123,21 @@ internal static class DockSkillChoiceUiChecks
                 }
             }
             throw new InvalidOperationException("The bounded fixture did not reach Dinghan's next turn-start edit.");
+        }
+    }
+
+    private static void SharedCardNamePresentation()
+    {
+        foreach (var (key, action) in new[] { ("recorded-kind", "named-ambush"), ("card-name", "declare-name"),
+            ("played-kind", "select-play-conversion-mode"), ("card-kind", "use-all-hand-as-ordinary-trick") })
+        {
+            var choice = new PromptChoice(new("shared-name"), "选择【决斗】", [], [],
+                new Dictionary<string, string> { ["program-action"] = action, [key] = nameof(CardKind.Duel) });
+            var name = CardNameChoicePresentation.From(choice);
+            Program.Assert(name is { Kind: CardKind.Duel, Name: "决斗", IsRecorded: false } &&
+                CardNameChoicePresentation.From(choice with { Cards = [42] }) is null &&
+                CardNameChoicePresentation.From(choice with { Parameters = new Dictionary<string, string> { [key] = "cancel" } }) is null,
+                "Record, declaration and view-as choices must share named-card presentation while real materials and cancel retain their own surfaces.");
         }
     }
 
@@ -139,6 +169,35 @@ internal static class DockSkillChoiceUiChecks
             model.SelectActiveSkillCommand.Execute(qimou);
             Program.Assert(model.SkillChoices.Count > 3, "The quantity fixture must cover more than three choices.");
             AssertDock("quantity", model.SkillChoices.Count);
+            var nativeView = model.ChoiceSnapshot;
+            var revisionBeforeProjection = game.Revision;
+            Project(nativeView with { PublicRevealedCards = [nativeView.Players[0].Hand[0]] });
+            AssertDock("public-cards", model.SkillChoices.Count, publicCards: true);
+            Program.Assert(model.UngroupedCenterSkillChoices.Count == 0 && !model.HasPinnedPublicModuleChoices,
+                "Public faces may stay central, but their small text alternatives must appear only below.");
+            Project(nativeView with { PendingDecision = nativeView.PendingDecision! with
+                { Kind = DecisionKind.ProgramJudgmentTrigger, SkillPrompt = null } });
+            AssertDock("legacy-prompt", model.SkillChoices.Count);
+            Project(nativeView with { PendingDecision = nativeView.PendingDecision! with { Kind = DecisionKind.RespondDodge } });
+            AssertDock("response-alternatives", model.HandResponseExtraChoices.Count, primaryActions: true);
+            Program.Assert(model.DockSkillChoiceCommand == model.SelectHandResponseChoiceCommand &&
+                model.CenterHandResponseExtraChoices.Count == 0,
+                "Small response alternatives must use the native response command and leave no duplicate central buttons.");
+            // Route a larger published view through the scroll area, then restore the native prompt before any command.
+            var catalogChoices = Enumerable.Range(1, 9).Select(index => new PromptChoice(new($"layout-option-{index}"),
+                $"选择效果 {index}", [], [], new Dictionary<string, string>
+                    { ["program-action"] = "choose-option", ["option-id"] = $"effect-{index}" })).ToArray();
+            Project(nativeView with { PendingDecision = nativeView.PendingDecision! with { Choices = catalogChoices } });
+            Program.Render(root, 1120, 740, Path.Combine(output, "skill-dock-long-catalog.png"));
+            var catalog = (ItemsControl)window.FindName("CardNameSelectionChoices");
+            Program.Assert(model.HasExpandedSelection && !model.HasCardNameSelection && !model.HasCenterChoices &&
+                !model.HasDockSkillChoices && model.SelectionArea.CatalogChoices.SequenceEqual(catalogChoices, ReferenceEqualityComparer.Instance) &&
+                catalog.Items.Count == catalogChoices.Length && Program.Find<Button>(catalog).All(button => button.IsEnabled && button.ActualHeight >= 24),
+                "Larger effect catalogs must use the common lower scroll area without hiding or rescaling their published choices.");
+            Project(nativeView);
+            AssertDock("quantity-restored", model.SkillChoices.Count);
+            Program.Assert(game.Revision == revisionBeforeProjection,
+                "Routing checks over player-view shapes must not change the native pending decision.");
             Click(choice => choice.Parameters.GetValueOrDefault("quantity") == "1");
             ResumePlay();
 
@@ -164,6 +223,8 @@ internal static class DockSkillChoiceUiChecks
 
             void Refresh() => typeof(MainViewModel).GetMethod("Refresh", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .Invoke(model, [game.CreateSnapshot(0)]);
+            void Project(GameSnapshot view) => typeof(MainViewModel).GetMethod("Refresh", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .Invoke(model, [view]);
 
             void ResumePlay()
             {
@@ -171,15 +232,17 @@ internal static class DockSkillChoiceUiChecks
                 Refresh();
             }
 
-            void AssertDock(string stage, int count)
+            void AssertDock(string stage, int count, bool publicCards = false, bool primaryActions = false)
             {
                 Program.Render(root, 1120, 740, Path.Combine(output, $"skill-dock-{stage}.png"));
                 var dock = (ItemsControl)window.FindName("DockSkillChoices");
                 var actionBar = (FrameworkElement)window.FindName("ActionBar");
-                var buttons = Program.Find<Button>(dock).Where(button => button.Command == model.SelectSkillChoiceCommand).ToArray();
-                Program.Assert(model.HasDockSkillChoices && !model.HasCenterChoices && model.DockSkillChoices.Count == count &&
-                    ((FrameworkElement)window.FindName("DecisionPanel")).Visibility == Visibility.Collapsed &&
-                    ((FrameworkElement)window.FindName("PrimaryActionButtons")).Visibility == Visibility.Collapsed &&
+                var buttons = Program.Find<Button>(dock).Where(button => button.Command == model.DockSkillChoiceCommand).ToArray();
+                Program.Assert(model.HasDockSkillChoices && model.HasCenterChoices == publicCards && model.DockSkillChoices.Count == count &&
+                    model.SelectionArea.Choices.SequenceEqual(model.DockSkillChoices, ReferenceEqualityComparer.Instance) &&
+                    model.SelectionArea.ChoiceCommand == model.DockSkillChoiceCommand &&
+                    ((FrameworkElement)window.FindName("DecisionPanel")).Visibility == (publicCards ? Visibility.Visible : Visibility.Collapsed) &&
+                    ((FrameworkElement)window.FindName("PrimaryActionButtons")).Visibility == (primaryActions ? Visibility.Visible : Visibility.Collapsed) &&
                     buttons.Length == count && buttons.All(button => button.Visibility == Visibility.Visible && button.IsEnabled &&
                         button.ActualWidth > 0 && button.ActualHeight > 0 &&
                         model.SkillChoices.Any(choice => ReferenceEquals(choice, button.CommandParameter))) &&

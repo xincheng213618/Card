@@ -31,7 +31,30 @@ internal static class ProgramTriggerResourceChecks
         unfrozen["skills"]![0]!["triggers"]![0]!["effects"]![0] = JsonNode.Parse(
             """{"op":"selectOwnedCards","target":"owner","zones":["hand"],"amount":1,"resultBind":"cost"}""");
         Reject(unfrozen, sidi.Presentation, "previously frozen single-card metadata binding");
+        CardActorDamageRequiresCardAction();
         OptionalFactsPreserveLegacyJson();
+    }
+
+    private static void CardActorDamageRequiresCardAction()
+    {
+        const string id = "fixture:card-actor-damage";
+        var rules = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{id}}","revision":1,"triggers":[{"id":"after-use","window":"cardUseCompleted","ownerRelation":"observer","optional":false,"effects":[{"op":"damage","target":"owner","targetRef":{"kind":"actor"},"amount":1}]}]}]}""";
+        var presentation = JsonSerializer.Serialize(new
+        {
+            schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
+            skills = new Dictionary<string, object> { [id] = new { name = "Card actor", description = "Damage the actual card user." } }
+        });
+        SkillProgramCatalog.Load(rules, presentation);
+        var wrongContext = JsonNode.Parse(rules)!;
+        var trigger = wrongContext["skills"]![0]!["triggers"]![0]!;
+        trigger["window"] = "judgmentFinalized";
+        trigger.AsObject().Remove("ownerRelation");
+        trigger["subject"] = "owner";
+        trigger["suits"] = new JsonArray("spade");
+        trigger["minimumRank"] = 1;
+        trigger["maximumRank"] = 13;
+        trigger["excludedReasons"] = new JsonArray();
+        Reject(wrongContext, presentation, "requires context CardAction");
     }
 
     private static void OptionalFactsPreserveLegacyJson()

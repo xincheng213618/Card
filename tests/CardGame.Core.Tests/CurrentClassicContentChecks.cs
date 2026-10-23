@@ -35,7 +35,7 @@ internal static class CurrentClassicContentChecks
                      "classic:li-ru", "classic:liu-feng", "classic:jian-yong", "classic:yu-fan", "classic:zhu-ran",
                      "classic:cao-zhen", "classic:han-hao-shi-huan", "classic:chen-qun", "classic:wu-yi", "classic:zhou-cang", "classic:sun-lu-ban",
                      "ol:shen-guan-yu", "classic:shen-lu-meng", "classic:shen-cao-cao",
-                     "ol:shen-zhou-yu", "ol:shen-zhuge-liang", "ol:shen-lu-bu", "ol:shen-zhao-yun",
+                     "classic:shen-zhou-yu", "mobile:shen-zhuge-liang", "classic:shen-lu-bu", "ol:shen-zhao-yun",
                      "ol:shen-sima-yi", "ol:shen-liu-bei", "ol:shen-lu-xun", "ol:shen-gan-ning",
                      "ol:shen-zhang-liao", "ol:shen-sun-quan", "ol:shen-zhang-jiao", "ol:shen-dian-wei", "ol:shen-huang-zhong"
                  })

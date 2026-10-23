@@ -6,6 +6,41 @@ namespace CardGame.Core.Tests;
 internal static class MouSimaYiAnniversaryChecks
 {
     private const string Hero="mou:sima-yi",Proxy="fixture:msm-proxy",Plain="fixture:msm-plain",Quiet="fixture:msm-quiet",Driver="fixture:msm-driver",Deck="fixture:msm-deck";
+    public static void HumanGiveUsesDistinctPhysicalChoicesAndCold()
+    {
+        static void Need(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
+        var (single, singleRegistry) = MouSimaYiGiveScenario.Start(singleCard: true);
+        var legacyPrompt = single.CreateSnapshot(0).PendingDecision!;
+        var legacyChoice = legacyPrompt.Choices.Single();
+        Need(legacyChoice.Id.Value.EndsWith(".give.", StringComparison.Ordinal),
+            "An unambiguous Give must preserve the historical accepted answer ID.");
+        MouSimaYiGiveScenario.Accept(single, new AnswerPromptCommand(0, legacyPrompt.PromptId, legacyChoice.Id, single.Revision));
+        Need(SnapshotJson.Serialize(GameReplay.Restore(single.CreateCheckpoint(), singleRegistry).CreateSnapshot(0)) ==
+            SnapshotJson.Serialize(single.CreateSnapshot(0)), "A previously accepted singleton Give remains replayable.");
+        var (original, registry) = MouSimaYiGiveScenario.Start();
+        var checkpoint = GameCheckpointJson.Serialize(original.CreateCheckpoint());
+        var prompt = original.CreateSnapshot(0).PendingDecision!;
+        Need(prompt.Choices.Count > 2 && prompt.Choices.Select(c => c.Id).Distinct().Count() == prompt.Choices.Count,
+            "Every actual hand or equipment entity, including identical printed cards, needs its own answer ID.");
+        foreach (var choice in prompt.Choices)
+        {
+            var game = GameReplay.Restore(GameCheckpointJson.Deserialize(checkpoint), registry);
+            Need(SnapshotJson.Serialize(game.CreateSnapshot(0)) == SnapshotJson.Serialize(original.CreateSnapshot(0)),
+                "Cold recovery must rebuild the exact private human Give options.");
+            var id = choice.Cards.Single();
+            var from = original.CreateSnapshot(0).Players[0].Hand.Any(c => c.Id == id) ? CardLocation.Hand(0) : CardLocation.Equipment(0);
+            MouSimaYiGiveScenario.Accept(game, new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision));
+            for (var step = 0; step < 30 && !game.Events.Any(e => e.Payload is MouSmDebtIssuedEvent); step++)
+                MouSimaYiGiveScenario.Accept(game, new AdvanceOneStepCommand(game.Revision));
+            Need(game.Events.Select(e => e.Payload).OfType<MouSmGivePaidEvent>().Single() is { Giver: 0 } paid &&
+                paid.CardId == id && game.CardMovements.Count(m => m.CardId == id && m.From == from && m.To == CardLocation.Hand(1)) == 1 &&
+                game.Events.Select(e => e.Payload).OfType<MouSmDebtIssuedEvent>().Single().Target == 0,
+                "Confirming any published entity must transfer exactly that one card once and finish the original Quanmou step.");
+            var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            Need(SnapshotJson.Serialize(restored.CreateSnapshot(0)) == SnapshotJson.Serialize(game.CreateSnapshot(0)),
+                "The accepted physical choice must remain replayable after its once-only payment.");
+        }
+    }
     public static void ActualGivePolarityPrivateOriginalSlashPlayedAndCold()
     {
         var registry=ContentRegistry.Build(new StandardContentPackage(),new Fixture());

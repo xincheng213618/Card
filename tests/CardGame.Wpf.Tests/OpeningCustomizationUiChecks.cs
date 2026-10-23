@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
@@ -158,6 +159,32 @@ internal static class OpeningCustomizationUiChecks
             Press(search, Key.Enter);
             Program.Assert(before == SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0)) && vm.IsCustomGeneralSelectionOpen,
                 "Enter in the search box cannot submit the previewed general.");
+            VerifyFilteredEditionRefresh(search);
+            VerifySearchResultDown(search);
+            var searchPreview = vm.SelectedGeneralChoice;
+            var searchText = vm.CustomGeneralSearch;
+            var searchViews = Enumerable.Range(0, Program.Engine(vm).CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(seat))).ToArray();
+            var searchCommands = CommandJson.Serialize(Program.Engine(vm).AcceptedCommands);
+            Program.Assert(Press((Button)window.FindName("ToggleGeneralRosterButton"), Key.F, allowShortcut: true, modifiers: ModifierKeys.Control) &&
+                ReferenceEquals(Keyboard.FocusedElement, search) && search.SelectedText == searchText &&
+                vm.CustomGeneralSearch == searchText && ReferenceEquals(vm.SelectedGeneralChoice, searchPreview),
+                "Ctrl+F on the active full roster must focus and select the existing search text without changing its preview.");
+            search.Select(search.Text.Length, 0);
+            Program.Assert(Press(search, Key.F, allowShortcut: true, modifiers: ModifierKeys.Control, repeat: true) && search.SelectionLength == 0,
+                "Held Ctrl+F must not repeatedly select or replace the current roster search draft.");
+            vm.IsSettingsOpen = true;
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            var coveringToggle = (CheckBox)window.FindName("SettingsMotionToggle");
+            Program.Assert(!Press(coveringToggle, Key.F, allowShortcut: true, modifiers: ModifierKeys.Control) &&
+                ReferenceEquals(Keyboard.FocusedElement, coveringToggle) && search.SelectionLength == 0 &&
+                vm.CustomGeneralSearch == searchText && ReferenceEquals(vm.SelectedGeneralChoice, searchPreview) &&
+                CommandJson.Serialize(Program.Engine(vm).AcceptedCommands) == searchCommands &&
+                Enumerable.Range(0, searchViews.Length)
+                    .Select(seat => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(seat))).SequenceEqual(searchViews),
+                "Ctrl+F in covering settings must leave the hidden roster, its draft and every native player boundary untouched.");
+            vm.IsSettingsOpen = false;
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
 
             vm.CustomGeneralSearch = string.Empty;
             var rosterChoices = vm.CustomGeneralChoices.ToArray();
@@ -198,6 +225,9 @@ internal static class OpeningCustomizationUiChecks
             Program.Assert(vm.CustomGeneralChoices.Count == 0 && vm.SelectedGeneralChoice is null && !numbered.IsPreviewSelected &&
                 !vm.CanConfirmGeneralChoice && !confirm.IsEnabled && !vm.ConfirmGeneralChoiceCommand.CanExecute(null),
                 "An empty search must clear the hidden preview and disable the actual confirmation button and command.");
+            Program.Assert(Press(search, Key.Down, allowShortcut: true) && ReferenceEquals(Keyboard.FocusedElement, search) &&
+                vm.SelectedGeneralChoice is null && !vm.CanConfirmGeneralChoice,
+                "Down with no visible results must keep focus in search without reviving or confirming a hidden general.");
             Press(rosterToggle, Key.D1, allowShortcut: true);
             Press(roster, Key.Enter, allowShortcut: true);
             Program.Assert(vm.SelectedGeneralChoice is null && !numbered.IsPreviewSelected && !vm.CanConfirmGeneralChoice &&
@@ -364,9 +394,169 @@ internal static class OpeningCustomizationUiChecks
         }
         finally { Keyboard.ClearFocus(); }
 
-        bool Input(Key key, bool repeat = false) => (bool)typeof(MainWindow)
+        bool Input(Key key, bool repeat = false, ModifierKeys modifiers = ModifierKeys.None) => (bool)typeof(MainWindow)
             .GetMethod("HandleKeyInput", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(window, [key, ModifierKeys.None, repeat])!;
+            .Invoke(window, [key, modifiers, repeat])!;
+
+        void AssertFocusedRosterResult(GeneralChoiceViewModel result)
+        {
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            var roster = (ListBox)window.FindName("CustomGeneralRoster");
+            var focused = Keyboard.FocusedElement as Button;
+            Program.Assert(focused is not null && focused.IsDescendantOf(roster) &&
+                ReferenceEquals(focused.Command, vm.PreviewGeneralChoiceCommand) && ReferenceEquals(focused.CommandParameter, result),
+                "Search Down must focus the actual current visible result's preview button.");
+            var presenter = Program.Find<ScrollContentPresenter>(roster).Single();
+            var bounds = focused!.TransformToAncestor(presenter).TransformBounds(new Rect(focused.RenderSize));
+            Program.Assert(bounds.Width > 0 && bounds.Height > 0 && bounds.Left >= -1 && bounds.Top >= -1 &&
+                bounds.Right <= presenter.ActualWidth + 1 && bounds.Bottom <= presenter.ActualHeight + 1,
+                $"The search result focused by Down must be fully inside the native roster viewport (result={bounds}, viewport={presenter.RenderSize}).");
+        }
+
+        void VerifySearchResultDown(TextBox search)
+        {
+            var originalSearch = vm.CustomGeneralSearch;
+            var originalPreviewId = vm.SelectedGeneralChoice!.GeneralId;
+            vm.CustomGeneralSearch = string.Empty;
+            var selected = vm.CustomGeneralChoices.Last();
+            vm.PreviewGeneralChoiceCommand.Execute(selected);
+            var roster = (ListBox)window.FindName("CustomGeneralRoster");
+            var scroll = Program.Find<ScrollViewer>(roster).Single();
+            scroll.ScrollToTop();
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            Program.Assert(scroll.ScrollableHeight > scroll.ViewportHeight && scroll.VerticalOffset == 0 &&
+                roster.Items.IndexOf(selected) > roster.Items.Count / 2,
+                "The search navigation fixture must start with its real preview well below the top of a scrollable full roster.");
+            var game = Program.Engine(vm);
+            var views = Enumerable.Range(0, game.CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+            var commands = CommandJson.Serialize(game.AcceptedCommands);
+            var promptId = game.PendingDecision!.PromptId;
+            foreach (var modifiers in new[] { ModifierKeys.Control, ModifierKeys.Shift })
+                Program.Assert(!Press(search, Key.Down, modifiers: modifiers) && ReferenceEquals(Keyboard.FocusedElement, search) &&
+                    ReferenceEquals(vm.SelectedGeneralChoice, selected) && scroll.VerticalOffset == 0,
+                    "Modified Down must stay with the search box and leave the roster preview and scroll untouched.");
+            // The native modifier fixture supports Ctrl and Shift; exercise the
+            // same ownership boundary with explicit Alt input instead.
+            Program.Assert(!Input(Key.Down, modifiers: ModifierKeys.Alt) && ReferenceEquals(Keyboard.FocusedElement, search) &&
+                ReferenceEquals(vm.SelectedGeneralChoice, selected) && scroll.VerticalOffset == 0,
+                "Alt+Down must not enter or scroll roster results, change the preview or move focus out of search.");
+            vm.IsSettingsOpen = true;
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            var coveringToggle = (CheckBox)window.FindName("SettingsMotionToggle");
+            var settingsHandled = Press(coveringToggle, Key.Down);
+            var settings = (UIElement)window.FindName("SettingsOverlay");
+            var settingsFocus = Keyboard.FocusedElement;
+            var focusWithinSettings = settingsFocus is UIElement focused && focused.IsDescendantOf(settings);
+            var samePreview = ReferenceEquals(vm.SelectedGeneralChoice, selected);
+            var sameJournal = CommandJson.Serialize(game.AcceptedCommands) == commands;
+            Console.WriteLine($"Roster search Down under settings: handled={settingsHandled}, " +
+                $"focused={settingsFocus?.GetType().Name}/{(settingsFocus as FrameworkElement)?.Name}, inSettings={focusWithinSettings}, " +
+                $"rosterOffset={scroll.VerticalOffset}, selected={vm.SelectedGeneralChoice?.GeneralId}, expected={selected.GeneralId}, " +
+                $"samePreview={samePreview}, sameJournal={sameJournal}.");
+            Program.Assert(!settingsHandled && vm.IsSettingsOpen && focusWithinSettings && samePreview &&
+                scroll.VerticalOffset == 0 && sameJournal,
+                "Down may navigate within covering settings but must not enter, scroll or change the underlying roster or command journal.");
+            vm.IsSettingsOpen = false;
+            window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            Program.Assert(Press(search, Key.Down, allowShortcut: true),
+                "Unmodified Down in the active roster search must enter its visible preview result.");
+            AssertFocusedRosterResult(selected);
+            Program.Assert(scroll.VerticalOffset > 0 && ReferenceEquals(vm.SelectedGeneralChoice, selected) &&
+                vm.CustomGeneralSearch == string.Empty && vm.CanConfirmGeneralChoice && game.PendingDecision?.PromptId == promptId &&
+                CommandJson.Serialize(game.AcceptedCommands) == commands &&
+                Enumerable.Range(0, views.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(views),
+                "Entering an offscreen search result must only scroll and focus it, preserving the preview, draft, real prompt, every safe player view and command journal.");
+            vm.CustomGeneralSearch = originalSearch;
+            vm.PreviewGeneralChoiceCommand.Execute(vm.CustomGeneralChoices.Single(choice => choice.GeneralId == originalPreviewId));
+            search.Focus();
+        }
+
+        void VerifyFilteredEditionRefresh(TextBox search)
+        {
+            var originalSearch = vm.CustomGeneralSearch;
+            var originalCategory = vm.SelectedCustomGeneralCategory;
+            var originalPreviewId = vm.SelectedGeneralChoice!.GeneralId;
+            vm.CustomGeneralSearch = string.Empty;
+            var family = vm.CustomGeneralChoices.GroupBy(choice => choice.CandidateGeneralId)
+                .First(group => group.Select(choice => choice.RosterCategoryId).Distinct().Count() > 1).ToArray();
+            var searched = family.OrderByDescending(choice => choice.GeneralId.Length).First();
+            var alternateId = family.First(choice => choice.RosterCategoryId != searched.RosterCategoryId).GeneralId;
+            var searchedId = searched.GeneralId;
+            var searchedCategory = searched.RosterCategoryId;
+            vm.CustomGeneralSearch = searchedId;
+            Program.Assert(vm.CustomGeneralChoices.Count == 1 && vm.SelectedGeneralChoice?.GeneralId == searchedId,
+                "The edition refresh fixture must filter one real version while exposing another series in its candidate family.");
+            var game = Program.Engine(vm);
+            var views = Enumerable.Range(0, game.CreateSnapshot(0).Players.Count)
+                .Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray();
+            var commands = CommandJson.Serialize(game.AcceptedCommands);
+            var promptId = game.PendingDecision!.PromptId;
+            var alternate = PreviewAlternate();
+            search.Focus();
+            Refresh();
+            var refreshed = vm.SelectedGeneralChoice;
+            Program.Assert(refreshed is not null && refreshed.GeneralId == alternateId &&
+                !ReferenceEquals(refreshed, alternate) && vm.GeneralChoices.Contains(refreshed) &&
+                vm.SelectedGeneralVariants.Contains(refreshed) && refreshed.IsPreviewSelected &&
+                vm.CustomGeneralChoices.Count == 1 && vm.CustomGeneralChoices[0].GeneralId == searchedId &&
+                vm.CustomGeneralSearch == searchedId && vm.SelectedCustomGeneralCategory == originalCategory &&
+                vm.CanConfirmGeneralChoice && vm.ConfirmGeneralChoiceCommand.CanExecute(null) &&
+                ((Button)window.FindName("ConfirmGeneralChoiceButton")).IsEnabled && ReferenceEquals(Keyboard.FocusedElement, search),
+                "Refreshing an unchanged filtered prompt must retain the explicitly chosen legal family edition, search draft and live search focus.");
+            vm.PreviewGeneralChoiceCommand.Execute(alternate);
+            Program.Assert(ReferenceEquals(vm.SelectedGeneralChoice, refreshed),
+                "The retired edition control must not replace the freshly rebound current preview.");
+            var visibleResult = vm.CustomGeneralChoices[0];
+            Program.Assert(Press(search, Key.Down, allowShortcut: true),
+                "Search Down must enter a visible result when the previewed family edition itself is filtered out.");
+            AssertFocusedRosterResult(visibleResult);
+            Program.Assert(ReferenceEquals(vm.SelectedGeneralChoice, refreshed) && vm.CustomGeneralSearch == searchedId,
+                "Focusing a visible sibling must not replace the explicitly previewed filtered-out edition or edit the search draft.");
+
+            vm.CustomGeneralSearch = searchedId + " ";
+            Program.Assert(vm.SelectedGeneralChoice?.GeneralId == searchedId && vm.CustomGeneralChoices.Count == 1,
+                "Editing the query must return to its exact visible result even after a family edition was retained on refresh.");
+            PreviewAlternate();
+            vm.SelectCustomGeneralCategoryCommand.Execute(searchedCategory);
+            Program.Assert(vm.SelectedCustomGeneralCategory == searchedCategory && vm.SelectedGeneralChoice?.GeneralId == searchedId &&
+                vm.CustomGeneralChoices.Count == 1,
+                "Changing the series must reselect an exact visible result rather than retain an edition outside the newly chosen series.");
+            PreviewAlternate();
+            vm.CustomGeneralSearch = "__no_filtered_edition_match__";
+            Refresh();
+            Program.Assert(vm.CustomGeneralChoices.Count == 0 && vm.SelectedGeneralChoice is null &&
+                !vm.CanConfirmGeneralChoice && !vm.ConfirmGeneralChoiceCommand.CanExecute(null) &&
+                !((Button)window.FindName("ConfirmGeneralChoiceButton")).IsEnabled,
+                "An empty filtered prompt must stay empty and unconfirmable after refresh, without reviving a previous family edition or fallback.");
+            Program.Assert(game.PendingDecision?.PromptId == promptId && CommandJson.Serialize(game.AcceptedCommands) == commands &&
+                Enumerable.Range(0, views.Length).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).SequenceEqual(views),
+                "Edition preview, refresh and filter changes must preserve the real prompt, every safe player view and the native command journal.");
+            vm.SelectCustomGeneralCategoryCommand.Execute(originalCategory);
+            vm.CustomGeneralSearch = originalSearch;
+            vm.PreviewGeneralChoiceCommand.Execute(vm.CustomGeneralChoices.Single(choice => choice.GeneralId == originalPreviewId));
+            search.Focus();
+
+            GeneralChoiceViewModel PreviewAlternate()
+            {
+                window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                var button = Program.Find<Button>((ItemsControl)window.FindName("GeneralVariantChoices")).Single(button =>
+                    button.CommandParameter is GeneralChoiceViewModel edition && edition.GeneralId == alternateId);
+                var choice = (GeneralChoiceViewModel)button.CommandParameter;
+                Press(button, Key.Enter);
+                Program.Assert(ReferenceEquals(vm.SelectedGeneralChoice, choice) && !vm.CustomGeneralChoices.Contains(choice) &&
+                    vm.CustomGeneralChoices.Any(result => result.CandidateGeneralId == choice.CandidateGeneralId),
+                    "Enter on the actual related edition button must preview that current legal family version even when only its sibling matches the filter.");
+                return choice;
+            }
+
+            void Refresh()
+            {
+                vm.IsDeveloperView = true;
+                vm.IsDeveloperView = false;
+                window.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            }
+        }
 
         bool Press(UIElement element, Key key, bool allowShortcut = false, ModifierKeys modifiers = ModifierKeys.None, bool repeat = false)
         {

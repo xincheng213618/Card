@@ -19,6 +19,7 @@ internal static class NativeDrawAttemptChecks
             var (g, registry) = Start(scene);
             var handBefore = HandCount(g, 0);
             var pileBefore = g.CreateSnapshot(0).DrawPileCount;
+            var drawFactsBefore = E<CardsDrawnEvent>(g).Length;
             Use(g, "draw");
             Drive(g, () => P(g)?.SkillPrompt?.SkillId == Watch);
             var attempt = g.ResolutionStack.OfType<NativeDrawAttemptFrame>().Single();
@@ -29,7 +30,7 @@ internal static class NativeDrawAttemptChecks
                 producer.InstructionIndex == 1 && producer.NativeDraw is
                     { RecipientIndex: 0, RecipientApplied: false, AttemptReturned: false } &&
                 producer.CardSetBindings.All(b => b.Name != "actual") &&
-                PaidDraws(g).Length == 0 && HandCount(g, 0) == handBefore &&
+                PaidDraws(g).Length == 0 && E<CardsDrawnEvent>(g).Length == drawFactsBefore && HandCount(g, 0) == handBefore &&
                 g.CreateSnapshot(0).DrawPileCount == pileBefore && !Option(g, Driver, "after"),
                 "The real Draw instruction owns its request before any material, result bind or following instruction.");
             AssertPrivate(g, 0);
@@ -60,13 +61,16 @@ internal static class NativeDrawAttemptChecks
                 E<NativeDrawAttemptDecidedEvent>(g).Single() is { Replaced: false, RequestedCount: 2 } decided &&
                 decided.AttemptFrameId == attempt.Id && decided.ParentFrameId == producer.Id,
                 "Only the original producer's actual DrawPile materials bind the completed result, once after its exact child returns.");
+            Need(E<CardsDrawnEvent>(g).Skip(drawFactsBefore).ToArray() is [{ PlayerSeat: 0, Count: 2 }],
+                "The committed skill draw publishes one public quantity only after the actual cards arrive.");
             Need(Enumerable.Range(0, 4).All(s => !g.CreateSnapshot(s).PublicRevealedCards
                 .Any(c => result.CardIds.Contains(c.Id))), "A private draw result bind does not publish its faces to other viewers.");
             AssertPrivate(g, 0);
             g = Cold(g, registry);
             Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "after");
             Play(g);
-            Need(PaidDraws(g).Length == 2 && E<NativeDrawAttemptStartedEvent>(g).Length == 1 &&
+            Need(PaidDraws(g).Length == 2 && E<CardsDrawnEvent>(g).Skip(drawFactsBefore).ToArray() is [{ PlayerSeat: 0, Count: 2 }] &&
+                E<NativeDrawAttemptStartedEvent>(g).Length == 1 &&
                 E<ProgramSkillResolvedEvent>(g).Count(e => e.FrameId == producer.Id && e.Completed) == 1,
                 "Cold request and result continuations do not redraw or resolve the producing instruction twice.");
         }
@@ -152,26 +156,35 @@ internal static class NativeDrawAttemptChecks
 
     public static void ZeroRequestAndAbsentCapabilityKeepSynchronousDrawContract()
     {
-        foreach (var scene in new[] { "zero", "no-capability" })
+        foreach (var scene in new[] { "zero", "no-capability", "partial", "empty" })
         {
             var (g, registry) = Start(scene);
             var before = HandCount(g, 0);
+            var drawFactsBefore = E<CardsDrawnEvent>(g).Length;
+            if (scene is "partial" or "empty")
+                Need(g.CreateSnapshot(0).DrawPileCount == (scene == "partial" ? 1 : 0) &&
+                    g.CreateSnapshot(0).DiscardPileCount == 0,
+                    "The bounded deck must naturally leave one or no card after initial dealing and the ordinary Draw2.");
             Use(g, scene == "zero" ? "zero" : "draw");
             Drive(g, () => Option(g, Driver, "after"));
             var producer = Producer(g);
             var bound = producer.CardSetBindings.Single(b => b.Name == "actual");
-            var expected = scene == "zero" ? 0 : 2;
+            var expected = scene is "zero" or "empty" ? 0 : scene == "partial" ? 1 : 2;
             Need(producer.NativeDraw is null && !g.ResolutionStack.OfType<NativeDrawAttemptFrame>().Any() &&
                 E<NativeDrawAttemptStartedEvent>(g).Length == 0 && E<NativeDrawAttemptDecidedEvent>(g).Length == 0 &&
                 PaidDraws(g).Length == expected && bound.CardIds.Count == expected && HandCount(g, 0) == before + expected,
                 "A genuine zero-count expression and the absent-capability path retain completed actual results without a synthetic request.");
+            Need(E<CardsDrawnEvent>(g).Skip(drawFactsBefore).SequenceEqual(expected == 0
+                    ? Array.Empty<CardsDrawnEvent>() : new[] { new CardsDrawnEvent(0, expected) }),
+                "Public draw quantities report the actual partial result, never the requested amount or a zero-card draw.");
             if (scene == "no-capability")
                 Need(!JsonSerializer.Serialize(producer).Contains("NativeDraw", StringComparison.Ordinal),
                     "The old-capability frame serialization omits the nullable new cursor entirely.");
             g = Cold(g, registry);
             Answer(g, c => c.Parameters.GetValueOrDefault("option-id") == "after");
             Play(g);
-            Need(PaidDraws(g).Length == expected, "A completed zero or legacy result does not draw again on replay/return.");
+            Need(PaidDraws(g).Length == expected && E<CardsDrawnEvent>(g).Length == drawFactsBefore + (expected > 0 ? 1 : 0),
+                "A completed zero, partial or legacy result does not draw or announce it again on replay/return.");
         }
     }
 
@@ -180,6 +193,8 @@ internal static class NativeDrawAttemptChecks
         foreach (var scene in new[] { "phase-normal", "phase-skip", "phase-extra" })
         {
             var (g, registry) = Start(scene);
+            Need(E<CardsDrawnEvent>(g).Length == 0,
+                "Initial dealt hands and an outstanding or skipped draw phase do not publish actual draw quantities.");
             if (scene != "phase-normal")
             {
                 var skipped = g.ResolutionStack.OfType<DrawPhaseObligationFrame>().Single();
@@ -219,6 +234,7 @@ internal static class NativeDrawAttemptChecks
             var normalAttempt = g.ResolutionStack.OfType<NativeDrawAttemptFrame>().Single();
             var handBefore = HandCount(g, recipient);
             var pileBefore = g.CreateSnapshot(recipient).DrawPileCount;
+            var drawFactsBefore = E<CardsDrawnEvent>(g).Length;
             Need(normal is { IsExtra: false, Skipped: false, Stage: DrawPhaseObligationStage.RequestingDraw, DrawCount: 0 } &&
                 normal.OwnerSeat == recipient && normal.NativeDraw is { ReturnKind: NativeDrawAttemptReturnKind.DrawPhase,
                     RequestedCount: 2, AttemptReturned: false } &&
@@ -240,6 +256,8 @@ internal static class NativeDrawAttemptChecks
                 !E<ActualDrawPhaseCompletedEvent>(g).Any(e => e.FrameId == normal.Id) &&
                 E<ExtraDrawPhaseStartedEvent>(g).Length == 0,
                 "Real normal Draw2 and its native gain observer precede phase completion and any extra phase.");
+            Need(E<CardsDrawnEvent>(g).Skip(drawFactsBefore).SequenceEqual(new[] { new CardsDrawnEvent(recipient, 2) }),
+                "Normal Draw publishes the actual public quantity while its gain child is still pending.");
             g = CompletePhaseGainObservers(g, registry, normal.Id, recipient, normalMaterials);
             Drive(g, () => Option(g, PhaseWatch, "ended", recipient));
             Need(g.State.Phase == TurnPhase.Draw && !E<ActualDrawPhaseCompletedEvent>(g).Any(e => e.FrameId == normal.Id),
@@ -287,6 +305,9 @@ internal static class NativeDrawAttemptChecks
                 E<NativeDrawAttemptDecidedEvent>(g).Count(e => e.ParentFrameId == normal.Id && !e.Replaced) == 1 &&
                 PhaseDraws(g, recipient, normal.ActualTurnNumber, false).Length == 2,
                 "Normal Draw completes once with its own actual count/materials, after every exact request and observer return.");
+            Need(E<CardsDrawnEvent>(g).Skip(drawFactsBefore).SequenceEqual(
+                    Enumerable.Repeat(new CardsDrawnEvent(recipient, 2), scene == "phase-extra" ? 2 : 1)),
+                "Normal and extra phases each publish one actual draw quantity, without repeating it at phase completion.");
             _ = Cold(g, registry);
         }
     }
@@ -390,7 +411,7 @@ internal static class NativeDrawAttemptChecks
     private static GameEngine Cold(GameEngine g, ContentRegistry registry)
     {
         var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry);
-        Need(State(g) == State(restored), "Cold replay preserves private choices, exact recipient cursor, actual IDs and once-only child history.");
+        Need(State(g) == State(restored), "Cold replay preserves public draw quantities, private choices, exact recipient cursor, actual IDs and once-only child history.");
         return restored;
     }
     private static string Diagnostic(GameEngine g) => JsonSerializer.Serialize(new
@@ -453,7 +474,7 @@ internal static class NativeDrawAttemptChecks
                 new { id = "quiet", window = "afterNormalDraw", subject = "owner", optional = false,
                     effects = new[] { new { op = "skipTurnPhases", target = "owner", phases = new[] { "play" } } } }
             });
-            var native = scene != "no-capability";
+            var native = scene is not ("no-capability" or "partial" or "empty");
             var phase = scene.StartsWith("phase-", StringComparison.Ordinal);
             object watchCondition = phase
                 ? new { kind = "not", children = new[] { new { kind = "phaseIsPlay" } } }
@@ -519,7 +540,8 @@ internal static class NativeDrawAttemptChecks
             var peers = Enumerable.Range(1, 3).Select(i => "fixture:native-draw-peer-" + i).ToArray();
             foreach (var peer in peers) b.AddGeneral(new(peer, "真实摸牌同桌", "supporter", Quiet, "wei", 8, shared));
             b.AddDeck(new("fixture:native-draw-deck", "固定真实实体", 4, 2, [])
-            { PhysicalCards = Enumerable.Range(0, 72).Select(_ => new ContentDeckPhysicalCard("standard:crossbow", Suit.Club, 7)).ToArray() });
+            { PhysicalCards = Enumerable.Range(0, scene == "partial" ? 19 : scene == "empty" ? 18 : 72)
+                .Select(_ => new ContentDeckPhysicalCard("standard:crossbow", Suit.Club, 7)).ToArray() });
             b.AddMode(new(Mode, "原生摸牌请求", 4, 4,
                 new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 },
                 "fixture:native-draw-deck", GeneralCandidateCount: 4, GeneralPoolIds: [Owner, .. peers]));

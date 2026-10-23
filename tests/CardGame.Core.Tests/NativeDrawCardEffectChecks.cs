@@ -20,6 +20,7 @@ internal static class NativeDrawCardEffectChecks
             var (g, registry) = Start(scene);
             var handBefore = Hand(g, 0).HandCount;
             var sequenceBefore = g.CardMovements.Last().Sequence;
+            var drawFactsBefore = E<CardsDrawnEvent>(g).Length;
             var material = PlayDrawTwo(g);
             if (scene == "repeat")
             {
@@ -52,6 +53,7 @@ internal static class NativeDrawCardEffectChecks
                     E<NullificationResolvedEvent>(g).Count(e => e.ResolutionId == useId &&
                         e.EffectCardId == material && !e.EffectNullified) == round + 1 &&
                     NewDraws(g, sequenceBefore, 0).Length == round * 2 &&
+                    E<CardsDrawnEvent>(g).Length == drawFactsBefore + round &&
                     g.CardMovements.Last(m => m.CardId == material).To == CardLocation.Processing &&
                     !E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == useId),
                     "The popped native counterspell window yields to the same paid Use before DrawPile material or use completion.", g);
@@ -76,6 +78,9 @@ internal static class NativeDrawCardEffectChecks
                     .Where(m => m.Sequence <= outcome.SequenceAfter).ToArray();
                 Need(actual.Length == 2 && actual.Select(m => m.CardId).SequenceEqual(outcome.ActualDrawIds),
                     "The exact native outcome contains actual original material movement, not replacement gains.", g);
+                Need(E<CardsDrawnEvent>(g).Skip(drawFactsBefore).SequenceEqual(
+                        Enumerable.Repeat(new CardsDrawnEvent(0, 2), round + 1)),
+                    "Each real DrawTwo effect publishes its actual public quantity once before its gain children return.", g);
                 allDrawn.AddRange(actual.Select(m => m.CardId));
                 g = CompleteGainChildren(g, registry, useId, material, actual);
                 if (round + 1 < effects)
@@ -114,6 +119,7 @@ internal static class NativeDrawCardEffectChecks
         var handBefore = Hand(g, 0).HandCount;
         var victimBefore = Hand(g, 1).HandCount;
         var sequenceBefore = g.CardMovements.Last().Sequence;
+        var drawFactsBefore = E<CardsDrawnEvent>(g).Length;
         var material = PlayDrawTwo(g);
         Drive(g, () => Optional(g, Zenrun));
         var use = g.ResolutionStack.OfType<CardUseFrame>().Single(f => f.CardId == material);
@@ -121,7 +127,7 @@ internal static class NativeDrawCardEffectChecks
         var attempt = g.ResolutionStack.OfType<NativeDrawAttemptFrame>().Single(a => a.Context.ParentFrameId == useId);
         Need(use.NativeDraw is { ReturnKind: NativeDrawAttemptReturnKind.CardUseDrawTwo, RequestedCount: 2 } &&
             use.NativeCardEffectDraw is { Stage: NativeCardEffectDrawStage.Requesting, RecipientSeat: 0 } &&
-            NewDraws(g, sequenceBefore, 0).Length == 0 &&
+            NewDraws(g, sequenceBefore, 0).Length == 0 && E<CardsDrawnEvent>(g).Length == drawFactsBefore &&
             !E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == useId),
             "Production Zenrun is offered on the actual native DrawTwo CardUse, not a generic Draw substitute.", g);
         AssertPrivate(g, 0); g = Cold(g, registry);
@@ -164,6 +170,8 @@ internal static class NativeDrawCardEffectChecks
             !E<NativeDrawAttemptDecidedEvent>(g).Any(e => e.AttemptFrameId == attempt.Id) &&
             !E<CardUseFinishedEvent>(g).Any(e => e.ResolutionId == useId),
             "The actual AI victim privately owns compensation while the original paid Use still awaits its exact return.", g);
+        Need(E<CardsDrawnEvent>(g).Length == drawFactsBefore,
+            "Replacing DrawTwo with actual foreign-card gains does not publish a draw quantity.", g);
         AssertPrivate(g, 1); g = Cold(g, registry);
         // This is the real victim's native AI command; no answer is sent for it.
         Accept(g, new AdvanceOneStepCommand(g.Revision));
@@ -188,6 +196,8 @@ internal static class NativeDrawCardEffectChecks
                 m.To == CardLocation.DiscardPile) == 1 &&
             !g.ResolutionStack.OfType<CardUseFrame>().Any(f => f.Id == useId),
             "Replaced DrawTwo reports zero original draw materials; HE2 and victim compensation Draw2 remain distinct and settle once.", g);
+        Need(E<CardsDrawnEvent>(g).Skip(drawFactsBefore).ToArray() is [{ PlayerSeat: 1, Count: 2 }],
+            "Only the victim's actual compensation is a public draw; the replaced recipient's obtain is not.", g);
         _ = Cold(g, registry);
     }
 
@@ -294,7 +304,7 @@ internal static class NativeDrawCardEffectChecks
     private static GameEngine Cold(GameEngine g, ContentRegistry registry)
     {
         var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry);
-        Need(State(g) == State(restored), "Cold replay preserves exact native effect/material/request/child history and all viewer privacy.", g);
+        Need(State(g) == State(restored), "Cold replay preserves public draw quantities, exact native effect/material/request/child history and all viewer privacy.", g);
         return restored;
     }
     private static (GameEngine, ContentRegistry) Start(string scene)

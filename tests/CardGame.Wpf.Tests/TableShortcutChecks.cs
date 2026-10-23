@@ -42,6 +42,9 @@ internal static class TableShortcutChecks
             var number = Key.D1 + model.Hand.IndexOf(card);
             Program.Assert(Input(window, number) && card.IsSelected && Input(window, number, repeat: true) && card.IsSelected,
                 "Holding a hand number toggled the selected card off.");
+            Program.Assert(!Input(window, Key.F, ModifierKeys.Control) && !Input(window, Key.F, ModifierKeys.Control, repeat: true) &&
+                           card.IsSelected && engine.Revision == revision,
+                "Ctrl+F outside a searchable panel must remain unhandled and preserve the current hand draft.");
             Program.Assert(Input(window, Key.Enter, repeat: true) &&
                            Input(window, Key.Enter, ModifierKeys.Control, true) && engine.Revision == revision,
                 "Held Enter confirmed a draft or ended the current Play phase.");
@@ -259,18 +262,40 @@ internal static class TableShortcutChecks
             modified[leftKey] |= 0x80;
             modified[rightKey] &= 0x7F;
         }
+        Exception? actionError = null;
         try
         {
             Program.Assert(SetKeyboardState(modified) && Keyboard.Modifiers == modifiers,
                 $"The real WPF primary keyboard device must observe {modifiers} in this calling thread before routing.");
             return action();
         }
+        catch (Exception error)
+        {
+            actionError = error;
+            throw;
+        }
         finally
         {
-            Program.Assert(SetKeyboardState(original), "The modifier route must restore its original calling-thread keyboard state.");
+            var set = SetKeyboardState(original);
+            var setError = set ? 0 : Marshal.GetLastWin32Error();
             var restored = new byte[256];
-            Program.Assert(GetKeyboardState(restored) && restored.SequenceEqual(original) && Keyboard.Modifiers == originalModifiers,
-                "All 256 original keyboard bytes and WPF modifiers must be restored even when a routed assertion fails.");
+            var get = GetKeyboardState(restored);
+            var getError = get ? 0 : Marshal.GetLastWin32Error();
+            var bytesEqual = restored.SequenceEqual(original);
+            var restoredModifiers = Keyboard.Modifiers;
+            if (!set || !get || !bytesEqual || restoredModifiers != originalModifiers)
+            {
+                var differences = string.Join(", ", Enumerable.Range(0, original.Length)
+                    .Where(key => original[key] != restored[key])
+                    .Select(key => $"0x{key:X2}:0x{original[key]:X2}->0x{restored[key]:X2}"));
+                var restoreError = new InvalidOperationException(
+                    "All 256 original keyboard bytes and WPF modifiers must be restored even when a routed assertion fails. " +
+                    $"Route={modifiers}; SetKeyboardState={set}, error={setError}; GetKeyboardState={get}, error={getError}; " +
+                    $"bytesEqual={bytesEqual}; originalModifiers={originalModifiers}; restoredModifiers={restoredModifiers}; differences=[{differences}].");
+                if (actionError is not null)
+                    throw new AggregateException("The modifier route and restoration both failed.", actionError, restoreError);
+                throw restoreError;
+            }
         }
     }
 

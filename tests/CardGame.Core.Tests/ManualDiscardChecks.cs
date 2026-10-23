@@ -79,6 +79,37 @@ internal static class ManualDiscardChecks
     }
 
 
+    public static void PartialPaymentsRestoreRemainingQuota()
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new HandSizePackage(6));
+        var game = AtDiscard(registry: registry, deckId: "test:hand-limit");
+        var initial = game.PendingDecision!;
+        var count = initial.RequiredCardCount;
+        Require(count > 1, "The fixed discard fixture must require multiple cards.");
+        var first = new DiscardCardsCommand(0, [initial.ValidCardIds[0]], initial.PromptId, game.Revision);
+        Require(game.Submit(first).Accepted, "One-card discard payment was rejected.");
+        Require(game.PendingDecision is { Kind: DecisionKind.DiscardCards } next && next.RequiredCardCount == count - 1 &&
+            next.PromptId != initial.PromptId && !next.ValidCardIds.Contains(first.CardIds[0]) &&
+            game.State.CurrentSeat == 0 && game.State.Phase == TurnPhase.Discard,
+            "A partial payment must move its card once and publish only the remaining obligation in the same phase.");
+        Require(!game.Submit(first with { ExpectedRevision = game.Revision }).Accepted, "The old discard prompt was reused.");
+        var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var restored = GameReplay.Restore(checkpoint, registry);
+        Require(SnapshotJson.Serialize(game.CreateSnapshot(0, true)) == SnapshotJson.Serialize(restored.CreateSnapshot(0, true)),
+            "Cold recovery changed the partially paid hand or its remaining quota.");
+        var prompt = game.PendingDecision!;
+        var last = new DiscardCardsCommand(0, prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(), prompt.PromptId, game.Revision);
+        Require(game.Submit(last).Accepted && restored.Submit(last).Accepted, "Remaining discard payment was rejected.");
+        Require(game.PendingDecision?.Kind != DecisionKind.DiscardCards && !game.ResolutionStack.OfType<ManualDiscardFrame>().Any(),
+            "Paying the remaining quota must retire its frame and automatically leave the discard decision.");
+        Require(game.CardMovements.Count(move => move.From == CardLocation.Hand(0) &&
+            move.Reason == CardMoveReasons.HandLimitDiscard) == count, "Partial payments lost or repeated physical cards.");
+        var replayed = GameReplay.Replay(checkpoint.Options, game.AcceptedCommands, registry);
+        Require(SnapshotJson.Serialize(game.CreateSnapshot(0, true)) == SnapshotJson.Serialize(restored.CreateSnapshot(0, true)) &&
+            SnapshotJson.Serialize(game.CreateSnapshot(0, true)) == SnapshotJson.Serialize(replayed.CreateSnapshot(0, true)),
+            "Partial discard cold continuation or command replay diverged.");
+    }
+
     public static void Replay()
     {
         var game = AtDiscard();

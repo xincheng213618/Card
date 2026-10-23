@@ -27,16 +27,17 @@ internal static class ShicaiResponseContextChecks
         Answer(game, c => c.Cards.SequenceEqual([dodge]));
         Reach(game, p => p.SkillPrompt?.SkillId == "classic:shicai");
         Answer(game, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
-        var program = game.ResolutionStack.OfType<ProgramSkillFrame>().Last();
+        var program = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "classic:shicai");
         var window = game.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Last();
-        Need(program.AlternatingSuitTop is { Mode: "completed", Stage: "order" } &&
+        Need(program.AlternatingSuitTop is { Mode: "completed", Stage: "reward-draw" } &&
             program.WindowContext?.HuaManSouying == native.HuaManSouyingQualification &&
             window.ParentFrameId == native.Id && window.Action.EffectiveKind == CardKind.Dodge &&
+            Prompt(game)?.SkillPrompt?.SkillId == "fixture:shicai-draw-observer" &&
             program.WindowContext?.CardUse?.CardActionId == window.Action.ActionId,
-            "Shicai retains the exact response action and native qualification while choosing the real Dodge to top-deck.");
+            "Shicai automatically top-decks the single Dodge and retains its exact native qualification through the reward's gain child.");
         Cold(game, registry);
         game = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
-        Answer(game, c => c.Cards.SequenceEqual([dodge]));
+        Answer(game, c => c.Parameters.GetValueOrDefault("option-id") == "continue");
         for (var step = 0; step < 32 && game.ResolutionStack.Any(f => f.Id == window.Id || f.Id == program.Id); step++)
             Accept(game, new AdvanceOneStepCommand(game.Revision));
         Need(game.CardMovements.Count(m => m.CardId == dodge && m.From == CardLocation.DiscardPile &&
@@ -81,6 +82,14 @@ internal static class ShicaiResponseContextChecks
         public void Register(IContentRegistryBuilder builder)
         {
             CharacterFixtureContent.Register(builder, "classic:xu-you", "ol:hua-man");
+            var observer = SkillProgramCatalog.Load($$"""
+                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:shicai-draw-observer","revision":1,
+                "triggers":[{"id":"reward-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],
+                "movementOccurrence":"perBatch","movementReasons":["skill-program.completed-top.draw"],"optional":false,
+                "effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]}]}
+                """, """{"schemaVersion":3,"skills":{"fixture:shicai-draw-observer":{"name":"摸牌子结算","description":"测试","optionLabels":{"continue":"继续"}}}}""")
+                .Programs["fixture:shicai-draw-observer"];
+            builder.AddSkill(new("fixture:shicai-draw-observer", "摸牌子结算", "测试") { Program = observer });
             var program = SkillProgramCatalog.Load($$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"fixture:shicai-attacker","revision":1,
                 "modifiers":[{"id":"two-slashes","query":"slashLimit","operation":"add","value":2,"priority":0}],
@@ -91,7 +100,7 @@ internal static class ShicaiResponseContextChecks
                 """, """{"schemaVersion":3,"skills":{"fixture:shicai-attacker":{"name":"原生攻击","description":"两次指定同一角色"}}}""")
                 .Programs["fixture:shicai-attacker"];
             builder.AddSkill(new("fixture:shicai-attacker", "原生攻击", "两次指定同一角色") { Program = program });
-            builder.AddGeneral(new("fixture:shicai-owner", "许攸", "supporter", "classic:shicai", "qun", 20));
+            builder.AddGeneral(new("fixture:shicai-owner", "许攸", "supporter", "classic:shicai", "qun", 20, ["fixture:shicai-draw-observer"]));
             for (var seat = 1; seat < 4; seat++)
                 builder.AddGeneral(new($"fixture:shicai-peer-{seat}", "攻击者", "supporter", "fixture:shicai-attacker", "shu", 3, ["ol:souying"]));
             builder.AddDeck(new("fixture:shicai-deck", "真实闪", 4, 0, [new("standard:dodge", 64)]));

@@ -3,6 +3,8 @@
     # Character work uses focused name filters; new content does not expand this lane.
     # All retained registrations remain available for an explicitly requested manual full run.
     Core = @(
+        'Multiplayer: human seats prompts privacy and cold replay',
+        'LAN rooms: HTTP first round permissions retries and eight seats',
         'Bagua response: failed judgment hand Dodge and cold replay',
         'Wushuang mode: native shop growth acquired skills replacement and replay',
         'Wushuang pools: OfficialPoolsPricesVersionsAndAcquisitionRecovery',
@@ -275,6 +277,8 @@
         'snapshot is JSON serializable',
         'manual discards reject invalid subsets without mutation',
         'manual discard checkpoints and commands replay exactly',
+        'manual discards accept partial payments and restore the remaining quota',
+        'manual discards preserve doubled quota across partial payments cold',
         'skill program loader separates canonical gameplay from presentation',
         'skill program loader rejects malformed and unsupported definitions',
         'configured active sequences reject forged input and replay exact moves',
@@ -291,8 +295,11 @@
         'identity Rebel kill reward draws exactly three cards and replays once'
     )
     Wpf = @(
+        'LAN room UI: seats readiness private prompts and stable selection',
+        'Mode rooms UI: selected modes seats AI readiness and quick start',
         'Bagua response UI: armor choice judgment then hand Dodge',
         'Wushuang UI: entry shop and independent cold restore',
+        'Wushuang UI: Sanchen multi-selection survives release and clock refresh',
         'mode lobby filters real identity, team and national entries without changing the match',
         'Armor seats: real opening stacks payments accessible digits and zero hiding',
         'Guandu activity UI: two armies roles event and cold restore',
@@ -304,8 +311,11 @@
         'Boss activity UI: real coalition setup stage and cross-mode restore',
         'Hulao activity UI: forms shuffle counters and cross-mode restore',
         'table shortcuts execute once per key press and preserve modal drafts',
+        'table overlays cover elevated badges and restore pointer input',
+        'manual discard UI: shared action row partial confirmation and automatic completion',
         'stale prompt choices cannot answer reloaded or consecutive decisions',
         'skill quantity activation and effect choices share the lower action dock',
+        'Selection area: Gongxin Zhiheng repeatable skills and Slash native drafts',
         'Edition general gallery: namespaced portraits and real details',
         'general gallery realizes visible rows and opens with bounded portrait cost',
         'custom general roster opens searches and previews with bounded presentation cost',
@@ -323,6 +333,7 @@
         'conversion skill rail chooses output before materials and retires old mode buttons',
         'composed skills share the generic WPF draft and submit their stable program identity',
         'Automatic targets UI: unique card and conversion drafts',
+        'Locked card identity UI: direct Longnu Wushen play and Jieying hand badge',
         'Automatic rescue UI: unavailable rescue passes and real choices remain',
         'Program paid choices preserve actor control and opaque slots',
         'Shanhe Dong Ji UI: dynamic exact card confirmation and locked gift',

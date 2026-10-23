@@ -8,6 +8,28 @@ internal static class WoLongFengChuChecks
     private const string Watch = "fixture:wlfc-watch", Gain = "fixture:wlfc-gain", Hp = "fixture:wlfc-hp", Conditional = "fixture:wlfc-conditional";
     private const string Quiet = "fixture:wlfc-quiet", Attack = "fixture:wlfc-attack", Owner = "fixture:wlfc-owner", Mode = "identity:classic-wolong-fixture";
 
+    public static void YoulongCounterspellPreservesFrozenResponseAdmissionCold()
+    {
+        var (g, registry) = Start("counterspell-admission");
+        Use(g, "duel", [1]);
+        Reach(g, () => P(g) is { Kind: DecisionKind.Nullification, PlayerSeat: 0 });
+        var windowId = g.ResolutionStack.OfType<NullificationWindowFrame>().Last().Id;
+        g = Cold(g, registry);
+        Answer(g, c => c.Parameters.GetValueOrDefault("response") == "tiered-round-zero-use");
+        Reach(g, () => Slots(P(g))); g = Cold(g, registry);
+        Slot(g, EquipmentSlot.Weapon); Play(g);
+        var prepared = E<MouZhaJiangResponsePreparedEvent>(g).Where(e => e.OwnerFrameId == windowId).ToArray();
+        var admitted = E<MouZhaJiangResponseAdmittedEvent>(g).Where(e => e.OwnerFrameId == windowId).ToArray();
+        Need(prepared is [{ Index: 0, ActorSeat: 0, Kind: CardKind.Nullification, MaterialCount: 0,
+                Admission.Source: null, Admission.Applies: false }] &&
+            admitted is [{ Index: 0, ActorSeat: 0, Kind: CardKind.Nullification, ActionId: > 0 }] &&
+            prepared[0].Admission == admitted[0].Admission &&
+            E<NullificationResolvedEvent>(g).Single(e => e.WindowFrameId == windowId).EffectNullified &&
+            E<EquipmentSlotNamedUsePaidEvent>(g).Count() == 1 && E<EquipmentSlotNamedUseIssuedEvent>(g).Count() == 1,
+            "A genuine Youlong counterspell without any ZhaJiang owner retains exactly one pre-use admission, cancels its original trick and pays its slot once across cold replay.");
+        _ = Cold(g, registry);
+    }
+
     public static void YoulongPaidEquipmentMovementSurvivesColdSourceLossAndRoundFaces()
     {
         foreach (var loss in new[] { false, true })
@@ -128,6 +150,7 @@ internal static class WoLongFengChuChecks
         public void Register(IContentRegistryBuilder b)
         {
             CharacterFixtureContent.Register(b, "ol:wo-long-feng-chu");
+            if (scenario == "counterspell-admission") CharacterFixtureContent.Register(b, "mou:huang-gai-mobile");
             var rules = $$"""
             {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
               {"id":"{{Driver}}","revision":1,{{(scenario == "range" ? "" : "\"modifiers\":[{\"id\":\"range\",\"query\":\"slashDistanceLimit\",\"operation\":\"unlimited\",\"value\":0,\"priority\":0}],")}}

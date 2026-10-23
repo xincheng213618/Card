@@ -14,7 +14,9 @@ using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
+using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
+using CardGame.Wpf.Presentation;
 using CardGame.Wpf.ViewModels;
 using static Program;
 
@@ -54,6 +56,9 @@ internal static class NativeActionFeedbackChecks
                         var confirm = (Button)window.FindName("PlayCardButton");
                         Assert(Boundary(game) == before && model.HasSelection == selected && confirm.IsEnabled == selected,
                             "Choosing a native response must only prepare a draft and its actual confirmation state.");
+                        Assert(model.SelectionArea.ConfirmText == model.PlayButtonText && model.SelectionArea.CancelText == model.ActionDockCancelText &&
+                            model.SelectionArea.CanConfirm == selected && model.SelectionArea.ConfirmCommand == model.ConfirmSelectedCommand,
+                            "Responses must retain their card-specific text, decline meaning and native command in the shared selection area.");
                         AssertCaption(cancel, model, decline is not null ? "放 弃" : "取 消", selected || decline is not null);
                         if (selected) Assert(notifications.Contains(nameof(MainViewModel.ActionDockCancelText)),
                             "The actual cancel caption must be refreshed with the response draft.");
@@ -117,6 +122,260 @@ internal static class NativeActionFeedbackChecks
         }
         OptionalSkill(output);
         NormalDraft(output);
+        GroupResponseMotion(output);
+        NullificationMotion(output);
+    }
+
+    internal static void VerifyDuelMotion(NativeResponseStatusChecks.NativeHost host, BattleCue response, string? output = null)
+    {
+        var game = Engine(host.Model);
+        var state = Boundary(game);
+        var seats = Find<Button>(host.Root).Where(button => button.IsVisible && BattleFeedbackLayer.GetSeatAnchor(button) >= 0)
+            .ToDictionary(BattleFeedbackLayer.GetSeatAnchor,
+                button => button.TransformToVisual(host.Layer).TransformBounds(new Rect(button.RenderSize)));
+        var guard = VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsGuardBlade).ToArray();
+        Assert(response is { Kind: BattleCueKind.Response, CardKind: CardKind.Slash, TargetSeats.Count: 0,
+                DuelOpponentSeat: not null, ResponseResolutionId: not null } &&
+            guard.Length > 0 && guard.All(seats[response.SourceSeat].Contains),
+            "The genuine paid Duel Slash must have a visible local parry and no outgoing attack on its opponent.");
+        var useId = response.ResponseResolutionId;
+        var facts = game.Events.Where(envelope => envelope.Payload is CardUseDeclaredEvent use && use.ResolutionId == useId ||
+            envelope.Payload is TargetsConfirmedEvent targets && targets.ResolutionId == useId).ToArray();
+        var declaration = BattleCueProjector.Project(facts, game.CreateSnapshot(0))
+            .Single(cue => cue.Kind == BattleCueKind.Card && cue.CardKind == CardKind.Duel);
+        Assert(declaration.SourceSeat == response.DuelOpponentSeat && declaration.TargetSeats.Contains(response.SourceSeat),
+            "The Duel's opposed blade cue must come from its real public declaration and confirmed participants.");
+        var first = PaintActual(declaration, .13);
+        var later = PaintActual(declaration, .35);
+        Assert(VisibleMotionShapes(first, IsGuardBlade).Any() && VisibleMotionShapes(first, IsGoldBlade).Any() &&
+            first.Bounds != later.Bounds && !seats[declaration.SourceSeat].Contains(later.Bounds) &&
+            !seats[response.SourceSeat].Contains(later.Bounds),
+            "A real declared Duel must move both opposed blades through the table corridor, not reuse a target aura or portrait hit.");
+        if (output is not null) host.Capture(output, "native-duel-paid-parry-160ms", 1120);
+        Assert(Boundary(game) == state, "Inspecting the actual Duel motion must not alter its command boundary.");
+
+        DrawingGroup PaintActual(BattleCue cue, double progress)
+        {
+            var visual = new DrawingVisual();
+            using (var dc = visual.RenderOpen())
+                typeof(BattleFeedbackLayer).Assembly.GetType("CardGame.Wpf.Controls.BattleEffectPainter")!
+                    .GetMethod("Draw", BindingFlags.Static | BindingFlags.Public)!
+                    .Invoke(null, [dc, cue, progress, seats[cue.SourceSeat], seats]);
+            return visual.Drawing;
+        }
+        static bool IsGoldBlade(GeometryDrawing shape) => shape is
+            { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen.Brush: SolidColorBrush edge } &&
+            fill.Color == Color.FromRgb(255, 249, 218) && edge.Color == Color.FromRgb(255, 203, 100);
+    }
+
+    private static bool IsGuardBlade(GeometryDrawing shape) => shape is
+        { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen.Brush: SolidColorBrush edge } &&
+        fill.Color == Color.FromRgb(255, 249, 218) && edge.Color == Color.FromRgb(116, 231, 255);
+
+    private static void NullificationMotion(string output)
+    {
+        var (model, _) = StableHandResponseFixture.Create(DecisionKind.Nullification, output);
+        using (model)
+        {
+            model.IsMotionEnabled = true;
+            using var host = new NativeResponseStatusChecks.NativeHost(model);
+            host.Capture(output, "native-nullification-before", 1120);
+            var game = Engine(model);
+            var cursor = game.Events.Count;
+            var card = model.Hand.Last(candidate => candidate.IsPlayable && candidate.Kind == CardKind.Nullification);
+            var prompt = game.PendingDecision!;
+            var payment = prompt.Choices.Single(choice => choice.Cards.SequenceEqual([card.Id]));
+            model.SelectCardCommand.Execute(card);
+            model.ConfirmSelectedCommand.Execute(null);
+            Assert(game.AcceptedCommands.Last() is AnswerPromptCommand answer && answer.PromptId == prompt.PromptId &&
+                answer.Choice == payment.Id && game.Events.Skip(cursor).Any(envelope => envelope.Payload is NullificationRespondedEvent),
+                "The fixed native counterspell must actually pay its public response before showing a seal.");
+            var cue = model.BattleCues.Single(candidate => candidate.Kind == BattleCueKind.Response && candidate.PublicCardId == card.Id);
+            Assert(cue is { CardKind: CardKind.Nullification, IsInquiry: false, HpDelta: 0, RemainingHp: null } &&
+                !game.Events.Skip(cursor).Any(envelope => envelope.Payload is DamageAppliedEvent),
+                "A paid counterspell must keep its actual public chain state without generating damage.");
+            var state = Boundary(game);
+            var movie = RecordMotion ? new GifBitmapEncoder() : null;
+            var time = 0;
+            Sample();
+            AdvanceTo(240);
+            host.Capture(output, "native-nullification-seal-240ms", 1120);
+            var responder = Find<Button>(host.Root).Single(button => BattleFeedbackLayer.GetSeatAnchor(button) == cue.SourceSeat);
+            var seat = responder.TransformToVisual(host.Layer).TransformBounds(new Rect(responder.RenderSize));
+            var first = VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsCounterStrip).ToArray();
+            AdvanceTo(480);
+            host.Capture(output, "native-nullification-dissolve-480ms", 1120);
+            var second = VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsCounterStrip).ToArray();
+            Assert(first.Length > 0 && second.Length > 0 && first.All(seat.Contains) && second.All(seat.Contains) &&
+                !first.SequenceEqual(second),
+                "A real paid Nullification must assemble and dissolve its own distinct seal inside the responder's portrait.");
+            AdvanceTo(800);
+            Render(host.Root, 1120, 740, null);
+            Assert(!VisibleMotionShapes(VisualTreeHelper.GetDrawing(host.Layer), IsCounterStrip).Any() && Boundary(game) == state,
+                "The counterspell seal must retire without guessing or advancing the chain outcome.");
+            if (movie is not null)
+            {
+                var path = Path.Combine(output, "native-nullification-paid.gif");
+                using (var file = File.Create(path)) movie.Save(file);
+                BattleEffectsChecks.SetGifTiming(path, 4);
+                using var input = File.OpenRead(path);
+                var decoded = new GifBitmapDecoder(input, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                Assert(decoded.Frames.Count == 21 && decoded.Frames.All(frame =>
+                    Convert.ToInt32(((BitmapMetadata)frame.Metadata).GetQuery("/grctlext/Delay")) == 4),
+                    "The real paid counterspell movie must retain continuous 40ms frames.");
+            }
+            Console.WriteLine($"Native Nullification: paid physical {card.Id}, cue seq{cue.Sequence}, rev{cue.Revision}; seal strips {first.Length}/{second.Length}; unchanged committed chain.");
+
+            void AdvanceTo(int target)
+            {
+                if (movie is not null)
+                    while (time + 40 <= target) { host.Clock.Advance(.04); time += 40; Sample(); }
+                if (time < target) { host.Clock.Advance((target - time) / 1000d); time = target; }
+                host.Layer.InvalidateVisual();
+            }
+            void Sample()
+            {
+                if (movie is null) return;
+                host.Layer.InvalidateVisual(); movie.Frames.Add(BitmapFrame.Create(host.MovieFrame()));
+            }
+        }
+        static bool IsCounterStrip(GeometryDrawing shape) => shape is
+            { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen: null } &&
+            (fill.Color == Color.FromRgb(116, 231, 255) || fill.Color == Color.FromRgb(175, 151, 255));
+    }
+
+    private static void GroupResponseMotion(string output)
+    {
+        var signatures = new List<string>();
+        foreach (var incoming in new[] { CardKind.ArrowBarrage, CardKind.BarbarianAssault })
+        {
+            var kind = incoming == CardKind.ArrowBarrage ? DecisionKind.RespondDodge : DecisionKind.RespondSlash;
+            var (prepared, registry) = StableHandResponseFixture.Create(kind, output, arrowBarrage: incoming == CardKind.ArrowBarrage);
+            using (prepared)
+            {
+                var checkpoint = Engine(prepared).CreateCheckpoint();
+                Assert(checkpoint.Commands.Last() is AdvanceOneStepCommand,
+                    "The fixed group response must be opened by its final real AI step.");
+                var prefix = GameReplay.Replay(checkpoint.Options, checkpoint.Commands.SkipLast(1), registry);
+                var store = new MemorySaveStore();
+                store.Write(GameSaveSlot.Manual, new(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow, false, prefix.CreateCheckpoint()));
+                using var model = new MainViewModel(false, prefix.Seed, true, store, useExpandedContent: false,
+                    contentRegistry: registry, historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore())
+                    { IsMotionEnabled = true, IsSoundEnabled = false, IsMusicEnabled = false };
+                model.LoadManualGameCommand.Execute(null);
+                Assert(!model.HasSaveError && model.BattleCues.Count == 0 && model.CanStepAi,
+                    "The native group sample must restore immediately before its actual public inquiry.");
+                using var host = new NativeResponseStatusChecks.NativeHost(model);
+                var label = "native-group-" + incoming;
+                host.Capture(output, label + "-before", 1120);
+                var game = Engine(model);
+                var eventCursor = game.Events.Count;
+                model.StepAiCommand.Execute(null);
+                Assert(game.PendingDecision is { PlayerSeat: 0 } prompt && prompt.Kind == kind && prompt.IncomingCard == incoming,
+                    "One native AI step must publish the verified human group response.");
+                var request = game.Events.Skip(eventCursor).Last(envelope => envelope.Payload is ResponseRequestedEvent response &&
+                    response.TargetSeat == 0 && response.IncomingCard == incoming);
+                var cue = model.BattleCues.Single(candidate => candidate.Sequence == request.Sequence);
+                Assert(cue is { Kind: BattleCueKind.ResponseWindow, IsInquiry: true, SourceSeat: 0, HpDelta: 0 } &&
+                    cue.CardKind == incoming && cue.TargetSeats.SequenceEqual([1]) && cue.PublicCard is null,
+                    "The native focus must use the exact committed inquiry, without a paid face or fabricated damage.");
+                var unchanged = Boundary(game);
+                var movie = RecordMotion ? new GifBitmapEncoder() : null;
+                var time = 0;
+                Sample();
+                AdvanceTo(200);
+                host.Capture(output, label + "-200ms", 1120);
+                var responder = Find<Button>(host.Root).Single(button => BattleFeedbackLayer.GetSeatAnchor(button) == 0);
+                var seat = responder.TransformToVisual(host.Layer).TransformBounds(new Rect(responder.RenderSize));
+                var first = VisibleProjectileTips(VisualTreeHelper.GetDrawing(host.Layer)).ToArray();
+                Assert(first.Length > 0 && first.All(seat.Contains),
+                    "The real current responder must show visible arrow/spear motion inside its own portrait, without sweeping future recipients.");
+                AdvanceTo(400);
+                host.Capture(output, label + "-400ms", 1120);
+                var second = VisibleProjectileTips(VisualTreeHelper.GetDrawing(host.Layer)).ToArray();
+                Assert(second.Length > 0 && second.All(seat.Contains) && !first.SequenceEqual(second) && Boundary(game) == unchanged,
+                    "The native group inquiry must actually move its projectiles while leaving every command, card and HP value unchanged.");
+                signatures.Add(string.Join(";", second.Select(bounds =>
+                    $"{(bounds.X - seat.X) / seat.Width:F4},{(bounds.Y - seat.Y) / seat.Height:F4},{bounds.Width / seat.Width:F4},{bounds.Height / seat.Height:F4}")));
+                var response = model.Hand.Last(card => card.IsPlayable);
+                var before = game.Revision;
+                var oldPrompt = game.PendingDecision!;
+                var payment = oldPrompt.Choices.Single(choice => choice.Cards.SequenceEqual([response.Id]));
+                model.SelectCardCommand.Execute(response);
+                model.ConfirmSelectedCommand.Execute(null);
+                Assert(game.Revision == before + 1 && game.AcceptedCommands.Last() is AnswerPromptCommand answer &&
+                    answer.PromptId == oldPrompt.PromptId && answer.Choice == payment.Id &&
+                    model.BattleCues.Any(paid => paid.Kind == BattleCueKind.Response && paid.PublicCardId == response.Id),
+                    "The real native confirmation must pay exactly its published response, not turn the inquiry into an attack.");
+                AdvanceTo(440);
+                host.Capture(output, label + "-paid", 1120);
+                Assert(!VisibleProjectileTips(VisualTreeHelper.GetDrawing(host.Layer)).Any(),
+                    "Paying the response must immediately retire the old group inquiry focus.");
+                var paidBoundary = Boundary(game);
+                if (movie is not null)
+                {
+                    AdvanceTo(1200);
+                    var path = Path.Combine(output, label + ".gif");
+                    using (var file = File.Create(path)) movie.Save(file);
+                    BattleEffectsChecks.SetGifTiming(path, 4);
+                    using var fileIn = File.OpenRead(path);
+                    var decoded = new GifBitmapDecoder(fileIn, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                    Assert(decoded.Frames.Count == 31 && decoded.Frames.All(frame =>
+                        Convert.ToInt32(((BitmapMetadata)frame.Metadata).GetQuery("/grctlext/Delay")) == 4),
+                        "The actual group response movie must retain continuous 40ms frames through payment.");
+                }
+                Assert(Boundary(game) == paidBoundary, "Recording a response must not advance its game state.");
+                Console.WriteLine($"Native {incoming}: inquiry seq{cue.Sequence}, rev{cue.Revision}; visible projectile shapes {first.Length}/{second.Length}; paid physical {response.Id} through native confirmation.");
+
+                void AdvanceTo(int target)
+                {
+                    if (movie is not null)
+                        while (time + 40 <= target)
+                        {
+                            host.Clock.Advance(.04); time += 40; Sample();
+                        }
+                    if (time < target) { host.Clock.Advance((target - time) / 1000d); time = target; }
+                    host.Layer.InvalidateVisual();
+                }
+                void Sample()
+                {
+                    if (movie is null) return;
+                    host.Layer.InvalidateVisual();
+                    movie.Frames.Add(BitmapFrame.Create(host.MovieFrame()));
+                }
+            }
+        }
+        Assert(signatures.Count == 2 && signatures[0] != signatures[1],
+            "Actual Arrow Barrage and Barbarian Assault inquiries must have different moving shapes, not a shared aura.");
+    }
+
+    private static IEnumerable<Rect> VisibleProjectileTips(Drawing? drawing) => VisibleMotionShapes(drawing,
+        shape => shape is { Geometry: StreamGeometry, Brush: SolidColorBrush fill, Pen.Brush: SolidColorBrush edge } &&
+            fill.Color == Color.FromRgb(255, 249, 218) &&
+            (edge.Color == Color.FromRgb(255, 203, 100) || edge.Color == Color.FromRgb(204, 187, 158)));
+
+    private static IEnumerable<Rect> VisibleMotionShapes(Drawing? drawing, Func<GeometryDrawing, bool> select,
+        Matrix? inheritedTransform = null, Geometry? inheritedClip = null, double opacity = 1)
+    {
+        var transform = inheritedTransform ?? Matrix.Identity;
+        if (drawing is DrawingGroup group)
+        {
+            var next = group.Transform?.Value ?? Matrix.Identity; next.Append(transform);
+            var clip = inheritedClip;
+            if (group.ClipGeometry is { } ownClip)
+            {
+                var current = ownClip.Clone(); current.Transform = new MatrixTransform(next);
+                clip = clip is null ? current : new CombinedGeometry(GeometryCombineMode.Intersect, clip, current);
+            }
+            foreach (var child in group.Children)
+                foreach (var bounds in VisibleMotionShapes(child, select, next, clip, opacity * group.Opacity)) yield return bounds;
+        }
+        else if (opacity > .1 && drawing is GeometryDrawing tip && select(tip))
+        {
+            Geometry visible = tip.Geometry.Clone(); visible.Transform = new MatrixTransform(transform);
+            if (inheritedClip is not null) visible = new CombinedGeometry(GeometryCombineMode.Intersect, visible, inheritedClip);
+            if (visible.GetArea() > 1) yield return visible.Bounds;
+        }
     }
 
     private static void OptionalSkill(string output)
@@ -157,7 +416,7 @@ internal static class NativeActionFeedbackChecks
                 Assert(model.IsSkillTargetSelectionPending && Boundary(game) == before &&
                     model.ActionHint.Contains($"「{model.ActionDockCancelText}」", StringComparison.Ordinal),
                     "The optional skill must retain its native prompt and explain its actual decline button for either target draft.");
-                AssertCaption(cancel, model, "放 弃", enabled: true);
+                AssertCaption(cancel, model, "取 消", enabled: true);
                 var clicks = 0;
                 cancel.Click += (_, _) => clicks++;
                 Click(cancel);

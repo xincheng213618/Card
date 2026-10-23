@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\MouSimaYiGiveScenario.cs" Link="MouSimaYiGiveScenario.cs" />
     <Compile Include="..\Shared\BaguaResponseScenario.cs" Link="BaguaResponseScenario.cs" />
     <Compile Include="..\Shared\SharedPhaseSkillScenario.cs" Link="SharedPhaseSkillScenario.cs" />
     <Compile Include="..\Shared\CharacterFixtureContent.cs" Link="CharacterFixtureContent.cs" />
@@ -26,6 +27,7 @@
     <Compile Include="..\Shared\SilverLionScenario.cs" Link="SilverLionScenario.cs" />
     <EmbeddedResource Include="Fixtures\group-claim-before-death.json" />
     <ProjectReference Include="..\..\src\CardGame.Core\CardGame.Core.csproj" />
+    <ProjectReference Include="..\..\src\CardGame.Server\CardGame.Server.csproj" />
     <ProjectReference Include="..\..\src\CardGame.Content.Standard\CardGame.Content.Standard.csproj" />
   </ItemGroup>
 

@@ -100,6 +100,7 @@ internal static class TargetCardChecks
         SkillRegionChoices(output);
         NativeEquipmentRegionChoices(output);
         NativeEquipmentRegionChoices(output, equipmentOnly: true);
+        BasicCardTransferChecks.NativeTransfers(output);
     }
 
     public static void OnlyHandCard(string output)

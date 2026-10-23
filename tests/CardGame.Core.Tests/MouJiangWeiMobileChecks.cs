@@ -44,6 +44,24 @@ internal static class MouJiangWeiMobileChecks
         s.End(); s.Reach(() => s.G.State.TurnNumber >= 13 && s.IsPlay());
         s.Need(s.Beifa(0) == 0 && s.Beifa(2) == 0 && s.E<MouJiangWeiBeifaExpiredEvent>().Length == 2 && s.G.GetHumanLegalActions().Any(a => a.Kind == LegalActionKind.Slash) && s.E<MouJiangWeiAwakenedEvent>().Length == 1,
             "Both paid marks expire at their issuer's next actual TurnStarted, restoring actual target legality without awakening again.");
+        VerifyOtherGameStartingOwner();
+    }
+    private static void VerifyOtherGameStartingOwner()
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture());
+        var setup = new ShanheBattleSetup(7, 1, "moujw-foreign-opening", "fixture:moujw-ally", 12, 0, 0, 0, 0, [], [], [],
+            [new(Hero, Hp: 4) { StartingHand = [] }, new("fixture:moujw-enemy-b", Hp: 12) { StartingHand = [] }],
+            [new("fixture:moujw-ally", Hp: 12) { StartingHand = [] }], new string('e', 64));
+        var game = GameEngine.CreateStandard(new() { Seed = setup.BattleSeed, PlayerCount = 4, HumanSeat = 0, HumanRole = null, HumanTeamId = ShanheBattleSetup.PlayerTeamId,
+            ModeId = ShanheBattleSetup.BattleModeId, ShanheBattle = setup, UseInteractiveSetup = false, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 1 }, registry);
+        var scene = new Scene(game, registry); scene.Accept(new StartGameCommand());
+        scene.Reach(() => scene.V(2).Armor == 1 && scene.E<MouJiangWeiInitializedEvent>().Length == 1);
+        var initialized = scene.E<MouJiangWeiInitializedEvent>().Single();
+        scene.Need(initialized.OwnerSeat == 2 && initialized.Source.OwnerSeat == 2 && initialized.Source.SkillId == "mou-mobile:tiaoxin" &&
+            scene.V(2).GeneralId == Hero && scene.V(2).Markers?.SingleOrDefault(m => m.Kind == PlayerMarkerKind.MouJiangWeiCharge)?.Count == 4 &&
+            scene.E<ProgramBindingStartedEvent>().Single(e => e.FrameId == initialized.FrameId) is { OwnerSeat: 2, BindingId: "initial-charge", Window: SkillProgramTriggerWindow.GameStarting } &&
+            scene.V(0).GeneralId != Hero && scene.V().Armor == 0,
+            "The shared GameStarting window begins at seat zero, while the exact real candidate and participant facts give only the actual seat-two Jiang Wei charge4 and armor1.");
     }
     private sealed class Scene(GameEngine game, ContentRegistry registry)
     {

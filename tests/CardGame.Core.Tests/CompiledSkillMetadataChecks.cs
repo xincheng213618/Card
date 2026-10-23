@@ -64,6 +64,8 @@ internal static class CompiledSkillMetadataChecks
                 "Round-gained red material capability must be compiled across the complete catalog, with no live-owner narrowing.");
             Require(!dependencies.UsesRoundGainedRedHandOnly || dependencies.UsesRoundTracking,
                 "Round-gained material rules must opt into the native actual-round boundary ledger.");
+            Require(!triggers.Any(trigger => trigger.UsageScope == SkillUsageScope.Round) || dependencies.UsesRoundTracking,
+                "Round-scoped trigger budgets must opt into actual round boundaries even without a round-specific operation.");
             Require(dependencies.CapturesCompletedResponseSuit == triggers.Any(trigger =>
                 trigger.Window == SkillProgramTriggerWindow.CardUseCompleted && trigger.IncludeResponseUses &&
                 ContainsCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)),

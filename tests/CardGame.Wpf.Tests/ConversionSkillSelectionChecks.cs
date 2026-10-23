@@ -213,6 +213,14 @@ internal static class ConversionSkillSelectionChecks
         model.ActivateHumanSkillCommand.Execute(model.HumanSkillCards.Single(skill => skill.ContentId == skillId));
         Layout(root);
         var choice = Mode(model, kind);
+        var outputButton = Button(root, model.SelectEquipmentPlayChoiceCommand, choice);
+        Program.Assert(model.HasCardNameSelection && !model.HasCenterChoices && model.CenterEquipmentPlayChoices.Count == 0 &&
+            outputButton.IsDescendantOf(Program.Find<Border>(root).Single(border => border.Name == "CardNameSelectionArea")),
+            "View-as names must use the same lower selection area as recorded card names.");
+        Program.Assert(Program.Find<System.Windows.Controls.ContentControl>(outputButton)
+            .Any(control => control.Content is CardGame.Wpf.Controls.PromptCardChoicePresentation
+                { IsCardName: true, IsCard: false, Face: null, NamedCard: { } name } && name.Kind == kind),
+            "Conversion outputs must reuse the named-card tile without a fabricated physical card face.");
         model.SelectEquipmentPlayChoiceCommand.Execute(choice with { });
         Program.Assert(model.Hand.All(card => !card.IsPlayable) && model.EquipmentPlayChoices.Any(item => ReferenceEquals(item, choice)),
             "A copied current output choice must not select a conversion mode.");

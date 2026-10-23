@@ -129,9 +129,11 @@ internal static class ProgramPaidChoiceUiChecks
         var paymentRevision = game.Revision;
         var paymentMoves = game.CardMovements.Count;
         model.SelectCardCommand.Execute(ownCard);
+        typeof(MainViewModel).GetMethod("RefreshCommandResult", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(model, [game.CreateSnapshot(0)]);
         Program.Assert(model.CanConfirmSelected && ownCard.IsSelected && game.Revision == paymentRevision &&
                        game.CardMovements.Count == paymentMoves,
-            "Selecting an own payment card must wait for the bottom confirmation without paying it.");
+            "Selecting an own payment card must survive command reconciliation and wait for confirmation without paying it.");
         model.ClearSelectionCommand.Execute(null);
         Program.Assert(!model.CanConfirmSelected && !ownCard.IsSelected && game.Revision == paymentRevision,
             "Cancelling a mandatory payment draft must clear selection without declining or paying.");
@@ -196,7 +198,9 @@ internal static class ProgramPaidChoiceUiChecks
             game.CreateSnapshot(0).Players.Count == 4 && model.IsSkillTargetSelectionPending &&
             model.CenterSkillChoices is [{ Cards.Count: 0, Targets.Count: 0 } finish] &&
             finish.Parameters.GetValueOrDefault("program-action") == "distinct-faction-finish",
-            "The existing seed31 native participant checkpoint must retain one central Finish choice beside legal portrait targets.");
+            "The existing seed31 native participant checkpoint must retain one Finish choice beside legal portrait targets.");
+        Program.Assert(model.HasDockSkillChoices && model.ShowPrimaryActionButtons && !model.HasCenterChoices,
+            "A small Finish alternative must share the lower dock with portrait confirmation, without a central chooser.");
         var window = new MainWindow(model)
         {
             ShowActivated = false, ShowInTaskbar = false, WindowStartupLocation = WindowStartupLocation.Manual,
@@ -296,7 +300,7 @@ internal static class ProgramPaidChoiceUiChecks
             Program.Assert(ChoiceBoundary(cold) == ChoiceBoundary(reloaded),
                 "The real participant selection must cold-restore its native pending payment, commands, events, movements and four safe views exactly.");
 
-            ItemsControl panel() => (ItemsControl)window.FindName("ScrollingSkillChoices");
+            ItemsControl panel() => (ItemsControl)window.FindName(model.HasDockSkillChoices ? "DockSkillChoices" : "ScrollingSkillChoices");
             Button ChoiceButton(PromptChoice parameter) => Program.Find<Button>(panel()).Single(candidate =>
                 ReferenceEquals(candidate.Command, model.SelectSkillChoiceCommand) && ReferenceEquals(candidate.CommandParameter, parameter));
             void Pump()

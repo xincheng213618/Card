@@ -32,6 +32,16 @@ internal static class SkillProgramTriggerDefinitionChecks
             "The common trigger model must retain conversion provenance and typed instructions.");
         RequireThrows<NotSupportedException>(() => ((ICollection<SkillProgramTrigger>)program.Triggers).Clear());
         RequireThrows<NotSupportedException>(() => ((ICollection<SkillProgramEffect>)trigger.Effects).Add(trigger.Effects[0]));
+        var completed = JsonNode.Parse(CurrentRules)!;
+        completed["skills"]![1]!["triggers"]![0]!["window"] = "cardResponseCompleted";
+        Require(SkillProgramCatalog.Load(completed.ToJsonString(), Presentation).Programs["test:trigger"].Triggers.Single()
+                is { Window: SkillProgramTriggerWindow.CardResponseCompleted, SourceViewAsId: "respond" },
+            "A completed native response retains its actual response conversion source.");
+        var playOnly = completed["skills"]![0]!["viewAs"]![0]!;
+        playOnly["forResponse"] = false;
+        playOnly["forPlay"] = true;
+        playOnly["outputKind"] = "slash";
+        AssertReject(completed.ToJsonString(), Presentation, "source viewAs does not support window");
     }
 
     private static void RejectsInvalidSourcesWindowsEffectsAndUnknownFields()

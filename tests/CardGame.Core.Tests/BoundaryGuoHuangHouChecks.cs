@@ -11,6 +11,48 @@ internal static class BoundaryGuoHuangHouChecks
     private const string TrickChild = "fixture:ghh-trick-child", FireDamage = "fixture:ghh-fire-damage", FireColor = "fixture:ghh-fire-color";
     private const string StateId = "boundary-jiaozhao-round-tier", Mode = "identity:classic-guo-huang-hou-fixture";
 
+    public static void OpeningDamageBenefitAndCappedDrawCold()
+    {
+        var (g, r) = Create(benefitChildren: true, openingDamage: true);
+        Reach(g, p => p.SkillPrompt?.SkillId == Danxin);
+        Require(g.State.TurnNumber == 0 && F<RoundStartedEvent>(g).Length == 0,
+            "Opening damage reaches Danxin before the first actual turn or round.");
+        g = Cold(g, r);
+        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
+        Play(g);
+        var opening = F<CappedConversionBenefitIssuedEvent>(g).Single().Receipt;
+        Require(!g.IsFaulted && opening.RoundNumber == 0 && opening.FrozenSuccessfulModifications == 0 &&
+            !opening.ActualDrawAttempted && opening.ActualDrawCount == 0 &&
+            F<CappedConversionBenefitCompletedEvent>(g).Single() is { Modified: true, FinalTier: 1 } &&
+            !g.CardMovements.Any(m => m.Reason.Value == $"skill-program.{Danxin}.capped-conversion-draw"),
+            "Round-zero Danxin modifies once without issuing a zero-card draw or faulting the command session.");
+        g = Cold(g, r);
+
+        Use(g, "hurt");
+        Reach(g, p => p.SkillPrompt?.SkillId == Danxin);
+        var hand = V(g, 0).HandCount;
+        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
+        Reach(g, p => p.SkillPrompt?.SkillId == Gain);
+        Require(V(g, 0).HandCount == hand + 1 && V(g, 0).ConfiguredConversionTiers![StateId] == 1,
+            "The next damage draws the old tier's one card before a real gain child and the second modification.");
+        g = Cold(g, r);
+        Play(g);
+        Require(F<CappedConversionBenefitCompletedEvent>(g).Last() is { ActualDrawCount: 1, Modified: true, FinalTier: 2 },
+            "The paid gain and recovery children return to modify exactly once after cold replay.");
+
+        Use(g, "hurt");
+        Reach(g, p => p.SkillPrompt?.SkillId == Danxin);
+        hand = V(g, 0).HandCount;
+        g = Cold(g, r);
+        Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "activate");
+        Play(g);
+        Require(V(g, 0).HandCount == hand + 2 &&
+            F<CappedConversionBenefitCompletedEvent>(g).Last() is { ActualDrawCount: 2, Modified: false, FinalTier: 2 } &&
+            F<ConfiguredConversionTierChangedEvent>(g).Count(e => e.StateId == StateId) == 2,
+            "At the capped tier later damage draws two real cards without a third modification.");
+        _ = Cold(g, r);
+    }
+
     public static void TrueRoundNamesPhysicalConversionAndPrivateCold()
     {
         var (g, r) = Create(); Play(g);
@@ -83,9 +125,9 @@ internal static class BoundaryGuoHuangHouChecks
         Require(p.Choices is System.Collections.IList { IsReadOnly: true } && p.ValidCardIds is System.Collections.IList { IsReadOnly: true } && p.Choices.All(c => c.Cards is System.Collections.IList { IsReadOnly: true } && c.Targets is System.Collections.IList { IsReadOnly: true }), "Prepared outer/nested choices resist mutation."); }
     private static void Require(bool ok, string message) { if (!ok) throw new InvalidOperationException(message); }
 
-    private static (GameEngine, ContentRegistry) Create(CardKind material = CardKind.Slash, bool benefitChildren = false, bool foreignSlash = false, bool rescueHpChild = false, bool trickChild = false, bool benxi = false, bool fireAttackChildren = false, bool colorFireAttack = false)
+    private static (GameEngine, ContentRegistry) Create(CardKind material = CardKind.Slash, bool benefitChildren = false, bool foreignSlash = false, bool rescueHpChild = false, bool trickChild = false, bool benxi = false, bool fireAttackChildren = false, bool colorFireAttack = false, bool openingDamage = false)
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new Fixture(material, benefitChildren, foreignSlash, rescueHpChild, trickChild, benxi, fireAttackChildren, colorFireAttack));
+        var r = ContentRegistry.Build(new StandardContentPackage(), new Fixture(material, benefitChildren, foreignSlash, rescueHpChild, trickChild, benxi, fireAttackChildren, colorFireAttack, openingDamage));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode,
             UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 20 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
@@ -93,7 +135,7 @@ internal static class BoundaryGuoHuangHouChecks
         Accept(g, new SelectGeneralCommand(0, "fixture:ghh-owner", g.Revision, P(g)!.PromptId)); return (g, r);
     }
 
-    private sealed class Fixture(CardKind material, bool benefitChildren, bool foreignSlash, bool rescueHpChild, bool trickChild, bool benxi, bool fireAttackChildren, bool colorFireAttack) : IGameContentPackage
+    private sealed class Fixture(CardKind material, bool benefitChildren, bool foreignSlash, bool rescueHpChild, bool trickChild, bool benxi, bool fireAttackChildren, bool colorFireAttack, bool openingDamage) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture:boundary-guo-huang-hou", "1.0.0", "当前OL矫诏/殚心真实命令草稿");
         public void Register(IContentRegistryBuilder b)
@@ -131,17 +173,22 @@ internal static class BoundaryGuoHuangHouChecks
             ]}
             """)!;
             root["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
+            ((JsonArray)root["skills"]!).Add(JsonNode.Parse("""
+                {"id":"fixture:ghh-opening-damage","revision":1,"triggers":[{"id":"opening-damage","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"damage","target":"owner","amount":1}]}]}
+                """));
             var activations = (JsonArray)root["skills"]![0]!["activations"]!;
             for (var amount = 1; amount <= 20; amount++) activations.Add(JsonNode.Parse(JsonSerializer.Serialize(new {
                 id = "die-" + amount, minCards = 0, maxCards = 0, minTargets = 0, maxTargets = 0, targetKind = "anyLiving", usesPerTurn = (int?)null,
                 effects = new[] { new { op = "loseHp", target = "owner", amount } } })));
             var catalog = SkillProgramCatalog.Load(root.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object> {
                 [Driver] = new { name = "实际规则命令", description = "真实伤害、死亡入口、额外回合和来源重新获得" }, ["fixture:ghh-quiet"] = new { name = "安静回合", description = "真实跳过出牌" },
-                [Gain] = Pause("真实gain"), [Hp] = Pause("真实HP"), [Completed] = Pause("真实完成响应"), [TrickChild] = Pause("真实锦囊提交"), [FireDamage] = Pause("真实火攻伤害"), [FireColor] = new { name = "同颜色弃置", description = "成熟火攻付款政策" }, ["fixture:ghh-foreign-slash"] = new { name = "真实外部杀", description = "固定真实实体Slash producer" } } }));
+                [Gain] = Pause("真实gain"), [Hp] = Pause("真实HP"), [Completed] = Pause("真实完成响应"), [TrickChild] = Pause("真实锦囊提交"), [FireDamage] = Pause("真实火攻伤害"), [FireColor] = new { name = "同颜色弃置", description = "成熟火攻付款政策" }, ["fixture:ghh-foreign-slash"] = new { name = "真实外部杀", description = "固定真实实体Slash producer" },
+                ["fixture:ghh-opening-damage"] = new { name = "真实开局伤害", description = "第一轮开始前受到伤害" } } }));
             foreach (var id in catalog.Programs.Keys) b.AddSkill(new(id, id, "实际小夹具") { Program = catalog.Programs[id] });
             b.AddSkill(new("fixture:ghh-noop", "旧来源替换", "无运行能力"));
             b.AddSkill(new("fixture:ghh-selection", "固定候选", "无运行能力") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
             var skills = new List<string> { Danxin, Driver, Completed };
+            if (openingDamage) skills.Add("fixture:ghh-opening-damage");
             if (trickChild) skills.Add(TrickChild);
             if (fireAttackChildren) skills.Add(FireDamage);
             if (colorFireAttack) skills.Add(FireColor);

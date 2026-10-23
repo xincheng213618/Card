@@ -47,6 +47,7 @@ internal static class OlMoCaoCaoChecks
             g.CreateSnapshot(0).Players[0].Equipment.Count==0,"GameStart genuinely issues the range4 weapon and four-character armor without adding physical entities.");
         Answer(c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
         Reach(()=>P() is {PlayerSeat:0} && g.ResolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()?.MoCaoCaoBachao?.Stage==MoCaoCaoBachaoStage.Target);
+        Need(P()!.SkillPrompt is { SkillId: "ol:mo-bachao", Name: "霸朝" },"The paid native target prompt must retain its skill presentation for interactive clients.");
         Need(E<MoCaoCaoBachaoCommittedEvent>() is [{Count:3}] && E<MoCaoCaoBachaoGiftEvent>().Any(e=>e.ParticipantSeat==1 && e.NonBasic && e.Arrived) &&
             P()!.Choices.All(c=>!c.Targets.Contains(1)),"All private commitments precede native transfers; the actual allied nonbasic gift protects that participant.");
         var view=SnapshotJson.Serialize(g.CreateSnapshot(0));
@@ -91,6 +92,7 @@ internal static class OlMoCaoCaoChecks
         Use(g.GetHumanLegalActions().First(a=>a.Kind==LegalActionKind.Slash && a.TargetSeats.SequenceEqual([3]) && frozen.Contains(a.CardId!.Value)));
         Reach(()=>P()?.SkillPrompt?.SkillId=="equipment:baibi-dao");Answer(c=>c.Parameters.GetValueOrDefault("program-action")=="activate");
         Reach(()=>P()?.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="mo-cao-cao" && c.Parameters.GetValueOrDefault("branch")=="card")==true);
+        Need(P()!.SkillPrompt is { SkillId: "equipment:baibi-dao", Name: "百辟刀" },"The native weapon obtain prompt must retain its skill presentation for interactive clients.");
         Answer(c=>c.Parameters.GetValueOrDefault("branch")=="card");Play();
         Need(E<MoCaoCaoBaibiIssuedEvent>() is [{Claim.PhysicalWeaponId:>0}] && E<MoCaoCaoBaibiObtainedEvent>() is [{Arrived:true}] &&
             E<MoCaoCaoBaibiIssuedEvent>()[0].Claim.PhysicalWeaponId==blade,"A genuine named weapon ability issues its own native Slash-damage proof and really obtains an opaque target Hand card without pretending to hold Fuzai.");

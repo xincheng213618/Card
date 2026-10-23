@@ -149,7 +149,16 @@ internal static class WushuangOfficialSkillsAChecks
     public static void JinzhiPaysIncreasingSameColorCountsAndDrawsBeforeNativeBasicEffects()
     {
         var s = Scene.Start([3252], activeEnemy: true); var hp = s.V().Hp;
+        s.Need(s.G.GetHumanActionView().JinzhiMaterials is { RequiredCount: 1 }, "The unpaid first Jinzhi draft requires one discard.");
         s.Jinzhi(CardKind.Peach); s.Play(); s.Cold();
+        s.Need(s.G.GetHumanActionView().JinzhiMaterials is { RequiredCount: 2 }, "The next draft derives its increasing count after cold replay.");
+        var mixed = s.V().Hand.GroupBy(card => card.Suit is Suit.Heart or Suit.Diamond).Select(group => group.First().Id).ToArray();
+        s.Need(mixed.Length == 2, "The fixture contains both colors for an actual invalid-payment check.");
+        var action = s.G.GetHumanLegalActions().First(a => a.ProgramSkillId == "wushuang:skill-3252" && a.PlayedCardKind == CardKind.Peach);
+        var revision = s.G.Revision;
+        var rejected = s.G.Submit(new UseProgramSkillCommand(0, action.ProgramSkillId!, action.ProgramActivationId!, mixed, [0], revision, s.P!.PromptId));
+        s.Need(!rejected.Accepted && s.G.Revision == revision && s.E<WushuangJinzhiPaidEvent>().Length == 1,
+            "Mixed-color material cannot pay or consume the second activation even through a forged final command.");
         s.Jinzhi(CardKind.Peach); s.Play(); s.Cold();
         var paid = s.E<WushuangJinzhiPaidEvent>();
         s.Need(paid.Length == 2 && paid.Select(e => e.Ordinal).SequenceEqual([1, 2]) &&

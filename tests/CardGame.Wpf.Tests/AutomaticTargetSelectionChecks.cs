@@ -16,10 +16,12 @@ internal static class AutomaticTargetSelectionChecks
     {
         foreach (var scenario in new[]
         {
-            new Scenario("standard:slash"), new Scenario("standard:snatch"),
+            new Scenario("standard:slash"), new Scenario("standard:fire_slash"),
+            new Scenario("standard:thunder_slash"), new Scenario("standard:snatch"),
             new Scenario("standard:dismantlement"), new Scenario("standard:fire_attack"),
             new Scenario("standard:duel"), new Scenario("standard:iron_chain", Conversion: "standard:wusheng"),
             new Scenario("standard:peach", Conversion: "classic:huoji"),
+            new Scenario("standard:slash", Seats: 4),
             new Scenario("standard:duel", Seats: 4), new Scenario("standard:iron_chain")
         })
         {
@@ -53,7 +55,8 @@ internal static class AutomaticTargetSelectionChecks
 
                     var concreteCardPick = action.Kind is LegalActionKind.Dismantlement or LegalActionKind.Snatch;
                     Program.Assert(selected.SequenceEqual(action.TargetSeats) && card.IsSelected &&
-                        model.CanConfirmSelected == !concreteCardPick && Boundary(game) == unchanged,
+                        model.CanConfirmSelected == !concreteCardPick && model.SelectionArea.CanConfirm == !concreteCardPick &&
+                        ((Button)window.FindName("PlayCardButton")).IsEnabled == !concreteCardPick && Boundary(game) == unchanged,
                         $"{scenario.Card}/{scenario.Conversion ?? "printed"} must draft its sole recipient and retain the required card choice without payment.");
                     if (scenario.Card == "standard:slash" && scenario.Conversion is null)
                     {
@@ -62,7 +65,7 @@ internal static class AutomaticTargetSelectionChecks
                         Layout(root);
                         Program.Assert(model.Seats.All(seat => !seat.IsSelectedTarget) && !model.CanConfirmSelected &&
                             card.IsSelected && Boundary(game) == unchanged,
-                            "Clicking the automatically selected portrait must cancel it without a refresh immediately selecting it again.");
+                            "Clicking the selected portrait must cancel it without a refresh immediately selecting it again.");
                         Click(Bound(root, model.SelectTargetCommand, portrait));
                         Program.Assert(portrait.IsSelectedTarget && model.CanConfirmSelected && Boundary(game) == unchanged,
                             "The same portrait must remain available for explicit reselection without paying the physical Slash.");

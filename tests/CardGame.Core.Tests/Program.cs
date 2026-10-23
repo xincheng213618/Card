@@ -39,6 +39,9 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Multiplayer: human seats prompts privacy and cold replay", MultiplayerChecks.MultipleHumansWaitRespondAndReplay),
+    ("LAN rooms: HTTP players AI isolation retries and match completion", LanRoomChecks.HttpPlayersAiAndIsolation),
+    ("LAN rooms: HTTP first round permissions retries and eight seats", LanRoomChecks.HttpFirstRound),
     ("Bagua response: failed judgment hand Dodge and cold replay", BaguaResponseChecks.FailedJudgmentReturnsToDodgeAndColdReplay),
     ("Bagua response: decline armor and red judgment retain hand Dodge", BaguaResponseChecks.DeclineAndRedJudgmentKeepHandDodgeOptional),
     ("Wushuang shop: mixed goods no mounts and ephemeral equipment", WushuangModeChecks.MixedShopNoMountsAndEphemeralEquipment),
@@ -250,6 +253,24 @@ var tests = new (string Name, Action Body)[]
     ("Mou Taishi Ci OL: fixed one native Duel initial population capped permanent growth", CardGame.Core.Tests.MouTaishiCiOlChecks.OneActualDuelOrInitialPopulationCappedPermanentGrowth),
     ("Mou Lu Xun Mobile: actual trick hold return private loss distribution and recorded native use", CardGame.Core.Tests.MouLuXunMobileChecks.ActualTrickHoldReturnPrivateLossDistributionAndRecordedNativeUse),
     ("Mou Lu Xun Mobile: physical Wenhe Chaos participant effect and exact parent cold return", CardGame.Core.Tests.MouLuXunMobileChecks.RealWenheChaosParticipantRecordsAndReturnsItsPhysicalParent),
+    ("Mobile Shen Cao Cao: Guixin chosen areas per point and paid child cold", MobileShenCaoCaoChecks.GuixinSelectsAreasPerDamagePointAndColdReturnsOnce),
+    ("Mobile Shen Lu Bu: printed trick targets and whole use Wuqian across turns", CardGame.Core.Tests.MobileShenLuBuChecks.PrintedTrickTargetsAndWholeUseWuqianAcrossTurns),
+    ("Mobile Shen Lu Bu: ending damage card gain original paid frame cold", CardGame.Core.Tests.MobileShenLuBuChecks.EndingDamageCardGainKeepsOriginalPaidFrameCold),
+    ("Mobile Shen Sima Yi: unanswered native windows round cap and faction awakening cold", CardGame.Core.Tests.MobileShenSimaYiChecks.UnansweredNativeWindowsRoundCapAndFactionAwakeningCold),
+    ("Mobile Shen Sima Yi: escalating permanent learning kill choice and paid draw cold", CardGame.Core.Tests.MobileShenSimaYiChecks.EscalatingPermanentLearningKillChoiceAndPaidDrawCold),
+    ("OL Shen Zhen Ji: even native draw opaque discard repeating branch cold", CardGame.Core.Tests.OlShenZhenJiChecks.EvenDrawAndOpaqueDiscardRepeatFromOriginalFrameCold),
+    ("OL Shen Zhen Ji: odd native dying death repeats and survivor stops cold", CardGame.Core.Tests.OlShenZhenJiChecks.OddNativeDyingDeathRepeatsAndSurvivorStopsCold),
+    ("OL Shen Cao Pi: native draw foreign deposit capacity and cold", CardGame.Core.Tests.OlShenCaoPiChecks.ChuyuanNativeDrawForeignDepositCapacityAndCold),
+    ("OL Shen Cao Pi: two actual awakenings obtain Chu permanent skill and cold", CardGame.Core.Tests.OlShenCaoPiChecks.TwoActualAwakeningsObtainChuAndGrantPermanentSkillCold),
+    ("anniversary Sun Quan private Ming native copy and random surge cold returns once", AnniversaryShenSunQuanChecks.PrivateMingNativeCopyAndRandomSurgeColdReturnsOnce),
+    ("OL2016 Shen Zhao Yun: live HP costs native equipment use response cold recovery", CardGame.Core.Tests.Ol2016ShenZhaoYunChecks.LiveHpCostsNativeEquipmentUseResponseAndColdRecovery),
+    ("OL2016 Shen Sima Yi: actual Discard phase original Jilue paid draw and Lianpo cold", CardGame.Core.Tests.Ol2016ShenSimaYiChecks.ActualPhaseDiscardsOriginalJiluePaidDrawAndLianpoCold),
+    ("OL Shen Cao Cao: priority regions fallback random damage point cold", CardGame.Core.Tests.OlShenCaoCaoChecks.PriorityRegionsFallbackRandomAndDamagePointCold),
+    ("Anniversary Shen Zhang Liao Cuixi paid cold and temporary equipment phases", AnniversaryShenZhangLiaoChecks.CuixiPaidColdAndTemporarySlotsUseActualPhases),
+    ("Mobile Shen Ma Chao: real nature markers Jimie both Yuli recharge cold", CardGame.Core.Tests.MobileShenMaChaoChecks.RealNatureMarkerJimieAndBothYuliRechargeCold),
+    ("Mobile Shen Ma Chao: frozen Tingwei subset gift damage next target turn expiry cold", CardGame.Core.Tests.MobileShenMaChaoChecks.FrozenTingweiSubsetGiftDamageAndNextTargetTurnExpiryCold),
+    ("Mobile Shen Jiang Wei: physical exchange ordered native Slashes cold", MobileShenJiangWeiChecks.XinghunPhysicalExchangeAndOrderedSlashesCold),
+    ("Mobile Shen Jiang Wei: Tiantao Shenpei Huitian real native returns cold", MobileShenJiangWeiChecks.TiantaoShenpeiAndHuitianUseRealNativeReturns),
     ("Shanhe Caocao Guixin: independent damage points random areas and turnover cold", ShanheCaocaoGuixinChecks.DamagePointsChooseIndependentNonemptyAreasAndTurnOverCold),
     ("Shanhe Caocao Guixin: sequential live zones paid source loss and children cold", ShanheCaocaoGuixinChecks.SequentialAreaChildrenUseCurrentZonesAndPreservePaidLossCold),
     ("Shanhe Caocao Guixin: paid owner death and isolated recipes cold", ShanheCaocaoGuixinChecks.PaidOwnerDeathAndConditionalRecipesStayIsolatedCold),
@@ -579,6 +600,7 @@ var tests = new (string Name, Action Body)[]
     ("Mou Hu Lie: actual self Yu relay Yitou round Slashes and Cold", CardGame.Core.Tests.MouHuLieChecks.ActualSelfYuRelayYitouRoundSlashesAndCold),
     ("Mou Chen Lin: actual participant gifts written Uses return top and Cold", CardGame.Core.Tests.MouChenLinChecks.ActualParticipantGiftsWrittenUsesReturnTopAndCold),
     ("Mou Sima Yi Anniversary: actual Give polarity private original Slash Played and Cold", CardGame.Core.Tests.MouSimaYiAnniversaryChecks.ActualGivePolarityPrivateOriginalSlashPlayedAndCold),
+    ("Mou Sima Yi Anniversary: human Give distinct physical choices and Cold", CardGame.Core.Tests.MouSimaYiAnniversaryChecks.HumanGiveUsesDistinctPhysicalChoicesAndCold),
     ("Mou Cao Ang Anniversary: global equipment loss and original foreign damage Use source-less Cold", CardGame.Core.Tests.MouCaoAngAnniversaryChecks.GlobalEquipmentLossDiscardOriginalForeignUseSourceLessAndCold),
     ("Mou Ju Shou Anniversary: actual Draw choice Use-only entity expiry and paid Cold", CardGame.Core.Tests.MouJuShouAnniversaryChecks.ActualDrawChoiceUseOnlyEntityExpiryAndPaidCold),
     ("Mou Guo Jia Anniversary: private conversion current Yiji native Lightning Lunshi and Cold", CardGame.Core.Tests.MouGuoJiaAnniversaryChecks.PrivateConversionCurrentYijiNativeLightningLunshiAndCold),
@@ -733,6 +755,7 @@ var tests = new (string Name, Action Body)[]
     ("Wu Jing: HejiSelfForeignRecursivePhysicalConversionAndCold", WuJingChecks.HejiSelfForeignRecursivePhysicalConversionAndCold),
     ("Xiang Chong: GuyingAtomicLossChoiceDebtAndCold", XiangChongChecks.GuyingAtomicLossChoiceDebtAndCold),
     ("Yang Feng: JiaweiCompletedTurnQuotaPartitionAndDistanceCold", YangFengChecks.JiaweiCompletedTurnQuotaPartitionAndDistanceCold),
+    ("Yang Yi: Juanxia virtual Duel damage both directions and cold return", YangYiChecks.VirtualDuelDamageBothDirectionsAndColdReturn),
     ("A Hui Nan: FirstTwoUsersDrawAndActualTurnLedgerCold", AHuiNanChecks.FirstTwoUsersDrawAndActualTurnLedgerCold),
     ("Wang Guan: MiuyanNativeBlackMaterialsPolarityAndWholeDamageCold", WangGuanChecks.MiuyanNativeBlackMaterialsPolarityAndWholeDamageCold),
     ("Qin Lang: DrawDiscardCountsRoundResetAndPreparationCold", QinLangChecks.DrawDiscardCountsRoundResetAndPreparationCold),
@@ -778,6 +801,7 @@ var tests = new (string Name, Action Body)[]
     ("Sun Ru OL: ActualCurrentActorLastZoneLossOncePerTurnAndColdReturn", SunRuOlChecks.ActualCurrentActorLastZoneLossOncePerTurnAndColdReturn),
     ("Liu Pi: CancelledEqualAndLowerExchangesPreserveDeckSlotsAndCold", LiuPiChecks.CancelledEqualAndLowerExchangesPreserveDeckSlotsAndCold),
     ("Wo Long Feng Chu: YoulongPaidEquipmentMovementSurvivesColdSourceLossAndRoundFaces", WoLongFengChuChecks.YoulongPaidEquipmentMovementSurvivesColdSourceLossAndRoundFaces),
+    ("Wo Long Feng Chu: zero counterspell retains frozen response admission cold", WoLongFengChuChecks.YoulongCounterspellPreservesFrozenResponseAdmissionCold),
     ("Cao Shuang: ActualDeceasedChoiceReplacesOnlyInheritedGrantAndCleansOldPileCold", CaoShuangChecks.ActualDeceasedChoiceReplacesOnlyInheritedGrantAndCleansOldPileCold),
     ("SP Zhang Liao: NativeEqualAndZeroRankExchangesKeepOnePhysicalPayment", SpZhangLiaoChecks.NativeEqualAndZeroRankExchangesKeepOnePhysicalPayment),
     ("Bian Fu Ren: NativeForeignLossFreezesActorAndUsesOneActualTurnQuota", BianFuRenChecks.NativeForeignLossFreezesActorAndUsesOneActualTurnQuota),
@@ -810,17 +834,55 @@ var tests = new (string Name, Action Body)[]
     ("Qizheng ambush native damage and replay", ShenXunYuChecks.QizhengAmbushUsesRealDamageAndReplay),
     ("shen deng ai develop allocate awaken and use issued domains", CardGame.Core.Tests.ShenDengAiChecks.DevelopAllocateAwakenAndUseIssuedDomains),
     ("shen deng ai cuixin completed use native child and delayed carrier", CardGame.Core.Tests.ShenDengAiChecks.CuixinRestoresCompletedUseAfterNativeChildAndDelayedCarrier),
+    ("Happy Shen Deng Ai: optional reallocation developed draw and nonhand Cuixin cold", CardGame.Core.Tests.HappyShenDengAiChecks.OptionalReallocationDevelopedDrawAndNonHandCuixinResumeCold),
     ("Mobile Shen Hua Tuo: Wuling ordered entries equipment and native draw cold", CardGame.Core.Tests.MobileShenHuaTuoChecks.WulingOrdersEntriesEquipmentAndNativeDrawCold),
     ("Mobile Shen Hua Tuo: Youyi shared Ren payment recovery cold", CardGame.Core.Tests.MobileShenHuaTuoChecks.YouyiSharedRenPaysWholeAreaBeforeRecoveryCold),
     ("Shen Ma Chao starting mounts foreign Slash debt and Hengwu cold", ShenMaChaoChecks.StartingMountsForeignSlashDebtAndHengwuCold),
     ("Shen Ma Chao own mount Dodge true response and zero Hengwu cold", ShenMaChaoChecks.OwnMountDodgeTrueResponseAndZeroHengwuCold),
     ("Shen Pang Tong: native Luansuo and Fengliao", ShenPangTongChecks.NativeLuansuoAndFengliao),
     ("Shen Pang Tong: native Kunyu death payment cold", ShenPangTongChecks.NativeKunyuDeathPaymentCold),
+    ("Happy Shen Pang Tong: independent plans native Slash theft lower rewards and failure growth cold", CardGame.Core.Tests.HappyShenPangTongChecks.IndependentPlansNativeSlashTheftLowerActualTurnRewardsAndFailureGrowthCold),
+    ("Happy Shen Diao Chan: native tie recipient suit expiry and private whole-suit payments", CardGame.Core.Tests.HappyShenDiaoChanChecks.NativeTiedContestSuitBanOwnEndingAndWholeSuitPrivateTakeCold),
     ("Shen Zhong Hui: Linjie Duzhang awakening cold", ShenZhongHuiChecks.LinjieDuzhangAndAwakeningCold),
     ("Shen Zhong Hui: Lishi future phases judgment and discard cold", ShenZhongHuiChecks.LishiFuturePhasesJudgmentAndDiscardCold),
+    ("Happy Shen Zhong Hui: twice actual turn paid draw cold and all-card Lishi native use", HappyShenZhongHuiChecks.TwiceActualTurnDrawColdAndAllCardLishiNativeUse),
     ("Anniversary Shen Zhang Jiao: owned discards random thirty-six shuffle thunder cold", CardGame.Core.Tests.AnniversaryShenZhangJiaoChecks.OwnedDiscardRandomThirtySixShuffleAndThunderCold),
     ("Anniversary Shen Zhang Jiao: Sanshou whole-turn actual types and cleanup", CardGame.Core.Tests.AnniversaryShenZhangJiaoChecks.SanshouTracksWholeTurnRealUseTypesAndCleansReveals),
+    ("Anniversary Shen Huang Zhong: Lieqiong discard amplification Tianchong cold", CardGame.Core.Tests.AnniversaryShenHuangZhongChecks.LieqiongPhysicalDiscardAmplificationAndTianchongCold),
+    ("Anniversary Shen Huang Zhong: Zhanjue native draw phase Slash recovery controls", CardGame.Core.Tests.AnniversaryShenHuangZhongChecks.ZhanjueNativeDrawPhaseSlashRecoveryAndWoundControls),
+    ("Shen Cao Pi: Yinzhi native hand response and actual-turn restriction", CardGame.Core.Tests.ShenCaoPiChecks.YinzhiNativeHandResponseAndActualTurnRestriction),
+    ("Shen Cao Pi: Keming native damage borrow and same-name echo cold", CardGame.Core.Tests.ShenCaoPiChecks.KemingBorrowsNativeDamageAndEchoesSameNamesCold),
+    ("Mobile Gan Ning: ended Camp removal precedes gain and resumes cold", CardGame.Core.Tests.MobileShenGanNingChecks.EndedCampRemovalPrecedesGainAndResumesCold),
+    ("Mobile Shen Lu Xun: Cuike chains before discard and cold returns once", MobileShenLuXunChecks.CuikeChainsBeforeDiscardAndColdReturnsOnce),
+    ("Anniversary Shen Guan Yu: respondable heart Slashes bidirectional Nightmare and native draw death cold", CardGame.Core.Tests.AnniversaryShenGuanYuChecks.RespondableHeartSlashesDrawOnceBidirectionalNightmareAndDeathCold),
+    ("Anniversary Shen Liu Bei: live HP formulas and chained recipient subset cold", CardGame.Core.Tests.AnniversaryShenLiuBeiChecks.LiveHpDrawAndOptionalChainedRecipientsCold),
+    ("Happy Shen Zhang Liao: viewed color, abolished thresholds and sourced restoration cold", CardGame.Core.Tests.HappyShenZhangLiaoChecks.ViewedColorAbolitionThresholdsAndSourcedRestorationResumeCold),
+    ("Happy Shen Guo Jia: five-suit reveal strict gift and turn-named native uses cold", CardGame.Core.Tests.HappyShenGuoJiaChecks.FiveSuitRevealStrictGiftAndTurnNamedNativeUsesCold),
+    ("Happy Sun Quan Shehu paid cold and native learning Dingli", HappyShenSunQuanChecks.ShehuPaidColdAndLearningDingliUseNativeReturns),
+    ("Happy Sun Quan source death and exact Play restriction", HappyShenSunQuanChecks.SourceDeathKeepsHolderDutyAndOnlyPlayRestrictsForeignUses),
+    ("Happy Shen Lu Bu: actual-start first Slash Duel native targets cold", HappyShenLuBuChecks.WuqianActualStartAndFirstSlashDuelUseNativeTargetsCold),
+    ("Happy Shen Lu Bu: paid HP groups foreign-turn full-HP reset cold", HappyShenLuBuChecks.ShenfenPaidHpGroupsAndForeignTurnFullHpResetCold),
+    ("Happy Shen Zhen Ji: three branches actual-turn targets refunded reward cold", CardGame.Core.Tests.HappyShenZhenJiChecks.ThreeBranchesActualTurnTargetsAndRefundedRewardCold),
+    ("Happy Shen Zhen Ji: black equipment response seventh card and native return cold", CardGame.Core.Tests.HappyShenZhenJiChecks.BlackEquipmentResponseStoresSeventhAndTurnEndReturnsAllCold),
+    ("Happy Shen Cao Cao: random actual gains conditional turnover cold", HappyShenCaoCaoChecks.RandomOnePerCharacterActualThresholdAndFaceDownCold),
+    ("Happy Shen Zhuge Liang: real stars wind and self mist cold", CardGame.Core.Tests.HappyShenZhugeLiangChecks.SevenRealHandStarsWindDamageAndSelfMistActualExpiryCold),
+    ("Happy Shen Zhou Yu: whole-turn discard three melodies recurring fire cold", CardGame.Core.Tests.HappyShenZhouYuChecks.WholeTurnDiscardThreeMelodiesAndRecurringStartFireResumeCold),
+    ("Happy Shen Lu Meng: forced Shelie sole red hand shared actual turn cold", HappyShenLuMengChecks.ForcedShelieSoleRedHandAndSharedActualTurnCold),
+    ("Happy Shen Liu Bei: free choices extra Play colors and actual damage draw cold", HappyShenLiuBeiChecks.FreeChoiceExtraPlayColorsAndActualDamageDrawCold),
+    ("Happy Shen Lu Xun: population threshold chosen subset native damage cold", HappyShenLuXunChecks.PopulationThresholdChosenSubsetAndNativeDamageCold),
+    ("Happy Shen Xu Chu: record draws marked Duel and equal record cold", CardGame.Core.Tests.HappyShenXuChuChecks.RecordDrawsMarkedDuelAndEqualRecordResumeCold),
+    ("Happy Shen Dian Wei: protected chooser paid Elai native damage and death queue cold", CardGame.Core.Tests.HappyShenDianWeiChecks.ProtectedChooserPaidElaiNativeDamageAndDeathQueueCold),
+    ("Happy Shen Sima Yi: four Jilue paths strict Peach and first actual-turn draw cold", CardGame.Core.Tests.HappyShenSimaYiChecks.FourJiluePathsStrictPeachAndFirstActualTurnDrawResumeCold),
+    ("Happy Shen Guan Yu: voluntary heart Slash survived and death five HP judgments cold", CardGame.Core.Tests.HappyShenGuanYuChecks.VoluntaryHeartSlashAndSurvivedDeathFiveHpJudgmentsCold),
+    ("Happy Shen Zhang Jiao: use-only Huang deck-only thirty-six and four skills cold", HappyShenZhangJiaoChecks.UseOnlyHuangDeckOnlyThirtySixAndFourSkillCold),
+    ("Happy Shen Taishi Ci: first dying equal HP and foreign ending round awakening cold", CardGame.Core.Tests.HappyShenTaishiCiChecks.FirstDyingEqualHpJudgmentAndForeignEndingRoundAwakeningResumeCold),
+    ("Happy Shen Hua Tuo: medicine dying heart equipment and paid needle targets cold", CardGame.Core.Tests.HappyShenHuaTuoChecks.MedicineDyingHeartEquipmentAndPaidNeedleTargetsCold),
+    ("Happy Shen Gan Ning: three-suit shares and native recovery draw cold", CardGame.Core.Tests.HappyShenGanNingChecks.ThreeSuitSharesAndRecoveryBeforeNativeDrawCold),
+    ("Happy Shen Zhao Yun: two-red single use black current-turn obtains cold", CardGame.Core.Tests.HappyShenZhaoYunChecks.TwoRedSingleUseAndBlackCurrentTurnObtainsResumeCold),
+    ("Mobile Shen Zhang Liao: Duorui paid slot native skill loan expiry cold", CardGame.Core.Tests.MobileShenZhangLiaoChecks.DuoruiPaysRealSlotAndBorrowsUntilTargetTurnEndsCold),
+    ("Mobile Shen Zhang Liao: Zhiti native Pindian Duel and damage restore cold", CardGame.Core.Tests.MobileShenZhangLiaoChecks.ZhitiRestoresAtTruePindianDuelAndDamageBoundaries),
     ("Shen Lu Su native table order Dingzhou paid cold", ShenLuSuChecks.NativeTableOrderAndDingzhouPaidCold),
+    ("Happy Shen Lu Su: both Dingzhou branches and unrestricted Team Zhimeng cold", CardGame.Core.Tests.HappyShenLuSuChecks.BothDingzhouBranchesAndUnrestrictedTeamZhimengCold),
     ("Shen Lu Su native Zhimeng random division cold", ShenLuSuChecks.NativeZhimengRandomDivisionCold),
     ("Shen Xu Chu actual turn maximum marked Duel and cold", ShenXuChuChecks.ZhengqingActualTurnsAndMarkedDuelCold),
     ("Shen Xu Chu self draw cap paid Zhuangpo discard cold", ShenXuChuChecks.ZhengqingSelfCapAndZhuangpoPaidDiscardCold),
@@ -848,6 +910,7 @@ var tests = new (string Name, Action Body)[]
     ("Hua Man: ActualMansiAllHandBarbarianAndManyiNativeImmunityCold", HuaManChecks.ActualMansiAllHandBarbarianAndManyiNativeImmunityCold),
     ("Zhang Qi Ying: ActualFourTokensDiscardSuitsAndSourceLifetimeCold", ZhangQiYingChecks.ActualFourTokensDiscardSuitsAndSourceLifetimeCold),
     ("Cao Chun: InitialMarksPrintedEquipmentNativeLossAndCold", CaoChunChecks.InitialMarksPrintedEquipmentNativeLossAndCold),
+    ("Cao Chun: acquired three marks Slash return and ending conditions cold", CaoChunChecks.AcquiredAfterStartGrantsThreeMarksAndPreservesEndingConditionCold),
     ("Wang Can: ActualSanwenPriorWitnessBatchAndTurnQuotaCold", WangCanChecks.ActualSanwenPriorWitnessBatchAndTurnQuotaCold),
     ("Fan Chou: ActualSilverLionFieldGainRecoveryChildCold", FanChouChecks.ActualSilverLionFieldGainRecoveryChildCold),
     ("Guo Si: ActualCompletedParentRejectsForeignWindowProofCold", GuoSiChecks.ActualCompletedParentRejectsForeignWindowProofCold),
@@ -1032,6 +1095,8 @@ var tests = new (string Name, Action Body)[]
     ("Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer", OrdinaryLiuXieChecks.TianmingSilverLionPaymentAndUniqueCurrentHpPeerOwnColdChildren),
     ("OL signed damage actual material effective color and amount", OrdinaryLingJuChecks.PaidDamageAdjustmentUsesEffectiveOwnedColorAndActualAmount),
     ("Tiered Round true uses physical conversion and private cold", BoundaryGuoHuangHouChecks.TrueRoundNamesPhysicalConversionAndPrivateCold),
+    ("Danxin: opening damage zero round and capped draw children cold", BoundaryGuoHuangHouChecks.OpeningDamageBenefitAndCappedDrawCold),
+    ("Skill changes: opening damage dying upgrades replacements and cold", SkillChangeOpeningChecks.DamageAndDyingChangesBeforeFirstRoundCold),
     ("Owner batch loss equipment OR two cards once", BoundaryLingTongChecks.OwnerBatchEquipmentOrTwoCardsCreatesOneOpportunity),
     ("Shared Slash gift equipment recovery both gain children cold", BoundaryChenGongChecks.SharedGiftEquipmentRecoveryAndBothGainChildrenCold),
     ("Turn damage-use draw debt actual gain and frozen ending cost", BoundaryLiuBiaoChecks.ExtraDrawOwnsGainChildAndEndingDebtFreezesNewFactionCount),
@@ -1090,6 +1155,7 @@ var tests = new (string Name, Action Body)[]
     ("Feng Lin Zhou Fei first domains and true equipment sequence", FengLinZhouFeiChecks.DomainFirstAndEquipmentSequence),
     ("Feng Lin Lu Zhi actual discard entry boundaries",FengLinLuZhiChecks.ActualDiscardEntryBoundaries),
     ("Feng Lin Xu You bottom draw and alternating replay", FengLinXuYouChecks.BottomDrawAndAlternatingReplay),
+    ("Shicai single entity automatic top and conversion eligibility", FengLinXuYouChecks.SingleEntityAutomaticTopAndConversionEligibility),
     ("Shicai completed Dodge retains native qualification and cold replay", ShicaiResponseContextChecks.CompletedDodgeRetainsNativeQualificationAndColdReplay),
     ("shared public pile independent source thresholds", FengLinGuanqiuJianChecks.IndependentSourceThresholds),
     ("Feng Lin Zhuge Zhan private quota and top replay", FengLinZhugeZhanChecks.PrivateQuotaAndTopReplay),
@@ -1147,6 +1213,34 @@ var tests = new (string Name, Action Body)[]
     ("Fame 2016 real ordered Slash and replay", Fame2016StateChecks.RealOrderedSlashAndReplay),
     ("shared post-event recipient batch counts and reason filters", SharedPostEventChecks.TransferFiltersAndBatchCountsUseTheRecipient),
     ("shared use lifecycle nests rescue inside a suspended card window", CardUseLifecycleChecks.NestedRescueRetainsTheOuterUseWindow),
+    ("Happy Shen Wei Yan: real bone slot first equipment native children cold", HappyShenWeiYanChecks.RealBoneSlotFirstEquipmentAndNativeChildrenCold),
+    ("Happy Shen Wei Yan: Ezhi physical use Gujing gain replacement and native bone returns", HappyShenWeiYanChecks.EzhiPhysicalUseGujingDestinationAndDiscardedNativeUses),
+    ("Happy Shen Zhang Fei: real take children return before death mark cold", CardGame.Core.Tests.HappyShenZhangFeiChecks.RealTakeChildrenReturnBeforeDeathMarkCold),
+    ("Happy Shen Da Xiao Qiao: independent pools native recovery dying cold", CardGame.Core.Tests.HappyShenDaXiaoQiaoChecks.IndependentPoolsNativeRecoveryAndDyingResumeCold),
+    ("Happy Shen Zuo Ci: persistent physical faces native gain destruction and overflow cold", CardGame.Core.Tests.HappyShenZuoCiChecks.RealPersistentPhantomsNativeUseForeignGainAndOverflowCold),
+    ("OL Lu Shi: ending history lifetime adjustments native thunder pair cold", CardGame.Core.Tests.OlLuShiChecks.EndingHistoryLifetimeAdjustmentsAndNativeThunderPairResumeCold),
+    ("Anniversary Ruan Ji: shown entities actual-turn names persistent native Wine cold", AnniversaryRuanJiChecks.ShownEntitiesOrdinaryNamesAndPersistentNativeWineCold),
+    ("Anniversary Kan Ze: actual second damage point per turn native recovery cold", AnniversaryKanZeChecks.ActualSecondDamagePointPerTurnAndNativeRecoveryCold),
+    ("Anniversary Hu Zhao: native areas, Huomo and distance cold", CardGame.Core.Tests.AnniversaryHuZhaoChecks.NativeAreaCostsJudgmentRestorationHuomoAndDistanceCold),
+    ("Anniversary Xu Jing: marked entity circulation actual use debt cold", CardGame.Core.Tests.AnniversaryXuJingChecks.MarkedEntityCirculatesAndActualUsesRepayCaixiaResumeCold),
+    ("Anniversary Du Kui: revealed ranks native uses mutual range field moves cold", AnniversaryDuKuiChecks.RevealedRankLoopNativeUseAndMutualRangeMovesCold),
+    ("Anniversary Liu Yong: Xi leader native uses phase quota cold", CardGame.Core.Tests.AnniversaryLiuYongChecks.XiLeaderNativeUsesAndPhaseQuotaResumeCold),
+    ("Anniversary Liu Li: category payment dynamic cap native round names cold", CardGame.Core.Tests.AnniversaryLiuLiChecks.CategoryDiscardDynamicDrawAndNativeRoundNamesCold),
+    ("Anniversary Zhang Fen: real cart upgrades inserted Play destruction native returns cold", AnniversaryZhangFenChecks.RealCartUpgradesInsertedPlayDestructionAndNativeReturnsCold),
+    ("Anniversary Bai Ling Yun: private top native use suppression limited recovery cold", CardGame.Core.Tests.AnniversaryBaiLingYunChecks.PrivateTopNativeUseSuppressionAndLimitedRecoveryResumeCold),
+    ("Anniversary Yang Biao: normal draw obligation, dying HE payment and whole random Uses cold", CardGame.Core.Tests.AnniversaryYangBiaoChecks.NormalDrawObligationDyingHePaymentAndWholeRandomUsesCold),
+    ("Anniversary Le Jiu: paid whole-use bonus reverse Duel undamaged native return cold", AnniversaryLeJiuChecks.PaidWholeUseBonusDuelReverseAndUndamagedNativeReturnCold),
+    ("Anniversary He Yan: sourced choices and sealed suit hands cold", CardGame.Core.Tests.AnniversaryHeYanChecks.SourcedChoicesAndSealedSuitHandsResumeCold),
+    ("Anniversary Guo Zhao: replacement colors permanent options native equipment cold", CardGame.Core.Tests.AnniversaryGuoZhaoChecks.ReplacementColorLeasePermanentOptionsAndNativeEquipmentCold),
+    ("Anniversary Mang Ya Chang: first source damage native Lion cap survivor discard death cold", AnniversaryMangYaChangChecks.FirstSourceChoiceNativeLionCapSurvivorDiscardAndDeathCold),
+    ("Anniversary Feng Xi: native refill and black-target branches cold", CardGame.Core.Tests.AnniversaryFengXiChecks.NativeRefillAndBothBlackTargetBranchesResumeCold),
+    ("Anniversary Zhao Tong Zhao Guang: real pair basics Wine Played Slash awakening Qingren cold", CardGame.Core.Tests.AnniversaryZhaoTongZhaoGuangChecks.PairBasicRequirementNativeWinePlayedSlashAwakeningAndQingrenCold),
+    ("Anniversary Lv Dai: atomic equipment entry and exit recover once cold", CardGame.Core.Tests.AnniversaryLvDaiChecks.AtomicEquipmentExitAndEntryRecoverOnceCold),
+    ("Anniversary Gao Xiang: chosen participant private discards, basic acquisition and cold", CardGame.Core.Tests.AnniversaryGaoXiangChecks.ChosenParticipantPrivateDiscardsBasicAcquisitionAndCold),
+    ("Anniversary Fu Rong Fu Qian: whole-damage protection post-maximum refill cold", AnniversaryFuRongFuQianChecks.WholeDamageProtectionAndPostMaximumLostHpRefillCold),
+    ("Anniversary Xiahou En: actual-turn native Duel permanent sword temporary loss cold", AnniversaryXiahouEnChecks.ActualTurnNativeDuelPermanentSwordAndTemporaryLossCold),
+    ("Anniversary Zhang Wen: winning Pindian refund and whole-extrema gift cold", CardGame.Core.Tests.AnniversaryZhangWenChecks.SongshuRefundAndSibianWholeExtremaGiftResumeCold),
+    ("Anniversary Zhang Xun: next actual turn Slash benefits native followup and cold", CardGame.Core.Tests.AnniversaryZhangXunChecks.NextActualTurnSlashBenefitsNativeFollowupAndCold),
     ("current classic catalogue modes and skill references", CurrentClassicContentChecks.CatalogueAndModes),
     ("Fame 2011 equipment atomic exchange and replay", Fame2011EquipmentChecks.GanluAtomicEquipmentAndReplay),
     ("Fame 2011 equipment dying reveal privacy and replay", Fame2011EquipmentChecks.BuyiSelfChoiceBlindOtherPrivacyAndReplay),
@@ -1266,6 +1360,8 @@ var tests = new (string Name, Action Body)[]
     ("winner rules cover all three camps", WinnerRules),
     ("manual discards reject invalid subsets without mutation", ManualDiscardChecks.Rejections),
     ("manual discard checkpoints and commands replay exactly", ManualDiscardChecks.Replay),
+    ("manual discards accept partial payments and restore the remaining quota", ManualDiscardChecks.PartialPaymentsRestoreRemainingQuota),
+    ("manual discards preserve doubled quota across partial payments cold", ShanheHuangkongChecks.PartialDiscardKeepsFrozenDoubledQuotaCold),
     ("standard deck content is deterministic and balanced", StandardDeckContent),
     ("standard package builds an immutable isolated registry", StandardContentRegistryBuilds),
     ("skill program loader separates canonical gameplay from presentation", SkillProgramChecks.LoaderCanonicalizationAndPresentationIsolation),
@@ -1299,6 +1395,7 @@ var tests = new (string Name, Action Body)[]
     ("identity draft AI evaluates ordinary roster rules without legacy edition priors", GeneralDraftAiChecks.OrdinaryRosterRuleCoverage),
     ("identity draft AI prices Lord benefit recipients costs and awakening", GeneralDraftAiChecks.LordBenefitRecipientsAndCosts),
     ("identity draft separates five and eight player exact edition selection rosters", IdentityGeneralPoolChecks.ModePoolsAndSelectionBoundaries),
+    ("god rules deduplication keeps one roster entry and historical definitions", IdentityGeneralPoolChecks.EquivalentGodRulesUseOneRosterEntry),
     ("Mou Cao Pi song limits paid benefits and exact cold replay", MouCaoPiChecks.SongAndXingshangCostsBenefitsAndColdReplay),
     ("Mou Cao Pi Fangzhu actual target turn expiry and permanent Songwei", MouCaoPiChecks.FangzhuDurationAndPermanentSongweiSkills),
     ("Mou Cao Pi printed corpse inheritance and original skill loss", MouCaoPiChecks.InheritanceLosesOwnThreeSkillsAndKeepsNonLordPrintedSkills),
@@ -1321,6 +1418,9 @@ var tests = new (string Name, Action Body)[]
     ("duel alternates Slash responses through a typed window", DuelResponseFlow),
     ("Delayed Nullification: placement judgment chain and cold replay", DelayedNullificationChecks.PlacementAndJudgmentWindows),
     ("Nullification resolves a private multi-layer trick window", NullificationFlow),
+    ("Group counterspells: attacks only cancel current recipient and cold chain", GroupTargetNullificationChecks.AttacksOnlyCancelCurrentRecipient),
+    ("Group counterspells: harvest preserves shared reveal and canceled pickers cold", GroupTargetNullificationChecks.HarvestKeepsSharedRevealAndSkipsOnlyCanceledPickers),
+    ("Group counterspells: recovery only cancels current recipient cold", GroupTargetNullificationChecks.RecoveryOnlyCancelsCurrentRecipient),
     ("PeachGarden resolves a paused multi-target recovery", PeachGardenFlow),
     ("FiveGrains reveals public cards with private draft prompts", FiveGrainsFlow),
     ("target-card prompts expose opaque slots and replay without hidden identities", TargetCardChecks.OpaqueSlotFlow),
@@ -1777,7 +1877,7 @@ static void StandardContentRegistryBuilds()
     Equal("standard", registry.Packages[0].Id);
     TrueWithMessage(!string.IsNullOrWhiteSpace(registry.ContentHash), "registry exposes a content hash");
     Equal(registry.ContentHash, secondRegistry.ContentHash);
-    Equal(33, registry.Cards.Count);
+    Equal(34, registry.Cards.Count);
     Equal(13, registry.Skills.Count);
     Equal(
         "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。",
@@ -1792,6 +1892,7 @@ static void StandardContentRegistryBuilds()
     Equal(2, registry.Modes.Count);
     Equal(CardKind.Slash, registry.GetCard("standard:slash").LegacyKind);
     Equal(CardKind.QizhengXiangsheng, registry.GetCard("mobile:qizheng-xiangsheng").LegacyKind);
+    Equal(CardKind.DagongChe, registry.GetCard("anniversary:dagong-che-card").LegacyKind);
     Equal("standard:jianxiong", registry.Generals["standard:cao-cao"].SkillId);
     Equal("standard:wusheng", registry.Generals["standard:guan-yu"].SkillId);
     Equal("standard:longdan", registry.Generals["standard:zhao-yun"].SkillId);
@@ -2769,12 +2870,12 @@ static void NullificationFlow()
         .ToArray();
     True(resolvedEffects.Any(effect => effect.EffectNullified));
     foreach (var responseGroup in responses.GroupBy(response =>
-                 (response.ResolutionId, response.EffectCardId)))
+                 (response.ResolutionId, response.EffectCardId, response.WindowFrameId)))
     {
         var ordered = responseGroup.OrderBy(response => response.ChainDepth).ToArray();
         var resolved = resolvedEffects.Single(effect =>
             effect.ResolutionId == responseGroup.Key.ResolutionId &&
-            effect.EffectCardId == responseGroup.Key.EffectCardId);
+            effect.EffectCardId == responseGroup.Key.EffectCardId && effect.WindowFrameId == responseGroup.Key.WindowFrameId);
         Equal(ordered.Length, resolved.ChainDepth);
         Equal(ordered.Length % 2 == 1, resolved.EffectNullified);
         True(ordered.Select(response => response.ChainDepth)
@@ -2985,10 +3086,13 @@ static void PeachGardenFlow()
         "PeachGarden card-use frame is paused before the first target");
 
     var firstStep = gameWithGarden.DriveAdvanceOneStep();
+    firstStep = ResolveNullificationWindowForTest(gameWithGarden, firstStep);
+    if (gameWithGarden.ResolutionStack.OfType<CardUseFrame>().Single().TargetIndex == 0)
+        firstStep = gameWithGarden.DriveAdvanceOneStep();
     Equal(EngineStatus.Running, firstStep.Status);
     TrueWithMessage(
         gameWithGarden.ResolutionStack.OfType<CardUseFrame>().Single().TargetIndex == 1,
-        "PeachGarden advances one target per engine step");
+        "PeachGarden advances one target per recovery step after that target's counterspell window");
     Equal(1, gameWithGarden.State.ProcessingCardCount);
 
     True(gameWithGarden.Events.Any(eventItem =>
@@ -3004,6 +3108,7 @@ static void PeachGardenFlow()
            steps++ < 100)
     {
         gameWithGarden.DriveAdvanceOneStep();
+        ResolveNullificationWindowForTest(gameWithGarden);
     }
 
     TrueWithMessage(

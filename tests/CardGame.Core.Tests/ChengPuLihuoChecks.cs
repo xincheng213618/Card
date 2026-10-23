@@ -42,6 +42,16 @@ internal static class ChengPuLihuoChecks
             $"loss={events.OfType<ProgramSkillHpLostEvent>().Count(item => item.SkillId == LihuoSkillId)}, " +
             $"dying={events.OfType<PlayerDyingEvent>().Count(item => item.VictimSeat == HumanSeat)}.");
 
+        var loss = events.OfType<ProgramSkillHpLostEvent>().Single(item => item.SkillId == LihuoSkillId);
+        var declared = events.OfType<CardUseDeclaredEvent>().Single(item =>
+            item.SourceSeat == HumanSeat && item.CardId == action.CardId);
+        Require(loss.CompletedCardUseResolutionId == declared.ResolutionId &&
+                events.OfType<DamageAppliedEvent>().Any(item =>
+                    item.SourceCardUseResolutionId == loss.CompletedCardUseResolutionId) &&
+                events.OfType<ProgramSkillHpLostEvent>().Single(item =>
+                    item.SkillId == PreWoundSkillId).CompletedCardUseResolutionId is null,
+            "The Lihuo completion penalty must identify its declared damaging use, while unrelated pre-wounding has no owning use.");
+
         var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The configured Lihuo dying prompt must restore exactly.");

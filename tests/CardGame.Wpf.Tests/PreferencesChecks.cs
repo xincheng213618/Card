@@ -29,6 +29,7 @@ internal static class PreferencesChecks
             Program.Render(root, 1120, 740, Path.Combine(output, "54-preferences-startup.png"));
             var before = State(vm);
             var slider = (Slider)window.FindName("SetupSoundVolume");
+            var setupVolume = (TextBlock)window.FindName("SetupSoundVolumeValue");
             var toggle = (CheckBox)window.FindName("SetupSoundToggle");
             var motion = (CheckBox)window.FindName("SetupMotionToggle");
             var settingsSlider = (Slider)window.FindName("SettingsSoundVolume");
@@ -41,10 +42,11 @@ internal static class PreferencesChecks
             settingsSlider.Value = .19;
             root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
             var expectedVolume = vm.SoundVolume.ToString("P0", settingsVolume.Language.GetSpecificCulture());
-            Require(vm.SoundVolume == .19 && slider.Value == .19 && settingsVolume.Text == expectedVolume &&
+            Require(vm.SoundVolume == .19 && slider.Value == .19 && settingsVolume.Text == expectedVolume && setupVolume.Text == expectedVolume &&
                     System.Windows.Automation.AutomationProperties.GetName(settingsSlider) == "游戏音量" &&
-                    settingsSlider.SmallChange == .05 && settingsSlider.LargeChange == .1,
-                "Settings volume needs a readable percentage, keyboard steps and a shared accessible volume control.");
+                    settingsSlider.SmallChange == .05 && settingsSlider.LargeChange == .1 &&
+                    slider.SmallChange == settingsSlider.SmallChange && slider.LargeChange == settingsSlider.LargeChange,
+                "Setup and settings volume must share a readable percentage and consistent keyboard adjustments.");
             Program.Render(root, 1120, 740, Path.Combine(output, "54-preferences-settings.png"));
             SettingsScrollKeepsHeader(window, root, output);
             vm.CloseSettingsCommand.Execute(null);
@@ -52,20 +54,37 @@ internal static class PreferencesChecks
             vm.IsNewGameSetupOpen = false;
             vm.OpenSettingsCommand.Execute(null);
             root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
-            Require(Equals(settingsBack.Content, "返回牌桌"), "Settings opened from play should return to the table.");
+            Require(Equals(settingsBack.Content, "返回选将") && vm.IsGeneralSelectionPending && State(vm) == before,
+                "Settings above an unfinished general draft must identify the actual selection screen it returns to without advancing the game.");
             vm.CloseSettingsCommand.Execute(null);
             vm.IsNewGameSetupOpen = true;
             vm.OpenLobbyCategoryCommand.Execute("identity");
             vm.OpenModeConfigurationCommand.Execute(vm.VisibleModeGroups.Single(group => group.Variants.Contains(vm.SelectedTableMode)));
+            var configuredMode = vm.SelectedTableMode;
+            vm.OpenSettingsCommand.Execute(null);
+            root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
+            Require(Equals(settingsBack.Content, "返回开局设置") && vm.IsModeConfigurationOpen,
+                "Settings above mode configuration must name the setup step that remains underneath it.");
+            vm.CloseSettingsCommand.Execute(null);
+            Require(vm.IsModeConfigurationOpen && ReferenceEquals(vm.SelectedTableMode, configuredMode) && State(vm) == before,
+                "Returning from settings must retain the current mode configuration and untouched game.");
             root.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
             toggle.IsChecked = false;
             motion.IsChecked = false;
             Pump(650);
             Require(store.Read() == new PlayerPreferences(1, false, .19, false) && saves.WriteCount == 0 && State(vm) == before,
                 "Setup preferences failed to persist independently of the untouched game.");
-            Require(!slider.IsEnabled && !settingsSlider.IsEnabled && settingsVolume.Text == expectedVolume && toggle.IsEnabled && motion.IsEnabled,
+            Require(!slider.IsEnabled && !settingsSlider.IsEnabled && settingsVolume.Text == expectedVolume && setupVolume.Text == expectedVolume && toggle.IsEnabled && motion.IsEnabled,
                 "Muted volume controls should retain their displayed level while the sound toggle remains available.");
+            Program.Render(root, 1120, 740, null);
+            var setupScroll = (ScrollViewer)window.FindName("ModeSetupScroll");
+            setupScroll.ScrollToEnd();
             Program.Render(root, 1120, 740, Path.Combine(output, "55-preferences-muted.png"));
+            var setupViewport = Program.Find<ScrollContentPresenter>(setupScroll).Single(item => ReferenceEquals(item.TemplatedParent, setupScroll));
+            var volumeBounds = setupVolume.TransformToAncestor(setupViewport).TransformBounds(new Rect(setupVolume.RenderSize));
+            Require(volumeBounds.Top >= 0 && volumeBounds.Left >= 0 && volumeBounds.Bottom <= setupViewport.ActualHeight + 1 &&
+                    volumeBounds.Right <= setupViewport.ActualWidth + 1,
+                "Scrolling setup to its sound controls must reveal the complete retained volume percentage at the minimum client size.");
             var start = (Button)window.FindName("StartNewGameButton");
             var configuration = (StackPanel)window.FindName("ModeConfigurationPanel");
             var origin = start.TranslatePoint(new Point(), root);
@@ -229,7 +248,7 @@ internal static class PreferencesChecks
         Dispatcher.PushFrame(frame);
     }
 
-    private sealed class FailingPreferencesStore : IPlayerPreferencesStore
+    internal sealed class FailingPreferencesStore : IPlayerPreferencesStore
     {
         public bool FailRead, FailWrite;
         public int Writes;

@@ -103,7 +103,7 @@ internal static class ShanheHuangkongChecks
         Need(s.P!.RequiredCardCount == 4 && s.P.Prompt.Contains("手牌上限为 4") && s.P.ValidCardIds.Count == 6 && s.V().HandLimit == 4,
             "Huangkong owes (six minus four) times two actual discards, rather than changing the hand limit to two.");
         var chosen = s.P.ValidCardIds.Take(4).Order().ToArray(); s.Cold();
-        foreach (var invalid in new[] { chosen.Take(2).ToArray(), chosen.Take(3).ToArray(), s.P.ValidCardIds.Take(5).ToArray() })
+        foreach (var invalid in new[] { Array.Empty<int>(), new[] { chosen[0], chosen[0] }, s.P.ValidCardIds.Take(5).ToArray() })
         {
             var before = s.State(); var result = s.G.Submit(new DiscardCardsCommand(0, invalid, s.P!.PromptId, s.G.Revision));
             Need(!result.Accepted && result.Error?.Code == CommandErrorCode.InvalidChoice && s.State() == before,
@@ -126,6 +126,24 @@ internal static class ShanheHuangkongChecks
         s.Reach(() => s.G.State.CurrentSeat != 0);
         Need(s.HandLimitPayments(0).Length == 4 && s.Events<HandLimitDiscardedEvent>().Length == 1 && s.V().HandCount == 3,
             "Returning through a paid child and cold replay neither repeats the discard nor demands the normal two-card alternative."); s.Cold();
+    }
+
+    public static void PartialDiscardKeepsFrozenDoubledQuotaCold()
+    {
+        var s = Scene.Start(new("human-discard") { Hand = Cards(6), WatchOwnEnd = true }); s.Play();
+        s.EndPlay(); s.Reach(() => s.P is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 });
+        var chosen = s.P!.ValidCardIds.Take(4).ToArray();
+        s.Discard([chosen[0]]); s.Cold();
+        Need(s.P is { Kind: DecisionKind.DiscardCards, RequiredCardCount: 3 } && s.V().HandCount == 5,
+            "A one-card payment leaves three of the frozen four-card quota, even though recalculating the multiplier would demand two.");
+        s.Discard([chosen[1]]); s.Cold();
+        Need(s.P is { Kind: DecisionKind.DiscardCards, RequiredCardCount: 2 } && s.V().HandCount == 4,
+            "Reaching the ordinary hand limit must not forgive the remaining doubled-discard debt.");
+        s.Discard(chosen.Skip(2).ToArray()); s.Reach(() => s.P?.SkillPrompt?.SkillId == EndWatch);
+        Need(s.HandLimitPayments(0).Length == 4 && s.V().HandCount == 2 &&
+            s.Events<HandLimitDiscardedEvent>().SelectMany(e => e.CardIds).Order().SequenceEqual(chosen.Order()),
+            "Paying the exact remaining debt enters the native phase-end child once without losing or repeating cards.");
+        s.Cold();
     }
 
     public static void DiscardExemptionsProtectedCardsSkippedPhaseAndNpcUseSameQuota()

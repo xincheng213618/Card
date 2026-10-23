@@ -110,6 +110,22 @@ internal static class ProgramCompositionDefinitionChecks
         RejectEffects("unselected target", """
         [{"op":"turnOver","target":"selectedTarget"}]
         """, "selectedTarget");
+        RejectEffects("ordinary second target selection", """
+        [{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
+         {"op":"setChainedState","target":"selectedTarget","chained":true},
+         {"op":"selectTargets","target":"owner","targetKind":"anyLiving","minimumTargets":1,"maximumTargets":8,"targetAiOrder":"supportDraw"}]
+        """, "only once");
+        RejectEffects("chained replacement without adjacent chain", """
+        [{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
+         {"op":"setChainedState","target":"selectedTarget","chained":true},
+         {"op":"draw","target":"owner","amount":1},
+         {"op":"selectTargets","target":"owner","targetKind":"anyLivingChained","minimumTargets":0,"maximumTargets":8,"targetAiOrder":"supportDraw","replaceSelection":true},
+         {"op":"draw","target":"selectedTargets","amount":1}]
+        """, "immediately after chaining it");
+        RejectEffects("empty draw without chained replacement contract", """
+        [{"op":"selectTargets","target":"owner","targetKind":"anyLivingChained","minimumTargets":0,"maximumTargets":8,"targetAiOrder":"supportDraw"},
+         {"op":"draw","target":"selectedTargets","amount":1}]
+        """, "immediately preceding committed chained replacement selection");
         RejectSelectedCardEffects("duplicate selected-card consumption", """
         [{"op":"discardSelected","target":"owner","amount":1},
          {"op":"discardSelected","target":"owner","amount":1}]

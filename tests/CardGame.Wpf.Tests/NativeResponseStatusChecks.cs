@@ -104,6 +104,21 @@ internal static class NativeResponseStatusChecks
                 (GetWindowLong(_handle, ExtendedStyle) & NoActivate) != 0,
                 "Rendering native response status activated or exposed the owned test window.");
         }
+        public RenderTargetBitmap MovieFrame()
+        {
+            Root.UpdateLayout(); Root.Dispatcher.Invoke(() => { }, DispatcherPriority.Render);
+            Assert(Root.RenderSize == new Size(1120, 740), "The native movie must keep its exact compact layout.");
+            var visual = new DrawingVisual();
+            using (var context = visual.RenderOpen())
+            {
+                context.PushTransform(new ScaleTransform(.65, .65));
+                context.DrawRectangle(new VisualBrush(Root), null, new Rect(Root.RenderSize));
+                context.Pop();
+            }
+            var bitmap = new RenderTargetBitmap(728, 481, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(visual);
+            return bitmap;
+        }
         public void Dispose() { Window.Content = null; Window.DataContext = null; Window.Close(); }
     }
     internal sealed class FrameClock : TimeProvider

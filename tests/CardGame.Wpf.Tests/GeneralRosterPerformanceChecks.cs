@@ -128,6 +128,47 @@ internal static class GeneralRosterPerformanceChecks
             var lastBounds = lastTile.TransformToAncestor(roster).TransformBounds(new Rect(lastTile.RenderSize));
             Program.Assert(lastBounds.Top >= -1 && lastBounds.Bottom <= roster.ActualHeight + 1,
                 "Scrolling to the final tile must bring the entire card into the viewport after responsive reflow.");
+            model.PreviewGeneralChoiceCommand.Execute(model.CustomGeneralChoices.Last());
+            Program.Render(root, 1440, 900, null);
+            AssertRosterPreviewBadge();
+            model.PreviewGeneralChoiceCommand.Execute(model.CustomGeneralChoices[^2]);
+            Program.Render(root, 1440, 900, Path.Combine(output, "custom-general-roster-preview.png"));
+            AssertRosterPreviewBadge();
+            Program.Assert(Program.Engine(model).Revision == revision && Program.Engine(model).AcceptedCommands.Count == accepted,
+                "Updating the visible roster preview badge must not commit a general selection or any engine command.");
+            var retainedOffset = tilePanel.VerticalOffset;
+            var retiredTail = model.CustomGeneralChoices.Last();
+            var previewBeforeRefresh = model.SelectedGeneralChoice?.GeneralId;
+            var commandsBeforeRefresh = Program.Engine(model).AcceptedCommands.Count;
+            model.CustomGeneralSearch = " ";
+            Program.Render(root, 1440, 900, null);
+            model.CustomGeneralSearch = string.Empty;
+            Program.Render(root, 1440, 900, null);
+            Program.Assert(Math.Abs(tilePanel.VerticalOffset - retainedOffset) < 1,
+                "Equivalent whitespace searches must retain the current roster viewport.");
+            foreach (var developerView in new[] { true, false })
+            {
+                model.IsDeveloperView = developerView;
+                Program.Render(root, 1440, 900, null);
+                Console.WriteLine($"Custom roster refresh developer={developerView}: offset={tilePanel.VerticalOffset:F1}/{retainedOffset:F1}, rows={Program.Find<ListBoxItem>(roster).Count()}.");
+                Program.Assert(retainedOffset > 0 && Math.Abs(tilePanel.VerticalOffset - retainedOffset) < 1 &&
+                    roster.ItemContainerGenerator.ContainerFromItem(model.CustomGeneralChoices.Last()) is not null &&
+                    Program.Find<ListBoxItem>(roster).Count() is > 0 and <= 64 &&
+                    model.SelectedGeneralChoice?.GeneralId == previewBeforeRefresh &&
+                    !ReferenceEquals(model.CustomGeneralChoices.Last(), retiredTail),
+                    "Refreshing the same private roster must retain its viewport and preview while rebinding fresh virtualized rows.");
+                AssertRosterPreviewBadge();
+            }
+            model.PreviewGeneralChoiceCommand.Execute(retiredTail);
+            Program.Assert(model.SelectedGeneralChoice?.GeneralId == previewBeforeRefresh &&
+                Program.Engine(model).AcceptedCommands.Count == commandsBeforeRefresh,
+                "Retaining a refreshed roster viewport must not revive old preview parameters or submit a selection.");
+            model.SelectCustomGeneralCategoryCommand.Execute("boundary");
+            Program.Render(root, 1440, 900, null);
+            Program.Assert(model.CustomGeneralChoices.Count < total && tilePanel.ExtentHeight > tilePanel.ViewportHeight &&
+                tilePanel.VerticalOffset == 0,
+                "Changing to another multi-page roster result must reset scrolling to reveal its first matches.");
+            model.SelectCustomGeneralCategoryCommand.Execute("all");
             roster.ScrollIntoView(model.CustomGeneralChoices.First());
             Program.Render(root, 1440, 900, null);
             Program.Assert(Program.Find<ListBoxItem>(roster).Any(tile => ReferenceEquals(tile.DataContext, model.CustomGeneralChoices.First())) &&
@@ -135,6 +176,10 @@ internal static class GeneralRosterPerformanceChecks
                     .All(button => ReferenceEquals(button.DataContext, button.CommandParameter)),
                 "Scrolling back must reattach recycled tiles and bind their preview commands to the current general.");
             var retired = model.CustomGeneralChoices.First();
+            roster.ScrollIntoView(model.CustomGeneralChoices.Last());
+            Program.Render(root, 1440, 900, null);
+            Program.Assert(tilePanel.VerticalOffset > 0,
+                "The roster reopen regression must leave a genuinely scrolled viewport before closing it.");
             model.ToggleGeneralRosterCommand.Execute(null);
             Program.Render(root, 1440, 900, null);
             var previewBeforeStaleInput = model.SelectedGeneralChoice;
@@ -146,6 +191,8 @@ internal static class GeneralRosterPerformanceChecks
             Program.Render(root, 1440, 900, null);
             timer.Stop();
             var reopenMs = timer.Elapsed.TotalMilliseconds;
+            Program.Assert(tilePanel.VerticalOffset == 0,
+                "Opening a new roster scope must reveal its first results instead of retaining the previous scope's scroll offset.");
             Console.WriteLine($"Custom roster reopen {reopenMs:F1} ms.");
             File.WriteAllText(Path.Combine(output, "custom-general-performance.json"),
                 System.Text.Json.JsonSerializer.Serialize(new { commandMs, openMs, searchMs, previewMs, reopenMs, rows,
@@ -154,6 +201,19 @@ internal static class GeneralRosterPerformanceChecks
             void RefreshView() => typeof(MainViewModel).GetMethod("Refresh",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .Invoke(model, [Program.Engine(model).CreateSnapshot(0)]);
+
+            void AssertRosterPreviewBadge()
+            {
+                var badges = Program.Find<Border>(roster).Where(border => border.Name == "GeneralRosterPreviewBadge").ToArray();
+                Program.Assert(badges.Length > 1 && badges.Length == Program.Find<ListBoxItem>(roster).Count() &&
+                    badges.All(badge => badge.DataContext is GeneralChoiceViewModel choice && model.CustomGeneralChoices.Contains(choice) &&
+                        badge.Visibility == (ReferenceEquals(choice, model.SelectedGeneralChoice) ? Visibility.Visible : Visibility.Collapsed)),
+                    "Every realized roster card must bind its independent preview badge to the current choice, with unselected cards unmarked.");
+                var selected = badges.Single(badge => badge.Visibility == Visibility.Visible);
+                Program.Assert(ReferenceEquals(selected.DataContext, model.SelectedGeneralChoice) && !selected.IsHitTestVisible &&
+                    Program.Find<TextBlock>(selected).Single().Text == "已预选",
+                    "Only the current preview must show a noninteractive badge, independently of its card border's hover and focus state.");
+            }
         }
         finally { window.Content = null; window.Close(); }
     }

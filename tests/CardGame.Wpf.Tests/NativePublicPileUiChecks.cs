@@ -1,12 +1,14 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
 using CardGame.Wpf.Controls;
 using CardGame.Wpf.Persistence;
+using CardGame.Wpf.Presentation;
 using CardGame.Wpf.ViewModels;
 
 internal static class NativePublicPileUiChecks
@@ -87,6 +89,7 @@ internal static class NativePublicPileUiChecks
         Reach(game, DecisionKind.RespondSlash);
         using var model = Restore(game, registry);
         game = Program.Engine(model);
+        model.IsMotionEnabled = true;
         var slash = Grain(model.ChoiceSnapshot.Players[0]).Single(card => card.Kind == CardKind.Slash);
         var prompt = model.ChoiceSnapshot.PendingDecision!;
         var choice = model.HandResponseExtraChoices.Single(c => c.Cards.SequenceEqual([slash.Id]) &&
@@ -96,10 +99,9 @@ internal static class NativePublicPileUiChecks
             Enumerable.Range(0, 4).All(viewer => Grain(game.CreateSnapshot(viewer).Players[0]).Any(card => card.Id == slash.Id)) &&
             game.Events.All(e => e.Payload is not ShuliangGrainPaidEvent),
             "The actual Duel must publish a native Played Slash from visible public grain, without a conversion or a fake Hand entry.");
-        var window = new MainWindow(model);
-        try
+        using (var host = new NativeResponseStatusChecks.NativeHost(model))
         {
-            var root = (FrameworkElement)window.Content;
+            var root = host.Root;
             Layout(root);
             var button = BoundButton(root, model.SelectHandResponseChoiceCommand, choice);
             var presentation = Program.Find<ContentControl>(button).Select(c => c.Content)
@@ -111,6 +113,8 @@ internal static class NativePublicPileUiChecks
                 "The actual response button must render the original public grain's name, suit and rank from the viewer snapshot.");
             var commands = game.AcceptedCommands.Count;
             var moves = game.CardMovements.Count;
+            var eventCursor = game.Events.Count;
+            var defenderHp = game.CreateSnapshot(0).Players[1].Hp;
             Click(button);
             Program.Assert(game.AcceptedCommands.Count == commands + 1 &&
                 game.AcceptedCommands.Last() is AnswerPromptCommand answer && answer.PromptId == prompt.PromptId &&
@@ -125,8 +129,132 @@ internal static class NativePublicPileUiChecks
             model.SelectHandResponseChoiceCommand.Execute(choice);
             Program.Assert(game.AcceptedCommands.Count == accepted && game.CardMovements.Count == paidMoves,
                 "A retired public-grain response button must not answer or pay again.");
+            // The opponent has no hand cards in this fixed native fixture. Its
+            // failed Duel response must commit while the paid public face flies.
+            for (var step = 0; step < 30 && game.PendingDecision is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }; step++)
+            {
+                var revision = game.Revision;
+                Program.Assert(model.CanStepAi, "The native Duel unexpectedly needs another human choice.");
+                model.StepAiCommand.Execute(null);
+                Program.Assert(game.Revision > revision, "The actual Duel continuation did not commit.");
+            }
+            var events = game.Events.Skip(eventCursor).ToArray();
+            var paidResponse = events.Single(envelope => envelope.Payload is DuelResponseEvent { UsedSlash: true, ResponderSeat: 0 });
+            var failed = events.Single(envelope => envelope.Payload is DuelResponseEvent { UsedSlash: false, ResponderSeat: 1 });
+            var damage = events.Single(envelope => envelope.Payload is DamageAppliedEvent { SourceSeat: 0, TargetSeat: 1 });
+            var duelId = ((DuelResponseEvent)paidResponse.Payload).ResolutionId;
+            var damageRequest = events.Select(envelope => envelope.Payload).OfType<DamageRequestedEvent>().Single();
+            var responseCue = model.BattleCues.Single(cue => cue.Kind == BattleCueKind.Response && cue.PublicCardId == slash.Id);
+            Program.Assert(duelId == ((DuelResponseEvent)failed.Payload).ResolutionId &&
+                ((DamageAppliedEvent)damage.Payload).SourceCardUseResolutionId == duelId && damageRequest.ResolutionId != duelId &&
+                paidResponse.Sequence < failed.Sequence && failed.Sequence < damage.Sequence &&
+                game.CreateSnapshot(0).Players[1].Hp == defenderHp - 1 &&
+                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } && model.EndTurnCommand.CanExecute(null) &&
+                responseCue is { SourceSeat: 0, TargetSeats.Count: 0, CardKind: CardKind.Slash, PublicCard: not null, DuelOpponentSeat: 1 } &&
+                responseCue.ResponseResolutionId == duelId,
+                "The genuine response must reverse Duel damage, retain its public original face and resume playable state before animation ends.");
+            Console.WriteLine("Native Duel public order: " + string.Join("; ", events.Where(envelope =>
+                envelope.Payload is CardRespondedEvent or DuelResponseEvent or DamageRequestedEvent or DamageAppliedEvent).Select(envelope =>
+                $"{envelope.Sequence}@{envelope.Revision}:{envelope.Payload}")));
+            host.Clock.Advance(.01);
+            var first = SampleDuel(host, responseCue.Sequence, 10);
+            host.Clock.Advance(.15);
+            var moving = SampleDuel(host, responseCue.Sequence, 160);
+            NativeActionFeedbackChecks.VerifyDuelMotion(host, responseCue);
+            host.Clock.Advance(.27);
+            var arrived = SampleDuel(host, responseCue.Sequence, 430);
+            host.Clock.Advance(.37);
+            var finished = SampleDuel(host, responseCue.Sequence, 800);
+            Program.Assert(first is { Flying: true, Pending: true, Hit: false } &&
+                moving is { Flying: true, Pending: true, Hit: false },
+                "The actual reversed Duel hit must wait while its paid response Slash is still flying to the public row.");
+            Program.Assert(arrived is { Flying: false, Pending: false, Hit: true } &&
+                finished is { Flying: false, Pending: false, Hit: false },
+                "The Duel hit must become visible on the correct portrait after the public Slash arrives, then retire once.");
+            DuelSchedulingBoundaries(host, events, responseCue, damage);
+            using var restored = Restore(game, registry);
+            var coldGame = Program.Engine(restored);
+            Program.Assert(SnapshotJson.Serialize(coldGame.CreateSnapshot(0)) == SnapshotJson.Serialize(game.CreateSnapshot(0)) &&
+                coldGame.Events.Single(envelope => envelope.Sequence == damage.Sequence).Payload is DamageAppliedEvent coldHit &&
+                coldHit.SourceCardUseResolutionId == duelId && restored.BattleCues.Count == 0,
+                "Cold replay must preserve the actual card-use damage identity without replaying the completed response or hit.");
         }
-        finally { window.Content = null; window.Close(); }
+    }
+
+    private static void DuelSchedulingBoundaries(NativeResponseStatusChecks.NativeHost host, EventEnvelope[] events,
+        BattleCue actualResponse, EventEnvelope actualDamage)
+    {
+        var view = Program.Engine(host.Model).CreateSnapshot(0);
+        var responseFacts = events.Where(envelope => envelope.Payload is CardRespondedEvent or DuelResponseEvent { UsedSlash: true }).ToArray();
+        var response = BattleCueProjector.Project(responseFacts, view).Single();
+        var laterHit = BattleCueProjector.Project([actualDamage with { Revision = actualDamage.Revision + 1 }], view).Single();
+        Program.Assert(response.ResponseResolutionId == actualResponse.ResponseResolutionId && response.TargetSeats.Count == 0 &&
+            laterHit.SourceCardUseResolutionId == response.ResponseResolutionId,
+            "Separate committed batches must retain exact public Duel identity without reconstructing hidden resolution state.");
+        var cues = host.Model.BattleCues;
+        cues.Clear(); cues.Add(response);
+        host.Clock.Advance(.16); cues.Add(laterHit);
+        Program.Assert(SampleDuel(host, response.Sequence, 160) is { Flying: true, Pending: true, Hit: false },
+            "A later-revision hit must wait for the remaining portion of its exact response flight.");
+        host.Clock.Advance(.27);
+        Program.Assert(SampleDuel(host, response.Sequence, 430) is { Flying: false, Pending: false, Hit: true },
+            "Cross-revision scheduling restarted a full response delay instead of waiting only for its remaining flight.");
+
+        // Same seats and close timing cannot substitute for the owning use.
+        // Use the real fact with a different public use identity, then the
+        // legacy absent identity; neither may attach to this Duel response.
+        foreach (var useId in new long?[] { laterHit.SourceCardUseResolutionId!.Value + 100, null })
+        {
+            var unrelatedFact = actualDamage with
+            { Payload = ((DamageAppliedEvent)actualDamage.Payload) with { SourceCardUseResolutionId = useId } };
+            var unrelated = BattleCueProjector.Project([unrelatedFact], view).Single();
+            cues.Clear(); cues.Add(response); cues.Add(unrelated);
+            host.Clock.Advance(.01);
+            Program.Assert(SampleDuel(host, response.Sequence, 10) is { Flying: true, Pending: true, Hit: true },
+                "An unrelated or legacy hit with the same participants incorrectly waited for a different Duel use.");
+        }
+        cues.Clear();
+    }
+
+    private static (bool Flying, bool Pending, bool Hit) SampleDuel(
+        NativeResponseStatusChecks.NativeHost host, long responseSequence, int milliseconds)
+    {
+        host.Root.Width = 1120; host.Root.Height = 740;
+        host.Window.SizeToContent = SizeToContent.WidthAndHeight;
+        host.Layer.InvalidateVisual();
+        Program.Render(host.Root, 1120, 740, null);
+        var face = Program.Find<Border>(host.Root).Single(border => BattleFeedbackLayer.GetPlayAnchor(border) == responseSequence);
+        var target = Program.Find<Button>(host.Root).Single(button => button.IsVisible && BattleFeedbackLayer.GetSeatAnchor(button) == 1);
+        var targetBounds = target.TransformToVisual(host.Layer).TransformBounds(new Rect(target.RenderSize));
+        var drawing = VisualTreeHelper.GetDrawing(host.Layer);
+        var flying = Images(drawing).Any(image => ReferenceEquals(image.ImageSource, CardArt.Get(CardKind.Slash)));
+        var pending = BattleFeedbackLayer.GetIsFlightPending(face) && ((FrameworkElement)face.Parent).Opacity < .001;
+        var hit = HitOutlines(drawing, Matrix.Identity, 1).Any(bounds =>
+            Math.Abs(bounds.X - targetBounds.X) < .01 && Math.Abs(bounds.Y - targetBounds.Y) < .01 &&
+            Math.Abs(bounds.Width - targetBounds.Width) < .01 && Math.Abs(bounds.Height - targetBounds.Height) < .01);
+        Console.WriteLine($"Native Duel at {milliseconds}ms: flying={flying}, pending={pending}, target1-hit={hit}, " +
+            $"revision={Program.Engine(host.Model).Revision}, can-act={host.Model.EndTurnCommand.CanExecute(null)}.");
+        return (flying, pending, hit);
+    }
+
+    private static IEnumerable<ImageDrawing> Images(Drawing? drawing)
+    {
+        if (drawing is ImageDrawing image) yield return image;
+        if (drawing is DrawingGroup group)
+            foreach (var child in group.Children) foreach (var nestedImage in Images(child)) yield return nestedImage;
+    }
+
+    private static IEnumerable<Rect> HitOutlines(Drawing? drawing, Matrix transform, double opacity)
+    {
+        if (opacity > .001 && drawing is GeometryDrawing
+            { Geometry: RectangleGeometry rectangle, Pen.Brush: SolidColorBrush ink } && ink.Color == Color.FromRgb(255, 91, 62))
+            yield return new MatrixTransform(transform).TransformBounds(rectangle.Rect);
+        if (drawing is DrawingGroup group)
+        {
+            var nested = group.Transform?.Value ?? Matrix.Identity; nested.Append(transform);
+            foreach (var child in group.Children)
+                foreach (var bounds in HitOutlines(child, nested, opacity * group.Opacity)) yield return bounds;
+        }
     }
 
     private static IReadOnlyList<CardSnapshot> Grain(PlayerSnapshot owner) =>

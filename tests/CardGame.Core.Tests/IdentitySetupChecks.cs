@@ -61,7 +61,7 @@ internal static class IdentitySetupChecks
             var mode = classic.Modes[modeId];
             Require(mode.RoleGeneralCandidateCounts!.All(entry => entry.Value == Expected(Enum.Parse<Role>(entry.Key))),
                 "The real classic lobby modes must register the current 13/8/8/13 policy.");
-            Require(new[] { "mou:zhuge-liang", "ol:shen-zhuge-liang", "friend:zhuge-liang", "magic:guan-yu", "classic:gao-da-yi-hao" }
+            Require(new[] { "mou:zhuge-liang", "mobile:shen-zhuge-liang", "friend:zhuge-liang", "magic:guan-yu", "classic:gao-da-yi-hao" }
                     .All(id => mode.AiGeneralSwapExcludedIds!.Contains(id)) &&
                     !mode.AiGeneralSwapExcludedIds!.Contains("boundary:zhuge-liang"),
                 "Mou, God, friend and magic editions require direct AI draws; ordinary edition swaps remain allowed.");

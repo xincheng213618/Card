@@ -4,6 +4,39 @@ using CardGame.Core;
 
 internal static class IdentityGeneralPoolChecks
 {
+    public static void EquivalentGodRulesUseOneRosterEntry()
+    {
+        var registry = StandardWushuangContentRegistry.Create();
+        foreach (var (alias, canonical) in GodGeneralRulesCatalog.Aliases)
+        {
+            Need(registry.Generals.ContainsKey(alias) && registry.Generals.ContainsKey(canonical) &&
+                GodGeneralRulesCatalog.IsCanonical(canonical),
+                "Historical god definitions remain registered while each reviewed alias has a direct canonical target.");
+            foreach (var modeId in new[] { "identity:classic-8", "identity:classic-dual-8", WushuangMode.ModeId })
+            {
+                var mode = registry.Modes[modeId];
+                var modePool = mode.GeneralPoolIds!;
+                Need(modePool.Contains(canonical) && !modePool.Contains(alias) &&
+                    (mode.GeneralSelectionPoolIds is null || !mode.GeneralSelectionPoolIds.Contains(alias)) &&
+                    (mode.GeneralVariantGroups is null || !mode.GeneralVariantGroups.Values.Any(ids => ids.Contains(alias))),
+                    "Equivalent rules have only one entry in random drafts, full rosters and edition families.");
+            }
+        }
+        var pool = registry.Modes[WushuangMode.ModeId].GeneralPoolIds!;
+        foreach (var ids in new[]
+        {
+            new[] { "classic:shen-cao-cao", "mobile:shen-cao-cao" },
+            new[] { "classic:shen-guan-yu", "ol:shen-guan-yu" },
+            new[] { "classic:shen-lu-bu", "mobile:shen-lu-bu" },
+            new[] { "ol:shen-gan-ning", "mobile:shen-gan-ning" },
+            new[] { "ol:shen-liu-bei", "mobile:shen-liu-bei" },
+            new[] { "ol:shen-zhang-liao", "mobile:shen-zhang-liao" },
+            new[] { "ol:shen-lu-xun", "mobile:shen-lu-xun" },
+            new[] { "classic:shen-zhao-yun", "ol:shen-zhao-yun", "mobile:shen-zhao-yun" }
+        })
+            Need(ids.All(pool.Contains), "Actual timing, payment, duration and response differences retain their distinct playable rules.");
+    }
+
     public static void ModePoolsAndSelectionBoundaries()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
