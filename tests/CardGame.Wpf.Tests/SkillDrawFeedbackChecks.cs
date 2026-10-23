@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CardGame.Content.Standard;
@@ -358,6 +359,7 @@ internal static class SkillDrawFeedbackChecks
             else Assert(backs.Length == 0 && incoming.All(surface => surface.OpacityMask is null &&
                 Math.Abs(surface.RenderTransform.Value.OffsetX) < .1 && Math.Abs(surface.RenderTransform.Value.OffsetY) < .1),
                 "The normal draw must finish with complete local faces and no remaining flight backs.");
+            AssertDrawPointer(host, panel, ids, target);
         }
         // The same real fixture also checks the explicit reduced-motion route.
         File.WriteAllText(Path.Combine(output, "native-normal-draw-visibility.json"), JsonSerializer.Serialize(samples,
@@ -374,6 +376,80 @@ internal static class SkillDrawFeedbackChecks
             ((TranslateTransform)surface.RenderTransform).Y == 0) && host.Layer.ActiveEffectCount == 0,
             "Disabling motion must reveal newly obtained cards immediately without leaving a hidden arrival or flight.");
         Console.WriteLine("Native normal draw: seed31, real StepAi draw2; sort at160ms redirects an arriving card, common entrance420ms, visible unfolding500ms, new slots600ms, reduced motion immediate.");
+    }
+
+    private static void AssertDrawPointer(NativeHost host, HandPanel panel, int[] incomingIds, int milliseconds)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var cardButtonAt = typeof(HandPanel).GetMethod("CardButtonAt", flags)!.CreateDelegate<Func<Point, Button?>>(panel);
+        var pressCardAt = typeof(HandPanel).GetMethod("PressCardAt", flags)!.CreateDelegate<Func<Point, bool>>(panel);
+        var updatePointer = typeof(HandPanel).GetMethod("UpdatePointer", flags)!.CreateDelegate<Action<Point>>(panel);
+        var model = host.Model;
+        var game = Engine(model);
+        var commands = game.AcceptedCommands.Count;
+        var snapshot = SnapshotJson.Serialize(game.CreateSnapshot(0));
+        var surfaces = Find<CardLiftSurface>(panel).ToDictionary(surface => ((CardViewModel)surface.DataContext).Id);
+        var buttons = Find<Button>(panel).Where(button => button.Name == "CardButton")
+            .ToDictionary(button => ((CardViewModel)button.DataContext).Id);
+        var faces = model.Hand.Select(card => (Card: card, Surface: surfaces[card.Id],
+            Bounds: surfaces[card.Id].TransformToVisual(panel).TransformBounds(new Rect(surfaces[card.Id].RenderSize)),
+            ButtonBounds: buttons[card.Id].TransformToVisual(panel).TransformBounds(new Rect(buttons[card.Id].RenderSize))))
+            .ToArray();
+        var hidden = faces.Where(face => ArrivalOpacity(face.Surface) == 0).ToArray();
+        var visible = faces.Where(face => ArrivalOpacity(face.Surface) > 0).ToArray();
+        var viewport = host.Layer.HandRoot!;
+        var clip = viewport.TransformToVisual(panel).TransformBounds(new Rect(viewport.RenderSize));
+        var y = 60 * panel.CardScale;
+        // Sample interiors between actual face/button edges, never inferred destination slots.
+        var edges = faces.SelectMany(face => new[] { face.Bounds.Left, face.Bounds.Right,
+            face.ButtonBounds.Left, face.ButtonBounds.Right }).Append(clip.Left).Append(clip.Right)
+            .Where(x => x >= clip.Left && x <= clip.Right).Distinct().Order().ToArray();
+        var points = edges.Zip(edges.Skip(1)).Where(pair => pair.Second - pair.First > 4)
+            .Select(pair => new Point((pair.First + pair.Second) / 2, y)).Where(clip.Contains).ToArray();
+        var candidates = points.Select(point => (Point: point,
+            Expected: visible.LastOrDefault(face => face.Bounds.Contains(point)).Card))
+            .Where(candidate => candidate.Expected is not null).ToArray();
+        var covered = candidates.Where(candidate => hidden.Any(face => face.Bounds.Contains(candidate.Point))).ToArray();
+        Assert(candidates.Length > 0 && (milliseconds is not (0 or 160) || covered.Length > 0),
+            $"Normal draw@{milliseconds}ms must exercise visible old faces beneath the transparent arrival, including after sort.");
+        foreach (var candidate in candidates)
+        {
+            var actual = cardButtonAt(candidate.Point)?.DataContext as CardViewModel;
+            Assert(ReferenceEquals(actual, candidate.Expected),
+                $"Normal draw@{milliseconds}ms pointer {candidate.Point} must resolve visible card {candidate.Expected.Id}, " +
+                $"not card {actual?.Id}; hidden={string.Join(',', hidden.Select(face => face.Card.Id))}.");
+        }
+        // Exercise the same press entry point used by the native mouse preview handler.
+        // Selection is cleared at the same clock instant so hover/lift cannot alter later animation samples.
+        var presses = covered.Concat(candidates).DistinctBy(candidate => candidate.Expected.Id).ToArray();
+        Assert(presses.Any(candidate => candidate.Expected.IsPlayable), "The real hand must contain a selectable visible card.");
+        foreach (var candidate in presses)
+        {
+            Assert(!model.HasSelection && pressCardAt(candidate.Point) &&
+                candidate.Expected.IsSelected == candidate.Expected.IsPlayable &&
+                model.Hand.All(card => !card.IsSelected || ReferenceEquals(card, candidate.Expected)),
+                $"Normal draw@{milliseconds}ms actual press must select only visible card {candidate.Expected.Id} when playable.");
+            model.ClearSelectionCommand.Execute(null);
+            updatePointer(new Point(-1, -1));
+            Keyboard.ClearFocus();
+            host.Root.UpdateLayout();
+        }
+        if (milliseconds >= 500)
+            Assert(candidates.Any(candidate => incomingIds.Contains(candidate.Expected.Id)),
+                "Arriving cards must become pointer candidates as soon as their faces are visible.");
+        var emptyArrival = points.Where(point => hidden.Any(face => face.ButtonBounds.Contains(point)) &&
+            !visible.Any(face => face.Bounds.Contains(point))).ToArray();
+        if (milliseconds == 0)
+            Assert(emptyArrival.Length > 0, "The real unsorted draw must expose an empty future button slot for hidden-arrival input coverage.");
+        foreach (var point in emptyArrival)
+            Assert(cardButtonAt(point) is null && pressCardAt(point) && !model.HasSelection,
+                $"Normal draw@{milliseconds}ms must consume hidden button slot {point} without selecting an invisible card.");
+        updatePointer(new Point(-1, -1));
+        Assert(!pressCardAt(new Point(-10, y)) && !model.HasSelection &&
+            game.AcceptedCommands.Count == commands && SnapshotJson.Serialize(game.CreateSnapshot(0)) == snapshot,
+            "Pointer sampling must preserve ordinary empty margins, the committed hand and all game commands.");
+        Console.WriteLine($"Native draw pointer@{milliseconds}ms: visibleCandidates={candidates.Length}; " +
+            $"hiddenOverlap={covered.Length}; realPresses={presses.Length}; hiddenEmptySlots={emptyArrival.Length}.");
     }
 
     private static MainViewModel Restore(GameCheckpoint checkpoint, ContentRegistry registry)

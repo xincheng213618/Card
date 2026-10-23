@@ -356,16 +356,30 @@ public sealed class HandPanel : Panel
 
     // Follow horizontal motion, while keeping the physical vertical hit strip
     // stable when artwork lifts over its neighbor.
-    private UIElement? CardContainerAt(Point point)
+    private UIElement? CardContainerAt(Point point) => CardContainerAt(point, out _);
+
+    private UIElement? CardContainerAt(Point point, out bool hiddenArrivalAtPoint)
     {
+        hiddenArrivalAtPoint = false;
         var count = InternalChildren.Count;
         if (count == 0 || _step <= 0 || point.X < 0 || point.Y < 0 || point.Y > CardHeight * _layoutScale) return null;
+        var width = CardWidth * _layoutScale;
         for (var index = count - 1; index >= 0; index--)
         {
             var child = InternalChildren[index];
-            var x = _slots.TryGetValue(child, out var slot)
-                ? slot.X + (slot.Surface?.HorizontalOffset ?? 0) * _layoutScale : index * _step;
-            if (point.X >= x && point.X < x + CardWidth * _layoutScale) return child;
+            _slots.TryGetValue(child, out var slot);
+            var slotX = slot?.X ?? index * _step;
+            var x = slotX + (slot?.Surface?.HorizontalOffset ?? 0) * _layoutScale;
+            if (slot?.Surface?.ArrivalOpacity <= 0)
+            {
+                // An unseen face cannot cover an old hand card. Its Button
+                // still occupies the destination slot, however, so remember
+                // that empty hit area to suppress the native release click.
+                hiddenArrivalAtPoint |= point.X >= x && point.X < x + width ||
+                    point.X >= slotX && point.X < slotX + width;
+                continue;
+            }
+            if (point.X >= x && point.X < x + width) return child;
         }
         return null;
     }
@@ -421,8 +435,8 @@ public sealed class HandPanel : Panel
     internal bool PressCardAt(Point point)
     {
         UpdatePointer(point);
-        var button = CardButtonAt(point);
-        if (button is null) return false;
+        var button = FindButton(CardContainerAt(point, out var hiddenArrivalAtPoint));
+        if (button is null) return hiddenArrivalAtPoint;
         if (button.IsEnabled && button.Command is { } command)
         {
             button.Focus();

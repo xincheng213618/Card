@@ -19,7 +19,7 @@ pwsh -File .\tools\Test-Changed.ps1
 git diff --check
 ```
 
-Work on a focused branch. Install the SDK selected by `global.json`. The routine Core/WPF lane needs Windows, PowerShell 7 and Python 3.10 or newer on PATH; only the Python standard library is required. Use the existing named filters during development; run the routine lane after a batch and state exactly what you ran. CI uses the same routine lane and executes the headless example.
+Work on a focused branch. Install the SDK selected by `global.json`. The routine smoke lane needs Windows, PowerShell 7 and Python 3.10 or newer on PATH; only the Python standard library is required. Its four Core checks target about one second of test-process time, excluding the build. Use the existing named filters for relevant engine and WPF regressions during development; run the routine lane after a batch and state exactly what you ran. CI uses the same routine lane and executes the headless example.
 
 完整验证仅在明确要求手动完整运行时执行；不要在 CI、普通开发批次或常规失败后自动运行 `-Full` 或无过滤测试程序集。常规范围与全部登记检查是不同范围，不能把其中一种结果报告成另一种。
 

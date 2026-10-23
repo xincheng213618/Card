@@ -57,7 +57,7 @@ For the routine scope, use Windows, PowerShell 7 and Python 3.10 or newer on PAT
 pwsh -File .\tools\Test-Changed.ps1
 ```
 
-CI runs that same [routine scope](tools/VerificationScopes.psd1), then builds and runs the headless example. Use existing name filters while developing. Full verification is manual only and requires an explicit request; it is not the default CI lane. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [development gates](docs/DEVELOPMENT_GATES.md).
+CI runs that same [routine scope](tools/VerificationScopes.psd1): four smoke checks targeting about one second of test-process time, with build time measured separately. It then builds and runs the headless example. Use existing name filters for relevant engine and WPF regressions while developing. Full verification is manual only and requires an explicit request; it is not the default CI lane. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [development gates](docs/DEVELOPMENT_GATES.md).
 
 Reproducible bug reports, sourced rule corrections, documentation improvements and small extensions are welcome. Use [Issues](https://github.com/xincheng213618/sanguosha-dotnet/issues) for questions and reports, or start with a [good first issue](https://github.com/xincheng213618/sanguosha-dotnet/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22).
 
