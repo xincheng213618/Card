@@ -480,6 +480,16 @@ internal static class ShanheCampaignUiChecks
             var panel = Program.Find<ShanheCampaignPanel>(root).Single();
             Program.Assert(vm.IsShanhePreparation && vm.CanPrepareShanheExpedition,
                 "A fresh preparation surface must permit choosing a general and editing a loadout.");
+            ClickNavigation((Button)panel.FindName("ShanhePrepareButton"), root);
+            var rankSelector = (ComboBox)panel.FindName("ShanheRankSelector");
+            rankSelector.SetCurrentValue(Selector.SelectedItemProperty, vm.ShanheRanks.Single(option => option.Value == 5));
+            Layout(root);
+            Program.Assert(vm.ShanheRanks.Count == 5 && vm.SelectedShanheRank.Value == 5 &&
+                ((Border)panel.FindName("ShanheSetupOverlay")).Visibility == Visibility.Visible &&
+                rankSelector.Visibility == Visibility.Visible && rankSelector.ActualHeight > 0 && rankSelector.IsEnabled &&
+                vm.SelectedShanheRankDescription.Contains("获得5张") && vm.SelectedShanheRankDescription.Contains("整次征程"),
+                $"The actual preparation selector must expose all five ranks and distinguish gaining five cards from refilling a hand. Rank={vm.SelectedShanheRank.Value}, enabled={rankSelector.IsEnabled}, height={rankSelector.ActualHeight}.");
+            Program.Render(root, 1440, 880, Path.Combine(output, "shanhe-rank-five-preparation.png"));
             vm.StartShanheCommand.Execute(null);
             Layout(root);
             var saved = ShanheCampaignJsonText(store);
@@ -488,6 +498,19 @@ internal static class ShanheCampaignUiChecks
                 !vm.EquipCodexTacticCommand.CanExecute(null) && !vm.UnlockCodexNodeCommand.CanExecute(null) &&
                 !vm.RemoveCodexTacticCommand.CanExecute(null),
                 "Beginning an expedition must lock the general, new-run action and all codex edits.");
+            vm.SelectedShanheRank = vm.ShanheRanks[0];
+            Program.Assert(vm.SelectedShanheRank.Value == 5 && !rankSelector.IsEnabled &&
+                store.Read().Campaign.Options.PlayerRank == 5 && ShanheCampaignJsonText(store) == saved &&
+                vm.ShanheRankStatusText.Contains("重生可用"),
+                "The chosen rank must be frozen into the saved expedition and neither a hidden selector nor a programmatic edit can downgrade it.");
+            using (var cold = Create(new MemorySaveStore(), store))
+            {
+                cold.SelectedShanheRank = cold.ShanheRanks[1];
+                cold.ContinueShanheCommand.Execute(null);
+                Program.Assert(cold.SelectedShanheRank.Value == 5 && cold.ShanheRankStatusText.Contains("重生可用") &&
+                    ShanheCampaignJsonText(store) == saved,
+                    "Continuing restores the saved fifth rank instead of the current preparation preference and leaves its journal untouched.");
+            }
             typeof(ButtonBase).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .Invoke((Button)panel.FindName("ShanhePrepareButton"), null);
             Layout(root);
@@ -516,7 +539,9 @@ internal static class ShanheCampaignUiChecks
             Click(Bound(panel, vm.PreviewShanheNodeCommand, battleNode), root);
             Click(Program.Find<Button>(panel).Single(button => ReferenceEquals(button.Command, vm.ChallengeShanheEncounterCommand)), root);
             Program.Assert(!vm.IsShanheEncounterPreviewOpen && vm.IsShanheBattleActive && vm.IsShanheBattleSession &&
-                store.Read().Battle is not null && !ReferenceEquals(Program.Engine(vm), game),
+                store.Read().Battle?.Options.ShanheBattle is { PlayerRank: 5, RebirthAvailable: true } &&
+                Program.Engine(vm).CreateSnapshot(0).Players[0].Skills!.Count(skill => skill.ContentId == ShanheGeneralRanks.RebirthSkillId) == 1 &&
+                !ReferenceEquals(Program.Engine(vm), game),
                 "Confirming the actual challenge button must enter and save the real native battle exactly once.");
             var committed = ShanheCampaignJsonText(store);
             vm.ChallengeShanheEncounterCommand.Execute(null);

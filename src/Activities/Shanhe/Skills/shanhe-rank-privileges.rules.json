@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "shanhe:rank-five-rebirth", "revision": 1,
+      "triggers": [{ "id": "campaign-rebirth", "window": "selfDyingResponse", "subject": "owner", "optional": true,
+        "usageScope": "game", "usageLimit": 1,
+        "effects": [
+          { "op": "recoverTo", "target": "owner", "numberExpression": "integerConstant", "minimumValue": 5, "clampToMaxHp": true },
+          { "op": "draw", "target": "owner", "amount": 5 }
+        ] }] }
+  ]
+}

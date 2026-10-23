@@ -3,7 +3,7 @@ using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Core.Campaigns;
 
-internal static class ShanheCampaignChecks
+internal static partial class ShanheCampaignChecks
 {
     internal const string Player = "fixture:shanhe-player";
     internal const string Enemy = "fixture:shanhe-enemy";
@@ -390,7 +390,9 @@ internal static class ShanheCampaignChecks
     ], StartingGold: 8, ExtraSkillSlots: 1) { IntroText = "提剑出发。", VictoryText = "远征结束。", DefeatText = "此役失利，来日再战。" };
 
     private static ShanheCampaignSession Create(ShanheCampaignDefinition definition) => ShanheCampaignSession.Create(definition, new(71, Player), Registry);
-    internal static ContentRegistry Registry(ShanheBattleSetup setup) => ContentRegistry.Build(new StandardContentPackage(), new FixtureBattlePackage());
+    internal static ContentRegistry Registry(ShanheBattleSetup setup) => setup.RebirthAvailable
+        ? ContentRegistry.Build(new StandardContentPackage(), new FixtureBattlePackage(), new StandardShanheRankPrivilegePackage())
+        : ContentRegistry.Build(new StandardContentPackage(), new FixtureBattlePackage());
     internal static GameEngine CreateBattle(ShanheBattleSetup setup) => GameEngine.CreateStandard(new()
     {
         Seed = setup.BattleSeed, PlayerCount = 1 + setup.EnemyRoster.Count + setup.AllyRoster.Count, HumanSeat = 0,

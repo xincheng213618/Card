@@ -181,6 +181,10 @@ public static partial class StandardShanheCampaignCatalog
     public static ContentRegistry CreateBattleRegistry(ShanheBattleSetup setup)
     {
         setup = ShanheBattleSetup.Freeze(setup);
+        if (!setup.RebirthAvailable && setup.TacticSkillIds.Concat(setup.ExtraSkillIds)
+            .Concat(setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.ExtraSkillIds ?? []))
+            .Contains(ShanheGeneralRanks.RebirthSkillId, StringComparer.Ordinal))
+            throw new InvalidOperationException("The rank-five rebirth skill requires this campaign's unspent rebirth privilege.");
         var ids = new[] { setup.PlayerGeneralId }.Concat(setup.AllyRoster.Select(m => m.GeneralId))
             .Concat(setup.EnemyRoster.Select(m => m.GeneralId)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal);
         var codexEquipment = RequiresCodexEquipmentRegistry(setup);
@@ -214,7 +218,8 @@ public static partial class StandardShanheCampaignCatalog
             (s5Yujin ? "/s5-yujin-2648" : "") +
             (s5Yudu ? "/s5-yudu-2633" : "") +
             (s5Liru ? "/s5-liru-2668" : "") +
-            (s5Zaiqi ? "/s5-zaiqi-887" : "");
+            (s5Zaiqi ? "/s5-zaiqi-887" : "") +
+            (setup.RebirthAvailable ? "/rank-five-rebirth" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
         {
             var packages = new List<IGameContentPackage> { new StandardShanheBossPackage() };
@@ -240,6 +245,7 @@ public static partial class StandardShanheCampaignCatalog
             if (s5Yudu) packages.Add(new StandardShanheS5YuduPackage());
             if (s5Liru) packages.Add(new StandardShanheS5LiruPackage());
             if (s5Chengxiong) packages.Add(new StandardShanheS5ChengxiongPackage());
+            if (setup.RebirthAvailable) packages.Add(new StandardShanheRankPrivilegePackage());
             packages.Add(new ShanheEncounterPackage(setup));
             if (codexEquipment) packages.Add(new ShanheCodexEquipmentPackage());
             return ComposedSkillContentRegistry.CreateShowcase(additionalPackages: packages);
