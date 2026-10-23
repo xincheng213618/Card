@@ -597,7 +597,7 @@
                                             <TextBlock x:Name="PublicRevealTitleText" Text="{Binding PublicRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5">
                                                 <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                             </TextBlock>
-                                            <ItemsControl x:Name="PublicRevealedCards" ItemsSource="{Binding PublicRevealedCards}" ItemsPanel="{StaticResource ChoicePanel}">
+                                            <ItemsControl x:Name="PublicRevealedCards" ItemsSource="{Binding PublicRevealedCards}" ItemsPanel="{StaticResource ChoicePanel}" controls:PublicRevealSurface.Timeline="{Binding RevealTimeline, ElementName=BattleFeedback}">
                                                 <ItemsControl.Style>
                                                     <Style TargetType="ItemsControl">
                                                         <Setter Property="ItemTemplate" Value="{StaticResource RevealedCardTemplate}" />
