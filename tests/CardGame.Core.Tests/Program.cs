@@ -39,6 +39,10 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Shi Yu Ji: Fuji gift marks empowered first Slash and marked Dodge response", MobileShiYuJiChecks.FujiGiftMarksEmpoweredFirstSlashAndMarkedDodge),
+    ("Shi Yu Ji: Fuji marked Slash Duel response and empower expiry", MobileShiYuJiChecks.FujiMarkedSlashDuelResponseAndEmpowerExpiry),
+    ("Shi Yu Ji: Daozhuan own-turn exhaust blocks responses until round restore", MobileShiYuJiChecks.DaozhuanOwnTurnExhaustBlocksResponsesUntilRoundRestore),
+    ("Shi Yu Ji: Daozhuan round name ledger and per-turn total off-turn", MobileShiYuJiChecks.DaozhuanRoundNameLedgerAndPerTurnTotalOffTurn),
     ("Multiplayer: human seats prompts privacy and cold replay", MultiplayerChecks.MultipleHumansWaitRespondAndReplay),
     ("LAN rooms: HTTP players AI isolation retries and match completion", LanRoomChecks.HttpPlayersAiAndIsolation),
     ("LAN rooms: HTTP first round permissions retries and eight seats", LanRoomChecks.HttpFirstRound),

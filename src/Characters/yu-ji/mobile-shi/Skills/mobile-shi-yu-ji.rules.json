@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-fuji",
+      "revision": 1,
+      "states": [
+        {
+          "id": "fuji-empowered",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "activations": [
+        {
+          "id": "gift",
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "giveSelected",
+              "target": "selectedTarget"
+            },
+            {
+              "op": "resolveMobileShiFujiGift",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "empowered-expire",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "fuji-empowered",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": "fuji-use-effects",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "optional": false,
+          "isSkillInvocation": false,
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "effects": [
+            {
+              "op": "resolveMobileShiFujiUseEffects",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "fuji-dodge-draw",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "observer",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiFujiDodgeDraw",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-daozhuan",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "daozhuan-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand", "equipment"],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "daozhuan-fire-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand", "equipment"],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "daozhuan-thunder-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand", "equipment"],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "daozhuan-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand", "equipment"],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "daozhuan-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand", "equipment"],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        },
+        {
+          "id": "daozhuan-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand", "equipment"],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "useOnly": true
+        }
+      ]
+    }
+  ]
+}
