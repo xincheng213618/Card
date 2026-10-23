@@ -471,6 +471,12 @@ public enum SkillProgramEffectOp
     ResolveAnniversaryYanXiangYuzheng = 46800,
     ResolveAnniversaryYanXiangYuzhengReward = 46801,
     ResolveAnniversaryYanXiangSuishi = 46802,
+    ResolveAnniversaryCuiLieZijue = 46900,
+    ResolveAnniversaryCuiLieChibi = 46901,
+    ResolveAnniversaryCuiLieZijuePindianDraw = 46902,
+    ResolveAnniversaryHouChengXianniang = 47100,
+    ResolveAnniversaryMaMiaoZhangguan = 47200,
+    ResolveAnniversaryMaMiaoCongfeng = 47201,
     InitializeMouDongChengBaojia = 37400, ResolveMouDongChengBaojia = 37401, ClaimMouDongChengBaojia = 37402, ResolveMouDongChengDouwei = 37403, ResolveMouDongChengDelayedSettlement = 37404,
     StartMouHuLieChuanyu = 37500,
     RegiveMouHuLieChuanyu = 37501,
@@ -4771,6 +4777,10 @@ public sealed class SkillProgramCatalog
                  skillId == "ol:mo-quanyu" && string.Equals(designatedOp.GetString(), "resolveMoSunQuanQuanyuSlashEffects", StringComparison.OrdinalIgnoreCase) ||
                  skillId == "ol:mo-tianen" && string.Equals(designatedOp.GetString(), "resolveMoSunQuanTianenUniqueUse", StringComparison.OrdinalIgnoreCase) ||
                  skillId == "ol:biguo" && string.Equals(designatedOp.GetString(), "resolveBiguoTargetedPindianAndCategoryBan", StringComparison.OrdinalIgnoreCase) ||
+                 skillId == "anniversary:chibi" && id == "far-target-contest" &&
+                    node.TryGetProperty("ownerRelation", out var cuiLieRelation) && cuiLieRelation.ValueKind == JsonValueKind.String &&
+                    string.Equals(cuiLieRelation.GetString(), "observer", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(designatedOp.GetString(), "resolveAnniversaryCuiLieChibi", StringComparison.OrdinalIgnoreCase) ||
                  skillId == "mou-mobile:duojing" && id == "after-slash-targets" && string.Equals(designatedOp.GetString(), "resolveMouLuMengDuojing", StringComparison.OrdinalIgnoreCase))))
             Fail(path, "singleActionInstance requires cardUseCompleted or an exact supported target-addition instruction");
         var onlyDesignatedCardTargets = node.TryGetProperty("onlyDesignatedCardTargets", out _) && RequiredBool(node, "onlyDesignatedCardTargets", path);

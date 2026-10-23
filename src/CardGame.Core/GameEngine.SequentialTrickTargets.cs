@@ -40,6 +40,7 @@ public sealed partial class GameEngine
         var index = _resolutionStack.FindIndex(frame => frame.Id == frameId);
         if (index < 0 || _resolutionStack[index] is not CardUseFrame { SequentialTrick: { } continuation } use)
             return false;
+        if (HasAnniversaryCuiLieDelayedTail(use)) return ContinueAnniversaryCuiLieDelayedPlacement(use);
         var next = use.TargetIndex + 1;
         while (next < LeChengyanNativeTargets(use).Count && !_players[LeChengyanNativeTargets(use)[next]].IsAlive) next++;
         if (_winner != Winner.None || next == LeChengyanNativeTargets(use).Count)
@@ -73,7 +74,7 @@ public sealed partial class GameEngine
     {
         foreach (var use in _resolutionStack.OfType<CardUseFrame>().Where(frame => frame.SequentialTrick is not null))
         {
-            if (!UsesSequentialTrickTargets(use.SequentialTrick!.ActionKind) || LeChengyanNativeTargets(use).Count < 2 ||
+            if ((!UsesSequentialTrickTargets(use.SequentialTrick!.ActionKind) && !HasAnniversaryCuiLieDelayedTail(use)) || LeChengyanNativeTargets(use).Count < 2 ||
                 LeChengyanNativeTargets(use).Distinct().Count() != LeChengyanNativeTargets(use).Count ||
                 LeChengyanNativeTargets(use).Any(seat => !IsValidPlayerSeat(seat)) ||
                 use.TargetIndex < 0 || use.TargetIndex >= LeChengyanNativeTargets(use).Count ||
@@ -83,7 +84,7 @@ public sealed partial class GameEngine
                 !IsMouWenChouZeroDuel(use.Id) && !IsMouXuHuangZeroUse(use.Id) && !IsJueshengDuelUse(use.Id) &&
                 !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) &&
                     (HasSameTypeAidTargetTail(use) || HasUniqueLeaderTrickTargetTail(use) || HasTargetedOrdinaryTrickTail(use) || HasDamageTargetBudgetTail(use) || HasAdjacentRedTargetTail(use))) &&
-                _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !IsClaimedUseCardEntity(use.Id, use.CardId) &&
+                _cardZones.GetLocation(use.CardId) != CardLocation.Processing && !IsAnniversaryCuiLieDelayedMaterialPlaced(use) && !IsClaimedUseCardEntity(use.Id, use.CardId) &&
                 (!IsHellDestroyedSoulMaterial(use.Id, use.CardId) && !(IsHuiyunOutsideGeneralWeaponMaterial(use.Id, use.CardId) || IsSiruiOutsideGeneralWeaponMaterial(use.Id, use.CardId)) && !IsGuanduDestroyedChariotMaterial(use.Id, use.CardId)))
                 throw new InvalidOperationException("A sequential trick lost its targets, cursor or physical card.");
         }

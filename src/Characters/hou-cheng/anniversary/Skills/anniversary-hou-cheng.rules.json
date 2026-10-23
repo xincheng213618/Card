@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "anniversary:xianniang", "revision": 1, "triggers": [
+    { "id": "foreign-discard", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand", "equipment"], "movementOccurrence": "perOwnerBatch", "movementDiscardOnly": true, "optional": true, "usageScope": "round", "usageLimit": 1,
+      "effects": [{ "op": "resolveAnniversaryHouChengXianniang", "target": "owner" }] },
+    { "id": "after-damage", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": true, "usageScope": "round", "usageLimit": 1,
+      "effects": [{ "op": "resolveAnniversaryHouChengXianniang", "target": "owner" }] }
+  ] }]
+}

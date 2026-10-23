@@ -2545,6 +2545,7 @@ public sealed partial class GameEngine
                     : IsFeiYiSingletonTrigger(trigger) ? CurrentFeiYiSingleton(candidate, context) is not null
                     : IsOwnTurnEnemyHandGainTrigger(trigger) ? CanRunOwnTurnEnemyHandGain(candidate, context)
                     : IsQingyuanGainTrigger(trigger) ? QingyuanGainQualification(candidate, context) is not null
+                    : IsAnniversaryMaMiaoCongfengTrigger(trigger) ? MaMiaoGainQualification(candidate, context) is not null
                     : IsMouGuoHuaiGainTrigger(trigger) ? MouGuoHuaiGainQualification(candidate, context) is not null
                     : IsMouLuSuGainTrigger(trigger) ? MouLuSuGainPeer(candidate, context) is not null
                     : IsMouFaZhengGainTrigger(trigger) ? MouFaZhengQualification(candidate, context) is not null

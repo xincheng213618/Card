@@ -2,7 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool HasPindianRevealCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe);
+    private bool HasPindianRevealCapability => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveAnniversaryCuiLieZijuePindianDraw);
     private bool TryBeginPairPindianReveal(PindianFrame frame,PindianResult result)
     {
         if (!HasPindianRevealCapability) return false;
@@ -22,7 +23,9 @@ public sealed partial class GameEngine
             cards.Select(c => c.CardId).Distinct().Count() != cards.Count || cards.Any(c => _cardZones.GetLocation(c.CardId) != CardLocation.Processing))
             throw new InvalidOperationException("A Pindian reveal requires its actual complete paid group.");
         var candidates = cards.SelectMany(c => CollectProgramTriggerCandidates(_players[c.Seat],SkillProgramTriggerWindow.PindianCardsRevealed))
-            .Where(c => GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe }])
+            .Concat(AnniversaryCuiLieIssuedPindianCandidates(cards))
+            .DistinctBy(c => (c.OwnerSeat, c.SkillId, c.BindingId, c.SkillInstanceId))
+            .Where(c => GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe or SkillProgramEffectOp.ResolveAnniversaryCuiLieZijuePindianDraw }])
             .OrderByDescending(c => c.Priority).ThenBy(c => RelativeTableOrder(0, c.OwnerSeat)).ThenBy(c => c.SkillId,StringComparer.Ordinal).ThenBy(c => c.SkillInstanceId,StringComparer.Ordinal).ToArray();
         PushRuntimeFrame(new PindianRevealWindowFrame(++_resolutionSequence,parent,simultaneous,cards,candidates));
         ContinuePindianRevealWindow();
@@ -43,8 +46,9 @@ public sealed partial class GameEngine
         var w = _resolutionStack.OfType<PindianRevealWindowFrame>().SingleOrDefault(w => w.Id == context.ParentFrameId);
         return w is not null && w.CandidateIndex >= 0 && w.CandidateIndex < w.Candidates.Count && w.Candidates[w.CandidateIndex] == c &&
             context.SourceSeat == c.OwnerSeat && context.TargetSeat == c.OwnerSeat && w.Cards.Any(card => card.Seat == c.OwnerSeat && card.Rank == context.Amount &&
-                card.Rank <= _players[c.OwnerSeat].Markers.GetValueOrDefault(PlayerMarkerKind.RaoShe)) && _players[c.OwnerSeat].IsAlive &&
-            GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe }];
+                (GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.ResolveAnniversaryCuiLieZijuePindianDraw }] ||
+                 card.Rank <= _players[c.OwnerSeat].Markers.GetValueOrDefault(PlayerMarkerKind.RaoShe))) && _players[c.OwnerSeat].IsAlive &&
+            GetProgramTrigger(c).Effects is [{ Op: SkillProgramEffectOp.AddRaoshePindianRankAndRestoreGushe or SkillProgramEffectOp.ResolveAnniversaryCuiLieZijuePindianDraw }];
     }
     [NativeFrameAutomaticStep(NativeFrameAutomaticPhase.AfterOpening, 50, NativeFrameAutomaticPending.RequireNoneBeforeFrame, NativeFrameAutomaticPublish.AfterAdvance)]
     [NativeFrameRoute(typeof(PindianRevealWindowFrame), 260)]
@@ -56,6 +60,7 @@ public sealed partial class GameEngine
             if (w.CandidateIndex == w.Candidates.Count) { CompletePindianRevealWindow(w); return; }
             var c = w.Candidates[w.CandidateIndex]; var context = PindianRevealContext(w,c);
             if (!CanRunProgramTrigger(c,context)) { ReplaceRuntimeTop(w with { CandidateIndex = w.CandidateIndex + 1 }); continue; }
+            if (!GetProgramTrigger(c).Optional) { BeginProgramBinding(c,context); return; }
             ExposeProgramTriggerDecision(c,context); return;
         }
     }

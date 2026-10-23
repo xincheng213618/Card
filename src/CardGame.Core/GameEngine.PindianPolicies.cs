@@ -13,6 +13,7 @@ public sealed partial class GameEngine
         foreach (var instance in CardPolicies(owner, SkillProgramCardPolicyKind.PindianRankBonus)
             .GroupBy(binding => (binding.Source.SkillId, binding.Source.SkillInstanceId)))
             rank = (int)Math.Min(13L, (long)rank + instance.Max(binding => binding.Policy.Value));
+        rank = (int)Math.Min(13L, (long)rank + AnniversaryCuiLiePindianBonus(owner.Seat));
         return rank;
     }
     private bool HasCurrentPindianSourceCard(PindianFrame frame)=>frame.WuLuKangContest is { SourcesReady: true } w ? w.Assignments[0].CardId > 0 && _cardZones.GetLocation(w.Assignments[0].CardId) == WuLuKangAssignedLocation(frame, frame.SourceSeat) : frame.SourceCardId == 0 && CanWuLuKangDiscardForPindian(_players[frame.SourceSeat]) ? true : frame.OwnedPileSource is not null

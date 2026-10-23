@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:zijue","revision":1,"activations":[{"id":"declare-number","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[{"op":"resolveAnniversaryCuiLieZijue","target":"owner"}]}],"triggers":[{"id":"paid-pindian-draw","window":"pindianCardsRevealed","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveAnniversaryCuiLieZijuePindianDraw","target":"owner"}]}]},
+ {"id":"anniversary:chibi","revision":1,"triggers":[{"id":"far-target-contest","window":"cardUseTargetsFinalized","ownerRelation":"observer","singleActionInstance":true,"optional":true,"effects":[{"op":"resolveAnniversaryCuiLieChibi","target":"owner"}]}]}
+]}

@@ -50,14 +50,14 @@ public sealed partial class GameEngine
          _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
         IsDyingWindowGrantQualified(owner, grant) && IsMiuyanGrantQualified(owner, grant) && YunzhengNonLockedGrantQualified(owner, grant) &&
         IsMobileDuoruiGrantQualified(owner, grant) && IsMobileMaChaoTingweiGrantQualified(owner, grant) &&
-        IsAnniversaryXiahouJieGrantQualified(owner, grant);
+        IsAnniversaryXiahouJieGrantQualified(owner, grant) && IsAnniversaryCuiLieGrantQualified(owner, grant);
 
     private long CaptureCurrentTurnQualificationStamp()
     {
         // Upstream owners affect derived grants only. Their separate shard stamp
         // avoids scanning the whole table for every ordinary policy lookup.
         var projection = CaptureShenwuFengdongStamp();
-        if (_currentTurnSkillSuppressionRevision == 0) return CaptureAnniversaryXiahouJieQualificationStamp(CaptureYunzhengQualificationStamp(CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(projection))))));
+        if (_currentTurnSkillSuppressionRevision == 0) return CaptureAnniversaryCuiLieQualificationStamp(CaptureAnniversaryXiahouJieQualificationStamp(CaptureYunzhengQualificationStamp(CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(projection)))))));
         var current = (projection, _currentTurnSkillSuppressionRevision);
         if (current != _currentTurnQualificationDependencies)
         {
@@ -65,7 +65,7 @@ public sealed partial class GameEngine
             _currentTurnQualificationStamp++;
         }
         // Disjoint from the nonnegative legacy projection stamp.
-        return CaptureAnniversaryXiahouJieQualificationStamp(CaptureYunzhengQualificationStamp(CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(-_currentTurnQualificationStamp))))));
+        return CaptureAnniversaryCuiLieQualificationStamp(CaptureAnniversaryXiahouJieQualificationStamp(CaptureYunzhengQualificationStamp(CaptureGuanduQualificationStamp(CaptureNativeFactionQualificationStamp(CaptureMiuyanQualificationStamp(CaptureDyingWindowQualificationStamp(-_currentTurnQualificationStamp)))))));
     }
 
     private void ExpireCurrentTurnNonLockedSkillSuppressions(int turnNumber, int turnOwnerSeat)

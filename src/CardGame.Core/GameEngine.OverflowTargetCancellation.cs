@@ -176,7 +176,7 @@ public sealed partial class GameEngine
     {
         if (window.Continuation is not (ProgramCardContinuation.Slash or ProgramCardContinuation.FinalizedTrick or
                 ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.DelayedCard or ProgramCardContinuation.FinalizedDelayedPlacement) ||
-            LifecycleCardUse(window.ParentFrameId) is not { TargetSeats.Count: 0 } use || !(HasDinghanCancellation(use) || HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use) || use.BeiMiHuTargetMutation is { Kind: "cancel" } && ValidBeiMiHuTargetMutation(use) ||
+            LifecycleCardUse(window.ParentFrameId) is not { TargetSeats.Count: 0 } use || !(HasAnniversaryCuiLieCancellation(use) || HasDinghanCancellation(use) || HasHuaManSouyingCancellation(use) || HasOverflowTargetCancellation(use) || use.BeiMiHuTargetMutation is { Kind: "cancel" } && ValidBeiMiHuTargetMutation(use) ||
                     window.Continuation == ProgramCardContinuation.FinalizedTrick &&
                     (HasRoundGainedTrickTargetCancellation(use) || HasNeifaTrickTargetCancellation(use)))) return false;
         if (_resolutionStack.LastOrDefault()?.Id != use.Id || window.Action.ActionId != use.Action!.ActionId)

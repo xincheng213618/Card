@@ -1,0 +1,4 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:ma-miao","skills":[
+ {"registrationOrder":47200,"programBundle":"anniversary-ma-miao","includeProgramPresentation":true,"definition":{"id":"anniversary:zhangguan","name":"仗关","description":"每个回合开始时，你可以将手牌数调整至体力值，若你的手牌数没有因此变多，你回复一点体力，然后获得当前回合角色一张牌。","executionForms":"Trigger"}},
+ {"registrationOrder":47201,"programBundle":"anniversary-ma-miao","includeProgramPresentation":true,"definition":{"id":"anniversary:congfeng","name":"从风","description":"你/其他角色不因此技能获得其他角色/你的牌时，可额外随机获得1张。","executionForms":"Trigger"}}
+],"generals":[{"registrationOrder":47202,"pools":{"current":47202},"definition":{"id":"anniversary:ma-miao","name":"马邈","portraitKey":"anniversary-ma-miao","skillId":"anniversary:zhangguan","additionalSkillIds":["anniversary:congfeng"],"factionId":"shu","baseHp":4,"gender":"Male","characterId":"character:ma-miao","variantId":"anniversary","rulesetId":"sanguosha-anniversary"}}]}

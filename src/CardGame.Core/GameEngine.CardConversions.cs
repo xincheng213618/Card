@@ -180,6 +180,9 @@ public sealed partial class GameEngine
         CardKind effectiveKind,
         bool forResponse)
     {
+        if (effectiveKind == CardKind.Alcohol && IsAnniversaryHouChengWineCard(card.Id))
+            return AnniversaryHouChengWineSources(owner, card, effectiveKind, forResponse,
+                dyingUse: forResponse && ActiveDying?.VictimSeat == owner.Seat);
         var matches = GetProgramCardIdentityMatches(owner, card);
         if (matches.Count == 0) return [];
         return matches
@@ -242,6 +245,8 @@ public sealed partial class GameEngine
             !IsWenyiPeachSupplyQuery(owner, requested))) return [];
         if (UnclaimedDeclarationPayment(owner.Seat, card.Id) is { } paid &&
             (paid.DeclaredKind == outputKind || forResponse && outputKind == CardKind.Slash && IsSlashCard(paid.DeclaredKind))) return [paid.Source];
+        var houChengWine = AnniversaryHouChengWineSources(owner, card, outputKind, forResponse, dyingUse);
+        if (houChengWine.Count != 0) return houChengWine;
         var fieldMounts = ShouliFieldConversions(owner, card, outputKind, forResponse, dyingUse);
         if (fieldMounts.Count != 0) return fieldMounts;
         var registered = GetSkillBindingShard(owner).GetSingleCardConversions(outputKind);

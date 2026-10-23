@@ -118,7 +118,16 @@ internal static class WuGuanYuJuewuChecks
                 "Real foreign entries make both the original printed-seven source and each opponent's sole Hand entity rank two before the unchanged Tianbian policy applies."); s.Cold();
             if (group)
                 s.Accept(new UseProgramSkillCommand(0, "ol:gushe", "simultaneous-pindian", [sourceCard.Id], opponents, s.G.Revision, s.P!.PromptId));
-            else s.Use("contest", [sourceCard.Id], opponents);
+            else
+            {
+                s.Use("contest", [sourceCard.Id], opponents);
+                s.Reach(() => s.P is { PlayerSeat: 0 } && s.P.Choices.Any(c =>
+                    c.Parameters.GetValueOrDefault("action") == "pindian-source-card" && c.Cards.SequenceEqual([sourceCard.Id])));
+                s.Need(s.G.ResolutionStack.OfType<PindianFrame>().Single() is { SourceSeat: 0, OpponentSeat: 1, PindianStep: PindianStep.ChooseSourceCard } source &&
+                    source.SourceCardId == sourceCard.Id,
+                    "Tianbian offers the declared real source entity or a deck top before the opponent commits; this residency check retains its originally declared entity.");
+                s.Answer(c => c.Parameters.GetValueOrDefault("action") == "pindian-source-card" && c.Cards.SequenceEqual([sourceCard.Id]));
+            }
             s.Reach(() => s.P is { PlayerSeat: 1 } && (group
                 ? s.G.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.SimultaneousPindian is { Stage: SimultaneousPindianStage.Selecting })
                 : s.G.ResolutionStack.OfType<PindianFrame>().Any()));
