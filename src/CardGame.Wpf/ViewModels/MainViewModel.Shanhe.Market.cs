@@ -23,8 +23,12 @@ public sealed partial class MainViewModel
     public string ShanheMarketCategoryNotice => SelectedShanheMarketCategory switch
     {
         "技能" => "习得技能占用额外技能槽；槽位已满时选择替换。",
-        "装备" => "装备在下场战斗开始时装备，同槽位的新装备会替换旧装备。",
-        "卡牌" => "随身牌在今后每场战斗开始时获得。",
+        "装备" => ShanheStartingResourcesExpireOnUse
+            ? "装备在今后每场战斗开始时加入手牌，需自行使用；购入同槽位装备会替换构筑中的旧装备。"
+            : "装备在下场战斗开始时装备，同槽位的新装备会替换旧装备。",
+        "卡牌" => ShanheStartingResourcesExpireOnUse
+            ? "随身牌每战加入手牌；使用或响应后本应进入弃牌堆时移出本局，被技能提前取得则保留。"
+            : "随身牌在今后每场战斗开始时获得。",
         "补给" => "补充军资与体力，继续征程。",
         _ => "购买战法加入本次征程，不占六个初始战法位。"
     };

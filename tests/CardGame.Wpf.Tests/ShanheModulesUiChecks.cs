@@ -85,6 +85,19 @@ internal static class ShanheModulesUiChecks
         Layout(host);
         Program.Assert(!vm.IsShanheShopActive && tabs.SelectedIndex == 0,
             "The real leave-shop button must return to the route and end the shop's transaction phase.");
+        vm.SelectedShanheMarketCategory = "装备";
+        Program.Assert(vm.ShanheMarketCategoryNotice.Contains("加入手牌", StringComparison.Ordinal) &&
+            vm.ShanheCarryoverNotice.Contains("被技能提前取得则保留", StringComparison.Ordinal),
+            "A new expedition must explain that starting equipment enters the hand and claimed cards remain.");
+        var refreshedCarryover = false;
+        vm.PropertyChanged += (_, change) => refreshedCarryover |= change.PropertyName == nameof(MainViewModel.ShanheCarryoverNotice);
+        var legacy = ShanheCampaignSession.Create(definition with { StartingResourcesExpireOnUse = false },
+            new(270017, definition.PlayerGeneralIds[0]), StandardShanheCampaignCatalog.CreateBattleRegistry);
+        Attach(vm, legacy);
+        Program.Assert(refreshedCarryover && vm.ShanheMarketCategoryNotice.Contains("开始时装备", StringComparison.Ordinal) &&
+            vm.ShanheCarryoverNotice.Contains("直接装备", StringComparison.Ordinal) &&
+            !vm.ShanheCarryoverNotice.Contains("移出本局", StringComparison.Ordinal),
+            "Loading a legacy expedition must notify the bound carryover notice and retain its direct-equipment contract.");
         host.DataContext = null;
     }
     private static void Attach(MainViewModel vm, ShanheCampaignSession session)

@@ -1793,6 +1793,7 @@ public sealed partial class GameEngine
         }
 
         _started = true;
+        PublishShanheStartingResourceOrigins();
         _status = EngineStatus.Running;
         RecordGuanduSetupFact();
         RecordShenwuDraftFacts();
@@ -17504,10 +17505,10 @@ public sealed partial class GameEngine
         if (ClaimDeclarationPayment(card, from, to)) return;
         var phantomDestination = PlanHappyZuoCiPhantomDestination(card, from, to, reason);
         to = NormalizeProgramViewAsCostDestination(card, from, to, reason);
-        to = NormalizeEphemeralCardDestination(card, from, to);
+        to = NormalizeEphemeralCardDestination(card, from, to, reason);
         to = NormalizeWuZglCopyDestination(card, from, to, reason);
         to = NormalizeLishiDiscardDestination(card, from, to, reason);
-        if ((IsDiouCarrier(card.Id) || IsWushuangShopEquipment(card.Id)) && from == to) return;
+        if ((IsDiouCarrier(card.Id) || IsWushuangShopEquipment(card.Id) || IsShanheStartingResource(card.Id)) && from == to) return;
         if (card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment || IsGuanduThunderChariotDeparture(card, from, to))
             to = CardLocation.OutsideGame;
         var happyGainDestination = PlanHappyWeiYanGainDestination(card, from, to, reason);
@@ -17556,7 +17557,7 @@ public sealed partial class GameEngine
     {
         var phantomDestinations = cards.Select(card => (card.Id, Plan: PlanHappyZuoCiPhantomDestination(card, from, to, reason)))
             .Where(item => item.Plan is not null).ToDictionary(item => item.Id, item => item.Plan!);
-        if (cards.Any(card => NormalizeEphemeralCardDestination(card, from, to) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to) ||
+        if (cards.Any(card => NormalizeEphemeralCardDestination(card, from, to, reason) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to) ||
             from.Zone == CardZoneKind.Equipment && cards.Any(card => card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, to)))
         {
             foreach (var card in cards) MoveCard(card, from, to, reason, beforeFact, emitCardMovedEvents, disclosure);
@@ -17639,7 +17640,7 @@ public sealed partial class GameEngine
     {
         if (CanPlanHellDiscard(to) || _cardZones.CardsAt(from).Any(card => card.Kind == CardKind.ReturnSoul))
         { MoveCards(_cardZones.CardsAt(from).ToArray(), from, to, reason, disclosure: disclosure); return; }
-        if (_cardZones.CardsAt(from).Any(card => PlanHappyZuoCiPhantomDestination(card, from, to, reason) is not null || NormalizeEphemeralCardDestination(card, from, to) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to || NormalizeLishiDiscardDestination(card, from, to, reason) != to || NormalizeHappyWeiYanGainDestination(card, from, to, reason) != to) ||
+        if (_cardZones.CardsAt(from).Any(card => PlanHappyZuoCiPhantomDestination(card, from, to, reason) is not null || NormalizeEphemeralCardDestination(card, from, to, reason) != to || NormalizeWuZglCopyDestination(card, from, to, reason) != to || NormalizeLishiDiscardDestination(card, from, to, reason) != to || NormalizeHappyWeiYanGainDestination(card, from, to, reason) != to) ||
             from.Zone == CardZoneKind.Equipment && _cardZones.CardsAt(from).Any(card => card.IsGeneralWeapon || IsGuanduThunderChariotDeparture(card, from, to)))
         {
             MoveCards(_cardZones.CardsAt(from).ToArray(), from, to, reason, disclosure: disclosure);
@@ -17790,6 +17791,7 @@ public sealed partial class GameEngine
         RecordDiouCarrierDestruction(movement);
         RecordShenDaCarrierDestruction(movement);
         RecordWushuangShopEquipmentDestruction(movement);
+        RecordShanheStartingResourceDestruction(movement);
         RecordWuZglCopyMovement(movement);
         ObserveMouJsMovement(movement);
         CaptureBianFuRenForeignDiscardProducer(movement);
