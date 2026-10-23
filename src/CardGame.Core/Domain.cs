@@ -233,13 +233,17 @@ public enum PlayerMarkerKind
     MouChenGongCe = 29600,
     MouFaZhengXuan = 31800,
     GuanduGrain = 44000,
-    OriginalUseLightning = 44001
+    OriginalUseLightning = 44001,
+    MuShunJin = 45300,
+    XiahouJieLie = 45500
 }
 
 public static class PlayerMarkerCatalog
 {
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
+        PlayerMarkerKind.MuShunJin => "劲",
+        PlayerMarkerKind.XiahouJieLie => "裂",
         PlayerMarkerKind.Pingding => "平定",
         PlayerMarkerKind.HappyMedicine => "药",
         PlayerMarkerKind.HappyGuard => "卫",

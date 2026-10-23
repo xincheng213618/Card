@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[{"id":"anniversary:niji","revision":1,"triggers":[
+ {"id":"target-draw","window":"cardUseTargetsFinalized","ownerRelation":"target","optional":true,"condition":{"kind":"cardActionCategoryIs","categories":["basic","trick"]},"effects":[{"op":"resolveAnniversarySunHuanNijiDraw","target":"owner"}]},
+ {"id":"ending-use-discard","window":"turnEnding","subject":"owner","turnOwnerScope":"anyLiving","optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveAnniversarySunHuanNijiEnding","target":"owner"}]}
+]}]}

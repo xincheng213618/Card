@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:mu-shun",
+  "skills": [
+    { "registrationOrder": 45300, "programBundle": "anniversary-mu-shun", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:jinjian", "name": "劲坚", "description": "锁定技，当你造成或受到伤害后，你获得一个“劲”标记，然后你可以与伤害来源拼点：若你赢，你回复1点体力。（每个“劲”令你攻击范围+1）", "tags": "Locked", "executionForms": "Trigger" } },
+    { "registrationOrder": 45301, "programBundle": "anniversary-mu-shun", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:shizhao", "name": "失诏", "description": "锁定技，你的回合外，当你每回合第一次失去最后一张手牌时：若你有“劲”，你移去一个“劲”并摸两张牌；若你没有“劲”，则你本回合下一次受到的伤害值+1。", "tags": "Locked", "executionForms": "Trigger" } }
+  ],
+  "generals": [ { "registrationOrder": 45302, "pools": { "current": 45302 }, "definition": {
+    "id": "anniversary:mu-shun", "name": "穆顺", "portraitKey": "anniversary-mu-shun", "skillId": "anniversary:jinjian", "additionalSkillIds": ["anniversary:shizhao"],
+    "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:mu-shun", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

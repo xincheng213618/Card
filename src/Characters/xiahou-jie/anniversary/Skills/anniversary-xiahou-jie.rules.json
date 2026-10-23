@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:liedan","revision":1,"triggers":[{"id":"sequential-preparation","window":"turnStartBeforeNormalFlow","subject":"owner","turnOwnerScope":"anyLiving","optional":false,"effects":[{"op":"resolveAnniversaryXiahouJieLiedan","target":"owner"}]}]},
+ {"id":"anniversary:zhuangdan","revision":1,"triggers":[{"id":"unique-most-until-own-end","window":"afterTurnEnded","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[{"op":"resolveAnniversaryXiahouJieZhuangdan","target":"owner"}]}]}
+]}

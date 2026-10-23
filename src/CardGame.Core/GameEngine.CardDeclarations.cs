@@ -335,6 +335,7 @@ public sealed partial class GameEngine
         PopResolutionFrame(frame.Id, ResolutionFrameKind.CardDeclaration);
         if (TryReturnQigongDeclaration(frame, success)) return;
         if (TryReturnJianjiDeclaration(frame, success)) return;
+        if (TryReturnAnniversarySunHuanDeclaration(frame, success)) return;
         if (ReturnMouGyzDeclaration(frame, success)) return;
         if (TryReturnKeBiNengPingduanDeclaration(frame, success)) return;
         if (ReturnMouSmPlayedDeclaration(frame, success)) return;

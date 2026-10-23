@@ -97,7 +97,7 @@ public sealed partial class GameEngine
             RecipientCategoryMarkStructuralEdge(parent, current) || OffTurnUsedCardGiftStructuralEdge(parent, current) ||
             CardSupplyCompletionStructuralEdge(parent, current) || ResponseCompletionStructuralEdge(parent, current) ||
             OriginalHandEntityStructuralEdge(parent, current) || OutsidePhaseDrawDiscardStructuralEdge(parent, current) ||
-            HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child) || IsYanPuDyingExitEdge(child) || HappyDianWeiStructuralEdge(current, parent) || HappyPangTongStructuralEdge(current, parent) || HappyDiaoChanStructuralEdge(current, parent);
+            HalfHandPaidDamageObserverEdge(child) || PaidTargetObserverEdge(child) || IsYanPuDyingExitEdge(child) || HappyDianWeiStructuralEdge(current, parent) || HappyPangTongStructuralEdge(current, parent) || HappyDiaoChanStructuralEdge(current, parent) || MuShunPindianStructuralEdge(current, parent);
     }
 
     private bool HasHandGainDebtObserverSuffix(int rootIndex) => HasObserverSuffix(rootIndex,

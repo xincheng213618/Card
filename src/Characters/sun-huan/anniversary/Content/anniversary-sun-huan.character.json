@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-huan",
+  "skills": [{
+    "registrationOrder": 45400,
+    "programBundle": "anniversary-sun-huan",
+    "includeProgramPresentation": true,
+    "definition": {
+      "id": "anniversary:niji", "name": "逆击",
+      "description": "当你成为基本牌或锦囊牌的目标后，你可以摸一张牌。每个结束阶段，你弃置所有本回合以此法摸到的牌。弃牌前你可以先使用其中一张牌。",
+      "executionForms": "Trigger"
+    }
+  }],
+  "generals": [{
+    "registrationOrder": 45401, "pools": { "current": 45401 },
+    "definition": {
+      "id": "anniversary:sun-huan", "name": "孙桓", "portraitKey": "anniversary-sun-huan",
+      "skillId": "anniversary:niji", "factionId": "wu", "baseHp": 4, "gender": "Male",
+      "characterId": "character:sun-huan", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+    }
+  }]
+}

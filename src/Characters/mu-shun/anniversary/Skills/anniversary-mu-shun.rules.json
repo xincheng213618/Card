@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:jinjian", "revision": 1, "triggers": [
+      { "id": "actual-damage-jin", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [ { "op": "resolveAnniversaryMuShunJinjian", "target": "owner" },
+          { "op": "recover", "target": "owner", "amount": 1, "condition": { "kind": "pindianWon", "sourceBind": "jinjian-contest" } } ] }
+    ] },
+    { "id": "anniversary:shizhao", "revision": 1, "triggers": [
+      { "id": "outside-first-last-hand", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand"], "movementOccurrence": "perBatch", "optional": false,
+        "usageScope": "turn", "usageLimit": 1,
+        "condition": { "kind": "all", "children": [
+          { "kind": "compare", "left": { "kind": "sourceZoneCountBefore" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 0 } },
+          { "kind": "compare", "left": { "kind": "sourceZoneCountAfter" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 0 } }
+        ] },
+        "effects": [ { "op": "resolveAnniversaryMuShunShizhao", "target": "owner" }, { "op": "draw", "target": "owner", "amount": 2 } ] }
+    ] }
+  ]
+}
