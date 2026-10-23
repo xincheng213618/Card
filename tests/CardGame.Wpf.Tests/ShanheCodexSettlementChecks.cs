@@ -39,6 +39,18 @@ internal static class ShanheCodexSettlementChecks
             ShanheCodexSettlement.EligibleBookAmount(profile, session, 1) == 10,
             "Only a fully resolved real expedition victory may prepare the verified ten-book sample award.");
         Program.Assert(ShanheCodexSettlement.TryPrepare(profile, session, 1, out var earned), "The unchanged source profile must be eligible before persistence.");
+        var plansProfile = ShanheCodexLoadouts.EnsurePlans(profile);
+        Program.Assert(ShanheCodexSettlement.TryPrepare(plansProfile, session, 1, out var plansEarned) &&
+            plansEarned.FormatVersion == FileShanheCodexStore.CurrentFormatVersion && plansEarned.Books == earned.Books &&
+            plansEarned.SelectedLoadoutPlanId == plansProfile.SelectedLoadoutPlanId &&
+            plansEarned.EquippedTacticIds.SequenceEqual(plansProfile.EquippedTacticIds) &&
+            plansEarned.LoadoutPlans!.Single().EquippedTacticIds.SequenceEqual(plansProfile.LoadoutPlans!.Single().EquippedTacticIds) &&
+            !ReferenceEquals(plansEarned.LoadoutPlans, plansProfile.LoadoutPlans) &&
+            !ReferenceEquals(plansEarned.LoadoutPlans!.Single().EquippedTacticIds, plansProfile.LoadoutPlans!.Single().EquippedTacticIds),
+            "A current-format account earns the same real victory reward and retains independently copied plans and slot positions.");
+        var plansStore = new MemoryShanheCodexStore();
+        plansStore.Write(plansEarned);
+        Refuse(plansStore.Read(), session, 1);
         Program.Assert(earned.Books == 17 && earned.ClaimedRewards.SequenceEqual(["earlier-claim", "expedition:" + expeditionId.ToString("N")]) &&
             profile.Books == 7 && profile.ClaimedRewards.SequenceEqual(["earlier-claim"]) &&
             earned.UnlockedRewardIds.SequenceEqual(profile.UnlockedRewardIds) && earned.EquippedTacticIds.SequenceEqual(profile.EquippedTacticIds) &&

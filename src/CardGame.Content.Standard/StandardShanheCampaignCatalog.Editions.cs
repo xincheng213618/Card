@@ -50,12 +50,12 @@ public static partial class StandardShanheCampaignCatalog
     });
 
     public static ShanheCampaignDefinition CreateDefinition(int difficulty, string editionId) =>
-        WithStartingResourcesContract(CreateLegacyDefinition(difficulty, editionId));
+        WithStartingResourcesContract(CreateCurrentBaseDefinition(difficulty, editionId));
 
-    private static ShanheCampaignDefinition CreateLegacyDefinition(int difficulty, string editionId) => editionId switch
+    private static ShanheCampaignDefinition CreateCurrentBaseDefinition(int difficulty, string editionId) => editionId switch
     {
         LocalEditionId => CreateLegacyLocalDefinition(difficulty),
-        Returning2026EditionId => CreateReturning2026Definition(difficulty),
+        Returning2026EditionId => WithS5ThreeBossEncounters(CreateReturning2026Definition(difficulty)),
         _ => throw new ArgumentException("Unknown Shanhe campaign edition.", nameof(editionId))
     };
 
@@ -76,31 +76,16 @@ public static partial class StandardShanheCampaignCatalog
         definition = WithSavedRoster(definition);
         if (string.Equals(ShanheCampaignContent.GetContentHash(definition), checkpoint.CampaignHash, StringComparison.Ordinal))
             return definition;
-        // Every historical candidate must match the entire fingerprint; optional metadata never bypasses it.
-        var candidates = new List<ShanheCampaignDefinition> { definition };
-        var legacy = CreateLegacyDefinition(difficulty, editionId);
-        if (checkpoint.Options.UseCodexRewardPool) legacy = WithCodexRewards(legacy, editionId);
-        candidates.Add(WithSavedRoster(legacy));
+        // Only the immediately preceding expedition content remains supported.
         if (editionId == Returning2026EditionId)
         {
-            var beforeLiru = CreateReturning2026Definition(difficulty, includeS5Liru: false);
-            if (checkpoint.Options.UseCodexRewardPool) beforeLiru = WithCodexRewards(beforeLiru, editionId);
-            candidates.Add(WithSavedRoster(beforeLiru));
+            var previous = CreateReturning2026Definition(difficulty);
+            if (checkpoint.Options.UseCodexRewardPool) previous = WithCodexRewards(previous, editionId);
+            previous = WithSavedRoster(WithStartingResourcesContract(previous));
+            if (string.Equals(ShanheCampaignContent.GetContentHash(previous), checkpoint.CampaignHash, StringComparison.Ordinal))
+                return previous;
         }
-        if (!checkpoint.Commands.Any(command => command is ChooseShanheBossRewardCommand or ConfirmShanheBossRewardCommand))
-            candidates.AddRange(candidates.ToArray().Select(WithoutChapterRewards));
-        if (!checkpoint.Commands.Any(command => command is ChooseShanheOpeningSkillCommand) &&
-            !checkpoint.Options.EquippedTacticIds.Contains(OpeningInheritanceRewardId, StringComparer.Ordinal))
-            candidates.AddRange(candidates.ToArray().Select(WithoutOpeningInheritance));
-        if (!checkpoint.Commands.Any(command => command is SkipShanheRewardCommand))
-        {
-            candidates.AddRange(candidates.ToArray().Select(candidate => candidate with
-                { Nodes = candidate.Nodes.Select(node => node with { RewardSkipGold = 0 }).ToArray() }));
-        }
-        return candidates.FirstOrDefault(candidate => string.Equals(ShanheCampaignContent.GetContentHash(candidate),
-            checkpoint.CampaignHash, StringComparison.Ordinal)) is { } matching
-            ? ShanheCampaignContent.FreezeAndValidate(matching)
-            : throw new ArgumentException("Campaign checkpoint content fingerprint does not match.", nameof(checkpoint));
+        throw new ArgumentException("Campaign checkpoint content fingerprint does not match a supported definition.", nameof(checkpoint));
     }
 
     public static string EditionIdForCampaign(string campaignId, int difficulty)
@@ -112,7 +97,7 @@ public static partial class StandardShanheCampaignCatalog
             : throw new ArgumentException("The campaign edition and difficulty do not match.", nameof(campaignId));
     }
 
-    private static ShanheCampaignDefinition CreateReturning2026Definition(int difficulty, bool includeS5Liru = true)
+    private static ShanheCampaignDefinition CreateReturning2026Definition(int difficulty)
     {
         var original = CreateLegacyLocalDefinition(difficulty);
         ShanheRewardDefinition[] teamRewards =
@@ -199,8 +184,7 @@ public static partial class StandardShanheCampaignCatalog
         nodes = nodes.Select(node => node.Id == "hulao" ? WithS5HuaxiongEncounter(WithS5GaoshunEncounter(node, difficulty)) : node).ToArray();
         nodes = nodes.Select(node => node.Id == "dagu" ? WithS5YuduEncounter(WithS5TaishiciEncounter(node)) : node).ToArray();
         nodes = nodes.Select(node => node.Id == "huanyuan" ? WithS5YujinEncounter(WithS5CaocaoEncounter(node)) : node).ToArray();
-        // Keep the exact pre-Li-Ru construction path for saved campaign fingerprints.
-        if (includeS5Liru) nodes = nodes.Select(node => node.Id == "luoyang" ? WithS5LiruEncounter(node) : node).ToArray();
+        nodes = nodes.Select(node => node.Id == "luoyang" ? WithS5LiruEncounter(node) : node).ToArray();
         nodes = nodes.Select(node => node.Id == "guangcheng" ? WithS5CaoxingHighEncounters(WithS5ShiduEncounters(WithS5CaoxingEncounter(node), difficulty), difficulty) : node).ToArray();
         return WithCurrentSlashTactics(WithChapterRewards(original with
         {

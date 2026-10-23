@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-baoyu-14047",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "prevent-fire",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "condition": { "kind": "damageNatureIs", "damageNature": "fire" },
+          "effects": [{ "op": "preventCurrentDamage", "target": "owner" }]
+        },
+        {
+          "id": "round-rain",
+          "window": "roundStarting",
+          "usageScope": "round",
+          "usageLimit": 1,
+          "subject": "owner",
+          "optional": false,
+          "effects": [{ "op": "damageOtherLiving", "target": "owner", "amount": 1 }]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:s5-wuying-3388",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "enemy-own-turn-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "effects": [
+            { "op": "bindOwnTurnEnemyHandGain", "target": "owner", "amount": 10 },
+            { "op": "damage", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

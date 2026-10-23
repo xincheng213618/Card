@@ -39,9 +39,16 @@ public sealed partial class MainViewModel
     private void InitializeShanheCodex(IShanheCodexStore? store, bool memoryOnly)
     {
         _shanheCodexStore = store ?? (memoryOnly ? new MemoryShanheCodexStore() : new FileShanheCodexStore());
-        try { if (_shanheCodexStore.Exists) _shanheCodexProfile = _shanheCodexStore.Read(); }
+        try
+        {
+            if (_shanheCodexStore.Exists) _shanheCodexProfile = _shanheCodexStore.Read();
+            _shanheCodexProfile = ShanheCodexLoadouts.EnsurePlans(_shanheCodexProfile);
+        }
         catch (Exception error) when (IsSaveException(error))
-        { _shanheCodexReadFailed = true; ShanheCodexMessage = $"山河册读取失败，原文件已保留：{ReadableSaveError(error)}"; }
+        {
+            _shanheCodexProfile = ShanheCodexLoadouts.EnsurePlans(new());
+            _shanheCodexReadFailed = true; ShanheCodexMessage = $"山河册读取失败，原文件已保留：{ReadableSaveError(error)}";
+        }
         SelectCodexNodeCommand = new RelayCommand<ShanheCodexNode>(node =>
         {
             if (node is null || !ShanheCodexNodes.Contains(node)) return;
@@ -52,6 +59,7 @@ public sealed partial class MainViewModel
             if (slot is null || !ShanheCodexSlots.Contains(slot)) return;
             _selectedCodexSlot = slot.Index;
             if (slot.RewardId is not null) _selectedCodexId = ShanheCodexNodes.FirstOrDefault(node => node.RuntimeRewardId == slot.RewardId)?.Id;
+            IsShanheCodexLoadoutManagerOpen = false;
             RefreshShanheCodex();
             IsShanheCodexPickerOpen = CanPrepareShanheExpedition;
             if (IsShanheCodexPickerOpen && !ShanheEquippableTactics.Any(node => node.Id == _selectedCodexId) && ShanheEquippableTactics.FirstOrDefault() is { } first)
@@ -66,8 +74,9 @@ public sealed partial class MainViewModel
         {
             if (!RemoveCodexTacticCommand.CanExecute(null)) return;
             var slots = _shanheCodexProfile.EquippedTacticIds.ToArray(); slots[_selectedCodexSlot] = null;
-            SaveCodexProfile(_shanheCodexProfile with { EquippedTacticIds = slots }, "已卸下战法，下次出征生效。");
+            SaveCodexProfile(ShanheCodexLoadouts.UpdateActiveSlots(_shanheCodexProfile, slots), "已卸下战法，下次出征生效。");
         }, () => CanPrepareShanheExpedition && !_shanheCodexReadFailed && _shanheCodexProfile.EquippedTacticIds[_selectedCodexSlot] is not null);
+        InitializeShanheCodexLoadouts();
     }
 
     private void UnlockSelectedCodexNode()
@@ -90,11 +99,10 @@ public sealed partial class MainViewModel
         var slots = _shanheCodexProfile.EquippedTacticIds.ToArray(); slots[_selectedCodexSlot] = node.RuntimeRewardId;
         var definition = StandardShanheCampaignCatalog.CreateCodexDefinition(SelectedShanheDifficulty.Value, SelectedShanheScenario.Id);
         var runtime = ShanheCodexTree.ResolveUnlockedRewardIds(_shanheCodexProfile.UnlockedRewardIds, definition.Rewards.Select(reward => reward.Id));
-        if (SaveCodexProfile(_shanheCodexProfile with
+        if (SaveCodexProfile(ShanheCodexLoadouts.UpdateActiveSlots(_shanheCodexProfile with
         {
-            EquippedTacticIds = slots,
             UnlockedRewardIds = _shanheCodexProfile.UnlockedRewardIds.Concat(runtime).Distinct(StringComparer.Ordinal).ToArray()
-        }, $"{node.Name}已装入第{_selectedCodexSlot + 1}位，下次出征生效。")) IsShanheCodexPickerOpen = false;
+        }, slots), $"{node.Name}已装入第{_selectedCodexSlot + 1}位，下次出征生效。")) IsShanheCodexPickerOpen = false;
     }
     private bool SaveCodexProfile(ShanheCodexProfile next, string message)
     {
@@ -123,7 +131,11 @@ public sealed partial class MainViewModel
     private void RefreshShanheCodex()
     {
         if (_selectedShanheDifficulty is null || _shanheCodexStore is null) return;
-        if (!CanPrepareShanheExpedition) IsShanheCodexPickerOpen = false;
+        if (!CanPrepareShanheExpedition)
+        {
+            IsShanheCodexPickerOpen = false;
+            IsShanheCodexLoadoutManagerOpen = false;
+        }
         // This is the next expedition's loadout; a resumed expedition keeps its frozen options.
         var definition = StandardShanheCampaignCatalog.CreateCodexDefinition(SelectedShanheDifficulty.Value, SelectedShanheScenario.Id);
         var rewardIds = definition.Rewards.Select(reward => reward.Id).ToHashSet(StringComparer.Ordinal);
@@ -171,6 +183,7 @@ public sealed partial class MainViewModel
         foreach (var property in new[] { nameof(SelectedCodexNode), nameof(ShanheBookBalance), nameof(ShanheCodexLoadoutCount), nameof(ShanheCodexEquipLabel) }) RaisePropertyChanged(property);
         foreach (var command in new[] { UnlockCodexNodeCommand, EquipCodexTacticCommand, RemoveCodexTacticCommand }.OfType<RelayCommand>()) command.NotifyCanExecuteChanged();
         foreach (var property in new[] { nameof(ShanheCodexSlotHint), nameof(ShanheEquippableTactics), nameof(HasShanheEquippableTactics) }) RaisePropertyChanged(property);
+        RefreshShanheCodexLoadouts(rewardIds);
     }
     private static int SlotRarity(int index) => index switch { 0 or 1 => 1, 2 or 3 => 2, 4 => 3, _ => 4 };
     private static string SlotRarityName(int index) => SlotRarity(index) switch { 1 => "普通", 2 => "稀有", 3 => "史诗", _ => "传说" };

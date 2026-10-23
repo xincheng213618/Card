@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-luoyi-14191": {
+      "name": "裸衣",
+      "description": "摸牌阶段开始前，你可以亮出牌堆顶的X张牌，然后你可以跳过摸牌阶段并获得其中所有基本牌、武器牌和【决斗】，且直到你的下回合开始，你为伤害来源的【杀】和【决斗】对目标角色造成的伤害+X。（X为你当前体力值）",
+      "triggerLabels": { "reveal-hp-then-optional-skip": "亮出当前体力值张牌，再选择是否跳过摸牌" },
+      "optionLabels": { "skip-draw": "跳过摸牌，获得基本牌、武器和决斗，并获得加伤", "normal-draw": "放弃亮牌，正常摸牌" }
+    }
+  }
+}

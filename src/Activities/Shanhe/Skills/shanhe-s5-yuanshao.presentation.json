@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-luanji-14162": {
+      "name": "乱击",
+      "description": "你可以将两张颜色相同的手牌当【万箭齐发】使用。你使用【万箭齐发】可以少选一个目标。",
+      "activationLabels": {
+        "red-hand-pair-as-arrow-barrage": "两张红色手牌当万箭齐发",
+        "black-hand-pair-as-arrow-barrage": "两张黑色手牌当万箭齐发"
+      }
+    }
+  }
+}

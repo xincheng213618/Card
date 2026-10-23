@@ -11,6 +11,13 @@
     <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Edge" Property="BorderBrush" Value="#FFDC84"/><Setter TargetName="Edge" Property="Background" Value="#77512E"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Edge" Property="BorderBrush" Value="#FFE8A2"/><Setter TargetName="Edge" Property="BorderThickness" Value="2"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Edge" Property="Opacity" Value="0.45"/></Trigger></ControlTemplate.Triggers>
    </ControlTemplate></Setter.Value></Setter>
   </Style>
+  <Style x:Key="LoadoutPlanButton" TargetType="Button" BasedOn="{StaticResource InkButton}">
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+    <Border x:Name="Edge" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Edge" Property="BorderBrush" Value="#FFDC84"/><Setter TargetName="Edge" Property="Background" Value="#77512E"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Edge" Property="BorderBrush" Value="#FFE8A2"/><Setter TargetName="Edge" Property="BorderThickness" Value="2"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Edge" Property="Opacity" Value="0.45"/></Trigger><DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter TargetName="Edge" Property="Opacity" Value="1"/></DataTrigger></ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+   <Style.Triggers><DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter Property="Background" Value="#745332"/><Setter Property="BorderBrush" Value="#E6C477"/><Setter Property="BorderThickness" Value="2"/></DataTrigger></Style.Triggers>
+  </Style>
   <Style x:Key="NodeButton" TargetType="Button">
    <Setter Property="Cursor" Value="Hand"/><Setter Property="Background" Value="Transparent"/><Setter Property="Padding" Value="0"/><Setter Property="BorderThickness" Value="0"/>
    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
@@ -26,12 +33,15 @@
  <Viewbox Stretch="Uniform">
   <Grid Width="1050" Height="535" ClipToBounds="True">
    <Image Source="/CardGame.Wpf;component/Assets/shanhe-codex-book.png" Stretch="Fill" IsHitTestVisible="False"/>
-   <Canvas>
+   <Canvas x:Name="CodexBookContent"><Canvas.Style><Style TargetType="Canvas"><Style.Triggers><DataTrigger Binding="{Binding IsShanheCodexLoadoutManagerOpen}" Value="True"><Setter Property="IsEnabled" Value="False"/></DataTrigger></Style.Triggers></Style></Canvas.Style>
     <StackPanel Canvas.Left="27" Canvas.Top="139" Width="55">
      <TextBlock Text="山&#x0a;河&#x0a;册" FontFamily="KaiTi" FontSize="49" LineHeight="75" TextAlignment="Center" Foreground="#EAC777"><TextBlock.Effect><DropShadowEffect Color="#160900" BlurRadius="3" ShadowDepth="2" Opacity="0.8"/></TextBlock.Effect></TextBlock>
      <TextBlock Text="运筹帷幄" FontFamily="KaiTi" FontSize="13" Foreground="#A8864E" TextAlignment="Center" Margin="0,20,0,0"/>
     </StackPanel>
-    <Border Canvas.Left="120" Canvas.Top="22" Width="220" Height="32" Background="#DD493321" BorderBrush="#AA8650" BorderThickness="1"><TextBlock Text="初 始 战 法" FontFamily="KaiTi" FontSize="19" Foreground="#EFDAAB" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+    <Border Canvas.Left="120" Canvas.Top="18" Width="220" Height="40" Background="#DD493321" BorderBrush="#AA8650" BorderThickness="1" Padding="8,3"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="75"/></Grid.ColumnDefinitions>
+     <StackPanel VerticalAlignment="Center"><TextBlock Text="初始战法" FontFamily="KaiTi" FontSize="15" Foreground="#EFDAAB"/><TextBlock x:Name="CodexSelectedLoadoutName" Text="{Binding ShanheCodexSelectedLoadoutName}" Foreground="#D8BC82" FontSize="10" TextTrimming="CharacterEllipsis" ToolTip="{Binding ShanheCodexSelectedLoadoutName}"/></StackPanel>
+     <Button x:Name="CodexManageLoadoutsButton" Grid.Column="1" Content="管理方案" Command="{Binding OpenShanheCodexLoadoutManagerCommand}" Style="{StaticResource InkButton}" FontSize="10" Padding="4,4" VerticalAlignment="Center" AutomationProperties.Name="管理初始战法方案"/>
+    </Grid></Border>
     <TextBlock Canvas.Left="121" Canvas.Top="64" Text="六位已开放 · 点击选位" FontSize="11" Foreground="#715539" Width="220" TextAlignment="Center"/>
     <ItemsControl Canvas.Left="128" Canvas.Top="82" Width="211" Height="390" ItemsSource="{Binding ShanheCodexSlots}">
      <ItemsControl.ItemsPanel><ItemsPanelTemplate><Canvas/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -142,7 +152,46 @@
      </Grid>
     </Border>
    </Border>
-   <TextBlock Text="{Binding ShanheCodexMessage}" Foreground="#E9D3A4" Background="#CC35291F" FontSize="10" TextAlignment="Center" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" VerticalAlignment="Bottom" MaxWidth="900" Margin="0,0,0,1" Padding="10,3"/>
+   <Border x:Name="CodexLoadoutManagerOverlay" Background="#B8000000" Visibility="{Binding IsShanheCodexLoadoutManagerOpen, Converter={StaticResource VisibleWhen}}" KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.ControlTabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Contained" FocusManager.IsFocusScope="True">
+    <Border Width="760" Height="438" BorderBrush="#AE9B76" BorderThickness="2" Background="#292823" Padding="20,14" HorizontalAlignment="Center" VerticalAlignment="Center">
+     <Grid><Grid.RowDefinitions><RowDefinition Height="39"/><RowDefinition Height="31"/><RowDefinition Height="*"/><RowDefinition Height="38"/></Grid.RowDefinitions>
+      <TextBlock Text="初始战法 · 方案管理" FontFamily="KaiTi" FontSize="27" Foreground="#F0DEB3" TextAlignment="Center" VerticalAlignment="Center"/>
+      <Button x:Name="CodexLoadoutManagerCloseButton" Content="×" Command="{Binding CloseShanheCodexLoadoutManagerCommand}" Style="{StaticResource InkButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="6,0" FontSize="23" AutomationProperties.Name="关闭初始战法方案管理"/>
+      <TextBlock Grid.Row="1" Text="点击方案切换 · 六槽装备各自保存 · 下次出征生效" Foreground="#BCAA7B" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="340"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border BorderBrush="#76694D" BorderThickness="1" Background="#25241F" Padding="9"><DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="方案（最多 8 套）" Foreground="#D8C18B" FontSize="12" Margin="3,0,0,8"/>
+        <ScrollViewer x:Name="CodexLoadoutPlansScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+         <ItemsControl x:Name="CodexLoadoutPlanList" ItemsSource="{Binding ShanheCodexLoadoutPlans}"><ItemsControl.ItemTemplate><DataTemplate>
+          <Button x:Name="CodexLoadoutPlanSelectButton" Command="{Binding DataContext.SelectShanheCodexLoadoutCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}" Style="{StaticResource LoadoutPlanButton}" Margin="0,0,0,7" Padding="8,7">
+           <StackPanel Width="274"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="36"/></Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Name}" Foreground="#F0DCA8" FontSize="13" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
+            <TextBlock Grid.Column="1" Text="当前" Foreground="#FFE3A0" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="{Binding IsSelected, Converter={StaticResource VisibleWhen}}"/>
+           </Grid><TextBlock Text="{Binding Summary}" Foreground="#C1AF8A" FontSize="10" TextWrapping="Wrap" Margin="0,5,0,0" MaxHeight="31" TextTrimming="CharacterEllipsis" ToolTip="{Binding Summary}"/></StackPanel>
+          </Button>
+         </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        </ScrollViewer>
+       </DockPanel></Border>
+       <Border Grid.Column="1" BorderBrush="#76694D" BorderThickness="1" Background="#20211D" Padding="15" Margin="15,0,0,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False"><StackPanel>
+         <TextBlock Text="方案名称（最多 24 字）" Foreground="#D8C18B" FontSize="12" Margin="0,0,0,8"/>
+         <TextBox x:Name="CodexLoadoutNameBox" Text="{Binding ShanheCodexLoadoutName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="24" Background="#F0E1BC" Foreground="#3D3021" BorderBrush="#A98A51" BorderThickness="1" Padding="7,6" FontSize="13" AutomationProperties.Name="初始战法方案名称"/>
+         <Button x:Name="CodexRenameLoadoutButton" Content="保存名称" Command="{Binding RenameShanheCodexLoadoutCommand}" Style="{StaticResource InkButton}" Margin="0,8,0,14" Padding="8,5"/>
+         <Border BorderBrush="#655B46" BorderThickness="0,1,0,0" Margin="0,0,0,12"/>
+         <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+          <Button x:Name="CodexNewLoadoutButton" Content="新建空方案" Command="{Binding NewShanheCodexLoadoutCommand}" Style="{StaticResource InkButton}" FontSize="11" Padding="6,6" Margin="0,0,5,0"/>
+          <Button x:Name="CodexCopyLoadoutButton" Grid.Column="1" Content="复制当前" Command="{Binding CopyShanheCodexLoadoutCommand}" Style="{StaticResource InkButton}" FontSize="11" Padding="6,6" Margin="5,0,0,0"/>
+         </Grid>
+         <Button x:Name="CodexDeleteLoadoutButton" Content="删除此方案" Command="{Binding DeleteShanheCodexLoadoutCommand}" Style="{StaticResource InkButton}" Background="#60362A" Margin="0,10,0,0" Padding="8,5"/>
+         <TextBlock Text="至少保留一套方案。删除只移除此方案，已研习的战法仍会保留。" Foreground="#AFA180" TextWrapping="Wrap" FontSize="10" LineHeight="17" Margin="0,8,0,0"/>
+        </StackPanel></ScrollViewer>
+       </Border>
+      </Grid>
+      <TextBlock x:Name="CodexLoadoutManagerMessage" Grid.Row="3" Text="{Binding ShanheCodexMessage}" Foreground="#E9D3A4" FontSize="11" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding ShanheCodexMessage}" Margin="2,7,2,0"/>
+     </Grid>
+    </Border>
+   </Border>
+   <TextBlock Text="{Binding ShanheCodexMessage}" Foreground="#E9D3A4" Background="#CC35291F" FontSize="10" TextAlignment="Center" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" VerticalAlignment="Bottom" MaxWidth="900" Margin="0,0,0,1" Padding="10,3"><TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding IsShanheCodexLoadoutManagerOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
   </Grid>
  </Viewbox>
 </UserControl>

@@ -5,6 +5,7 @@ public sealed partial class GameEngine
 {
     private CardMovementTiming? CaptureMovementTiming() => !(HasOl2016SimaRenjie || HasLeZhouFeiLingkongCapability || HasZhaoZhongCapability || HasMouFaZhengCapability || _contentRegistry.ProgramDependencies.UsesGainPhaseQualification || TracksRedOwnedLoss || HasActualHandGainCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.BindOwnTurnEnemyHandGain) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GainHappyHuaTuoMedicine) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveGuyingAtomicLossChoice)) && !HasOtherActualBasicDiscardCapability ? null :
         _programPhaseSchedule is { Phase: TurnPhase.Draw } scheduled
@@ -317,6 +318,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
+                if (IsOwnTurnEnemyHandGainTrigger(trigger)) continue;
                 // This reward belongs to the issuer proved by the nested
                 // destruction invoice, rather than the ordinary hand owner.
                 if (candidate.SkillId == HappyZuoCiComposition.Huanshu && candidate.BindingId == "foreign-phantom") continue;
@@ -363,6 +365,7 @@ public sealed partial class GameEngine
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
         }
+        candidates.AddRange(CollectOwnTurnEnemyHandGainCandidates(batch));
         candidates.AddRange(CollectMouJsMovementCandidates(batch));
         candidates.AddRange(CollectMouCaEquipmentCandidates(batch));
         candidates.AddRange(CollectMouHqGiveCandidates(batch));
@@ -603,6 +606,8 @@ public sealed partial class GameEngine
         CardsMovedTriggerWindowFrame frame,
         ProgramTriggerCandidate candidate)
     {
+        if (IsOwnTurnEnemyHandGainTrigger(GetProgramTrigger(candidate)))
+            return CreateOwnTurnEnemyHandGainContext(frame, candidate);
         if (candidate.SkillId == AnniversaryLiuYongComposition.Fengxiang && candidate.BindingId == "xi-leader-changes")
             return CreateAnniversaryLiuYongMovementContext(frame, candidate);
         if (candidate.SkillId == "happy:huanshu" && candidate.BindingId == "foreign-phantom")
