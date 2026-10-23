@@ -24,6 +24,7 @@ public sealed partial class GameEngine
 
     private SkillProgramStepOutcome RunSequentialDiscard(ProgramSkillFrame supplied, SkillProgramEffect effect, int selectedTarget)
     {
+        if (IsAllHandChallengeOp(effect.Op)) return RunAllHandChallenge(supplied, effect);
         var frame = GetActiveProgramFrame(supplied.Id);
         if (!IsSequentialDiscardOp(effect.Op) || effect.Target != (effect.Op == SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected
                 ? SkillProgramEffectTarget.Owner : SkillProgramEffectTarget.SelectedTarget) || frame.TriggerId is not null || frame.WindowContext is not null ||
@@ -73,7 +74,7 @@ public sealed partial class GameEngine
     {
         var d = frame.SequentialDiscard!;
         AdvanceEventRulesAndQueueFact(new ProgramSequentialDiscardFinishedEvent(frame.Id,
-            d.Kind == ProgramSequentialDiscardKind.SelectedStartEscalating ? d.Cursor : 1, remaining));
+            d.Kind is ProgramSequentialDiscardKind.SelectedStartEscalating or ProgramSequentialDiscardKind.SelectedStartAllHand ? d.Cursor : 1, remaining));
         ReplaceRuntimeTop(frame with { SequentialDiscard = null, ReexecuteParticipantInstruction = false });
         return SkillProgramStepOutcome.Continue;
     }
@@ -127,6 +128,7 @@ public sealed partial class GameEngine
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Missing sequential discard owner.");
         var d = f.SequentialDiscard ?? throw new InvalidOperationException("Missing sequential discard receipt.");
+        if (IsAllHandChallengeKind(d.Kind)) { ResolveAllHandChallengeChoice(f, choice); return; }
         var effect = SequentialDiscardEffect(f);
         if (!ValidSequentialDiscard(f) || _pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } decision ||
             decision.PlayerSeat != d.ChooserSeat || !decision.Choices.Any(c => c.Id == choice.Id) ||
@@ -218,10 +220,13 @@ public sealed partial class GameEngine
 
     [ProgramAiChoice(
         SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard,
-        SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected)]
+        SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected,
+        SkillProgramEffectOp.ChooseTrickOrAllHandDiscard,
+        SkillProgramEffectOp.AllHandDiscardOrDifferenceDamageFromSelected)]
     private PromptChoice SelectAiSequentialDiscard(PendingDecision decision, ProgramSkillFrame frame)
     {
         var d = frame.SequentialDiscard!; var effect = SequentialDiscardEffect(frame);
+        if (IsAllHandChallengeKind(d.Kind)) return SelectAiAllHandChallenge(decision, frame, effect);
         var branches = decision.Choices.Where(c => c.Cards.Count == 0).ToArray();
         if (d.Stage == ProgramSequentialDiscardStage.BranchChoice)
         {

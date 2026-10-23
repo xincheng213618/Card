@@ -37,6 +37,7 @@ public sealed partial class ShanheCampaignSession
         public int Hp { get; init; }
         public int Gold { get; init; }
         public int ExtraSkillSlots { get; init; }
+        public bool RebirthUsed { get; init; }
         public ShanheTacticBonuses Bonuses { get; init; } = new();
         public IReadOnlyList<string> ExtraSkillIds { get; init; } = Array.Empty<string>();
         public IReadOnlyList<string> TacticIds { get; init; } = Array.Empty<string>();
@@ -63,6 +64,7 @@ public sealed partial class ShanheCampaignSession
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(battleRegistryFactory);
+        var rankBonuses = ShanheGeneralRanks.GetBonuses(options.PlayerRank ?? 1);
         Definition = ShanheCampaignContent.FreezeAndValidate(definition);
         ContentHash = ShanheCampaignContent.GetContentHash(Definition);
         ShanheCampaignContent.Require(Definition.PlayerGeneralIds.Contains(options.PlayerGeneralId, StringComparer.Ordinal), "The selected general is not available in this campaign.");
@@ -87,14 +89,22 @@ public sealed partial class ShanheCampaignSession
         // A probe creates no engine and consumes no run randomness or journal revision.
         var firstNode = Definition.Nodes.First(n => ShanheCampaignContent.IsBattle(n.Kind));
         var firstEncounter = firstNode.Encounters![0];
-        var bonuses = Definition.StartingBonuses!;
+        var startingBonuses = Definition.StartingBonuses!;
+        var bonuses = new ShanheTacticBonuses(checked(startingBonuses.MaxHp + rankBonuses.MaxHp),
+            checked(startingBonuses.InitialHand + rankBonuses.InitialHand), checked(startingBonuses.Draw + rankBonuses.Draw),
+            checked(startingBonuses.Slash + rankBonuses.Slash));
+        Require(bonuses.MaxHp <= 40 && bonuses.InitialHand <= 20 && bonuses.Draw <= 10 && bonuses.Slash <= 10,
+            "General rank and starting bonuses exceed the campaign bonus limits.");
+        var rankSkills = options.PlayerRank == 5 ? new[] { ShanheGeneralRanks.RebirthSkillId } : [];
         var probe = ShanheBattleSetup.Freeze(new(options.Seed, 1, firstNode.Id, options.PlayerGeneralId,
             1, bonuses.MaxHp, bonuses.InitialHand, bonuses.Draw, bonuses.Slash,
             ShanheCampaignContent.Freeze(Definition.Rewards.Select(reward => reward.SkillId)
-                .OfType<string>().Distinct(StringComparer.Ordinal)), [], [],
+                .OfType<string>().Concat(rankSkills).Distinct(StringComparer.Ordinal)), [], [],
             firstEncounter.Enemies, firstEncounter.Allies ?? [], ContentHash)
         {
             DefaultGodFactionId = Definition.DefaultGodFactionId,
+            PlayerRank = options.PlayerRank,
+            RebirthAvailable = options.PlayerRank == 5,
             // This registry-only probe validates every reward, including skill
             // programs imported only by recipes that reference them. No engine
             // is created and no unearned skill is granted to a battle player.
@@ -247,12 +257,16 @@ public sealed partial class ShanheCampaignSession
         var random = new DeterministicRandom(ShanheBattleSetup.DeriveSeed(_options.Seed, node.Id, ordinal));
         var encounter = node.Encounters![random.Next(node.Encounters.Count)];
         var bonuses = state.Bonuses;
+        var rebirthAvailable = _options.PlayerRank == 5 && !state.RebirthUsed;
         var setup = ShanheBattleSetup.Freeze(new(_options.Seed, ordinal, node.Id, _options.PlayerGeneralId,
             state.Hp, bonuses.MaxHp, bonuses.InitialHand, bonuses.Draw, bonuses.Slash,
-            state.ExtraSkillIds, state.StartingCards, state.StartingEquipment, encounter.Enemies, encounter.Allies ?? [], ContentHash)
+            rebirthAvailable ? ShanheCampaignContent.Freeze(state.ExtraSkillIds.Append(ShanheGeneralRanks.RebirthSkillId)) : state.ExtraSkillIds,
+            state.StartingCards, state.StartingEquipment, encounter.Enemies, encounter.Allies ?? [], ContentHash)
         {
             TacticSkillIds = ShanheCampaignContent.Freeze(state.TacticIds.Select(id => _rewards[id].TacticSkillId).OfType<string>()),
-            DefaultGodFactionId = Definition.DefaultGodFactionId
+            DefaultGodFactionId = Definition.DefaultGodFactionId,
+            PlayerRank = _options.PlayerRank,
+            RebirthAvailable = rebirthAvailable
         });
         return state with { Phase = ShanheCampaignPhase.Battle, EncounterOrdinal = ordinal, EncounterId = encounter.Id, BattleSetup = setup };
     }
@@ -282,7 +296,14 @@ public sealed partial class ShanheCampaignSession
         // Character skills may change maximum health within this battle. Only campaign
         // tactic bonuses persist between encounters; remaining health is capped at that
         // persistent maximum rather than adding the battle's growth a second time.
-        var state = _state with { Hp = Math.Max(0, Math.Min(player.Hp, _baseMaxHp + _state.Bonuses.MaxHp)), BattleSetup = null };
+        var rebirthUsed = _state.RebirthUsed || setup.RebirthAvailable && battle.Events.Select(e => e.Payload)
+            .OfType<SkillUsageConsumedEvent>().Any(e => e.SkillOwnerSeat == 0 && e.SkillId == ShanheGeneralRanks.RebirthSkillId &&
+                e.Scope == SkillUsageScope.Game && e.Count > 0);
+        var state = _state with
+        {
+            Hp = Math.Max(0, Math.Min(player.Hp, _baseMaxHp + _state.Bonuses.MaxHp)), BattleSetup = null,
+            RebirthUsed = rebirthUsed
+        };
         if (result.WinnerTeamId != ShanheBattleSetup.PlayerTeamId || !player.IsAlive || player.Hp <= 0)
             return state with { Phase = ShanheCampaignPhase.Lost, AvailableNodeIds = [], RewardOfferIds = [] };
         var node = _nodes[state.CurrentNodeId!];
@@ -435,6 +456,7 @@ public sealed partial class ShanheCampaignSession
                 : state.Phase == ShanheCampaignPhase.Lost ? Definition.DefeatText : "")
         {
             PlayerGeneralId = _options.PlayerGeneralId, StartingCards = state.StartingCards,
+            PlayerRank = _options.PlayerRank ?? 1, RebirthUsed = state.RebirthUsed,
             StartingEquipment = state.StartingEquipment, EncounterOrdinal = state.EncounterOrdinal, TacticIds = state.TacticIds,
             ChapterNumber = state.CurrentNodeId is { } chapterNode ? _nodes[chapterNode].ChapterNumber : 0,
             ChapterTitle = state.CurrentNodeId is { } titleNode ? _nodes[titleNode].ChapterTitle : null,

@@ -13,6 +13,10 @@ public sealed record ShanheCampaignOptions(int Seed, string PlayerGeneralId)
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ExpeditionId { get; init; }
 
+    /// <summary>Null preserves the first-rank recipe and JSON of older expeditions.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? PlayerRank { get; init; }
+
     /// <summary>Opts new expeditions into the verified codex skill and equipment reward pool.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool UseCodexRewardPool { get; init; }
@@ -83,6 +87,8 @@ public sealed record ShanheCampaignSnapshot(
     ShanheBattleSetup? PendingBattleSetup, string StoryText, string EndingText)
 {
     public string PlayerGeneralId { get; init; } = "";
+    public int PlayerRank { get; init; } = 1;
+    public bool RebirthUsed { get; init; }
     public IReadOnlyList<ShanheStartingCard> StartingCards { get; init; } = Array.Empty<ShanheStartingCard>();
     public IReadOnlyList<ShanheStartingCard> StartingEquipment { get; init; } = Array.Empty<ShanheStartingCard>();
     public int EncounterOrdinal { get; init; }

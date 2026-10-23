@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace CardGame.Wpf.Controls;
 
-/// <summary>Public portrait-to-portrait clearance for a declared Slash, never a damage effect.</summary>
+/// <summary>Public portrait-to-portrait clearance for declared Slash/Duel blades, never a damage effect.</summary>
 internal sealed class SlashFlightPath
 {
     private const double HalfSize = 12.75;

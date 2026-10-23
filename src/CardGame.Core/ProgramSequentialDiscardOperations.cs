@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum ProgramSequentialDiscardKind { CategoryOrSequential, SelectedStartEscalating }
+public enum ProgramSequentialDiscardKind { CategoryOrSequential, SelectedStartEscalating, CategoryOrAllHand, SelectedStartAllHand }
 public enum ProgramSequentialDiscardStage { BranchChoice, CardChoice, SelectingBatch, AwaitingMovement, AwaitingDamage, Complete }
 
 public sealed record ProgramSequentialDiscardPayment(int ChooserSeat, int Cursor,
@@ -104,6 +104,7 @@ internal static class SequentialDiscardComposition
         int selectedCardCount, bool selectedTarget, int initialTargetSetMaximum,
         IReadOnlyList<CardZoneKind>? sourceZones, IReadOnlyList<SkillProgramCardCategory>? sourceCategories)
     {
+        AllHandChallengeComposition.Validate(path, effects, window, selectedCardCount, selectedTarget, initialTargetSetMaximum);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) &&
             (window is not null || !selectedTarget || initialTargetSetMaximum != 0 || selectedCardCount != 1 ||
              sourceZones is not [CardZoneKind.Hand] || sourceCategories is not [SkillProgramCardCategory.Trick] ||

@@ -878,6 +878,7 @@ public enum SkillProgramEffectOp
     SelectIssuedFixedRecipientWithDeathReturn = 6800,
     DrawBeforeCappedConversionTierUpgrade = 6900,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
+    ChooseTrickOrAllHandDiscard = 5702, AllHandDiscardOrDifferenceDamageFromSelected = 5703,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -4324,6 +4325,13 @@ public sealed class SkillProgramCatalog
              uses is not null || usesPerPhase is not null || targetKind != SkillProgramTargetKind.OtherLiving ||
              node.TryGetProperty("continueAfterOwnerDeath", out var ringDeath) && ringDeath.GetBoolean()))
             Fail(path, "a chosen-start escalating discard requires one standalone other target and one exact original game usage");
+        if (effects.Any(e => e.Op is SkillProgramEffectOp.ChooseTrickOrAllHandDiscard or SkillProgramEffectOp.AllHandDiscardOrDifferenceDamageFromSelected) &&
+            (minCards != 0 || maxCards != 0 || minTargets != 1 || maxTargets != 1 || uses is not null || usesPerGame is not null ||
+             (effects[0].Op == SkillProgramEffectOp.ChooseTrickOrAllHandDiscard
+                 ? usesPerPhase != 1 || targetKind != SkillProgramTargetKind.OtherLivingWithHand
+                 : usesPerPhase is not null || targetKind != SkillProgramTargetKind.OtherLiving) ||
+             node.TryGetProperty("continueAfterOwnerDeath", out var allHandDeath) && allHandDeath.GetBoolean()))
+            Fail(path, "an all-hand challenge requires its original other target, no card cost and its exact phase or two-round allowance");
         if (targetKind == SkillProgramTargetKind.OtherLivingHandAtMostOwner)
             Fail(path, "at-most-owner hand targeting is only supported by its Ending selection composition");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ExchangeHandsAndArmPhaseDebt) &&
