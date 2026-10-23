@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:yiju": { "name": "义拒", "description": "锁定技，其他角色使用牌指定你为唯一目标后，你弃置一张牌。" },
+    "anniversary:shuguo": { "name": "戍国", "description": "每回合结束时，你可以依次使用本回合因弃置而置入弃牌堆的牌直到你使用了其他角色弃置的牌。若你的手牌数不为全场唯一最多，每有一张本回合弃置的牌没有使用，你摸一张牌（至多摸5）。" }
+  }
+}

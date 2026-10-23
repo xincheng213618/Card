@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-zhang-huan",
+      "characterName": "张奂",
+      "defaultSkinId": "1172501",
+      "skins": [
+        {
+          "id": "1172501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1725.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1172501.png",
+          "sha256": "a1a02fd53d99d06a8bdc7fc1a4568bbddfb1aca5374f9107c52bd0bdea80f017",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-zhang-huan.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-che-zhou",
+      "characterName": "车胄",
+      "defaultSkinId": "1135101",
+      "skins": [
+        {
+          "id": "1135101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1351.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1135101.png",
+          "sha256": "1ae75d84d10d95048466f3059e6e4eed7f40ca11916082597180410c19a2ce4f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-che-zhou.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-wang-chang",
+      "characterName": "王昶",
+      "defaultSkinId": "1109101",
+      "skins": [
+        {
+          "id": "1109101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1091.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1109101.png",
+          "sha256": "6994391a1a067679286e4e57b8a36c6754c9ec402b90c8e24dab9e9312e7929f",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-wang-chang.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-han-song",
       "characterName": "韩嵩",
       "defaultSkinId": "1135201",

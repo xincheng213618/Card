@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "anniversary:kaiji", "revision": 1,
+      "activations": [{ "id": "convert", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1, "effects": [{ "op": "resolveAnniversaryWangChangKaiji", "target": "owner" }] }]
+    },
+    {
+      "id": "anniversary:pingxi", "revision": 1,
+      "triggers": [{ "id": "ending-discard-and-slashes", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true, "effects": [{ "op": "resolveAnniversaryWangChangPingxi", "target": "owner" }] }]
+    }
+  ]
+}

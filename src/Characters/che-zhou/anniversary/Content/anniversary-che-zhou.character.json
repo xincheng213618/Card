@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:che-zhou",
+  "skills": [
+    { "registrationOrder": 46400, "programBundle": null, "includeProgramPresentation": false,
+      "definition": { "id": "anniversary:shefu", "name": "慑伏", "description": "锁定技，你的牌造成的伤害改为X，其他角色的牌对你造成的伤害改为X（X为该牌在手中的轮数）。", "tags": "Locked", "executionForms": "State" } },
+    { "registrationOrder": 46401, "programBundle": "anniversary-che-zhou", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:pigua", "name": "披挂", "description": "你对其他角色造成大于1点伤害后，可以获得其至多当前轮数张的手牌。这些牌本回合不计入手牌上限。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 46402, "pools": { "current": 46402 }, "definition": { "id": "anniversary:che-zhou", "name": "车胄", "portraitKey": "anniversary-che-zhou", "skillId": "anniversary:shefu", "additionalSkillIds": ["anniversary:pigua"], "factionId": "wei", "baseHp": 4, "gender": "Male", "characterId": "character:che-zhou", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary" } }
+  ]
+}

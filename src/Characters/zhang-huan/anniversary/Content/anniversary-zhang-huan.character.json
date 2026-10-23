@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhang-huan",
+  "skills": [
+    { "registrationOrder": 46300, "programBundle": "anniversary-zhang-huan", "includeProgramPresentation": true, "definition": {
+      "id": "anniversary:yiju", "name": "义拒", "description": "锁定技，其他角色使用牌指定你为唯一目标后，你弃置一张牌。", "tags": "Locked", "executionForms": "Trigger"
+    } },
+    { "registrationOrder": 46301, "programBundle": "anniversary-zhang-huan", "includeProgramPresentation": true, "definition": {
+      "id": "anniversary:shuguo", "name": "戍国", "description": "每回合结束时，你可以依次使用本回合因弃置而置入弃牌堆的牌直到你使用了其他角色弃置的牌。若你的手牌数不为全场唯一最多，每有一张本回合弃置的牌没有使用，你摸一张牌（至多摸5）。", "executionForms": "Trigger"
+    } }
+  ],
+  "generals": [ { "registrationOrder": 46302, "pools": { "current": 46302 }, "definition": {
+    "id": "anniversary:zhang-huan", "name": "张奂", "portraitKey": "anniversary-zhang-huan", "skillId": "anniversary:yiju", "additionalSkillIds": ["anniversary:shuguo"],
+    "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:zhang-huan", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

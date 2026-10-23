@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:yiju", "revision": 1, "triggers": [ {
+      "id": "other-sole-target", "window": "cardUseTargetsFinalized", "ownerRelation": "target", "onlyDesignatedCardTargets": true, "optional": false,
+      "condition": { "kind": "all", "children": [
+        { "kind": "not", "children": [ { "kind": "cardActionActorIsOwner" } ] },
+        { "kind": "compare", "left": { "kind": "cardUseDesignatedTargetCount" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 1 } }
+      ] },
+      "effects": [ { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+        "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "skipIfNoCards": true, "awaitMovementTriggers": true } ]
+    } ] },
+    { "id": "anniversary:shuguo", "revision": 1, "triggers": [ {
+      "id": "actual-turn-discard-uses", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": true,
+      "effects": [ { "op": "resolveAnniversaryZhangHuanShuguo", "target": "owner" } ]
+    } ] }
+  ]
+}

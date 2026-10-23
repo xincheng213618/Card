@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:kaiji": { "name": "开济", "description": "转换技，出牌阶段限一次，阳：你可以摸等于体力上限张数的牌；阴：你可以弃置至多等于体力上限张数的牌（至少一张）。", "activationLabels": { "convert": "开济：执行当前阳／阴项" } },
+    "anniversary:pingxi": { "name": "平袭", "description": "结束阶段，你可选择至多X名其他角色（X为本回合因弃置而进入弃牌堆的牌数），弃置这些角色各一张牌，然后视为对这些角色各使用一张〖杀〗。", "triggerLabels": { "ending-discard-and-slashes": "平袭：弃置所选角色各一张牌，然后逐个使用杀" } }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:pigua", "revision": 1, "triggers": [
+      { "id": "obtain-damaged-hand", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "optional": true,
+        "effects": [{ "op": "resolveAnniversaryCheZhouPigua", "target": "owner" }] }
+    ] }
+  ]
+}

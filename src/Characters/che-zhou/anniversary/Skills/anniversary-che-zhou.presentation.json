@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:pigua": { "name": "披挂", "description": "你对其他角色造成大于1点伤害后，可以获得其至多当前轮数张的手牌。这些牌本回合不计入手牌上限。", "triggerLabels": { "obtain-damaged-hand": "造成大伤害后披挂" } }
+  }
+}
