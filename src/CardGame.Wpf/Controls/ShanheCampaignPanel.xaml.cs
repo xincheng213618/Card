@@ -137,8 +137,7 @@ public partial class ShanheCampaignPanel : UserControl
     public bool HandleEscape()
     {
         if (ShanheCampaignWindow.HasOpenDropDown(this)) return true;
-        if (DataContext is MainViewModel { IsShanheCodexPickerOpen: true } picker)
-        { picker.CloseShanheCodexPickerCommand.Execute(null); return true; }
+        if (ShanheCodexHost.HandleEscape()) return true;
         if (DataContext is MainViewModel { IsShanheSettlementOpen: true } settlement)
         { settlement.CloseShanheSettlementCommand.Execute(null); FocusCampaign(); return true; }
         if (ShanheSkillReplacementOverlay.Visibility == Visibility.Visible)

@@ -1,3 +1,4 @@
+using System.IO;
 using CardGame.Core.Campaigns;
 
 namespace CardGame.Wpf.Persistence;
@@ -36,9 +37,10 @@ public static class ShanheCodexSettlement
     {
         ArgumentNullException.ThrowIfNull(profile);
         ArgumentNullException.ThrowIfNull(session);
-        if (profile.FormatVersion != 1 || profile.Books < 0 || profile.Books > int.MaxValue - NormalOneCompletionBooks ||
-            profile.ClaimedRewards is not { Length: < 20000 } || profile.UnlockedRewardIds is null ||
-            profile.EquippedTacticIds is not { Length: 6 } || HasClaimed(profile, session)) return 0;
+        if (profile.Books > int.MaxValue - NormalOneCompletionBooks ||
+            profile.ClaimedRewards is not { Length: < 20000 } || HasClaimed(profile, session)) return 0;
+        try { FileShanheCodexStore.Validate(profile); }
+        catch (InvalidDataException) { return 0; }
         return ConfirmedBookAmount(session, difficulty);
     }
 
@@ -53,7 +55,8 @@ public static class ShanheCodexSettlement
             Books = checked(profile.Books + amount),
             ClaimedRewards = [.. profile.ClaimedRewards, claimKey],
             UnlockedRewardIds = [.. profile.UnlockedRewardIds],
-            EquippedTacticIds = [.. profile.EquippedTacticIds]
+            EquippedTacticIds = [.. profile.EquippedTacticIds],
+            LoadoutPlans = profile.LoadoutPlans?.Select(plan => plan with { EquippedTacticIds = [.. plan.EquippedTacticIds] }).ToArray()
         };
         return true;
     }
