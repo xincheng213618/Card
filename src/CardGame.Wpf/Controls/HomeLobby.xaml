@@ -67,16 +67,17 @@
         </Style>
         <Style x:Key="CardTitle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="KaiTi" />
-            <Setter Property="FontSize" Value="36" />
+            <Setter Property="FontSize" Value="32" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Foreground" Value="#FFE0A0" />
             <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#1B0B05" BlurRadius="5" ShadowDepth="2" Opacity="0.9" /></Setter.Value></Setter>
         </Style>
         <Style x:Key="CardCaption" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#F1DFC0" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="#F4E5CB" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="Margin" Value="2,10,0,0" />
+            <Setter Property="LineHeight" Value="21" />
+            <Setter Property="Margin" Value="2,8,0,0" />
         </Style>
         <Style x:Key="ModeEntryArrow" TargetType="Border">
             <Setter Property="Width" Value="28" /><Setter Property="Height" Value="28" />
@@ -152,7 +153,7 @@
                                 <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-sun-shangxiang.png" Viewbox="0,0,1,0.60" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
                                 <Border Background="{StaticResource CardShade}" />
                                 <Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
-                                <StackPanel VerticalAlignment="Center" Margin="8"><TextBlock Text="经典场" Style="{StaticResource CardTitle}" /><TextBlock Text="身份博弈 · 五人 / 八人" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <StackPanel VerticalAlignment="Center" Margin="12"><TextBlock Text="经典场" Style="{StaticResource CardTitle}" /><TextBlock Text="身份博弈 · 五人 / 八人" Style="{StaticResource CardCaption}" /></StackPanel>
                                 <TextBlock Text="身 份" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
                                 <Border Style="{StaticResource ModeEntryArrow}"><TextBlock Text="›" Foreground="#F4D49A" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-3,0,0" /></Border>
                             </Grid>
@@ -161,7 +162,7 @@
                             <Grid ClipToBounds="True">
                                 <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-taishi-ci.png" Viewbox="0,0,1,0.6" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
                                 <Border Background="{StaticResource CardShade}" /><Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
-                                <StackPanel VerticalAlignment="Center" Margin="8"><TextBlock Text="演武场" Style="{StaticResource CardTitle}" /><TextBlock Text="2v2 阵营 · 并肩作战" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <StackPanel VerticalAlignment="Center" Margin="12"><TextBlock Text="演武场" Style="{StaticResource CardTitle}" /><TextBlock Text="2v2 阵营 · 并肩作战" Style="{StaticResource CardCaption}" /></StackPanel>
                                 <TextBlock Text="协 作" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
                                 <Border Style="{StaticResource ModeEntryArrow}"><TextBlock Text="›" Foreground="#F4D49A" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-3,0,0" /></Border>
                             </Grid>
@@ -174,8 +175,8 @@
                                 <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="#CC64271E" BorderBrush="#C6A367" BorderThickness="0,0,1,1" Padding="12,7"><TextBlock Text="群 雄 逐 鹿" Foreground="#FFE2AA" FontSize="12" /></Border>
                                 <StackPanel VerticalAlignment="Bottom" Margin="8,0,8,24">
                                     <TextBlock x:Name="LobbyFeaturedTitle" Text="一局定乾坤" Style="{StaticResource CardTitle}" FontSize="34" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
-                                    <TextBlock Text="选择模式 · 进入房间 · 安排 AI" Foreground="#E1C9A6" FontSize="12" HorizontalAlignment="Center" Margin="0,9,0,17" />
-                                    <Border Background="#D7793021" BorderBrush="#BD8B4F" BorderThickness="1" Padding="12,10"><TextBlock Text="进入战场  ›" Foreground="#FFE2AA" FontFamily="KaiTi" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" /></Border>
+                                    <TextBlock Text="选择模式 · 进入房间 · 安排 AI" Foreground="#F0DCBA" FontSize="13" LineHeight="20" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="0,8,0,14" />
+                                    <Border Background="#E8793325" BorderBrush="#E3B870" BorderThickness="1" Padding="12,10"><TextBlock Text="进入战场  ›" Foreground="#FFE2AA" FontFamily="KaiTi" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" /></Border>
                                 </StackPanel>
                             </Grid>
                         </Button>
@@ -183,7 +184,7 @@
                             <Grid ClipToBounds="True">
                                 <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-yuan-shao.png" Viewbox="0,0,1,0.6" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
                                 <Border Background="{StaticResource CardShade}" /><Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
-                                <StackPanel VerticalAlignment="Center" Margin="8"><TextBlock Text="国战场" Style="{StaticResource CardTitle}" /><TextBlock Text="双将暗置 · 魏蜀争锋" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <StackPanel VerticalAlignment="Center" Margin="12"><TextBlock Text="国战场" Style="{StaticResource CardTitle}" /><TextBlock Text="双将暗置 · 魏蜀争锋" Style="{StaticResource CardCaption}" /></StackPanel>
                                 <TextBlock Text="试 验 模 式" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
                                 <Border Style="{StaticResource ModeEntryArrow}"><TextBlock Text="›" Foreground="#F4D49A" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-3,0,0" /></Border>
                             </Grid>
@@ -192,22 +193,22 @@
                             <Grid ClipToBounds="True">
                                 <Grid.Background><ImageBrush ImageSource="/CardGame.Wpf;component/Assets/general-lu-xun.png" Viewbox="0,0,1,0.6" Stretch="UniformToFill" AlignmentY="Top" /></Grid.Background>
                                 <Border Background="{StaticResource CardShade}" /><Border BorderBrush="#6FBB995F" BorderThickness="1" Margin="4" />
-                                <StackPanel VerticalAlignment="Center" Margin="8"><TextBlock Text="新手演练" Style="{StaticResource CardTitle}" FontSize="32" /><TextBlock Text="四步入门 · 从容上阵" Style="{StaticResource CardCaption}" /></StackPanel>
+                                <StackPanel VerticalAlignment="Center" Margin="12"><TextBlock x:Name="LobbyTutorialTitle" Text="新手演练" Style="{StaticResource CardTitle}" FontSize="28" /><TextBlock Text="四步入门 · 从容上阵" Style="{StaticResource CardCaption}" /></StackPanel>
                                 <TextBlock Text="初 入 三 国" FontSize="10" Foreground="#D5BB84" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,16,0,0" />
                                 <Border Style="{StaticResource ModeEntryArrow}"><TextBlock Text="›" Foreground="#F4D49A" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-3,0,0" /></Border>
                             </Grid>
                         </Button>
                     </Grid>
-                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,8,0,0">
                         <WrapPanel HorizontalAlignment="Center">
-                        <Button x:Name="ActivityBattleButton" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="activity" Style="{StaticResource LobbyButton}" Padding="32,8" AutomationProperties.Name="活动场，合作挑战与八人生存，玩家默认五阶" TabIndex="5">
-                            <StackPanel><TextBlock x:Name="ActivityBattleTitle" Text="活动场 · 五阶战场" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" TextWrapping="Wrap" /><TextBlock Text="合作挑战  /  八人生存" Foreground="#D5CAB4" FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0" /></StackPanel>
+                        <Button x:Name="ActivityBattleButton" Command="{Binding OpenLobbyCategoryCommand}" CommandParameter="activity" Style="{StaticResource LobbyButton}" Background="#B02B221D" Padding="32,8" AutomationProperties.Name="活动场，合作挑战与八人生存，玩家默认五阶" TabIndex="5">
+                            <StackPanel><TextBlock x:Name="ActivityBattleTitle" Text="活动场 · 五阶战场" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" TextWrapping="Wrap" /><TextBlock Text="合作挑战  /  八人生存" Foreground="#F1DFC0" FontSize="12" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,0" /></StackPanel>
                         </Button>
-                        <Button x:Name="ShanheCampaignButton" Command="{Binding OpenShanheCommand}" Style="{StaticResource LobbyButton}" Padding="32,8" Margin="16,0,0,0" AutomationProperties.Name="山河图，有剧情的单机征程" TabIndex="6">
-                            <StackPanel><TextBlock x:Name="ShanheCampaignTitle" Text="山河图 · 剧情征程" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" TextWrapping="Wrap" /><TextBlock Text="选路奇遇  /  战法构筑" Foreground="#D5CAB4" FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0" /></StackPanel>
+                        <Button x:Name="ShanheCampaignButton" Command="{Binding OpenShanheCommand}" Style="{StaticResource LobbyButton}" Background="#B02B221D" Padding="32,8" Margin="16,0,0,0" AutomationProperties.Name="山河图，有剧情的单机征程" TabIndex="6">
+                            <StackPanel><TextBlock x:Name="ShanheCampaignTitle" Text="山河图 · 剧情征程" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" TextWrapping="Wrap" /><TextBlock Text="选路奇遇  /  战法构筑" Foreground="#F1DFC0" FontSize="12" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,0" /></StackPanel>
                         </Button>
-                        <Button x:Name="WushuangBattleButton" Command="{Binding OpenWushuangModeCommand}" Style="{StaticResource LobbyButton}" Padding="24,8" Margin="16,0,0,0" AutomationProperties.Name="单骑无双，15 分钟单机 1v1 AI，初始战法和两个额外技能" TabIndex="7">
-                            <StackPanel><TextBlock x:Name="WushuangBattleTitle" Text="单骑无双 · 限时单挑" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" TextWrapping="Wrap"/><TextBlock Text="1v1 AI  /  虎符商店  /  两个额外技能" Foreground="#D5CAB4" FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0"/></StackPanel>
+                        <Button x:Name="WushuangBattleButton" Command="{Binding OpenWushuangModeCommand}" Style="{StaticResource LobbyButton}" Background="#B02B221D" Padding="24,8" Margin="16,0,0,0" AutomationProperties.Name="单骑无双，15 分钟单机 1v1 AI，初始战法和两个额外技能" TabIndex="7">
+                            <StackPanel><TextBlock x:Name="WushuangBattleTitle" Text="单骑无双 · 限时单挑" Foreground="#FFE0A0" FontFamily="KaiTi" FontSize="22" TextWrapping="Wrap"/><TextBlock Text="1v1 AI  /  虎符商店  /  两个额外技能" Foreground="#F1DFC0" FontSize="12" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel>
                         </Button>
                         </WrapPanel>
                         <TextBlock Text="{Binding TutorialEntryError}" Visibility="{Binding HasTutorialEntryError, Converter={StaticResource BoolToVisibility}}" Foreground="#FFE2CB" FontSize="12" Margin="0,5,0,0" />

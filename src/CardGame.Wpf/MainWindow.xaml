@@ -1140,7 +1140,7 @@
                                 </DockPanel>
                             </StackPanel>
                             <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="340" /></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="360" /></Grid.ColumnDefinitions>
                                 <ScrollViewer x:Name="GeneralCandidateScroller" AutomationProperties.Name="候选武将" AutomationProperties.HelpText="候选较多时可上下滚动；数字键 1 至 9 预选，按 Tab 浏览其他候选。" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False" MaxHeight="438" VerticalAlignment="Top">
                                     <ScrollViewer.Style><Style TargetType="ScrollViewer"><Style.Triggers><DataTrigger Binding="{Binding IsCustomGeneralSelectionOpen}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
                                     <ScrollViewer.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></ScrollViewer.Resources>
@@ -1196,9 +1196,9 @@
                                             <Border x:Name="GeneralSelectionPreviewPortrait" Width="90" Height="122" HorizontalAlignment="Left" BorderBrush="#967F54" BorderThickness="1" Background="{Binding SelectedGeneralChoice.Portrait.ThumbnailBrush}" />
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
                                                 <TextBlock Text="当前预选" Foreground="#B7A17B" FontSize="11" Margin="0,0,0,8" />
-                                                <TextBlock Text="{Binding SelectedGeneralChoice.Name}" FontFamily="KaiTi" FontSize="27" Foreground="#F7D898" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding SelectedGeneralChoice.Name}" FontFamily="KaiTi" FontSize="25" Foreground="#F7D898" TextWrapping="Wrap" />
                                                 <TextBlock Text="{Binding SelectedGeneralChoice.Kingdom}" Foreground="#BFC898" FontSize="12" Margin="0,7,0,0" />
-                                                <TextBlock Text="{Binding SelectedGeneralChoice.EditionText}" Foreground="#AD9A76" FontSize="11" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding SelectedGeneralChoice.EditionText}" Foreground="#C2AF8B" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap" />
                                             </StackPanel>
                                         </Grid>
                                         <TextBlock Grid.Row="1" Text="{Binding SelectedGeneralChoice.HealthText}" Foreground="#BDCCA0" FontSize="12" Margin="0,0,0,10" />
@@ -1249,7 +1249,7 @@
                                             </Style>
                                         </TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#94866F" FontSize="10" Margin="0,5,12,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#B7A68A" FontSize="11" Margin="0,6,12,0" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <Button x:Name="ConfirmGeneralChoiceButton" Grid.Column="1" Content="确 认 出 征" Command="{Binding ConfirmGeneralChoiceCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="132" Padding="17,9" />
                             </Grid>
@@ -1447,6 +1447,7 @@
             </Border.Style>
             <Grid>
                 <controls:HomeLobby x:Name="LobbyHome" Button.Click="WushuangSaveAccessRetry_Click">
+                    <controls:HomeLobby.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource BattleLogScrollBar}" /></controls:HomeLobby.Resources>
                     <controls:HomeLobby.Style>
                         <Style TargetType="controls:HomeLobby">
                             <Style.Triggers><DataTrigger Binding="{Binding IsLobbyConfigurationOpen}" Value="True"><Setter Property="IsEnabled" Value="False" /></DataTrigger></Style.Triggers>
@@ -1684,8 +1685,8 @@
         <Border x:Name="HistoryOverlay" Background="#ED0B151A" Visibility="{Binding IsHistoryOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="HistoryOverlay_IsVisibleChanged">
             <controls:MatchHistoryPanel x:Name="HistoryPanel" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}" />
         </Border>
-        <Border x:Name="SettingsOverlay" Background="#ED0B151A" Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="SettingsOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
-            <Border x:Name="SettingsPanel" Width="680" MaxHeight="650" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#F414242A" BorderBrush="#9A8158" BorderThickness="1" CornerRadius="5" Padding="28" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
+        <Border x:Name="SettingsOverlay" Background="#ED15120E" Visibility="{Binding IsSettingsOpen, Converter={StaticResource BoolToVisibility}}" IsVisibleChanged="SettingsOverlay_IsVisibleChanged" KeyboardNavigation.TabNavigation="Cycle" FocusManager.IsFocusScope="True">
+            <Border x:Name="SettingsPanel" Width="680" MaxHeight="650" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#F4201D19" BorderBrush="#B29A68" BorderThickness="1" CornerRadius="5" Padding="28" controls:PanelEntrance.IsEnabled="True" controls:PanelEntrance.MotionEnabled="{Binding IsMotionEnabled}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -1712,7 +1713,7 @@
                         </Button>
                         <StackPanel>
                             <TextBlock Text="牌 局 设 置" FontFamily="KaiTi" FontSize="28" Foreground="#E8CA8D" />
-                            <TextBlock Text="辅助表现独立于规则结算；调整后不会替你选牌或提交行动。" Foreground="#8EA397" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="声音与动画保存在本机，对局节奏随牌局存档恢复。" Foreground="#C2B297" FontSize="12" Margin="0,6,12,0" TextWrapping="Wrap" />
                         </StackPanel>
                     </DockPanel>
                     <ScrollViewer x:Name="SettingsContentScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" Focusable="False" Margin="0,22,0,0" Padding="0,0,8,4" AutomationProperties.Name="游戏设置内容">
@@ -1725,12 +1726,12 @@
                                 <Button x:Name="RetrySettingsPreferencesButton" Grid.Column="1" Content="重试设置" Command="{Binding RetryPreferencesCommand}" Click="RetrySettingsPreferences_Click" IsKeyboardFocusWithinChanged="PreferencesRetry_IsKeyboardFocusWithinChanged" Style="{StaticResource ToolbarButton}" Padding="12,7" VerticalAlignment="Center" AutomationProperties.Name="重试读取或保存本机设置" />
                             </Grid>
                         </Border>
-                    <Border Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18">
+                    <Border Background="#28251F" BorderBrush="#746246" BorderThickness="1" CornerRadius="4" Padding="16">
                         <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="126" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="基础表现" FontFamily="KaiTi" FontSize="20" Foreground="#DFC081" />
-                                <TextBlock Text="保存在本机" Foreground="#72887D" FontSize="10" Margin="0,4,0,0" />
+                                <TextBlock Text="保存在本机" Foreground="#BCA98A" FontSize="11" Margin="0,6,0,0" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <CheckBox x:Name="SettingsSoundToggle" Content="游戏声音" IsChecked="{Binding IsSoundEnabled}" Style="{StaticResource PreferencesCheckBox}" />
@@ -1738,7 +1739,7 @@
                                     <TextBlock x:Name="SettingsSoundVolumeValue" DockPanel.Dock="Right" Text="{Binding SoundVolume, StringFormat={}{0:P0}}" Foreground="#D3B97F" FontSize="12" MinWidth="42" TextAlignment="Right" VerticalAlignment="Center" Margin="12,0,0,0" />
                                     <Slider x:Name="SettingsSoundVolume" Style="{StaticResource PreferencesVolumeSlider}" Value="{Binding SoundVolume}" Minimum="0" Maximum="1" TickFrequency="0.05" SmallChange="0.05" LargeChange="0.1" IsMoveToPointEnabled="True" IsEnabled="{Binding IsSoundEnabled}" VerticalAlignment="Center" AutomationProperties.Name="游戏音量" AutomationProperties.HelpText="左右方向键调整音量。关闭游戏声音时保留当前音量。" ToolTip="{Binding SoundStatusText}" />
                                 </DockPanel>
-                                <TextBlock Text="{Binding SoundStatusText}" Foreground="#879C90" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding SoundStatusText}" Foreground="#C5B69C" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
                                 <WrapPanel Margin="0,12,0,0">
                                     <CheckBox x:Name="SettingsMusicToggle" Content="背景音乐" IsChecked="{Binding IsMusicEnabled}" Style="{StaticResource PreferencesCheckBox}" Margin="0,0,20,0" />
                                     <CheckBox x:Name="SettingsVoiceToggle" Content="武将配音" IsChecked="{Binding IsVoiceEnabled}" Style="{StaticResource PreferencesCheckBox}" />
@@ -1748,12 +1749,12 @@
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <Border Background="#18282D" BorderBrush="#506258" BorderThickness="1" CornerRadius="4" Padding="18" Margin="0,12,0,0">
+                    <Border Background="#28251F" BorderBrush="#746246" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,16,0,0">
                         <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="126" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="对局节奏" FontFamily="KaiTi" FontSize="20" Foreground="#DFC081" />
-                                <TextBlock Text="随当前存档恢复" Foreground="#72887D" FontSize="10" Margin="0,4,0,0" />
+                                <TextBlock Text="随当前存档恢复" Foreground="#BCA98A" FontSize="11" Margin="0,6,0,0" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <CheckBox x:Name="SettingsAutoAdvanceToggle" Content="自动推进其他角色行动" IsChecked="{Binding IsAutoAdvance}" Style="{StaticResource PreferencesCheckBox}" />
@@ -1778,7 +1779,7 @@
                                         </Style>
                                     </ListBox.ItemContainerStyle>
                                 </ListBox>
-                                <TextBlock Text="调整自动行动的等待时间与战斗动画节奏；轮到你出牌、响应或选择时仍会停下。" Foreground="#879C90" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                <TextBlock Text="调整自动行动的等待时间与战斗动画节奏；轮到你出牌、响应或选择时仍会停下。" Foreground="#C5B69C" FontSize="11" Margin="0,7,0,0" TextWrapping="Wrap" />
                                 <Border x:Name="SettingsSessionSaveError" Background="#382B22" BorderBrush="#A57D4D" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
                                     <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions><Condition Binding="{Binding HasSaveError}" Value="True" /><Condition Binding="{Binding IsTutorialActive}" Value="False" /></MultiDataTrigger.Conditions><Setter Property="Visibility" Value="Visible" /></MultiDataTrigger></Style.Triggers></Style></Border.Style>
                                     <StackPanel>
@@ -1790,11 +1791,11 @@
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <Border BorderBrush="#4B5D54" BorderThickness="1,0,0,0" Padding="14,0,0,0" Margin="0,18,0,0">
+                    <Border BorderBrush="#746246" BorderThickness="1,0,0,0" Padding="14,0,0,0" Margin="0,20,0,0">
                         <StackPanel>
                             <TextBlock Text="输入与隐私" FontFamily="KaiTi" FontSize="18" Foreground="#D3B97F" />
-                            <TextBlock Text="Esc 返回 · Tab 切换控件 · 空格切换复选框 · 聚焦音量后按左右方向键调整 · Ctrl+M 开关声音" Foreground="#9AADA2" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap" />
-                            <TextBlock x:Name="SettingsPrivacyNotice" Text="设置只读取本方已知状态；不会展示暗置身份、其他角色手牌或 AI 私有判断。" Foreground="#71877B" FontSize="10" Margin="0,5,0,2" TextWrapping="Wrap" />
+                            <TextBlock Text="Esc 返回 · Tab 切换控件 · 空格切换复选框 · 聚焦音量后按左右方向键调整 · Ctrl+M 开关声音" Foreground="#D6C5A7" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" />
+                            <TextBlock x:Name="SettingsPrivacyNotice" Text="设置只读取本方已知状态；不会展示暗置身份、其他角色手牌或 AI 私有判断。" Foreground="#BCA98A" FontSize="11" Margin="0,7,0,2" TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                       </StackPanel>
