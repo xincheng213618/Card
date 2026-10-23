@@ -94,7 +94,7 @@ pwsh -File .\tools\Test-Changed.ps1 -CoreFilter 'program interaction '
 pwsh -File .\tools\Test-Changed.ps1 -WpfFilter 'selection, target toggle'
 ```
 
-常规清单在 [VerificationScopes.psd1](tools/VerificationScopes.psd1)，全部登记名称在 Core/WPF 测试入口中。完整验证使用 `-Full`，仅在明确要求手动完整验证时执行。日志和临时构建目录的生命周期见 [开发门禁](docs/DEVELOPMENT_GATES.md)。
+常规清单在 [VerificationScopes.psd1](tools/VerificationScopes.psd1)，默认四项轻量检查，测试进程目标约一秒，构建耗时另计。引擎和 WPF 回归按名称运行，全部登记名称在 Core/WPF 测试入口中。完整验证使用 `-Full`，仅在明确要求手动完整验证时执行。日志和临时构建目录的生命周期见 [开发门禁](docs/DEVELOPMENT_GATES.md)。
 
 CI 运行同一常规范围，并构建、运行无界面示例。欢迎提交可复现的问题、规则依据、文档修正和小型扩展。参与方式见[贡献指南](CONTRIBUTING.md)；通过 [Issues](https://github.com/xincheng213618/sanguosha-dotnet/issues) 提问或报告问题，第一次参与可以从 [good first issue](https://github.com/xincheng213618/sanguosha-dotnet/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22) 开始。
 

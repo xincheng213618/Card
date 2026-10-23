@@ -128,7 +128,7 @@ function Invoke-Case([string] $Name, [hashtable] $Options = @{}) {
     $runOffset = $testState.runAssemblies.Count
     $testState.sequence++
     $token = "$PID-$($testState.sequence)"
-    $bothScopes = $Options.ContainsKey('Full') -or $Options.Count -eq 0 -or
+    $bothScopes = $Options.ContainsKey('Full') -or
         ($Options.ContainsKey('CoreFilter') -and $Options.ContainsKey('WpfFilter'))
     [ordered]@{ token = $token; scenario = $testState.scenario; bothScopes = $bothScopes; runFull = $Options.ContainsKey('Full')
         solution = $expectedSolution; coreProject = $expectedCoreProject; wpfProject = $expectedWpfProject } |
@@ -209,9 +209,11 @@ function Assert-Parallel($Result) {
 try {
     $result = Invoke-Case 'routine'
     Assert-Queued $result 'passed'
-    Assert ($result.code -eq 0 -and $result.summary.mode -eq 'routine' -and $testState.runs -eq 2) 'Routine must run both filtered scopes.'
-    Assert-Scope $result $expectedSolution @('CardGame.Core.Tests', 'CardGame.Wpf.Tests')
-    Assert-Parallel $result
+    Assert ($result.code -eq 0 -and $result.summary.mode -eq 'routine' -and $testState.runs -eq 1) 'Routine must run the filtered Core smoke scope only.'
+    Assert-Scope $result $expectedCoreProject @('CardGame.Core.Tests')
+    $routineScope = Import-PowerShellDataFile -LiteralPath (Join-Path $repo 'tools/VerificationScopes.psd1')
+    Assert (($result.summary.coreFilters -join "`n") -eq ($routineScope.Core -join "`n") -and
+        $result.summary.wpfFilters.Count -eq 0) 'Routine must preserve the configured smoke filters without starting WPF.'
     $passed++
 
     foreach ($scenario in @('copy-corrupt', 'copy-test-fail', 'copy-no-source')) {

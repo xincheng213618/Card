@@ -5,7 +5,7 @@ Builds an isolated test scope once, then registers bulky outputs for manual clea
 
 .EXAMPLE
 ./tools/Test-Changed.ps1
-# Routine shared mechanisms and representative UI checks; see VerificationScopes.psd1.
+# Routine smoke checks; see VerificationScopes.psd1. Build time is reported separately.
 
 .EXAMPLE
 ./tools/Test-Changed.ps1 -CoreFilter @('draw-phase', 'lifecycle programs')
@@ -355,7 +355,7 @@ try {
         $routineScope = Import-PowerShellDataFile -LiteralPath (Join-Path $PSScriptRoot 'VerificationScopes.psd1')
         $CoreFilter = @($routineScope.Core)
         $WpfFilter = @($routineScope.Wpf)
-        Write-Host 'Routine scope: shared mechanisms and representative UI; use -Full for all registered checks.'
+        Write-Host 'Routine smoke scope: about one second of checks after build; use name filters for engine and WPF regressions.'
     }
     $CoreFilter = @($CoreFilter | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
     $WpfFilter = @($WpfFilter | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
