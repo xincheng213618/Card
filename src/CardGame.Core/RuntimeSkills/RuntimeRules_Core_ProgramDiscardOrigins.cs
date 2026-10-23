@@ -26,6 +26,7 @@ internal static class RuntimeRules_Core_ProgramDiscardOrigins
             var operation = value[(value.LastIndexOf('.') + 1)..];
             if (operation is nameof(SkillProgramEffectOp.ChooseCategoryAlternativeDiscard) or
                 nameof(SkillProgramEffectOp.EscalatingDiscardOrDamage) or nameof(SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected) or
+                nameof(SkillProgramEffectOp.ChooseTrickOrAllHandDiscard) or nameof(SkillProgramEffectOp.AllHandDiscardOrDifferenceDamageFromSelected) or
                 nameof(SkillProgramEffectOp.RequestAttackRangeAid) or
                 nameof(SkillProgramEffectOp.PayEquipmentColorDiscard) or nameof(SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer)) return true;
         }

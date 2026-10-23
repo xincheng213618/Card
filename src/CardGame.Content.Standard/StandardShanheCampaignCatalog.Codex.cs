@@ -72,9 +72,11 @@ public static partial class StandardShanheCampaignCatalog
             .Append(new(35, CurrentFarStrikeRewardId)).ToDictionary(pair => pair.Key, pair => pair.Value));
 
     /// <summary>Adds the opt-in codex pool without altering the historical default campaign definition.</summary>
-    public static ShanheCampaignDefinition CreateCodexDefinition(int difficulty, string editionId)
+    public static ShanheCampaignDefinition CreateCodexDefinition(int difficulty, string editionId) =>
+        WithCodexRewards(CreateDefinition(difficulty, editionId), editionId);
+
+    private static ShanheCampaignDefinition WithCodexRewards(ShanheCampaignDefinition original, string editionId)
     {
-        var original = CreateDefinition(difficulty, editionId);
         var bindings = editionId == Returning2026EditionId
             ? CodexRewardBindings.Concat(Codex2026RewardBindings) : CodexRewardBindings;
         var additionalRewards = bindings.Select(binding => binding.Reward).Concat(new[]

@@ -197,6 +197,7 @@ public static partial class StandardShanheCampaignCatalog
         var s5Caocao = RequiresCaocaoBossRegistry(setup);
         var s5Yujin = RequiresYujinBossRegistry(setup);
         var s5Yudu = RequiresYuduBossRegistry(setup);
+        var s5Liru = RequiresLiruBossRegistry(setup);
         var s5Zaiqi = RequiresS5ZaiqiRegistry(setup);
         var key = $"{setup.AllyRoster.Count}/{setup.EnemyRoster.Count}/" + string.Join("|", ids) +
             (codexEquipment ? "/codex-equipment" : "") + (currentFarStrike ? "/current-yuanji-2129" : "") +
@@ -212,6 +213,7 @@ public static partial class StandardShanheCampaignCatalog
             (s5Caocao ? "/s5-caocao-2649" : "") +
             (s5Yujin ? "/s5-yujin-2648" : "") +
             (s5Yudu ? "/s5-yudu-2633" : "") +
+            (s5Liru ? "/s5-liru-2668" : "") +
             (s5Zaiqi ? "/s5-zaiqi-887" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
         {
@@ -236,6 +238,7 @@ public static partial class StandardShanheCampaignCatalog
             if (s5Caocao) packages.Add(new StandardShanheS5CaocaoPackage());
             if (s5Yujin) packages.Add(new StandardShanheS5YujinPackage());
             if (s5Yudu) packages.Add(new StandardShanheS5YuduPackage());
+            if (s5Liru) packages.Add(new StandardShanheS5LiruPackage());
             if (s5Chengxiong) packages.Add(new StandardShanheS5ChengxiongPackage());
             packages.Add(new ShanheEncounterPackage(setup));
             if (codexEquipment) packages.Add(new ShanheCodexEquipmentPackage());

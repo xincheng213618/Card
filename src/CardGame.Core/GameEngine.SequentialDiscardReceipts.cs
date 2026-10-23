@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private bool ValidSequentialDiscard(ProgramSkillFrame f)
     {
+        if (f.SequentialDiscard is { } hand && IsAllHandChallengeKind(hand.Kind)) return ValidAllHandChallenge(f);
         if (f.SequentialDiscard is not { } d || f.TriggerId is not null || f.WindowContext is not null ||
             f.ActivationId is null || !f.ReexecuteParticipantInstruction ||
             !IsValidPlayerSeat(f.OwnerSeat) || f.OwnerSeat != d.ActualTurnOwnerSeat ||
