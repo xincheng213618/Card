@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wu-fu",
+  "skills": [
+    { "registrationOrder": 46600, "programBundle": "anniversary-wu-fu", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:zhonge", "name": "忠锷", "description": "出牌阶段限一次，你可以将手牌调整至体力上限，然后与一名其他角色同时选择一项并依次执行：1.你与其依次摸一张牌；2.你与其依次视为对对方使用一张【杀】。若其选择的项与你不同，每项操作在你执行时均多执行一次。", "actionForms": "Active", "executionForms": "Trigger" } },
+    { "registrationOrder": 46601, "programBundle": "anniversary-wu-fu", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:juekai", "name": "绝忾", "description": "限定技，出牌阶段，你可以重置“忠锷”，然后直到出牌阶段结束，此阶段获得过牌的角色无法再使用手牌。", "tags": "Limited", "actionForms": "Active", "executionForms": "State" } }
+  ],
+  "generals": [ { "registrationOrder": 46602, "pools": { "current": 46602 }, "definition": {
+    "id": "anniversary:wu-fu", "name": "伍孚", "portraitKey": "anniversary-wu-fu", "skillId": "anniversary:zhonge", "additionalSkillIds": ["anniversary:juekai"],
+    "factionId": "qun", "baseHp": 3, "gender": "Male", "characterId": "character:wu-fu", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary"
+  } } ]
+}

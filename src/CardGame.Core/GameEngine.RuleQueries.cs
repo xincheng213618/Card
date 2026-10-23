@@ -181,6 +181,7 @@ public sealed partial class GameEngine
         contributions.AddRange(ShenJiangWeiPingxiangHandLimitContributions(player));
         contributions.AddRange(ShenZfHandLimitContributions(player));
         contributions.AddRange(AnniversaryLiuLiHandLimitContributions(player));
+        contributions.AddRange(AnniversaryYanXiangHandLimitContributions(player));
         if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ApplyLiushiEffect))
             AddFiniteContribution(contributions, $"state:{player.Seat}:liushi:hand-limit", -player.Markers.GetValueOrDefault(PlayerMarkerKind.LiuShi));
         contributions.AddRange(ActorHandLimitPenaltyContributions(player));

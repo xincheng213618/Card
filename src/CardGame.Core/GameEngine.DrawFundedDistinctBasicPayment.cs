@@ -146,7 +146,7 @@ public sealed partial class GameEngine
         var p = frame.Payment; var actor = _players[p.Source.OwnerSeat];
         if (!actor.IsAlive || _winner != Winner.None || p.ActualTurnNumber != _turnNumber || p.ActualTurnOwnerSeat != _turnProgression.OwnerSeat) return false;
         if (p.Intent == DrawFundedDistinctBasicIntent.Play)
-            return (_resolutionStack.Count == 1 && _phase == TurnPhase.Play && _currentSeat == actor.Seat || IsKeBiNengPingduanPaymentFrame(frame) || IsMouKrLiwenPaymentFrame(frame) || IsMouLuSuPaymentFrame(frame)) &&
+            return (_resolutionStack.Count == 1 && _phase == TurnPhase.Play && _currentSeat == actor.Seat || IsKeBiNengPingduanPaymentFrame(frame) || (IsMouKrLiwenPaymentFrame(frame) || IsAnniversaryMaTiePaymentFrame(frame)) || IsMouLuSuPaymentFrame(frame)) &&
                 DrawFundedDistinctBasicNativePlayActions(actor, p.Source, p.EffectiveKind).Any(a => a.TargetSeats.SequenceEqual(frame.TargetSeats));
         var request = _resolutionStack.SingleOrDefault(f => f.Id == p.RequestFrameId);
         if (request is null || _resolutionStack.Count < 2 || _resolutionStack[_resolutionStack.Count - 2].Id != request.Id ||
@@ -170,7 +170,7 @@ public sealed partial class GameEngine
         if (p.Intent == DrawFundedDistinctBasicIntent.WenyiPeach && TryCancelWenyiPeachSupply(p.ParentFrameId)) return;
         if (p.ParentFrameId is { } pingduanParent && TryCancelKeBiNengPingduanBasicPayment(pingduanParent)) return;
         if (p.ParentFrameId is { } luSuParent && TryCancelMouLuSuPayment(luSuParent)) return;
-        if (p.ParentFrameId is { } liwenParent && TryCancelMouKrLiwenPayment(liwenParent)) return;
+        if (p.ParentFrameId is { } liwenParent && (TryCancelMouKrLiwenPayment(liwenParent) || TryCancelAnniversaryMaTiePayment(liwenParent))) return;
         if (_winner != Winner.None) return;
         if (p.Intent == DrawFundedDistinctBasicIntent.BorrowedSword && ActiveBorrowedSword is { } b && b.ResolutionId == p.ParentFrameId && b.ActiveAttack is null)
         { CompleteBorrowedSwordWithoutSlash(b, transferWeapon: _players[b.WeaponOwnerSeat].IsAlive && _players[b.SlashTargetSeat].IsAlive); return; }

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:quxian", "revision": 1, "triggers": [
+      { "id": "turn-start", "window": "turnStartBeforeNormalFlow", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "resolveAnniversaryMaTieQuxian", "target": "owner" }] },
+      { "id": "turn-ended", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "resolveAnniversaryMaTieQuxian", "target": "owner" }] },
+      { "id": "issued-slash-reward", "window": "cardUseCommitted", "ownerRelation": "observer", "optional": false, "isSkillInvocation": false,
+        "cardKinds": ["slash", "fireSlash", "thunderSlash"], "effects": [{ "op": "resolveAnniversaryMaTieQuxianReward", "target": "owner" }] }
+    ] },
+    { "id": "anniversary:zhuiji", "revision": 1, "triggers": [
+      { "id": "completed-other-targets", "window": "cardUseCompleted", "ownerRelation": "actor", "singleActionInstance": true,
+        "optional": false, "effects": [{ "op": "recordAnniversaryMaTieZhuiji", "target": "owner" }] }
+    ] }
+  ]
+}

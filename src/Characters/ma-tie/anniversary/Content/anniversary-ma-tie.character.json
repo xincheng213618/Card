@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:ma-tie",
+  "skills": [
+    { "registrationOrder": 46700, "programBundle": "anniversary-ma-tie", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:quxian", "name": "驱险", "description": "回合开始与结束时，你可从牌堆中获得一张【杀】并选择一名其他角色，若其在其他角色的攻击范围内，这些角色可依次对其使用【杀】，每有一名角色使用【杀】你摸一张牌。然后若其未以此法受到伤害，未使用【杀】的角色各失去X点体力（X为以此法使用【杀】的角色数量）。", "executionForms": "Trigger" } },
+    { "registrationOrder": 46701, "programBundle": "anniversary-ma-tie", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:zhuiji", "name": "追击", "description": "锁定技，你对其他角色使用牌结算后，本回合你计算与其距离视为1。", "tags": "Locked", "executionForms": "Trigger, State" } }
+  ],
+  "generals": [
+    { "registrationOrder": 46702, "pools": { "current": 46702 }, "definition": { "id": "anniversary:ma-tie", "name": "马铁", "portraitKey": "anniversary-ma-tie", "skillId": "anniversary:quxian", "additionalSkillIds": ["anniversary:zhuiji"], "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:ma-tie", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary" } }
+  ]
+}
