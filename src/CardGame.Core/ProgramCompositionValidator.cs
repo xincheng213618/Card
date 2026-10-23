@@ -19,6 +19,7 @@ internal static class ProgramCompositionValidator
         IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null,
         IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null, bool pindianHandReturn = false)
     {
+        ShanheS5LuoyiComposition.Validate(path, effects, window, drawPhaseMode);
         if (pindianHandReturn && (window is not null || !PindianHandReturnContract.Matches(effects)))
             throw Error(path, "Pindian hand return requires its exact five native instructions.");
         NianRevivalComposition.Validate(path, effects, window, initialSelectedTarget, selectedCardCount,

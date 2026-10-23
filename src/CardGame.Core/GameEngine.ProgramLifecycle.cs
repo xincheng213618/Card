@@ -2537,6 +2537,7 @@ public sealed partial class GameEngine
                     : IsTangTangZhiyiTrigger(trigger) ? CurrentTangTangGains(candidate, context) is not null
                     : trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ResolveJieyanOppositeEndDrawPair) ? IsIssuedJieyanCandidate(candidate, context)
                     : IsFeiYiSingletonTrigger(trigger) ? CurrentFeiYiSingleton(candidate, context) is not null
+                    : IsOwnTurnEnemyHandGainTrigger(trigger) ? CanRunOwnTurnEnemyHandGain(candidate, context)
                     : IsQingyuanGainTrigger(trigger) ? QingyuanGainQualification(candidate, context) is not null
                     : IsMouGuoHuaiGainTrigger(trigger) ? MouGuoHuaiGainQualification(candidate, context) is not null
                     : IsMouLuSuGainTrigger(trigger) ? MouLuSuGainPeer(candidate, context) is not null

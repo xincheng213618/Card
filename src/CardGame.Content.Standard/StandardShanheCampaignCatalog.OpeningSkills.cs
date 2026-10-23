@@ -24,9 +24,4 @@ public static partial class StandardShanheCampaignCatalog
             }).ToArray()
         };
     }
-
-    private static ShanheCampaignDefinition WithoutOpeningInheritance(ShanheCampaignDefinition definition) => definition with
-    {
-        Rewards = definition.Rewards.Where(reward => reward.Id != OpeningInheritanceRewardId).ToArray()
-    };
 }
