@@ -19193,6 +19193,23 @@
       ]
     },
     {
+      "key": "mobile-shi-cheng-pu",
+      "characterName": "势程普",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://wiki.biligame.com/msgs/%E5%8A%BF%E7%A8%8B%E6%99%AE",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/5/51/sf1p8h5bn3ugmowbsnx2vondjmy3v59.jpg",
+          "sha256": "e0e8096680914da86f55ecb12000d3e96fec3d4cd46bd4dc04c60cddf6e910c3",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/mobile-shi-cheng-pu.jpg"
+        }
+      ]
+    },
+    {
       "key": "anniversary-shen-pang-tong",
       "characterName": "神庞统",
       "defaultSkinId": "122201",

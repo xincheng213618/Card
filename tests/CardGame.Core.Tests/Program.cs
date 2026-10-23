@@ -43,6 +43,8 @@ var tests = new (string Name, Action Body)[]
     ("Shi Yu Ji: Fuji marked Slash Duel response and empower expiry", MobileShiYuJiChecks.FujiMarkedSlashDuelResponseAndEmpowerExpiry),
     ("Shi Yu Ji: Daozhuan own-turn exhaust blocks responses until round restore", MobileShiYuJiChecks.DaozhuanOwnTurnExhaustBlocksResponsesUntilRoundRestore),
     ("Shi Yu Ji: Daozhuan round name ledger and per-turn total off-turn", MobileShiYuJiChecks.DaozhuanRoundNameLedgerAndPerTurnTotalOffTurn),
+    ("Shi Cheng Pu: Duzuo grants fire Slash from piles and skips its own grants", ShiChengPuChecks.DuzuoGrantsFireSlashFromPilesAndExcludesOwnGrants),
+    ("Shi Cheng Pu: Bihan discards hand down to hp and reduces Slash damage", ShiChengPuChecks.BihanDiscardsToHpAndReducesSlashDamage),
     ("Multiplayer: human seats prompts privacy and cold replay", MultiplayerChecks.MultipleHumansWaitRespondAndReplay),
     ("LAN rooms: HTTP players AI isolation retries and match completion", LanRoomChecks.HttpPlayersAiAndIsolation),
     ("LAN rooms: HTTP first round permissions retries and eight seats", LanRoomChecks.HttpFirstRound),

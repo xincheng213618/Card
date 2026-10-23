@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shi-duzuo": {
+      "name": "督佐",
+      "description": "当你不因此技能获得牌后，你可以令一名角色从牌堆或者弃牌堆中获得一张火【杀】。"
+    },
+    "mobile:shi-bihan": {
+      "name": "蔽扞",
+      "description": "当一名角色受到【杀】造成的伤害时，你可以令你或者其将手牌数弃置至当前体力值（手牌数大于体力值方可选择），然后令此伤害-1。"
+    }
+  }
+}
