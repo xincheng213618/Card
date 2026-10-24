@@ -19703,6 +19703,23 @@
       ]
     },
     {
+      "key": "mobile-shi-zhou-yu",
+      "characterName": "势周瑜",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://wiki.biligame.com/msgs/%E5%8A%BF%E5%91%A8%E7%91%9C",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/5/51/osstb0c0n3m8u8749670ero5nxwz9lt.png",
+          "sha256": "066e38377c65fd53a926dec12492482e429b22f8685660023e1dbef7851c724e",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/mobile-shi-zhou-yu.jpg"
+        }
+      ]
+    },
+    {
       "key": "mobile-shi-deng-ai",
       "characterName": "势邓艾",
       "defaultSkinId": "86100",
