@@ -19310,6 +19310,23 @@
           "localPath": "src/CardGame.Wpf/Assets/official-anniversary-shen-zhang-jiao.png"
         }
       ]
-    }
+    },
+  {
+    "key": "mobile-shi-lu-yu-sheng",
+    "characterName": "势陆郁生",
+    "defaultSkinId": "classic",
+    "skins": [
+      {
+        "id": "classic",
+        "name": "经典形象",
+        "sourcePage": "https://wiki.biligame.com/msgs/%E5%8A%BF%E9%99%86%E9%83%81%E7%94%9F",
+        "imageUrl": "https://patchwiki.biligame.com/images/msgs/b/b1/bir0e2hj8ahup5s1kj4ldg0uz1o4l4t.jpg",
+        "sha256": "afeddb4a80fef42ae2eac676ca37be662df058016a31a44feb075ae6e3d5d1ef",
+        "pixelWidth": 530,
+        "pixelHeight": 750,
+        "localPath": "src/CardGame.Wpf/Assets/mobile-shi-lu-yu-sheng.jpg"
+      }
+    ]
+  }
   ]
 }

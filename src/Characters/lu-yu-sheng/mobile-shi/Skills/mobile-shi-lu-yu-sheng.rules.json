@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-runwei",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "reveal-grant",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            { "op": "resolveMobileShiRunweiGrant", "target": "owner" }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "loss-debt",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "sourceZones": ["hand", "equipment"],
+          "movementOccurrence": "perOwnerBatch",
+          "effects": [
+            { "op": "resolveMobileShiRunweiLossDebt", "target": "owner" }
+          ]
+        },
+        {
+          "id": "phase-end-return",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "resolveMobileShiRunweiPhaseEnd", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-shuanghuai",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "shuanghuai-guard",
+          "window": "beforeDamageApplied",
+          "subject": "any",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            { "op": "resolveMobileShiShuanghuaiGuard", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
