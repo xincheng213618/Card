@@ -2509,7 +2509,8 @@ public sealed partial class GameEngine
                 context.MovementBatch is { } batch &&
                 batch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
-                (IsShiHqMarkTrigger(trigger) ? IsCurrentShiHqFieldEntry(candidate, context)
+                (IsBoundaryYiJiGiveCandidate(candidate) ? IsCurrentBoundaryYiJiGive(candidate, context)
+                    : IsShiHqMarkTrigger(trigger) ? IsCurrentShiHqFieldEntry(candidate, context)
                     : candidate.SkillId == AnniversaryLiuYongComposition.Fengxiang && candidate.BindingId == "xi-leader-changes"
                     ? IsAnniversaryLiuYongMovementCandidate(candidate, context)
                     : candidate.SkillId == HappyZuoCiComposition.Huanshu && candidate.BindingId == "foreign-phantom"

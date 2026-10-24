@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:cao-xiu",
+  "skills": [
+    {
+      "registrationOrder": 51100,
+      "programBundle": "boundary-cao-xiu-mobile",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:qingxi-mobile",
+        "name": "倾袭",
+        "description": "每回合限一次，当你对其他角色造成伤害时，你可以令其选择一项：1.弃置Y张手牌（Y为4-你与其距离，且最小为1）；2.令此伤害+1。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 51101,
+      "pools": { "current": 51101 },
+      "definition": {
+        "id": "boundary:cao-xiu-mobile",
+        "name": "界曹休·移动版",
+        "portraitKey": "boundary-cao-xiu",
+        "skillId": "classic:qianju",
+        "factionId": "wei",
+        "baseHp": 4,
+        "additionalSkillIds": ["boundary:qingxi-mobile"],
+        "gender": "Male",
+        "characterId": "character:cao-xiu",
+        "variantId": "boundary-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

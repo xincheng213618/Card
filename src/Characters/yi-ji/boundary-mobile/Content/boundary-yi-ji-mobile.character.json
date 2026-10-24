@@ -1,0 +1,47 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:yi-ji",
+  "skills": [
+    {
+      "registrationOrder": 51000,
+      "programBundle": "boundary-yi-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jijie-mobile",
+        "name": "机捷",
+        "description": "出牌阶段限一次，你可以观看牌堆底的一张牌，然后交给任意角色。",
+        "actionForms": "Active"
+      }
+    },
+    {
+      "registrationOrder": 51001,
+      "programBundle": "boundary-yi-ji",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "boundary:jiyuan-mobile",
+        "name": "急援",
+        "description": "当一名角色进入濒死状态或你交给一名其他角色牌时，你可以令其摸一张牌。"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 51002,
+      "pools": { "current": 51002 },
+      "definition": {
+        "id": "boundary:yi-ji-mobile",
+        "name": "界伊籍",
+        "portraitKey": "boundary-yi-ji",
+        "skillId": "boundary:jijie-mobile",
+        "factionId": "shu",
+        "baseHp": 3,
+        "additionalSkillIds": ["boundary:jiyuan-mobile"],
+        "gender": "Male",
+        "characterId": "character:yi-ji",
+        "variantId": "boundary-mobile",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

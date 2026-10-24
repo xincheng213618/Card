@@ -254,6 +254,8 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveBoundaryCaoXiuQingxi = 51100,
+    ResolveBoundaryQuanCongYaoming = 51200,
     SelectMobileShiKaijiTargets = 47400,
     BindMobileShiKaijiReward = 47401,
     ChooseMobileShiShepan = 47402,

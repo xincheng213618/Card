@@ -7,6 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\BoundaryYiJiScenario.cs" Link="BoundaryYiJiScenario.cs" />
+    <Compile Include="..\CardGame.Core.Tests\BoundaryCaoXiuMobileChecks.cs" Link="BoundaryCaoXiuMobileChecks.cs" />
+    <Compile Include="..\CardGame.Core.Tests\BoundaryQuanCongChecks.cs" Link="BoundaryQuanCongChecks.cs" />
     <Compile Include="..\Shared\MouSimaYiGiveScenario.cs" Link="MouSimaYiGiveScenario.cs" />
     <Compile Include="..\Shared\BaguaResponseScenario.cs" Link="BaguaResponseScenario.cs" />
     <Compile Include="..\Shared\CharacterFixtureContent.cs" Link="CharacterFixtureContent.cs" />

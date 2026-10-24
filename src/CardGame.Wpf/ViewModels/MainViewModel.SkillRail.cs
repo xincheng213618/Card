@@ -7,6 +7,7 @@ public sealed partial class MainViewModel
     private IReadOnlyList<HumanSkillViewModel> BuildHumanSkillCards() =>
         BuildOwnedHumanSkillCards().Where(skill => !IsWushuangPassiveTacticSkill(skill.ContentId))
             .Select(skill => skill with { ProgressText = SkillActivationProgressText(skill.ContentId) })
+            .Select(ApplyBoundaryQuanCongProgress)
             .Select(ApplyMobileShiZhaoYunProgress)
             .Select(ApplyMobileShiWeiYanProgress)
             .Select(ApplyMobileShiChenQunProgress)

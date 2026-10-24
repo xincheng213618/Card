@@ -7,7 +7,7 @@ using CardGame.Wpf.ViewModels;
 
 internal static class EditionGeneralGalleryChecks
 {
-    public static void NamespacedPortraitsAndDetails(string output)
+    public static void NamespacedPortraitsAndDetails(string output, IReadOnlySet<string>? detailGeneralIds = null)
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         using var model = new MainViewModel(false, 17, true, new MemorySaveStore(),
@@ -30,7 +30,8 @@ internal static class EditionGeneralGalleryChecks
                 "anniversary:cui-lie", "anniversary:hou-cheng", "anniversary:ma-miao",
                 "anniversary:yuan-yin", "anniversary:qiao-rui", "anniversary:hu-che-er",
                 "anniversary:zhang-heng", "anniversary:hao-meng", "anniversary:lei-bo",
-                "anniversary:liu-you", "mobile:he-qi", "boundary:liu-feng" }.All(id =>
+                "anniversary:liu-you", "mobile:he-qi", "boundary:liu-feng",
+                "boundary:yi-ji-mobile", "boundary:cao-xiu-mobile", "boundary:quan-cong-mobile" }.All(id =>
                 model.GeneralGalleryEntries.Any(entry => entry.GeneralId == id)),
             "The added distinct editions are present in the gallery.");
         var entries = model.GeneralGalleryEntries.Where(entry =>
@@ -50,6 +51,7 @@ internal static class EditionGeneralGalleryChecks
             entry.GeneralId is "anniversary:yuan-yin" or "anniversary:qiao-rui" or "anniversary:hu-che-er" ||
             entry.GeneralId is "anniversary:zhang-heng" or "anniversary:hao-meng" or "anniversary:lei-bo" ||
             entry.GeneralId is "anniversary:liu-you" or "mobile:he-qi" or "boundary:liu-feng" ||
+            entry.GeneralId is "boundary:yi-ji-mobile" or "boundary:cao-xiu-mobile" or "boundary:quan-cong-mobile" ||
             entry.GeneralId.StartsWith("wumiao:", StringComparison.Ordinal) || entry.GeneralId is "mou:huang-yueying-ol" or "mou:zhou-yu-ol" or "mou:huang-gai-mobile" or "mou:hua-xiong-mobile" or "mou:lu-meng-mobile" or "mou:yu-jin-mobile" or "mou:liu-cheng-mobile" or "mou:xu-huang-mobile" or "mou:chen-gong-mobile" or "mou:xiahou-shi-mobile" or "mou:zhen-ji-mobile" or "mou:yuan-shao-mobile" or "mou:zhu-rong-mobile" or "mou:pang-tong-mobile" or "mou:tian-yu-mobile" or "mou:han-dang-mobile" or "mou:meng-huo-mobile" or "mou:lu-zhi-mobile" or "mou:zhou-yu-mobile" or "mou:xiahou-dun-mobile" or "mou:da-qiao-mobile" or "mou:huang-yueying-mobile" or "mou:lu-bu-mobile" or "mou:diao-chan-mobile" or "mou:fa-zheng-mobile" or "mou:gan-ning-mobile" or "mou:guo-huai-mobile" or "ol:cheng-ji-cheng-cui" or "ol:sp-sun-shangxiang" or "mou:guo-you-zhi-mobile" or "mou:sun-jian-ol" or "mou:taishi-ci-ol" or "mou:gongsun-zan-ol" or "mou:lu-xun-mobile" or "mou:lu-zhi-ol" or "mou:zhang-xiu-ol" or "mou:wen-chou-ol" or "mou:jiang-wei-mobile" or "mou:hua-xiong-ol" or "mou:deng-ai-ol" or "mou:dong-zhao-ol" or "mou:gongsun-zan-mobile" or "mou:zhang-he-mobile" or "mou:xiao-qiao-ol" or "mou:zhu-ran-mobile" or "mou:kong-rong-ol" or "mou:dong-zhuo-ol" or "mou:liu-xie" or "mou:xu-sheng" or "mou:guan-ping" or "mou:sun-shangxiang-mobile" or "mou:jiang-wei" or "mou:dian-wei" or "mou:huang-gai" or "mou:cao-shuang" or "mou:zhuge-jin" or "mou:hu-che-er" or "mou:huang-quan" or "mou:cao-hong" or "mou:zhou-yu" or "mou:lu-su" or "mou:sima-yi" or "mou:jiang-ji" or "mou:sima-shi" or "mou:jia-xu" or "mou:cao-ang" or "mou:zhang-xiu" or "mou:cheng-yu" or "mou:guo-jia" or "mou:chen-lin" or "mou:xun-yu" or "mou:ju-shou" or "mou:hu-lie" or "mou:dong-cheng" or "mou:wang-ling" or "mou:cheng-yu-ol" || entry.GeneralId.StartsWith("le:", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("ol:mo-", StringComparison.Ordinal) ||
             entry.GeneralId.StartsWith("mobile:", StringComparison.Ordinal) ||
@@ -244,7 +246,7 @@ internal static class EditionGeneralGalleryChecks
         var panel = new GeneralGalleryPanel { DataContext = model };
         try
         {
-            foreach (var entry in entries)
+            foreach (var entry in entries.Where(entry => detailGeneralIds is null || detailGeneralIds.Contains(entry.GeneralId)))
             {
                 model.GeneralGallerySearchText = entry.Name;
                 Program.Assert(model.GeneralGalleryEntries.Contains(entry) && entry.IsPlayable && entry.HasPortrait,

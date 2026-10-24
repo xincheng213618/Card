@@ -112,6 +112,11 @@ internal static class Program
             Check("Wu Guan Yu Wuyou UI: foreign contribution issuer and private return", () => WuGuanYuWuyouUiChecks.ForeignContributionUsesIssuerAndKeepsPrivateReturn(output));
             Check("Mo Diao Chan UI: forced hand selection waits for confirmation", () => MoDiaoChanUiChecks.LockedHandStillRequiresConfirmation(output));
             Check("Mo Cao Cao UI: Bachao restored portraits confirmation and decline", () => MoCaoCaoUiChecks.BachaoTargetsAndDeclineRemainUsable(output));
+            Check("Mobile boundary Yi Ji UI: private bottom and actual recipient button", () => BoundaryYiJiMobileUiChecks.JijiePrivateBottomAndRecipientButton(output));
+            Check("Mobile boundary Cao Xiu UI: actual target hand batch and damage choice", () => BoundaryCaoXiuMobileUiChecks.ActualTargetHandBatchAndDamageChoice(output));
+            Check("Mobile boundary Quan Cong UI: charge rail choices and damage menu cold", () => BoundaryQuanCongUiChecks.ChargedYaomingRailOptionsAndDamageMenuCold(output));
+            Check("Mobile boundary gallery: registered portraits and actual details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output,
+                new HashSet<string>(StringComparer.Ordinal) { "boundary:yi-ji-mobile", "boundary:cao-xiu-mobile", "boundary:quan-cong-mobile" }));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
             Check("God editions UI: formal portraits complete details and actual edition labels", () => MobileGodGalleryChecks.GodSeriesPortraitsAndDetails(output));
             Check("Shouli field mount UI: published foreign conversion and native payment", () => ShouliFieldMountUiChecks.ForeignMountUsesPublishedConversion(output));
