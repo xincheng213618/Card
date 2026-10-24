@@ -12,6 +12,6 @@
 | 本轮4 | [陆郁生](https://www.sanguosha.cn/pc/hero-detail-619.html)、[鲁肃](https://www.sanguosha.cn/pc/hero-detail-638.html)、[贺齐](https://www.sanguosha.cn/pc/hero-detail-670.html) | 已接入；相关核心与界面检查通过 |
 | 本轮5 | [孙綝](https://www.sanguosha.cn/pc/hero-detail-660.html)、[孙峻](https://www.sanguosha.cn/pc/hero-detail-661.html)、[曹真](https://www.sanguosha.cn/pc/hero-detail-665.html) | 已接入；相关核心与界面检查通过 |
 | 本轮6 | [小乔](https://www.sanguosha.cn/pc/hero-detail-666.html)、[张燕](https://www.sanguosha.cn/pc/hero-detail-622.html)、[邓艾](https://www.sanguosha.cn/pc/hero-detail-643.html) | 已接入；相关核心与界面检查通过 |
-| 协作与后续 | [太史慈](https://www.sanguosha.cn/pc/hero-detail-600.html)、[钟会](https://www.sanguosha.cn/pc/hero-detail-640.html)、[周瑜](https://www.sanguosha.cn/pc/hero-detail-662.html) | 太史慈由另一任务完成；钟会、周瑜仅资料核对，尚未实施 |
+| 协作与后续 | [太史慈](https://www.sanguosha.cn/pc/hero-detail-600.html)、[钟会](https://www.sanguosha.cn/pc/hero-detail-640.html)、[周瑜](https://www.sanguosha.cn/pc/hero-detail-662.html) | 太史慈、钟会由另一任务完成；周瑜仅资料核对，尚未实施 |
 
 本次接入在本轮6完成后结束。此表记录当前可核对的官网条目，不能据此断言官网未列出的人物不属于兵势篇。
