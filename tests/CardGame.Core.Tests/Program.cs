@@ -45,6 +45,8 @@ var tests = new (string Name, Action Body)[]
     ("Shi Yu Ji: Daozhuan round name ledger and per-turn total off-turn", MobileShiYuJiChecks.DaozhuanRoundNameLedgerAndPerTurnTotalOffTurn),
     ("Shi Cheng Pu: Duzuo grants fire Slash from piles and skips its own grants", ShiChengPuChecks.DuzuoGrantsFireSlashFromPilesAndExcludesOwnGrants),
     ("Shi Cheng Pu: Bihan discards hand down to hp and reduces Slash damage", ShiChengPuChecks.BihanDiscardsToHpAndReducesSlashDamage),
+    ("Shi Lu Yusheng: Runwei color grant debt refund same-turn exclusion and phase-end cold", ShiLuYuShengChecks.RunweiGrantsColorDebtRefundAndExcludesGainedTargets),
+    ("Shi Lu Yusheng: Shuanghuai prevents damage and settles same-different memory", ShiLuYuShengChecks.ShuanghuaiPreventsDamageAndSettlesSameDifferentMemory),
     ("Multiplayer: human seats prompts privacy and cold replay", MultiplayerChecks.MultipleHumansWaitRespondAndReplay),
     ("LAN rooms: HTTP players AI isolation retries and match completion", LanRoomChecks.HttpPlayersAiAndIsolation),
     ("LAN rooms: HTTP first round permissions retries and eight seats", LanRoomChecks.HttpFirstRound),

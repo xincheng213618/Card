@@ -1,0 +1,54 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:lu-yu-sheng",
+  "skills": [
+    {
+      "registrationOrder": 48400,
+      "programBundle": "mobile-shi-lu-yu-sheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-runwei",
+        "name": "润微",
+        "description": "出牌阶段限一次，你可以展示牌堆顶至多五张牌，令一名角色获得其中一种颜色的所有牌。若如此做：1.每阶段限一次，你失去X张牌后（X为其因此获得的牌数），该技能可以再次发动且不能指定本回合获得过牌的角色为目标；2.本阶段结束时，你弃置以此法获得的手牌。",
+        "actionForms": "Active",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 48401,
+      "programBundle": "mobile-shi-lu-yu-sheng",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-shuanghuai",
+        "name": "霜怀",
+        "description": "每回合限一次，当与你距离1以内的其他角色受到伤害时，你可以选择一项：防止此伤害；令其从弃牌堆中获得一张【桃】。若该角色与你上一次发动时：相同，你与其各摸一张牌；不同，你失去1点体力。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 48402,
+      "pools": {
+        "current": 48402
+      },
+      "definition": {
+        "id": "mobile:shi-lu-yu-sheng",
+        "name": "势陆郁生",
+        "portraitKey": "mobile-shi-lu-yu-sheng",
+        "skillId": "mobile:shi-runwei",
+        "additionalSkillIds": [
+          "mobile:shi-shuanghuai"
+        ],
+        "factionId": "wu",
+        "baseHp": 3,
+        "gender": "Female",
+        "characterId": "character:lu-yu-sheng",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}
