@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "boundary:junxing-mobile", "revision": 1,
+    "activations": [{
+      "id": "equal-discard-or-turn", "usesPerTurn": null, "usesPerPhase": 1,
+      "minCards": 1, "maxCards": null, "sourceZones": ["hand"],
+      "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving",
+      "effects": [
+        { "op": "captureSelectedCards", "target": "owner", "resultBind": "junxing-cost" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "junxing-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+        { "op": "resolveBoundaryManChongJunxing", "target": "owner", "sourceBind": "junxing-cost", "resultBind": "junxing-answer" },
+        { "op": "loseHp", "target": "selectedTarget", "amount": 1, "condition": { "kind": "choiceIs", "sourceBind": "junxing-answer", "optionId": "discarded" } },
+        { "op": "turnOver", "target": "selectedTarget", "condition": { "kind": "choiceIs", "sourceBind": "junxing-answer", "optionId": "turned" } },
+        { "op": "draw", "target": "selectedTarget", "numberExpression": "boundCardCount", "sourceBind": "junxing-cost", "condition": { "kind": "choiceIs", "sourceBind": "junxing-answer", "optionId": "turned" } }
+      ]
+    }]
+  }]
+}

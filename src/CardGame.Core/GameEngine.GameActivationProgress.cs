@@ -85,6 +85,8 @@ public sealed partial class GameEngine
         if (taiShiCiStates.Count > 0) (states ??= []).AddRange(taiShiCiStates);
         var quanCongStates = BoundaryQuanCongPublicStates(owner, skillId);
         if (quanCongStates.Count > 0) (states ??= []).AddRange(quanCongStates);
+        var zhuZhiStates = BoundaryZhuZhiPublicStates(owner, skillId);
+        if (zhuZhiStates.Count > 0) (states ??= []).AddRange(zhuZhiStates);
         return states is null ? existing : Array.AsReadOnly((existing ?? []).Concat(states).ToArray());
     }
 }

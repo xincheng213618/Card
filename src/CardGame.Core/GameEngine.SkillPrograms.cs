@@ -1130,6 +1130,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An active program contains duplicate named choices.");
             foreach (var binding in frame.ChoiceBindings)
             {
+                if (IsBoundaryManChongChoiceResult(frame, binding)) continue;
                 if (IsNearestFactionChoiceResult(frame, binding)) continue;
                 if (IsShenwuChoiceResult(frame, binding)) continue;
                 if (IsHellKingChoiceResult(frame, binding)) continue;
@@ -1281,7 +1282,8 @@ public sealed partial class GameEngine
                     !HasExactShenwuBoundParticipantSelection(frame) && !HasExactShenwuYanyuParticipant(frame) && !HasExactHellKingParticipantSelection(frame) &&
                     !HasExactHappyGongxinParticipantSelection(frame) && !HasExactHappyHuaTuoParticipantSelection(frame) &&
                     !HasExactHappyDianWeiElaiSelection(frame) && !HasExactAnniversaryYangBiaoParticipantSelection(frame) &&
-                    !HasExactAnniversaryZhangXunFollowupSelection(frame) && !HasExactMobileShiTanfengParticipantSelection(frame))
+                    !HasExactAnniversaryZhangXunFollowupSelection(frame) && !HasExactMobileShiTanfengParticipantSelection(frame) &&
+                    !HasExactBoundaryAnguoRescueTarget(frame))
                     throw new InvalidOperationException("An active trigger program has an invalid cursor or context.");
                 continue;
             }

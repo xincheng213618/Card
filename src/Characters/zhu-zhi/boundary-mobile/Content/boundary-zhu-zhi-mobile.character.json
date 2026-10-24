@@ -1,0 +1,6 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:zhu-zhi",
+  "skills":[{"registrationOrder":53200,"programBundle":"boundary-zhu-zhi-mobile","includeProgramPresentation":true,
+    "definition":{"id":"boundary:anguo-mobile","name":"安国","description":"游戏开始时，你令一名其他角色获得“安国”标记。拥有“安国”标记的角色手牌上限等于其体力上限。出牌阶段开始时，若场上有“安国”标记，你可以移动“安国”标记至一名本局游戏未获得过“安国”标记的其他角色。若场上存在拥有“安国”标记的角色，当你受到伤害时，若此次伤害值不小于你当前体力值且此次伤害的来源不拥有“安国”标记，则防止此伤害。当一名拥有“安国”标记的角色进入濒死状态时，其移除“安国”标记，你令其体力值回复至1点，然后你选择一项：1.若你体力值大于1，你失去体力至1点；2.若你体力值上限大于1，你减少体力值上限至1点。然后令其获得1点护甲。","executionForms":"Trigger, State"}}],
+  "generals":[{"registrationOrder":53201,"pools":{"current":53201},"definition":{"id":"boundary:zhu-zhi-mobile","name":"界朱治·移动版","portraitKey":"boundary-zhu-zhi-mobile","skillId":"boundary:anguo-mobile","factionId":"wu","baseHp":4,"gender":"Male","characterId":"character:zhu-zhi","variantId":"boundary-mobile","rulesetId":"sanguosha-mobile"}}]
+}

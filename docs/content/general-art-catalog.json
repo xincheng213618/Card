@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "boundary-man-chong-mobile",
+      "characterName": "界满宠",
+      "defaultSkinId": "53200",
+      "skins": [
+        {
+          "id": "53200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-384.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/53200.jpg",
+          "sha256": "5657ced81c85b56d1231aba1fe77ea3dd1c5dac95f83fdccda1eba45fcd23d71",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-man-chong-mobile.jpg",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "boundary-wu-yi-mobile",
+      "characterName": "界吴懿",
+      "defaultSkinId": "60500",
+      "skins": [
+        {
+          "id": "60500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-503.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/60500.png",
+          "sha256": "3759003e8f780edbd912f0c5864df9403d27d15e5b772185ac87dbd8c00aa968",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-wu-yi-mobile.png",
+          "pixelWidth": 529,
+          "pixelHeight": 749
+        }
+      ]
+    },
+    {
+      "key": "boundary-zhu-zhi-mobile",
+      "characterName": "界朱治",
+      "defaultSkinId": "68300",
+      "skins": [
+        {
+          "id": "68300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-505.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/68300.png",
+          "sha256": "89a3770c1dde2c79c5b4238eb1bfad87802f100500ffb3ec79157b82b4f8a363",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhu-zhi-mobile.png",
+          "pixelWidth": 529,
+          "pixelHeight": 749
+        }
+      ]
+    },
+    {
       "key": "boundary-yi-ji",
       "characterName": "界伊籍",
       "defaultSkinId": "42400",

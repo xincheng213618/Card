@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "boundary:benxi-mobile", "revision": 1, "triggers": [
+    { "id": "pay-play-start", "window": "playPhaseStarting", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+      "effects": [
+        { "op": "prepareBoundaryWuYiBenxi", "target": "owner" },
+        { "op": "selectOwnedCards", "target": "owner", "minimumCards": 1, "maximumCards": null, "zones": ["hand", "equipment"], "resultBind": "benxi-cost" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "benxi-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+        { "op": "armBoundaryWuYiBenxi", "target": "owner" }
+      ] },
+    { "id": "next-use-targets", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "cardCategories": ["basic", "instantTrick"], "singleActionInstance": true, "optional": false, "isSkillInvocation": false,
+      "effects": [{ "op": "resolveBoundaryWuYiTargets", "target": "owner" }] },
+    { "id": "issued-use-reward", "window": "cardUseCompleted", "ownerRelation": "actor", "singleActionInstance": true, "optional": false, "isSkillInvocation": false,
+      "effects": [{ "op": "rewardBoundaryWuYiUse", "target": "owner" }, { "op": "draw", "target": "owner", "amount": 5 }, { "op": "awaitOwnedCardMovement", "target": "owner" }] }
+  ] }]
+}

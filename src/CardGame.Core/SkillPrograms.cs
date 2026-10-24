@@ -254,6 +254,14 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ResolveBoundaryManChongJunxing = 53000,
+    PrepareBoundaryWuYiBenxi = 53100,
+    ArmBoundaryWuYiBenxi = 53101,
+    ResolveBoundaryWuYiTargets = 53102,
+    RewardBoundaryWuYiUse = 53103,
+    ResolveBoundaryZhuZhiAnguo = 53200,
+    PayBoundaryZhuZhiAnguo = 53201,
+    BeginBoundaryZhuZhiRescue = 53202,
     ResolveBoundaryCaoXiuQingxi = 51100,
     ResolveBoundaryQuanCongYaoming = 51200,
     SelectMobileShiKaijiTargets = 47400,
@@ -4888,6 +4896,8 @@ public sealed class SkillProgramCatalog
                 designatedEffects.GetArrayLength() == 1 && designatedEffects[0].ValueKind == JsonValueKind.Object &&
                 designatedEffects[0].TryGetProperty("op", out var designatedOp) && designatedOp.ValueKind == JsonValueKind.String &&
                 (string.Equals(designatedOp.GetString(), "addOneDistanceFreeCurrentUseTarget", StringComparison.OrdinalIgnoreCase) ||
+                 skillId == BoundaryWuYiComposition.Skill && id == BoundaryWuYiComposition.Targets &&
+                    string.Equals(designatedOp.GetString(), "resolveBoundaryWuYiTargets", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(designatedOp.GetString(), "spendCategoryMarkForSlashTargets", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(designatedOp.GetString(), "offerUniqueLargestHandTrickTargetAddition", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(designatedOp.GetString(), "joinUniqueLargestHpTrickTargetAndDrawAfterDamage", StringComparison.OrdinalIgnoreCase) ||

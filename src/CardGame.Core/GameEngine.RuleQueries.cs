@@ -210,6 +210,7 @@ public sealed partial class GameEngine
             new RuleQueryBounds(0, int.MaxValue),
             baseTerms,
             contributions)));
+        ordinary = ApplyBoundaryZhuZhiHandLimit(player, ordinary);
         return suppressHanSongYinbi ? ordinary : ApplyAnniversaryHanSongHandLimit(player, ordinary);
     }
 

@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:man-chong",
+  "skills": [
+    { "registrationOrder": 53000, "programBundle": "boundary-man-chong-mobile", "includeProgramPresentation": true,
+      "definition": { "id": "boundary:junxing-mobile", "name": "峻刑", "description": "出牌阶段限一次，你可以弃置任意张手牌并选择一名其他角色，然后令其选择一项：1.弃置等量牌并失去1点体力；2.翻面，然后摸等量的牌。", "actionForms": "Active" } }
+  ],
+  "generals": [
+    { "registrationOrder": 53001, "pools": { "current": 53001 },
+      "definition": { "id": "boundary:man-chong-mobile", "name": "界满宠·移动版", "portraitKey": "boundary-man-chong-mobile", "skillId": "boundary:junxing-mobile", "additionalSkillIds": ["classic:yuce"], "factionId": "wei", "baseHp": 3, "gender": "Male", "characterId": "character:man-chong", "variantId": "boundary-mobile", "rulesetId": "sanguosha-mobile" } }
+  ]
+}

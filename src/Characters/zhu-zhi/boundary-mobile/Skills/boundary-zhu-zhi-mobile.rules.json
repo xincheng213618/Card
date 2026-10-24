@@ -1,0 +1,13 @@
+{
+  "schemaVersion":62,"skills":[{"id":"boundary:anguo-mobile","revision":1,"triggers":[
+    {"id":"initial-mark","window":"gameStarting","subject":"owner","optional":false,"effects":[{"op":"resolveBoundaryZhuZhiAnguo","target":"owner"}]},
+    {"id":"move-mark","window":"playPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"resolveBoundaryZhuZhiAnguo","target":"owner"}]},
+    {"id":"prevent-lethal","window":"beforeDamageApplied","subject":"damageTarget","optional":false,"isSkillInvocation":false,"effects":[{"op":"preventCurrentDamage","target":"owner"}]},
+    {"id":"rescue-marked","window":"dyingEntering","subject":"any","optional":false,"effects":[
+      {"op":"beginBoundaryZhuZhiRescue","target":"owner"},
+      {"op":"recoverTo","target":"selectedTarget","numberExpression":"integerConstant","minimumValue":1,"clampToMaxHp":true},
+      {"op":"payBoundaryZhuZhiAnguo","target":"owner"},
+      {"op":"grantArmor","target":"selectedTarget","amount":1}
+    ]}
+  ]}]
+}

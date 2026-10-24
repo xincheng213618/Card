@@ -301,6 +301,7 @@ public sealed partial class GameEngine
     private bool IsDesignatedExtraTargetFact(CardUseFrame use, DesignatedExtraTargetResolvedEvent fact,
         IReadOnlyList<int> originalTargets)
     {
+        if (IsBoundaryWuYiTargetFact(use, fact, originalTargets)) return true;
         if (use.Action is not { Type: CardActionType.Use } action || fact.CardUseFrameId != use.Id || fact.ActionId != action.ActionId ||
             fact.Source.OwnerSeat != action.ActorSeat || fact.InstructionIndex != 1 ||
             !fact.OriginalTargetSeats.SequenceEqual(originalTargets) || fact.OriginalTargetSeats.Count == 0 ||

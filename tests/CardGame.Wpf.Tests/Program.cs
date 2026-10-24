@@ -117,6 +117,9 @@ internal static class Program
             Check("Mobile boundary Quan Cong UI: charge rail choices and damage menu cold", () => BoundaryQuanCongUiChecks.ChargedYaomingRailOptionsAndDamageMenuCold(output));
             Check("Mobile boundary gallery: registered portraits and actual details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output,
                 new HashSet<string>(StringComparer.Ordinal) { "boundary:yi-ji-mobile", "boundary:cao-xiu-mobile", "boundary:quan-cong-mobile" }));
+            Check("Mobile boundary batch 44 gallery: official portraits and printed rules", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output,
+                new HashSet<string>(StringComparer.Ordinal) { "boundary:man-chong-mobile", "boundary:wu-yi-mobile", "boundary:zhu-zhi-mobile" }));
+            Check("Mobile boundary Zhu Zhi UI: initial Anguo target marker and progress", () => BoundaryZhuZhiUiChecks.InitialAnguoTargetMarkerAndProgress(output));
             Check("Edition general gallery: namespaced portraits and real details", () => EditionGeneralGalleryChecks.NamespacedPortraitsAndDetails(output));
             Check("God editions UI: formal portraits complete details and actual edition labels", () => MobileGodGalleryChecks.GodSeriesPortraitsAndDetails(output));
             Check("Shouli field mount UI: published foreign conversion and native payment", () => ShouliFieldMountUiChecks.ForeignMountUsesPublishedConversion(output));

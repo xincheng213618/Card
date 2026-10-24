@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:junxing-mobile": {
+      "name": "峻刑", "description": "出牌阶段限一次，你可以弃置任意张手牌并选择一名其他角色，然后令其选择一项：1.弃置等量牌并失去1点体力；2.翻面，然后摸等量的牌。",
+      "activationLabels": { "equal-discard-or-turn": "弃手牌，令目标选择弃牌失血或翻面摸牌" }, "triggerChoices": {}
+    }
+  }
+}
