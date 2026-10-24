@@ -149,7 +149,7 @@ internal static class BoundaryLiuFengChecks
               {"id":"{{Watch}}","revision":1,"triggers":[
                 {"id":"paid-original","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:qinling.cost"],"optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid","options":[{"id":"continue"}]}]},
                 {"id":"native-reward-request","window":"nativeDrawStarting","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"reward-request","options":[{"id":"continue"}]}]},
-                {"id":"reward-gained","window":"cardsMoved","subject":"owner","sourceZones":["drawPile"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:qinling.reward"],"optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"reward-gained","options":[{"id":"continue"}]}]}
+                {"id":"reward-gained","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:qinling.reward"],"optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"reward-gained","options":[{"id":"continue"}]}]}
               ]}
             ]}
             """;
