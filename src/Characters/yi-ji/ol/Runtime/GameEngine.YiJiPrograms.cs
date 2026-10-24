@@ -21,6 +21,26 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    // A real Give can now open the recipient's Jiyuan before this paid instruction
+    // returns. Its original cards-moved child already owns the complete invoice.
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 51000)]
+    private bool IsYiJiBottomGiftMovement(ProgramSkillFrame frame, SkillProgramEffect? paidEffect,
+        ProgramMovementContinuation pending) =>
+        paidEffect?.Op == SkillProgramEffectOp.GiveDrawPileBottomCard &&
+        frame.PendingMovementContinuation == pending && pending.SubjectSeat == frame.OwnerSeat &&
+        pending.BeforeCount == 0 && pending.CoverageResultBind is null &&
+        frame.SelectedTargetSeats is [var recipient] && IsValidPlayerSeat(recipient) &&
+        _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().Any(window =>
+            window.ResumeProgramFrameId is null && window.Batch.ParentFrameId == frame.Id &&
+            window.Batch.AwaitingProgramFrameId == frame.Id &&
+            window.Batch.OriginSkillId == frame.SkillId && window.Batch.OriginSkillInstanceId == frame.SkillInstanceId &&
+            window.Batch.OriginOwnerSeat == frame.OwnerSeat && window.Batch.Movements is [var movement] &&
+            movement.From == CardLocation.DrawPile &&
+            (movement.To == CardLocation.Hand(recipient) || movement.To == CardLocation.OutsideGame ||
+                IsHappyWeiYanRedirectedGain(movement, CardLocation.Hand(recipient))) &&
+            movement.Reason.Value == $"skill-program.{frame.SkillId}.jijie-give" &&
+            _cardMovements.Contains(movement));
+
     [ProgramCapability]
     private sealed class YiJiProgramCapability(GameEngine engine) : IYiJiProgramHost
     {

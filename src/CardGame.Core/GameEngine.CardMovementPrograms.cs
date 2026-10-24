@@ -323,6 +323,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
+                if (IsBoundaryYiJiGiveCandidate(candidate)) continue;
                 if (IsAnniversaryMaMiaoCongfengTrigger(trigger)) continue;
                 if (IsShiHqMarkTrigger(trigger)) continue;
                 if (IsOwnTurnEnemyHandGainTrigger(trigger)) continue;
@@ -376,6 +377,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectMouJsMovementCandidates(batch));
         candidates.AddRange(CollectMouCaEquipmentCandidates(batch));
         candidates.AddRange(CollectMouHqGiveCandidates(batch));
+        candidates.AddRange(CollectBoundaryYiJiGiveCandidates(batch));
         candidates.AddRange(CollectNianJingjueCandidates(batch));
         candidates.AddRange(CollectHellZhiwangCandidates(batch));
         candidates.AddRange(CollectNeighborDiscardCandidates(batch));
@@ -616,6 +618,8 @@ public sealed partial class GameEngine
         CardsMovedTriggerWindowFrame frame,
         ProgramTriggerCandidate candidate)
     {
+        if (IsBoundaryYiJiGiveCandidate(candidate))
+            return CreateBoundaryYiJiGiveContext(frame, candidate);
         if (IsShiHqMarkTrigger(GetProgramTrigger(candidate)))
             return CreateShiHqMovementContext(frame, candidate);
         if (IsAnniversaryMaMiaoCongfengTrigger(GetProgramTrigger(candidate)))

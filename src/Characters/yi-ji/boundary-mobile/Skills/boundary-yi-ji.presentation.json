@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jijie-mobile": {
+      "name": "机捷",
+      "description": "出牌阶段限一次，你可以观看牌堆底的一张牌，然后交给任意角色。",
+      "triggerChoices": {}
+    },
+    "boundary:jiyuan-mobile": {
+      "name": "急援",
+      "description": "当一名角色进入濒死状态或你交给一名其他角色牌时，你可以令其摸一张牌。",
+      "triggerChoices": {
+        "dying-draw": "令濒死角色摸一张牌",
+        "native-give-draw": "令获赠角色摸一张牌"
+      }
+    }
+  }
+}

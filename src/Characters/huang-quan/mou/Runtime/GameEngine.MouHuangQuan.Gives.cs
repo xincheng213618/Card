@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     private void RecordNativeGivenCards(long producerId,int giver,int recipient,IReadOnlyList<int> intended,long before,
         HappyWeiYanGainRequestSettlement? requestSettlement = null)
     {
-        if(!HasMouHuangQuan||intended.Count==0||giver==recipient)return;
+        if((!HasMouHuangQuan&&!HasBoundaryYiJiNativeGives)||intended.Count==0||giver==recipient)return;
         if(producerId<=0||!IsValidPlayerSeat(giver)||!IsValidPlayerSeat(recipient)||intended.Distinct().Count()!=intended.Count||before<0||before>_movementSequence)
             throw new InvalidOperationException("A native Give requires its original producer and distinct intended physical entities.");
         if (requestSettlement is not null)

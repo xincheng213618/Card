@@ -83,6 +83,8 @@ public sealed partial class GameEngine
         if (dengAiStates.Count > 0) (states ??= []).AddRange(dengAiStates);
         var taiShiCiStates = ShiTaiShiCiPublicStates(owner, skillId);
         if (taiShiCiStates.Count > 0) (states ??= []).AddRange(taiShiCiStates);
+        var quanCongStates = BoundaryQuanCongPublicStates(owner, skillId);
+        if (quanCongStates.Count > 0) (states ??= []).AddRange(quanCongStates);
         return states is null ? existing : Array.AsReadOnly((existing ?? []).Concat(states).ToArray());
     }
 }

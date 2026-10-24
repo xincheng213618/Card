@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:quan-cong",
+  "skills": [{
+    "registrationOrder": 51200,
+    "programBundle": "mobile-boundary-quan-cong",
+    "includeProgramPresentation": true,
+    "definition": {
+      "id": "boundary:yaoming-mobile", "name": "邀名",
+      "description": "剩余可用X次（X初始为2且最大为4），出牌阶段或你受到伤害后，你可以选择一项：1.弃置手牌数不小于你的一名其他角色的一张牌；2.令手牌数不大于你的一名角色摸一张牌。若与你上次选择的选项不同，则剩余可用次数+1，并清除已记录的选项。每当你受到1点伤害后剩余可用次数+1。",
+      "actionForms": "Active", "executionForms": "Trigger"
+    }
+  }],
+  "generals": [{
+    "registrationOrder": 51201, "pools": { "current": 51201 },
+    "definition": {
+      "id": "boundary:quan-cong-mobile", "name": "界全琮·移动版", "portraitKey": "boundary-quan-cong",
+      "skillId": "boundary:yaoming-mobile", "factionId": "wu", "baseHp": 4, "gender": "Male",
+      "characterId": "character:quan-cong", "variantId": "boundary-mobile", "rulesetId": "sanguosha-mobile"
+    }
+  }]
+}

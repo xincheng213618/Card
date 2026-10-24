@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "boundary:yaoming-mobile", "revision": 1,
+    "activations": [{
+      "id": "charged-intervention", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+      "targetKind": "anyLiving", "usesPerTurn": null,
+      "effects": [{ "op": "resolveBoundaryQuanCongYaoming", "target": "owner" }]
+    }],
+    "triggers": [{
+      "id": "recharge-and-intervene", "window": "afterDamageApplied", "subject": "owner",
+      "damageOccurrence": "perDamage", "optional": false, "isSkillInvocation": false,
+      "effects": [{ "op": "resolveBoundaryQuanCongYaoming", "target": "owner" }]
+    }]
+  }]
+}

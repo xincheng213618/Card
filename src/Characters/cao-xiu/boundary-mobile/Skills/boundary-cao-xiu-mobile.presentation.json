@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:qingxi-mobile": {
+      "name": "倾袭",
+      "description": "每回合限一次，当你对其他角色造成伤害时，你可以令其选择一项：1.弃置Y张手牌（Y为4-你与其距离，且最小为1）；2.令此伤害+1。"
+    }
+  }
+}

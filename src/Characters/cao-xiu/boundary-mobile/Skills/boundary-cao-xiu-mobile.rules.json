@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:qingxi-mobile",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "distance-discard-or-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [{ "op": "resolveBoundaryCaoXiuQingxi", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}
