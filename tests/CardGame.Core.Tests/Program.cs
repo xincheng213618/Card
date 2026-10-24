@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -826,6 +826,8 @@ var tests = new (string Name, Action Body)[]
     ("Wu An Guo: FourSuitsRealYangAndYinNativeResponsesCold", WuAnGuoChecks.FourSuitsRealYangAndYinNativeResponsesCold),
     ("Yuan Huan: DeruPresenceSetsAllNoneAndOpaqueRandomPrivacyCold", YuanHuanChecks.DeruPresenceSetsAllNoneAndOpaqueRandomPrivacyCold),
     ("Lu Yu Sheng: BottomRevealNativeDrawAndZeroHeartsCold", LuYuShengChecks.BottomRevealNativeDrawAndZeroHeartsCold),
+    ("Shi Tai Shi Ci: Hanzhan rallies both hands and duels", ShiTaiShiCiChecks.HanzhanRalliesBothHandsAndDuels),
+    ("Shi Tai Shi Ci: Zhanlie gains lies and issues optioned virtual Slash", ShiTaiShiCiChecks.ZhanlieGainsLiesAndIssuesOptionedSlash),
     ("Wang Kuang: BothDoWhileOrdersPrivateDiscardAndNativeExhaustionCold", WangKuangChecks.BothDoWhileOrdersPrivateDiscardAndNativeExhaustionCold),
     ("Cao Xi: NonbasicValuesCapWeaponsAndNativeSlashQuotaCold", CaoXiChecks.NonbasicValuesCapWeaponsAndNativeSlashQuotaCold),
     ("Hu Jin Ding: QingyuanOpeningFirstDamageRandomMarkedHandsAndQuotaCold", HuJinDingChecks.QingyuanOpeningFirstDamageRandomMarkedHandsAndQuotaCold),

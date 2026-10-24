@@ -98,7 +98,7 @@ public sealed record ContentGeneralDefinition(
     string Id,
     string Name,
     string PortraitKey,
-    string SkillId,
+    string? SkillId,
     string? FactionId = null,
     int BaseHp = 4,
     IReadOnlyList<string>? AdditionalSkillIds = null,
@@ -112,8 +112,9 @@ public sealed record ContentGeneralDefinition(
     public int? InitialHp { get; init; }
     /// <summary>
     /// Complete ordered skill identities used by the current runtime.
+    /// A null primary explicitly represents a general with no printed skills.
     /// </summary>
-    public IReadOnlyList<string> SkillIds => AdditionalSkillIds is { Count: > 0 }
+    public IReadOnlyList<string> SkillIds => SkillId is null ? Array.Empty<string>() : AdditionalSkillIds is { Count: > 0 }
         ? new[] { SkillId }.Concat(AdditionalSkillIds).ToArray()
         : [SkillId];
 }
@@ -1148,7 +1149,10 @@ public sealed class ContentRegistry
             if (definition.InitialHp is { } initialHp && (initialHp < 1 || initialHp > definition.BaseHp))
                 throw new ArgumentOutOfRangeException(nameof(definition), "Initial HP must be between 1 and base maximum HP.");
             var additionalSkillIds = definition.AdditionalSkillIds?.ToArray() ?? [];
-            if (string.IsNullOrWhiteSpace(definition.SkillId) ||
+            // A null primary explicitly represents a general with no printed skills.
+            // Empty ids and a missing primary followed by extra skills remain invalid.
+            if (definition.SkillId is null ? additionalSkillIds.Length != 0 :
+                string.IsNullOrWhiteSpace(definition.SkillId) ||
                 additionalSkillIds.Any(string.IsNullOrWhiteSpace) ||
                 new[] { definition.SkillId }.Concat(additionalSkillIds)
                     .Distinct(StringComparer.Ordinal)

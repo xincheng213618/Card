@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-hanzhan",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "rally",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 2,
+          "maxTargets": 2,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "resolveShiTzHanzhan",
+              "target": "owner"
+            },
+            {
+              "op": "startVirtualDuel",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "id": "mobile:shi-zhanlie",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "range-record",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "anyLiving",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveShiTzRangeRecord",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "zhanlie-ending",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveShiTzZhanlie",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "respond-gate",
+          "window": "slashBeforeResponse",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveShiTzRespondGate",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-zhenfeng",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "spearhead",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": null,
+          "usesPerGame": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "resolveShiTzZhenfeng",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": []
+    }
+  ]
+}

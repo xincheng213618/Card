@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
@@ -605,6 +605,11 @@ public enum SkillProgramEffectOp
     ResolveMobileShiRunweiLossDebt = 63321,
     ResolveMobileShiRunweiPhaseEnd = 63322,
     ResolveMobileShiShuanghuaiGuard = 63323,
+    ResolveShiTzHanzhan = 63340,
+    ResolveShiTzRangeRecord = 63341,
+    ResolveShiTzZhanlie = 63342,
+    ResolveShiTzRespondGate = 63343,
+    ResolveShiTzZhenfeng = 63344,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,

@@ -27,6 +27,7 @@ public sealed partial class GameEngine
         if (!first && !second && !third && !actualJudgment && !actualDraw)
             throw new InvalidOperationException("The configured phase substitution does not match its boundary.");
 
+        RecordShanheS5PhaseSkipCost(active, phases, parent);
         if (actualDraw && parent.ResumeDrawPhaseObligationFrameId is not null)
         { RecordAlternativePhaseSkip(active, phases); return SkillProgramStepOutcome.Continue; }
         foreach (var phase in phases)
@@ -59,7 +60,7 @@ public sealed partial class GameEngine
         var target = _players[targetSeat];
         var activeUse = active.TriggerId is null && instruction.Op == SkillProgramEffectOp.UseVirtualCard;
         var phaseControlParticipant = HasPhaseStartCardUseParticipant(source.Seat);
-        if ((phaseControlParticipant || activeUse) && (IsCardUseForbidden(source.Seat, cardKind, CardActionType.Use) ||
+        if ((phaseControlParticipant || activeUse || IsShanheS5ShensuFrame(active)) && (IsCardUseForbidden(source.Seat, cardKind, CardActionType.Use) ||
             HasTurnCardTargetRestriction(source.Seat, SkillProgramCardTargetRestriction.SelfOnly)))
             return SkillProgramStepOutcome.Continue;
         if (active.WindowContext is { Window: SkillProgramTriggerWindow.RoundStarting } round &&
@@ -74,6 +75,8 @@ public sealed partial class GameEngine
              HasTurnCardTargetRestriction(source.Seat, SkillProgramCardTargetRestriction.SelfOnly)))
             return SkillProgramStepOutcome.Continue;
         if (!source.IsAlive || !target.IsAlive || source.Seat == target.Seat ||
+            IsShanheS5ShensuFrame(active) && !CanUseVirtualSlashTarget(source, target, physicalSuit: Suit.None,
+                physicalCardIds: [], ignoreDistance: ignoreDistance, countsTowardLimit: false) ||
             IsDirectedCardTargetProhibited(source.Seat, targetSeat, cardKind) ||
             IsSlashProhibited(target) ||
             !ignoreDistance && !(HasBeifenPreUsePrivilege(source) || HasMouZhaJiangPreUsePrivilege(source)) && GetSeatDistance(source.Seat, targetSeat) > GetAttackRange(source.Seat))
@@ -94,7 +97,7 @@ public sealed partial class GameEngine
         else RecordPredictionNativeCardUse(resolutionId, source.Seat, cardKind);
         if ((instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash ||
              instruction.TargetRestriction == SkillProgramCardTargetRestriction.NormalSlashTarget ||
-             HasCommittedSlashFireCapability(source) || phaseControlParticipant || activeUse) && action is not null)
+             HasCommittedSlashFireCapability(source) || phaseControlParticipant || activeUse || IsShanheS5ShensuFrame(active)) && action is not null)
         {
             RecordYingboCardUse(resolutionId, source.Seat, cardKind);
             RecordProgramUsedBasicCard(source.Seat, cardKind);
@@ -105,7 +108,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, cardKind, source.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { targetSeat })));
         var attack = new CardAttackHandle(this, resolutionId, source.Seat, targetSeat, card: null,
-            damageAmount: nativeWindows ? 1 + source.AlcoholDamageBonus : 1,
+            damageAmount: nativeWindows ? 1 + source.AlcoholDamageBonus + ShanheS5ShensuBaseDamageBonus(active) : 1,
             playedCardKind: cardKind, ignoresArmor: nativeWindows && HasCardArmorBypass(source, target, cardKind),
             conversionSource: action?.ConversionChain.Single(),
             programSkillCardUseFrameId: frame.Id);

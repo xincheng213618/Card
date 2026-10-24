@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -36,5 +36,7 @@ public sealed partial class GameEngine
                         effect.MinimumValue, GameProgramActivationCount(owner.Seat, skillId, effect.StateId!), SkillUsageScope.Game));
         }
         return states is null ? existing : Array.AsReadOnly((existing ?? []).Concat(states).ToArray());
+        var taiShiCiStates = ShiTaiShiCiPublicStates(owner, skillId);
+        if (taiShiCiStates.Count > 0) (states ??= []).AddRange(taiShiCiStates);
     }
 }
