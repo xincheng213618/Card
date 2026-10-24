@@ -1136,6 +1136,7 @@ public sealed partial class GameEngine
                 if (IsMouHuaXiongChoiceResult(frame, binding)) continue;
                 if (IsAnniversaryZhuZhiChoiceResult(frame, binding)) continue;
                 if (IsMobileShiChengPuChoiceResult(frame, binding)) continue;
+                if (IsMobileShiLuYuShengChoiceResult(frame, binding)) continue;
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
                     (effect.Op is SkillProgramEffectOp.AccumulatePaidPhaseGift or SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget or SkillProgramEffectOp.ChooseDifferentActionCategoryGift or SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
                         SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or
