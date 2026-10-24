@@ -94,7 +94,7 @@ public sealed partial class GameEngine
 
     [ProgramDamageHook(ProgramDamagePhase.AdditiveAmount, 50)]
     private int FrozenNextSlashDamage(IDamageAttempt attack) => !attack.IsChainPropagation &&
-        attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash
+        attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash
             ? LifecycleCardUse(attack.ResolutionId)?.NextSlashDamage ?? 0 : 0;
 
     private void ExpireNextSlashDamage(int turnNumber, int turnSeat)

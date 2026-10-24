@@ -18,7 +18,7 @@ public sealed partial class GameEngine
             if ((policy.Kind != SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage || IsBeforeActualDamageDistancePolicyQualified(owner)) &&
                     (policy.OwnerRole is null || HasSkillRoleQualification(owner, instance.SkillId, instance.SkillInstanceId, policy.OwnerRole.Value)) &&
                     (policy.CardKinds.Count == 0 ||
-                     effectiveKind is { } card && policy.CardKinds.Contains(card)) &&
+                     effectiveKind is { } card && ProgramCardKindMatch.Contains(policy.CardKinds, card)) &&
                     (policy.RequiredCardKinds.Count == 0 ||
                      requiredKind is { } response && policy.RequiredCardKinds.Contains(response)) &&
                     policy.Condition.Evaluate(context ??= CreateSkillContext(owner), null, eventTargetIsFemale,

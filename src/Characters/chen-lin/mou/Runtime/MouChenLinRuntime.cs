@@ -5,7 +5,7 @@ internal sealed partial class MouChenLinRuntime(IMouChenLinFacts facts, IMouChen
     internal const string Yaozuo = "mou:yaozuo", Zhuanwen = "mou:zhuanwen", RevealBind = "mou-chen-lin-written-cards", Action = "mou-chen-lin-anniversary";
     internal const string GiveReason = "skill-program.mou:zhuanwen.give", ReturnReason = "skill-program.mou:zhuanwen.return-top";
     internal static CardConversionSource Source(ProgramSkillFrame f) => new(f.SkillId, f.ActivationId, f.OwnerSeat, f.SkillInstanceId);
-    internal static bool DamageCard(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault or CardKind.AgainstCurrent or CardKind.WumiaoFlood or CardKind.Lightning;
+    internal static bool DamageCard(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault or CardKind.AgainstCurrent or CardKind.WumiaoFlood or CardKind.Lightning;
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 37000, SkillProgramEffectOp.ResolveMouChenLinZhuanwen)] private bool Qualifies(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext w) => facts.HandCount(c.OwnerSeat) > 0;
     public SkillProgramStepOutcome Resolve(ProgramSkillFrame supplied)
     {

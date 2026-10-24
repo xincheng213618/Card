@@ -127,7 +127,7 @@ public sealed partial class GameEngine
             var policy = _contentRegistry.Skills.GetValueOrDefault(receipt.Source.SkillId)?.Program?.CardPolicies
                 .SingleOrDefault(p => p.Id == receipt.Source.BindingId);
             if (policy is not { Kind: SkillProgramCardPolicyKind.FirstRoundCardDamageBecomesMaximumHpLoss } ||
-                !policy.CardKinds.Contains(receipt.CardKind) || receipt.Source.OwnerSeat != receipt.SourceSeat ||
+                !ProgramCardKindMatch.Contains(policy.CardKinds, receipt.CardKind) || receipt.Source.OwnerSeat != receipt.SourceSeat ||
                 string.IsNullOrWhiteSpace(receipt.Source.SkillInstanceId) || receipt.RoundNumber != _roundNumber ||
                 receipt.SourceSeat != state.SourceSeat || receipt.TargetSeat != state.TargetSeat ||
                 receipt.CardKind != state.EffectiveCardKind || receipt.Amount <= 0 || receipt.Amount != state.CardDamageLayerAmount ||

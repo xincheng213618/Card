@@ -84,7 +84,7 @@ public sealed partial class GameEngine
                                rule.SourceZones.Contains(zone.Value) &&
                                (forResponse ? rule.ForResponse : rule.ForPlay) &&
                                rule.Condition.Evaluate(context ??= CreateSkillContext(owner)) &&
-                               (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
+                               (rule.InputKinds.Count == 0 || ProgramCardKindMatch.Contains(rule.InputKinds, inputKind)) &&
                                (rule.InputCategories.Count == 0 ||
                                 rule.InputCategories.Any(category => MatchesSkillProgramCardCategory(inputKind, category))) &&
                                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(physicalCard.Suit)))
@@ -138,7 +138,7 @@ public sealed partial class GameEngine
             .ToArray();
         var skillNames = GetSkillBindingShard(actor)!
             .GetNumericModifiers(SkillRuleQuery.CardTargetCount)
-            .Where(binding => binding.Modifier.CardKinds.Contains(effectiveKind) &&
+            .Where(binding => ProgramCardKindMatch.Contains(binding.Modifier.CardKinds, effectiveKind) &&
                               binding.Modifier.Condition.Evaluate(CreateSkillContext(actor)))
             .Select(binding => _contentRegistry!.Skills[binding.Source.SkillId].Name)
             .Concat(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, actor.Seat,

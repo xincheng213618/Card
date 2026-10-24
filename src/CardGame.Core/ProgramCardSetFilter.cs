@@ -9,7 +9,7 @@ internal static class ProgramCardSetFilter
         IReadOnlyList<CardKind> cardKinds) =>
         (suits.Count == 0 || suits.Contains(suit)) &&
         (categories.Count == 0 && equipmentSlots.Count == 0 && cardKinds.Count == 0 ||
-         cardKinds.Contains(kind) ||
+         ProgramCardKindMatch.Contains(cardKinds, kind) ||
          categories.Count > 0 && categories.Contains(Category(kind)) ||
          EquipmentCatalog.IsEquipment(kind) && equipmentSlots.Contains(EquipmentCatalog.Get(kind).Slot));
 

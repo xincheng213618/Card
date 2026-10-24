@@ -322,7 +322,7 @@ public sealed partial class SimpleAiBrain
         if (action.ProgramAiHint?.MatchingNameOrEquipmentRecastInput == true)
         {
             var groups = selectableCards.Where(card => !EquipmentCatalog.IsEquipment(card.Kind))
-                .GroupBy(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash ? CardKind.Slash : card.Kind)
+                .GroupBy(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash ? CardKind.Slash : card.Kind)
                 .Select(group => group.ToArray())
                 .Append(selectableCards.Where(card => EquipmentCatalog.IsEquipment(card.Kind)).ToArray());
             return groups.Where(group => group.Length >= action.MinCardCount)
@@ -1144,12 +1144,23 @@ public sealed partial class SimpleAiBrain
         int targetSeat,
         int preventedDamageAmount,
         int thoughtSequence,
-        PublicDamagePrediction? incomingPrediction = null)
+        PublicDamagePrediction? incomingPrediction = null) =>
+        ChooseDamageReplacementChoice(view, targetSeat, preventedDamageAmount, thoughtSequence, incomingPrediction, false);
+
+    public (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseColdDamageChoice(
+        GameSnapshot view, int targetSeat, int preventedDamageAmount, int thoughtSequence,
+        PublicDamagePrediction? incomingPrediction = null) =>
+        ChooseDamageReplacementChoice(view, targetSeat, preventedDamageAmount, thoughtSequence, incomingPrediction, true);
+
+    private (ChoiceId ChoiceId, AiThoughtRecord Thought) ChooseDamageReplacementChoice(
+        GameSnapshot view, int targetSeat, int preventedDamageAmount, int thoughtSequence,
+        PublicDamagePrediction? incomingPrediction, bool cold)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var target = view.Players.Single(player => player.Seat == targetSeat);
         var selfRole = self.Role ?? Role.Renegade;
-        var prompt = view.PendingDecision is { Kind: DecisionKind.IceSword } decision
+        var prompt = view.PendingDecision is { } decision && (cold ? decision.Kind == DecisionKind.ProgramTrigger &&
+            decision.Choices.All(c => c.Parameters.GetValueOrDefault("program-action") == "native-cold-damage") : decision.Kind == DecisionKind.IceSword)
             ? decision
             : throw new InvalidOperationException("AI has no Ice Sword prompt.");
         var support = GetTacticalSupport(view, selfRole, target);
@@ -1166,7 +1177,7 @@ public sealed partial class SimpleAiBrain
         var equipment = target.Equipment.ToDictionary(card => card.Id);
         var candidates = prompt.Choices.Select(choice =>
         {
-            var retainsDamage = choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage";
+            var retainsDamage = choice.Parameters.GetValueOrDefault("action") == (cold ? "cold-damage" : "ice-sword-damage");
             var publicCardValue = choice.Cards.Count == 1 &&
                                   equipment.TryGetValue(choice.Cards[0], out var publicCard)
                 ? CardCatalog.Get(publicCard.Kind).HandKeepValue
@@ -1186,8 +1197,8 @@ public sealed partial class SimpleAiBrain
                 score,
                 retainsDamage
                     ? "比较伤害收益、目标体力与公开关系后保留原伤害。"
-                    : choice.Parameters.GetValueOrDefault("action") == "ice-sword-activate"
-                        ? "结合目标公开牌量与伤害价值，先发动寒冰剑再依次选牌。"
+                    : choice.Parameters.GetValueOrDefault("action") == (cold ? "cold-replace" : "ice-sword-activate")
+                        ? cold ? "结合目标公开牌量与伤害价值，先防止冰伤害再依次选牌。" : "结合目标公开牌量与伤害价值，先发动寒冰剑再依次选牌。"
                     : choice.Cards.Count == 0
                         ? "仅把暗手牌视为不透明牌位，结合目标牌量与伤害价值评估。"
                         : "公开装备可以按牌面保留价值参与寒冰剑弃牌选择。");
@@ -1204,7 +1215,7 @@ public sealed partial class SimpleAiBrain
             Seat,
             selected.Description,
             candidates,
-            $"寒冰剑：目标关系 {support:0.##}，待造成 {preventedDamageAmount} 点伤害，选择{selected.Description}" + PublicDamageExplanation(target, payment));
+            $"{(cold ? "冰伤害" : "寒冰剑")}：目标关系 {support:0.##}，待造成 {preventedDamageAmount} 点伤害，选择{selected.Description}" + PublicDamageExplanation(target, payment));
         return (selected.Id, thought);
     }
 
@@ -2053,7 +2064,7 @@ public sealed partial class SimpleAiBrain
             return (32d, $"【{skill.Name}】提供主动行动；未提供可检查的规则，使用基础评价。");
         if (skill.ViewAsOpportunities is { Count: > 0 } conversions)
         {
-            var attack = conversions.Any(rule => rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash);
+            var attack = conversions.Any(rule => rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash);
             var response = conversions.Any(rule => rule.ForResponse);
             return (30d + (attack && role == Role.Rebel ? 7d : 0d) + (response ? 3d : 0d),
                 $"【{skill.Name}】提供公开的牌型转换能力，可扩展可用牌或响应来源。");
@@ -2647,7 +2658,7 @@ public sealed partial class SimpleAiBrain
     }
 
     private static bool IsSlashCard(CardKind kind) =>
-        kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+        kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash;
 
     private static bool HasPublicArmorPrediction(GameSnapshot view,
         Func<LegalAction, int, PublicDamagePrediction>? prediction) =>

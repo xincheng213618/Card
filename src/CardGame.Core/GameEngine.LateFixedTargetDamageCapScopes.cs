@@ -41,7 +41,7 @@ public sealed partial class GameEngine
             damage.ParentFrameId != attack.ResolutionId || damage.SourceSeat != attack.SourceSeat ||
             damage.TargetSeat != attack.TargetSeat || damage.Amount != attack.DamageAmount || damage.Amount <= 0 ||
             !attack.DamageAmountFinalized || !attack.DamageWasApplied || GetDamageNature(attack) != damage.Nature ||
-            damage.Nature is not (DamageNature.Fire or DamageNature.Thunder) ||
+            damage.Nature is not (DamageNature.Fire or DamageNature.Thunder or DamageNature.Cold) ||
             (!attack.IsChainPropagation ? chain.Index != 0 : chain.Index == 0 || chain.Targets[chain.Index - 1] != damage.TargetSeat))
             throw new InvalidOperationException("A late fixed damage cap requires the exact completed elemental damage segment and chain cursor.");
         var history = CompleteProgramEventHistory().ToArray();
@@ -83,7 +83,7 @@ public sealed partial class GameEngine
         long attackFrameId, IReadOnlyList<int> chainTargets)
     {
         if (proof.AttackFrameId != attackFrameId || proof.DamageFrameId <= attackFrameId ||
-            proof.Amount <= 0 || proof.Nature is not (DamageNature.Fire or DamageNature.Thunder) ||
+            proof.Amount <= 0 || proof.Nature is not (DamageNature.Fire or DamageNature.Thunder or DamageNature.Cold) ||
             proof.SourceLess != (proof.SourceSeat is null) || proof.SourceSeat is { } source && !IsValidPlayerSeat(source) ||
             !IsValidPlayerSeat(proof.PaidTargetSeat) || proof.ChainTargetCount != chainTargets.Count ||
             proof.ChainTargetsHash != FixedDamageCapChainHash(chainTargets) || proof.ChainTargetIndex < 0 ||

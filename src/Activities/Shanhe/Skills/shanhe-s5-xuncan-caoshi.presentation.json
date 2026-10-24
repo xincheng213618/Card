@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-yunshen-3226": { "name": "熨身", "description": "出牌阶段限一次，你可以令一名其他角色回复1点体力并视为你对其或其对你使用一张冰【杀】。" },
+    "shanhe:s5-shangshen-3227": { "name": "伤神", "description": "当每回合首次有角色受到属性伤害后，你可以进行【闪电】判定并令其将手牌摸至四张。" },
+    "shanhe:s5-fenchai-3228": { "name": "分钗", "description": "锁定技，若首次成为你武将牌上技能目标的异性存活/死亡，你的判定牌视为红桃/黑桃。" },
+    "shanhe:s5-leijie-3231": { "name": "雷劫", "description": "准备阶段，你可以令一名角色判定，若结果为黑桃2~9，你对其造成2点雷电伤害，否则其摸两张牌。" }
+  }
+}

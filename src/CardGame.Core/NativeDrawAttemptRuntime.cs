@@ -134,7 +134,7 @@ internal sealed class NativeDrawAttemptRuntime(IProgramRuntimeFrames frames,
                 queries.IsValidSeat(replacement.SourceSeat) && replacement.SourceSeat != context.RecipientSeat &&
                 material.All(m => m.From.OwnerSeat == replacement.SourceSeat && m.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment),
             NativeDrawReplacementSourceKind.DrawPileSlash => replacement.SourceSeat == -1 && replacement.DrawPileSlashProof is not null &&
-                material.All(m => m.From == CardLocation.DrawPile && m.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
+                material.All(m => m.From == CardLocation.DrawPile && m.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) &&
                 queries.IsIssuedDrawPileSlashReplacement(context, replacement),
             _ => false
         };

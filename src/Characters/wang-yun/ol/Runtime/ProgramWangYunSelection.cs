@@ -12,7 +12,7 @@ internal sealed class WangYunSelectionCardFilter : IProgramSelectionCardFilter
             return state.Location(card.Id) == CardLocation.Hand(context.OwnerSeat) &&
                 !state.IsSelfDiscardForbidden(context.OwnerSeat, card, CardLocation.Hand(context.OwnerSeat));
         }
-        return card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash ||
+        return card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash ||
             EquipmentCatalog.IsEquipment(card.Kind);
     }
 }

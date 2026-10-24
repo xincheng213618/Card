@@ -44,7 +44,7 @@ public sealed partial class GameEngine
         DirectedTurnCardPolicyEffect effect) =>
         _directedTurnCardPolicies.Any(item => item.TurnNumber == _turnNumber && item.TurnSeat == _currentSeat &&
             item.ActorSeat == actorSeat && item.TargetSeat == targetSeat &&
-            (item.CardKinds.Count == 0 || item.CardKinds.Contains(cardKind)) &&
+            (item.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(item.CardKinds, cardKind)) &&
             item.Effects.HasFlag(effect) &&
             HasRuntimeSkillInstance(_players[item.Source.OwnerSeat], item.Source.SkillId, item.Source.SkillInstanceId));
 

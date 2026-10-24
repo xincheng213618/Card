@@ -118,7 +118,7 @@ internal static class BattleEffectPainter
         }
         if (cue.Kind is not (BattleCueKind.Card or BattleCueKind.Response) || cue.Detail == "重铸") return;
         if (cue.Kind == BattleCueKind.Response && cue.DuelOpponentSeat is not null &&
-            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
+            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)
         {
             if (!source.IsEmpty) DuelGuard(dc, source, progress);
             return;
@@ -143,7 +143,7 @@ internal static class BattleEffectPainter
         foreach (var seat in cue.TargetSeats)
         {
             if (!seats.TryGetValue(seat, out var target)) continue;
-            if (cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
+            if (cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)
                 Slash(dc, source.IsEmpty ? target : source, target, cue.CardKind.Value, progress);
             else if (cue.Kind == BattleCueKind.Card && cue.CardKind == CardKind.Duel && !source.IsEmpty)
                 DuelChallenge(dc, source, target, progress);

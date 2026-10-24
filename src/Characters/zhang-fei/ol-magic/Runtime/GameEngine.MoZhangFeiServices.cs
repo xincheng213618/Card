@@ -35,7 +35,7 @@ public sealed partial class GameEngine
         public CardKind? DamageKind(long windowId) => engine.ActiveDamageTrigger?.Id == windowId
             ? engine.CurrentDamageAttempt?.EffectiveCardKind ?? engine.CurrentDamageAttempt?.Card?.Kind : null;
         public IReadOnlyList<Card> DrawPileSlashes(int maximum) => Array.AsReadOnly(engine._cardZones.CardsAt(CardLocation.DrawPile)
-            .Where(c => c.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash).Take(maximum).ToArray());
+            .Where(c => c.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash).Take(maximum).ToArray());
     }
     [ProgramCapability]
     private sealed class MoZhangFeiOperations(GameEngine engine) : IMoZhangFeiOperations

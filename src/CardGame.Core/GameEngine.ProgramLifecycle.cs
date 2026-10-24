@@ -2214,7 +2214,7 @@ public sealed partial class GameEngine
         if (required <= 0) return true;
         var available = selection.Zones.Sum(zone =>
             _cardZones.CardsAt(new CardLocation(zone, owner.Seat)).Count(card =>
-                (selection.CardKinds.Count == 0 || selection.CardKinds.Contains(card.Kind)) &&
+                (selection.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(selection.CardKinds, card.Kind)) &&
                 (selection.Suits.Count == 0 || selection.Suits.Contains(GetProgramEffectiveSuit(owner, card)))));
         return available >= required;
     }
@@ -2707,7 +2707,7 @@ public sealed partial class GameEngine
              GetDamageTriggerAttack(damage).IsSourceLess || GetDamageTriggerAttack(damage).IsDelayedJudgmentDamage))
             return false;
         if (trigger.DamageCardKinds.Count > 0 &&
-            (GetDamageTriggerAttack(damage).EffectiveCardKind is not { } kind || !trigger.DamageCardKinds.Contains(kind)))
+            (GetDamageTriggerAttack(damage).EffectiveCardKind is not { } kind || !ProgramCardKindMatch.Contains(trigger.DamageCardKinds, kind)))
             return false;
         var features = ProgramInstructionResolver.Default.Features(trigger);
         if (features.HasOperation(SkillProgramEffectOp.StartPindian) &&
@@ -2835,7 +2835,7 @@ public sealed partial class GameEngine
             TurnOwnerSlashUseCount: _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerSlashUseCount)
                 ? EventsSinceLastBoundary(item => item is TurnStartedEvent).OfType<CardUsedEvent>()
                     .Count(item => item.SourceSeat == _currentSeat &&
-                        item.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) : null,
+                        item.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) : null,
             CurrentAttackRange: GetAttackRange(owner.Seat),
             CurrentMaxHp: owner.MaxHp,
             CurrentAvailableEquipmentSlotCount: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.CurrentAvailableEquipmentSlotCount) ? Enum.GetValues<EquipmentSlot>().Count(slot => owner.EquipmentSlotCapacity(slot) > 0) : null,
@@ -4455,7 +4455,8 @@ public sealed partial class GameEngine
             ? current
             : throw new InvalidOperationException("The AI program prompt is unavailable.");
         PromptChoice selected;
-        if (TryChooseTousuiAi(decision, out var tousuiChoice)) selected = tousuiChoice;
+        if (TryChooseColdDamageAi(decision, out var coldChoice)) selected = coldChoice;
+        else if (TryChooseTousuiAi(decision, out var tousuiChoice)) selected = tousuiChoice;
         else if (TryChooseKenshangAi(decision, out var kenshangChoice)) selected = kenshangChoice;
         else if (_resolutionStack.LastOrDefault() is ProgramSkillFrame frame)
         {
@@ -5024,7 +5025,7 @@ public sealed partial class GameEngine
             DamageCardIsRed = !attack.IsSourceLess && attack.Card?.Suit is Suit.Heart or Suit.Diamond,
             DamageCardSuit = !attack.IsSourceLess ? attack.Card?.Suit : null,
             DamageCardIsSlash = !attack.IsSourceLess && attack.EffectiveCardKind is
-                CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash,
+                CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash,
             SourceToTargetDistanceAtDamage = attack.IsSourceLess ? null : attack.SourceToTargetDistanceAtDamage,
             EventTargetHp = _players[attack.TargetSeat].Hp,
             EventTargetHpUndefined = !_players[attack.TargetSeat].HasHpValue,

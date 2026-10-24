@@ -11,7 +11,7 @@ internal sealed partial class MoCaoCaoBachaoRuntime
         var instance = Instance(origin,weapon);
         return Array.AsReadOnly(result.Append(new(ownerSeat,MoCaoCaoComposition.Baibi,MoCaoCaoComposition.BaibiBinding,instance,program.GameplayHash,0)).ToArray());
     }
-    private static bool IsSlash(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+    private static bool IsSlash(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash;
     private static string Instance(MoCaoCaoDamageOrigin origin, MoCaoCaoWeaponAuthorization source) =>
         $"native-baibi:{origin.DamageId}:{origin.TargetSeat}:{source.SourceId}";
     [ProgramRuleObserver(ProgramRulePhase.BeforeEvent, 33801)]

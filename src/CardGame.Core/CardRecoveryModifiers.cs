@@ -68,7 +68,7 @@ internal sealed partial class TurnCardUseEffectStore
 
     internal IReadOnlyList<IssuedCardRecoveryModifier> GetRecoveryModifiers(int turnNumber, int turnSeat,
         int actorSeat, CardKind cardKind) => _recoveryModifiers
-        .Where(item => item.Source.OwnerSeat == actorSeat && item.CardKinds.Contains(cardKind) &&
+        .Where(item => item.Source.OwnerSeat == actorSeat && ProgramCardKindMatch.Contains(item.CardKinds, cardKind) &&
             (item.Expiration == SkillProgramDamageModifierExpiration.NextOwnerTurnStart ||
              item.TurnNumber == turnNumber && item.TurnSeat == turnSeat))
         .OrderBy(item => item.GrantSequence)

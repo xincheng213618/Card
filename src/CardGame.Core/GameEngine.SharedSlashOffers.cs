@@ -24,7 +24,7 @@ public sealed partial class GameEngine
 
     private bool MatchesProgramOwnedSelectionKind(ProgramSkillFrame f, string bind, CharacterState owner,
         Card card, CardLocation from, IReadOnlyList<CardKind> kinds) =>
-        (!IsSharedSlashGiftSelection(f, bind) || !card.IsGeneralWeapon) && (kinds.Count == 0 || kinds.Contains(card.Kind) ||
+        (!IsSharedSlashGiftSelection(f, bind) || !card.IsGeneralWeapon) && (kinds.Count == 0 || ProgramCardKindMatch.Contains(kinds, card.Kind) ||
         IsSharedSlashGiftSelection(f, bind) && from == CardLocation.Hand(owner.Seat) &&
         card.Kind == CardKind.Alcohol && kinds.Contains(CardKind.Slash) && HasAlcoholKingIdentityPolicy(owner));
 
@@ -32,7 +32,7 @@ public sealed partial class GameEngine
     {
         var plan = ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!);
         var selection = plan.Instructions[0];
-        return selection.CardKinds.Count == 0 || selection.CardKinds.Contains(card.Kind) ||
+        return selection.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(selection.CardKinds, card.Kind) ||
             from == CardLocation.Hand(f.OwnerSeat) && card.Kind == CardKind.Alcohol &&
             selection.CardKinds.Contains(CardKind.Slash) && HasAlcoholKingIdentityPolicy(_players[f.OwnerSeat]);
     }

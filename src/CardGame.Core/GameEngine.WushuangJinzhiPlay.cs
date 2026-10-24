@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     private IEnumerable<LegalAction> BuildWushuangJinzhiPlayActions(CharacterState owner)
     {
         if (!_contentRegistry.Skills.ContainsKey(WushuangJinzhiSkill) || !owner.IsAlive || _winner != Winner.None || (_phase != TurnPhase.Play || owner.Seat != _currentSeat) && !IsKeBiNengPingduanBasicQuery(owner)) yield break;
-        foreach (var selection in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.Peach, CardKind.Alcohol }.SelectMany(k => WushuangJinzhiSelections(owner, k, false)).DistinctBy(s => (s.Source, s.OutputKind, Cards: string.Join('-', s.Cards.Select(c => c.Id)))))
+        foreach (var selection in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.ColdSlash, CardKind.Peach, CardKind.Alcohol }.SelectMany(k => WushuangJinzhiSelections(owner, k, false)).DistinctBy(s => (s.Source, s.OutputKind, Cards: string.Join('-', s.Cards.Select(c => c.Id)))))
         {
             var kind = selection.OutputKind; var targets = WushuangJinzhiPlayTargets(owner, selection);
             if (IsSlashCard(kind) && targets.Count == 0 || kind == CardKind.Peach && targets.Count == 0 || kind == CardKind.Alcohol && !WushuangJinzhiAlcoholAllowed(owner, selection.Cards)) continue;

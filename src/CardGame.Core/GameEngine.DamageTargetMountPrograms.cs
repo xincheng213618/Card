@@ -12,7 +12,7 @@ public sealed partial class GameEngine
             damage.ParentFrameId != context.DamageFrameId) return null;
         var attack = GetDamageTriggerAttack(damage);
         if (attack.IsSourceLess || !attack.DamageWasApplied || attack.SourceSeat != ownerSeat || attack.TargetSeat != target ||
-            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) return null;
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)) return null;
         // The real action is stored on the owning use (also for prepared multi-target/chain attacks).
         return _resolutionStack.OfType<CardUseFrame>().LastOrDefault(u => u.Id == attack.ResolutionId &&
             u.Action is { Type: CardActionType.Use } a && a.ActorSeat == ownerSeat &&

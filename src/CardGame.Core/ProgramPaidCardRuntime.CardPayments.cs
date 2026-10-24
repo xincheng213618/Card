@@ -134,7 +134,7 @@ internal sealed partial class ProgramPaidCardRuntime
                         new CardLocation(zone, cardOwnerSeat), intent)) continue;
                 if (cardCategories is { Count: > 0 } && !MatchesProgramCardCategory(cards[slot].Kind, cardCategories))
                     continue;
-                if (cardKinds is { Count: > 0 } && !cardKinds.Contains(cards[slot].Kind))
+                if (cardKinds is { Count: > 0 } && !ProgramCardKindMatch.Contains(cardKinds, cards[slot].Kind))
                     continue;
                 if (suits is { Count: > 0 } && !suits.Contains(cards[slot].Suit))
                     continue;
@@ -224,7 +224,7 @@ internal sealed partial class ProgramPaidCardRuntime
             _operations.Cancel(frame, "公布的支付牌类别已失效，技能结算已取消。");
             return;
         }
-        if (effect.CardKinds.Count > 0 && !effect.CardKinds.Contains(card.Kind))
+        if (effect.CardKinds.Count > 0 && !ProgramCardKindMatch.Contains(effect.CardKinds, card.Kind))
         {
             _prompts.Clear();
             _operations.Cancel(frame, "公布的支付牌种类已失效，技能结算已取消。");

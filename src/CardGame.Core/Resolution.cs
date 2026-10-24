@@ -60,6 +60,7 @@ public enum ResolutionFrameKind
     BeforeDamageProgramWindow,
     ProgramDeathTriggerWindow,
     HpChangedTriggerWindow,
+    ColdDamageReplacement = 5770,
     ActualUseTargetWindow = 5600,
     ForeignActualTurnStartWindow = 6400,
     SlashTargetBenefitWindow = 7000, SlashTargetPenaltyWindow = 7340,
@@ -148,6 +149,7 @@ internal interface IProgramChildResolutionFrame
 [JsonDerivedType(typeof(ProgramKillTriggerWindowFrame), "program-kill-trigger-window")]
 [JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
 [JsonDerivedType(typeof(BeforeDamageProgramWindowFrame), "before-damage-program-window")]
+[JsonDerivedType(typeof(ColdDamageReplacementFrame), "cold-damage-replacement")]
 
 public abstract partial record ResolutionFrame(
     long Id,
@@ -495,6 +497,8 @@ public sealed record AttackAttemptState(
     int? TransferTargetSeat = null,
     bool TransferDrawLostHp = false)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ColdDamageReplacementAttempted { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<int>? RangePreventionVisitedTargets { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -522,6 +526,8 @@ public sealed record FactionRecoveryDebtReturn(long DyingFrameId, long DyingPare
 
 public sealed record CardAttackState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ColdDamageReplacementAttempted { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ProgramUseInstructionIndex { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

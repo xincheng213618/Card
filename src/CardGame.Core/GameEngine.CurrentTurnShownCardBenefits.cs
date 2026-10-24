@@ -49,7 +49,7 @@ public sealed partial class GameEngine
     private bool HasSlashUseDistanceBySuit(CharacterState owner, CardKind kind, Suit? suit) =>
         suit is { } value && IsSlashCard(kind) && GetSkillBindingShard(owner)
             .GetCardPolicies(SkillProgramCardPolicyKind.IgnoreSlashUseDistanceBySuit)
-            .Any(item => item.Policy.InputSuit == value && item.Policy.CardKinds.Contains(kind) &&
+            .Any(item => item.Policy.InputSuit == value && ProgramCardKindMatch.Contains(item.Policy.CardKinds, kind) &&
                 item.Policy.Condition.Evaluate(CreateSkillContext(owner)));
     [ProgramCapability]
     private sealed class CurrentTurnShownCardProgramCapability(GameEngine engine) : ICurrentTurnShownCardProgramHost

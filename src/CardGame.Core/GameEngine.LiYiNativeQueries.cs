@@ -20,7 +20,7 @@ public sealed partial class GameEngine
     {
         if (!actor.IsAlive || !HasCardPolicy(actor, SkillProgramCardPolicyKind.EmptyWeaponStoneAxe)) return false;
         foreach (var weapon in GetEquipment(actor).Where(card => FieldEquipmentSlot(card) == EquipmentSlot.Weapon))
-            foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash })
+            foreach (var kind in SlashKinds)
                 foreach (var source in GetProgramViewAsConversions(actor, weapon, kind, forResponse: false))
                     if (CanUseSlashTarget(actor, target, weapon, source, kind, physicalCardIds: [weapon.Id], excludedEquipmentId: weapon.Id))
                         return true;

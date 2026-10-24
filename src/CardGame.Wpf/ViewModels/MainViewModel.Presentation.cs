@@ -482,7 +482,7 @@ public sealed partial class MainViewModel
                (!action.SelectedCardsDistinctSuits || distinct == selectedCards.Length) &&
                (!action.SelectedCardsSameNameOrAllEquipment || selectedCards.Length >= 2 &&
                    (selectedCards.All(card => EquipmentCatalog.IsEquipment(card.Kind)) ||
-                    selectedCards.Select(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash
+                    selectedCards.Select(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash
                         ? CardKind.Slash : card.Kind).Distinct().Count() == 1));
     }
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;

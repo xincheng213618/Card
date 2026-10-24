@@ -139,7 +139,7 @@ public sealed partial class GameEngine
         // the actor's private skill or the value of changing conversion state.
         var equivalent = kind switch
         {
-            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.BorrowedSword => CardKind.Duel,
+            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.BorrowedSword => CardKind.Duel,
             CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning => CardKind.Dismantlement,
             CardKind.Peach => CardKind.PeachGarden,
             CardKind.Alcohol or CardKind.DrawTwo => CardKind.FiveGrains,

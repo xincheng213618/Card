@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     {
         if(use.SourceSeat<0||!HasOngoingActualUseTurn||!IsSlashCard(use.CardKind)&&use.CardKind!=CardKind.Duel)return false;
         return EventsSinceLastBoundary(e=>e is TurnStartedEvent or TurnEndedEvent).OfType<CurrentTurnCardUseKindsRecordedEvent>().Where(e=>e.TurnNumber==_turnNumber&&e.ActorSeat==use.SourceSeat&&e.RoundActionType==CardActionType.Use&&
-            (use.CardKind==CardKind.Duel?e.EffectiveCardKind==CardKind.Duel:e.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)).FirstOrDefault()?.OriginFrameId==use.Id;
+            (use.CardKind==CardKind.Duel?e.EffectiveCardKind==CardKind.Duel:e.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)).FirstOrDefault()?.OriginFrameId==use.Id;
     }
     private bool TryHappyLuBuUse(int owner,ProgramSkillWindowContext w,out CardUseFrame use,out ProgramCardTriggerWindowFrame window)
     {

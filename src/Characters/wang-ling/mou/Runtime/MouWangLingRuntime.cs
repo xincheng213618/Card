@@ -37,7 +37,7 @@ internal sealed partial class MouWangLingRuntime(IMouWangLingFacts facts, IMouWa
 {
     internal const string GiftReason="skill-program.mou:jichou.give", JichouDrawReason="skill-program.mou:jichou.draw",
         ZifuDrawReason="skill-program.mou:zifu.draw", DiscardReason="skill-program.mou:zifu.discard";
-    internal static CardKind CardName(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash ? CardKind.Slash : kind;
+    internal static CardKind CardName(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash ? CardKind.Slash : kind;
     private static CardConversionSource Source(ProgramSkillFrame f)=>new(f.SkillId,f.TriggerId??f.ActivationId,f.OwnerSeat,f.SkillInstanceId);
     internal int GivenNames(int owner)=>facts.History<MouWangLingGiftEvent>().Where(e=>e.OwnerSeat==owner).Select(e=>e.Name).Distinct().Count();
     private CurrentTurnCardUseKindsRecordedEvent[] TurnUses(int owner)=>facts.History<CurrentTurnCardUseKindsRecordedEvent>().Where(e=>

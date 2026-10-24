@@ -63,7 +63,9 @@ internal static class ShenXuChuComposition
             IsZhuangpo(p.Id) && t.Id == "converted-duel-target" && t.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized && t.OwnerRelation == SkillProgramCardActionOwnerRelation.ConversionSource &&
             t.SourceSkillId == p.Id && t.SourceViewAsId == ViewAs && t.CardKinds.Count == 0 && e.Op == SkillProgramEffectOp.ResolveZhuangpoTarget &&
             p.ViewAs is [var v] && v.Id == ViewAs && v.OutputKind == CardKind.Duel && v.InputCount == 1 && v.ForPlay && !v.ForResponse && v.AllowSameKind && v.SingleCardTrickUse &&
-            v.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) && v.InputKinds.Order().SequenceEqual(CardPrintedInfo.SlashKinds);
+            v.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
+            (v.InputKinds.Order().SequenceEqual(CardPrintedInfo.SlashKinds) ||
+             v.InputKinds.Order().SequenceEqual(CardPrintedInfo.SlashKinds.Where(kind => kind != CardKind.ColdSlash)));
         if (!valid) throw new InvalidOperationException(path + ": Shen Xu Chu requires his complete edition-bound round settlement and printed-face conversion.");
     }
 }

@@ -11,7 +11,7 @@ public sealed partial class GameEngine
     {
         if (!_contentRegistry.ProgramDependencies.UsesRoundDistinctBasicUse || !owner.IsAlive ||
             _winner != Winner.None || (_phase != TurnPhase.Play || owner.Seat != _currentSeat) && !IsKeBiNengPingduanBasicQuery(owner)) yield break;
-        var selections = new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.Peach, CardKind.Alcohol }
+        var selections = new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.ColdSlash, CardKind.Peach, CardKind.Alcohol }
             .SelectMany(kind => GetProgramMultiCardViewAsSelections(owner, kind, false))
             .Where(s => ViewAsRule(s.Source)?.RoundDistinctBasicUse is not null)
             .DistinctBy(s => (s.Source, s.OutputKind, Cards: string.Join('-', s.Cards.Select(c => c.Id).Order())));

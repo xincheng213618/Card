@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             ActiveDamageTrigger is not { } damage || damage.Id != context.ParentFrameId || damage.ParentFrameId != context.DamageFrameId) return null;
         var attack = GetDamageTriggerAttack(damage);
         if (attack.IsSourceLess || !attack.DamageWasApplied || attack.SourceSeat != source || attack.TargetSeat != target ||
-            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) return null;
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)) return null;
         return _resolutionStack.OfType<CardUseFrame>().LastOrDefault(use => use.Id == attack.ResolutionId && use.SourceSeat == source &&
             (use.Action is { Type: CardActionType.Use } action && action.ActorSeat == source && action.EffectiveKind == attack.EffectiveCardKind ||
              use.Action is null && use.CardKind == attack.EffectiveCardKind && LegacyDamageJudgmentVirtualProducer(use, target) is not null));

@@ -158,7 +158,7 @@ public sealed partial class GameEngine
                 .Where(identity => ((identityHand || identityGrain) && identity.Zones.Contains(identityLocation.Zone) || identityHu && identity.Zones.Contains(CardZoneKind.Hand) || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
                                     identity.InputKinds.SequenceEqual([CardKind.Alcohol]) && identity.OutputKind == CardKind.Slash && identity.Zones.Contains(CardZoneKind.Hand)) &&
                                    identity.Condition.Evaluate(context) &&
-                                   (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(inputKind)) &&
+                                   (identity.InputKinds.Count == 0 || ProgramCardKindMatch.Contains(identity.InputKinds, inputKind)) &&
                                    (identity.InputSuits.Count == 0 || identity.InputSuits.Contains(card.Suit)))
                 .Select(identity => new ProgramCardIdentityMatch(
                     instance.Program,
@@ -296,7 +296,7 @@ public sealed partial class GameEngine
                                 !CardLegality.IsConfiguredConversionForbidden(ProgramCardLegalityStage.ConversionUsageBan,
                                     new(owner, card, instance, rule, forResponse, dyingUse, requestedUseTarget)) &&
                                (rule.Condition.Kind == SkillProgramConditionKind.Always || rule.Condition.Evaluate(context ??= CreateSkillContext(owner))) &&
-                               (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
+                               (rule.InputKinds.Count == 0 || ProgramCardKindMatch.Contains(rule.InputKinds, inputKind)) &&
                                (rule.InputCategories.Count == 0 ||
                                 rule.InputCategories.Any(category => MatchesSkillProgramCardCategory(inputKind, category))) &&
                                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit));
@@ -382,7 +382,7 @@ public sealed partial class GameEngine
             var candidates = eligibleHand.Where(card =>
                 (rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) || MouGszHuHandSource(owner, card, rule.SourceZones) ||
                     rule.RoundDistinctBasicUse is not null && IsRoundDistinctBasicMaterial(owner, card)) &&
-                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card))) &&
+                (rule.InputKinds.Count == 0 || ProgramCardKindMatch.Contains(rule.InputKinds, EffectiveConversionInputKind(owner, card))) &&
                 (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit))).ToArray();
             var inputCount = EffectiveProgramViewAsInputCount(owner, rule);
             if (candidates.Length < inputCount) continue;
@@ -462,7 +462,7 @@ public sealed partial class GameEngine
             if (card is null ||
                 !(rule.SourceZones.Contains(location.Zone) || MouGszHuHandSource(owner, card, rule.SourceZones) || IsTousuiVariableSource(owner, rule, card, location)) ||
                 IsTurnHandCardRestricted(owner, card) || HasProgramCardIdentity(owner, card) ||
-                rule.InputKinds.Count != 0 && !rule.InputKinds.Contains(EffectiveConversionInputKind(owner, card)) ||
+                rule.InputKinds.Count != 0 && !ProgramCardKindMatch.Contains(rule.InputKinds, EffectiveConversionInputKind(owner, card)) ||
                 rule.InputSuits.Count != 0 && !rule.InputSuits.Contains(
                     rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner, card) : card.Suit))
                 return null;

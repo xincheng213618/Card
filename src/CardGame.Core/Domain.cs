@@ -120,6 +120,7 @@ public enum CardKind
     QiBaoDao = 33800,
     BaiBiDao = 33801,
     ZhanhunDao = 5754,
+    ColdSlash = 5770,
     DagongChe = 43500
 }
 
@@ -136,7 +137,8 @@ public enum DamageNature
 {
     Normal,
     Fire,
-    Thunder
+    Thunder,
+    Cold
 }
 
 /// <summary>

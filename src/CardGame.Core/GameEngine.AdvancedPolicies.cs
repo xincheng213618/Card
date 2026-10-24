@@ -32,7 +32,7 @@ public sealed partial class GameEngine
     private int RedBladeDamageBonus(CardAttackHandle attack)
     {
         if (attack.IsChainPropagation || attack.CardUserSeat != attack.SourceSeat || attack.EffectiveCardKind is not
-            (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) return 0;
+(CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)) return 0;
         var owner = _players[attack.SourceSeat];
         var applies = HasWeaponAbility(owner, CardKind.RedBloodBlade) && IsFarthestInRange(owner, _players[attack.TargetSeat]) &&
             _skillRuntimeState.GetUsage(owner.Seat, "equipment:red-blood-blade", "farthest-damage", SkillUsageScope.Turn) == 0;

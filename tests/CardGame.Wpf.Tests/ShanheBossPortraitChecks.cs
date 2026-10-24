@@ -17,12 +17,13 @@ internal static class ShanheBossPortraitChecks
     {
         var checkedIds = new HashSet<string>(StringComparer.Ordinal);
         var placeholders = new HashSet<string>(StringComparer.Ordinal);
-        // These two pre-existing source packages explicitly lack usable local art.
+        // These source packages explicitly lack usable local art.
         // They must remain honest missing-art fallbacks until a separate asset batch.
         var missingArt = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             [StandardShanheS5YuduPackage.YuduId] = "",
-            [StandardShanheS5ZhangliangPackage.ZhangliangId] = "zhang_liang"
+            [StandardShanheS5ZhangliangPackage.ZhangliangId] = "zhang_liang",
+            [StandardShanheS5XuncanCaoshiPackage.XuncanId] = ""
         };
         var seenMissing = new HashSet<string>(StringComparer.Ordinal);
         foreach (var tier in new[] { 1, 2, 3 })
@@ -40,7 +41,7 @@ internal static class ShanheBossPortraitChecks
                     if (missingArt.TryGetValue(general.Id, out var expectedMissingKey))
                     {
                         Program.Assert(general.PortraitKey == expectedMissingKey && !GeneralArt.HasPortrait(general.Id),
-                            "Only the two exact existing no-asset forms retain their missing-art fallback: " + general.Id);
+                            "Only the exact declared no-asset forms retain their missing-art fallback: " + general.Id);
                         seenMissing.Add(general.Id); continue;
                     }
                     if (!checkedIds.Add(general.Id)) continue;
@@ -62,7 +63,7 @@ internal static class ShanheBossPortraitChecks
             StandardShanheS5MoushiPackage.XunchenId, StandardShanheS5MoushiPackage.GuotuId,
             StandardShanheS5MoushiPackage.ShenpeiId, StandardShanheS5HuaxiongBasePackage.HuaxiongId
         }.All(checkedIds.Contains),
-            "All eight new source generals have real portraits; only explicit supporter mappings and the two known no-asset forms are excluded.");
+            "The representative source generals have real portraits; only explicit supporter mappings and declared no-asset forms are excluded.");
 
         RenderActualMaSiblingsTable(output);
     }

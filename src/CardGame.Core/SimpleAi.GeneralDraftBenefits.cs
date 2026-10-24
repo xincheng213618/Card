@@ -80,7 +80,7 @@ public sealed partial class SimpleAiBrain
             var weight = (rule.Condition.Kind == SkillProgramConditionKind.Always ? 1 : .6) /
                 Math.Max(1, rule.InputCount);
             if (rule.ForResponse && rule.OutputKind is CardKind.Dodge or CardKind.Nullification) defense += .7 * weight;
-            if (rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) offense += .7 * weight;
+            if (rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) offense += .7 * weight;
             if (rule.ForPlay && rule.OutputKind == CardKind.Peach) recovery += .7 * weight;
         }
         offense += Math.Min(1, program.DamageModifiers.Count * .5);

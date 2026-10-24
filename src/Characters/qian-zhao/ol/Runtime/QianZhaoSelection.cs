@@ -35,7 +35,7 @@ internal sealed class WeifuSelectionAi : IProgramSelectionAiDecorator
         var self = source.Participants().Single(p => p.Seat == c.OwnerSeat);
         var basic = q.Get<IWeifuSelectionAiQuery>().UnusedGrants(c.OwnerSeat, SkillProgramCardCategory.Basic);
         var trick = q.Get<IWeifuSelectionAiQuery>().UnusedGrants(c.OwnerSeat, SkillProgramCardCategory.Trick);
-        var basicUse = cards.Any(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash && source.Participants().Any(p => p.IsAlive && p.Seat != c.OwnerSeat && source.CanUseSlash(c.OwnerSeat, p.Seat, [card], true)) ||
+        var basicUse = cards.Any(card => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash && source.Participants().Any(p => p.IsAlive && p.Seat != c.OwnerSeat && source.CanUseSlash(c.OwnerSeat, p.Seat, [card], true)) ||
             card.Kind == CardKind.Peach && self.Hp < self.MaxHp || card.Kind == CardKind.Alcohol && !source.IsUseForbidden(c.OwnerSeat, CardKind.Alcohol));
         var trickUse = cards.Any(card => CardCatalog.Get(card.Kind).CategoryName == "锦囊牌" && card.Kind != CardKind.Nullification &&
             source.CanUseOrdinaryTrick(c.OwnerSeat, card.Kind, [card.Id]));

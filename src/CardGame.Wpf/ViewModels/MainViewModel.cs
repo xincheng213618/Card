@@ -2109,7 +2109,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 EventStack.Add("      FactionSlash(Slash)");
                 EventStack.Add("        AskForEquipment(ZhuqueFan)");
             }
-            else if (pending.IncomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
+            else if (pending.IncomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)
             {
                 EventStack.Add($"      UseCard({pending.IncomingCard})");
                 EventStack.Add("        AskForResponse(Dodge)");

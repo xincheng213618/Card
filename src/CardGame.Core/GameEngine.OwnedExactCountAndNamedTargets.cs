@@ -11,7 +11,7 @@ public sealed partial class GameEngine
             e.SourceBind == effect.ResultBind && e.Destination == SkillProgramCardDestination.DiscardPile &&
             e.Condition.Kind == SkillProgramConditionKind.Always);
         var available = effect.Zones.SelectMany(zone => _cardZones.CardsAt(new(zone, owner.Seat)))
-            .Count(card => (effect.CardKinds.Count == 0 || effect.CardKinds.Contains(card.Kind)) &&
+            .Count(card => (effect.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(effect.CardKinds, card.Kind)) &&
                 (effect.Suits.Count == 0 || effect.Suits.Contains(GetProgramEffectiveSuit(owner, card))) &&
                 (!discards || !IsSelfHandCategoryDiscardForbidden(owner.Seat, card,
                     _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard)));

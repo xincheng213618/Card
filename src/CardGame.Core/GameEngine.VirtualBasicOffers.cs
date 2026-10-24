@@ -33,12 +33,13 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A virtual basic chooser lost its exact legal options.");
     }
 
-    private IEnumerable<(CardKind Kind, int Target)> VirtualBasicOptions(int owner)
+    private IEnumerable<(CardKind Kind, int Target)> VirtualBasicOptions(int owner, bool anyRegisteredBasic = false)
     {
         var actor = _players[owner];
         if (!actor.IsAlive || _winner != Winner.None || _phase != TurnPhase.Play || _currentSeat != owner ||
             MouGuquPhysicalUseForbidden(owner, [])) yield break;
-        foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash })
+        foreach (var kind in SlashKinds.Where(kind => kind != CardKind.ColdSlash ||
+                     anyRegisteredBasic && _contentRegistry.Cards.Values.Any(card => card.LegacyKind == CardKind.ColdSlash)))
             foreach (var target in _players.Where(t => CanUseVirtualSlashTarget(actor, t, kind) && !IsDirectedCardTargetProhibited(owner,t.Seat,kind) && !IsCardTargetProhibited(t,kind,Suit.None))) yield return (kind, target.Seat);
         if (IsRuleWounded(actor) && !IsCardUseForbidden(owner, CardKind.Peach, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Peach)) yield return (CardKind.Peach, owner);
         if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
@@ -46,7 +47,7 @@ public sealed partial class GameEngine
 
     private IEnumerable<(CardKind Kind, int Target)> VirtualBasicOptions(ProgramSkillFrame frame) =>
         frame.SkillId == "guandu:choulue" ? GuanduChoulueFrozenBasicKind(frame) is { } kind
-            ? VirtualBasicOptions(frame.OwnerSeat).Where(o => o.Kind == kind) : [] : VirtualBasicOptions(frame.OwnerSeat);
+            ? VirtualBasicOptions(frame.OwnerSeat).Where(o => o.Kind == kind) : [] : VirtualBasicOptions(frame.OwnerSeat, anyRegisteredBasic: true);
 
     private SkillProgramStepOutcome OfferVirtualBasicCard(ProgramSkillFrame frame)
     {

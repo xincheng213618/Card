@@ -71,7 +71,7 @@ public sealed partial class SimpleAiBrain
         skill.ViewAsOpportunities?.Any(rule =>
             rule.OutputKind == outputKind &&
             (forPlay ? rule.ForPlay : rule.ForResponse) &&
-            (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
+            (rule.InputKinds.Count == 0 || ProgramCardKindMatch.Contains(rule.InputKinds, card.Kind)) &&
             (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit))) == true;
 
     // Version 2 evaluates only the supplied viewer snapshot, legal actions and

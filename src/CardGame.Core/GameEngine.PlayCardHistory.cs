@@ -114,7 +114,7 @@ public sealed partial class GameEngine
         foreach (var card in playableCards.Concat(GetEquipment(actor)).DistinctBy(card => card.Id)
                      .Where(card => selectedPhysicalCardId is null || card.Id == selectedPhysicalCardId)
                      .Where(card => !IsTurnHandCardRestricted(actor, card)))
-            foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash,
+            foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.ColdSlash,
                          CardKind.Peach, CardKind.Alcohol })
                 foreach (var source in GetProgramViewAsConversions(actor, card, kind, forResponse: false)
                              .Where(source => ViewAsRule(source) is { } rule && (rule.UsesPerPhase is not null || rule.UseOnly) && (!(rule.EqualNameLengthUse || rule.RankTwoDamageUse) || rule.OutputKind == kind)))

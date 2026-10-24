@@ -378,7 +378,7 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
     {
         return kind switch
         {
-            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash => "出牌阶段进攻 · 决斗或南蛮入侵中响应杀",
+            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash => "出牌阶段进攻 · 决斗或南蛮入侵中响应杀",
             CardKind.Dodge => "受到杀或万箭齐发时响应",
             CardKind.Nullification => "锦囊响应窗口",
             CardKind.Peach => "出牌阶段回复自己 · 濒死时救援",

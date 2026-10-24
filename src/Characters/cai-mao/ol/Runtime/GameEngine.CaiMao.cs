@@ -139,7 +139,7 @@ public sealed partial class GameEngine
     {
         var support=_aiBrains[f.OwnerSeat].ScoreProgramTarget(CreateSnapshot(f.OwnerSeat),target,new SkillProgramAiHint(1,0,0,0,0,0,false,false));
         if(f.CaiMao!.Op==SkillProgramEffectOp.ResolveZuolianWholeRevealExchange)return support;
-        var elemental=f.WindowContext?.ParentFrameId is{}id&&_resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(w=>w.Id==id&&w.Nature is DamageNature.Fire or DamageNature.Thunder);
+        var elemental=f.WindowContext?.ParentFrameId is{}id&&_resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(w=>w.Id==id&&w.Nature is DamageNature.Fire or DamageNature.Thunder or DamageNature.Cold);
         if(target==f.OwnerSeat&&elemental)return _players[target].IsChained?0:100;
         return _players[target].IsChained?support:-support;
     }

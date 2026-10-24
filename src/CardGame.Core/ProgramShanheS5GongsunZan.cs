@@ -57,7 +57,7 @@ internal static class ShanheS5GongsunContract
     {
         if (t.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardAttackRangeCardsFromSlashTarget) &&
             (t.Window != SkillProgramTriggerWindow.CardUseTargetsFinalized || t.OwnerRelation != SkillProgramCardActionOwnerRelation.Actor ||
-             !t.Optional || t.CardKinds.Count != 3 || !new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash }.All(t.CardKinds.Contains) ||
+             !t.Optional || !ProgramCardKindMatch.IsFullSlashFamily(t.CardKinds) ||
              t.Effects is not [{ Op: SkillProgramEffectOp.DiscardAttackRangeCardsFromSlashTarget }]))
             throw new InvalidOperationException($"Invalid skill program at {path}: range discard requires one optional actor final-target Slash-family operation.");
     }

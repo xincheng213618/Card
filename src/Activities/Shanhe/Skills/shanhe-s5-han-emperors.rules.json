@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:s5-shiyuan-3050", "revision": 1,
+    "triggers": [{
+      "id": "target-draw", "window": "cardUseTargetsFinalized", "ownerRelation": "target",
+      "onlyDesignatedCardTargets": true, "optional": false,
+      "condition": { "kind": "not", "children": [{ "kind": "cardActionActorIsOwner" }] },
+      "effects": [{ "op": "shiYuanTargetDraw", "target": "owner" }]
+    }]
+  }]
+}

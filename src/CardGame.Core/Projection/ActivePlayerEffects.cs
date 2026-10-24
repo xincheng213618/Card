@@ -247,7 +247,7 @@ public sealed partial class GameEngine
         kinds.Count == GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Count &&
         kinds.ToHashSet().SetEquals(GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds)
         ? "【杀】及普通锦囊牌" :
-        string.Join("、", kinds.Select(kind => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash
+        string.Join("、", kinds.Select(kind => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash
             ? "【杀】" : $"【{CardCatalog.Get(kind).DisplayName}】").Distinct());
     private static string EffectSuitName(Suit suit) => suit switch
     { Suit.Spade => "黑桃", Suit.Heart => "红桃", Suit.Club => "梅花", Suit.Diamond => "方块", _ => "无花色" };

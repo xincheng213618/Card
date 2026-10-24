@@ -120,7 +120,7 @@ public sealed partial class GameEngine
                         modifier.Condition == SkillProgramDamageModifierCondition.SourceToTargetDistanceGreaterThan &&
                         sourceSeat != targetSeat ? GetCombatDistance(sourceSeat, targetSeat) : 0, _roundNumber)
                     : modifier.SourceScope == SkillProgramDamageModifierSourceScope.OwnerUsed && cardUse && !chain &&
-                        kind is { } effective && modifier.CardKinds.Contains(effective) && (modifier.Condition switch
+                        kind is { } effective && ProgramCardKindMatch.MatchesDamageModifier(modifier, effective) && (modifier.Condition switch
                         {
                             SkillProgramDamageModifierCondition.Always => true,
                             SkillProgramDamageModifierCondition.SourceHandBelowLimit =>

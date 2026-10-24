@@ -862,7 +862,7 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         var cue = item.Cue;
         if (cue.Kind == BattleCueKind.Draw || IsTransfer(cue)) return;
         if (cue.Kind == BattleCueKind.Card && !cue.IsInquiry && cue.Detail != "重铸" &&
-            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel &&
+            cue.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Duel &&
             seats.TryGetValue(cue.OriginSeat ?? cue.SourceSeat, out var source))
         {
             // Declared blades retire at .65; the public card/highlight cue

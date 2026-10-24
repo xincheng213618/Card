@@ -41,7 +41,7 @@ public sealed partial class GameEngine
         if (r.CausedDamage != (damageFacts.Length > 0) || damageFacts.Select(e => e.DamageFrameId).Distinct().Count() != damageFacts.Length ||
             damageFacts.Any(e => e.CardUseFrameId != returned.CardUseFrameId || e.Amount <= 0 || !IsValidPlayerSeat(e.SourceSeat) || !IsValidPlayerSeat(e.TargetSeat) ||
                 facts.OfType<DamageRequestedEvent>().Count(q => q.ResolutionId == e.DamageFrameId && q.SourceSeat == e.SourceSeat && q.TargetSeat == e.TargetSeat &&
-                    q.Amount == e.Amount && q.SourceLess == e.SourceLess && (q.SourceCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) != 1)) return false;
+                    q.Amount == e.Amount && q.SourceLess == e.SourceLess && (q.SourceCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash)) != 1)) return false;
         if (r.Stage == KuangfuStage.SlashIssued) return f.PendingMovementContinuation is null && r.SelectedHandIds.Count == 0 && r.DiscardedHandIds.Count == 0 &&
             r.OutcomeBefore == 0 && r.OutcomeAfter == 0 && r.DiscardRequired == 0 && r.ActualDraw == 0;
         if (facts.OfType<KuangfuSlashResolvedEvent>().Count(e => e == new KuangfuSlashResolvedEvent(f.Id, returned.CardUseFrameId, returned.CardActionId, r.CausedDamage)) != 1 ||

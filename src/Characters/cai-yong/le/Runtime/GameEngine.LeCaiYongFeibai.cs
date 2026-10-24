@@ -61,7 +61,7 @@ public sealed partial class GameEngine
             _contentRegistry.Skills.GetValueOrDefault(binding.SkillId)?.Program is not { } program ||
             program.Triggers.SingleOrDefault(trigger => trigger.Id == binding.BindingId) is not { } trigger ||
             trigger.Window != binding.Window || trigger.OwnerRelation != SkillProgramCardActionOwnerRelation.Actor ||
-            trigger.CardKinds.Count != 0 && !trigger.CardKinds.Contains(original) ||
+            trigger.CardKinds.Count != 0 && !ProgramCardKindMatch.Contains(trigger.CardKinds, original) ||
             !ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget))
             throw new InvalidOperationException("Feibai's changed name lost its source-bound native committed binding.");
         var actor = fact.ActorSeat;

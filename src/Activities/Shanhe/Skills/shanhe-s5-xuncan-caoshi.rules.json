@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-yunshen-3226", "revision": 1,
+      "activations": [{
+        "id": "heal-and-cold-slash", "minCards": 0, "maxCards": 0, "sourceZones": ["hand"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "resolveShanheS5Xuncan", "target": "owner", "stage": "yunshen-bind" },
+          { "op": "recover", "target": "selectedTarget", "amount": 1 },
+          { "op": "resolveShanheS5Xuncan", "target": "owner", "stage": "yunshen-slash" }
+        ]
+      }]
+    },
+    {
+      "id": "shanhe:s5-shangshen-3227", "revision": 1,
+      "triggers": [{
+        "id": "first-elemental-lightning-refill", "window": "afterDamageApplied", "subject": "any",
+        "optional": true, "damageOccurrence": "perDamage",
+        "effects": [
+          { "op": "resolveShanheS5Xuncan", "target": "owner", "stage": "shangshen-bind" },
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "shanhe.s5.shangshen.lightning", "resultBind": "shangshen-card", "outcomeBind": "shangshen-outcome", "visibility": "public" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "shangshen-card", "destination": "discardPile" },
+          { "op": "resolveShanheS5Xuncan", "target": "owner", "stage": "shangshen-lightning", "sourceBind": "shangshen-outcome" },
+          { "op": "resolveShanheS5Xuncan", "target": "owner", "stage": "shangshen-refill" }
+        ]
+      }]
+    },
+    {
+      "id": "shanhe:s5-fenchai-3228", "revision": 1,
+      "cardPolicies": [{ "id": "first-opposite-gender-judgment-suit", "kind": "shanheFenchaiJudgment" }]
+    },
+    {
+      "id": "shanhe:s5-leijie-3231", "revision": 1,
+      "triggers": [{
+        "id": "preparation-lightning-judgment", "window": "turnStartBeforeNormalFlow", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "anyLiving" },
+          { "op": "startJudgment", "target": "selectedTarget", "judgmentReason": "shanhe.s5.leijie", "resultBind": "leijie-card", "outcomeBind": "leijie-outcome", "visibility": "public" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "leijie-card", "destination": "discardPile" },
+          { "op": "resolveShanheS5Xuncan", "target": "owner", "stage": "leijie", "sourceBind": "leijie-outcome" }
+        ]
+      }]
+    }
+  ]
+}

@@ -331,7 +331,7 @@ internal static class RuntimeRules_Core_CommonRules
         left is not null && right is not null && left.SequenceEqual(right);
 
     internal static bool IsSlashCard(CardKind kind) =>
-        kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+        kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash;
 
     internal static bool IsNativeResponseCard(Card responseCard, CardKind requiredCardKind) =>
         CardGame.Core.RuntimeSkills.RuntimeRules_Core_CommonRules.MatchesRequiredCard(responseCard.Kind, requiredCardKind);
@@ -349,6 +349,7 @@ internal static class RuntimeRules_Core_CommonRules
     {
         CardKind.FireSlash or CardKind.FireAttack => DamageNature.Fire,
         CardKind.ThunderSlash or CardKind.Lightning => DamageNature.Thunder,
+        CardKind.ColdSlash => DamageNature.Cold,
         _ => DamageNature.Normal
     };
 
@@ -365,6 +366,7 @@ internal static class RuntimeRules_Core_CommonRules
     {
         DamageNature.Fire => "火焰",
         DamageNature.Thunder => "雷电",
+        DamageNature.Cold => "冰",
         _ => string.Empty
     };
 

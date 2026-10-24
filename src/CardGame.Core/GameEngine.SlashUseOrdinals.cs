@@ -141,7 +141,7 @@ public sealed partial class GameEngine
             _contentRegistry.Skills.GetValueOrDefault(binding.SkillId)?.Program is not { } program ||
             ProgramInstructionResolver.Default.FindTrigger(program, binding.BindingId) is not { } trigger ||
             trigger.Window != binding.Window || trigger.OwnerRelation != SkillProgramCardActionOwnerRelation.Actor ||
-            trigger.CardKinds.Count != 0 && !trigger.CardKinds.Contains(original) || !ProgramInstructionResolver.Default.Features(trigger)
+            trigger.CardKinds.Count != 0 && !ProgramCardKindMatch.Contains(trigger.CardKinds, original) || !ProgramInstructionResolver.Default.Features(trigger)
                 .HasOperation(SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget))
             throw new InvalidOperationException("A converted Slash lost its exact committed binding issuance.");
 

@@ -5,7 +5,7 @@ internal sealed class MouHuangGaiRuntime(IMouHuangGaiFacts facts,IMouHuangGaiNat
 {
     internal const string Lieji="mou:lieji",Quzhou="mou:quzhou",RevealBind="quzhou-reveal",ObtainReason="skill-program.mou:quzhou.obtain",DiscardReason="skill-program.mou:quzhou.unusable-slash";
     private static CardConversionSource Source(ProgramSkillFrame f)=>new(f.SkillId,f.TriggerId??f.ActivationId,f.OwnerSeat,f.SkillInstanceId);
-    private static bool IsSlash(CardKind k)=>k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+    private static bool IsSlash(CardKind k)=>k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash;
     public SkillProgramStepOutcome Resolve(ProgramSkillFrame supplied,SkillProgramEffectOp op)
     {
         var f=frames.ActiveProgram(supplied.Id);

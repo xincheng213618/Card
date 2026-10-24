@@ -86,7 +86,7 @@ public sealed partial class GameEngine
     private bool IsNextActualUseCounterspellForbidden(int seat, CardKind kind, CardActionType type) =>
         type == CardActionType.Response && kind == CardKind.Nullification &&
         _turnCardUseEffects.ActionProhibitions.Any(p => p.TurnNumber == _turnNumber && p.TurnSeat == _currentSeat &&
-            p.Source.OwnerSeat == seat && p.ActionTypes.Contains(CardActionType.Use) && p.CardKinds.Contains(kind) &&
+            p.Source.OwnerSeat == seat && p.ActionTypes.Contains(CardActionType.Use) && ProgramCardKindMatch.Contains(p.CardKinds, kind) &&
             _contentRegistry.GetSkill(p.Source.SkillId).Program?.Activations.Any(a =>
                 a.Effects.Any(e => e.Op == SkillProgramEffectOp.GrantNextActualUseTargetAdjustment)) == true);
 
@@ -381,7 +381,7 @@ public sealed partial class GameEngine
 
     private bool IsNextActualUseTrickForbidden(int seat, CardKind kind) =>
         _turnCardUseEffects.ActionProhibitions.Any(p => p.TurnNumber == _turnNumber && p.TurnSeat == _currentSeat &&
-            p.Source.OwnerSeat == seat && p.ActionTypes.Contains(CardActionType.Use) && p.CardKinds.Contains(kind) &&
+            p.Source.OwnerSeat == seat && p.ActionTypes.Contains(CardActionType.Use) && ProgramCardKindMatch.Contains(p.CardKinds, kind) &&
             _contentRegistry.GetSkill(p.Source.SkillId).Program?.Activations.Any(a =>
                 a.Effects.Any(e => e.Op == SkillProgramEffectOp.GrantNextActualUseTargetAdjustment)) == true);
 

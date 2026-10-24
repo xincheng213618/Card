@@ -8850,7 +8850,7 @@ public sealed partial class GameEngine
         var target = _players[attack.TargetSeat];
         var effectiveKind = RequireAttackCardKind(attack);
         if (!UsesFormalQinglongCrescentBlade ||
-            effectiveKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))
+            effectiveKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash))
         {
             return false;
         }
@@ -9114,7 +9114,7 @@ public sealed partial class GameEngine
         var effectiveKind = RequireAttackCardKind(attack);
         var discardableCards = GetStoneAxeDiscardCards(source);
         if (!UsesFormalStoneAxe ||
-            effectiveKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            effectiveKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) ||
             !source.IsAlive ||
             !target.IsAlive ||
             !HasWeaponAbility(source, CardKind.StoneAxe) ||
@@ -12226,7 +12226,7 @@ public sealed partial class GameEngine
         if (!UsesFormalIceSword ||
             attack.IceSwordAttempted ||
             attack.IsChainPropagation ||
-            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) ||
             !source.IsAlive ||
             !target.IsAlive ||
             !HasWeaponAbility(source, CardKind.IceSword) ||
@@ -12554,7 +12554,7 @@ public sealed partial class GameEngine
         if (!UsesFormalQilinBow ||
             attack.QilinBowAttempted ||
             attack.IsChainPropagation ||
-            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) ||
             !source.IsAlive ||
             !target.IsAlive ||
             !HasWeaponAbility(source, CardKind.QilinBow) ||
@@ -12716,6 +12716,7 @@ public sealed partial class GameEngine
         {
             return true;
         }
+        if (TryBeginColdDamageReplacement(attack, amount, nature)) return true;
         if (attack is CardAttackHandle iceSwordAttack && TryBeginIceSwordChoice(iceSwordAttack, amount))
         {
             return true;
@@ -12732,7 +12733,7 @@ public sealed partial class GameEngine
         if (TryBeginHappyQiaoDamageChoice(attack)) return true;
         var qiaoHealthOwner = HasHappyQiaoHealth(target.Seat) ? _resolutionStack.Last().Id : (long?)null;
         if (!attack.IsChainPropagation &&
-            (nature is DamageNature.Fire or DamageNature.Thunder) &&
+            (nature is DamageNature.Fire or DamageNature.Thunder or DamageNature.Cold) &&
             target.IsChained)
         {
             var propagatedTargets = _players
@@ -13618,7 +13619,7 @@ public sealed partial class GameEngine
             return false;
         }
 
-        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash || IsNativeSlashTargetDuelAttack(attack) ||
+        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash || IsNativeSlashTargetDuelAttack(attack) || IsShanheS5YunshenUse(attack.ResolutionId) ||
             LifecycleCardUse(attack.ResolutionId) is { } fireUse && IsCurrentSlashFireChangedUse(fireUse) ||
             IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
             (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
@@ -13629,7 +13630,7 @@ public sealed partial class GameEngine
             virtualUse = NormalizeActualTurnLegacyCompletedUse(virtualUse, attack.ProgramSkillCardUseFrameId);
             if (virtualUse.Action is { } virtualAction)
             {
-                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsMouDianWeiSlashUse(virtualUse.Id) && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id) && !IsSuyiSlashUse(virtualUse.Id) && !HasIssuedChanshuangSlash(virtualUse.Id, virtualUse.SourceSeat) && !IsWangChangSlash(virtualUse))
+                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null && virtualUse.ForeignTurnContestSlashReturn is null && virtualUse.PindianWinnerSlashReturn is null && virtualUse.InspectedHandSlashReturn is null && virtualUse.KuangfuSlashReturn is null && virtualUse.HeJinMouzhu is null && virtualUse.WuAnGuoLiyong is null && !IsMouDianWeiSlashUse(virtualUse.Id) && !IsWuJingHejiZeroUse(virtualUse) && !IsGoudeSlashUse(virtualUse.Id) && !IsIssuedQingyaUse(virtualUse.Id) && !IsSuyiSlashUse(virtualUse.Id) && !HasIssuedChanshuangSlash(virtualUse.Id, virtualUse.SourceSeat) && !IsWangChangSlash(virtualUse) && !IsShanheS5YunshenUse(virtualUse.Id))
                 {
                     var parentIndex = _resolutionStack.FindIndex(frame => frame.Id == programParentId);
                     if (parentIndex < 0 || _resolutionStack[parentIndex] is not ProgramSkillFrame parent)
@@ -16041,7 +16042,7 @@ public sealed partial class GameEngine
         var receivesGudingBladeBonus = UsesFormalGudingBlade &&
             !attack.IsChainPropagation &&
             attack.CardUserSeat == attack.SourceSeat &&
-            attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+            attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash &&
             GetHand(_players[attack.TargetSeat]).Count == 0 &&
             HasWeaponAbility(_players[attack.SourceSeat], CardKind.GudingBlade);
         var receivesYingboBonus = IsYingboRepeated(attack.ResolutionId);
@@ -16261,7 +16262,7 @@ public sealed partial class GameEngine
                 : item.seat == attack.SourceSeat &&
                   !attack.IsChainPropagation && !attack.IsDelayedJudgmentDamage &&
                   !attack.IsProgramJudgmentDamage && attack.CardUserSeat == attack.SourceSeat &&
-                  attack.EffectiveCardKind is { } kind && item.modifier.CardKinds.Contains(kind) &&
+                  attack.EffectiveCardKind is { } kind && ProgramCardKindMatch.MatchesDamageModifier(item.modifier, kind) &&
                   (item.modifier.Condition switch
                   {
                       SkillProgramDamageModifierCondition.Always => true,
@@ -16357,7 +16358,7 @@ public sealed partial class GameEngine
             ? CardCatalog.Get(incoming).DisplayName
             : "这张牌";
         var isGroupAttack = incomingCard is CardKind.BarbarianAssault or CardKind.ArrowBarrage;
-        var isSlashAttack = incomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+        var isSlashAttack = incomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash;
         var incomingAttackName = isGroupAttack || isSlashAttack
             ? $"【{incomingName}】"
             : "【杀】";
@@ -17918,6 +17919,7 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
+        AssertColdDamageReplacementFrames();
         AssertSkillInvocations();
         AssertKemingEchoFrames();
         AssertNativeEquipmentInvocations();
@@ -18964,9 +18966,14 @@ public sealed partial class GameEngine
                         "An active Yingbo gift must retain its Slash frame as the stack top.");
                 }
             }
+            else if (HasColdDamageReplacement(pendingAttack.ResolutionId))
+            {
+                // The exact direct-damage parent and every paid child are checked
+                // by AssertColdDamageReplacementFrames.
+            }
             else if (ActiveDying is null &&
                 ActiveDamageTrigger is null &&
-                !_resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any())
+                !_resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any() && !HasColdDamageReplacement(pendingAttack.ResolutionId))
             {
                 if ((coreTop is not ResponseWindowFrame response ||
                     response.ParentFrameId != pendingAttack.ResolutionId) &&
@@ -19615,7 +19622,7 @@ public sealed partial class GameEngine
         }
 
         var hasCardProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
-            (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || HasKemingEchoPrompt() || HasMobileZhitiContestPrompt() || (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt())) || HasLeChengyanBorrowedPrompt() || HasCardActionPindianContinuation() || HasBiguoPindianContinuation();
+            (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || HasColdDamagePrompt() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || HasKemingEchoPrompt() || HasMobileZhitiContestPrompt() || (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt())) || HasLeChengyanBorrowedPrompt() || HasCardActionPindianContinuation() || HasBiguoPindianContinuation();
         var hasBeforeDamageProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
             _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any();
         var awaitingHumanResponse =
@@ -19873,7 +19880,7 @@ public sealed partial class GameEngine
                        .Any(frame => frame.Id == frameId);
         }
 
-        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash || IsNativeSlashTargetDuelAttack(attack) ||
+        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash || IsNativeSlashTargetDuelAttack(attack) || IsShanheS5YunshenUse(attack.ResolutionId) ||
             LifecycleCardUse(attack.ResolutionId) is { } fireUse && IsCurrentSlashFireChangedUse(fireUse) ||
             IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
             (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))

@@ -75,7 +75,7 @@ internal sealed class MatchingRecastSelectionFilter : IProgramSelectionCandidate
     }
 
     private static CardKind BasicName(CardKind kind) =>
-        kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash ? CardKind.Slash : kind;
+        kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash ? CardKind.Slash : kind;
 }
 
 [ProgramSelectionModule(ProgramSelectionStage.AfterTargets, 20, SkillProgramEffectOp.DepositSelectedSourceCurse)]

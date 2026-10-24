@@ -37,7 +37,7 @@ public sealed partial class GameEngine
         if (r.DamagedIssuer != (damage.Length > 0) || damage.Select(e => e.DamageFrameId).Distinct().Count() != damage.Length ||
             damage.Any(e => e.CardUseFrameId != returned.CardUseFrameId || e.ActionId != returned.ActionId || e.TargetSeat != frame.OwnerSeat || e.Amount <= 0 ||
                 history.OfType<DamageRequestedEvent>().Count(d => d.ResolutionId == e.DamageFrameId && d.SourceSeat == e.SourceSeat &&
-                    d.TargetSeat == e.TargetSeat && d.Amount == e.Amount && d.SourceLess == e.SourceLess && d.SourceCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) != 1)) return false;
+                    d.TargetSeat == e.TargetSeat && d.Amount == e.Amount && d.SourceLess == e.SourceLess && d.SourceCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) != 1)) return false;
         if (r.Stage == ForeignSelectedCardSlashStage.UseIssued)
             return frame.PendingMovementContinuation is null && r.RequestedDraw == 0 && r.ActualDraw == 0 && r.DrawBefore == 0 && r.DrawAfter == 0;
         if (frame.PendingMovementContinuation is not { BeforeCount: 0, CoverageResultBind: null } pending || pending.SubjectSeat != frame.OwnerSeat ||

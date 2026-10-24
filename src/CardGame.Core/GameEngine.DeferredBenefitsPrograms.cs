@@ -225,7 +225,7 @@ public sealed partial class GameEngine
         var context = frame.WindowContext ?? throw new InvalidOperationException("Weapon damage choice has no damage context.");
         if (context.Window != SkillProgramTriggerWindow.BeforeDamageApplied || context.SourceSeat != frame.OwnerSeat ||
             context.TargetSeat is not { } target || ActiveCardAttack is not { IsChainPropagation: false } attack ||
-            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))
+            attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash))
             throw new InvalidOperationException("Weapon damage choice requires the owner's direct Slash damage.");
         var weapon = GetEquipment(_players[frame.OwnerSeat]).Where(card => FieldEquipmentSlot(card) == EquipmentSlot.Weapon)
             .OrderByDescending(card => GetWeaponAttackRange(_players[frame.OwnerSeat], card)).ThenBy(card => card.Id).FirstOrDefault();

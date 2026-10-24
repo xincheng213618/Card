@@ -11,7 +11,7 @@ internal static class StableHandResponseFixture
     private const string OwnerId = "fixture:response-owner";
     private const string DriverId = "fixture:response-driver";
     private readonly record struct RegistryKey(DecisionKind Kind, bool Jijiu, bool ArrowBarrage,
-        bool Zhefu, bool RecoveryChild, bool Wushuang, bool LifeOutcome);
+        bool Zhefu, bool RecoveryChild, bool Wushuang, bool LifeOutcome, bool ColdSlash);
     private static readonly Dictionary<RegistryKey, ContentRegistry> Registries = [];
     private static readonly ContentSkillDefinition Jijiu = ContentRegistry.Build(new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true), new StandardRescueSkillExpansionPackage()).GetSkill("standard:jijiu");
@@ -23,14 +23,17 @@ internal static class StableHandResponseFixture
     });
 
     internal static (MainViewModel Model, ContentRegistry Registry) Create(DecisionKind kind, string output, bool jijiu = false, bool arrowBarrage = false,
-        bool zhefu = false, bool recoveryChild = false, bool wushuang = false, bool lifeOutcome = false)
+        bool zhefu = false, bool recoveryChild = false, bool wushuang = false, bool lifeOutcome = false, bool coldSlash = false)
     {
+        Program.Assert(!coldSlash || (kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash) &&
+            !jijiu && !arrowBarrage && !zhefu && !recoveryChild && !wushuang && !lifeOutcome,
+            "The Cold Slash variant only replaces the physical Slash in the fixed native Slash/Dodge setup.");
         Program.Assert(!lifeOutcome || kind == DecisionKind.RespondDodge && !arrowBarrage && !jijiu && !wushuang && !zhefu && !recoveryChild,
             "The optional native life fixture keeps the fixed physical Slash setup and its native Peach rescue.");
         Program.Assert(!wushuang || kind == DecisionKind.RespondDodge && !arrowBarrage && !jijiu,
             "The optional Wushuang fixture uses only the existing physical Slash/Dodge setup.");
-        var label = lifeOutcome ? "LifeOutcome" : wushuang ? "WushuangDodge" : recoveryChild ? "RescueRecoveryChild" : zhefu ? "Zhefu" : jijiu ? "Jijiu" : arrowBarrage ? "ArrowBarrage" : kind.ToString();
-        var registry = GetRegistry(new(kind, jijiu, arrowBarrage, zhefu, recoveryChild, wushuang, lifeOutcome));
+        var label = coldSlash ? "Cold" + kind : lifeOutcome ? "LifeOutcome" : wushuang ? "WushuangDodge" : recoveryChild ? "RescueRecoveryChild" : zhefu ? "Zhefu" : jijiu ? "Jijiu" : arrowBarrage ? "ArrowBarrage" : kind.ToString();
+        var registry = GetRegistry(new(kind, jijiu, arrowBarrage, zhefu, recoveryChild, wushuang, lifeOutcome, coldSlash));
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = lifeOutcome ? Role.Loyalist : Role.Lord, ModeId = ModeId,
@@ -89,7 +92,7 @@ internal static class StableHandResponseFixture
             var expectedHandKind = jijiu ? CardKind.Dodge : kind switch
             {
                 DecisionKind.RespondDodge => CardKind.Dodge,
-                DecisionKind.RespondSlash => CardKind.Slash,
+                DecisionKind.RespondSlash => coldSlash ? CardKind.ColdSlash : CardKind.Slash,
                 DecisionKind.RescueDying => CardKind.Peach,
                 DecisionKind.Nullification => CardKind.Nullification,
                 DecisionKind.FireAttackDiscard => CardKind.Slash,
@@ -105,7 +108,7 @@ internal static class StableHandResponseFixture
             if (!jijiu && kind == DecisionKind.RespondSlash)
                 Program.Assert(game.PendingDecision!.IncomingCard == CardKind.BarbarianAssault &&
                     game.Events.Select(item => item.Payload).OfType<GroupCardUsedEvent>().Any(item => item.CardKind == CardKind.BarbarianAssault && item.SourceSeat == 1) &&
-                    game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Kind == CardKind.Slash),
+                    game.CreateSnapshot(0).Players[0].Hand.Any(card => card.Kind == (coldSlash ? CardKind.ColdSlash : CardKind.Slash)),
                     "A real native physical Barbarian Assault from AI1 must request the human's physical Slash.");
             if (jijiu)
             {
@@ -117,7 +120,7 @@ internal static class StableHandResponseFixture
                     choice.Parameters.GetValueOrDefault("response") == "peach" && choice.Description.Contains("当作【桃】")),
                     "Real outside-turn dying must offer the registered Jijiu conversion.");
             }
-            if (!lifeOutcome) AssertPhysicalOrigin(game, kind, arrowBarrage);
+            if (!lifeOutcome) AssertPhysicalOrigin(game, kind, arrowBarrage, coldSlash);
             RecordAndReplay(game, registry, output, label + ".before");
             Program.Assert(Enumerable.Range(1, 3).All(seat => game.CreateSnapshot(seat).Players[0].Hand.Count == 0),
                 "Response setup must keep the human's undisclosed Hand private from other viewers.");
@@ -149,12 +152,12 @@ internal static class StableHandResponseFixture
         }
     }
 
-    private static void AssertPhysicalOrigin(GameEngine game, DecisionKind kind, bool arrowBarrage)
+    private static void AssertPhysicalOrigin(GameEngine game, DecisionKind kind, bool arrowBarrage, bool coldSlash)
     {
         if (kind == DecisionKind.RescueDying) return;
         var incoming = kind switch
         {
-            DecisionKind.RespondDodge => arrowBarrage ? CardKind.ArrowBarrage : CardKind.Slash,
+            DecisionKind.RespondDodge => arrowBarrage ? CardKind.ArrowBarrage : coldSlash ? CardKind.ColdSlash : CardKind.Slash,
             DecisionKind.RespondSlash => CardKind.BarbarianAssault,
             DecisionKind.Nullification => CardKind.PeachGarden,
             _ => CardKind.FireAttack
@@ -243,17 +246,18 @@ internal static class StableHandResponseFixture
         {
             if (Registries.TryGetValue(key, out var registry)) return registry;
             registry = ContentRegistry.Build(new StandardContentPackage(), new Package(key.Kind, key.Jijiu,
-                key.ArrowBarrage, key.Zhefu, key.RecoveryChild, key.Wushuang, key.LifeOutcome));
+                key.ArrowBarrage, key.Zhefu, key.RecoveryChild, key.Wushuang, key.LifeOutcome, key.ColdSlash));
             Registries.Add(key, registry);
             return registry;
         }
     }
 
-    private sealed class Package(DecisionKind kind, bool jijiu, bool arrowBarrage, bool zhefu, bool recoveryChild, bool wushuang, bool lifeOutcome) : IGameContentPackage
+    private sealed class Package(DecisionKind kind, bool jijiu, bool arrowBarrage, bool zhefu, bool recoveryChild, bool wushuang, bool lifeOutcome, bool coldSlash) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-stable-hand-response", new(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
         {
+            if (coldSlash) builder.AddCard(new("fixture:cold-slash", "冰杀", "基本牌", CardCatalog.Get(CardKind.ColdSlash).Description, CardKind.ColdSlash));
             var loss = kind == DecisionKind.FireAttackReveal ? 4 : kind == DecisionKind.RescueDying ? 5 : 1;
             var recoveryTrigger = recoveryChild ? """
                 ,"triggers":[{"id":"recovery-child","window":"afterHpRecovered","subject":"owner","optional":false,
@@ -277,10 +281,11 @@ internal static class StableHandResponseFixture
             for (var seat = 1; seat < 4; seat++)
                 builder.AddGeneral(new($"fixture:response-{seat}", "固定行动者" + seat, "supporter", "standard:none", "wei", 4,
                     jijiu ? ["fixture:response-dying"] : wushuang ? ["classic:wushuang"] : lifeOutcome && seat == 3 ? [DriverId] : []));
+            var slashId = coldSlash ? "fixture:cold-slash" : "standard:slash";
             var pair = jijiu ? new[] { "standard:dodge", "standard:dodge" } : kind switch
             {
-                DecisionKind.RespondDodge => ["standard:slash", "standard:dodge"],
-                DecisionKind.RespondSlash => ["standard:slash", "standard:slash"],
+                DecisionKind.RespondDodge => [slashId, "standard:dodge"],
+                DecisionKind.RespondSlash => [slashId, slashId],
                 DecisionKind.RescueDying => ["standard:peach", "standard:slash"],
                 DecisionKind.Nullification => ["standard:peach_garden", "standard:nullification"],
                 DecisionKind.FireAttackReveal => ["standard:fire_attack", "standard:fire_attack"],
@@ -294,7 +299,7 @@ internal static class StableHandResponseFixture
                 PhysicalCards = Enumerable.Range(0, 80).Select(index => new ContentDeckPhysicalCard(
                     arrowBarrage ? new[] { 21, 37, 61, 80 }.Contains(index + 1) ? "standard:arrow_barrage" : "standard:dodge" :
                     (jijiu || lifeOutcome) && index + 1 == 45 ? "standard:peach" : kind == DecisionKind.RespondSlash ?
-                    (new[] { 21, 37, 61, 80 }.Contains(index + 1) ? "standard:barbarian_assault" : "standard:slash") : pair[index % 2], Suit.Heart, index % 13 + 1)).ToArray()
+                    (new[] { 21, 37, 61, 80 }.Contains(index + 1) ? "standard:barbarian_assault" : slashId) : pair[index % 2], Suit.Heart, index % 13 + 1)).ToArray()
             });
             builder.AddMode(new(ModeId, "固定真实响应", 4, 4,
                 lifeOutcome ? new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 } :

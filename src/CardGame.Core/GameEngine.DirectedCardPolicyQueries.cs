@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static readonly CardKind[] SlashKinds =
-        [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
+        [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.ColdSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null, int? excludedEquipmentId = null, EquipmentSlot? excludedEquipmentSlot = null, IReadOnlyList<int>? physicalCardIds = null) =>
         DistanceRules.HasCardUseExemption(new(actor, target, kind, cardUseFrameId, excludedEquipmentId, excludedEquipmentSlot) { PhysicalCardIds = physicalCardIds });

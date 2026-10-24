@@ -87,7 +87,7 @@ internal sealed class ConvertedCardSelectionSource : IProgramSelectionSourceProv
         return query.Hand(owner).Concat(query.Equipment(owner))
             .Where(card => !query.IsHandRestricted(owner, card) && !query.HasCardIdentity(owner, card))
             .Where(card => rule.SourceZones.Contains(query.Location(card.Id).Zone))
-            .Where(card => rule.InputKinds.Count == 0 || rule.InputKinds.Contains(query.EffectiveInputKind(owner, card)))
+            .Where(card => rule.InputKinds.Count == 0 || ProgramCardKindMatch.Contains(rule.InputKinds, query.EffectiveInputKind(owner, card)))
             .Where(card => rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true
                 ? query.EffectiveSuit(owner, card) : card.Suit))
             .Where(card => !query.IsPhysicalUseForbidden(owner, card.Id)).Select(card => card.Id).Order().ToArray();

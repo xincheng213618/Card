@@ -643,7 +643,7 @@ internal static class ProgramCompositionValidator
                             Fail("response entity exchange requires a response-action observer");
                         break;
                     case RequireCardActionRelation requiredRelation:
-                        if (cardActionRelation != requiredRelation.Relation || cardKinds is not { Count: > 0 } || cardKinds.Any(kind => !requiredRelation.Kinds.Contains(kind)))
+                        if (cardActionRelation != requiredRelation.Relation || cardKinds is not { Count: > 0 } || cardKinds.Any(kind => !ProgramCardKindMatch.Contains(requiredRelation.Kinds, kind)))
                             Fail("operation requires its declared card-action participant relation and supported card kinds");
                         break;
                     case RequireActorHandLimitPenaltyTarget:

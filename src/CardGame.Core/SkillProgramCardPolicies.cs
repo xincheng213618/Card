@@ -3,6 +3,7 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    ShanheFenchaiJudgment = 5771,
     OwnRecoveryAmountBonus = 27920,
     OwnTurnFirstLostHpUses = 29050,
     OutgoingDistanceOne = 43000,

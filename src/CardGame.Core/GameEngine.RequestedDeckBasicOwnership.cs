@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             !CompleteProgramEventHistory().OfType<RequestedDeckBasicViewedEvent>().Any(e=>e.FrameId==r.ViewFrameId && e.OwnerFrameId==owner.Id && e.ActorSeat==r.ActorSeat &&
                 e.SkillId==r.Source.SkillId && e.Count==r.ViewedCount && e.Intent==r.Intent))return false;
         if(!r.Claiming)return r.SelectedCardId is null && r.SelectedKind is null && r.PaidMovementSequence is null;
-        if(r.SelectedCardId is not { } cardId || r.SelectedKind is not { } kind || kind is not(CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Dodge or CardKind.Peach or CardKind.Alcohol))return false;
+        if(r.SelectedCardId is not { } cardId || r.SelectedKind is not { } kind || kind is not(CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Dodge or CardKind.Peach or CardKind.Alcohol))return false;
         if(r.PaidMovementSequence is not { } sequence)return _cardZones.GetLocation(cardId)==CardLocation.DrawPile &&
             _cardZones.CardsAt(CardLocation.DrawPile).Any(c=>c.Id==cardId && c.Kind==kind);
         return _cardMovements.SingleOrDefault(m=>m.Sequence==sequence) is { } movement && movement.CardId==cardId && movement.CardKind==kind &&

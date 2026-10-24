@@ -63,7 +63,7 @@ internal static class ShanheS5MaSiblingsContract
         if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeColorAllDiscard)) return;
         if (trigger.Window != SkillProgramTriggerWindow.SlashBeforeResponse || trigger.OwnerRelation != SkillProgramCardActionOwnerRelation.Actor ||
             !trigger.Optional || trigger.Effects is not [{ Op: SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeColorAllDiscard }] ||
-            trigger.CardKinds.Count != 3 || !new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash }.All(trigger.CardKinds.Contains))
+            !ProgramCardKindMatch.IsFullSlashFamily(trigger.CardKinds))
             throw new InvalidOperationException($"Invalid skill program at {path}: color Tieqi requires one optional actor Slash-family response-window operation.");
     }
 }

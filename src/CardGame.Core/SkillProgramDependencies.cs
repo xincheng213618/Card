@@ -128,14 +128,14 @@ internal sealed class SkillProgramDependencies
         _finalizedCards = (from kind in Enum.GetValues<CardKind>()
             from category in Enum.GetValues<SkillProgramCardCategory>()
             where finalized.Any(trigger =>
-                (trigger.CardKinds.Count == 0 || trigger.CardKinds.Contains(kind)) &&
+                (trigger.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(trigger.CardKinds, kind)) &&
                 (trigger.CardCategories.Count == 0 || trigger.CardCategories.Contains(category)))
             select (kind, category)).ToFrozenSet();
         var beforeTarget = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseBeforeTargetEffects).ToArray();
         _beforeTargetCards = (from kind in Enum.GetValues<CardKind>()
             from category in Enum.GetValues<SkillProgramCardCategory>()
             where beforeTarget.Any(trigger =>
-                (trigger.CardKinds.Count == 0 || trigger.CardKinds.Contains(kind)) &&
+                (trigger.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(trigger.CardKinds, kind)) &&
                 (trigger.CardCategories.Count == 0 || trigger.CardCategories.Contains(category)))
             select (kind, category)).ToFrozenSet();
         CapturesCompletedResponseSuit = triggers.Any(trigger =>

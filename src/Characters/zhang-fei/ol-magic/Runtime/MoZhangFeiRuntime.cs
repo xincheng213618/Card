@@ -61,7 +61,7 @@ internal sealed partial class MoZhangFeiRuntime(IMoZhangFeiFacts facts, IMoZhang
     [ProgramTargetRule(ProgramTargetRulePoint.ExtraSlashTargets, 33700)]
     internal ProgramSlashTargetExpansion? ExtraSlashTargets(ProgramSlashTargetExpansionQuery q)
     {
-        if (!facts.Enabled || q.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+        if (!facts.Enabled || q.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) ||
             !(q.EffectiveIsRed == false || q.EffectiveIsRed is null && q.EffectiveSuit is Suit.Spade or Suit.Club) ||
             !facts.Alive(q.ActorSeat)) return null;
         var source = facts.Candidates(q.ActorSeat, SkillProgramTriggerWindow.AfterDamageApplied)
@@ -90,7 +90,7 @@ internal sealed partial class MoZhangFeiRuntime(IMoZhangFeiFacts facts, IMoZhang
     internal CardUseEffectSource? SlashTargetDuelSource(CardUseFrame use, int targetSeat)
     {
         if (!facts.Enabled || use.Action is not { Type: CardActionType.Use } action ||
-            use.CardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
+            use.CardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) ||
             action.EffectiveKind != use.CardKind || action.ActorSeat != use.SourceSeat ||
             !(action.EffectiveSuit is Suit.Spade or Suit.Club && action.EffectiveIsRed != true ||
                 action.EffectiveIsRed == false && action.PhysicalCards.Count > 0 && action.PhysicalCards.All(c => c.EffectiveIsRed == false)) ||
@@ -148,7 +148,7 @@ internal sealed partial class MoZhangFeiRuntime(IMoZhangFeiFacts facts, IMoZhang
         c.SkillId == Chenshi && c.BindingId == "first-three-damage" &&
         context.Window == SkillProgramTriggerWindow.AfterDamageApplied && context.Amount >= 3 &&
         (context.SourceSeat == c.OwnerSeat || context.TargetSeat == c.OwnerSeat) &&
-        facts.DamageKind(context.ParentFrameId) is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel &&
+        facts.DamageKind(context.ParentFrameId) is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Duel &&
         !IsModified(c.OwnerSeat) && !facts.History<MoZhangFeiStartedEvent>().Any(e =>
             e.Receipt.Source.OwnerSeat == c.OwnerSeat && e.Receipt.Op == SkillProgramEffectOp.ResolveMoZhangFeiChenshi);
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 33700,
@@ -342,7 +342,7 @@ internal sealed partial class MoZhangFeiRuntime(IMoZhangFeiFacts facts, IMoZhang
             start.Receipt.Requested != context.RequestedCount || start.Receipt.Before != replacement.SequenceBefore) return false;
         var materials = facts.History<MoZhangFeiGreenMaterialEvent>().Where(e => e.FrameId == proof.ProgramFrameId).ToArray();
         return materials.Select(e => e.CardId).SequenceEqual(replacement.GainedIds) && materials.All(e =>
-            e.AttemptId == context.AttemptFrameId && e.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+            e.AttemptId == context.AttemptFrameId && e.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash &&
             e.From == CardLocation.DrawPile && e.To == CardLocation.Hand(context.RecipientSeat) && e.Reason == replacement.Reason &&
             e.Sequence > replacement.SequenceBefore && e.Sequence <= replacement.SequenceAfter);
     }
@@ -419,7 +419,7 @@ internal sealed partial class MoZhangFeiRuntime(IMoZhangFeiFacts facts, IMoZhang
                 r.Stage is MoZhangFeiStage.RecoveryChildren or MoZhangFeiStage.Entering &&
                 f.WindowContext is { Window: SkillProgramTriggerWindow.AfterDamageApplied, Amount: >= 3 } damage &&
                 (damage.SourceSeat == f.OwnerSeat || damage.TargetSeat == f.OwnerSeat) &&
-                frames.Find(r.WindowId) is DamageTriggerWindowFrame { SourceCard: CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel };
+                frames.Find(r.WindowId) is DamageTriggerWindowFrame { SourceCard: CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Duel };
         return r.Op == SkillProgramEffectOp.ResolveMoZhangFeiGreenDraw && r.Stage == MoZhangFeiStage.GainChildren &&
             f.WindowContext?.NativeDraw is { } draw && r.DrawAttemptId == draw.AttemptFrameId && r.TargetSeat == draw.RecipientSeat &&
             facts.History<MoZhangFeiColorEffectIssuedEvent>().Any(e => e.FrameId == r.GreenGrantFrameId &&

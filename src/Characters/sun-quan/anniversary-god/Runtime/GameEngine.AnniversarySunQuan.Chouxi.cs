@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
-    private static CardKind AnniversaryChouxiName(CardKind kind) => kind is CardKind.FireSlash or CardKind.ThunderSlash ? CardKind.Slash : kind;
+    private static CardKind AnniversaryChouxiName(CardKind kind) => kind is CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash ? CardKind.Slash : kind;
     private bool IsAnniversaryChouxiSource(CharacterState owner, CardConversionSource? source) => source is { SkillId: AnniversarySunQuanComposition.Chouxi } && source.OwnerSeat == owner.Seat &&
         HasRuntimeSkillInstance(owner, source.SkillId, source.SkillInstanceId) && _contentRegistry.GetSkill(source.SkillId).Program!.ViewAs.Any(v => v.Id == source.BindingId);
     private bool AnniversaryChouxiAvailable(CharacterState owner, CardKind kind)

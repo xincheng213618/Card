@@ -34,7 +34,7 @@ public sealed partial class GameEngine
             HasRuntimeSkillInstance(_players[g.Source.OwnerSeat], g.Source.SkillId, g.Source.SkillInstanceId))
             .Select(g => g with { IssuedDirectedEffects = _directedTurnCardPolicies.Where(p => p.TurnNumber == g.TurnNumber && p.TurnSeat == g.TurnSeat &&
                 p.ActorSeat == action.ActorSeat && p.TargetSeat == g.TargetSeat && p.Source.SkillId == g.Source.SkillId && p.Source.SkillInstanceId == g.Source.SkillInstanceId &&
-                p.Source.OwnerSeat == g.Source.OwnerSeat && (p.CardKinds.Count == 0 || p.CardKinds.Contains(action.EffectiveKind)))
+                p.Source.OwnerSeat == g.Source.OwnerSeat && (p.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(p.CardKinds, action.EffectiveKind)))
                 .Aggregate(DirectedTurnCardPolicyEffect.None, (flags, p) => flags | p.Effects) }).ToArray();
         if (grants.Length == 0) return;
         UpdateLifecycleCardUse(id, use => use with { OriginalTargetAddition = new(Array.AsReadOnly(grants)),

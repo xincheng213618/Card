@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             var skill = _contentRegistry.GetSkill(skillId);
             foreach (var trigger in skill.Program!.Triggers.Where(trigger => trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifyFirstTurnTargetByHand)))
             {
-                if (!trigger.CardKinds.Contains(action.EffectiveKind)) continue;
+                if (!ProgramCardKindMatch.Contains(trigger.CardKinds, action.EffectiveKind)) continue;
                 foreach (var target in action.EffectiveDesignatedTargetSeats.Distinct().Where(target => target != action.ActorSeat))
                     _firstTurnTargetActions.TryAdd((_turnNumber, target, skill.Id), action.ActionId);
             }

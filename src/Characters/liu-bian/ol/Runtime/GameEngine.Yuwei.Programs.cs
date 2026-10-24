@@ -3,13 +3,18 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
 
-    // 余威 is active while its play-phase evidence exists for the running turn:
-    // the trigger only commits on other living Qun-faction characters' turns.
+    // The limit applies throughout the actual Qun turn, including native uses
+    // before Play. The qualified binding shard also observes Lord qualification,
+    // loss and suppression; an old Play-phase fact cannot keep a lost source alive.
     private bool IsYuWeiLimitDoubled(int ownerSeat) =>
-        CompleteProgramEventHistory().OfType<ProgramYuWeiActiveTurnEvent>()
-            .Any(e => e.OwnerSeat == ownerSeat && e.TurnNumber == _turnNumber);
+        _turnNumber > 0 && IsValidPlayerSeat(ownerSeat) && IsValidPlayerSeat(_currentSeat) &&
+        ownerSeat != _currentSeat && _players[ownerSeat].IsAlive &&
+        _turnProgression.TurnNumber == _turnNumber && _turnProgression.OwnerSeat == _currentSeat &&
+        GetEffectiveFactionId(_players[_currentSeat]) == "qun" &&
+        GetSkillBindingShard(_players[ownerSeat]).ProgramInstances.Any(instance => instance.Program.Triggers
+            .Any(trigger => ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.YuWeiMarkActiveTurn)));
 
-    // 余威: commit the per-turn evidence consumed by 诗怨's limit query.
+    // Retain the ordinary Play-phase notification and its historical event shape.
     private SkillProgramStepOutcome YuWeiProgramMarkActiveTurn(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
         var active = GetActiveProgramFrame(frame.Id);

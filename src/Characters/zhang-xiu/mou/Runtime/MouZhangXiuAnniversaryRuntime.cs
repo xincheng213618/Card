@@ -8,7 +8,7 @@ internal sealed class MouZhangXiuAnniversaryRuntime(IMouZhangXiuAnniversaryFacts
     internal static CardConversionSource Source(ProgramSkillFrame f) => new(f.SkillId, f.ActivationId, f.OwnerSeat, f.SkillInstanceId);
     // Current physical card names classify discard entities; past converted
     // faces do not turn their printed materials into new damage-card names.
-    internal static bool DamageCard(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault or CardKind.AgainstCurrent or CardKind.WumiaoFlood or CardKind.Lightning;
+    internal static bool DamageCard(CardKind k) => k is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.UnexpectedAssault or CardKind.AgainstCurrent or CardKind.WumiaoFlood or CardKind.Lightning;
     private IReadOnlyList<MouZhangXiuAnniversaryCard> Claimable() => facts.Entities(facts.History<MouZhangXiuAnniversaryDiscardEvent>().Where(e => e.Turn == facts.Turn).Select(e => e.CardId).Distinct()).Where(c => c.From == CardLocation.DiscardPile && DamageCard(c.Kind) && !facts.History<MouZhangXiuAnniversaryDamageEvent>().Any(e => e.Turn == facts.Turn && e.CardId == c.Id && e.Amount > 0)).ToArray();
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 36600, SkillProgramEffectOp.ResolveMouZhangXiuFuxi, SkillProgramEffectOp.ResolveMouZhangXiuHaoyi)]
     private bool Qualifies(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext w)

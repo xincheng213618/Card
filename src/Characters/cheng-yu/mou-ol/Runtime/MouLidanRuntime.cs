@@ -6,7 +6,7 @@ namespace CardGame.Core;
 internal sealed class MouLidanRuntime(IProgramRuntimeFrames frames, IProgramRuntimeEvents events,
     IProgramRuntimePrompts prompts, IMouChengYuFacts facts, IMouChengYuNative native)
 {
-    internal static bool Slash(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+    internal static bool Slash(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash;
     internal static bool Trick(CardKind kind) => CardUseCategoryCatalog.Get(kind) is CardUseCategories.InstantTrick or CardUseCategories.DelayedTrick;
 
     internal void AcceptUse(CardUseFrame use)

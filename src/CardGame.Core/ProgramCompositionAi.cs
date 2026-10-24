@@ -694,7 +694,7 @@ internal sealed partial class ProgramAiEstimateContext
     internal void NullifyCurrentCardEffect()
     {
         if (_publicContext.CardUseEffectiveKind is
-            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or
+            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or
             CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or
             CardKind.Dismantlement or CardKind.Snatch or CardKind.FireAttack or
             CardKind.BorrowedSword)
@@ -719,7 +719,7 @@ internal sealed partial class ProgramAiEstimateContext
     internal void ProhibitCurrentResponse() => _otherAdjustment += 20d;
     internal void IssuePlayUsePolicy()
     {
-        var offensive = _publicContext.CardUseEffectiveKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack or CardKind.BorrowedSword;
+        var offensive = _publicContext.CardUseEffectiveKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack or CardKind.BorrowedSword;
         _otherAdjustment += (offensive ? 20d : 2d)-Math.Min(16d, Math.Max(0,_player.HandCount-1)*2d);
     }
 

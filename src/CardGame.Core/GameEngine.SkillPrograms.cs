@@ -249,7 +249,7 @@ public sealed partial class GameEngine
                         _programContributionUses.GetValueOrDefault(key) >= contribution.UsesPerPlayPhase)
                         continue;
                     var cards = GetHand(owner)
-                        .Where(card => contribution.CardKinds.Contains(card.Kind) || contribution.CardSuits.Contains(card.Suit))
+                        .Where(card => ProgramCardKindMatch.Contains(contribution.CardKinds, card.Kind) || contribution.CardSuits.Contains(card.Suit))
                         .Select(card => card.Id).Order().ToArray();
                     if (cards.Length == 0) continue;
                     yield return new LegalAction(LegalActionKind.UseProgramSkill, null, skillOwner.Seat,
@@ -294,7 +294,7 @@ public sealed partial class GameEngine
              features.ForOperation(SkillProgramEffectOp.ResolveMouXiahouShiYanyuDiscard).Any()) &&
             IsSelfHandCategoryDiscardForbidden(ownerSeat, card, _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard)) return false;
         if (!ProgramSelections.AllowsCard(ProgramSelectionStage.CardAfterDiscard, selection, card)) return false;
-        return (activation.CardKinds.Count == 0 || activation.CardKinds.Contains(card.Kind)) &&
+        return (activation.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(activation.CardKinds, card.Kind)) &&
             (activation.CardSuits.Count == 0 || activation.CardSuits.Contains(ProgramSelections.CardSuit(selection, card))) &&
             (activation.CardCategories.Count == 0 || activation.CardCategories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category)));
     }
@@ -499,7 +499,7 @@ public sealed partial class GameEngine
         if (_programContributionUses.GetValueOrDefault(key) >= contribution.UsesPerPlayPhase)
             throw new InvalidOperationException("The contribution was already used in this play phase.");
         var card = GetHand(provider).Single(candidate => candidate.Id == cardId);
-        if (!contribution.CardKinds.Contains(card.Kind) && !contribution.CardSuits.Contains(card.Suit))
+        if (!ProgramCardKindMatch.Contains(contribution.CardKinds, card.Kind) && !contribution.CardSuits.Contains(card.Suit))
             throw new InvalidOperationException("The contributed physical hand card no longer matches the binding.");
 
         _programContributionUses[key] = _programContributionUses.GetValueOrDefault(key) + 1;
@@ -854,7 +854,7 @@ public sealed partial class GameEngine
             if (use.RoundOnceCardlessBasicUse is not null && !IsRoundOnceCardlessBasicUse(use.Id))
                 throw new InvalidOperationException("Cardless native use lost its exact independently paid source invoice.");
         foreach (var use in _resolutionStack.OfType<CardUseFrame>())
-        { AssertCaoChunNativeUse(use); if (IsDenglouNativeUse(use)) AssertDenglouNativeUse(use); if (IsGuoSiNativeUse(use)) AssertGuoSiNativeUse(use); if (use.WangYunNativeOrigin is not null && !ValidWangYunNativeUse(use)) throw new InvalidOperationException("A Wang Yun native use lost its owning invoice."); if (use.ZhangJiNativeOrigin is not null && !ValidZhangJiNativeUse(use)) throw new InvalidOperationException("A Zhang Ji native use lost its owning invoice."); AssertHistoricalEndingUse(use); AssertRoundPileAlcoholUse(use); AssertCurrentSlashFirePolicy(use); AssertComparedBlackSlashReceipt(use); AssertRoundDistinctBasicUses(use); AssertLeiluanPayments(use); }
+        { AssertCaoChunNativeUse(use); if (IsDenglouNativeUse(use)) AssertDenglouNativeUse(use); if (IsGuoSiNativeUse(use)) AssertGuoSiNativeUse(use); if (use.WangYunNativeOrigin is not null && !ValidWangYunNativeUse(use)) throw new InvalidOperationException("A Wang Yun native use lost its owning invoice."); if (use.ZhangJiNativeOrigin is not null && !ValidZhangJiNativeUse(use)) throw new InvalidOperationException("A Zhang Ji native use lost its owning invoice."); AssertHistoricalEndingUse(use); AssertRoundPileAlcoholUse(use); AssertCurrentSlashFirePolicy(use); AssertComparedBlackSlashReceipt(use); AssertRoundDistinctBasicUses(use); AssertLeiluanPayments(use); AssertShanheS5XuncanNativeUse(use); }
         var frames = _resolutionStack.OfType<ProgramSkillFrame>().ToArray();
         foreach (var frame in frames)
         {

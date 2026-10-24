@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             action.RequesterSeat is{}requester && requester!=action.ActorSeat || source.OwnerSeat!=action.ProviderSeat ||
             action.PhysicalCards is not [var material] || material.From!=CardLocation.Hand(action.ProviderSeat) ||
             !CanPayMeiYingConversion(_players[action.ProviderSeat],source) || ViewAsRule(source) is not{}rule ||
-            !rule.InputKinds.Contains(material.CardKind) || rule.OutputKind!=action.EffectiveKind)
+            !ProgramCardKindMatch.Contains(rule.InputKinds,material.CardKind) || rule.OutputKind!=action.EffectiveKind)
             throw new InvalidOperationException("MeiYing cost lost its exact accepted actor, one material and current conversion source.");
         var owner=_players[action.ProviderSeat];PayProgramMarkerCost(owner,new(PlayerMarkerKind.MeiYing,1),source.SkillId,source.BindingId);
         AdvanceEventRulesAndQueueFact(new ZhaoXiangConversionPayment(action.ActionId,source,_contentRegistry.GetSkill(source.SkillId).Program!.GameplayHash,_turnNumber,
@@ -52,7 +52,7 @@ public sealed partial class GameEngine
         var f=GetActiveProgramFrame(supplied.Id);var c=f.WindowContext;var index=_resolutionStack.FindIndex(x=>x.Id==f.Id);
         if(f.InstructionIndex!=1 || f.TriggerId is null || c is not{Window:SkillProgramTriggerWindow.AfterDamageApplied,Amount:>0,DamageFrameId:{}damageId} || index<=0 ||
             _resolutionStack[index-1] is not DamageTriggerWindowFrame parent || parent.Id!=c.ParentFrameId || parent.ParentFrameId!=damageId ||
-            parent.SourceCard is not(CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) || parent.CandidateIndex<0 || parent.CandidateIndex>=parent.Candidates.Count ||
+            parent.SourceCard is not(CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) || parent.CandidateIndex<0 || parent.CandidateIndex>=parent.Candidates.Count ||
             !MountObserverCandidateMatches(f,parent.Candidates[parent.CandidateIndex].ToProgramCandidate()) ||
             !CanGainMeiYingFromDamage(f.OwnerSeat,GetProgramTrigger(f),parent.SourceSeat,parent.TargetSeat,c.Facts?.DamageSourceIsOwner!=true && c.SourceSeat is null) ||
             CompleteProgramEventHistory().OfType<ZhaoXiangMeiYingGainedEvent>().Any(e=>e.DamageWindowId==parent.Id && e.Source.OwnerSeat==f.OwnerSeat))

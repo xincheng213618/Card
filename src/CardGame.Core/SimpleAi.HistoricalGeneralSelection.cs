@@ -10,7 +10,7 @@ public sealed partial class SimpleAiBrain
             return (32d, $"【{skill.Name}】提供主动行动，实战收益由其发布的 Program 效果摘要评估。");
         if (skill.ViewAsOpportunities is { Count: > 0 } conversions)
         {
-            var attack = conversions.Any(rule => rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash);
+            var attack = conversions.Any(rule => rule.ForPlay && rule.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash);
             var response = conversions.Any(rule => rule.ForResponse);
             return (30d + (attack && role == Role.Rebel ? 7d : 0d) + (response ? 3d : 0d),
                 $"【{skill.Name}】提供公开的牌型转换能力，可扩展可用牌或响应来源。");
@@ -28,7 +28,7 @@ public sealed partial class SimpleAiBrain
             .Concat(program.Triggers.SelectMany(trigger => trigger.Effects))).ToArray();
         var policies = programs.SelectMany(program => program.CardPolicies).ToArray();
         var offense = enabled.Count(skill => skill.ViewAsOpportunities?.Any(conversion => conversion.ForPlay &&
-            conversion.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == true);
+            conversion.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) == true);
         offense += programs.Count(program => program.Modifiers.Any(modifier => modifier.Query == SkillRuleQuery.SlashLimit) ||
             program.DamageModifiers.Count > 0 || program.Triggers.Any(trigger => trigger.Window == SkillProgramTriggerWindow.SlashBeforeResponse));
         offense += effects.Any(effect => effect.Op is SkillProgramEffectOp.Damage or SkillProgramEffectOp.StartVirtualDuel &&

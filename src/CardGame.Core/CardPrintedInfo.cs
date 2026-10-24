@@ -20,7 +20,7 @@ public static class CardPrintedInfo
         var result = Enum.GetValues<CardKind>().ToDictionary(k => k, _ => PrintedCardTerms.None);
         void Add(PrintedCardTerms term, params CardKind[] kinds)
         { foreach (var kind in kinds) result[kind] |= term; }
-        Add(PrintedCardTerms.Slash, CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash,
+        Add(PrintedCardTerms.Slash, CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash, CardKind.ColdSlash,
             CardKind.Dodge, CardKind.Alcohol, CardKind.Duel, CardKind.BarbarianAssault, CardKind.BorrowedSword,
             CardKind.Crossbow, CardKind.QinggangSword, CardKind.StoneAxe, CardKind.ZhangbaSerpentSpear,
             CardKind.CixiongDoubleSwords, CardKind.QinglongCrescentBlade, CardKind.IceSword, CardKind.QilinBow,

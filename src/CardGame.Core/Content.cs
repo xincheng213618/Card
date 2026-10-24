@@ -95,6 +95,14 @@ public static class CardCatalog
                 AiPlayValue: 0,
                 AiResponseValue: 0,
                 HandKeepValue: 42),
+            [CardKind.ColdSlash] = new(
+                CardKind.ColdSlash,
+                "冰杀",
+                "基本牌",
+                "选择一名角色；其未打出闪则受到1点冰属性伤害。对直接目标造成冰伤害时，来源可以防止此伤害，改为依次弃置目标两张手牌或装备牌；传导的冰伤害不能如此替代。",
+                AiPlayValue: 0,
+                AiResponseValue: 0,
+                HandKeepValue: 42),
             [CardKind.Alcohol] = new(
                 CardKind.Alcohol,
                 "酒",

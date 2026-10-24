@@ -55,7 +55,7 @@ public sealed partial class GameEngine
             : new Card(-1, kind, action.EffectiveSuit ?? Suit.None, action.EffectiveRank ?? 0);
         return kind switch
         {
-            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash =>
+            CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash =>
                 CanUseSlashTarget(actor, target, physical, action.ConversionChain.FirstOrDefault(), kind, HasIssuedFirstPlayUseDistance(use.Id), use.Id, physicalCardIds:action.PhysicalCards.Select(c=>c.CardId).ToArray()),
             CardKind.Duel => true,
             CardKind.Snatch => HasTargetCard(target) && (HasIssuedProvenanceUseDistance(use.Id, actor.Seat) || HasCardDistanceExemption(actor, target, kind, use.Id) ||

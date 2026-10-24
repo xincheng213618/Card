@@ -927,6 +927,7 @@ public enum SkillProgramEffectOp
     ChooseHpBoundOtherAndDealPositiveRandomDamage = 5750,
     ResolveShanheZhanhunDao = 5754,
     SuppressCurrentSlashTargetAndJudgeColorAllDiscard = 5760,
+    ResolveShanheS5Xuncan = 5771,
     DiscardBoundCardForRoundScaledTurnDuel = 5720,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
@@ -3481,6 +3482,12 @@ public sealed class SkillProgramCatalog
             ? EnumValue<Suit>(node, "inputSuit", path) : null;
         Suit? outputSuit = node.TryGetProperty("outputSuit", out _)
             ? EnumValue<Suit>(node, "outputSuit", path) : null;
+        if (kind == SkillProgramCardPolicyKind.ShanheFenchaiJudgment)
+        {
+            if (node.EnumerateObject().Any(property => property.Name is not ("id" or "kind")))
+                Fail(path, "Fenchai requires an unfiltered judgment marker policy.");
+            return new(id, kind, cardKinds, requiredKinds, value, inputSuit, outputSuit, OptionalCondition(node, path));
+        }
         if (kind == SkillProgramCardPolicyKind.OwnRecoveryAmountBonus)
         {
             var condition = OptionalCondition(node, path);
@@ -3531,7 +3538,7 @@ public sealed class SkillProgramCatalog
             return new(id, kind, cardKinds, requiredKinds, value, inputSuit, outputSuit, condition);
         }
         if (kind == SkillProgramCardPolicyKind.BypassSlashLimitAgainstOutsideAttackRange &&
-            (cardKinds.Count != 3 || !cardKinds.ToHashSet().SetEquals([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) ||
+            (!ProgramCardKindMatch.IsFullSlashFamily(cardKinds) ||
              requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null ||
              ownerRole is not null || factionId is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always ||
              node.TryGetProperty("discardCost", out _) || node.TryGetProperty("providerDrawCount", out _)))
@@ -3682,7 +3689,7 @@ public sealed class SkillProgramCatalog
                 Fail(path, "Issued Fire Attack/counterspell policies require their exact kind and no other qualifiers.");
         }
         if (kind == SkillProgramCardPolicyKind.MinimumSlashResponseAtDistanceOne &&
-            (cardKinds.Count != 3 || !cardKinds.ToHashSet().SetEquals([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) ||
+            (!ProgramCardKindMatch.IsFullSlashFamily(cardKinds) ||
              !requiredKinds.SequenceEqual([CardKind.Dodge]) || value != 2 || ownerRole is not null || factionId is not null ||
              inputSuit is not null || outputSuit is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always))
             Fail(path, "A distance-one Slash policy requires exactly Slash-family/Dodge/minimum two without qualifiers.");
@@ -3769,11 +3776,11 @@ public sealed class SkillProgramCatalog
         else if (condition is SkillProgramDamageModifierCondition.OwnerRoundSlashUseOrdinalWithinLimit or
                  SkillProgramDamageModifierCondition.OwnerActualTurnElementalSlashUseOrdinalWithinLimit)
         {
-            var requiredKinds = condition == SkillProgramDamageModifierCondition.OwnerRoundSlashUseOrdinalWithinLimit
-                ? new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash }
-                : new[] { CardKind.FireSlash, CardKind.ThunderSlash };
+            var completeFamily = condition == SkillProgramDamageModifierCondition.OwnerRoundSlashUseOrdinalWithinLimit
+                ? ProgramCardKindMatch.IsFullSlashFamily(kinds)
+                : ProgramCardKindMatch.IsFullElementalSlashFamily(kinds);
             if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed || maximumUseOrdinal is not (>= 1 and <= 20) ||
-                kinds.Count != requiredKinds.Length || !requiredKinds.All(kinds.Contains) || capsToAmount)
+                !completeFamily || capsToAmount)
                 Fail(path, "Slash-use ordinal requires ownerUsed, the complete matching Slash family and maximumUseOrdinal between 1 and 20");
         }
         else if (maximumUseOrdinal is not null)
@@ -4436,8 +4443,8 @@ public sealed class SkillProgramCatalog
         }
         var cardKinds = node.TryGetProperty("cardKinds", out _) ? EnumArray<CardKind>(node, "cardKinds", path) : [];
         if (effects.Any(e => e.Op == SkillProgramEffectOp.RecastSelectedPhysicalSlash) &&
-            !cardKinds.ToHashSet().SetEquals([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]))
-            Fail(path + ".cardKinds", "physical Slash recast requires exactly the three printed physical Slash kinds");
+            !ProgramCardKindMatch.IsFullSlashFamily(cardKinds))
+            Fail(path + ".cardKinds", "physical Slash recast requires the complete printed Slash family");
         var cardSuits = node.TryGetProperty("cardSuits", out _) ? EnumArray<Suit>(node, "cardSuits", path) : [];
         var cardCategories = node.TryGetProperty("cardCategories", out _) ? EnumArray<SkillProgramCardCategory>(node, "cardCategories", path) : [];
         if ((cardKinds.Count > 0 || cardSuits.Count > 0 || cardCategories.Count > 0) && maxCards == 0)
@@ -4520,6 +4527,7 @@ public sealed class SkillProgramCatalog
             Fail(path, "current-round phase usage requires the standalone owner-to-selected native Duel without fixed limits");
         PindianHandReturnContract.Validate(path, activation);
         SharedPhaseSkillContract.ValidateActivation(path, activation);
+        ShanheS5XuncanComposition.ValidateActivation(path, activation);
         RecipientContestConsequencesComposition.Activation(path, activation);
         ActorHandLimitPenaltyContract.ValidateActivation(path, activation);
         ForeignSelectedCardSlashContract.ValidateActivation(path, activation);
@@ -5889,6 +5897,7 @@ public sealed class SkillProgramCatalog
         ShanheS5GongsunContract.ValidateTrigger(path, parsedTrigger);
         ShanheS5LiJueContract.ValidateTrigger(path, parsedTrigger);
         ShanheS5MaSiblingsContract.ValidateTrigger(path, parsedTrigger);
+        ShanheS5XuncanComposition.ValidateTrigger(path, parsedTrigger);
         XuanGongZhuContract.ValidateTrigger(path, parsedTrigger);
         BuZhiComposition.ValidateTrigger(path, parsedTrigger);
         ZhaoXiangComposition.ValidateTrigger(path, parsedTrigger);

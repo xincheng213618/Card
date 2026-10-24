@@ -507,7 +507,7 @@ internal sealed partial class TurnCardUseEffectStore
                 item.TurnNumber == turnNumber &&
                 item.TurnSeat == turnSeat &&
                 item.Source.OwnerSeat == actorSeat &&
-                item.CardKinds.Contains(effectiveKind) &&
+                ProgramCardKindMatch.Contains(item.CardKinds, effectiveKind) &&
                 item.ActionTypes.Contains(actionType));
     }
 
@@ -533,7 +533,7 @@ internal sealed partial class TurnCardUseEffectStore
                  item.TurnNumber == turnNumber && item.TurnSeat == turnSeat) &&
                 (item.AffectedSeat ?? item.Source.OwnerSeat) == actorSeat && item.Query == query &&
                 (item.CardKinds is null || item.CardKinds.Count == 0 ||
-                 effectiveCardKind is { } kind && item.CardKinds.Contains(kind)))
+                 effectiveCardKind is { } kind && ProgramCardKindMatch.Contains(item.CardKinds, kind)))
             .OrderBy(item => item.GrantSequence)
             .ToArray();
 
@@ -595,7 +595,7 @@ internal sealed partial class TurnCardUseEffectStore
                 item.Source.OwnerSeat == sourceSeat &&
                 (item.SourceScope == SkillProgramDamageModifierSourceScope.DamageSource ||
                  sourceSeat == cardUserSeat) &&
-                item.CardKinds.Contains(effectiveKind))
+                ProgramCardKindMatch.Contains(item.CardKinds, effectiveKind))
             .OrderBy(item => item.GrantSequence)
             .ToArray();
     }

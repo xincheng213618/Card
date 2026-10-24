@@ -122,7 +122,7 @@ public static class SkillProgramRules
         SkillProgramModifier modifier,
         SkillProgramRuleContext context) =>
         !(modifier.Query == SkillRuleQuery.SlashLimit && modifier.SourceCardIdentityId is not null) && (modifier.CardKinds.Count == 0 ||
-        context.EffectiveCardKind is { } effectiveKind && modifier.CardKinds.Contains(effectiveKind));
+        context.EffectiveCardKind is { } effectiveKind && ProgramCardKindMatch.Contains(modifier.CardKinds, effectiveKind));
 
     public static void ValidateSetModifierConflicts(IEnumerable<SkillProgram> programs)
     {

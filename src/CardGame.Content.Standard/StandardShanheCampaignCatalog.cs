@@ -243,6 +243,12 @@ public static partial class StandardShanheCampaignCatalog
             StandardShanheS5MoushiPackage.MoushiId, StandardShanheS5MoushiPackage.JiemingId) ||
             ids.Contains(StandardShanheS5MoushiPackage.GuotuId, StringComparer.Ordinal) ||
             ids.Contains(StandardShanheS5MoushiPackage.ShenpeiId, StringComparer.Ordinal);
+        var s5HanEmperors = RequiresThreeBossRegistry(setup, StandardShanheS5HanEmperorsPackage.LiuxieId,
+            StandardShanheS5HanEmperorsPackage.ShiyuanId) || ids.Contains(StandardShanheS5HanEmperorsPackage.LiubianId, StringComparer.Ordinal);
+        var s5Xuncan = RequiresThreeBossRegistry(setup, StandardShanheS5XuncanCaoshiPackage.XuncanId,
+            StandardShanheS5XuncanCaoshiPackage.YunshenId, StandardShanheS5XuncanCaoshiPackage.ShangshenId,
+            StandardShanheS5XuncanCaoshiPackage.FenchaiId, StandardShanheS5XuncanCaoshiPackage.LeijieId) ||
+            ids.Contains(StandardShanheS5XuncanCaoshiPackage.CaoshiId, StringComparer.Ordinal);
         var s5Zaiqi = RequiresS5ZaiqiRegistry(setup);
         var key = $"{setup.AllyRoster.Count}/{setup.EnemyRoster.Count}/" + string.Join("|", ids) +
             (codexEquipment ? "/codex-equipment" : "") + (currentFarStrike ? "/current-yuanji-2129" : "") +
@@ -274,6 +280,8 @@ public static partial class StandardShanheCampaignCatalog
             (s5MaSiblings ? "/s5-ma-siblings-2642" : "") +
             (s5Dongwu ? "/s5-dongwu-2659" : "") +
             (s5Moushi ? "/s5-moushi-2674" : "") +
+            (s5HanEmperors ? "/s5-han-emperors-2643" : "") +
+            (s5Xuncan ? "/s5-xuncan-caoshi-2657" : "") +
             (s5Zaiqi ? "/s5-zaiqi-887" : "") +
             (setup.RebirthAvailable ? "/rank-five-rebirth" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
@@ -315,6 +323,12 @@ public static partial class StandardShanheCampaignCatalog
             if (s5MaSiblings) packages.Add(new StandardShanheS5MaSiblingsPackage());
             if (s5Dongwu) packages.Add(new StandardShanheS5DongwuVeteransPackage());
             if (s5Moushi) packages.Add(new StandardShanheS5MoushiPackage());
+            if (s5HanEmperors) packages.Add(new StandardShanheS5HanEmperorsPackage());
+            if (s5Xuncan) packages.Add(new StandardShanheS5XuncanCaoshiPackage());
+            if (ids.Any(id => id is StandardShanheS5SunJianWuguotaiPackage.SunjianId or StandardShanheS5SunJianWuguotaiPackage.WuguotaiId))
+                packages.Add(new StandardShanheS5SunJianWuguotaiPackage());
+            if (ids.Contains(StandardShanheS5DongZhuoBasePackage.DongzhuoId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5DongZhuoBasePackage());
             // These forms reuse existing skills. The roster, already present
             // in the cache key, is their only additional package requirement.
             if (ids.Contains(StandardShanheS5HuaxiongBasePackage.HuaxiongId, StringComparer.Ordinal))

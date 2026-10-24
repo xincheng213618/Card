@@ -297,7 +297,7 @@ public sealed partial class GameEngine
     {
         var target = _players[attack.TargetSeat]; var bonus = 0;
         if (!attack.IsSourceLess && !attack.IsChainPropagation && attack.CardUserSeat == attack.SourceSeat &&
-            attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+            attack.EffectiveCardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash &&
             ShenwuEnabled(_players[attack.SourceSeat], "shenwu:xiongshou") && target.Hp < _players[attack.SourceSeat].Hp) bonus++;
         if (!attack.IsSourceLess && attack.SourceSeat != attack.TargetSeat &&
             HasCardPolicy(target, SkillProgramCardPolicyKind.ShenwuArmedSourceDamageBonus) &&

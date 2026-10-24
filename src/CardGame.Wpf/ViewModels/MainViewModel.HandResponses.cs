@@ -133,7 +133,7 @@ public sealed partial class MainViewModel
 
     private bool IsSelectedResponseConversion(CardKind required) => SelectedHandResponse is { Cards.Count: 1 } choice &&
         HandResponseMaterials.Single(card => card.Id == choice.Cards[0]).Kind is { } physical &&
-        (required == CardKind.Slash ? physical is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) : physical != required);
+        (required == CardKind.Slash ? physical is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash) : physical != required);
 
     private string HandResponseHint => IsBaguaActivationPending
         ? "是否发动【八卦阵】？红色判定视为打出【闪】；不发动或判定失败后，可以继续选择手牌出闪。"

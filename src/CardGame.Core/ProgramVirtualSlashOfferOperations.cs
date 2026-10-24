@@ -38,7 +38,7 @@ internal sealed class GrantTurnCardEffectImmunityProgramOperationDescriptor : Pr
         if (kinds.Count == 0 || kinds.Distinct().Count() != kinds.Count || kinds.Any(kind => !CardEffectImmunityKinds.Contains(kind))) throw new InvalidOperationException("Card-effect immunity requires Slash or ordinary trick kinds.");
         return new SkillProgramEffect(Op, target, 0, r.Condition(), cardKinds: kinds);
     }
-    internal static IReadOnlyList<CardKind> CardEffectImmunityKinds { get; } = Array.AsReadOnly(Enum.GetValues<CardKind>().Where(kind => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash || CardUseCategoryCatalog.Get(kind) == CardUseCategories.InstantTrick).ToArray());
+    internal static IReadOnlyList<CardKind> CardEffectImmunityKinds { get; } = Array.AsReadOnly(Enum.GetValues<CardKind>().Where(kind => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash || CardUseCategoryCatalog.Get(kind) == CardUseCategories.InstantTrick).ToArray());
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }
 

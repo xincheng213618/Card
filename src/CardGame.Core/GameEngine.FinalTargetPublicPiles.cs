@@ -10,7 +10,7 @@ public sealed partial class GameEngine
     private CardUseFrame FinalTargetPileUse(ProgramSkillFrame frame)
     {
         if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, CardUse: { } use } ||
-            use.ActorSeat != frame.OwnerSeat || !CollectFinalTargetCardInPublicPileDescriptor.Kinds.Contains(use.EffectiveKind) ||
+            use.ActorSeat != frame.OwnerSeat || !ProgramCardKindMatch.Contains(CollectFinalTargetCardInPublicPileDescriptor.Kinds, use.EffectiveKind) ||
             _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(p => p.Id == use.ParentCardUseFrameId) is not { Action: { Type: CardActionType.Use } a } parent ||
             a.ActionId != use.CardActionId || a.ActorSeat != frame.OwnerSeat || a.EffectiveKind != use.EffectiveKind)
             throw new InvalidOperationException("Final-target collection lost its actual finalized card use.");

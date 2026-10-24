@@ -26,7 +26,7 @@ public sealed partial class GameEngine
         {
             if (_resolutionStack[index - 1] is not DamageTriggerWindowFrame w || w.TriggerWindow != SkillProgramTriggerWindow.AfterDamageApplied ||
                 w.TargetSeat != f.OwnerSeat || c.TargetSeat != f.OwnerSeat || c.Window != w.TriggerWindow || c.Amount <= 0 ||
-                w.SourceCard is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel) ||
+                w.SourceCard is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Duel) ||
                 w.CandidateIndex < 0 || w.CandidateIndex >= w.Candidates.Count ||
                 !MountObserverCandidateMatches(f, w.Candidates[w.CandidateIndex].ToProgramCandidate())) return false;
             if (_resolutionStack.OfType<DamageFrame>().SingleOrDefault(d => d.Id == w.ParentFrameId) is not { } applied ||

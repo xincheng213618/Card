@@ -43,7 +43,7 @@ internal static class MoSimaYiComposition
                     v.InputKinds.Count == 0 && v.InputCategories.Count == 0 && v.InputSuits.Count == 0 &&
                     v.SourceZones.SequenceEqual([CardZoneKind.Hand]) && v.AllowSameKind && v.ExtendedUse &&
                     v.SingleCardTrickUse == Ordinary(v.OutputKind) && v.ForPlay == (v.OutputKind is not (CardKind.Dodge or CardKind.Nullification)) &&
-                    v.ForResponse == (v.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Dodge or CardKind.Peach or CardKind.Alcohol or CardKind.Nullification) &&
+                    v.ForResponse == (v.OutputKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash or CardKind.Dodge or CardKind.Peach or CardKind.Alcohol or CardKind.Nullification) &&
                     v.DamageBonus == 0 && v.RecoveryBonus == 0 && !v.DistanceUnlimited && !v.UseOnly && v.CostDestination is null &&
                     v.UsesPerPhase is null && v.UsesPerActualTurn is null && v.Condition.Kind == SkillProgramConditionKind.Always),
             Moubian => p.Activations.Count == 0 && p.ViewAs.Count == 0 && p.Triggers is [var prep] &&

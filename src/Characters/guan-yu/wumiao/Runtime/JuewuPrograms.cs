@@ -49,7 +49,7 @@ internal static class JuewuComposition
         CardKind.BarbarianAssault, CardKind.ArrowBarrage, CardKind.FireAttack, CardKind.WumiaoFlood
     });
 
-    internal static bool IsSlash(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+    internal static bool IsSlash(CardKind kind) => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.ColdSlash;
     internal static string Binding(CardKind kind)
     {
         var text = kind.ToString();

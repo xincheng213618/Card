@@ -419,7 +419,7 @@ public sealed partial class GameEngine
             if (window is (SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseCommitted) && action.Type == CardActionType.Response &&
                 !trigger.IncludeResponseUses) continue;
             if (trigger.OwnerRelation is not { } relation ||
-                trigger.CardKinds.Count > 0 && !trigger.CardKinds.Contains(action.EffectiveKind) ||
+                trigger.CardKinds.Count > 0 && !ProgramCardKindMatch.Contains(trigger.CardKinds, action.EffectiveKind) ||
                 trigger.CardCategories.Count > 0 && (action.Type != CardActionType.Use && !trigger.IncludeResponseUses ||
                     !MatchesProgramCardCategory(action.EffectiveKind, trigger.CardCategories))) continue;
             var bindingTargets = trigger.OnlyDesignatedCardTargets

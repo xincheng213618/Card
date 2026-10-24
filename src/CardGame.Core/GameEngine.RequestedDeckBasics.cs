@@ -74,7 +74,7 @@ public sealed partial class GameEngine
             IsCardUseForbidden(actor.Seat,required,RequestedDeckBasicActionType(context.Intent)))return p;
         var owner=_resolutionStack.Single(f=>f.Id==context.OwnerId);
         if(owner.RequestedDeckBasicMaterial is { } seen && seen.OriginalPromptId==p.PromptId && seen.RequestFrameId==context.RequestId && seen.ActorSeat==actor.Seat && seen.Cursor==context.Cursor)return p;
-        var sources=RequestedDeckBasicSources(actor,required).Where(s=>s.Policy.CardKinds.Contains(required)).ToArray();
+        var sources=RequestedDeckBasicSources(actor,required).Where(s=>s.Policy.CardKinds.Contains(required) || IsSlashCard(required)&&s.Policy.CardKinds.Contains(CardKind.Slash)).ToArray();
         if(sources.Length==0)return p;
         // Older AI producers use PromptId zero. Only this opt-in real need gets
         // an issued prompt token, so a later need is not confused with a refusal.

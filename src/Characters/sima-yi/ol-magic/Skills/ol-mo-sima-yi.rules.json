@@ -344,6 +344,17 @@
           "allowSameKind": true
         },
         {
+          "id": "recorded-ColdSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": ["hand"],
+          "outputKind": "coldSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "extendedUse": true,
+          "allowSameKind": true
+        },
+        {
           "id": "recorded-Alcohol",
           "inputKinds": [],
           "inputSuits": [],

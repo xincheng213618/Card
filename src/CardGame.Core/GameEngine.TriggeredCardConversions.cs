@@ -45,7 +45,7 @@ public sealed partial class GameEngine
     private bool TriggeredSlashSelectionAccepts(CharacterState owner, SkillProgramEffect selection, Card card, CardLocation location) =>
         selection.Zones.Contains(location.Zone) &&
         (selection.Suits.Count == 0 || selection.Suits.Contains(GetProgramEffectiveSuit(owner, card))) &&
-        (selection.CardKinds.Count == 0 || selection.CardKinds.Contains(card.Kind));
+        (selection.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(selection.CardKinds, card.Kind));
 
     private SkillProgramStepOutcome UseTriggeredBoundCardsAsSlash(ProgramSkillFrame supplied, SkillProgramEffect effect)
     {

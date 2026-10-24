@@ -157,6 +157,8 @@ public sealed partial class GameEngine
             case PostEventContinuation.VirtualBasicCardUse:
                 FinishVirtualBasicUse(frame.ResumeFrameId!.Value);
                 break;
+            case PostEventContinuation.ColdDamageReplacement:
+                AdvanceRuntimeFrame(frame.ResumeFrameId!.Value); break;
             case PostEventContinuation.RecoveryReplacement:
                 AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
                 break;
@@ -250,6 +252,9 @@ public sealed partial class GameEngine
                     contexts.Any(context => context.ParentFrameId != movement.Id || context.MovementBatch != movement.Batch))
                     throw new InvalidOperationException("A movement window lost its frozen contexts.");
                 AssertWenhePoisonMovementWindow(movement);
+                if (movement.ResumeColdDamageReplacementFrameId is { } coldId &&
+                    (parent is not ColdDamageReplacementFrame cold || cold.Id != coldId || movement.Batch.ParentFrameId != coldId || movement.Batch.AwaitingProgramFrameId is not null))
+                    throw new InvalidOperationException("Cold damage lost its exact paid movement child.");
                 if (movement.WenhePoisonFireAttackReturn is not null &&
                     (parent is not CardUseFrame poisonFire || !IsWenhePoisonFireAttackMovement(poisonFire, movement)))
                     throw new InvalidOperationException("Poison Fire Attack lost its exact paid movement return.");
@@ -286,6 +291,7 @@ public sealed partial class GameEngine
                      awaited.SelectedCardPayment is not { } payment || payment.ActiveChildFrameId == hp.Id),
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
+                PostEventContinuation.ColdDamageReplacement => parent is ColdDamageReplacementFrame cold && cold.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == cold.Id,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
                 PostEventContinuation.SkillInvocation => parent is SkillInvocationFrame invocation && IsSkillInvocationHealthChild(invocation, hp),
                 PostEventContinuation.KemingEcho => parent is KemingSkillEchoFrame echo && KemingSkillEchoFrameRidesOn(hp, echo),
