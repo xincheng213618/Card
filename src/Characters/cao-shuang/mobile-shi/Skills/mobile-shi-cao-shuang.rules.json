@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-shequan",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "shequan-caused",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "priority": 100,
+          "effects": [
+            { "op": "resolveShiCaoShuangSheQuan", "target": "owner" }
+          ]
+        },
+        {
+          "id": "shequan-taken",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "priority": 100,
+          "effects": [
+            { "op": "resolveShiCaoShuangSheQuan", "target": "owner" }
+          ]
+        },
+        {
+          "id": "shequan-dying",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "priority": 100,
+          "effects": [
+            { "op": "resolveShiCaoShuangSheQuan", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-dianyi",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "dianyi-caused",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiCaoShuangDianYi", "target": "owner" }
+          ]
+        },
+        {
+          "id": "dianyi-taken",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiCaoShuangDianYi", "target": "owner" }
+          ]
+        },
+        {
+          "id": "dianyi-dying",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiCaoShuangDianYi", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-jianzhuan",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "jianzhuan-caused",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "priority": -100,
+          "effects": [
+            { "op": "resolveShiCaoShuangJianZhuan", "target": "owner" }
+          ]
+        },
+        {
+          "id": "jianzhuan-taken",
+          "window": "afterDamageApplied",
+          "damageOccurrence": "perDamage",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "priority": -100,
+          "effects": [
+            { "op": "resolveShiCaoShuangJianZhuan", "target": "owner" }
+          ]
+        },
+        {
+          "id": "jianzhuan-dying",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "priority": -100,
+          "effects": [
+            { "op": "resolveShiCaoShuangJianZhuan", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-nizun",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "nizun-use",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": 1,
+          "usesPerPhase": null,
+          "condition": { "kind": "always" },
+          "effects": [
+            { "op": "resolveShiCaoShuangNiZunUse", "target": "owner" }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "nizun-turn-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "anyLiving",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiCaoShuangNiZunStash", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
