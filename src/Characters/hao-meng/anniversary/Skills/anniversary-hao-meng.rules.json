@@ -1,0 +1,8 @@
+{"schemaVersion":62,"skills":[{"id":"anniversary:xiongmang","revision":1,
+"viewAs":[
+ {"id":"distinct-hand-1","inputKinds":[],"inputSuits":[],"inputCount":1,"sourceZones":["hand"],"outputKind":"slash","forPlay":true,"forResponse":false,"allowSameKind":true},
+ {"id":"distinct-hand-2","inputKinds":[],"inputSuits":[],"inputCount":2,"sourceZones":["hand"],"outputKind":"slash","forPlay":true,"forResponse":false,"allowSameKind":true},
+ {"id":"distinct-hand-3","inputKinds":[],"inputSuits":[],"inputCount":3,"sourceZones":["hand"],"outputKind":"slash","forPlay":true,"forResponse":false,"allowSameKind":true},
+ {"id":"distinct-hand-4","inputKinds":[],"inputSuits":[],"inputCount":4,"sourceZones":["hand"],"outputKind":"slash","forPlay":true,"forResponse":false,"allowSameKind":true}
+],"activations":[{"id":"distinct-hand-native-slash","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"resolveAnniversaryHaoMengXiongmangUse","target":"owner"}]}],
+"triggers":[{"id":"issued-whole-slash-consequence","window":"cardUseCompleted","ownerRelation":"conversionSource","sourceSkillId":"anniversary:xiongmang","singleActionInstance":true,"optional":false,"isSkillInvocation":false,"effects":[{"op":"resolveAnniversaryHaoMengXiongmangConsequence","target":"owner"}]}]}]}

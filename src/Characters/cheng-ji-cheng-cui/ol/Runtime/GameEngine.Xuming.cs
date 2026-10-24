@@ -75,6 +75,10 @@ public sealed partial class GameEngine
             .OrderBy(i => RelativeTableOrder(parent.OwnerSeat, i.Candidate!.OwnerSeat))
             .ThenByDescending(i => i.Priority).ThenBy(i => i.StableIdentity, StringComparer.Ordinal) : ordinary.Concat(ordered)).ToArray());
     }
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 32202, SkillProgramEffectOp.ResolveXumingIssuedTurnEndUses)]
+    private bool CanOfferXumingEnding(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context) =>
+        IsIssuedXumingCandidate(candidate, context);
+
     private bool IsIssuedXumingCandidate(ProgramTriggerCandidate c, ProgramSkillWindowContext context) =>
         c.SkillId == ChengJiChengCuiComposition.Xuming && c.BindingId == "issued-whole-turn-uses" &&
         context.Window == SkillProgramTriggerWindow.AfterTurnEnded && context.OwnerSeat == c.OwnerSeat &&

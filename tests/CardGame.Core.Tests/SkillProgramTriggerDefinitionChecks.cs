@@ -8,6 +8,25 @@ internal static class SkillProgramTriggerDefinitionChecks
         RejectsRetiredSchemas();
         LoadsCurrentTriggerAndKeepsCollectionsImmutable();
         RejectsInvalidSourcesWindowsEffectsAndUnknownFields();
+        JudgmentEntryKeepsFieldMovementConstraints();
+    }
+
+    private static void JudgmentEntryKeepsFieldMovementConstraints()
+    {
+        var rules = JsonNode.Parse(CurrentRules)!;
+        rules["skills"]![1]!["triggers"]![0] = JsonNode.Parse("""
+            {"id":"field-entry","window":"cardsGained","subject":"owner","destinationZones":["judgment"],
+             "movementOccurrence":"perCard","optional":false,"effects":[{"op":"draw","target":"owner","amount":1}]}
+            """);
+        var trigger = SkillProgramCatalog.Load(rules.ToJsonString(), Presentation).Programs["test:trigger"].Triggers.Single();
+        Require(trigger.Window == SkillProgramTriggerWindow.CardsGained && trigger.DestinationZones.SequenceEqual([CardZoneKind.Judgment]) &&
+                trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerCard,
+            "A settled native judgment-area entry uses the existing typed movement window.");
+        rules["skills"]![1]!["triggers"]![0]!["movementOccurrence"] = "perOwnerBatch";
+        AssertReject(rules.ToJsonString(), Presentation, "judgment entry supports perBatch/perCard only");
+        rules["skills"]![1]!["triggers"]![0]!["movementOccurrence"] = "perBatch";
+        rules["skills"]![1]!["triggers"]![0]!["destinationZones"] = new JsonArray("judgment", "hand");
+        AssertReject(rules.ToJsonString(), Presentation, "requires exactly");
     }
 
     private static void RejectsRetiredSchemas()

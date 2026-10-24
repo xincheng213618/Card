@@ -448,7 +448,7 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(f = f with { AssistedSlashRequest = null });
             CommitProgramChoiceResult(f.Id, effect.ResultBind!, "used-slash", r.ActorSeat, "透髓：使用【杀】。");
         }
-        else if (r.RequestOp == SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)
+        else if (r.RequestOp is SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash)
             ReplaceRuntimeTop(f = f with { FixedTargetSlash = f.FixedTargetSlash!with { Issued = true } });
         else if (r.RequestOp == SkillProgramEffectOp.RequestLegalSlashByNearest)
             ReplaceRuntimeTop(f = f with { NearestLegalSlashRequest = null });

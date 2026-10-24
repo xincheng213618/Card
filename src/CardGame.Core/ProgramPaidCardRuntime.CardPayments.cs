@@ -285,7 +285,8 @@ internal sealed partial class ProgramPaidCardRuntime
             effect.ChooserRef?.Kind == ProgramParticipantRef.CardProvider &&
             effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&
             effect.TargetReference?.Kind == ProgramParticipantRef.CardProvider && effect.AwaitMovementTriggers;
-        if (selfProviderReward && destination == source && source == CardLocation.Hand(ownerSeat))
+        if (destination == source && source == CardLocation.Hand(ownerSeat) &&
+            (selfProviderReward || _facts.IsSatisfiedOwnHandReward(frame, effect)))
         {
             // Obtaining one's own hand card is already satisfied. Do not manufacture
             // a hand loss/gain pair or unrelated movement-trigger rewards.

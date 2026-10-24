@@ -17,7 +17,8 @@ public sealed partial class GameEngine
                 request = new(HuanpeiIntent.WenyiPeach, f.Id, f.Id, null, p.PlayerSeat, f.InstructionIndex, CardKind.Peach, f.HuanShuJun!.TargetSeat, p.PromptId, p.Revision);
             else if (f.KeBiNengPingduan is { Stage: KeBiNengPingduanStage.BasicChoice } ke && ke.ActorSeat == p.PlayerSeat)
                 request = new(HuanpeiIntent.KeBiNengBasic, f.Id, f.Id, null, p.PlayerSeat, f.InstructionIndex, null, null, p.PromptId, p.Revision);
-            else if (f.FixedTargetSlash is { Issued: false } fixedSlash && f.OwnerSeat == p.PlayerSeat && GetPausedPrivateOfferEffect(f)?.Op == SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)
+            else if (f.FixedTargetSlash is { Issued: false } fixedSlash && f.OwnerSeat == p.PlayerSeat &&
+                (GetPausedPrivateOfferEffect(f)?.Op == SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner || IsAnniversaryLeiBoFixedSlash(f)))
                 request = new(HuanpeiIntent.FixedSlash, f.Id, f.Id, null, p.PlayerSeat, f.InstructionIndex, CardKind.Slash, fixedSlash.TargetSeat, p.PromptId, p.Revision);
         }
         if (request is null && DrawFundedDistinctBasicContext(p, top) is { } n)

@@ -26,6 +26,7 @@ internal interface IProgramPaidCardFacts : IProgramSelectionQuery
     CardSnapshot Snapshot(Card card);
     int ProviderSeat(ProgramSkillFrame frame);
     SkillProgramEffect OwnedSelectionEffect(ProgramSkillFrame frame);
+    bool IsSatisfiedOwnHandReward(ProgramSkillFrame frame, SkillProgramEffect effect);
     bool ForeignDiscardPrevented(int chooser, Card card, CardLocation source, OwnedCardMoveIntent intent);
     bool SelfDiscardForbidden(int chooser, Card card, CardLocation source, OwnedCardMoveIntent intent);
     bool IsActiveSourceEquipment(int owner, string skillId, string instanceId, Card card);
@@ -115,6 +116,7 @@ public sealed partial class GameEngine
         public CardSnapshot Snapshot(Card card) => engine.ToSnapshot(card);
         public int ProviderSeat(ProgramSkillFrame frame) => engine.GuanParentAction(frame).ProviderSeat;
         public SkillProgramEffect OwnedSelectionEffect(ProgramSkillFrame frame) => engine.GetOwnedSelectionEffect(frame);
+        public bool IsSatisfiedOwnHandReward(ProgramSkillFrame frame, SkillProgramEffect effect) => engine.IsAnniversaryLeiBoSelfLoot(frame, effect);
         public bool ForeignDiscardPrevented(int chooser, Card card, CardLocation source, OwnedCardMoveIntent intent) =>
             engine.IsForeignEquipmentDiscardPrevented(chooser, card, source, intent);
         public bool SelfDiscardForbidden(int chooser, Card card, CardLocation source, OwnedCardMoveIntent intent) =>

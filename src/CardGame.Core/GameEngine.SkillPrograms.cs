@@ -1135,6 +1135,7 @@ public sealed partial class GameEngine
                 if (IsGuanduChoiceResult(frame, binding)) continue;
                 if (IsMouHuaXiongChoiceResult(frame, binding)) continue;
                 if (IsAnniversaryZhuZhiChoiceResult(frame, binding)) continue;
+                if (IsAnniversaryLeiBoFactionChoiceResult(frame, binding)) continue;
                 if (IsMobileShiChengPuChoiceResult(frame, binding)) continue;
                 if (IsMobileShiLuYuShengChoiceResult(frame, binding)) continue;
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>

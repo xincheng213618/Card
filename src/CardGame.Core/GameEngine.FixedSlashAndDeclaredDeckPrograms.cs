@@ -173,9 +173,9 @@ public sealed partial class GameEngine
         if (frame.FixedTargetSlash is not { Issued: true } draft) return false;
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
         var answer = frame.ChoiceBindings.SingleOrDefault(binding => binding.Name == FixedTargetFactionResultBind);
-        if (effect.Op != SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner || pending.AssistedResultBind != FixedTargetFactionResultBind ||
+        if ((effect.Op != SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner && !IsAnniversaryLeiBoFixedSlash(frame)) || pending.AssistedResultBind != FixedTargetFactionResultBind ||
             pending.OwnerSeat != frame.OwnerSeat || pending.TargetSeat != draft.TargetSeat || pending.PolicySource is null ||
-            frame.WindowContext?.Window != SkillProgramTriggerWindow.TurnEnding || frame.WindowContext.TargetSeat != draft.TargetSeat ||
+            ((frame.WindowContext?.Window != SkillProgramTriggerWindow.TurnEnding || frame.WindowContext.TargetSeat != draft.TargetSeat) && !IsAnniversaryLeiBoFixedSlash(frame)) ||
             (pending.ActiveAttack is null ? answer is not null : answer?.OptionId != "used-slash"))
             throw new InvalidOperationException("A fixed faction Slash changed its owner, target or issued instruction.");
         return true;
@@ -335,8 +335,8 @@ public sealed partial class GameEngine
 
     private void AssertFixedSlashAndDeclaredDeckDrafts(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
-        if (frame.FixedTargetSlash is { } slash && (paused.Op != SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner ||
-            frame.WindowContext?.Window != SkillProgramTriggerWindow.TurnEnding || frame.WindowContext.TargetSeat != slash.TargetSeat ||
+        if (frame.FixedTargetSlash is { } slash && (((paused.Op != SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner ||
+            frame.WindowContext?.Window != SkillProgramTriggerWindow.TurnEnding || frame.WindowContext.TargetSeat != slash.TargetSeat) && !IsAnniversaryLeiBoFixedSlash(frame)) ||
             slash.TargetSeat == frame.OwnerSeat || !IsValidPlayerSeat(slash.TargetSeat) || slash.IgnoreDistance != paused.BooleanValue))
             throw new InvalidOperationException("The fixed Slash draft lost its frozen target or instruction.");
         if (frame.DeckCriterion is { } d && (paused.Op != SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard ||

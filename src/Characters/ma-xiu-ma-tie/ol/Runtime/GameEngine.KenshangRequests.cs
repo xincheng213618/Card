@@ -143,7 +143,7 @@ public sealed partial class GameEngine
         ClearPendingDecision();ReplaceRuntimeTop(f=f with{Step=ResolutionFrameStep.ResolvingEffect});
         if(r.RequestOp==SkillProgramEffectOp.RequestSlashByTarget)CommitProgramChoiceResult(f.Id,effect.ResultBind!,RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption,r.ActorSeat,"垦伤：使用【杀】。");
         else if(r.RequestOp==SkillProgramEffectOp.RequestSlashAgainstChosenTarget){ReplaceRuntimeTop(f=f with{AssistedSlashRequest=null});CommitProgramChoiceResult(f.Id,effect.ResultBind!,"used-slash",r.ActorSeat,"垦伤：使用【杀】。");}
-        else if(r.RequestOp==SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)ReplaceRuntimeTop(f=f with{FixedTargetSlash=f.FixedTargetSlash! with{Issued=true}});
+        else if(r.RequestOp is SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash)ReplaceRuntimeTop(f=f with{FixedTargetSlash=f.FixedTargetSlash! with{Issued=true}});
         else if(r.RequestOp==SkillProgramEffectOp.RequestLegalSlashByNearest)ReplaceRuntimeTop(f=f with{NearestLegalSlashRequest=null});
         if(r.RequestOp==SkillProgramEffectOp.UseHejiAtCompletedSingleTarget){PrepareWuJingKenshangNative(f,selection);f=GetActiveProgramFrame(f.Id);}
         if(IsSayingSlashRequest(f)){PrepareSayingSuppliedSlash(f,r.ActorSeat,r.ActorSeat,r.TargetSeat,CardKind.Slash,selection.Cards,r.Source);f=GetActiveProgramFrame(f.Id);}

@@ -247,6 +247,7 @@ public sealed partial class GameEngine
             .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query))
             .Concat(HappyZlNumericContributions(player, query))
             .Concat(AnniversaryZhangXunSlashContributions(player, query))
+            .Concat(AnniversaryHaoMengSlashContributions(player, query))
             .Concat(AnniversaryHanSongNumericContributions(player, query)).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
@@ -287,6 +288,7 @@ public sealed partial class GameEngine
             .Concat(CollectOtherPublicTeamNumericRuleContributions(player, query)).Concat(MouSmSlashContributions(player, query))
             .Concat(HappyZlNumericContributions(player, query))
             .Concat(AnniversaryZhangXunSlashContributions(player, query))
+            .Concat(AnniversaryHaoMengSlashContributions(player, query))
             .Concat(AnniversaryHanSongNumericContributions(player, query)).ToArray();
     }
 

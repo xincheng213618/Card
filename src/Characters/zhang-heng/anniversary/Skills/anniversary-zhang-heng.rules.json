@@ -1,0 +1,9 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:liangjue","revision":1,"triggers":[
+  {"id":"black-equipment-leaves","window":"cardsMoved","subject":"owner","sourceZones":["equipment"],"movementOccurrence":"perCard","optional":false,"effects":[{"op":"draw","target":"owner","amount":2},{"op":"awaitOwnedCardMovement","target":"owner"},{"op":"loseHp","target":"owner","amount":1,"condition":{"kind":"hpAtLeast","value":2}}]},
+  {"id":"black-judgment-leaves","window":"cardsMoved","subject":"owner","sourceZones":["judgment"],"movementOccurrence":"perCard","optional":false,"effects":[{"op":"draw","target":"owner","amount":2},{"op":"awaitOwnedCardMovement","target":"owner"},{"op":"loseHp","target":"owner","amount":1,"condition":{"kind":"hpAtLeast","value":2}}]},
+  {"id":"black-equipment-enters","window":"cardsGained","subject":"owner","destinationZones":["equipment"],"movementOccurrence":"perCard","optional":false,"effects":[{"op":"draw","target":"owner","amount":2},{"op":"awaitOwnedCardMovement","target":"owner"},{"op":"loseHp","target":"owner","amount":1,"condition":{"kind":"hpAtLeast","value":2}}]},
+  {"id":"black-judgment-enters","window":"cardsGained","subject":"owner","destinationZones":["judgment"],"movementOccurrence":"perCard","optional":false,"effects":[{"op":"draw","target":"owner","amount":2},{"op":"awaitOwnedCardMovement","target":"owner"},{"op":"loseHp","target":"owner","amount":1,"condition":{"kind":"hpAtLeast","value":2}}]}
+ ]},
+ {"id":"anniversary:dangzai","revision":1,"triggers":[{"id":"take-delayed-subset","window":"playPhaseStarting","subject":"owner","optional":true,"effects":[{"op":"resolveAnniversaryZhangHengDangzai","target":"owner"}]}]}
+]}

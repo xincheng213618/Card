@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "anniversary:liangjue":{"name":"粮绝","description":"锁定技，每有1张黑色牌进入或者离开你的判定区或装备区时，你摸两张牌，若你体力值大于1，失去1点体力。"},
+ "anniversary:dangzai":{"name":"挡灾","description":"出牌阶段开始时，你可选择一名判定区里有牌的其他角色，然后将其判定区里的任意张牌移动到你的判定区。"}
+}}

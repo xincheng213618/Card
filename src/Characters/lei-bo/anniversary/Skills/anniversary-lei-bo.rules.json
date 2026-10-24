@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:silue", "revision": 1, "triggers": [
+      { "id": "opening-mark", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" }, { "op": "initializeAnniversaryLeiBoSilei", "target": "owner" }] },
+      { "id": "marked-source-loot", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": true,
+        "effects": [{ "op": "recordAnniversaryLeiBoSileiLoot", "target": "owner" },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventTarget" }, "zones": ["hand", "equipment"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true, "awaitMovementTriggers": true }] },
+      { "id": "marked-victim-reply", "window": "afterDamageApplied", "subject": "any", "damageOccurrence": "perDamage", "optional": false,
+        "effects": [{ "op": "requestAnniversaryLeiBoSileiSlash", "target": "owner" }, { "op": "settleAnniversaryLeiBoSileiPenalty", "target": "owner" }] }
+    ] },
+    { "id": "anniversary:shuaijie", "revision": 1, "activations": [
+      { "id": "seize-and-return-mark", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1,
+        "effects": [{ "op": "beginAnniversaryLeiBoShuaijie", "target": "owner" }, { "op": "changeMaximumHp", "target": "owner", "amount": -1 }, { "op": "finishAnniversaryLeiBoShuaijie", "target": "owner" }] }
+    ] }
+  ]
+}

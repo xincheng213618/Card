@@ -70,7 +70,7 @@ public sealed partial class GameEngine
         { if (!SameHuanpeiPayment(lease.Payment, r.Payment) || lease.UseId != use.Id || lease.ActionId != r.CardActionId) throw new InvalidOperationException("Huanpei returned to another native program request."); ReplaceRuntimeFrame(p.Id, p with { HuanpeiReturn = lease with { Returned = true } }); }
         AdvanceEventRulesAndQueueFact(new HuanpeiReturnedEvent(r.Payment.ProgramFrameId, use.Id, r.CardActionId));
         if (r.Payment.Request.ParentFrameId is { } genericId && _resolutionStack.SingleOrDefault(x => x.Id == genericId) is ProgramSkillFrame generic &&
-            r.Payment.Request.ParentOperation is SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)
+            r.Payment.Request.ParentOperation is SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash)
         {
             if (!HasHuanpeiProgramPayment(generic) || generic.HuanpeiReturn?.Returned != true) throw new InvalidOperationException("Huanpei's generic native request has not actually returned.");
             ReplaceRuntimeFrame(generic.Id, generic with { HuanpeiReturn = null });

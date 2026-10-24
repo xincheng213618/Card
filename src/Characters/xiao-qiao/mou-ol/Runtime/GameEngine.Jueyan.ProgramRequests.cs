@@ -51,7 +51,7 @@ public sealed partial class GameEngine
         if(r.RequestOperation==SkillProgramEffectOp.RequestSlashByTarget)CommitProgramChoiceResult(f.Id,r.ResultBind!,"used-slash",r.ActorSeat,"绝颜：展示并视为使用原手牌。");
         else if(r.RequestOperation==SkillProgramEffectOp.RequestSlashAgainstChosenTarget)
         {ReplaceRuntimeTop(f=f with{AssistedSlashRequest=null});CommitProgramChoiceResult(f.Id,r.ResultBind!,"used-slash",r.ActorSeat,"绝颜：展示并视为使用原手牌。");}
-        else if(r.RequestOperation==SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)ReplaceRuntimeTop(f with{FixedTargetSlash=f.FixedTargetSlash!with{Issued=true}});
+        else if(r.RequestOperation is SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash)ReplaceRuntimeTop(f with{FixedTargetSlash=f.FixedTargetSlash!with{Issued=true}});
         else if(r.RequestOperation==SkillProgramEffectOp.RequestLegalSlashByNearest)ReplaceRuntimeTop(f with{NearestLegalSlashRequest=null});
     }
     [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss,34001)]

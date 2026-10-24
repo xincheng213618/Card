@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"anniversary:xiongmang":{"name":"雄莽","description":"将花色各不相同的手牌当杀使用，可选目标上限为材料花色数；整牌无伤减体力上限，有伤增加本阶段杀次数。","activationLabels":{"distinct-hand-native-slash":"选择不同花色手牌及原生合法目标"},"triggerLabels":{"issued-whole-slash-consequence":"雄莽：结算本次真实杀的后果"}}}}

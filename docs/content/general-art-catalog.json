@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-zhang-heng",
+      "characterName": "张横",
+      "defaultSkinId": "160801",
+      "skins": [
+        {
+          "id": "160801",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/608.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/160801.png",
+          "sha256": "1c09cf4b7cfba57f7d31241e626703204183da94ad2632c295dfa8c9b4352b14",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-zhang-heng.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-hao-meng",
+      "characterName": "郝萌",
+      "defaultSkinId": "1107401",
+      "skins": [
+        {
+          "id": "1107401",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1074.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/1107401.png",
+          "sha256": "6302e2021b5ac36faf8baa209809ab220db36e9d6ec522ff98d3a36d50286aa8",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-hao-meng.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-lei-bo",
+      "characterName": "雷薄",
+      "defaultSkinId": "1190301",
+      "skins": [
+        {
+          "id": "1190301",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1903.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1190301.png",
+          "sha256": "a31b4fb5548f09ba77af03b3df728642b75176e2bcba61f7169f507753f53b0e",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-lei-bo.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-yuan-yin",
       "characterName": "袁胤",
       "defaultSkinId": "1190701",

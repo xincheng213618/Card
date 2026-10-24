@@ -55,7 +55,7 @@ public sealed partial class GameEngine
         if(p.KeBiNengPingduan is{Stage:KeBiNengPingduanStage.BasicChoice,ActorSeat:var actor}&&actor==provider&&ValidKeBiNeng(p))return N(ZonghuIntent.GenericBasic,provider,_players.Where(t=>t.IsAlive).Select(t=>t.Seat).ToArray(),op:effect.Op,instruction:p.InstructionIndex);
         if(!RoundOnceCardlessProgramActor(p,effect.Op,provider))return null;
         var targets=RoundOnceCardlessProgramTargets(p,provider,effect.Op);if(targets.Length==0)return null;
-        return N(effect.Op switch{SkillProgramEffectOp.RequestSlashByTarget=>ZonghuIntent.ProgramSlash,SkillProgramEffectOp.RequestSlashByNearest=>ZonghuIntent.ProgramNearestSlash,SkillProgramEffectOp.RequestLegalSlashByNearest=>ZonghuIntent.NearestLegalSlash,SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner=>ZonghuIntent.FixedSlash,_=>ZonghuIntent.AssistedSlash},provider,targets,op:effect.Op,instruction:p.InstructionIndex);
+        return N(effect.Op switch{SkillProgramEffectOp.RequestSlashByTarget=>ZonghuIntent.ProgramSlash,SkillProgramEffectOp.RequestSlashByNearest=>ZonghuIntent.ProgramNearestSlash,SkillProgramEffectOp.RequestLegalSlashByNearest=>ZonghuIntent.NearestLegalSlash,SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash=>ZonghuIntent.FixedSlash,_=>ZonghuIntent.AssistedSlash},provider,targets,op:effect.Op,instruction:p.InstructionIndex);
     }
     private static bool ZonghuIsDying(ZonghuNeed n) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_liu_zhang_ol_ZonghuNeeds.ZonghuIsDying(n);

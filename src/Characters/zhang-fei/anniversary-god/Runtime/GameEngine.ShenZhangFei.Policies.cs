@@ -16,9 +16,13 @@ public sealed partial class GameEngine
         r.ActionId == a.ActionId && r.Source is {SkillId:ShenZhangFeiComposition.Xunshi,BindingId:"colorless-use"} && r.Source.OwnerSeat == a.ActorSeat &&
         !string.IsNullOrWhiteSpace(r.Source.SkillInstanceId) && r.GameplayHash == _contentRegistry.GetSkill(ShenZhangFeiComposition.Xunshi).Program!.GameplayHash &&
         ProgramEventHistory<ShenZhangFeiColorlessIssuedEvent>().Count(e=>e.UseId == u.Id && e.Receipt == r) == 1 && ShenZfColorless(a);
-    private Suit? ShenZfIdentitySuit(CharacterState p,Card c) => c.Id > 0 && HasShenZfXunshi(p) && ShenZhangFeiComposition.MultiTricks.Contains(c.Kind) &&
-        (_cardZones.GetLocation(c.Id) is { Zone:CardZoneKind.Hand or CardZoneKind.WoodenOxGrain } location && location.OwnerSeat == p.Seat ||
-         _cardZones.GetLocation(c.Id) == CardLocation.Processing) ? Suit.None : null;
+    private Suit? ShenZfIdentitySuit(CharacterState p,Card c,CardLocation? identityLocation = null)
+    {
+        if (c.Id <= 0 || !HasShenZfXunshi(p) || !ShenZhangFeiComposition.MultiTricks.Contains(c.Kind)) return null;
+        var location = identityLocation ?? _cardZones.GetLocation(c.Id);
+        return (location is { Zone:CardZoneKind.Hand or CardZoneKind.WoodenOxGrain } && location.OwnerSeat == p.Seat ||
+            location == CardLocation.Processing) ? Suit.None : null;
+    }
     private CardSnapshot ProjectShenZfHandCard(CharacterState p,Card c,CardSnapshot snapshot) => ShenZfIdentitySuit(p,c) == Suit.None ? snapshot with { Suit=Suit.None } : snapshot;
     private static bool ShenZfColorless(CardActionContext a) =>
         (a.EffectiveSuit == Suit.None || a.EffectiveIsRed is null && a.EffectiveSuit is null &&

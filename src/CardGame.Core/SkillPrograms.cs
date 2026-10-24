@@ -486,6 +486,15 @@ public enum SkillProgramEffectOp
     ResolveAnniversaryHuCheErDaoji = 49500,
     RecordAnniversaryHuCheErFuzhongGain = 49501,
     SpendAnniversaryHuCheErFuzhong = 49502,
+    ResolveAnniversaryZhangHengDangzai = 49600,
+    ResolveAnniversaryHaoMengXiongmangUse = 49700,
+    ResolveAnniversaryHaoMengXiongmangConsequence = 49701,
+    InitializeAnniversaryLeiBoSilei = 49800,
+    RecordAnniversaryLeiBoSileiLoot = 49801,
+    RequestAnniversaryLeiBoSileiSlash = 49802,
+    SettleAnniversaryLeiBoSileiPenalty = 49803,
+    BeginAnniversaryLeiBoShuaijie = 49804,
+    FinishAnniversaryLeiBoShuaijie = 49805,
     InitializeMouDongChengBaojia = 37400, ResolveMouDongChengBaojia = 37401, ClaimMouDongChengBaojia = 37402, ResolveMouDongChengDouwei = 37403, ResolveMouDongChengDelayedSettlement = 37404,
     StartMouHuLieChuanyu = 37500,
     RegiveMouHuLieChuanyu = 37501,
@@ -5070,12 +5079,12 @@ public sealed class SkillProgramCatalog
             if (window == SkillProgramTriggerWindow.CardsGained)
             {
                 destinationZones = EnumArray<CardZoneKind>(node, "destinationZones", path);
-                if (destinationZones.Count != 1 || destinationZones[0] is not (CardZoneKind.Hand or CardZoneKind.Equipment))
-                    Fail(path + ".destinationZones", "cardsGained requires exactly the hand or equipment destination zone");
+                if (destinationZones.Count != 1 || destinationZones[0] is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment))
+                    Fail(path + ".destinationZones", "cardsGained requires exactly the hand, equipment or judgment destination zone");
                 movementOccurrence = EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path);
-                if (destinationZones[0] == CardZoneKind.Equipment &&
+                if (destinationZones[0] is CardZoneKind.Equipment or CardZoneKind.Judgment &&
                     (movementOccurrence is not (SkillProgramMovementOccurrence.PerBatch or SkillProgramMovementOccurrence.PerCard) || gainPhase is not null))
-                    Fail(path, "equipment entry supports perBatch/perCard only and has no hand-gain phase qualification");
+                    Fail(path, $"{destinationZones[0].ToString().ToLowerInvariant()} entry supports perBatch/perCard only and has no hand-gain phase qualification");
             }
             if (window == SkillProgramTriggerWindow.DiscardPileReceived && node.TryGetProperty("sourceZones", out _))
             {

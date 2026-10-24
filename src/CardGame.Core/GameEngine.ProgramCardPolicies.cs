@@ -103,9 +103,9 @@ public sealed partial class GameEngine
             Math.Max(shortRange, Math.Max(attackerSide, targetSide)));
     }
 
-    private Suit GetProgramEffectiveSuit(CharacterState owner, Card card)
+    private Suit GetProgramEffectiveSuit(CharacterState owner, Card card, CardLocation? identityLocation = null)
     {
-        if (ShenZfIdentitySuit(owner, card) is { } shenZfSuit) return shenZfSuit;
+        if (ShenZfIdentitySuit(owner, card, identityLocation) is { } shenZfSuit) return shenZfSuit;
         if (GetSkillBindingShard(owner).GetCardPolicies(SkillProgramCardPolicyKind.RewriteSuit).Count == 0)
             return card.Suit;
         var suit = card.Suit;

@@ -22,6 +22,7 @@ public sealed partial class GameEngine
   if(f.InstructionIndex<1||_contentRegistry.Skills.GetValueOrDefault(f.SkillId)?.Program is not {} program||program.GameplayHash!=f.GameplayHash)return false;
   var plan=ProgramInstructionResolver.Default.Resolve(f,program);if(f.InstructionIndex>plan.Instructions.Count||plan.GetPausedInstruction(f.InstructionIndex).Effect.Op!=op)return false;
   if(op==SkillProgramEffectOp.ResolveAnniversaryMaTieQuxian)return AnniversaryMaTieRequestActor(f,actor);
+  if(op==SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash)return actor==f.OwnerSeat&&IsAnniversaryLeiBoFixedSlash(f);
   if(op==SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply)return TryGetSayingSlashRequest(f,out var sayingActor,out _)&&actor==sayingActor;
   if(op is SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices or SkillProgramEffectOp.ResolveChanshuangEnding)return TryGetChanshuangSlashRequest(f,out var requested,out _)&&actor==requested;
   if(op==SkillProgramEffectOp.UseHejiAtCompletedSingleTarget)return actor==f.OwnerSeat&&IsWuJingHejiRequest(f);
@@ -34,6 +35,7 @@ public sealed partial class GameEngine
  {
   if(!RoundOnceCardlessProgramActor(f,op,actor))return [];
   if(op==SkillProgramEffectOp.ResolveAnniversaryMaTieQuxian)return AnniversaryMaTieRequestTargets(f,actor);
+  if(op==SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash)return [f.FixedTargetSlash!.TargetSeat];
   if(op==SkillProgramEffectOp.ResolveSayingPlayStartObtainAndReply)return TryGetSayingSlashRequest(f,out _,out var sayingTargets)?sayingTargets.ToArray():[];
   if(op is SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices or SkillProgramEffectOp.ResolveChanshuangEnding)return TryGetChanshuangSlashRequest(f,out _,out var targets)?targets.ToArray():[];
   return op switch
@@ -77,7 +79,7 @@ public sealed partial class GameEngine
   if(IsChanshuangSlashRequest(f))PrepareChanshuangSuppliedSlash(f,actor.Seat,actor.Seat,target,CardKind.Slash,[],source);
   if(effect.Op==SkillProgramEffectOp.RequestSlashByTarget)CommitProgramChoiceResult(f.Id,effect.ResultBind!,RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption,actor.Seat,"卫境：视为使用【杀】。");
   else if(effect.Op==SkillProgramEffectOp.RequestSlashAgainstChosenTarget){ReplaceRuntimeTop(f=GetActiveProgramFrame(f.Id)with{AssistedSlashRequest=null});CommitProgramChoiceResult(f.Id,effect.ResultBind!,"used-slash",actor.Seat,"卫境：视为使用【杀】。");}
-  else if(effect.Op==SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner)ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{FixedTargetSlash=f.FixedTargetSlash! with{Issued=true}});
+  else if(effect.Op is SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash)ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{FixedTargetSlash=f.FixedTargetSlash! with{Issued=true}});
   else if(effect.Op==SkillProgramEffectOp.RequestLegalSlashByNearest)ReplaceRuntimeTop(GetActiveProgramFrame(f.Id)with{NearestLegalSlashRequest=null});
   var card=new Card(0,CardKind.Slash,Suit.None,0);var id=BeginCardUse(card,actor.Seat,[target],CardKind.Slash,ignoresArmor:HasCardArmorBypass(actor,_players[target],CardKind.Slash),physicalCardIds:[],conversionSource:source);
   BindRoundOnceCardlessProgramRequestUse(LifecycleCardUse(id)!);IssueRoundOnceCardlessNativeUse(id,source);

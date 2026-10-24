@@ -51,7 +51,7 @@ public sealed partial class GameEngine
         if(p.KeBiNengPingduan is{Stage:KeBiNengPingduanStage.BasicChoice,ActorSeat:var actor}&&actor==provider&&ValidKeBiNeng(p))return N(WeijieIntent.GenericBasic,provider,_players.Where(t=>t.IsAlive).Select(t=>t.Seat).ToArray(),op:effect.Op,instruction:p.InstructionIndex);
         if(!RoundOnceCardlessProgramActor(p,effect.Op,provider))return null;
         var targets=RoundOnceCardlessProgramTargets(p,provider,effect.Op);if(targets.Length==0)return null;
-        return N(effect.Op switch{SkillProgramEffectOp.RequestSlashByTarget=>WeijieIntent.ProgramSlash,SkillProgramEffectOp.RequestSlashByNearest=>WeijieIntent.ProgramNearestSlash,SkillProgramEffectOp.RequestLegalSlashByNearest=>WeijieIntent.NearestLegalSlash,SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner=>WeijieIntent.FixedSlash,_=>WeijieIntent.AssistedSlash},provider,targets,op:effect.Op,instruction:p.InstructionIndex);
+        return N(effect.Op switch{SkillProgramEffectOp.RequestSlashByTarget=>WeijieIntent.ProgramSlash,SkillProgramEffectOp.RequestSlashByNearest=>WeijieIntent.ProgramNearestSlash,SkillProgramEffectOp.RequestLegalSlashByNearest=>WeijieIntent.NearestLegalSlash,SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.RequestAnniversaryLeiBoSileiSlash=>WeijieIntent.FixedSlash,_=>WeijieIntent.AssistedSlash},provider,targets,op:effect.Op,instruction:p.InstructionIndex);
     }
     private static bool WeijieIsDying(WeijieNeed n) =>
         global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieIsDying(n);

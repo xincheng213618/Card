@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:silue": { "name": "私掠", "description": "游戏开始时，你选择一名其他角色获得“私掠”标记。“私掠”角色对其他角色造成伤害后，你可以获得受伤角色一张牌（每回合每名角色限一次）。“私掠”角色受到伤害后，除非你对伤害来源使用一张【杀】，否则你弃置一张手牌。", "triggerLabels": { "opening-mark": "选择私掠角色", "marked-source-loot": "获得实际受伤角色的牌", "marked-victim-reply": "对伤害来源使用杀，否则弃手牌" } },
+    "anniversary:shuaijie": { "name": "衰劫", "description": "限定技，出牌阶段，若你体力值与装备区里的牌均大于“私掠”角色或“私掠”角色已死亡，你可以减1点体力上限，然后选择一项：1.获得“私掠”角色至多3张牌；2.从牌堆获得三张类型不同的牌。选择完成后，你获得“私掠”标记（移除原标记）。", "activationLabels": { "seize-and-return-mark": "减体力上限，取牌并收回私掠" } }
+  }
+}
