@@ -28,13 +28,13 @@ public sealed partial class GameEngine
     // IronChain conversion enumeration also supplies native Recast. Let that
     // enumeration proceed; the final action and submitted-Use guards below still
     // reject every real non-Wine Use, including converted IronChain.
-    [ProgramCardLegality(ProgramCardLegalityStage.MaterialUseBan, 47100)] private bool HouChengMaterialBan(ProgramCardMaterialQuery q) => q.Kind != CardKind.IronChain && HouChengUseBanned(q.ActorSeat, q.Kind, q.CardIds, q.IsResponse);
-    [ProgramCardLegality(ProgramCardLegalityStage.NativeResponseBan, 47100)] private bool HouChengResponseBan(ProgramNativeResponseQuery q) => HouChengUseBanned(q.Provider.Seat, q.Kind, q.CardIds, true, q.DyingUse);
-    [ProgramCardLegality(ProgramCardLegalityStage.ViewAsBan, 47100)] private bool HouChengViewAsBan(ProgramViewAsLegalityQuery q) => q.Kind != CardKind.IronChain && HouChengUseBanned(q.Owner.Seat, q.Kind, q.CardIds, q.ForResponse && q.RequestedUseTarget is null, q.DyingUse);
-    [ProgramCardLegality(ProgramCardLegalityStage.AfterLegalActionKind, 47100)] private bool HouChengLegalUseBan(ProgramLegalActionQuery q) => q.Action.Kind is not (LegalActionKind.Recast or LegalActionKind.UseProgramSkill or LegalActionKind.EndPlay or LegalActionKind.UseEquipmentEffect or LegalActionKind.RevealGeneral) && q.Action.CardId is { } id && HouChengUseBanned(q.Actor.Seat, q.Action.PlayedCardKind ?? GetAdvancedCard(id).Kind, [id], false);
-    [ProgramCardLegality(ProgramCardLegalityStage.SubmittedUseValidation, 47100)] private void HouChengSubmittedBan(ProgramSubmittedUseQuery q)
+    [ProgramCardLegality(ProgramCardLegalityStage.MaterialUseBan, 48700)] private bool HouChengMaterialBan(ProgramCardMaterialQuery q) => q.Kind != CardKind.IronChain && HouChengUseBanned(q.ActorSeat, q.Kind, q.CardIds, q.IsResponse);
+    [ProgramCardLegality(ProgramCardLegalityStage.NativeResponseBan, 48700)] private bool HouChengResponseBan(ProgramNativeResponseQuery q) => HouChengUseBanned(q.Provider.Seat, q.Kind, q.CardIds, true, q.DyingUse);
+    [ProgramCardLegality(ProgramCardLegalityStage.ViewAsBan, 48700)] private bool HouChengViewAsBan(ProgramViewAsLegalityQuery q) => q.Kind != CardKind.IronChain && HouChengUseBanned(q.Owner.Seat, q.Kind, q.CardIds, q.ForResponse && q.RequestedUseTarget is null, q.DyingUse);
+    [ProgramCardLegality(ProgramCardLegalityStage.AfterLegalActionKind, 48700)] private bool HouChengLegalUseBan(ProgramLegalActionQuery q) => q.Action.Kind is not (LegalActionKind.Recast or LegalActionKind.UseProgramSkill or LegalActionKind.EndPlay or LegalActionKind.UseEquipmentEffect or LegalActionKind.RevealGeneral) && q.Action.CardId is { } id && HouChengUseBanned(q.Actor.Seat, q.Action.PlayedCardKind ?? GetAdvancedCard(id).Kind, [id], false);
+    [ProgramCardLegality(ProgramCardLegalityStage.SubmittedUseValidation, 48700)] private void HouChengSubmittedBan(ProgramSubmittedUseQuery q)
     { if (HouChengUseBanned(q.ActorSeat, q.Kind, q.CardIds, false)) throw new InvalidOperationException("Xianniang marked Basic entities may only participate in actual Alcohol uses."); }
-    [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 47100)]
+    [ProgramCardAction(ProgramCardActionPhase.BeforeProgram, 48700)]
     private void AddHouChengWineActions(List<LegalAction> actions, CharacterState actor, IReadOnlyList<Card> playable, int? selectedPhysicalCardId = null)
     {
         if (!HasHouChengContent || !actor.HasHpValue || actor.HasAlcoholEffect) return;

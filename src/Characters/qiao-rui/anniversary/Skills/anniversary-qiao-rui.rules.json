@@ -1,0 +1,10 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:aishou","revision":1,"triggers":[
+  {"id":"ending-marked-draw","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"resolveAnniversaryQiaoRuiAishouDraw","target":"owner"}]},
+  {"id":"prepare-marked-discard","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"resolveAnniversaryQiaoRuiAishouPrepare","target":"owner"}]},
+  {"id":"outside-last-mark-loss","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perOwnerBatch","optional":false,"effects":[{"op":"resolveAnniversaryQiaoRuiAishouLastLoss","target":"owner"}]}
+ ]},
+ {"id":"anniversary:saowei","revision":1,"triggers":[
+  {"id":"completed-other-slash","window":"cardUseCompleted","ownerRelation":"observer","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"effects":[{"op":"resolveAnniversaryQiaoRuiSaowei","target":"owner"}]}
+ ]}
+]}

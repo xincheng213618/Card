@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "anniversary:daoji", "revision": 1,
+      "triggers": [{ "id": "first-foreign-weapon", "window": "cardUseTargetsFinalized", "ownerRelation": "observer", "cardCategories": ["equipment"], "optional": true,
+        "effects": [{ "op": "resolveAnniversaryHuCheErDaoji", "target": "owner" }] }] },
+    { "id": "anniversary:fuzhong", "revision": 1,
+      "triggers": [
+        { "id": "foreign-turn-gain", "window": "cardsGained", "subject": "owner", "destinationZones": ["hand"], "movementOccurrence": "perBatch", "optional": false,
+          "effects": [{ "op": "recordAnniversaryHuCheErFuzhongGain", "target": "owner" }] },
+        { "id": "ending-four", "window": "turnEnding", "subject": "owner", "optional": false,
+          "condition": { "kind": "compare", "left": { "kind": "ownerAttributedMarkerCount", "marker": "anniversaryHuCheErZhong" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 4 } },
+          "effects": [ { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" }, { "op": "damage", "target": "selectedTarget", "amount": 1 }, { "op": "spendAnniversaryHuCheErFuzhong", "target": "owner" } ] }
+      ] }
+  ]
+}

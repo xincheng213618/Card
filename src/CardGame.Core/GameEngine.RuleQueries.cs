@@ -101,6 +101,7 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"issued:{player.Seat}:kuangxiang:draw", -ChengGongYingDrawPenalty(player.Seat));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:mou-kongwu:draw", -MouHuCheErDrawPenalty(player));
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
+        AddFiniteContribution(contributions, $"state:{player.Seat}:anniversary-fuzhong:draw", AnniversaryHuCheErDrawBonus(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:draw-count", GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.DrawCount));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:juguan:draw", JuguanActualDrawAdjustment(player));
         AddFiniteContribution(contributions, $"state:{player.Seat}:quxi:draw", DuXiDrawAdjustment(player));
@@ -182,6 +183,7 @@ public sealed partial class GameEngine
         contributions.AddRange(ShenZfHandLimitContributions(player));
         contributions.AddRange(AnniversaryLiuLiHandLimitContributions(player));
         contributions.AddRange(AnniversaryYanXiangHandLimitContributions(player));
+        contributions.AddRange(AnniversaryHuCheErHandLimitContributions(player));
         if (_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ApplyLiushiEffect))
             AddFiniteContribution(contributions, $"state:{player.Seat}:liushi:hand-limit", -player.Markers.GetValueOrDefault(PlayerMarkerKind.LiuShi));
         contributions.AddRange(ActorHandLimitPenaltyContributions(player));

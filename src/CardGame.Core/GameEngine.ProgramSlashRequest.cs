@@ -18,7 +18,7 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "技能拥有者已失效，技能剩余结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
-        if (IsBiguoCategoryForbidden(user.Seat, CardKind.Slash))
+        if (IsBiguoCategoryForbidden(user.Seat, CardKind.Slash) || HuCheErSlashBan(user.Seat, CardKind.Slash))
         {
             CommitProgramChoiceResult(frame.Id, resultBind, RequestSlashByTargetProgramOperationDescriptor.DeclinedOption, user.Seat, "没有可用的【杀】。");
             return SkillProgramStepOutcome.Continue;
@@ -108,7 +108,7 @@ public sealed partial class GameEngine
         }
 
         var action = selected.Parameters.GetValueOrDefault("program-action");
-        if (action != "request-slash-decline" && IsBiguoCategoryForbidden(userSeat, CardKind.Slash))
+        if (action != "request-slash-decline" && (IsBiguoCategoryForbidden(userSeat, CardKind.Slash) || HuCheErSlashBan(userSeat, CardKind.Slash)))
             throw new InvalidOperationException("The requested new Slash is forbidden by the active type restriction.");
         if (selected.Parameters.ContainsKey(RoundDistinctBasicRequestMarker))
         {

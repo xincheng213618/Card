@@ -55,7 +55,7 @@ internal sealed class AnniversaryMaMiaoHandler(SkillProgramEffectOp op) : ISkill
 internal static class AnniversaryMaMiaoComposition
 {
     internal const string Zhangguan = "anniversary:zhangguan", Congfeng = "anniversary:congfeng";
-    [ProgramCatalogValidation(47200)] internal static void Validate(string path, SkillProgram p)
+    [ProgramCatalogValidation(48800)] internal static void Validate(string path, SkillProgram p)
     {
         var owns = p.Triggers.SelectMany(t => t.Effects).Concat(p.Activations.SelectMany(a => a.Effects)).Any(e => e.Op is SkillProgramEffectOp.ResolveAnniversaryMaMiaoZhangguan or SkillProgramEffectOp.ResolveAnniversaryMaMiaoCongfeng);
         if (p.Id is not (Zhangguan or Congfeng) && !owns) return;

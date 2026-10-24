@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "anniversary:moshou":{"name":"墨守","description":"你成为黑色牌的目标后，可以摸体力上限张牌，然后下次以此法摸牌数-1。若你以此法摸牌数为1，则重置为体力上限。"},
+ "anniversary:yunjiu":{"name":"运柩","description":"有角色死亡时，你可以交给一名其他角色一张该角色的牌。若如此做，你加1体力上限并回复1点体力。"}
+}}

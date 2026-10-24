@@ -770,7 +770,8 @@ public sealed partial class GameEngine
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{SkillProgramEffectOp.UseBoundCardByTarget}");
         var resolutionId = BeginCardUse(card, user.Seat, []);
         MoveCard(card, location, CardLocation.Processing, reason);
-        CompleteEquipmentUse(user, card, resolutionId);
+        if (!TryBeginEquipmentTargetPrograms(user, card, resolutionId))
+            CompleteEquipmentUse(user, card, resolutionId);
         return SkillProgramStepOutcome.AwaitChild;
     }
 
