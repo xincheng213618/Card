@@ -79,8 +79,8 @@ public sealed partial class GameEngine
     {
         if (ShiZhHuiActiveSizi is not { } activation)
             throw new InvalidOperationException("Sizi ending requires an active effect.");
-        return new("sizi-ending", _turnNumber, Ordinal: activation.Ordinal)
-        { Source = ShiZhHuiSource(f), GameplayHash = f.GameplayHash };
+        return new("sizi-ending", _turnNumber)
+        { Source = ShiZhHuiSource(f), GameplayHash = f.GameplayHash, Ordinal = activation.Ordinal };
     }
 
     private ShiZhHuiReceipt StartShiZhHuiXiezhi(ProgramSkillFrame f)
@@ -94,8 +94,8 @@ public sealed partial class GameEngine
         var dying = ActiveDying ?? throw new InvalidOperationException("Yunan lost its dying entry.");
         if (dying.KillerSeat != f.OwnerSeat)
             throw new InvalidOperationException("Yunan requires a dying state caused by its owner.");
-        return new("yunan", _turnNumber, TargetSeat: dying.VictimSeat, DyingFrameId: dying.FrameId)
-        { Source = ShiZhHuiSource(f), GameplayHash = f.GameplayHash };
+        return new("yunan", _turnNumber, TargetSeat: dying.VictimSeat)
+        { Source = ShiZhHuiSource(f), GameplayHash = f.GameplayHash, DyingFrameId = dying.FrameId };
     }
 
     // ---- choice publication -------------------------------------------------
