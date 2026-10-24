@@ -1,0 +1,5 @@
+{"schemaVersion":62,"skills":[{"id":"anniversary:kannan","revision":1,"activations":[{"id":"phase-contest","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[
+ {"op":"prepareAnniversaryLiuYouKannan","target":"owner"},
+ {"op":"startPindian","target":"owner","opponentRef":{"kind":"selectedTarget"},"resultBind":"kannan-contest","visibility":"public"},
+ {"op":"resolveAnniversaryLiuYouKannan","target":"owner"}
+]}]}]}

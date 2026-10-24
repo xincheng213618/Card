@@ -56,6 +56,7 @@ public sealed partial class GameEngine
     private bool MaTieFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
         if (!ValidMaTie(f)) return false; var r = f.AnniversaryMaTie!;
+        if (BoundaryLiuFengRequestChild(f, child)) return true;
         if (child is CardUseFrame use) return r.Stage == AnniversaryMaTieStage.NativeUse && MaTieNativeMatches(use, f);
         if (child is NativeDrawAttemptFrame draw) return r.Stage == AnniversaryMaTieStage.RewardDrawing && draw.Context.ParentFrameId == f.Id && draw.Context.RecipientSeat == f.OwnerSeat && draw.Context.RequestedCount == 1 && NativeDrawAttemptRidesOn(draw, f);
         if (child is DrawFundedDistinctBasicFrame paidDraw) return IsAnniversaryMaTiePaymentFrame(paidDraw) && paidDraw.Payment.ParentFrameId == f.Id;

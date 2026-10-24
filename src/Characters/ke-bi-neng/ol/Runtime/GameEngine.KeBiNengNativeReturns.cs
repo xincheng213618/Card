@@ -7,6 +7,7 @@ public sealed partial class GameEngine
     private bool KeBiNengPaymentRidesOn(ProgramSkillFrame f, ResolutionFrame child)
     {
         if (f.KeBiNengPingduan is not { Stage: KeBiNengPingduanStage.BasicIssuing, SelectedBasicAction: { ConversionSource: { } source } action } r || !ValidKeBiNeng(f)) return false;
+        if (BoundaryLiuFengRequestChild(f, child)) return true;
         if (child is DrawFundedDistinctBasicFrame draw) return action.DrawFundedDistinctBasicUse is not null && draw.Payment is { Intent: DrawFundedDistinctBasicIntent.Play } p &&
             p.ParentFrameId == f.Id && p.RequestFrameId == f.Id && p.Cursor == f.InstructionIndex && p.Source == source && p.Source.OwnerSeat == r.ActorSeat &&
             p.ActualTurnNumber == r.ActualTurn && p.ActualTurnOwnerSeat == f.OwnerSeat && p.EffectiveKind == action.PlayedCardKind && draw.TargetSeats.SequenceEqual(action.TargetSeats);
@@ -37,9 +38,10 @@ public sealed partial class GameEngine
         ProgramSkillFrame? parent = _resolutionStack[index - 1] as ProgramSkillFrame;
         if (parent?.KeBiNengPingduan is not { Stage: KeBiNengPingduanStage.BasicIssuing })
         {
-            if (index < 2 || _resolutionStack[index - 2] is not ProgramSkillFrame candidate || !KeBiNengPaymentRidesOn(candidate, _resolutionStack[index - 1])) return;
-            parent = candidate;
+            if (index >= 2 && _resolutionStack[index - 2] is ProgramSkillFrame candidate && KeBiNengPaymentRidesOn(candidate, _resolutionStack[index - 1])) parent = candidate;
+            else parent = BoundaryLiuFengNativeParent(use);
         }
+        if (parent?.KeBiNengPingduan is not { Stage: KeBiNengPingduanStage.BasicIssuing }) return;
         var r = parent.KeBiNengPingduan!; var selected = r.SelectedBasicAction ?? throw new InvalidOperationException("Pingduan lost its accepted basic native action.");
         var materials = KeBiNengMaterials(selected); var expectedKind = selected.PlayedCardKind ?? (selected.CardId is > 0 ? AdvancedEffectiveHandKind(_players[r.ActorSeat], GetAttackCard(selected.CardId.Value)) : use.CardKind);
         if (!ValidKeBiNeng(parent) || r.NativeUse is not null || use.SourceSeat != r.ActorSeat || use.Action is not { Type: CardActionType.Use } action ||

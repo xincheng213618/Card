@@ -115,11 +115,13 @@ public sealed partial class GameEngine
                 suspension.FollowupUseId is not { } childId)
                 throw new InvalidOperationException("A Qinglong insertion lost its unfinished dodged parent.");
             var child = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == childId);
-            if (suspension.ChildCompleted
-                ? child is not null || _resolutionStack.LastOrDefault()?.Id != original.Id
-                : child is null || child.Action is not { } childAction || childAction.ParentActionId != original.Action?.ActionId ||
-                  child.SourceSeat != original.SourceSeat || !IsSlashCard(child.CardKind) ||
-                  !childAction.TargetSeats.SequenceEqual([attack.TargetSeat]))
+            var paidSettlement = HasBoundaryLiuFengQinglongSettlementRide(original, childId);
+            var matchingChild = suspension.ChildCompleted
+                ? child is null && (_resolutionStack.LastOrDefault()?.Id == original.Id || paidSettlement)
+                : child is null ? paidSettlement : child.Action is { } childAction && childAction.ParentActionId == original.Action?.ActionId &&
+                  child.SourceSeat == original.SourceSeat && IsSlashCard(child.CardKind) &&
+                  childAction.TargetSeats.SequenceEqual([attack.TargetSeat]);
+            if (!matchingChild)
                 throw new InvalidOperationException("A Qinglong insertion returned through a different child use.");
             if (CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Any(fact => fact.ResolutionId == original.Id))
                 throw new InvalidOperationException("A suspended Qinglong parent finished before its inserted Slash.");

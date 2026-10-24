@@ -20,6 +20,7 @@ public sealed partial class GameEngine
  }
  private bool HasWeijieSpecializedPayment(ProgramSkillFrame f,CardUseFrame? use=null)
  {
+  if(HasBoundaryLiuFengProgramPayment(f,use))return true;
   if(f.WeijieReturn is not{}r||r.Origin is not{}p||!ValidWeijiePayment(p)||p.EffectiveName!=ProgramBasicCardName(p.OutputKind)||p.Need.OwnerFrameId!=f.Id||p.Need.RequestFrameId!=f.Id||p.Need.InstructionIndex!=f.InstructionIndex||!IsSlashCard(p.OutputKind)||ProgramEventHistory<WeijieAttemptResolvedEvent>().Count(e=>e.FrameId==p.AttemptId&&e.Matched&&e.NativeLegal)!=1)return false;
   if(use is not null&&(use.WeijieOrigin!=p||r.UseId!=use.Id||r.ActionId!=use.Action?.ActionId||!IsIssuedWeijieUse(use)))return false;
   if(TryGetSayingSlashRequest(f,out _,out _))return HasSayingWeijiePayment(f,use);

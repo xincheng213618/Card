@@ -1,0 +1,3 @@
+{"formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:liu-you","skills":[
+ {"registrationOrder":50000,"programBundle":"anniversary-liu-you","includeProgramPresentation":true,"definition":{"id":"anniversary:kannan","name":"戡难","description":"出牌阶段，若你于此阶段内发动过此技能的次数小于X（X为你的体力值），你可与你于此阶段内未以此法拼点过的一名角色拼点。若：你赢，你使用的下一张〖杀〗的伤害值基数+1且你于此阶段内不能发动此技能；其赢，其使用的下一张〖杀〗的伤害值基数+1。","actionForms":"Active"}}
+],"generals":[{"registrationOrder":50001,"pools":{"current":50001},"definition":{"id":"anniversary:liu-you","name":"刘繇","portraitKey":"anniversary-liu-you","skillId":"anniversary:kannan","factionId":"qun","baseHp":4,"gender":"Male","characterId":"character:liu-you","variantId":"anniversary","rulesetId":"sanguosha-anniversary"}}]}

@@ -23,6 +23,8 @@ public sealed partial class GameEngine
     {
         var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
         if (frame.ProgramUseCommitted) return false;
+        CaptureAnniversaryLiuYouNextSlash(frameId);
+        frame = LifecycleCardUse(frameId)!;
         ReplaceRuntimeFrame(frameId, frame with { ProgramUseCommitted = true });
         return true;
     }

@@ -1,0 +1,50 @@
+namespace CardGame.Core;
+
+public sealed partial class GameEngine
+{
+    private bool ValidBoundaryLiuFeng(ProgramSkillFrame f)
+    {
+        if (f.BoundaryLiuFeng is not { } r || (f.InstructionIndex != 1 && !(f.InstructionIndex == 0 && r.Need is not null)) || r.Source != BoundaryLiuFengSource(f) || r.Hash != f.GameplayHash || _contentRegistry.GetSkill(f.SkillId).Program?.GameplayHash != r.Hash || r.Turn != _turnNumber || r.TurnOwner != _turnProgression.OwnerSeat || !Enum.IsDefined(r.Stage) || r.Before < 0 || r.After < r.Before || r.After > _movementSequence || r.Cards.Count > 2 || r.Cards.Distinct().Count() != r.Cards.Count || r.From.Count != r.Cards.Count || r.Targets.Distinct().Count() != r.Targets.Count || ProgramEventHistory<BoundaryLiuFengStartedEvent>().Count(e => e == new BoundaryLiuFengStartedEvent(f.Id, r.Source, r.Hash, r.Op, r.ParentId, r.Turn, r.TurnOwner)) != 1) return false;
+        if (r.Op == SkillProgramEffectOp.ResolveBoundaryLiuFengXiansi) { if (f.SkillId != BoundaryLiuFengComposition.Xiansi || f.TriggerId != "collect-up-to-two" || !OriginalHandBindingStarted(f, SkillProgramTriggerWindow.TurnStartBeforeNormalFlow) || r.ParentId != f.WindowContext?.ParentFrameId || r.CostSequence != 0 || r.UseId != 0) return false; }
+        else if (r.Op != SkillProgramEffectOp.ResolveBoundaryLiuFengQinling || f.SkillId != BoundaryLiuFengComposition.Qinling || f.ActivationId != BoundaryLiuFengComposition.Activation || f.TriggerId is not null || r.Targets.Count > 1) return false;
+        if (r.Need is { } need)
+        {
+            if (r.OriginalDecision is not { } original || need.ActorSeat != f.OwnerSeat || need.OwnerFrameId != r.ParentId || r.Source.OwnerSeat != need.ActorSeat || original.PlayerSeat != need.ActorSeat || ProgramEventHistory<BoundaryLiuFengRequestStartedEvent>().Count(e => e == new BoundaryLiuFengRequestStartedEvent(f.Id, need.OwnerFrameId, need.RequestFrameId, need.ActorSeat, need.InstructionIndex, need.RequestOp, need.Intent, original.PromptId, original.Revision, BoundaryLiuFengDecisionHash(original))) != 1) return false;
+            if (r.CostSequence == 0 && r.UseId == 0 && r.Stage != BoundaryLiuFengStage.Completed && !BoundaryLiuFengNeedCurrent(r)) return false;
+            if (r.UseId == 0 && r.CostSequence > 0 && r.Stage != BoundaryLiuFengStage.Completed && !_resolutionStack.Any(x => x.Id == need.OwnerFrameId)) return false;
+        }
+        if (r.CostSequence > 0 && (r.Cards.Count != 1 || ProgramEventHistory<BoundaryLiuFengCostPaidEvent>().Where(e => e.FrameId == f.Id).ToArray() is not [var paid] || paid.Source != r.Source || paid.Hash != r.Hash || paid.CardId != r.Cards[0] || paid.Sequence != r.CostSequence || paid.Turn != r.Turn || paid.TurnOwner != r.TurnOwner || paid.From.OwnerSeat != f.OwnerSeat || paid.From.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) || !_cardMovements.Any(m => m.Sequence == paid.Sequence && m.CardId == paid.CardId && m.From == paid.From && m.Reason.Value == "skill-program.boundary:qinling.cost"))) return false;
+        if (r.UseId > 0 && (ProgramEventHistory<BoundaryLiuFengUseIssuedEvent>().Where(e => e.Origin.FrameId == f.Id).ToArray() is not [var issue] || issue.Origin.UseId != r.UseId || issue.Origin.ActionId != r.ActionId || issue.Origin.Source != r.Source || issue.Origin.Hash != r.Hash || r.CostSequence <= 0)) return false;
+        return !r.Returned || ProgramEventHistory<BoundaryLiuFengUseReturnedEvent>().Count(e => e.FrameId == f.Id && e.UseId == r.UseId && e.ActionId == r.ActionId && e.Damaged == r.Damaged) == 1;
+    }
+    private bool HasBoundaryLiuFengPrompt() => _pendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } p && _resolutionStack.LastOrDefault() is ProgramSkillFrame { BoundaryLiuFeng: { Stage: BoundaryLiuFengStage.Collect or BoundaryLiuFengStage.Targets or BoundaryLiuFengStage.Cost } } f && p.PlayerSeat == f.OwnerSeat && p.TargetSeat == f.OwnerSeat && ValidBoundaryLiuFeng(f) && AssistedChoicesEqual(p.Choices, BoundaryLiuFengChoices(f));
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 50200)] private void AssertBoundaryLiuFeng(ProgramSkillFrame f) { if (f.BoundaryLiuFeng is not null && !ValidBoundaryLiuFeng(f)) throw new InvalidOperationException("Liu Feng lost its original source, actual-turn payment or native use receipt."); }
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 50200)] [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 50200)] [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 50200)]
+    private bool BoundaryLiuFengMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.BoundaryLiuFeng is { Stage: BoundaryLiuFengStage.MovementChildren or BoundaryLiuFengStage.NativeTail } r && e?.Op == r.Op && p == f.PendingMovementContinuation && p.SubjectSeat == f.OwnerSeat && p.BeforeCount == 0 && p.CoverageResultBind is null && ValidBoundaryLiuFeng(f);
+    private bool BoundaryLiuFengFirstChild(ProgramSkillFrame f, ResolutionFrame child)
+    {
+        if (!ValidBoundaryLiuFeng(f) || f.BoundaryLiuFeng is not { } r) return false;
+        if (child is CardUseFrame use) return r.Stage == BoundaryLiuFengStage.NativeUse && use.BoundaryLiuFeng is { } o && o.FrameId == f.Id && o.UseId == r.UseId && o.ActionId == r.ActionId && IsBoundaryLiuFengUse(use);
+        if (child is CardsMovedTriggerWindowFrame moved) return f.PendingMovementContinuation is { } p && BoundaryLiuFengMovement(f, GetPausedPrivateOfferEffect(f), p) && ProgramMovementReturnMatches(f, moved) && moved.Batch.Movements.All(m => m.Sequence > r.Before && m.Sequence <= r.After && _cardMovements.Contains(m));
+        if (child is RecoveryReplacementFrame recovery) return recovery.ParentFrameId == f.Id && recovery.Return.ResumeFrameId == f.Id && recovery.Return.Continuation == PostEventContinuation.AwaitedProgramMovement;
+        if (child is HpChangedTriggerWindowFrame hp) return hp.ResumeFrameId == f.Id && hp.Change.ParentFrameId == f.Id && hp.Continuation == PostEventContinuation.AwaitedProgramMovement;
+        return child is ProgramLifecycleTriggerWindowFrame state && state.ResumeProgramFrameId == f.Id && (state.Window == SkillProgramTriggerWindow.SkillsChanged && state.Continuation == ProgramLifecycleContinuation.ResumeParentProgram || state.Continuation == ProgramLifecycleContinuation.ResumeCharacterStateChange && state.CharacterStateContinuation == CharacterStateContinuation.Program);
+    }
+    private bool BoundaryLiuFengNativeEdge(int child)
+    {
+        var parent = _resolutionStack[child - 1]; var current = _resolutionStack[child];
+        if (parent is CardUseFrame { BoundaryLiuFeng: not null } use && IsBoundaryLiuFengUse(use))
+        {
+            if (current is ResponseWindowFrame { RequiredCardKind: CardKind.Dodge } response && use.CardAttack is { Active: true } attack) return response.ParentFrameId == use.Id && response.SourceSeat == attack.SourceSeat && response.ResponderSeat == attack.TargetSeat && IsSlashCard(response.IncomingCard);
+            if (current is ProgramCardTriggerWindowFrame card) return card.ParentFrameId == use.Id && card.Action.ActionId == use.Action!.ActionId;
+        }
+        if (parent is ProgramCardTriggerWindowFrame window && LifecycleCardUse(window.ParentFrameId) is { BoundaryLiuFeng: not null } native && IsBoundaryLiuFengUse(native) && current is ProgramSkillFrame f && window.CandidateIndex >= 0 && window.CandidateIndex < window.Candidates.Count) return MountObserverCandidateMatches(f, ToSharedCandidate(window.Candidates[window.CandidateIndex])) && f.WindowContext == CreateCardActionProgramContext(window, window.Candidates[window.CandidateIndex]);
+        return false;
+    }
+    private bool BoundaryLiuFengSuffix(int i) => HasObserverSuffix(i, static (e, n) => e.IsMovementObserverEdge(n) || e.IsSameNameHandObserverEdge(n) || e.IsYanPuDyingExitEdge(n) || e.TypedDamagePostEventEdge(e._resolutionStack[n - 1], e._resolutionStack[n]) || e.DamageFrameRidesOn(e._resolutionStack[n], e._resolutionStack[n - 1]) || DamageObserverRidesOn(e._resolutionStack[n], e._resolutionStack[n - 1]) || e.BoundaryLiuFengNativeEdge(n) || e._resolutionStack[n - 1] is ProgramSkillFrame f && e.BoundaryLiuFengFirstChild(f, e._resolutionStack[n]) || NativeDrawAttemptRidesOn(e._resolutionStack[n], e._resolutionStack[n - 1]) || e.RecoveryReplacementFrameRidesOn(e._resolutionStack[n], e._resolutionStack[n - 1]), static (e, n, d) => e.IsSuspendedOrPaidRescueObserverSuffix(n, d) || e.TieredRoundZeroDyingRescueRide(n, d) || e.DrawFundedDistinctBasicDyingRescueRide(n, d) || e.HuanpeiDyingRescueRide(n, d));
+    private ProgramSkillFrame? BoundaryLiuFengObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.BoundaryLiuFengFirstChild(f, c), static (e, i) => e.BoundaryLiuFengSuffix(i));
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 50200)] [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 50200)] private bool BoundaryLiuFengDamageObserver(long id) => BoundaryLiuFengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 50200)] private bool BoundaryLiuFengBeforeDamage(long id) => BoundaryLiuFengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 50200)] [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 50200)] private bool BoundaryLiuFengDying() => ActiveDying is { } d && BoundaryLiuFengObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 50200)] private bool AdvanceBoundaryLiuFengChildren() => _pendingDecision is null && BoundaryLiuFengObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+}

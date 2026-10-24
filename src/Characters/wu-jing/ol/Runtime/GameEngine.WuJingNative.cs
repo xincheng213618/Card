@@ -4,16 +4,19 @@ public sealed partial class GameEngine
     private void BindWuJingHejiUse(long id)
     {
         var use = LifecycleCardUse(id); var at = _resolutionStack.FindIndex(frame => frame.Id == id);
-        if (use is null || at < 1 || _resolutionStack[at - 1] is not ProgramSkillFrame { WuJing: { Stage: WuJingStage.IssuingUse } r } f) return;
+        if (use is null) return;
+        var f = at > 0 && _resolutionStack[at - 1] is ProgramSkillFrame { WuJing: { Stage: WuJingStage.IssuingUse } } direct ? direct : BoundaryLiuFengNativeParent(use);
+        if (f is not { WuJing: { Stage: WuJingStage.IssuingUse } r }) return;
         if (r.Operation != SkillProgramEffectOp.UseHejiAtCompletedSingleTarget || r.NativeOrigin is not null || r.Selection is not { } selected || use.Action is not { Type: CardActionType.Use } a ||
             a.ActorSeat != f.OwnerSeat || use.CardKind != selected.Kind || !use.TargetSeats.SequenceEqual([r.TargetSeat]) || !a.PhysicalCards.Select(c => c.CardId).SequenceEqual(selected.CardIds) ||
             r.FactionPolicy is null && !a.ConversionChain.SequenceEqual(selected.Conversions) || a.PhysicalCards.Count == 0 && !WuJingZeroPaymentProof(f, r) || a.ParentActionId != r.ActionId)
             throw new InvalidOperationException("Heji must bind one exact native Slash/Duel, original target and actually chosen physical conversion.");
         if (LifecycleCardUse(r.UseId) is { CardKind: CardKind.Duel, Continuations.Duel: { Active: true } } completedDuel)
         {
-            if (at < 3 || !ReferenceEquals(_resolutionStack[at - 3], completedDuel) || completedDuel.Step != ResolutionFrameStep.Completed || completedDuel.Action?.ActionId != r.ActionId ||
+            var parentIndex = _resolutionStack.FindIndex(frame => frame.Id == f.Id);
+            if (parentIndex < 2 || !ReferenceEquals(_resolutionStack[parentIndex - 2], completedDuel) || completedDuel.Step != ResolutionFrameStep.Completed || completedDuel.Action?.ActionId != r.ActionId ||
                 !completedDuel.TargetSeats.SequenceEqual([r.TargetSeat]) || f.WindowContext is not { Window: SkillProgramTriggerWindow.CardUseCompleted, CardUse: { } completed } || completed.ParentCardUseFrameId != completedDuel.Id || completed.CardActionId != r.ActionId ||
-                _resolutionStack[at - 2] is not ProgramCardTriggerWindowFrame window || window.Id != r.WindowId || window.ParentFrameId != completedDuel.Id || window.AttackOwnerFrameId != completedDuel.Id || window.Action.ActionId != r.ActionId || window.Continuation != ProgramCardContinuation.CompletedSlash ||
+                _resolutionStack[parentIndex - 1] is not ProgramCardTriggerWindowFrame window || window.Id != r.WindowId || window.ParentFrameId != completedDuel.Id || window.AttackOwnerFrameId != completedDuel.Id || window.Action.ActionId != r.ActionId || window.Continuation != ProgramCardContinuation.CompletedSlash ||
                 window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count || !MountObserverCandidateMatches(f, ToSharedCandidate(window.Candidates[window.CandidateIndex])) ||
                 ProgramEventHistory<CardUseFinishedEvent>().Count(e => e.ResolutionId == completedDuel.Id && e.CardId == completedDuel.CardId && e.CardKind == CardKind.Duel) != 1)
                 throw new InvalidOperationException("Heji may retire only its exact already-finished Duel response continuation.");
@@ -59,7 +62,8 @@ public sealed partial class GameEngine
             ProgramEventHistory<WuJingHejiNativeIssuedEvent>().Count(e => e.ProgramFrameId == r.ProgramFrameId && e.UseId == r.UseId && e.ActionId == r.ActionId && e.IncomingUseId == r.IncomingUseId && e.IncomingActionId == r.IncomingActionId && e.Source == r.Source && e.GameplayHash == r.GameplayHash && e.ActualTurn == r.ActualTurn && e.ActorSeat == r.ActorSeat && e.TargetSeat == r.TargetSeat && e.Kind == r.Kind && e.MaterialCount == r.Materials.Count && e.RewardEligible == r.RewardEligible) != 1 ||
             !ProgramEventHistory<WuJingHejiMaterialIssuedEvent>().Where(e => e.UseId == use.Id).OrderBy(e => e.Index).Select(e => e.Material).SequenceEqual(r.Materials)) return false;
         var at = _resolutionStack.FindIndex(frame => frame.Id == use.Id);
-        return at > 0 && _resolutionStack[at - 1] is ProgramSkillFrame { WuJing: { Stage: WuJingStage.NativeUse, NativeCompleted: false } parent } f && f.Id == r.ProgramFrameId && parent.NativeOrigin == r && parent.Source == r.Source && parent.GameplayHash == r.GameplayHash && (r.Materials.Count > 0 || WuJingZeroPaymentProof(f, parent, use));
+        var f = at > 0 && _resolutionStack[at - 1] is ProgramSkillFrame { WuJing: { Stage: WuJingStage.NativeUse, NativeCompleted: false } } direct ? direct : BoundaryLiuFengNativeParent(use);
+        return f is { WuJing: { Stage: WuJingStage.NativeUse, NativeCompleted: false } parent } && f.Id == r.ProgramFrameId && parent.NativeOrigin == r && parent.Source == r.Source && parent.GameplayHash == r.GameplayHash && (r.Materials.Count > 0 || WuJingZeroPaymentProof(f, parent, use));
     }
     private long? WuJingHejiProgramParent(long id) => LifecycleCardUse(id) is { WuJingHeji: { Origin: { } r } } use && IsWuJingHejiUse(use) ? r.ProgramFrameId : null;
     private bool HasIssuedWuJingHejiDistance(long? useId, int actor) => useId is { } id && LifecycleCardUse(id) is { WuJingHeji: { Origin: { } r } } use && r.ActorSeat == actor && IsWuJingHejiUse(use);
@@ -70,9 +74,9 @@ public sealed partial class GameEngine
     [NativeUseReturn(27130)] private void ReturnWuJingUse(CardUseFrame use)
     {
         if (use.WuJingHeji is not { Origin: { } origin }) return;
-        var f = GetActiveProgramFrame(origin.ProgramFrameId); var r = f.WuJing;
+        var f = BoundaryLiuFengReturnedProgramParent(origin.ProgramFrameId, use) ?? GetActiveProgramFrame(origin.ProgramFrameId); var r = f.WuJing;
         if (r is not { Stage: WuJingStage.NativeUse, NativeCompleted: false } || r.NativeOrigin != origin) throw new InvalidOperationException("Heji lost its once-only complete-use typed return.");
-        ReplaceRuntimeTop(f with { WuJing = r with { NativeCompleted = true } });
+        ReplaceRuntimeFrame(f.Id, f with { WuJing = r with { NativeCompleted = true } });
     }
     [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword, 27130)] private bool ReturnWuJingAttack(AttackCompletionReceipt completion)
     {

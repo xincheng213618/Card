@@ -49,7 +49,7 @@ public sealed partial class GameEngine
         if (choices.All(choice => choice.Parameters.GetValueOrDefault("request-option") == "decline") &&
             !HasChainedStateBasicProgramSlash(_players[actorSeat], nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(_players[actorSeat], nearest) &&
-            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest) && !HasTousuiProgramSlash(_players[actorSeat], nearest) && !HasWeijieProgramSlash(_players[actorSeat], nearest) && !(HasZonghuProgramSlash(_players[actorSeat], nearest) || HasHuanpeiProgramSlash(_players[actorSeat], nearest)))
+            !HasRoundOnceCardlessProgramSlash(_players[actorSeat], nearest) && !HasKenshangProgramSlash(_players[actorSeat], nearest) && !HasTousuiProgramSlash(_players[actorSeat], nearest) && !HasWeijieProgramSlash(_players[actorSeat], nearest) && !HasBoundaryLiuFengProgramSlash(_players[actorSeat], nearest) && !(HasZonghuProgramSlash(_players[actorSeat], nearest) || HasHuanpeiProgramSlash(_players[actorSeat], nearest)))
         {
             ReplaceRuntimeTop(active with { NearestLegalSlashRequest = null });
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, actorSeat, hpAmount);

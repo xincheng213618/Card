@@ -23,7 +23,9 @@ public sealed partial class GameEngine
  {if(f.Chanshuang is null||!TryGetChanshuangSlashRequest(f,out _,out _))return false;f=GetActiveProgramFrame(f.Id);if(f.Chanshuang!.Native is not null)throw new InvalidOperationException("A completed native Slash cannot be cancelled as an unpaid request.");ClearPendingDecision();CompleteChanshuangItem(f,false);return true;}
  private void BindChanshuangSlashUse(CardUseFrame supplied)
  {
-  var index=_resolutionStack.FindIndex(f=>f.Id==supplied.Id);if(index<1||_resolutionStack[index-1]is not ProgramSkillFrame{Chanshuang:{Stage:ChanshuangStage.SlashIssuing,Selection:{}selection}r}parent)return;
+  var index=_resolutionStack.FindIndex(f=>f.Id==supplied.Id);
+  var parent=index>0&&_resolutionStack[index-1]is ProgramSkillFrame{Chanshuang:{Stage:ChanshuangStage.SlashIssuing}}direct?direct:BoundaryLiuFengNativeParent(supplied);
+  if(parent is not{Chanshuang:{Stage:ChanshuangStage.SlashIssuing,Selection:{}selection}r})return;
   var use=LifecycleCardUse(supplied.Id)!;
   if(use.ChanshuangSlash is not null||r.Native is not null||use.Action is not{Type:CardActionType.Use}a||use.SourceSeat!=selection.ActorSeat||a.ActorSeat!=selection.ActorSeat||a.ProviderSeat!=selection.ProviderSeat||use.CardKind!=selection.Kind||a.EffectiveKind!=selection.Kind||!use.TargetSeats.SequenceEqual([selection.TargetSeat])||!a.TargetSeats.SequenceEqual(use.TargetSeats)||!a.PhysicalCards.Select(c=>c.CardId).SequenceEqual(selection.Materials.Select(c=>c.CardId))||!a.ConversionChain.SequenceEqual(selection.Sources)||ProgramEventHistory<ChanshuangSlashPreparedEvent>().Count(e=>e.FrameId==parent.Id&&e.Cursor==r.Cursor&&e.SelectionHash==ChanshuangHash(selection))!=1)throw new InvalidOperationException("Chanshuang's native child changed its once-prepared actual supplier, conversion or payment.");
   var origin=new ChanshuangNativeOrigin(parent.Id,r.Cursor,r.Source,r.GameplayHash,r.ActualTurn,use.Id,a.ActionId,selection,a,_movementSequence);
@@ -58,9 +60,9 @@ public sealed partial class GameEngine
  [NativeUseValidation(27480)]private void ValidateChanshuangNative(CardUseFrame use){if(use.ChanshuangSlash is not null&&!IsIssuedChanshuangUse(use))throw new InvalidOperationException("Chanshuang lost its actual issued native Slash, once-paid materials or typed parent.");}
  [NativeUseReturn(27480)]private void ReturnChanshuangNative(CardUseFrame use)
  {
-  if(use.ChanshuangSlash is not{}o)return;var f=GetActiveProgramFrame(o.ProgramFrameId);var r=f.Chanshuang;
+  if(use.ChanshuangSlash is not{}o)return;var deferred=BoundaryLiuFengReturnedProgramParent(o.ProgramFrameId,use);var f=deferred??GetActiveProgramFrame(o.ProgramFrameId);var r=f.Chanshuang;
   if(r is not{Stage:ChanshuangStage.NativeUse,NativeReturned:false}||r.Native!=o||use.Step!=ResolutionFrameStep.Completed||LifecycleCardUse(use.Id)is not null||ProgramEventHistory<CardUseFinishedEvent>().Count(e=>e.ResolutionId==use.Id)!=1)throw new InvalidOperationException("Chanshuang cannot return before or twice after its whole native Use.");
-  ReplaceRuntimeTop(f with{Chanshuang=r with{NativeReturned=true}});if(use.CardAttack is not{Active:true})SettleChanshuangNative(o);
+  ReplaceRuntimeFrame(f.Id,f with{Chanshuang=r with{NativeReturned=true}});if(deferred is null&&use.CardAttack is not{Active:true})SettleChanshuangNative(o);
  }
  [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword,27480)]private bool ReturnChanshuangAttack(AttackCompletionReceipt completion)
  {

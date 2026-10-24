@@ -8,7 +8,7 @@ public sealed partial class GameEngine
     {
         if (!IsWuJingHejiRequest(f) || !_players[f.OwnerSeat].IsAlive || !_players[f.WuJing!.TargetSeat].IsAlive) return false;
         var actor = _players[f.OwnerSeat]; var target = _players[f.WuJing.TargetSeat];
-        return HasWeijieProgramSlash(actor, [target.Seat]) || (HasZonghuProgramSlash(actor, [target.Seat]) || HasHuanpeiProgramSlash(actor, [target.Seat])) || DrawFundedDistinctBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind)).Concat(ChainedStateBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind))).Any(r => IsSlashCard(r.OutputKind) &&
+        return HasBoundaryLiuFengProgramSlash(actor, [target.Seat]) || HasWeijieProgramSlash(actor, [target.Seat]) || (HasZonghuProgramSlash(actor, [target.Seat]) || HasHuanpeiProgramSlash(actor, [target.Seat])) || DrawFundedDistinctBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind)).Concat(ChainedStateBasicRules(actor).Select(r => (r.Source, r.Rule.OutputKind))).Any(r => IsSlashCard(r.OutputKind) &&
             !HasBeneficiarySuitShield(actor.Seat, target.Seat, Suit.None) && !IsCardTargetProhibited(target, r.OutputKind, Suit.None) && !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, r.OutputKind) &&
             CanUseSlashTarget(actor, target, new(0, r.OutputKind, Suit.None, 0), r.Source, r.OutputKind, ignoreDistance: true, noEffectiveRank: true, physicalCardIds: []));
     }

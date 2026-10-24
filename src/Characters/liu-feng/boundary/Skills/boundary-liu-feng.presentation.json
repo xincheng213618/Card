@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:xiansi": { "name": "陷嗣", "description": "准备阶段，你可以将至多两名角色共计至多两张牌置于你的武将牌上，称为“逆”。其他角色可以移去两张“逆”视为对你使用一张【杀】。", "authorityName": "逆", "triggerLabels": { "collect-up-to-two": "选择共计至多两张牌置为逆" } },
+    "boundary:qinling": { "name": "侵凌", "description": "每回合限一次，你可以弃置一张牌，视为使用一张【杀】。若此【杀】造成了伤害，你摸一张牌，否则将你弃置的牌置为“逆”。", "activationLabels": { "discard-for-native-slash": "弃置一张牌，视为使用杀" } }
+  }
+}

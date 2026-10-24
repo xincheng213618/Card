@@ -44,6 +44,7 @@ public sealed partial class GameEngine
     private bool SunYuanFirstChild(ProgramSkillFrame f,ResolutionFrame child)
     {
         if(f.SunYuan is not{Paid:true}r)return false;AssertSunYuan(f);
+        if(BoundaryLiuFengRequestChild(f,child))return true;
         if(SayingEquipmentSlotPaymentRidesOn(f,child))return true;
         if(child is ProgramSkillFrame{HuanShuJun:not null} huanpei)return HuanpeiDraftRidesOn(huanpei,f);
         if(child is CardUseFrame use)return r.Stage==SunYuanStage.NativeUse&&use.SayingSlash==r.Native&&IsIssuedSayingUse(use);

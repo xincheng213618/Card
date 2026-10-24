@@ -196,6 +196,7 @@ public sealed partial class GameEngine
         }
         if (TryAdvanceHuanpeiAi()) return;
         if (TryAdvanceZonghuAi()) return;
+        if (TryAdvanceBoundaryLiuFengAi()) return;
         if (TryAdvanceWeijieAi()) return;
         if (TryAdvanceRequestedDeckBasicAi()) return;
         if (TryAdvanceDrawFundedDistinctBasicAi()) return;

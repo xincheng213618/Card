@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-liu-you",
+      "characterName": "刘繇",
+      "defaultSkinId": "143901",
+      "skins": [
+        {
+          "id": "143901",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/439.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/143901.png",
+          "sha256": "5c76a4893938f6397889c8df0a091fd70757afaed81b7c72b26d221ba479ce90",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-liu-you.png"
+        }
+      ]
+    },
+    {
+      "key": "mobile-he-qi",
+      "characterName": "贺齐",
+      "defaultSkinId": "36800",
+      "skins": [
+        {
+          "id": "36800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-210.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/36800.jpg",
+          "sha256": "73c433f9d3f5c06827f04be0842630836b6e89623705eaa12fb4f8c0d6123b1f",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-he-qi.jpg"
+        }
+      ]
+    },
+    {
+      "key": "boundary-liu-feng",
+      "characterName": "界刘封",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/news/20261020_4677_1114",
+          "imageUrl": "https://wwwoss.sanguosha.com/uploads/202610/Y07pmOdpoT43Qfdq.png?x-oss-process=image/quality,q_80",
+          "sha256": "a45e1f1e42a212212dcda1fbef755c315853e7f562ac6da6c77f32f7c5903d8a",
+          "pixelWidth": 815,
+          "pixelHeight": 1080,
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-liu-feng.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-zhang-heng",
       "characterName": "张横",
       "defaultSkinId": "160801",

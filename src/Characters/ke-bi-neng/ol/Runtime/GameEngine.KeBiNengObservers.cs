@@ -12,6 +12,7 @@ public sealed partial class GameEngine
     private bool KeBiNengFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
         if (f.KeBiNengPingduan is not { } r || !ValidKeBiNeng(f)) return false;
+        if (BoundaryLiuFengRequestChild(f, child)) return true;
         if (child is CardsMovedTriggerWindowFrame moved)
         {
             if (moved.Batch.ParentFrameId != f.Id || moved.ResumeProgramFrameId != f.Id || moved.Batch.OriginOwnerSeat != f.OwnerSeat || moved.Batch.OriginSkillId != f.SkillId ||

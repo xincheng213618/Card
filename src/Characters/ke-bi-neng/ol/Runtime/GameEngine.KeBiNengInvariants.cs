@@ -20,6 +20,8 @@ public sealed partial class GameEngine
             !HasAcceptedZonghuKeAction(f, acceptedZonghu)) return false;
         if (r.SelectedBasicAction is { ConversionSource.SkillId: "ol:huanpei" } acceptedHuanpei &&
             !HasAcceptedHuanpeiKeAction(f, acceptedHuanpei)) return false;
+        if (r.SelectedBasicAction is { ConversionSource.SkillId: BoundaryLiuFengComposition.Qinling } acceptedQinling &&
+            !HasAcceptedBoundaryLiuFengKeAction(f, acceptedQinling)) return false;
         var paid = CompleteProgramEventHistory().OfType<KeBiNengPingduanItemPaidEvent>().Where(e => e.FrameId == f.Id).OrderBy(e => e.Item).ToArray();
         if (paid.Length != r.CompletedItems || !paid.Select(e => e.Item).SequenceEqual(Enumerable.Range(1, r.CompletedItems)) || paid.Any(e => e.ActorSeat != actor)) return false;
         if (r.CompletedItems > 0 && (r.NativeUse is null || CompleteProgramEventHistory().OfType<KeBiNengPingduanNativeReturnedEvent>().Count(e => e.Origin == r.NativeUse) != 1)) return false;

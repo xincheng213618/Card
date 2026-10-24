@@ -25,7 +25,9 @@ public sealed partial class GameEngine
     }
     private void BindSayingSlashUse(CardUseFrame supplied)
     {
-        var index=_resolutionStack.FindIndex(f=>f.Id==supplied.Id);if(index<1||_resolutionStack[index-1]is not ProgramSkillFrame{SunYuan:{Stage:SunYuanStage.SlashIssuing,Selection:{}selection}r}parent)return;
+        var index=_resolutionStack.FindIndex(f=>f.Id==supplied.Id);
+        var parent=index>0&&_resolutionStack[index-1]is ProgramSkillFrame{SunYuan:{Stage:SunYuanStage.SlashIssuing}}direct?direct:BoundaryLiuFengNativeParent(supplied);
+        if(parent is not{SunYuan:{Stage:SunYuanStage.SlashIssuing,Selection:{}selection}r})return;
         var use=LifecycleCardUse(supplied.Id)!;
         if(use.SayingSlash is not null||r.Native is not null||use.Action is not{Type:CardActionType.Use}a||use.SourceSeat!=selection.ActorSeat||a.ActorSeat!=selection.ActorSeat||a.ProviderSeat!=selection.ProviderSeat||use.CardKind!=selection.Kind||a.EffectiveKind!=selection.Kind||!use.TargetSeats.SequenceEqual([selection.TargetSeat])||!a.TargetSeats.SequenceEqual(use.TargetSeats)||!a.PhysicalCards.Select(c=>c.CardId).SequenceEqual(selection.Materials.Select(c=>c.CardId))||!a.ConversionChain.SequenceEqual(selection.Sources)||ProgramEventHistory<SayingSlashPreparedEvent>().Count(e=>e.FrameId==parent.Id&&e.SelectionHash==SunYuanHash(selection))!=1)throw new InvalidOperationException("Saying's native child changed its once-prepared actor, provider, conversion or payment.");
         var origin=new SayingNativeOrigin(parent.Id,r.Source,r.GameplayHash,r.ActualTurn,use.Id,a.ActionId,selection,a,_movementSequence);
@@ -59,9 +61,9 @@ public sealed partial class GameEngine
     [NativeUseValidation(27490)]private void ValidateSayingNative(CardUseFrame use){if(use.SayingSlash is not null&&!IsIssuedSayingUse(use))throw new InvalidOperationException("Saying lost its issued native Slash, once-paid materials or typed parent.");}
     [NativeUseReturn(27490)]private void ReturnSayingNative(CardUseFrame use)
     {
-        if(use.SayingSlash is not{}o)return;var f=GetActiveProgramFrame(o.ProgramFrameId);var r=f.SunYuan;
+        if(use.SayingSlash is not{}o)return;var deferred=BoundaryLiuFengReturnedProgramParent(o.ProgramFrameId,use);var f=deferred??GetActiveProgramFrame(o.ProgramFrameId);var r=f.SunYuan;
         if(r is not{Stage:SunYuanStage.NativeUse,NativeReturned:false}||r.Native!=o||use.Step!=ResolutionFrameStep.Completed||LifecycleCardUse(use.Id)is not null||ProgramEventHistory<CardUseFinishedEvent>().Count(e=>e.ResolutionId==use.Id)!=1)throw new InvalidOperationException("Saying cannot return before or twice after the whole native Use.");
-        ReplaceRuntimeTop(f with{SunYuan=r with{NativeReturned=true}});if(use.CardAttack is not{Active:true})SettleSayingNative(o);
+        ReplaceRuntimeFrame(f.Id,f with{SunYuan=r with{NativeReturned=true}});if(deferred is null&&use.CardAttack is not{Active:true})SettleSayingNative(o);
     }
     [NativeAttackReturn(NativeAttackReturnPhase.AfterBorrowedSword,27490)]private bool ReturnSayingAttack(AttackCompletionReceipt completion)
     {

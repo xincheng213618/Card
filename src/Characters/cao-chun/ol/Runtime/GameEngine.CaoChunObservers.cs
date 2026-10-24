@@ -98,6 +98,7 @@ public sealed partial class GameEngine
  private bool CaoChunFirstChild(ProgramSkillFrame root,ResolutionFrame child)
  {
   if(!CanContinueCaoChun(root)||root.CaoChun is not{}r)return false;
+  if(BoundaryLiuFengRequestChild(root,child))return true;
   if(child is CardUseFrame native)return CaoChunNativeRidesOn(root,native);
   if(child is CardsMovedTriggerWindowFrame w)
   {

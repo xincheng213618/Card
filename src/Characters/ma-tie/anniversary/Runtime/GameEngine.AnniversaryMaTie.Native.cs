@@ -89,7 +89,8 @@ public sealed partial class GameEngine
     {
         if (LifecycleCardUse(fact.ResolutionId) is not { Action: { Type: CardActionType.Use } action } use || !IsSlashCard(action.EffectiveKind)) return;
         var index = _resolutionStack.FindIndex(f => f.Id == use.Id);
-        if (index < 1 || _resolutionStack[index - 1] is not ProgramSkillFrame { AnniversaryMaTie: { } } f || f.SkillId != AnniversaryMaTieComposition.Quxian) return;
+        var f = index > 0 && _resolutionStack[index - 1] is ProgramSkillFrame { AnniversaryMaTie: { } } direct ? direct : BoundaryLiuFengNativeParent(use);
+        if (f is not { AnniversaryMaTie: { } } || f.SkillId != AnniversaryMaTieComposition.Quxian) return;
         var r = f.AnniversaryMaTie!;
         if (r.Stage == AnniversaryMaTieStage.SlashChoice && TryPrepareMaTieVariableRequest(f, action)) { f = _resolutionStack.OfType<ProgramSkillFrame>().Single(p => p.Id == f.Id); r = f.AnniversaryMaTie!; }
         if (r.Stage != AnniversaryMaTieStage.Issuing || r.SelectedAction is not { } selected || !ValidMaTie(f) || r.UseId != 0 || action.ActorSeat != r.Actors[r.Cursor] || action.ProviderSeat != r.Provider ||
@@ -112,11 +113,11 @@ public sealed partial class GameEngine
     { if (use.AnniversaryMaTieOrigin is { } n && (use.Step != ResolutionFrameStep.Completed || !use.ProgramUseCommitted || _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == n.FrameId) is not { } f || !MaTieNativeMatches(use, f))) throw new InvalidOperationException("Quxian requires its exact wholly completed committed native use."); }
     [NativeUseReturn(46700)] private void ReturnMaTieNative(CardUseFrame use)
     {
-        if (use.AnniversaryMaTieOrigin is not { } n) return; var f = GetActiveProgramFrame(n.FrameId); var r = f.AnniversaryMaTie!;
+        if (use.AnniversaryMaTieOrigin is not { } n) return; var deferred = BoundaryLiuFengReturnedProgramParent(n.FrameId, use); var f = deferred ?? GetActiveProgramFrame(n.FrameId); var r = f.AnniversaryMaTie!;
         if (!MaTieNativeMatches(use, f) || LifecycleCardUse(use.Id) is not null || ProgramEventHistory<AnniversaryMaTieSlashReturnedEvent>().Any(e => e.UseId == use.Id)) throw new InvalidOperationException("Quxian cannot repeat or substitute a native return.");
         ReplaceRuntimeFrame(f.Id, f with { AnniversaryMaTie = r with { Stage = AnniversaryMaTieStage.NativeReturned, Used = r.Used.Contains(n.Actor) ? r.Used : r.Used.Append(n.Actor).ToArray() } });
         AdvanceEventRulesAndQueueFact(new AnniversaryMaTieSlashReturnedEvent(f.Id, n.Index, n.UseId, n.ActionId));
-        if (use.CardAttack is not { Active: true }) ContinueMaTie(f.Id);
+        if (deferred is null && use.CardAttack is not { Active: true }) ContinueMaTie(f.Id);
     }
     [NativeAttackReturn(NativeAttackReturnPhase.AfterCleanup, 46700)] private bool ReturnMaTieAttack()
     { if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { AnniversaryMaTie.Stage: AnniversaryMaTieStage.NativeReturned } f) return false; ContinueMaTie(f.Id); return true; }

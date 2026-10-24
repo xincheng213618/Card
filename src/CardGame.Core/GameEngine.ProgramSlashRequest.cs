@@ -29,7 +29,7 @@ public sealed partial class GameEngine
         if (!keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(user, [frame.OwnerSeat]) &&
             !HasDrawFundedDistinctBasicProgramSlash(user, [frame.OwnerSeat]) &&
-            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]) && !HasTousuiProgramSlash(user, [frame.OwnerSeat]) && !HasWeijieProgramSlash(user, [frame.OwnerSeat]) && !(HasZonghuProgramSlash(user, [frame.OwnerSeat]) || HasHuanpeiProgramSlash(user, [frame.OwnerSeat])))
+            !HasRoundOnceCardlessProgramSlash(user, [frame.OwnerSeat]) && !HasKenshangProgramSlash(user, [frame.OwnerSeat]) && !HasTousuiProgramSlash(user, [frame.OwnerSeat]) && !HasWeijieProgramSlash(user, [frame.OwnerSeat]) && !HasBoundaryLiuFengProgramSlash(user, [frame.OwnerSeat]) && !(HasZonghuProgramSlash(user, [frame.OwnerSeat]) || HasHuanpeiProgramSlash(user, [frame.OwnerSeat])))
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
@@ -201,7 +201,7 @@ public sealed partial class GameEngine
         if (nearest.Length == 0 || !keepCurrentRequest && slashes.Length == 0 && pairChoices.Count == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash) &&
             !HasChainedStateBasicProgramSlash(participant, nearest) &&
             !HasDrawFundedDistinctBasicProgramSlash(participant, nearest) &&
-            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest) && !HasTousuiProgramSlash(participant, nearest) && !HasWeijieProgramSlash(participant, nearest) && !(HasZonghuProgramSlash(participant, nearest) || HasHuanpeiProgramSlash(participant, nearest)))
+            !HasRoundOnceCardlessProgramSlash(participant, nearest) && !HasKenshangProgramSlash(participant, nearest) && !HasTousuiProgramSlash(participant, nearest) && !HasWeijieProgramSlash(participant, nearest) && !HasBoundaryLiuFengProgramSlash(participant, nearest) && !(HasZonghuProgramSlash(participant, nearest) || HasHuanpeiProgramSlash(participant, nearest)))
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
 
         var skill = _contentRegistry!.GetSkill(frame.SkillId);

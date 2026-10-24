@@ -37,7 +37,9 @@ public sealed partial class GameEngine
  }
  private void BindQigongNativeUse(long id)
  {
-  var index=_resolutionStack.FindIndex(x=>x.Id==id);if(index<1||_resolutionStack[index]is not CardUseFrame{Action:{}a}use||_resolutionStack[index-1]is not ProgramSkillFrame{LvKuangLvXiang:{Stage:"issuing"}r}f)return;
+  var index=_resolutionStack.FindIndex(x=>x.Id==id);if(index<1||_resolutionStack[index]is not CardUseFrame{Action:{}a}use)return;
+  var f=_resolutionStack[index-1]is ProgramSkillFrame{LvKuangLvXiang:{Stage:"issuing"}}direct?direct:BoundaryLiuFengNativeParent(use);
+  if(f is not{LvKuangLvXiang:{Stage:"issuing"}r})return;
   if(r.Native is not null||a.Type!=CardActionType.Use||a.ActorSeat!=r.Actor||a.ProviderSeat!=(r.IssuingProvider??r.Actor)||a.EffectiveKind!=r.IssuingKind||!IsSlashCard(a.EffectiveKind)||!a.TargetSeats.SequenceEqual([r.Target])||!a.PhysicalCards.Select(c=>c.CardId).SequenceEqual(r.IssuingIds)||a.PhysicalCards.Any(c=>_cardZones.GetLocation(c.CardId)!=c.From&&(use.AcceptedDeclarationPayment is not{}dp||dp.Cost!=c||dp.ProviderSeat!=a.ProviderSeat))||r.OriginalUseId is not{}original||r.OriginalActionId is not{}action)throw new InvalidOperationException("Qigong native issuance lost its exact actor, target, provider or real materials.");
   var receipt=new QigongNativeReceipt(f.Id,r.Source,r.GameplayHash,r.Instruction,r.Turn,original,action,r.Actor,r.Target,id,a.ActionId,a,r.Declaration?.Before??_movementSequence,r.Declaration?.Before??_movementSequence){RoundOncePayment=r.RoundOncePayment,DrawFundedPayment=r.DrawFundedPayment,ChainedPayment=r.ChainedPayment,DeclarationPayment=use.AcceptedDeclarationPayment};ReplaceRuntimeFrame(f.Id,f with{LvKuangLvXiang=r with{Stage="native",Native=receipt}});UpdateLifecycleCardUse(id,u=>u with{Qigong=receipt});AdvanceEventRulesAndQueueFact(new QigongNativeIssuedEvent(receipt));
  }

@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:he-qi",
+  "skills": [
+    { "registrationOrder": 50100, "programBundle": "mobile-he-qi", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shanxi", "name": "闪袭", "description": "出牌阶段限一次，你可以弃置一张红色基本牌，然后弃置攻击范围内的一名其他角色的一张牌，若弃置的牌是【闪】，你观看其手牌，若弃置的不是【闪】，其观看你的手牌。", "actionForms": "Active" } },
+    { "registrationOrder": 50101, "programBundle": "mobile-he-qi", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:qizhou", "name": "绮胄", "description": "锁定技，你根据装备区里牌的花色数获得以下技能：1种或以上-马术；2种或以上-英姿；3种或以上-短兵；4种-奋威。", "tags": "Locked", "executionForms": "State" } }
+  ],
+  "generals": [{ "registrationOrder": 50102, "pools": { "current": 50102 },
+    "definition": { "id": "mobile:he-qi", "name": "贺齐·移动版", "portraitKey": "mobile-he-qi", "skillId": "mobile:shanxi", "factionId": "wu", "baseHp": 4, "additionalSkillIds": ["mobile:qizhou"], "gender": "Male", "characterId": "character:he-qi", "variantId": "mobile", "rulesetId": "sanguosha-mobile" } }]
+}

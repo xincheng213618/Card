@@ -45,6 +45,7 @@ public sealed partial class GameEngine
  private bool LvKuangLvXiangFirstChild(ProgramSkillFrame f,ResolutionFrame child)
  {
   if(f.LvKuangLvXiang is not{}r)return false;
+  if(BoundaryLiuFengRequestChild(f,child))return true;
   if(child is CardUseFrame use)return QigongCardUseRidesOn(use,f);
   if(IsQigongDeclarationChild(f,child)||QigongPaidAdapterChild(f,child))return true;
   if(!CanContinueLvKuangLvXiang(f))return false;

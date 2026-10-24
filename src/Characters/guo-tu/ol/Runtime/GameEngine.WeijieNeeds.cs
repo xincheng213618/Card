@@ -108,5 +108,5 @@ public sealed partial class GameEngine
         if(p.PromptId==default)p=p with{PromptId=CreatePromptId()};var choices=p.Choices.ToList();foreach(var(source,_)in WeijieSources(_players[p.PlayerSeat])){var args=new Dictionary<string,string>{{WeijieOpen,"open"}};AddConversionParameters(args,source);choices.Add(new(new($"weijie.{n.RequestFrameId}.{source.SkillInstanceId}"),"发动【诿解】：弃置距离1的他人一张暗手牌尝试提供基本牌",[],[],args));}return p with{Choices=Array.AsReadOnly(choices.ToArray())};
     }
     private static PendingDecision WeijieNativeDecision(PendingDecision p) =>
-        global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieNativeDecision(p);
+        BoundaryLiuFengNativeDecision(global::CardGame.Core.RuntimeSkills.RuntimeRules_guo_tu_ol_WeijieNeeds.WeijieNativeDecision(p));
 }

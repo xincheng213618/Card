@@ -40,7 +40,7 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { KeBiNengPingduan = f.KeBiNengPingduan! with { BasicActions = actions } });
         var actor = f.KeBiNengPingduan!.ActorSeat;
         if (actions.Count == 0 && !HasTousuiProgramSlash(_players[actor], _players.Where(p => p.IsAlive && p.Seat != actor).Select(p => p.Seat)) && KenshangProgramSlashChoices(f, actor,
-                _players.Where(p => p.IsAlive && p.Seat != actor).Select(p => p.Seat).ToArray()).Count == 0 && !HasWeijieGenericBasic(f) && !(HasZonghuGenericBasic(f) || HasHuanpeiGenericBasic(f)))
+                _players.Where(p => p.IsAlive && p.Seat != actor).Select(p => p.Seat).ToArray()).Count == 0 && !HasWeijieGenericBasic(f) && !HasBoundaryLiuFengGenericBasic(f) && !(HasZonghuGenericBasic(f) || HasHuanpeiGenericBasic(f)))
             FinishKeBiNeng(f, "no-legal-basic-use");
         else PublishKeBiNeng(f);
     }

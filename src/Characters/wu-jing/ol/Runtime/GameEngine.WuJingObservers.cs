@@ -58,6 +58,7 @@ public sealed partial class GameEngine
     private bool WuJingFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
         if (f.WuJing is not { } r) return false;
+        if (BoundaryLiuFengRequestChild(f, child)) return true;
         if (child is DrawFundedDistinctBasicFrame draw) return IsWuJingHejiRequest(f) && draw.Payment.ParentFrameId == f.Id && draw.Payment.RequestFrameId == f.Id && draw.Payment.Cursor == f.InstructionIndex && draw.Payment.Source.OwnerSeat == f.OwnerSeat && draw.Payment.TargetSeat == r.TargetSeat && draw.OriginalDecision.SkillPrompt?.SkillId == f.SkillId && draw.OriginalDecision.PlayerSeat == f.OwnerSeat && ProgramEventHistory<DrawFundedDistinctBasicStartedEvent>().Any(e => e.PaymentFrameId == draw.Id && e.ParentFrameId == f.Id && e.RequestFrameId == f.Id && e.OriginalPromptId == draw.OriginalDecision.PromptId);
         if (child is ChainedStateBasicFrame chain) return IsWuJingHejiRequest(f) && chain.Payment.ParentFrameId == f.Id && chain.Payment.RequestFrameId == f.Id && chain.Payment.Cursor == f.InstructionIndex && chain.Payment.Source.OwnerSeat == f.OwnerSeat && chain.Payment.TargetSeat == r.TargetSeat && chain.OriginalDecision.SkillPrompt?.SkillId == f.SkillId && chain.OriginalDecision.PlayerSeat == f.OwnerSeat && ValidChainedStateBasicPayment(chain.Payment);
         if (child is CardUseFrame use) return r.Stage == WuJingStage.NativeUse && use.WuJingHeji?.Origin == r.NativeOrigin && IsWuJingHejiUse(use);

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "boundary:xiansi", "revision": 1, "triggers": [
+      { "id": "collect-up-to-two", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true, "effects": [{ "op": "resolveBoundaryLiuFengXiansi", "target": "owner" }] }
+    ], "cardPolicies": [{ "id": "public-pile-slash", "kind": "foreignPublicPileSlash" }] },
+    { "id": "boundary:qinling", "revision": 1, "activations": [
+      { "id": "discard-for-native-slash", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null,
+        "effects": [{ "op": "resolveBoundaryLiuFengQinling", "target": "owner" }] }
+    ] }
+  ]
+}

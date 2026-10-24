@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:liu-feng",
+  "skills": [
+    { "registrationOrder": 50200, "programBundle": "boundary-liu-feng", "includeProgramPresentation": true,
+      "definition": { "id": "boundary:xiansi", "name": "陷嗣", "description": "准备阶段，你可以将至多两名角色共计至多两张牌置于你的武将牌上，称为“逆”。其他角色可以移去两张“逆”视为对你使用一张【杀】。", "executionForms": "Trigger, State", "actionForms": "Active" } },
+    { "registrationOrder": 50201, "programBundle": "boundary-liu-feng", "includeProgramPresentation": true,
+      "definition": { "id": "boundary:qinling", "name": "侵凌", "description": "每回合限一次，你可以弃置一张牌，视为使用一张【杀】。若此【杀】造成了伤害，你摸一张牌，否则将你弃置的牌置为“逆”。", "executionForms": "Trigger, State", "actionForms": "Active" } }
+  ],
+  "generals": [
+    { "registrationOrder": 50202, "pools": { "current": 50202 }, "definition": { "id": "boundary:liu-feng", "name": "界刘封", "portraitKey": "boundary-liu-feng", "skillId": "boundary:xiansi", "additionalSkillIds": ["boundary:qinling"], "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:liu-feng", "variantId": "ol-boundary-2026", "rulesetId": "sanguosha-ol" } }
+  ]
+}

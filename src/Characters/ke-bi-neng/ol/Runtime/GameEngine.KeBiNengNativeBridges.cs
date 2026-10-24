@@ -76,7 +76,7 @@ public sealed partial class GameEngine
     private void BeginKeBiNengPingduanBasicUse(ProgramSkillFrame frame, LegalAction selected)
     {
         if (frame.KeBiNengPingduan is not { Stage: KeBiNengPingduanStage.BasicIssuing } receipt ||
-            !HasAcceptedKenshangKeAction(frame, selected) && !HasAcceptedTousuiKeAction(frame, selected) && !HasAcceptedWeijieKeAction(frame, selected) && !(HasAcceptedZonghuKeAction(frame, selected) || HasAcceptedHuanpeiKeAction(frame, selected)) && !BuildKeBiNengPingduanBasicActions(frame).Any(a => SameKeBiNengAction(a, selected)))
+            !HasAcceptedKenshangKeAction(frame, selected) && !HasAcceptedTousuiKeAction(frame, selected) && !HasAcceptedWeijieKeAction(frame, selected) && !HasAcceptedBoundaryLiuFengKeAction(frame, selected) && !(HasAcceptedZonghuKeAction(frame, selected) || HasAcceptedHuanpeiKeAction(frame, selected)) && !BuildKeBiNengPingduanBasicActions(frame).Any(a => SameKeBiNengAction(a, selected)))
             throw new InvalidOperationException("Pingduan lost its exact currently legal basic-card selection.");
         var actor = _players[receipt.ActorSeat];
         var original = _pendingDecision;

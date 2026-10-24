@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62, "skills": [
+    { "id": "mobile:shanxi", "revision": 1, "activations": [
+      { "id": "red-basic-discard-and-view", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"], "cardCategories": ["basic"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "discardSelected", "target": "owner", "amount": 1 },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "selectedTarget" }, "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "resultBind": "mobile-shanxi-discard", "skipIfNoCards": true, "awaitMovementTriggers": true },
+          { "op": "resolveMobileHeQiShanxiView", "target": "owner" }
+        ] }
+    ] },
+    { "id": "mobile:qizhou", "revision": 1, "equipmentSuitSkillGrants": [
+      { "id": "one-mounted", "skillId": "classic:mashu", "minimumDistinctSuits": 1 },
+      { "id": "two-valiant", "skillId": "boundary:yingzi", "minimumDistinctSuits": 2 },
+      { "id": "three-short-blade", "skillId": "ol:duanbing", "minimumDistinctSuits": 3 },
+      { "id": "four-awe", "skillId": "boundary:fenwei", "minimumDistinctSuits": 4 }
+    ] }
+  ]
+}
