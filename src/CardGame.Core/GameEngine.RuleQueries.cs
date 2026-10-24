@@ -124,6 +124,7 @@ public sealed partial class GameEngine
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
         AddFiniteContribution(contributions, $"issued:{player.Seat}:mobile:shi-kuanggu:slash-limit", MobileShiWeiYanPhaseSlashBonus(player.Seat));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mobile:shi-xiezhi:slash-limit", ShiZhHuiOverflowCount(player.Seat));
         if (HasMobileShiZhuangshiQuota(player.Seat)) contributions.Add(new UnlimitedRuleQueryContribution("skill:mobile:shi-zhuangshi:quota"));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:sequential-deck-shortfall:slash-limit", SequentialDeckKindGrowthBonus(player.Seat));
         if (HasMouZhaJiangPreUsePrivilege(player)) contributions.Add(new UnlimitedRuleQueryContribution("skill:mou-mobile:zhajiang:first-lost-hp-uses"));
@@ -179,6 +180,7 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:hand-limit", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.HandLimit));
         AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:hand-limit", GetOriginalHandHandLimitBonus(player.Seat));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:mobile:shi-xiugeng:hand-limit", ShiGyHandLimitBonus(player.Seat));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mobile:shi-xiezhi:hand-limit", ShiZhHuiOverflowCount(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:mou-mobile:keji:armor-hand-limit", MouLuMengArmorHandLimit(player));
         contributions.AddRange(ProgramDamageHandLimitContributions(player));
         contributions.AddRange(PersistentHandLimitContributions(player));

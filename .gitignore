@@ -16,6 +16,10 @@ TestResults/
 /--screenshot-dir/
 # Local WPF UI check output (screenshots and generated save/history fixtures).
 /ChengPu/
+# Legacy verification metadata; keep machine-local outputs out of Git.
+/Xu/.test-changed-owner.json
+/Xu/.test-changed.lock
+/Xu/summary.json
 **/*_wpftmp.csproj
 # One-off diagnostic and repair scripts in the repository root.
 /.tmp_*.py

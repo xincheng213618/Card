@@ -25,7 +25,8 @@ public sealed partial class GameEngine
 
     private bool TracksNativeEffectiveFactionChanges => HasMouSunShangxiangMobile || _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveGoudeActualTurnEnd) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveQingliuFactionChoice) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveShiZhHuiYunan);
 
     private IReadOnlyList<string> AvailableEffectiveFactionIds() =>
         IsNationalWarMode ? Array.Empty<string>() : NativeEffectiveFactionIds;
