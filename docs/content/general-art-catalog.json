@@ -19635,6 +19635,23 @@
       ]
     },
     {
+      "key": "mobile-shi-cao-shuang",
+      "characterName": "势曹爽",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "爆料版形象",
+          "sourcePage": "https://wiki.biligame.com/msgs/File:%E5%8A%BF%E6%9B%B9%E7%88%BD-%E7%BB%8F%E5%85%B8%E5%BD%A2%E8%B1%A1.png",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/2/26/h18w43bt6fdwfsbwez7mt70ywo56xj9.png",
+          "sha256": "ff23885389b2539c6e1043cbe59a379d753a4d5164fdb97eef5d5897c4a01e18",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/mobile-shi-cao-shuang.jpg"
+        }
+      ]
+    },
+    {
       "key": "mobile-shi-deng-ai",
       "characterName": "势邓艾",
       "defaultSkinId": "86100",
