@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:anqi-feiren", "revision": 1,
+    "triggers": [{
+      "id": "random-other-skill", "window": "beforeDamageApplied", "subject": "any", "optional": false,
+      "effects": [{ "op": "resolveAnqiFeiren", "target": "owner" }]
+    }]
+  }]
+}

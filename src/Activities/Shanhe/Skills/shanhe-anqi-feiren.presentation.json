@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:anqi-feiren": {
+      "name": "暗器飞刃",
+      "description": "锁定技，每回合每名角色限一次，你对其他角色造成伤害时，令其随机一个非锁定技失效直到其回合结束。"
+    }
+  }
+}

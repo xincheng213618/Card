@@ -50,7 +50,8 @@ public sealed partial class GameEngine
          _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
         IsDyingWindowGrantQualified(owner, grant) && IsMiuyanGrantQualified(owner, grant) && YunzhengNonLockedGrantQualified(owner, grant) &&
         IsMobileDuoruiGrantQualified(owner, grant) && IsMobileMaChaoTingweiGrantQualified(owner, grant) &&
-        IsAnniversaryXiahouJieGrantQualified(owner, grant) && IsAnniversaryCuiLieGrantQualified(owner, grant);
+        IsAnniversaryXiahouJieGrantQualified(owner, grant) && IsAnniversaryCuiLieGrantQualified(owner, grant) &&
+        IsAnqiFeirenGrantQualified(owner, grant);
 
     private long CaptureCurrentTurnQualificationStamp()
     {

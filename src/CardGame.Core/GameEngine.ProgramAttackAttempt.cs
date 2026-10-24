@@ -232,6 +232,7 @@ public sealed partial class GameEngine
         ActiveCardAttack is not null && CurrentDamageAttempt is ProgramAttackHandle;
     private void CompleteProgramAttack(IDamageAttempt attack)
     {
+        if (TryBeginShanheS5YimieRecovery(attack)) return;
         if (ActiveDying is not null && !IsMobileJwSuspendedDying(attack.ResolutionId))
             throw new InvalidOperationException("Program damage retained a dying child.");
         if (attack.TryConsumeProgramDamageTransferFollowup(out var transfer))

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:s5-shajue-853", "revision": 1,
+    "triggers": [{
+      "id": "negative-hp-other-dying", "window": "dyingEntering", "subject": "any", "optional": false,
+      "effects": [{ "op": "replenishShaJueAndClaimDyingCause", "target": "owner" }]
+    }]
+  }]
+}

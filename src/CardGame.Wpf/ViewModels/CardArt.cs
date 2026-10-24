@@ -11,12 +11,13 @@ public static class CardArt
     private static readonly Dictionary<string, ImageSource?> Cache = [];
 
     public static bool NeedsRuntimeNameOverlay(CardKind? kind) =>
-        kind is CardKind.GeneralWeapon or CardKind.ScarletBloodSword or CardKind.Xuanjian or CardKind.ColdSlash;
+        kind is CardKind.GeneralWeapon or CardKind.ScarletBloodSword or CardKind.Xuanjian or CardKind.ColdSlash or
+            CardKind.AnqiFeiren or CardKind.YaodaoChitong;
 
     public static ImageSource? Get(CardKind? kind)
     {
         if (kind is not { } key || !Enum.IsDefined(key)) return null;
-        return Load($"{(key == CardKind.Xuanjian ? CardKind.GeneralWeapon : key == CardKind.ColdSlash ? CardKind.Slash : key)}.png");
+        return Load($"{(key is CardKind.Xuanjian or CardKind.AnqiFeiren or CardKind.YaodaoChitong ? CardKind.GeneralWeapon : key == CardKind.ColdSlash ? CardKind.Slash : key)}.png");
     }
 
     public static ImageSource? GetRank(string rank, string suit) =>

@@ -7,6 +7,8 @@ internal static class RuntimeRules_Core_EquipmentSkills
     {
         CardKind.XingtianAxe => $"equipment:xingtian:{card.Id}",
         CardKind.ZhanhunDao => $"equipment:shanhe-zhanhun:{card.Id}",
+        CardKind.AnqiFeiren => $"equipment:shanhe-anqi:{card.Id}",
+        CardKind.YaodaoChitong => $"equipment:shanhe-yaodao:{card.Id}",
         _ => CardGame.Core.RuntimeSkills.RuntimeRules_Core_HulaoEquipment.HulaoEquipmentSkillGrantId(card) ?? CardGame.Core.RuntimeSkills.RuntimeRules_Core_ShenwuEquipment.ShenwuEquipmentSkillGrantId(card) ?? CardGame.Core.RuntimeSkills.RuntimeRules_Core_GuanduEquipment.GuanduEquipmentSkillGrantId(card)
     };
 }

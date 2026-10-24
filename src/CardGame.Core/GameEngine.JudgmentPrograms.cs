@@ -354,6 +354,7 @@ public sealed partial class GameEngine
         resolvingProgram |= IsExactChouceFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactDamageJudgmentSuitPaymentFinalizedSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactJudgmentOutcomeFinalizedSubtree(frame, judgmentFrame, frameIndex);
+        resolvingProgram |= IsExactYaodaoChitongJudgmentFinalizedSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactBinghuoFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactNingwuFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         resolvingProgram |= IsExactShenZfJudgmentGainSubtree(frame, judgmentFrame, frameIndex);

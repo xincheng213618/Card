@@ -61,6 +61,7 @@ public enum ResolutionFrameKind
     ProgramDeathTriggerWindow,
     HpChangedTriggerWindow,
     ColdDamageReplacement = 5770,
+    ShanheS5YimieRecovery = 5795,
     ActualUseTargetWindow = 5600,
     ForeignActualTurnStartWindow = 6400,
     SlashTargetBenefitWindow = 7000, SlashTargetPenaltyWindow = 7340,
@@ -150,6 +151,7 @@ internal interface IProgramChildResolutionFrame
 [JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
 [JsonDerivedType(typeof(BeforeDamageProgramWindowFrame), "before-damage-program-window")]
 [JsonDerivedType(typeof(ColdDamageReplacementFrame), "cold-damage-replacement")]
+[JsonDerivedType(typeof(ShanheS5YimieRecoveryFrame), "shanhe-s5-yimie-recovery")]
 
 public abstract partial record ResolutionFrame(
     long Id,

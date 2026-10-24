@@ -475,6 +475,7 @@ public sealed partial class GameEngine
             case PostEventContinuation.VirtualBasicCardUse: FinishVirtualBasicUse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.GroupRecovery: CompleteGroupRecoveryTarget(); break;
             case PostEventContinuation.ColdDamageReplacement: AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;
+            case PostEventContinuation.ShanheS5YimieRecovery: AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.RecoveryReplacement: AdvanceRuntimeFrame(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.AmountSupport:
                 if (_resolutionStack.LastOrDefault() is not (RecoveryReplacementFrame or BeforeDamageProgramWindowFrame))

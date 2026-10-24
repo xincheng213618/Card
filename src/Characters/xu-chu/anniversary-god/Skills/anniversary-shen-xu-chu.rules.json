@@ -29,6 +29,7 @@
             "slash",
             "fireSlash",
             "thunderSlash",
+            "coldSlash",
             "dodge",
             "alcohol",
             "duel",
@@ -59,7 +60,8 @@
             "realgarWine",
             "qizhengXiangsheng",
             "qiBaoDao",
-            "baiBiDao"
+            "baiBiDao",
+            "yaodaoChitong"
           ],
           "inputSuits": [],
           "inputCount": 1,
