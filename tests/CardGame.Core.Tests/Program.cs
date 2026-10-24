@@ -1582,6 +1582,7 @@ var tests = new (string Name, Action Body)[]
     ("identity draft keeps excluded editions in native avatar libraries and freezes eligibility", IdentityGeneralPoolChecks.ExcludedEditionsRemainRealAvatarsAndMetadataIsFrozen),
     ("Liu Yan: actual targets post-payment and effective hand replay", LiuYanChecks.ActualTargetsPostPaymentAndEffectiveHandCold),
     ("identity Rebel kill reward draws exactly three cards and replays once", IdentitySetupChecks.RebelKillDrawsThree),
+    ("AI support draw accepts optional empty target sets", TacticalAiChecks.SupportDrawAllowsPublishedEmptyTargetSets),
     ("AI policy versions validate and replay deterministically", TacticalAiChecks.PolicyReplay),
     ("targeted tricks finish when the target spends its last card on Nullification", TargetLossChecks.LastNullification),
     ("hand guidance is private, read-only and agrees with legal actions", HandGuidanceChecks.ReadOnlyAndPrivate),

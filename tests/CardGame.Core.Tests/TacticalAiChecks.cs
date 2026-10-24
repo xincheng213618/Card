@@ -3,6 +3,37 @@ using CardGame.Core;
 
 internal static class TacticalAiChecks
 {
+    public static void SupportDrawAllowsPublishedEmptyTargetSets()
+    {
+        var view = View(Role.Rebel) with { ModeKind = ContentModeKind.Team };
+        view = view with { Players = view.Players.Select(player => player with
+            { TeamId = player.Seat is 0 or 2 ? "ally" : "enemy" }).ToArray() };
+        var brain = new SimpleAiBrain(0, 37);
+        PromptChoice Choice(string id, params int[] targets) =>
+            new(new(id), id, [], targets, new Dictionary<string, string> { ["program-action"] = "select-targets" });
+        var empty = Choice("empty");
+        var enemy = Choice("enemy", 1);
+        var self = Choice("self", 0);
+        var ally = Choice("ally", 2);
+        var both = Choice("both", 0, 2);
+        var choices = new[] { empty, enemy, self, ally, both };
+        var before = SnapshotJson.Serialize(view);
+        var (selected, thought) = brain.ChooseSupportDrawTargets(view, choices, 1);
+        Require(selected == both.Id && thought.Candidates.Count == choices.Length &&
+            thought.Candidates.Single(c => c.Action.TargetSeats.Count == 0) is
+                { Score: 0, Action.TargetSeat: null },
+            "A published empty draw subset has zero utility and no invented target; actual allies still win.");
+        Require(brain.ChooseSupportDrawTargets(view, [enemy, empty], 2).Choice == empty.Id &&
+            brain.ChooseSupportDrawTargets(view, [empty], 3).Choice == empty.Id &&
+            brain.ChooseSupportDrawTargets(view, [enemy, self], 4).Choice == self.Id,
+            "AI may decline every enemy beneficiary or accept a sole empty choice, while mandatory targets keep their ranking.");
+        Require(before == SnapshotJson.Serialize(view) && choices.Select(c => c.Id)
+            .SequenceEqual(new[] { empty.Id, enemy.Id, self.Id, ally.Id, both.Id }),
+            "Support scoring preserves the player view and the exact published choices.");
+        try { brain.ChooseSupportDrawTargets(view, [], 5); }
+        catch (InvalidOperationException) { return; }
+        throw new InvalidOperationException("A prompt with no published choices must remain invalid.");
+    }
 
 
 

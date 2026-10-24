@@ -1532,7 +1532,7 @@ public sealed partial class SimpleAiBrain
     public (ChoiceId Choice, AiThoughtRecord Thought) ChooseSupportDrawTargets(
         GameSnapshot view, IReadOnlyList<PromptChoice> choices, int thoughtSequence)
     {
-        if (choices.Count == 0 || choices.Any(choice => choice.Targets.Count == 0))
+        if (choices.Count == 0)
             throw new InvalidOperationException("AI received an invalid support target-set prompt.");
         var selfRole = view.Players.Single(player => player.Seat == Seat).Role ?? Role.Renegade;
         var scored = choices.Select(choice =>
@@ -1543,8 +1543,10 @@ public sealed partial class SimpleAiBrain
                 return GetTacticalSupport(view, selfRole, target) * 24d +
                     (seat == Seat ? 5d : 0d) - Math.Min(target.HandCount, 6) * 0.2d;
             });
+            // Optional recipient subsets publish an empty choice with zero utility.
             return (Choice: choice, Candidate: new AiCandidateScore(
-                new LegalAction(LegalActionKind.UseProgramSkill, null, choice.Targets[0],
+                new LegalAction(LegalActionKind.UseProgramSkill, null,
+                    choice.Targets.Count > 0 ? choice.Targets[0] : null,
                     choice.Description, TargetSeats: choice.Targets),
                 Math.Round(score, 3), "按公开关系与手牌数选择受益角色，不读取暗牌牌面。"));
         }).ToArray();
