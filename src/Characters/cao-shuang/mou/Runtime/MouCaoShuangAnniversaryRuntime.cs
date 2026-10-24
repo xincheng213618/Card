@@ -4,7 +4,7 @@ namespace CardGame.Core;
 internal sealed class MouCaoShuangAnniversaryRuntime(IMouCaoShuangAnniversaryFacts facts, IMouCaoShuangAnniversaryNative native,
     IProgramRuntimeFrames frames, IProgramRuntimeEvents events, IProgramRuntimePrompts prompts, IProgramOperationDraws draws, IProgramAwakeningOverrideQuery awakeningConditions) : IMouCaoShuangAnniversaryRuntime
 {
-    internal const string Jianzhuan = "mou:jianzhuan", Fanshi = "mou:fanshi", Fudou = "mou:fudou", Action = "mou-cao-shuang-anniversary", DiscardReason = "skill-program.mou:jianzhuan.discard", DrawReason = "skill-program.mou:jianzhuan.draw";
+    internal const string Jianzhuan = "mou:jianzhuan", Fanshi = "mou:fanshi", Fudou = "mou:fudou", Action = "mou-cao-shuang-anniversary", DiscardReason = "skill.mou:jianzhuan.discard", DrawReason = "skill-program.mou:jianzhuan.draw";
     private static CardConversionSource Source(ProgramSkillFrame f) => new(f.SkillId, f.TriggerId ?? f.ActivationId, f.OwnerSeat, f.SkillInstanceId);
     internal static int[] Items(int mask) => Enumerable.Range(1, 4).Where(i => (mask & 1 << (i - 1)) != 0).ToArray();
     internal int Remaining(int owner) => facts.History<MouCaoShuangAnniversaryDeletedEvent>().Where(e => e.Owner == owner).Aggregate(15, (mask, e) => mask & ~(1 << (e.Option - 1)));

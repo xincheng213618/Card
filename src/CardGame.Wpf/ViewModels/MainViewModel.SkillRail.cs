@@ -7,6 +7,27 @@ public sealed partial class MainViewModel
     private IReadOnlyList<HumanSkillViewModel> BuildHumanSkillCards() =>
         BuildOwnedHumanSkillCards().Where(skill => !IsWushuangPassiveTacticSkill(skill.ContentId))
             .Select(skill => skill with { ProgressText = SkillActivationProgressText(skill.ContentId) })
+            .Select(ApplyMobileShiZhaoYunProgress)
+            .Select(ApplyMobileShiWeiYanProgress)
+            .Select(ApplyMobileShiChenQunProgress)
+            .Select(ApplyMobileShiWangChangProgress)
+            .Select(ApplyMobileShiTianFengProgress)
+            .Select(ApplyMobileShiChenZhiProgress)
+            .Select(ApplyMobileShiDongZhaoProgress)
+            .Select(ApplyMobileShiChenDaoProgress)
+            .Select(ApplyMobileShiHuangZuProgress)
+            .Select(ApplyMobileShiGuoYuanProgress)
+            .Select(ApplyShiXinXianYingProgress)
+            .Select(ApplyMobileShiHuanJieProgress)
+            .Select(ApplyMobileShiHeQiProgress)
+            .Select(ApplyMobileShiLuSuProgress)
+            .Select(ApplyMobileShiLuYuShengProgress)
+            .Select(ApplyMobileShiSunChenProgress)
+            .Select(ApplyMobileShiSunJunProgress)
+            .Select(ApplyMobileShiCaoZhenProgress)
+            .Select(ApplyMobileShiXiaoQiaoProgress)
+            .Select(ApplyMobileShiZhangYanProgress)
+            .Select(ApplyMobileShiDengAiProgress)
             .Concat(BuildForeignHumanSkillCards()).ToArray();
 
     private bool IsWushuangPassiveTacticSkill(string? skillId) => skillId is not null && IsWushuangTable &&

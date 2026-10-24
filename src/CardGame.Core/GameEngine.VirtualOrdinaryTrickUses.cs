@@ -41,6 +41,7 @@ public sealed partial class GameEngine
     // boundary. A matching context name without that parent is insufficient.
     private bool IsExactOwnVirtualOrdinaryTrickProgram(ProgramSkillFrame frame)
     {
+        if (frame.WindowContext?.Window == SkillProgramTriggerWindow.TurnEnding) return IsExactMobileShiCuifengProgram(frame);
         if (frame.WindowContext?.Window == SkillProgramTriggerWindow.GameStarting) return IsExactHellArrivalProgram(frame);
         if (frame.WindowContext?.Window == SkillProgramTriggerWindow.PlayEnding)
             return IsExactOwnPlayEndingProgram(frame);
@@ -224,6 +225,8 @@ public sealed partial class GameEngine
     }
     private bool ValidProgramVirtualOrdinaryTrickUse(CardUseFrame use)
     {
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == "mobile:shi-xiaoge") return ValidShiZyVirtualDuelUse(use);
+        if (use.VirtualOrdinaryTrickOrigin?.SkillId == "mobile:shi-jixi") return ValidShiDaVirtualSnatchUse(use);
         if (use.VirtualOrdinaryTrickOrigin?.SkillId == "anniversary:zhuning") return IsAnniversaryLiuYongVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin?.SkillId == "anniversary:dehua") return IsAnniversaryLiuLiVirtualUse(use);
         if (use.VirtualOrdinaryTrickOrigin?.SkillId == "anniversary:juee") return IsAnniversaryYangBiaoVirtualUse(use);
@@ -360,6 +363,8 @@ public sealed partial class GameEngine
     private void ReturnProgramVirtualOrdinaryTrick(CardUseFrame use)
     {
         if (use.VirtualOrdinaryTrickOrigin is not { } origin) return;
+        if (TryReturnShiZyVirtualDuel(use)) return;
+        if (TryReturnShiDaVirtualSnatch(use)) return;
         if (TryReturnHappyGuoJiaVirtualUse(use)) return;
         if (TryReturnShenGuoJiaVirtualUse(use)) return;
         if (TryReturnAnniversaryLiuYongVirtualUse(use)) return;

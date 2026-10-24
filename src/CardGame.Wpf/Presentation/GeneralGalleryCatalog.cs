@@ -16,6 +16,7 @@ public static class GeneralGalleryCatalog
         new("sp", "SP", "SP 武将"),
         new("mou", "谋", "谋系列武将"),
         new("friend", "友", "友系列武将"),
+        new("shi", "势", "兵势篇武将"),
         new("le", "乐", "正音雅乐系列武将"),
         new("wumiao", "武庙", "武庙系列武将"),
         new("magic", "魔", "魔系列武将"),
@@ -44,6 +45,7 @@ public static class GeneralGalleryCatalog
         new("sp", "sp", "SP", "SP 武将"),
         new("mou", "mou", "谋", "谋系列"),
         new("friend", "friend", "友", "友系列"),
+        new("shi", "shi", "势", "兵势篇"),
         new("le", "le", "乐", "正音雅乐"),
         new("wumiao", "wumiao", "武庙", "武庙"),
         new("magic", "magic", "魔", "魔系列"),
@@ -79,6 +81,30 @@ public static class GeneralGalleryCatalog
     private static IReadOnlyDictionary<string, string> BuildGeneralGroups()
     {
         var groups = new Dictionary<string, string>(StringComparer.Ordinal);
+        groups.Add("mobile:shi-zhao-yun", "shi");
+        groups.Add("mobile:shi-wei-yan", "shi");
+        groups.Add("mobile:shi-chen-qun", "shi");
+        groups.Add("mobile:shi-xiahou-shang", "shi");
+        groups.Add("mobile:shi-wang-chang", "shi");
+        groups.Add("mobile:shi-tian-feng", "shi");
+        groups.Add("mobile:shi-chen-zhi", "shi");
+        groups.Add("mobile:shi-yu-ji", "shi");
+        groups.Add("mobile:shi-cheng-pu", "shi");
+        groups.Add("mobile:shi-dong-zhao", "shi");
+        groups.Add("mobile:shi-chen-dao", "shi");
+        groups.Add("mobile:shi-huang-zu", "shi");
+        groups.Add("mobile:shi-guo-yuan", "shi");
+        groups.Add("mobile:shi-xin-xian-ying", "shi");
+        groups.Add("mobile:shi-huan-jie", "shi");
+        groups.Add("mobile:shi-lu-yu-sheng", "shi");
+        groups.Add("mobile:shi-lu-su", "shi");
+        groups.Add("mobile:shi-he-qi", "shi");
+        groups.Add("mobile:shi-sun-chen", "shi");
+        groups.Add("mobile:shi-sun-jun", "shi");
+        groups.Add("mobile:shi-cao-zhen", "shi");
+        groups.Add("mobile:shi-xiao-qiao", "shi");
+        groups.Add("mobile:shi-zhang-yan", "shi");
+        groups.Add("mobile:shi-deng-ai", "shi");
         groups.Add("le:mi-heng", "le");
         groups.Add("le:zhou-fei", "le");
         groups.Add("le:cai-wen-ji", "le");

@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhao-yun",
+  "skills": [
+    {
+      "registrationOrder": 47000,
+      "programBundle": "mobile-shi-zhao-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-wuyi",
+        "name": "武翊",
+        "description": "若你从手牌使用或打出过的基本牌牌名数大于等于：1.每轮限一次，你可视为使用一张【杀】或【闪】；2.你使用基本牌无次数限制；3.你使用基本牌无距离限制；4.将你的手牌数固定为4。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 47001,
+      "programBundle": "mobile-shi-zhao-yun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-cuifeng",
+        "name": "摧锋",
+        "description": "每轮限两次，每回合结束时，你可视为对当前回合角色使用一张伤害值+X的【决斗】（X为本回合所有人打出【杀】的次数）。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 47002,
+      "pools": {
+        "current": 47002
+      },
+      "definition": {
+        "id": "mobile:shi-zhao-yun",
+        "name": "势赵云",
+        "portraitKey": "mobile-shi-zhao-yun",
+        "skillId": "mobile:shi-wuyi",
+        "additionalSkillIds": [
+          "mobile:shi-cuifeng"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhao-yun",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

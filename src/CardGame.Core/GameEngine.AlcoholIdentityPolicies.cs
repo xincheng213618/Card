@@ -27,7 +27,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsEffectiveHandKindExempt(CharacterState owner, Card card, IReadOnlySet<CardKind> kinds) =>
-        IsWushuangHandLimitExempt(owner, card) || kinds.Contains(card.Kind) || card.Kind == CardKind.Alcohol && kinds.Contains(CardKind.Slash) && HasAlcoholKingIdentityPolicy(owner);
+        card.Kind == CardKind.MantianGuohai || IsWushuangHandLimitExempt(owner, card) || kinds.Contains(card.Kind) || card.Kind == CardKind.Alcohol && kinds.Contains(CardKind.Slash) && HasAlcoholKingIdentityPolicy(owner);
 
     private int? CaptureAlcoholActionRank(int providerSeat, CardKind kind, IReadOnlyList<int> ids)
     {

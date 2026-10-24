@@ -29,9 +29,6 @@ public sealed partial class GameEngine
         return value;
     }
 
-    private void SetProgramBooleanState(ProgramSkillFrame frame, string stateId, bool value) =>
-        SetProgramBooleanState(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId, value);
-
     private void SetProgramBooleanState(int ownerSeat, string skillId, string instanceId, string stateId, bool value)
     {
         var definition = GetProgramBooleanStateDefinition(skillId, stateId);

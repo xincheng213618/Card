@@ -116,9 +116,11 @@ internal sealed class SkillProgramDependencies
         UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.PayAndDrawWushuangJinzhi) || programs.Any(program => program.Activations.Any(a => a.UsesPerPhaseExpression is not null));
         UsesRoundTracking |= HasActivationOperation(SkillProgramEffectOp.ResolveShanheS5Qiangxi);
         UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.ResolveMouDongZhaoShunji);
+        UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.ResolveMobileShiLuSuHaoshi);
         UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.AwakenHappyTaishiCiPowei);
         UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.ResolveAnniversaryCheZhouPigua);
         UsesRoundTracking |= HasActivationOperation(SkillProgramEffectOp.ResolveAnniversaryYanXiangYuzheng);
+        UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.ChooseMobileShiShepan);
         UsesRoundTracking |= HasActivationOperation(SkillProgramEffectOp.ResolveMouZhugeJinTaozhou);
         UsesRoundTracking |= HasTriggerOperation(SkillProgramEffectOp.GrantDamageTargetSkillAndDrawByRound) ||
             HasTriggerOperation(SkillProgramEffectOp.ResolvePrepPoisonOutcomeByRound);
@@ -139,7 +141,8 @@ internal sealed class SkillProgramDependencies
                 (trigger.CardKinds.Count == 0 || ProgramCardKindMatch.Contains(trigger.CardKinds, kind)) &&
                 (trigger.CardCategories.Count == 0 || trigger.CardCategories.Contains(category)))
             select (kind, category)).ToFrozenSet();
-        CapturesCompletedResponseSuit = triggers.Any(trigger =>
+        CapturesCompletedResponseSuit = HasTriggerOperation(SkillProgramEffectOp.ResolveMobileShiCaoZhenSifengUse) ||
+            HasActivationOperation(SkillProgramEffectOp.ResolveMobileShiXiongtu) || triggers.Any(trigger =>
             trigger.Window == SkillProgramTriggerWindow.CardUseCompleted && trigger.IncludeResponseUses &&
             resolver.Features(trigger).UsesCondition(SkillProgramTriggerConditionKind.CardActionSuitIs));
         TracksPlayCardHistory = RequiresFact(ProgramTrackedFact.NativeActionAppearance) ||

@@ -34,7 +34,17 @@ internal static class AnniversaryXunXuChecks
             "A three-HE native DrawTwo pays once as the seventh loss, qualifies through all three printed categories despite one suit, and Diyin obtains all three real materials only from the following atomic finish batch.");
         s.Cold(); s.Answer(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
         s.Menu("target"); s.Answer(c => c.Targets.SequenceEqual([0]));
-        foreach (var id in paid) { s.Menu("discard"); s.Answer(c => c.Cards.SequenceEqual([id])); }
+        s.Menu("discard");
+        s.Need(s.P is { RequiredCardCount: 3, MinimumCardCount: 3 } && s.P.Choices.All(c =>
+                c.Parameters.GetValueOrDefault("owned-selection-role") == "pick"),
+            "The real Boqia receiver sees the complete three-card excess Hand draft before its first native selection.");
+        var beforeDiscard = s.G.CardMovements.Count;
+        s.Answer(c => c.Cards.SequenceEqual([paid[0]])); s.Menu("discard");
+        s.Need(s.P is { RequiredCardCount: 2, MinimumCardCount: 2 } && s.G.CardMovements.Count == beforeDiscard &&
+            s.P.Choices.All(c => c.Parameters.GetValueOrDefault("owned-selection-selected") == paid[0].ToString()),
+            "The first native Boqia discard material is buffered, remains highlighted and reduces the same collection without moving any card.");
+        s.Cold();
+        foreach (var id in paid.Skip(1)) { s.Menu("discard"); s.Answer(c => c.Cards.SequenceEqual([id])); }
         s.Play();
         s.Need(s.E<CardUseFinishedEvent>().Count(e => e.ResolutionId == use.Id) == 1 && s.E<AnniversaryXunXuRearmedEvent>().Count(e => e.ActionId == first.ActionId) == 1 &&
             s.V(0).HandCount == 3 && s.V(0).Hand!.All(c => c.Kind == CardKind.Dodge) && s.V(0).Hand!.Select(c => c.Suit).Distinct().Count() == 3 &&

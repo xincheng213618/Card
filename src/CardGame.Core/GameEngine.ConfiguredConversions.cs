@@ -33,16 +33,6 @@ public sealed partial class GameEngine
             _cardZones.GetLocation(card.Id) == CardLocation.Hand(owner.Seat);
     }
 
-    private void UpgradeConfiguredConversionTier(ProgramSkillFrame frame, string state)
-    {
-        var key = (frame.OwnerSeat, state);
-        var tier = _configuredConversionTiers.GetValueOrDefault(key);
-        if (tier >= 2) throw new InvalidOperationException("The conversion tier is already maximal.");
-        _configuredConversionTiers[key] = tier + 1;
-        AdvanceEventRulesAndQueueFact(new ConfiguredConversionTierChangedEvent(frame.OwnerSeat, state, tier + 1));
-        AddLog("SkillTriggered", $"{_players[frame.OwnerSeat].Name} 的转换能力修改至第 {tier + 1} 层。", frame.OwnerSeat);
-    }
-
     private SkillProgramStepOutcome BeginConfiguredCardDeclaration(ProgramSkillFrame frame, string bind, string state)
     {
         var binding = GetProgramCardSet(frame, bind);

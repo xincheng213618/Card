@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-miaolue", "revision": 1, "triggers": [
+      { "id": "opening-two", "window": "gameStarting", "subject": "owner", "optional": false,
+        "effects": [{ "op": "resolveMobileShiDongZhaoMiaolue", "target": "owner" }] },
+      { "id": "damage-benefit", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamage", "optional": true,
+        "effects": [{ "op": "resolveMobileShiDongZhaoMiaolue", "target": "owner" }] }
+    ] },
+    { "id": "mobile:shi-yingjia", "revision": 1, "triggers": [
+      { "id": "same-tricks-ended", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": true, "usageScope": "game", "usageLimit": 1,
+        "condition": { "kind": "compare", "left": { "kind": "ownerTrickUsesThisActualTurn" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 2 } },
+        "effects": [{ "op": "resolveMobileShiDongZhaoYingjia", "target": "owner" }] },
+      { "id": "issued-extra-start", "window": "turnBeforeStart", "subject": "owner", "optional": false, "isSkillInvocation": false, "priority": 100,
+        "effects": [{ "op": "resolveMobileShiDongZhaoYingjia", "target": "owner" }] }
+    ] }
+  ]
+}

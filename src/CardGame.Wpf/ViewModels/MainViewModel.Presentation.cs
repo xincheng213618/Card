@@ -58,10 +58,11 @@ public sealed partial class MainViewModel
             return [];
 
         var availablePrograms = HumanActiveSkillActions
-            .Where(action => action.ProgramSkillId is not null && action.ProgramSkillOwnerSeat is null)
-            .Select(action => action.ProgramSkillId!)
+            .Where(action => ActiveSkillSourceId(action) is not null && ActiveSkillSourceOwner(action) == human.Seat)
+            .Select(action => ActiveSkillSourceId(action)!)
             .ToHashSet(StringComparer.Ordinal);
         availablePrograms.UnionWith(PlayConversionModesBySkill.Keys);
+        availablePrograms.UnionWith(ResponseConversionModes.Select(mode => mode.Source.SkillId));
         if (HasDualGeneralSlots)
         {
             var slots = new[]
@@ -84,8 +85,7 @@ public sealed partial class MainViewModel
                             var acquired = !definition.SkillIds.Contains(skill.Id, StringComparer.Ordinal);
                             var enabled = slot.Revealed || acquired;
                             var runtimeState = human.SkillRuntimeStates?.SingleOrDefault(state => state.SkillId == skill.Id);
-                            var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
-                                         skill.Program?.Activations.Count > 0;
+                            var active = HasActiveSkillEntry(skill);
                             var isAvailable = availablePrograms.Contains(skill.Id);
                             return new HumanSkillViewModel(
                                 skill.Name,
@@ -93,6 +93,8 @@ public sealed partial class MainViewModel
                                 GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
                                 !enabled
                                     ? "暗置中 · 尚未启用"
+                                    : IsResponseConversionSelectionPending && _responseConversionSelection!.SkillId == skill.Id
+                                    ? "已选择 · 转化响应"
                                     : IsPlayConversionSelectionPending && _playConversionSelection!.SkillId == skill.Id
                                     ? $"已选择 · {(_playConversionSelection.Mode is null ? "选择牌型" : $"当{PlayConversionCardName}")}"
                                     : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用", skill.Tags, runtimeState),
@@ -121,8 +123,7 @@ public sealed partial class MainViewModel
                 {
                     var runtimeState = human.SkillRuntimeStates?
                         .SingleOrDefault(state => state.SkillId == skill.Id);
-                    var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
-                                 skill.Program?.Activations.Count > 0;
+                    var active = HasActiveSkillEntry(skill);
                     var isAvailable = availablePrograms.Contains(skill.Id);
                     var isFuhunGranted = runtimeState?.IsAcquired == true &&
                         (human.Skills?.Any(owned => owned.ContentId == "boundary:fuhun-current") == true ||
@@ -136,7 +137,9 @@ public sealed partial class MainViewModel
                         skill.Name,
                         GetVisibleSkillDescription(skill),
                         GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
-                        IsPlayConversionSelectionPending && _playConversionSelection!.SkillId == skill.Id
+                        IsResponseConversionSelectionPending && _responseConversionSelection!.SkillId == skill.Id
+                            ? "已选择 · 转化响应"
+                            : IsPlayConversionSelectionPending && _playConversionSelection!.SkillId == skill.Id
                             ? $"已选择 · {(_playConversionSelection.Mode is null ? "选择牌型" : $"当{PlayConversionCardName}")}"
                             : GetSkillStateText(
                             active,
@@ -178,6 +181,10 @@ public sealed partial class MainViewModel
             .ToArray();
     }
 
+    private static bool HasActiveSkillEntry(ContentSkillDefinition skill) =>
+        skill.ActionForms.HasFlag(SkillActionForm.Active) || skill.Program?.Activations.Count > 0 ||
+        skill.Program?.ViewAs.Any(rule => rule.ForPlay || rule.ForResponse) == true;
+
     private static string GetSkillTypeText(
         bool hasActiveEntry,
         SkillTag tags,
@@ -190,10 +197,7 @@ public sealed partial class MainViewModel
             return hasActiveEntry ? "主动技" : "触发 / 锁定";
 
         var parts = new List<string>();
-        if (actionForms.HasFlag(SkillActionForm.Active) ||
-            actionForms == SkillActionForm.None &&
-            executionForms == SkillExecutionForm.None &&
-            hasActiveEntry)
+        if (actionForms.HasFlag(SkillActionForm.Active) || hasActiveEntry)
             parts.Add("主动技");
         if (executionForms.HasFlag(SkillExecutionForm.State)) parts.Add("状态技");
         if (executionForms.HasFlag(SkillExecutionForm.Trigger)) parts.Add("触发技");
@@ -365,11 +369,12 @@ public sealed partial class MainViewModel
         : IsTeamSnapshot
         ? $"青队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:blue")} · 赤队 {Seats.Count(seat => seat.IsAlive && seat.TeamId == "team:red")} 存活"
         : $"{Seats.Count(seat => seat.IsAlive)} / {Seats.Count} 人存活";
-    public string PlayButtonText => IsDiscardSelectionPending ? $"弃置 {SelectedDiscardCount} / {RequiredDiscardCount} 张"
+    public string PlayButtonText => IsMobileShiZhuangshiSelectionPending ? "确 定" : IsCardDistributionPending ? "确 定" : IsDiscardSelectionPending ? $"弃置 {SelectedDiscardCount} / {RequiredDiscardCount} 张"
         : IsOwnedCardSelectionPending ? "确 定"
         : IsSkillTargetSelectionPending ? _snapshot.PendingDecision?.SkillPrompt is { } skill ? $"发动{skill.Name}" : "确 定"
         : IsHandResponsePending ? HandResponseButtonText
-        : IsActiveSkillSelectionPending ? $"发动{HumanActiveSkillName}"
+        : IsActiveSkillSelectionPending ? HumanActiveSkillAction is { PlayedCardKind: { } kind } zero && IsTieredRoundZeroAction(zero)
+            ? $"使用【{CardCatalog.Get(kind).DisplayName}】" : $"发动{HumanActiveSkillName}"
         : !CanPlaySelected && CanPlaySelectedAsSlash ? AlternatePlayText
         : Hand.FirstOrDefault(card => card.IsSelected) is { } card ? $"使用 {PlayCardName(card)}" : "出 牌";
     public IReadOnlyList<LegalAction> HumanActiveSkillActions
@@ -385,7 +390,7 @@ public sealed partial class MainViewModel
                 .Concat(JinzhiSelectionAction is { } jinzhi ? new[] { jinzhi } : [])
                 .OrderBy(action =>
                 {
-                    var index = Array.IndexOf(skillIds, action.ProgramSkillId);
+                    var index = Array.IndexOf(skillIds, ActiveSkillSourceId(action));
                     return index < 0 ? int.MaxValue : index;
                 }).ToArray();
         }
@@ -497,6 +502,7 @@ public sealed partial class MainViewModel
             if (!requiresSelection) return action.Description;
             if (!IsActiveSkillSelectionPending)
             {
+                if (IsTieredRoundZeroAction(action)) return $"发动【{ActiveSkillName(action)}】";
                 var selectionLabel = action.MaxCardCount > 0 && action.MaxTargetCount > 0
                     ? "手牌和目标"
                     : action.MaxCardCount > 0
@@ -509,20 +515,20 @@ public sealed partial class MainViewModel
                 : $"{action.Description}（已选{BuildActiveSkillSelectionSummary()}）";
         }
     }
-    public bool CanConfirmSelected => IsDiscardSelectionPending ? SelectedDiscardCount > 0 && SelectedDiscardCount <= RequiredDiscardCount
+    public bool CanConfirmSelected => IsMobileShiZhuangshiSelectionPending ? MobileShiZhuangshiPayChoice is not null : IsCardDistributionPending ? CanConfirmDistribution : IsDiscardSelectionPending ? SelectedDiscardCount > 0 && SelectedDiscardCount <= RequiredDiscardCount
         : IsOwnedCardSelectionPending ? CanConfirmOwnedCardSelection
         : IsSkillTargetSelectionPending ? SelectedSkillTargetChoice is not null
         : IsCardPaymentSelectionPending ? SelectedCardPaymentChoice is not null
         : IsHandResponsePending ? IsBaguaActivationPending || SelectedHandResponse is not null && Hand.Any(card => card.Id == _selectedCardId && card.IsPlayable)
         : IsActiveSkillSelectionPending ? CanConfirmActiveSkill : CanPlaySelected || CanPlaySelectedAsSlash;
-    public bool CanActFromHand => CanEndTurn || IsDiscardSelectionPending || IsHandResponsePending || IsSkillTargetSelectionPending || IsOwnedCardSelectionPending;
+    public bool CanActFromHand => IsMobileShiZhuangshiSelectionPending || IsCardDistributionPending || CanEndTurn || IsDiscardSelectionPending || IsHandResponsePending || IsSkillTargetSelectionPending || IsOwnedCardSelectionPending;
     public bool HasAlternateSlash => CanPlaySelected && CanPlaySelectedAsSlash;
     public string AlternatePlayText => SelectedConversionAction() is { } conversion
         ? $"当作{CardCatalog.Get(conversion.PlayedCardKind!.Value).DisplayName}使用"
         : "转换使用";
     public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : _game.IsMoLuBuOpeningPhase ? $"{CenterTitle} · 夺炁额外出牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
-    public bool HasCenterChoices => HasChoicePrompt && (HasDockSkillChoices || HasExpandedSelection || IsOwnedCardSelectionPending && !IsForeignCardTakeSelectionPending ? false : IsHandResponsePending ? HandResponseExtraChoices.Count > 0
+    public bool HasCenterChoices => IsCardDistributionPending || HasChoicePrompt && (HasDockSkillChoices || HasExpandedSelection ? false : IsOwnedCardSelectionPending && !IsForeignCardTakeSelectionPending ? OwnedSelectionExtraChoices.Count > 0 : IsHandResponsePending ? HandResponseExtraChoices.Count > 0
         : !IsSkillTargetSelectionPending || CenterSkillChoices.Count > 0) || HasPublicTargetChoices || HasTargetCombinationChoices ||
         HasPublicRevealedCards || HasPrivatelyViewedCards || HasDeclaredCards ||
         ActiveSkillEquipmentChoices.Count > 0 || CenterEquipmentPlayChoices.Count > 0;
@@ -539,8 +545,8 @@ public sealed partial class MainViewModel
     public bool IsTableIdle => !HasCenterChoices;
     public bool AreTablePlaysVisible => IsTableIdle || IsHandResponsePending && HandResponseExtraChoices.Count == 0 &&
         !HasPublicRevealedCards && !HasPrivatelyViewedCards && !HasDeclaredCards;
-    public bool HasSelection => IsPlayConversionSelectionPending || _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
-        _selectedOwnedCardIds.Count > 0 ||
+    public bool HasSelection => HasMobileShiZhuangshiSelection || _distributionCardIds.Count > 0 || _distributionTarget is not null || IsResponseConversionSelectionPending || IsPlayConversionSelectionPending || _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
+        HasOwnedCardDraftSelection ||
         _paymentCardIds.Count > 0 ||
         _isSelectingActiveSkillCards || _selectedActiveSkillCardIds.Count > 0 ||
         _selectedActiveSkillTargetSeats.Count > 0 || _selectedSkillTargetSeats.Count > 0;
@@ -597,7 +603,9 @@ public sealed partial class MainViewModel
         ConfirmSelectedCommand = new RelayCommand(() =>
         {
             if (!CanConfirmSelected) return;
-            if (IsDiscardSelectionPending) ConfirmDiscard();
+            if (IsMobileShiZhuangshiSelectionPending) ConfirmMobileShiZhuangshi();
+            else if (IsCardDistributionPending) ConfirmCardDistribution();
+            else if (IsDiscardSelectionPending) ConfirmDiscard();
             else if (IsOwnedCardSelectionPending) ConfirmOwnedCardSelection();
             else if (IsSkillTargetSelectionPending) ConfirmSkillTarget();
             else if (IsHandResponsePending) ConfirmHandResponse();
@@ -732,6 +740,8 @@ public sealed partial class MainViewModel
         var target = Seats.FirstOrDefault(item => item.Seat == _selectedTargetSeat);
         ActionHint = HasGameOver ? "对局结束 · 点击「新对局」再战一局"
             : IsSpectating ? SpectatorHint
+            : IsMobileShiZhuangshiSelectionPending ? MobileShiZhuangshiSelectionHint
+            : IsCardDistributionPending ? DistributionSelectionHint
             : IsDiscardSelectionPending ? DiscardSelectionHint
             : IsOwnedCardSelectionPending ? OwnedCardSelectionHint
             : IsSkillTargetSelectionPending ? SkillTargetSelectionHint
@@ -756,7 +766,7 @@ public sealed partial class MainViewModel
             : IsGeneralSelectionPending ? "选择你的武将，准备出征"
             : CanUseActiveSkill && HumanActiveSkillAction is { } activeAction &&
               (activeAction.MinCardCount > 0 || activeAction.MaxCardCount > 0 ||
-               activeAction.MinTargetCount > 0 || activeAction.MaxTargetCount > 0)
+               activeAction.MinTargetCount > 0 || ActiveSkillMaximumTargets(activeAction) > 0)
                 ? $"点击【{HumanActiveSkillName}】，再选择{BuildActiveSkillRequirement(activeAction)}"
             : CanUseActiveSkill ? Hand.Any(item => item.IsPlayable)
                 ? $"选择一张手牌，或发动 {ActiveSkillButtonText}"
@@ -810,6 +820,9 @@ public sealed partial class MainViewModel
         RefreshTargetCardPicker();
         RefreshSelectionArea();
         RaisePropertyChanged(nameof(HasCenterChoices));
+        RaisePropertyChanged(nameof(HasStandardCenterChoices));
+        RaisePropertyChanged(nameof(IsHarvestDisplayVisible));
+        RaisePropertyChanged(nameof(HarvestDisplayHint));
         RaisePropertyChanged(nameof(IsTableIdle));
         RaisePropertyChanged(nameof(AreTablePlaysVisible));
         RefreshPlayerGuide();
@@ -841,14 +854,21 @@ public sealed partial class MainViewModel
 
     private void ClearSelection()
     {
+        if (IsMobileShiZhuangshiSelectionPending) { ClearMobileShiZhuangshiSelection(); return; }
+        if (TryClearNativeOwnedSelection()) return;
         var wasSelectingActiveSkillCards = _isSelectingActiveSkillCards;
         var wasSelectingPlayConversion = IsPlayConversionSelectionPending;
+        var wasSelectingResponseConversion = IsResponseConversionSelectionPending;
+        ResetResponseConversionSelection();
         _selectedTieredRoundZeroAction = null;
         _selectedJinzhiKind = null;
         ResetPlayCardSelection();
         _discardCardIds.Clear();
         _selectedOwnedCardIds.Clear();
         RaisePropertyChanged(nameof(SelectedTargetCardIds));
+        _distributionCardIds.Clear();
+        _distributionTarget = null;
+        RebuildDistributionDestinations();
         _paymentCardIds.Clear();
         _paymentChoiceId = null;
         RefreshEquipmentMaterialSelection();
@@ -857,10 +877,10 @@ public sealed partial class MainViewModel
         _selectedSkillTargetSeats.Clear();
         _selectedActiveSkillIdentity = null;
         _isSelectingActiveSkillCards = false;
-        foreach (var card in Hand) card.IsSelected = false;
+        foreach (var card in Hand) card.IsSelected = IsOwnedCardSelectionPending && IsOwnedSelectionCardSelected(card.Id);
         SelectedCardText = "未选择手牌";
         SyncForcedHandSelection();
-        if (wasSelectingActiveSkillCards || wasSelectingPlayConversion)
+        if (wasSelectingActiveSkillCards || wasSelectingPlayConversion || wasSelectingResponseConversion)
         {
             _humanSkillSnapshot = null;
             RefreshCurrentView();

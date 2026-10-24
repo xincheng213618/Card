@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-chizhang", "revision": 1,
+      "cardPolicies": [{ "id": "damage-distance", "kind": "ignoreUseDistance", "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel", "fireAttack", "barbarianAssault", "arrowBarrage", "lightning", "qizhengXiangsheng", "wumiaoFlood"] }],
+      "triggers": [{ "id": "hand-damage-colors", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "singleActionInstance": true,
+        "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel", "fireAttack", "barbarianAssault", "arrowBarrage", "qizhengXiangsheng", "wumiaoFlood"], "optional": true,
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand"], "minimumCards": 0, "maximumCards": null, "resultBind": "chizhang-payment" },
+          { "op": "resolveMobileShiHuangZuChizhang", "target": "owner" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "chizhang-payment", "destination": "discardPile", "awaitMovementTriggers": true }
+        ] }]
+    },
+    { "id": "mobile:shi-duanyang", "revision": 1,
+      "triggers": [
+        { "id": "store-non-use-slash", "window": "discardPileReceived", "subject": "owner", "movementOccurrence": "perBatch", "optional": true, "usageScope": "turn", "usageLimit": 1,
+          "effects": [{ "op": "resolveMobileShiHuangZuStore", "target": "owner" }] },
+        { "id": "use-current-phase-end", "window": "actualPhaseEnded", "subject": "owner", "optional": false, "isSkillInvocation": false,
+          "effects": [{ "op": "resolveMobileShiHuangZuPhaseUse", "target": "owner" }] },
+        { "id": "damage-recast", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "optional": true,
+          "effects": [{ "op": "resolveMobileShiHuangZuRecast", "target": "owner" }] }
+      ]
+    }
+  ]
+}

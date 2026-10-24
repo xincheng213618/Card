@@ -447,6 +447,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedCardId = null;
         _selectedConversionSource = null;
         _playConversionSelection = null;
+        ResetResponseConversionSelection();
         _selectedActiveSkillCardIds.Clear();
         _selectedActiveSkillTargetSeats.Clear();
         _selectedActiveSkillIdentity = null;
@@ -573,6 +574,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedCardTargetSeats.Clear();
             _selectedConversionSource = null;
             _playConversionSelection = null;
+            ResetResponseConversionSelection();
         }
         if (_snapshot?.PendingDecision?.PromptId != snapshot.PendingDecision?.PromptId &&
             (IsHandResponsePrompt(_snapshot) || IsHandResponsePrompt(snapshot)))
@@ -586,9 +588,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ? _game.CreateSnapshot(snapshot.HumanSeat, revealAll: true)
             : snapshot;
         RaisePropertyChanged(nameof(ChoiceSnapshot));
+        SyncResponseConversionSelection();
         SyncPrivateReserveDialog();
         SyncDiscardSelection();
         SyncActiveSkillSelection();
+        SyncCardDistribution();
         SyncSkillTargetSelection();
         SyncOwnedCardSelection();
         RefreshDecisionContext();
@@ -880,8 +884,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                         card.Kind == CardKind.WoodenOx && player.WoodenOxGrainCount > 0
                             ? $"{card.DisplayName}（粮 {player.WoodenOxGrainCount}）"
                             : card.DisplayName))}",
-                EquipmentSlots = Array.AsReadOnly(player.Equipment.OrderBy(card => EquipmentSlotViewModel.DisplayOrder(EquipmentSlotViewModel.CardSlot(card)))
-                    .Select(card => new EquipmentSlotViewModel(EquipmentSlotViewModel.CardSlot(card), card)).ToArray()),
+                EquipmentSlots = EquipmentSlotViewModel.FromPlayer(player),
                 JudgmentText = player.Judgment.Count == 0
                     ? "判定区 —"
                     : $"判定区 {string.Join(" · ", player.Judgment.Select(JudgmentDisplayName))}",
@@ -918,7 +921,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             RebuildActiveSkillEquipmentChoices(human, activeSkillCardIds);
             RebuildEquipmentPlayChoices(human, legalActions);
-            var visibleCards = human.Hand.Concat(human.WoodenOxGrain ?? []).ToArray();
+            var sharedHandCards = _snapshot.Players.Where(player => player.Seat != human.Seat && player.ViewerCanUseHand)
+                .SelectMany(player => player.Hand.Select(card => (Card: card, Owner: player.GeneralName))).ToArray();
+            var sharedHandTags = sharedHandCards.ToDictionary(item => item.Card.Id, item => $"好施 · {item.Owner}");
+            var visibleCards = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(sharedHandCards.Select(item => item.Card)).DistinctBy(card => card.Id).ToArray();
             var grainIds = (human.WoodenOxGrain ?? []).Select(card => card.Id).ToHashSet();
             var ids = visibleCards.Select(card => card.Id).ToHashSet();
             for (var i = Hand.Count - 1; i >= 0; i--)
@@ -928,10 +934,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 var activeSkillSelectable = activeSkillCardIds.Contains(card.Id);
                 var responseChoice = HandResponseChoice(card.Id);
-                var normallyPlayable = CanRerollOpeningHand || playableCardIds.Contains(card.Id) || responseChoice is not null || IsOwnedSelectionMaterial(card.Id) || IsCardPaymentMaterial(card.Id);
+                var normallyPlayable = CanRerollOpeningHand || playableCardIds.Contains(card.Id) || responseChoice is not null || IsOwnedSelectionMaterial(card.Id) || IsCardPaymentMaterial(card.Id) || IsDistributionMaterial(card.Id) || IsMobileShiZhuangshiMaterial(card.Id);
                 var normallySelectable = TutorialAllowsHandCard(card, normallyPlayable);
                 var availability = IsActiveSkillSelectionPending
                     ? activeSkillSelectable ? $"可用于{HumanActiveSkillAction?.Description ?? "主动技能"}" : "本次技能不能选择这张牌；可按 Esc 退出技能选择。"
+                    : IsMobileShiZhuangshiSelectionPending ? IsMobileShiZhuangshiMaterial(card.Id)
+                        ? "壮誓：可连续多选，点击此牌勾选或反选，选择失去体力后统一确认。" : "这张牌不能用于壮誓。"
+                    : IsCardDistributionPending ? IsDistributionMaterial(card.Id) ? "可多选，选择去向后确认分配。" : "这张牌不在本次分配范围内。"
                     : IsCardPaymentSelectionPending ? IsCardPaymentMaterial(card.Id)
                         ? "选择此牌；选齐合法费用后点击「确定」。" : "这张牌不能用于本次支付。"
                     : TutorialHandAvailability(card, normallyPlayable, IsHandResponsePending
@@ -950,7 +959,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 if (IsPlayConversionSelectionPending && normallyPlayable) kindLabel += $" · {PlayConversionSkillName}当{PlayConversionCardName}";
                 var originalHandTag = string.Join(" / ", (human.OriginalHandEntities ?? [])
                     .Where(item => item.CardIds?.Contains(card.Id) == true).Select(item => item.Name)
-                    .Concat(card.SkillMarkLabel is { } skillMark ? new[] { skillMark } : []).Distinct());
+                    .Concat(card.SkillMarkLabel is { } skillMark ? new[] { skillMark } : [])
+                    .Concat(sharedHandTags.TryGetValue(card.Id, out var sharedTag) ? new[] { sharedTag } : []).Distinct());
                 if (existing.TryGetValue(card.Id, out var displayed))
                 {
                     displayed.OriginalHandTag = originalHandTag;
@@ -1061,12 +1071,23 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (!Hand.Contains(card)) return;
 
+        if (IsMobileShiZhuangshiSelectionPending)
+        {
+            ToggleMobileShiZhuangshiCard(card.Id);
+            return;
+        }
+
         if (CanRerollOpeningHand)
         {
             SelectOpeningHandCard(card);
             return;
         }
 
+        if (IsCardDistributionPending)
+        {
+            ToggleDistributionCard(card.Id);
+            return;
+        }
         if (IsOwnedCardSelectionPending)
         {
             ToggleOwnedSelectionCard(card.Id);
@@ -1344,6 +1365,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (!Seats.Contains(seat)) return;
 
+        if (IsCardDistributionPending)
+        {
+            var destination = DistributionDestinations.SingleOrDefault(target => target.Seat == seat.Seat);
+            if (destination is not null) SelectDistributionTargetCommand.Execute(destination);
+            return;
+        }
         if (IsSkillTargetSelectionPending)
         {
             ToggleSkillTarget(seat);
@@ -1450,7 +1477,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void SelectSkillChoice(PromptChoice choice)
     {
-        if (IsOwnedCardSelectionPending && IsCurrentPromptChoice(choice) && choice.Cards is [var cardId])
+        if (IsOwnedCardSelectionPending && IsCurrentPromptChoice(choice) && choice.Cards is [var cardId] &&
+            (!HasProjectedOwnedSelection(_snapshot.PendingDecision!) ||
+             choice.Parameters.GetValueOrDefault("owned-selection-role") is "pick" or "unpick"))
         {
             ToggleOwnedSelectionCard(cardId);
             return;
@@ -1469,6 +1498,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         ExecuteSafely(() =>
         {
+            var resetsOwnedDraft = IsOwnedCardSelectionPending &&
+                choice.Parameters.GetValueOrDefault("owned-selection-role") == "reset";
             var result = SubmitCommand(new AnswerPromptCommand(
                 _snapshot.HumanSeat,
                 pending.PromptId,
@@ -1480,6 +1511,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
+            if (resetsOwnedDraft) _selectedOwnedCardIds.Clear();
             RefreshCommandResult(result.State);
         });
     }
@@ -1629,6 +1661,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void RefreshTargetHighlights()
     {
+        if (IsCardDistributionPending)
+        {
+            RefreshDistributionSelection();
+            return;
+        }
         if (IsSkillTargetSelectionPending)
         {
             RefreshSkillTargetHighlights();

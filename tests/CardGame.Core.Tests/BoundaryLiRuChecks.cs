@@ -11,7 +11,34 @@ internal static class BoundaryLiRuChecks
     private const string Mode = "identity:classic-li-ru-fixture";
     private const string MiejiReason = "skill-program." + Mieji + ".ChooseCategoryOrSequentialDiscard";
 
-    // Draft only. No loader, build or test execution has been performed for this staged file.
+    public static void FenchengPublishesUnpaidBatchBoundsCold()
+    {
+        var (g, registry) = Create(); Play(g);
+        Accept(g, new UseProgramSkillCommand(0, Fencheng, "chosen-start-fire-walk", [], [1], g.Revision, P(g)!.PromptId));
+        Reach(g, IsSequential);
+        Answer(g, c => c.Parameters.GetValueOrDefault("branch") == "discard");
+        var initial = P(g)!;
+        Require(initial.PlayerSeat == 1 && initial.MinimumCardCount == 1 && initial.RequiredCardCount >= 2 &&
+            initial.Choices.Where(c => c.Cards.Count == 1).All(c => c.Parameters.GetValueOrDefault("owned-selection-role") == "pick"),
+            "Fencheng publishes its real lower bound and complete unpaid batch to the current payer.");
+        var ids = initial.Choices.Where(c => c.Cards.Count == 1).Take(2).Select(c => c.Cards[0]).ToArray();
+        var movements = g.CardMovements.Count;
+        Answer(g, c => c.Cards.SequenceEqual([ids[0]]));
+        Require(g.CardMovements.Count == movements && P(g)!.MinimumCardCount == 0 &&
+            P(g)!.RequiredCardCount == initial.RequiredCardCount - 1,
+            "The first selected material reduces both live bounds without paying early.");
+        g = RestoreAfterCold(g, registry);
+        Answer(g, c => c.Cards.SequenceEqual([ids[1]]));
+        Require(g.CardMovements.Count == movements, "A larger legal batch remains unpaid until explicit finish.");
+        Answer(g, c => c.Parameters.GetValueOrDefault("owned-selection-role") == "finish");
+        Reach(g, p => IsSequential(p) && p.PlayerSeat != 1);
+        var paid = F<ProgramSequentialDiscardPaidEvent>(g).Single();
+        Require(paid.ActualCount == 2 && ids.All(id => g.CardMovements.Skip(movements).Count(m =>
+            m.CardId == id && m.From == CardLocation.Hand(1) && m.To == CardLocation.DiscardPile) == 1),
+            "The original native finish discards exactly the two selected physical entities once.");
+        Cold(g, registry);
+    }
+
     public static void SequentialAnyDiscardKeepsTopPaymentAndChildReturns()
     {
         var (g, r) = Create(observers: true, replenish: true); Play(g); GiveTrick(g, 0); GiveTrick(g, 1);

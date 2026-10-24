@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-kaiji", "revision": 1,
+      "triggers": [{
+        "id": "kaiji-prepare", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true,
+        "effects": [
+          { "op": "selectMobileShiKaijiTargets", "target": "owner" },
+          { "op": "bindMobileShiKaijiReward", "target": "owner" },
+          { "op": "draw", "target": "owner", "amount": 1,
+            "condition": { "kind": "choiceIs", "sourceBind": "kaiji-reward", "optionId": "yes" } }
+        ]
+      }]
+    },
+    {
+      "id": "mobile:shi-shepan", "revision": 1,
+      "triggers": [{
+        "id": "shepan-adjust", "window": "cardUseBeforeTargetEffects", "ownerRelation": "target", "optional": true,
+        "usageScope": "turn", "usageLimit": 1,
+        "condition": { "kind": "not", "children": [{ "kind": "cardActionActorIsOwner" }] },
+        "effects": [
+          { "op": "chooseMobileShiShepan", "target": "owner" },
+          { "op": "draw", "target": "owner", "amount": 1,
+            "condition": { "kind": "choiceIs", "sourceBind": "shepan-mode", "optionId": "draw" } },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" },
+            "cardOwnerRef": { "kind": "actor" }, "zones": ["hand"], "count": 1,
+            "destination": "drawPileTop", "resultBind": "shepan-top", "awaitMovementTriggers": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "shepan-mode", "optionId": "top" } },
+          { "op": "resolveMobileShiShepan", "target": "owner" }
+        ]
+      }]
+    }
+  ]
+}

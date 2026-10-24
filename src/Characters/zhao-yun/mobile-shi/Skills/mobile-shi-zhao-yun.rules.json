@@ -1,0 +1,484 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-wuyi",
+      "revision": 1,
+      "states": [
+        {
+          "id": "shi-wuyi-one",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "shi-wuyi-two",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "shi-wuyi-three",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "shi-wuyi-four",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "modifiers": [
+        {
+          "id": "unlimited-basic-use",
+          "query": "slashLimit",
+          "operation": "unlimited",
+          "priority": 0,
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "shi-wuyi-two"
+          },
+          "value": 0
+        }
+      ],
+      "cardPolicies": [
+        {
+          "id": "unlimited-alcohol",
+          "kind": "unlimitedAlcoholUse",
+          "cardKinds": [
+            "alcohol"
+          ],
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "shi-wuyi-two"
+          }
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "round-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "roundOnceCardlessBasic": {
+            "usageGroup": "shi-wuyi",
+            "usesPerRound": 1
+          },
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "shi-wuyi-one"
+          }
+        },
+        {
+          "id": "round-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "roundOnceCardlessBasic": {
+            "usageGroup": "shi-wuyi",
+            "usesPerRound": 1
+          },
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "shi-wuyi-one"
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "unlock-4-response",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-four",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-four",
+              "value": true
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "handCountMinusFour",
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "wuyi-excess"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "wuyi-excess",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "fourMinusHandCount"
+            }
+          ]
+        },
+        {
+          "id": "unlock-4-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-four",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-four",
+              "value": true
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "handCountMinusFour",
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "wuyi-excess"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "wuyi-excess",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "fourMinusHandCount"
+            }
+          ]
+        },
+        {
+          "id": "unlock-3-response",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-three",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-three",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "unlock-3-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-three",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-three",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "unlock-2-response",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-two",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-two",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "unlock-2-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-two",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-two",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "unlock-1-response",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-one",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-one",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "unlock-1-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-one",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shi-wuyi-one",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "fixed-hand-loss",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-four"
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "handCountMinusFour",
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "wuyi-excess"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "wuyi-excess",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "fourMinusHandCount"
+            }
+          ],
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch"
+        },
+        {
+          "id": "fixed-hand-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-four"
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "handCountMinusFour",
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "wuyi-excess"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "wuyi-excess",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "fourMinusHandCount"
+            }
+          ]
+        },
+        {
+          "id": "fixed-hand-response",
+          "window": "cardResponseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-four"
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "handCountMinusFour",
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "wuyi-excess"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "wuyi-excess",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "fourMinusHandCount"
+            }
+          ]
+        },
+        {
+          "id": "fixed-hand-use",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "shi-wuyi-four"
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "numberExpression": "handCountMinusFour",
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "wuyi-excess"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "wuyi-excess",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "fourMinusHandCount"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-cuifeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "cuifeng-turn-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "usageScope": "round",
+          "usageLimit": 2,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "currentTurnPlayer"
+            },
+            {
+              "op": "useVirtualOrdinaryTrick",
+              "target": "owner",
+              "outputKind": "duel",
+              "actorRef": {
+                "kind": "owner"
+              },
+              "targetRef": {
+                "kind": "selectedTarget"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

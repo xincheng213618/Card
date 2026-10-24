@@ -26,8 +26,10 @@ public sealed partial class MainViewModel
     private IReadOnlyList<HandCardGuidance> GetViewHandGuidance() => GetViewAction().HandGuidance;
 
     private bool IsHandCardSelected(int cardId) =>
-        IsCardPaymentSelectionPending ? _paymentCardIds.Contains(cardId)
-        : IsOwnedCardSelectionPending ? _selectedOwnedCardIds.Contains(cardId)
+        IsMobileShiZhuangshiSelectionPending ? IsMobileShiZhuangshiCardSelected(cardId)
+        : IsCardDistributionPending ? _distributionCardIds.Contains(cardId)
+        : IsCardPaymentSelectionPending ? _paymentCardIds.Contains(cardId)
+        : IsOwnedCardSelectionPending ? IsOwnedSelectionCardSelected(cardId)
         : IsDiscardSelectionPending ? _discardCardIds.Contains(cardId)
         : IsActiveSkillCardSelectionPending ? _selectedActiveSkillCardIds.Contains(cardId)
         : cardId == _selectedCardId;

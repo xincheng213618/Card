@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:tian-feng",
+  "skills": [
+    { "registrationOrder": 47500, "programBundle": "mobile-shi-tian-feng", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-ganggeng", "name": "刚鲠", "description": "出牌阶段限一次，你可以将至少两张手牌交给一名其他角色。回合结束时，若其手牌数：为全场最多，你摸一张牌；不为全场最多，你弃置其区域里的一张牌。", "executionForms": "Trigger", "actionForms": "Active" } },
+    { "registrationOrder": 47501, "programBundle": "mobile-shi-tian-feng", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-sijian", "name": "死谏", "description": "每回合限两次，当你失去最后一张手牌后，或当你进入濒死状态时，你可以选择一项：1.选择一名其他角色，其使用下一张牌后需弃置一张牌。2.令当前回合角色摸两张牌。若此时没有角色处于濒死状态，你可以背水：失去X点体力（X为此技能发动过背水的次数）。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 47502, "pools": { "current": 47502 }, "definition": {
+      "id": "mobile:shi-tian-feng", "name": "势田丰", "portraitKey": "mobile-shi-tian-feng", "skillId": "mobile:shi-ganggeng",
+      "additionalSkillIds": ["mobile:shi-sijian"], "factionId": "qun", "baseHp": 3, "gender": "Male",
+      "characterId": "character:tian-feng", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile"
+    } }
+  ]
+}

@@ -18,6 +18,6 @@ public sealed partial class MainViewModel
 
     public IReadOnlyList<PromptChoice> DockSkillChoices => HasDockSkillChoices ? DockChoiceCandidates : [];
     public ICommand DockSkillChoiceCommand => IsHandResponsePending ? SelectHandResponseChoiceCommand : SelectSkillChoiceCommand;
-    public bool ShowPrimaryActionButtons => !HasDockSkillChoices || IsSkillTargetSelectionPending || IsHandResponsePending;
+    public bool ShowPrimaryActionButtons => IsMobileShiZhuangshiSelectionPending || !HasDockSkillChoices || IsSkillTargetSelectionPending || IsHandResponsePending;
     public IReadOnlyList<PromptChoice> CenterHandResponseExtraChoices => HasDockSkillChoices || HasExpandedSelection ? [] : HandResponseExtraChoices;
 }

@@ -17,8 +17,8 @@ public sealed partial class MainViewModel
     private static bool IsCardPaymentPrompt(GameSnapshot? snapshot)
     {
         if (snapshot?.PendingDecision is not { } prompt || prompt.PlayerSeat != snapshot.HumanSeat ||
-            prompt.RequiredCardCount > 0 ||
-            HasIncrementalCardSelectionChoices(prompt) ||
+            prompt.RequiredCardCount > 0 || HasProjectedOwnedSelection(prompt) ||
+            HasIncrementalCardSelectionChoices(prompt) || IsMobileShiZhuangshiPrompt(snapshot) || IsCardDistributionPrompt(snapshot) ||
             prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") is "select-owned-cards" or "finish-owned-cards"))
             return false;
         if (prompt.SkillPrompt is null && prompt.Kind is not (DecisionKind.StoneAxe or DecisionKind.CixiongDoubleSwords or DecisionKind.QinglongCrescentBlade) &&
@@ -41,9 +41,10 @@ public sealed partial class MainViewModel
             if (!ReferenceEquals(_paymentSnapshot, _snapshot))
             {
                 _paymentSnapshot = _snapshot;
-                _hasCardPaymentPrompt = IsCardPaymentPrompt(_snapshot);
+                _hasCardPaymentPrompt = IsResponseConversionPaymentPending || IsCardPaymentPrompt(_snapshot);
                 _cardPaymentChoices = _hasCardPaymentPrompt
-                    ? Array.AsReadOnly(_snapshot.PendingDecision!.Choices.Where(choice => choice.Cards.Count > 0).ToArray()) : [];
+                    ? Array.AsReadOnly((IsHandResponsePending ? AvailableHandResponseChoices : _snapshot.PendingDecision!.Choices)
+                        .Where(choice => choice.Cards.Count > 0).ToArray()) : [];
                 _paymentMaterialIds = _cardPaymentChoices.SelectMany(choice => choice.Cards).ToHashSet();
             }
             return _hasCardPaymentPrompt;
@@ -66,6 +67,7 @@ public sealed partial class MainViewModel
     private void SelectResponseAlternative(PromptChoice choice)
     {
         if (!HandResponseExtraChoices.Any(current => ReferenceEquals(current, choice))) return;
+        if (TrySelectResponseConversionMode(choice)) return;
         if (IsPaymentVariant(choice))
         {
             _paymentChoiceId = choice.Id;

@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         {
             var response = accepted.Action;
             if ((TracksActualTurnUseOrdinal || TracksCurrentRoundActualUses || TracksWholeActualTurnUseOrdinal) && response.Type == CardActionType.Response && response.EffectiveKind == CardKind.Dodge &&
-                response.ActorSeat == response.ProviderSeat && response.ResponderSeat == response.ActorSeat && response.RequesterSeat is null)
+                (response.ActorSeat == response.ProviderSeat || IsShiLsAutonomousResponse(response)) && response.ResponderSeat == response.ActorSeat && response.RequesterSeat is null)
             {
                 // Defending against a Slash is a use of Dodge. Arrow Barrage and
                 // supplied cards remain responses, with no actual-use ordinal.
@@ -52,7 +52,7 @@ public sealed partial class GameEngine
                 return;
             }
             if (response.Type != CardActionType.Response || response.EffectiveKind != CardKind.Nullification ||
-                response.ActorSeat != response.ProviderSeat || response.ResponderSeat != response.ActorSeat ||
+                response.ActorSeat != response.ProviderSeat && !IsShiLsAutonomousResponse(response) || response.ResponderSeat != response.ActorSeat ||
                 response.RequesterSeat is not null) return;
             var window = _resolutionStack.OfType<NullificationWindowFrame>().LastOrDefault();
             if (window is null || !HasNullificationEffectOwner(window) || response.ParentActionId != NullificationParentActionId(window) ||

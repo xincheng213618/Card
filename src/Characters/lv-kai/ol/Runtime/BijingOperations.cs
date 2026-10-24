@@ -56,6 +56,8 @@ internal sealed class BijingPunishDiscardPhaseDescriptor : ProgramOperationDescr
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.DiscardSelected,
         static (effect, context) => context.DiscardSelected(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
+    public override ProgramFactRequirements FactRequirements => new(Triggered: ProgramTrackedFact.NativeLogicalDiscard);
+    public override bool AllowsDeadTarget(in ProgramEffectContinuationContext c) => c.State.CanContinueAfterOwnerDeath(c.Frame);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.DiscardPhaseStarting)];
 }

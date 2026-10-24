@@ -475,6 +475,9 @@ internal static class ProgramCompositionValidator
                             Fail("owned hand rank sum requires the first instruction of a zero-card one-other-living-target activation");
                         break;
                     case RequireBoundParticipantGiftEntry gift:
+                        if (window is null && selectedCardCount == 0 && initialSelectedTarget && initialTargetSetMaximum == 0 &&
+                            activationTargetKind == SkillProgramTargetKind.OtherLiving && index == 1 &&
+                            MantianGuohaiGiftContract.Matches(effects)) break;
                         if (pindianHandReturn && index == 4 && PindianHandReturnContract.Matches(effects)) break;
                         if (window is SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.CardUseBeforeTargetEffects) break;
                         if (window is not null || selectedCardCount != 0 || !initialSelectedTarget ||

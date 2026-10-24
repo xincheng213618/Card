@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-jiejie",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "own-play-phase",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMobileShiXinXianYingJiejie",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "other-play-phase",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "resolveMobileShiXinXianYingJiejie",
+              "target": "activator"
+            }
+          ],
+          "otherCharactersOnly": true
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-qingshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage-qingshi",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMobileShiXinXianYingQingshi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

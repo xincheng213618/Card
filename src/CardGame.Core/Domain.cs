@@ -123,7 +123,8 @@ public enum CardKind
     ColdSlash = 5770,
     AnqiFeiren = 5780,
     YaodaoChitong = 5790,
-    DagongChe = 43500
+    DagongChe = 43500,
+    MantianGuohai = 47700
 }
 
 public enum Suit
@@ -520,7 +521,8 @@ public enum LegalActionKind
     Zong = 600, RealgarWine = 601, SameBoat = 602, StriveUpstream = 603, AgainstCurrent = 604,
     Intoxication = 620, StoreGrain = 621, Reinforcements = 622, UnitedEffort = 623,
     WumiaoFlood = 700,
-    QizhengXiangsheng = 710
+    QizhengXiangsheng = 710,
+    MantianGuohai = 47700
 }
 
 public sealed record GameOptions
@@ -756,6 +758,9 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    /// <summary>The viewer may use or play this player's real hand through an issued grant.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ViewerCanUseHand { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public HappyQiaoDualHealth? HappyQiaoHealth { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -1189,6 +1194,10 @@ public sealed record GameSnapshot(
     /// This is separate from private hands and is empty outside that effect.
     /// </summary>
     public IReadOnlyList<CardSnapshot> PublicRevealedCards { get; init; } = Array.Empty<CardSnapshot>();
+
+    /// <summary>The current public FiveGrains recipient, including its counterspell window.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? HarvestPickerSeat { get; init; }
 
     /// <summary>Cards privately viewed by this snapshot's viewer; absent for every other viewer.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

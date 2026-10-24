@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shi-wuyi": {
+      "name": "武翊",
+      "description": "若你从手牌使用或打出过的基本牌牌名数大于等于：1.每轮限一次，你可视为使用一张【杀】或【闪】；2.你使用基本牌无次数限制；3.你使用基本牌无距离限制；4.将你的手牌数固定为4。",
+      "booleanStates": {
+        "shi-wuyi-one": {
+          "trueText": "武翊1：每轮一次视为杀或闪",
+          "falseText": "武翊1：未解锁"
+        },
+        "shi-wuyi-two": {
+          "trueText": "武翊2：基本牌无次数限制",
+          "falseText": "武翊2：未解锁"
+        },
+        "shi-wuyi-three": {
+          "trueText": "武翊3：基本牌无距离限制",
+          "falseText": "武翊3：未解锁"
+        },
+        "shi-wuyi-four": {
+          "trueText": "武翊4：手牌恒定四张",
+          "falseText": "武翊4：未解锁"
+        }
+      }
+    },
+    "mobile:shi-cuifeng": {
+      "name": "摧锋",
+      "description": "每轮限两次，每回合结束时，你可视为对当前回合角色使用一张伤害值+X的【决斗】（X为本回合所有人打出【杀】的次数）。"
+    }
+  }
+}

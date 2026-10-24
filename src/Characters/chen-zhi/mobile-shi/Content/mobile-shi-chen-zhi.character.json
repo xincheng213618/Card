@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:chen-zhi",
+  "skills": [
+    {
+      "registrationOrder": 47600,
+      "programBundle": "mobile-shi-chen-zhi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-quanchong", "name": "权宠",
+        "description": "锁定技，每轮限一次，结束阶段，你弃置所有牌，执行一个额外的回合，若你体力值不为全场唯一最大，则以此法执行的回合开始时你失去1点体力。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 47601,
+      "programBundle": "mobile-shi-chen-zhi",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-renxing", "name": "任行",
+        "description": "每轮限两次，每回合首次有牌不于弃牌阶段被弃置时，你可以选择一项：1.与当前回合角色各摸一张牌；2.弃置一名本回合未使用或打出过【杀】的角色一张牌。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [{
+    "registrationOrder": 47602, "pools": { "current": 47602 },
+    "definition": {
+      "id": "mobile:shi-chen-zhi", "name": "势陈祗", "portraitKey": "mobile-shi-chen-zhi",
+      "skillId": "mobile:shi-quanchong", "additionalSkillIds": ["mobile:shi-renxing"],
+      "factionId": "shu", "baseHp": 3, "gender": "Male",
+      "characterId": "character:chen-zhi", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile"
+    }
+  }]
+}

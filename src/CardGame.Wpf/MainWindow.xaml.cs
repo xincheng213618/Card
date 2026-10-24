@@ -184,7 +184,9 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel vm || IsTableModalOpen(vm)) return false;
         // The first click selects; the second confirms only an already complete
         // legal action. Incomplete or multi-selection decisions remain explicit.
-        if (vm.IsDiscardSelectionPending || vm.IsActiveSkillSelectionPending || vm.IsSkillTargetSelectionPending || vm.IsMultiTargetCardSelected) return false;
+        if (vm.IsDiscardSelectionPending || vm.IsActiveSkillSelectionPending || vm.IsSkillTargetSelectionPending ||
+            vm.IsOwnedCardSelectionPending || vm.IsCardPaymentSelectionPending || vm.IsCardDistributionPending ||
+            vm.IsMobileShiZhuangshiSelectionPending || vm.IsMultiTargetCardSelected) return false;
         if (item is CardViewModel { IsSelected: true, IsPlayable: true } card && vm.Hand.Contains(card) ||
             item is SeatViewModel { IsSelectedTarget: true, IsLegalTarget: true } seat && vm.Seats.Contains(seat))
         {

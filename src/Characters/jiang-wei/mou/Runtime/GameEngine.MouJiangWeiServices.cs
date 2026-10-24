@@ -84,7 +84,7 @@ public sealed partial class GameEngine
         public void State(ProgramSkillFrame f, string state, bool value)
         {
             if (!e.MouJiangWeiAnniversary.Valid(f) || f.MouJiangWeiAnniversary is not { } r || state is not ("yin" or "modified")) throw new InvalidOperationException("Juemou state requires its original accepted branch or Fuzhan.");
-            e.SetProgramBooleanState(f.OwnerSeat, MouJiangWeiAnniversaryRuntime.Juemou, r.JuemouInstance, state, value);
+            e.SetProgramBooleanState(f, MouJiangWeiAnniversaryRuntime.Juemou, r.JuemouInstance, state, value);
         }
         public MouJiangWeiAnniversaryCard RandomHand(ProgramSkillFrame f, IReadOnlyList<MouJiangWeiAnniversaryCard> cards)
         {

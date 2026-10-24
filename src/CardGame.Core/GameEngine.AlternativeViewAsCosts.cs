@@ -22,7 +22,7 @@ public sealed partial class GameEngine
     private bool IsProgramAlternativeCost(CardActionContext? action, int cardId) =>
         IsWushuangJinzhiPaidMaterial(action, cardId) || action is not null && (action.Type == CardActionType.Use ||
             action.Type == CardActionType.Response && action.EffectiveKind == CardKind.Dodge &&
-            action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null) &&
+            (action.ActorSeat == action.ProviderSeat || IsShiLsAutonomousResponse(action)) && action.RequesterSeat is null) &&
         action.PhysicalCards.Any(cost => cost.CardId == cardId) &&
         action.ConversionChain.Any(source => ViewAsRule(source)?.CostDestination is SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.DrawPileBottom);
 

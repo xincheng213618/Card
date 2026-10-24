@@ -543,29 +543,6 @@ public sealed partial class GameEngine
         { HpBeforeClamp = HasQimeiHealthSubject(owner.Seat) || owner.XiaHuiRestrictions is { Count: > 0 } || HasMouSunJianOlHpSubject(owner.Seat) || _programPipelineHooks.HealthChangeSubject(owner.Seat) ? hpBeforeClamp : null });
     }
 
-    private void GrantProgramSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds)
-    {
-        var active = GetActiveProgramFrame(frame.Id);
-        if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId ||
-            active.TriggerId != frame.TriggerId)
-        {
-            throw new InvalidOperationException("Runtime-skill grants require the active program binding.");
-        }
-
-        var owner = _players[frame.OwnerSeat];
-        var acquired = IsDyingOwnerReplacementBinding(active)
-            ? AcquireDyingOwnerReplacementSkills(active, skillIds)
-            : AcquireRuntimeSkills(owner, frame.SkillId, skillIds);
-        if ((_contentRegistry!.GetSkill(frame.SkillId).Tags & SkillTag.Awakening) != 0)
-        {
-            AdvanceEventRulesAndQueueFact(new SkillAwakenedEvent(
-                owner.Seat,
-                frame.SkillId,
-                owner.MaxHp,
-                acquired));
-        }
-    }
-
     private void TurnOverProgramTarget(long frameId, int ownerSeat, int targetSeat)
     {
         _ = GetActiveProgramFrame(frameId);
@@ -829,6 +806,7 @@ public sealed partial class GameEngine
                 frame.WindowContext?.Facts is { } facts && facts.CurrentAttackRange > 0
                     ? facts.CurrentAttackRange
                     : GetAttackRange(target.Seat),
+            SkillProgramNumberExpression.FourMinusHandCount => Math.Max(0, 4 - GetHand(target).Count),
             SkillProgramNumberExpression.HandLimitMinusHandCount =>
                 Math.Max(0, GetHandLimit(target) - GetHand(target).Count),
             SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount => TurnOwnerDiscardPhaseHandDiscardCount,
@@ -1651,7 +1629,7 @@ public sealed partial class GameEngine
                 presentation.Name,
                 $"{presentation.Name} · 分配牌",
                 presentation.Description),
-            Choices = Array.AsReadOnly(choices)
+            Choices = PresentBoundCardDistribution(frame, choices, sourceBind, targetKind)
         };
         _status = _players[ownerSeat].IsHuman
             ? EngineStatus.AwaitingHumanResponse
@@ -2254,7 +2232,8 @@ public sealed partial class GameEngine
         if (IsIssuedYuandiCandidate(candidate, context)) return true;
         if (IsIssuedJiyunCompletedUseCandidate(candidate, context)) return true;
         if (IsIssuedMouZhuRongLieren(candidate, context)) return true;
-        if (IsIssuedMouXyAllocationCandidate(candidate, context) || IsIssuedXumingCandidate(candidate, context)) return true;
+        if (IsIssuedMouXyAllocationCandidate(candidate, context) || IsIssuedXumingCandidate(candidate, context) ||
+            IsIssuedShiHqCleanupCandidate(candidate, context) || IsIssuedShiCaoZEndCandidate(candidate, context)) return true;
         if (IsIssuedWenYangQingjiaoEndingCandidate(candidate, context)) return true;
         if (IsIssuedTongduCandidate(candidate, context)) return true;
         if (IsIssuedMouCaoHongCandidate(candidate, context)) return true;
@@ -2428,7 +2407,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own && owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat ||
-                 IsYanPuDrawContext(candidate, context) || IsGuanduForeignDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
+                 IsYanPuDrawContext(candidate, context) || IsGuanduForeignDrawContext(candidate, context) || IsShiGyDrawContext(candidate, context)) && _phase == TurnPhase.Draw,
             SkillProgramTriggerWindow.HappyGuardRemoved => IsHappyDianWeiElaiCandidate(candidate, context),
             SkillProgramTriggerWindow.HappyPlanSettled => CanRunHappyPangTongSettled(candidate, context),
             SkillProgramTriggerWindow.DyingExited => IsMouJiangWeiFuzhanExitContext(candidate, context) || IsYanPuDyingExitContext(candidate, context) || IsCaoTengQingliuDyingExitContext(candidate, context) || IsWushuangDyingExitContext(candidate, context) || IsHappyGuanYuDyingExitContext(candidate, context),
@@ -2530,7 +2509,8 @@ public sealed partial class GameEngine
                 context.MovementBatch is { } batch &&
                 batch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
-                (candidate.SkillId == AnniversaryLiuYongComposition.Fengxiang && candidate.BindingId == "xi-leader-changes"
+                (IsShiHqMarkTrigger(trigger) ? IsCurrentShiHqFieldEntry(candidate, context)
+                    : candidate.SkillId == AnniversaryLiuYongComposition.Fengxiang && candidate.BindingId == "xi-leader-changes"
                     ? IsAnniversaryLiuYongMovementCandidate(candidate, context)
                     : candidate.SkillId == HappyZuoCiComposition.Huanshu && candidate.BindingId == "foreign-phantom"
                     ? IsHappyZuoCiForeignRewardCandidate(candidate, context)
@@ -3245,6 +3225,7 @@ public sealed partial class GameEngine
             owner, SkillProgramTriggerWindow.DrawPhaseStarting, facts);
         candidates = IncludeAttributedDrawObservers(owner,candidates);
         candidates = IncludeYanPuDrawObservers(owner, candidates);
+        candidates = IncludeShiGyDrawObservers(owner, candidates);
         candidates = IncludeGuanduForeignDrawObservers(owner, candidates, out var participants);
         if (candidates.Count == 0) return false;
         var frame = new ProgramLifecycleTriggerWindowFrame(

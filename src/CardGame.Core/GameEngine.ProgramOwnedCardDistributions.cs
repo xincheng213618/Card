@@ -102,7 +102,7 @@ public sealed partial class GameEngine
             DecisionKind.ProgramTrigger,
             owner.Seat,
             distribution.GivenCardIds.Count == 0
-                ? $"你可以逐张分配 {remaining} 张自己的牌；一旦交出第一张，必须交足冻结数量。"
+                ? $"你可以分组分配 {remaining} 张自己的牌；一旦交出第一张，必须交足冻结数量。"
                 : $"还须分配 {remaining} 张自己的牌。",
             cards.Select(item => item.Card.Id).ToArray(),
             targets.Select(target => target.Seat).ToArray(),
@@ -112,7 +112,7 @@ public sealed partial class GameEngine
             IsPrivate = true,
             TargetSeat = owner.Seat,
             SkillPrompt = new(frame.SkillId, skill.Name, $"{skill.Name} · 分配卡牌", skill.Description),
-            Choices = Array.AsReadOnly(choices.ToArray())
+            Choices = PresentCardDistribution(frame, choices, "owned", remaining)
         };
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanCardSelection : EngineStatus.Running;
     }

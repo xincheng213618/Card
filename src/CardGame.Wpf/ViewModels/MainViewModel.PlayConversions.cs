@@ -5,13 +5,17 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private sealed record PlayConversionDraft(string SkillId, PlayConversionMode? Mode);
-    private sealed record PlayConversionMode(CardConversionSource Source, CardKind Kind,
-        IReadOnlyList<CardConversionSource> AdditionalSources)
+    private sealed record PlayConversionMode(CardConversionSource? Source, CardKind Kind,
+        IReadOnlyList<CardConversionSource> AdditionalSources, LegalAction? Activation = null)
     {
-        public bool Matches(LegalAction action) => action.ConversionSource == Source &&
-            action.PlayedCardKind == Kind && AdditionalSources.SequenceEqual(action.AdditionalConversionSources ?? []);
+        public bool Matches(LegalAction action) => Activation is { } activation
+            ? action.ProgramSkillId == activation.ProgramSkillId && action.ProgramActivationId == activation.ProgramActivationId &&
+              action.ProgramSkillOwnerSeat == activation.ProgramSkillOwnerSeat && action.MinCardCount == activation.MinCardCount
+            : action.ConversionSource == Source && action.PlayedCardKind == Kind &&
+              AdditionalSources.SequenceEqual(action.AdditionalConversionSources ?? []);
         public bool MatchesMode(PlayConversionMode other) => Source == other.Source && Kind == other.Kind &&
-            AdditionalSources.SequenceEqual(other.AdditionalSources);
+            AdditionalSources.SequenceEqual(other.AdditionalSources) &&
+            (Activation is null ? other.Activation is null : other.Activation is { } action && Matches(action));
     }
 
     private PlayConversionDraft? _playConversionSelection;
@@ -23,6 +27,15 @@ public sealed partial class MainViewModel
 
     private SkillProgramViewAs? PlayConversionRule(CardConversionSource? source) => source is not null &&
         _game.GetCardConversionDefinition(source) is { ForPlay: true, InputCount: 1 } rule ? rule : null;
+
+    private SkillProgramViewAs? PlayConversionActivation(LegalAction action)
+    {
+        if (action.Kind != LegalActionKind.UseProgramSkill || action.ProgramSkillId is not { } id ||
+            !CurrentPresentationRegistry.Skills.TryGetValue(id, out var skill) || skill.Program is not { } program ||
+            program.Activations.SingleOrDefault(activation => activation.Id == action.ProgramActivationId)?.Effects is not
+                [{ Op: SkillProgramEffectOp.UseSelectedCardsAs, SourceBind: { } bind }]) return null;
+        return program.ViewAs.SingleOrDefault(rule => rule.Id == bind && rule.ForPlay);
+    }
 
     private IEnumerable<CardConversionSource> PlayConversionSources(LegalAction action) =>
         action.CardId is > 0 && action.PlayedCardKind is not null &&
@@ -40,6 +53,13 @@ public sealed partial class MainViewModel
             var bySkill = new Dictionary<string, List<PlayConversionMode>>(StringComparer.Ordinal);
             foreach (var action in actions)
             {
+                if (PlayConversionActivation(action) is { } rule)
+                {
+                    var id = action.ProgramSkillId!;
+                    if (!bySkill.TryGetValue(id, out var activationModes)) bySkill.Add(id, activationModes = []);
+                    if (!activationModes.Any(mode => mode.Matches(action))) activationModes.Add(new(null, rule.OutputKind, [], action));
+                    continue;
+                }
                 if (action.ConversionSource is not { } source || action.PlayedCardKind is not { } kind) continue;
                 foreach (var skillId in PlayConversionSources(action).Select(item => item.SkillId).Distinct(StringComparer.Ordinal))
                 {
@@ -114,6 +134,11 @@ public sealed partial class MainViewModel
         var cancel = IsPlayConversionSelectionPending && _playConversionSelection!.SkillId == skillId;
         ClearSelection();
         if (cancel) return true;
+        if (modes is [{ Activation: { } activation }])
+        {
+            SelectActiveSkillCommand.Execute(activation);
+            return true;
+        }
         _playConversionSelection = new(skillId, modes.Count == 1 ? modes[0] : null);
         _selectedConversionSource = _playConversionSelection.Mode?.Source;
         _humanSkillSnapshot = null;
@@ -130,13 +155,15 @@ public sealed partial class MainViewModel
         for (var index = 0; index < modes.Count; index++)
         {
             var mode = modes[index];
-            var companions = mode.AdditionalSources.Prepend(mode.Source)
+            var companions = mode.AdditionalSources.Concat(mode.Source is { } source ? new[] { source } : [])
                 .Where(source => source.SkillId != _playConversionSelection.SkillId)
                 .Select(source => CurrentPresentationRegistry.Skills.GetValueOrDefault(source.SkillId)?.Name)
                 .OfType<string>().Distinct(StringComparer.Ordinal).ToArray();
             var chainLabel = companions.Length == 0 ? string.Empty : $" · 联用{string.Join("、", companions)}";
+            var countLabel = modes.Any(candidate => candidate.Activation is not null)
+                ? $"{mode.Activation?.MinCardCount ?? 1}张牌" : string.Empty;
             EquipmentPlayChoices.Add(new(new ChoiceId($"conversion-mode-{index}"),
-                $"【{PlayConversionSkillName}】当作【{CardCatalog.Get(mode.Kind).DisplayName}】{chainLabel}",
+                $"【{PlayConversionSkillName}】{countLabel}当作【{CardCatalog.Get(mode.Kind).DisplayName}】{chainLabel}",
                 [], [], new Dictionary<string, string> { ["action"] = "select-play-conversion-mode", ["mode-index"] = index.ToString(System.Globalization.CultureInfo.InvariantCulture), ["played-kind"] = mode.Kind.ToString() }));
         }
     }
@@ -147,6 +174,12 @@ public sealed partial class MainViewModel
         if (!IsPlayConversionSelectionPending || !int.TryParse(choice.Parameters.GetValueOrDefault("mode-index"), out var index)) return true;
         var modes = PlayConversionModes(_playConversionSelection!.SkillId);
         if (index < 0 || index >= modes.Count) return true;
+        if (modes[index].Activation is { } activation)
+        {
+            ResetPlayCardSelection();
+            SelectActiveSkillCommand.Execute(activation);
+            return true;
+        }
         _playConversionSelection = _playConversionSelection with { Mode = modes[index] };
         _selectedConversionSource = modes[index].Source;
         _selectedCardId = null;
@@ -160,7 +193,11 @@ public sealed partial class MainViewModel
 
     private IEnumerable<CardSnapshot> PlayMaterials(PlayerSnapshot player) => player.Hand
         .Concat(player.WoodenOxGrain ?? []).Concat(player.Equipment).Concat(player.Judgment).Concat(player.AuthorityCards ?? [])
-        .Concat(OwnPublicPileMaterials(player)).Concat(ForeignFieldPlayMaterials(player));
+        .Concat(OwnPublicPileMaterials(player)).Concat(ForeignFieldPlayMaterials(player))
+        .Concat(SharedHandPlayMaterials(player));
+
+    private IEnumerable<CardSnapshot> SharedHandPlayMaterials(PlayerSnapshot player) => player.Seat != _snapshot.HumanSeat
+        ? [] : _snapshot.Players.Where(provider => provider.Seat != player.Seat && provider.ViewerCanUseHand).SelectMany(provider => provider.Hand);
 
     private IEnumerable<CardSnapshot> ForeignFieldPlayMaterials(PlayerSnapshot player)
     {

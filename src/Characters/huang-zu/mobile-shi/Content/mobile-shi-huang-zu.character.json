@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:huang-zu",
+  "skills": [
+    { "registrationOrder": 47900, "programBundle": "mobile-shi-huang-zu", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-chizhang", "name": "鸱张", "description": "你使用伤害类卡牌无距离限制。当你使用手牌中除【闪电】外的伤害类卡牌指定目标后，你可以弃置任意数量的手牌，令其他角色不能使用或打出与你此法弃置牌颜色相同的牌响应此牌。", "executionForms": "State, Trigger" } },
+    { "registrationOrder": 47901, "programBundle": "mobile-shi-huang-zu", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-duanyang", "name": "断鞅", "description": "每回合限一次，当你的手牌不因使用而进入弃牌堆时，你可以将其中随机一张【杀】置于武将牌上，并于本阶段结束时使用之（无次数限制）。你以此法使用的【杀】造成伤害后，你可以重铸受伤角色区域里的至多两张牌，然后你摸四张牌。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 47902, "pools": { "current": 47902 }, "definition": {
+    "id": "mobile:shi-huang-zu", "name": "势黄祖", "portraitKey": "mobile-shi-huang-zu", "skillId": "mobile:shi-chizhang", "additionalSkillIds": ["mobile:shi-duanyang"],
+    "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:huang-zu", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile"
+  }}]
+}

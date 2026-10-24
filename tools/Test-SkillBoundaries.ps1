@@ -1,7 +1,7 @@
 #requires -Version 7.0
 <#
 .SYNOPSIS
-Checks retired skill contracts and the shared Pindian boundary without building.
+Checks retired contracts, shared skill changes and the Pindian boundary without building.
 #>
 [CmdletBinding()]
 param(
@@ -36,6 +36,8 @@ $checks = @(
     @{ Name = 'retired preferences import'; Pattern = '\bImportLegacyPreferences\s*\('; Scope = 'all' },
     @{ Name = 'historical engine constructor'; Pattern = '\bCreateForReplay\s*\(|\bValidateRulesVersion\s*\('; Scope = 'core' },
     @{ Name = 'historical engine version branch'; Pattern = '\b_rulesVersion\b|\brulesVersion\s*(?:[<>]=?|==|!=)\s*\d|\brulesVersion\s+is\s+[<>]'; Scope = 'engine' },
+    @{ Name = 'conversion tier mutation outside shared skill change'; Pattern = '\b_configuredConversionTiers\s*(?:\[[^\]]+\]\s*(?:=(?!=)|\+\+|--|\+=|-=)|\.\s*(?:Add|TryAdd|Remove|Clear)\s*\()'; Scope = 'skill-tier-write' },
+    @{ Name = 'temporal gate in shared skill change'; Pattern = '\b(?:_roundNumber|_turnNumber|_phase|_currentSeat)\b'; Scope = 'skill-change' },
     @{ Name = 'character-specific turn state'; Pattern = '\bTianyi(?:Won|Lost)ThisTurn\b'; Scope = 'core' },
     @{ Name = 'character-specific Pindian execution'; Pattern = '(?i)\b(?:Tianyi|Quhu|Lieren)\b|(?:Begin|Complete|Resolve|Pending)(?:Tianyi|Quhu|Lieren)|\b(?:天义|驱虎|烈刃)\b'; Scope = 'pindian' }
 )
@@ -59,6 +61,9 @@ foreach ($directory in @('src', 'tests')) {
             foreach ($check in $checks) {
                 if ($check.Scope -eq 'core' -and !$isCoreSource) { continue }
                 if ($check.Scope -eq 'engine' -and !$isEngineSource) { continue }
+                if ($check.Scope -eq 'skill-tier-write' -and
+                    (!$isCoreSource -or $relative -eq 'src/CardGame.Core/GameEngine.ProgramSkillChanges.cs')) { continue }
+                if ($check.Scope -eq 'skill-change' -and $relative -ne 'src/CardGame.Core/GameEngine.ProgramSkillChanges.cs') { continue }
                 if ($check.Scope -eq 'pindian' -and $relative -ne 'src/CardGame.Core/GameEngine.Pindian.cs') { continue }
                 if ($line -cmatch $check.Pattern) {
                     $violations.Add([pscustomobject]@{
@@ -76,6 +81,6 @@ if ($violations.Count -gt 0) {
         $violations | Group-Object Boundary | Select-Object Name, Count |
             Format-Table -AutoSize | Out-String | Write-Output
     }
-    throw "$($violations.Count) retired skill boundary references remain."
+    throw "$($violations.Count) skill boundary violations remain."
 }
 Write-Output 'Skill boundary checks passed. This is a source boundary check, not gameplay validation.'

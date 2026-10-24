@@ -1,0 +1,83 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhong-hui",
+  "skills": [
+    {
+      "registrationOrder": 49200,
+      "programBundle": "mobile-shi-zhong-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-sizi",
+        "name": "肆恣",
+        "description": "蓄力技（4/4）。出牌阶段限一次，你可消耗至多X个蓄力点，然后执行以下效果直至X个回合结束后或者你的回合开始时：1.所有角色使用【杀】造成的伤害+1；2.一名角色的回合结束时，你摸两张牌，且本回合内使用过【杀】的角色各失去1点体力；若X大于你的体力值，追加效果3：一名角色的回合结束时，若该回合内没有角色使用过【杀】，当前回合角色失去1点体力。",
+        "actionForms": "Active",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 49201,
+      "programBundle": "mobile-shi-zhong-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-xiezhi",
+        "name": "挟志",
+        "description": "锁定技，当你的体力值变化后，你获得X点蓄力点（X为本次变化的值）；若你会因此获得超额蓄力点，你的手牌上限与使用【杀】的次数永久+1。",
+        "tags": "Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 49202,
+      "programBundle": "mobile-shi-zhong-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-yunan",
+        "name": "迂难",
+        "description": "觉醒技，当你令一名角色进入濒死状态时，若本轮已有角色死亡，你将势力变更为“群”，然后获得技能“克昌”（若已有则升级）。",
+        "tags": "Awakening",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 49203,
+      "programBundle": "mobile-shi-zhong-hui",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-kechang",
+        "name": "克昌",
+        "description": "主公技，锁定技，群势力角色使用【杀】无距离限制；你使用的【杀】不可被响应。",
+        "tags": "Lord, Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 49204,
+      "pools": {
+        "current": 49204
+      },
+      "definition": {
+        "id": "mobile:shi-zhong-hui",
+        "name": "势钟会",
+        "portraitKey": "mobile-shi-zhong-hui",
+        "skillId": "mobile:shi-sizi",
+        "additionalSkillIds": [
+          "mobile:shi-xiezhi",
+          "mobile:shi-yunan",
+          "mobile:shi-kechang"
+        ],
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhong-hui",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

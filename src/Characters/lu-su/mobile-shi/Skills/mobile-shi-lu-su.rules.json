@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-haoshi", "revision": 1, "triggers": [
+      { "id": "share-hand", "window": "turnEnding", "subject": "owner", "optional": true, "effects": [{ "op": "resolveMobileShiLuSuHaoshi", "target": "owner" }] },
+      { "id": "shared-last-hand", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand"], "movementOccurrence": "perBatch", "optional": false, "isSkillInvocation": false, "effects": [{ "op": "resolveMobileShiLuSuHaoshiRefill", "target": "owner" }] }
+    ] },
+    { "id": "mobile:shi-dimeng", "revision": 1, "activations": [
+      { "id": "exchange-hands", "minCards": 0, "maxCards": 0, "sourceZones": ["hand"], "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1, "effects": [{ "op": "resolveMobileShiLuSuDimeng", "target": "owner" }] }
+    ] }
+  ]
+}

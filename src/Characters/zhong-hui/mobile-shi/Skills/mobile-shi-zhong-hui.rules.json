@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-sizi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "burn-charge",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "resolveShiZhHuiSizi",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "sizi-turn-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "anyLiving",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveShiZhHuiSiziEnding",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-xiezhi",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "health-gain",
+          "window": "afterHealthChanged",
+          "subject": "owner",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveShiZhHuiXiezhi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-yunan",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awaken-on-dying",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveShiZhHuiYunan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-kechang",
+      "revision": 1,
+      "lordSkillProjection": true,
+      "activations": [],
+      "triggers": []
+    }
+  ]
+}

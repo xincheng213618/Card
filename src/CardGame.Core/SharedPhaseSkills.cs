@@ -42,7 +42,8 @@ internal static class SharedPhaseSkillContract
             activation.Effects.Any(effect => effect.Target != SkillProgramEffectTarget.Activator ||
                 effect.NumberExpression is not null || effect.TargetReference is not null ||
                 effect.Condition.Kind != SkillProgramConditionKind.Always ||
-                effect.Op is not (SkillProgramEffectOp.LoseHp or SkillProgramEffectOp.Draw or SkillProgramEffectOp.OfferRandomPlayPhaseSkill)))
+                effect.Op is not (SkillProgramEffectOp.LoseHp or SkillProgramEffectOp.Draw or SkillProgramEffectOp.OfferRandomPlayPhaseSkill or
+                    SkillProgramEffectOp.ResolveMobileShiXinXianYingJiejie)))
             throw new InvalidOperationException(path + ": shared activations require zero selected input, a phase quota and unconditional activator effects.");
     }
 

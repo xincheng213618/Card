@@ -15,7 +15,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Phase substitution requires the current lifecycle program.");
 
         var first = context.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
-            phases.All(phase => phase is SkillProgramTurnPhase.Judgment or SkillProgramTurnPhase.Draw);
+            phases.All(phase => phase is SkillProgramTurnPhase.Judgment or SkillProgramTurnPhase.Draw or SkillProgramTurnPhase.Play);
         var second = context.Window == SkillProgramTriggerWindow.AfterNormalDraw &&
             phases.Count == 1 && phases[0] == SkillProgramTurnPhase.Play;
         var third = context.Window == SkillProgramTriggerWindow.DiscardPhaseStarting &&

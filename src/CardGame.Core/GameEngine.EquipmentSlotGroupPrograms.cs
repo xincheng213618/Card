@@ -89,11 +89,9 @@ public sealed partial class GameEngine
             { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, OwnerSeat: var seat } ||
             seat != frame.OwnerSeat || _currentSeat != frame.OwnerSeat || !_players[seat].IsAlive)
             throw new InvalidOperationException("Preparation replacement lost its own actual turn boundary.");
-        var owner = _players[seat];
-        GrantProgramSkills(frame, [acquired]);
-        foreach (var grant in owner.SkillGrants.Grants.Where(g => lost.Contains(g.SkillId)).ToArray())
-            owner.SkillGrants.RemoveGrant(grant.GrantId);
-        AdvanceEventRulesAndQueueFact(new ProgramOwnerSkillsReplacedEvent(
-            frame.Id, frame.SkillId, owner.Seat, Array.AsReadOnly(lost.ToArray()), acquired));
+        ReplaceProgramSkills(frame, lost, [acquired], ProgramSkillSourceRemoval.All,
+            acquireFirst: true, announceAwakening: true);
+        CommitProgramSkillChangeFact(frame, new ProgramOwnerSkillsReplacedEvent(
+            frame.Id, frame.SkillId, seat, Array.AsReadOnly(lost.ToArray()), acquired));
     }
 }

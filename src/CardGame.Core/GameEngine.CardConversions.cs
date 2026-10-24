@@ -261,7 +261,7 @@ public sealed partial class GameEngine
 
         var location = _cardZones.GetLocation(card.Id);
         if (location == CardLocation.WoodenOxGrain(owner.Seat) && MouHuCheErEquipmentDisabled(owner.Seat)) return [];
-        var zone = location == CardLocation.Hand(owner.Seat) || IsMouGszHuCard(owner, card.Id)
+        var zone = location == CardLocation.Hand(owner.Seat) || IsMouGszHuCard(owner, card.Id) || IsShiLsHandAccess(owner.Seat, card.Id)
             ? CardZoneKind.Hand
             : location == CardLocation.Equipment(owner.Seat)
                 ? CardZoneKind.Equipment
@@ -360,7 +360,7 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(owner);
         var dyingUse = forResponse && outputKind is CardKind.Peach or CardKind.Alcohol &&
             ActiveDying is { } dying && dying.ResponderSeat == owner.Seat;
-        var eligibleHand = GetHand(owner).Concat(MouGszHuCards(owner)).Concat(GetEquipment(owner))
+        var eligibleHand = AppendShiLsPlayableCards(owner, GetHand(owner)).Concat(MouGszHuCards(owner)).Concat(GetEquipment(owner))
             .Concat(KongwuUsableWoodenOxGrain(owner))
             .Where(card => !IsTurnHandCardRestricted(owner, card) && !HasProgramCardIdentity(owner, card))
             .OrderBy(card => card.Id)
@@ -457,7 +457,7 @@ public sealed partial class GameEngine
         foreach (var cardId in orderedCardIds)
         {
             var location = _cardZones.GetLocation(cardId);
-            if (location.OwnerSeat != owner.Seat) return null;
+            if (location.OwnerSeat != owner.Seat && !IsShiLsHandAccess(owner.Seat, cardId)) return null;
             var card = _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId);
             if (card is null ||
                 !(rule.SourceZones.Contains(location.Zone) || MouGszHuHandSource(owner, card, rule.SourceZones) || IsTousuiVariableSource(owner, rule, card, location)) ||
@@ -572,7 +572,7 @@ public sealed partial class GameEngine
             [selection.Source], effectiveSuit: xieweiPayment ? Suit.None : completedResponseUseSuit,
             effectiveRank: xieweiPayment ? 0 : null, effectiveIsRed: xieweiPayment ? null : CaptureActionColor(costs,completedResponseUseSuit)));
         BindWuZhangFeiResponseRanks(action);
-        if (action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
+        if ((action.ActorSeat == action.ProviderSeat || IsShiLsAutonomousResponse(action)) && action.RequesterSeat is null &&
             (selection.OutputKind == CardKind.Nullification || IsProgramResponseCardUse(responder, selection.OutputKind)))
             RecordActualPlayPhaseUse(action);
         BindLeiluanResponsePayment(resolutionId, action);
@@ -868,6 +868,7 @@ public sealed partial class GameEngine
         Card card,
         CardKind effectiveKind)
     {
+        if (IsShiLsHandAccess(actor.Seat, card.Id)) provider = actor;
         var hasIdentity = HasProgramCardIdentity(provider, card);
         var fanConvertsSlash = effectiveKind == CardKind.FireSlash && HasZhuqueFan(actor);
         var identitySources = GetProgramCardIdentitySources(

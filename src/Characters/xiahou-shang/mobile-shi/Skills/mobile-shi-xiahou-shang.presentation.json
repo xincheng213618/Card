@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shi-tanfeng": {
+      "name": "探锋",
+      "description": "准备阶段，你可以选择任意项：1.弃置一名角色至多两张牌，然后若其手牌数小于等于你，你跳过摸牌阶段；2.对一名角色造成1点火焰伤害，然后若其体力值小于等于你，你跳过出牌阶段。",
+      "triggerLabels": {
+        "preselect-options": "探锋 · 预选本次结算项"
+      },
+      "optionLabels": {
+        "discard": "仅第①项：弃置至多两张牌",
+        "fire": "仅第②项：造成一点火焰伤害",
+        "both": "两项都选：先弃牌，再造成火焰伤害",
+        "cancel": "取消本次探锋",
+        "discard-zero": "弃置零张牌，仍比较双方手牌数",
+        "discard-one": "弃置一张牌",
+        "discard-two": "弃置至多两张牌"
+      }
+    }
+  }
+}

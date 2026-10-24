@@ -42,7 +42,7 @@ public sealed partial class GameEngine
                      anyRegisteredBasic && _contentRegistry.Cards.Values.Any(card => card.LegacyKind == CardKind.ColdSlash)))
             foreach (var target in _players.Where(t => CanUseVirtualSlashTarget(actor, t, kind) && !IsDirectedCardTargetProhibited(owner,t.Seat,kind) && !IsCardTargetProhibited(t,kind,Suit.None))) yield return (kind, target.Seat);
         if (IsRuleWounded(actor) && !IsCardUseForbidden(owner, CardKind.Peach, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Peach)) yield return (CardKind.Peach, owner);
-        if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
+        if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasMobileShiZhuangshiQuota(actor.Seat) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
     }
 
     private IEnumerable<(CardKind Kind, int Target)> VirtualBasicOptions(ProgramSkillFrame frame) =>

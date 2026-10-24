@@ -13,9 +13,19 @@ public sealed partial record ProgramSkillFrame
     public BijingPunishState? BijingPunish { get; init; }
 }
 
-// One prompt per discarded card; the receipt rides the owning program frame.
+// The unpaid group stays on its original frame until all required cards are
+// chosen. DiscardedCardIds remains the physically paid legacy prefix.
 public sealed record BijingPunishState(int TurnOwnerSeat, int OwnerSeat,
-    IReadOnlyList<int> LostCardIds, int Remaining, IReadOnlyList<int> DiscardedCardIds);
+    IReadOnlyList<int> LostCardIds, int Remaining, IReadOnlyList<int> DiscardedCardIds)
+{
+    private readonly IReadOnlyList<int> _selectedCardIds = Array.AsReadOnly(Array.Empty<int>());
+    public IReadOnlyList<int> SelectedCardIds { get => _selectedCardIds; init => _selectedCardIds = Array.AsReadOnly(value.ToArray()); }
+    private readonly IReadOnlyList<CardLocation> _selectedLocations = Array.AsReadOnly(Array.Empty<CardLocation>());
+    public IReadOnlyList<CardLocation> SelectedLocations { get => _selectedLocations; init => _selectedLocations = Array.AsReadOnly(value.ToArray()); }
+    public bool Paid { get; init; }
+    public long Before { get; init; }
+    public long After { get; init; }
+}
 
 public sealed partial class GameEngine
 {

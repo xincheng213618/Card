@@ -50,6 +50,29 @@ internal static class ProgramChoiceChecks
                 relabeled.Triggers.Single().Effects.Single(effect => effect.Op == SkillProgramEffectOp.ChooseOption)
                     .Options.Select(option => option.Label).SequenceEqual(["抽二", "回复一", "解除异常"]),
             "Changing presentation-only option labels must not change the gameplay hash.");
+
+        const string topEffects = """
+            [{"op":"chooseOption","target":"owner","resultBind":"benefit","options":[{"id":"draw"},{"id":"recover"}]},
+             {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"actor"},
+              "zones":["hand"],"count":1,"destination":"drawPileTop","resultBind":"topped","awaitMovementTriggers":true,
+              "condition":{"kind":"choiceIs","sourceBind":"benefit","optionId":"draw"}}]
+            """;
+        var topRules = BuildRules(topEffects).Replace("\"window\":\"turnEnding\",\"subject\":\"owner\"",
+            "\"window\":\"cardUseBeforeTargetEffects\",\"ownerRelation\":\"target\",\"cardKinds\":[\"slash\"]", StringComparison.Ordinal);
+        var top = Load(topRules, Presentation("置顶", "摸牌", null)).Triggers.Single().Effects.Last();
+        Require(top.CardOwnerRef?.Kind == ProgramParticipantRef.Actor &&
+            top.ChooserRef?.Kind == ProgramParticipantRef.Owner && top.AwaitMovementTriggers &&
+            top.Destination == SkillProgramCardDestination.DrawPileTop,
+            "A choice-gated target defender may put one opaque card-user hand card on top through awaited native movement.");
+        foreach (var invalid in new[]
+        {
+            topRules.Replace("\"zones\":[\"hand\"]", "\"zones\":[\"hand\",\"equipment\"]", StringComparison.Ordinal),
+            topRules.Replace("\"chooserRef\":{\"kind\":\"owner\"}", "\"chooserRef\":{\"kind\":\"eventSource\"}", StringComparison.Ordinal),
+            topRules.Replace("\"cardOwnerRef\":{\"kind\":\"actor\"}", "\"cardOwnerRef\":{\"kind\":\"selectedTarget\"}", StringComparison.Ordinal),
+            topRules.Replace(",\"awaitMovementTriggers\":true", "", StringComparison.Ordinal),
+            topRules.Replace("\"condition\":{\"kind\":\"choiceIs\",\"sourceBind\":\"benefit\",\"optionId\":\"draw\"}",
+                "\"condition\":{\"kind\":\"always\"}", StringComparison.Ordinal)
+        }) Reject(invalid, Presentation("置顶", "摸牌", null), "top-deck");
     }
 
     private static SkillProgram Load(string rules, string presentation) =>

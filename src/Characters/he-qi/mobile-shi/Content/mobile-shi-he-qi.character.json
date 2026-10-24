@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:he-qi",
+  "skills": [
+    { "registrationOrder": 49000, "programBundle": "mobile-shi-he-qi", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-shanxi", "name": "闪袭", "description": "出牌阶段每名角色限一次，你可以将一张应机牌当【决斗】对一名其他角色使用。", "actionForms": "Active" } },
+    { "registrationOrder": 49001, "programBundle": "mobile-shi-he-qi", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-qizhou", "name": "绮胄", "description": "有牌进入你的判定区或装备区后，你可以将一名角色的一张手牌标记为应机牌；若此牌为【杀】，你下次以此法发动后摸两张应机牌。摸牌阶段，你额外摸两张应机牌。每名角色的回合结束后，所有角色手牌中的应机牌置入弃牌堆。", "executionForms": "Trigger" } }
+  ],
+  "generals": [
+    { "registrationOrder": 49002, "pools": { "current": 49002 }, "definition": {
+      "id": "mobile:shi-he-qi", "name": "势贺齐", "portraitKey": "mobile-shi-he-qi", "skillId": "mobile:shi-shanxi",
+      "additionalSkillIds": ["mobile:shi-qizhou"], "factionId": "wu", "baseHp": 4, "gender": "Male",
+      "characterId": "character:he-qi", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile"
+    } }
+  ]
+}

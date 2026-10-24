@@ -9,6 +9,22 @@ internal static class ShenDengAiChecks
     private const string Hero = "anniversary:shen-deng-ai", Driver = "fixture:shen-da-driver", Quiet = "fixture:shen-da-quiet",
         Ally = "fixture:shen-da-ally", Enemy = "fixture:shen-da-enemy", Deck = "fixture:shen-da-deck";
 
+    public static void AllocationOffersEveryUnassignedCardAndKeepsIssuedDomainsCold()
+    {
+        var s = ReadyToAllocate();
+        var ids = s.V().Hand.Select(c => c.Id).ToArray();
+        s.Need(s.P!.ValidCardIds.ToHashSet().SetEquals(ids) && ids.All(id => s.P.Choices.Count(c => c.Cards.SequenceEqual([id])) == 3),
+            "Allocation exposes every unassigned hand card with each developed domain, rather than forcing the first card.");
+        var id = ids[^1];
+        s.Answer(c => c.Cards.SequenceEqual([id]) && c.Parameters.GetValueOrDefault("distribution-target") == "domain:2");
+        s.Need(s.V().Hand.Single(c => c.Id == id).SkillMarkLabel == "丰田" && !s.P!.ValidCardIds.Contains(id) &&
+            s.P.Choices.Any(c => c.Parameters.GetValueOrDefault("distribution-label") == "丰田 · 1 张\n伤害与回复值 +1"),
+            "Assigning a non-first card labels only that entity, removes it from this edition's unassigned pool and updates domain counts.");
+        s.Cold();
+        s.Need(s.P!.ValidCardIds.Count == ids.Length - 1 && s.E<ShenDengAiAssignedEvent>().Count(e => e.CardId == id) == 1,
+            "Cold restore resumes the remaining allocation without assigning the already committed card again.");
+    }
+
     public static void DevelopAllocateAwakenAndUseIssuedDomains()
     {
         var s = Awaken();
@@ -59,7 +75,7 @@ internal static class ShenDengAiChecks
     internal static (GameEngine Game, ContentRegistry Registry) CreateAwakenedTableFixture()
     { var s = Awaken(); return (s.G, s.Registry); }
 
-    private static Scene Awaken()
+    private static Scene ReadyToAllocate()
     {
         var s = Scene.Start(); s.Play();
         for (var domain = 1; domain <= 3; domain++)
@@ -72,10 +88,19 @@ internal static class ShenDengAiChecks
             s.E<ShenDengAiXianjinReservedEvent>().Select(e => e.DamageCount).SequenceEqual([2, 4, 6]),
             "Six true damage occurrences develop the selected three regions at exactly two, four and six.");
         s.End(); s.Reach(() => s.P?.SkillPrompt?.SkillId == "anniversary-god:tuoyu"); s.Cold();
+        return s;
+    }
+
+    internal static (GameEngine Game, ContentRegistry Registry) CreateAllocationTableFixture()
+    { var s = ReadyToAllocate(); return (s.G, s.Registry); }
+
+    private static Scene Awaken()
+    {
+        var s = ReadyToAllocate();
         var slashes = s.V().Hand.Where(c => c.Kind == CardKind.Slash).Select(c => c.Id).ToArray();
         while (s.P?.SkillPrompt?.SkillId == "anniversary-god:tuoyu")
         {
-            var id = s.P.ValidCardIds.Single(); var index = Array.IndexOf(slashes, id);
+            var id = s.P.ValidCardIds.First(); var index = Array.IndexOf(slashes, id);
             var domain = index is >= 0 and <= 2 ? index + 1 : s.V().Hand.Single(c => c.Id == id).Kind == CardKind.Peach ? 2 : 3;
             s.Answer(c => c.Parameters.GetValueOrDefault("option") == "assign:" + domain);
             if (s.P is null) s.Reach(() => s.P?.SkillPrompt?.SkillId is "anniversary-god:tuoyu" or "anniversary-god:qijing");

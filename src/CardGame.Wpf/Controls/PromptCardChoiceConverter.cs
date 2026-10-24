@@ -32,7 +32,7 @@ public sealed class PromptCardChoiceConverter : IMultiValueConverter
                 .Concat(player.Judgment).Concat(player.WoodenOxGrain ?? []).Concat(player.PrivateReserveCards ?? [])))
             .Concat(snapshot.Players.Where(player => player.Seat == snapshot.HumanSeat)
                 .SelectMany(player => (player.PrivateWhirlPiles ?? []).SelectMany(pile => pile.Cards ?? [])))
-            .Concat(choice.Parameters.GetValueOrDefault("native-original-public-pile") == "true"
+            .Concat((choice.Parameters.GetValueOrDefault("native-original-public-pile") == "true" || choice.Parameters.ContainsKey("distribution-target"))
                 ? snapshot.Players.SelectMany(player => player.PublicPersistentPiles is { Count: > 0 } piles
                     ? piles.SelectMany(pile => pile.Cards) : player.PublicPersistentPileCards ?? [])
                 : [])

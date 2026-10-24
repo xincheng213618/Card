@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "mobile:mantian-guohai-gift", "revision": 1,
+    "activations": [{
+      "id": "card-effect", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+      "targetKind": "otherLiving", "usesPerTurn": null,
+      "effects": [
+        { "op": "selectOwnedCards", "target": "owner", "amount": 1, "zones": ["hand"], "resultBind": "given" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "given", "destination": "selectedTargetHand", "awaitMovementTriggers": true }
+      ]
+    }]
+  }]
+}

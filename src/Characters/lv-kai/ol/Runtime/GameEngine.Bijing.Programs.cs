@@ -2,8 +2,21 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-
-
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 7171)]
+    private void AssertBijingUnpaidSelection(ProgramSkillFrame frame)
+    {
+        if (frame.BijingPunish is not { } state) return;
+        if (state.OwnerSeat != frame.OwnerSeat || !IsValidPlayerSeat(state.TurnOwnerSeat) || state.Remaining is < 1 or > 2 ||
+            (state.Paid ? state.SelectedCardIds.Count != state.Remaining || state.SelectedLocations.Count != state.SelectedCardIds.Count ||
+                state.Before < 0 || state.After < state.Before || state.After > _movementSequence ||
+                state.SelectedCardIds.Select((id, i) => _cardMovements.Count(m => m.CardId == id && m.Sequence > state.Before && m.Sequence <= state.After &&
+                    m.From == state.SelectedLocations[i] && m.Reason.Value == $"skill-program.{frame.SkillId}.bijing-punish") != 1).Any(bad => bad)
+                : state.SelectedCardIds.Count >= state.Remaining || state.SelectedCardIds.Any(id => !BijingPunishChoices(frame, state.TurnOwnerSeat).Any(c => c.Cards.Contains(id)))) ||
+            state.SelectedCardIds.Distinct().Count() != state.SelectedCardIds.Count ||
+            state.DiscardedCardIds.Intersect(state.SelectedCardIds).Any() ||
+            GetPausedPrivateOfferEffect(frame)?.Op != SkillProgramEffectOp.BijingPunishDiscardPhase)
+            throw new InvalidOperationException("Bijing lost its original unpaid owned-card selection.");
+    }
     // 闭境 mark: the chosen hand cards stay registered until their recast.
     private SkillProgramStepOutcome BijingProgramMarkHandCards(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
@@ -60,8 +73,8 @@ public sealed partial class GameEngine
                 _bijingMarkedCardIds.TryGetValue(movement.CardId, out var seat) && seat == ownerSeat)
             .Select(movement => movement.CardId).Distinct().ToArray();
         if (lost.Length == 0) return SkillProgramStepOutcome.Continue;
-        var turnOwnerHand = GetHand(_players[turnOwner]);
-        if (turnOwnerHand.Count == 0)
+        var payable = BijingPunishChoices(active, turnOwner);
+        if (payable.Count == 0)
         {
             AdvanceEventRulesAndQueueFact(new ProgramBijingPunishEvent(active.Id, active.SkillId,
                 ownerSeat, turnOwner, lost, []));
@@ -70,37 +83,41 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(GetActiveProgramFrame(active.Id) with
         {
             BijingPunish = new BijingPunishState(turnOwner, ownerSeat, lost,
-                Math.Min(2, turnOwnerHand.Count), [])
+                Math.Min(2, payable.Count), [])
         });
         PresentBijingPunishCardPrompt(GetActiveProgramFrame(active.Id));
         return SkillProgramStepOutcome.AwaitChoice;
     }
 
+    private IReadOnlyList<PromptChoice> BijingPunishChoices(ProgramSkillFrame frame, int payer) =>
+        BuildOwnedCardPaymentChoices(frame.Id, payer, payer, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard);
+
     private void PresentBijingPunishCardPrompt(ProgramSkillFrame frame)
     {
         var state = frame.BijingPunish ?? throw new InvalidOperationException("The Bijing punish lost its state.");
         var active = GetActiveProgramFrame(frame.Id);
-        var hand = GetHand(_players[state.TurnOwnerSeat]).OrderBy(card => card.Id).ToArray();
+        var materialChoices = BijingPunishChoices(frame, state.TurnOwnerSeat).Where(choice => !state.SelectedCardIds.Contains(choice.Cards.Single())).ToArray();
+        var required = state.Remaining - state.SelectedCardIds.Count;
         var presentation = _contentRegistry!.GetSkill(active.SkillId);
-        var choices = hand.Select(card => new PromptChoice(
-            new ChoiceId($"bijing-punish.frame-{frame.Id}.card-{card.Id}"),
-            $"弃置【{card.DisplayName}】。",
-            [card.Id], [],
+        var choices = materialChoices.Select(choice => new PromptChoice(
+            new ChoiceId($"bijing-punish.frame-{frame.Id}.card-{choice.Cards.Single()}"),
+            choice.Description,
+            choice.Cards, [],
             new Dictionary<string, string>
             {
                 ["program-action"] = "bijing-punish-discard",
-                ["card-id"] = card.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                ["card-id"] = choice.Cards.Single().ToString(System.Globalization.CultureInfo.InvariantCulture)
             })).ToArray();
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramTrigger, state.TurnOwnerSeat,
-            $"【{presentation.Name}】请弃置 {state.Remaining} 张手牌。",
-            hand.Select(card => card.Id).ToArray(), [], active.OwnerSeat)
+            $"【{presentation.Name}】请选择另外 {required} 张手牌或装备牌，一并弃置。",
+            choices.SelectMany(choice => choice.Cards).ToArray(), [], active.OwnerSeat)
         {
             PromptId = CreatePromptId(),
             TargetSeat = state.TurnOwnerSeat,
             SkillPrompt = new SkillPromptPresentation(active.SkillId, presentation.Name,
                 $"{presentation.Name} · 弃牌",
-                $"{_players[state.OwnerSeat].Name} 本回合失去过“闭境”牌，你弃置 {state.Remaining} 张手牌。"),
+                $"{_players[state.OwnerSeat].Name} 本回合失去过“闭境”牌，你一并弃置 {state.Remaining} 张牌（已选 {state.SelectedCardIds.Count}）。"),
             Choices = choices.AsReadOnly()
         };
         _status = _players[state.TurnOwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
@@ -114,34 +131,36 @@ public sealed partial class GameEngine
         var state = frame.BijingPunish ?? throw new InvalidOperationException("The Bijing punish lost its state.");
         if (!int.TryParse(selected.Parameters.GetValueOrDefault("card-id"),
                 System.Globalization.CultureInfo.InvariantCulture, out var cardId) ||
-            _cardZones.GetLocation(cardId) != CardLocation.Hand(state.TurnOwnerSeat))
+            state.Paid || !BijingPunishChoices(frame, state.TurnOwnerSeat).Any(choice => choice.Cards.SequenceEqual([cardId])) || state.SelectedCardIds.Contains(cardId) ||
+            state.SelectedCardIds.Any(id => !BijingPunishChoices(frame, state.TurnOwnerSeat).Any(choice => choice.Cards.SequenceEqual([id]))))
             throw new InvalidOperationException("The Bijing punish card is no longer in hand.");
         ClearPendingDecision();
-        var active = GetActiveProgramFrame(frame.Id);
-        active = AppendFrameNativeLogicalDiscard(active, state.TurnOwnerSeat, [cardId],
-            new($"skill-program.{active.SkillId}.bijing-punish"));
-        MoveCards([_cardZones.CardsAt(CardLocation.Hand(state.TurnOwnerSeat)).Single(card => card.Id == cardId)],
-            CardLocation.Hand(state.TurnOwnerSeat), CardLocation.DiscardPile,
-            new($"skill-program.{active.SkillId}.bijing-punish"));
-        var discarded = state.DiscardedCardIds.Append(cardId).ToArray();
-        if (state.Remaining > 1)
+        var chosen = state.SelectedCardIds.Append(cardId).ToArray();
+        if (chosen.Length < state.Remaining)
         {
             ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
             {
-                BijingPunish = state with
-                {
-                    Remaining = state.Remaining - 1,
-                    DiscardedCardIds = Array.AsReadOnly(discarded)
-                }
+                BijingPunish = state with { SelectedCardIds = chosen }
             });
             PresentBijingPunishCardPrompt(GetActiveProgramFrame(frame.Id));
             return;
         }
+        // The official skill says discard two cards, without an ordered
+        // per-card effect: https://www.sanguosha.com/hero/465 . Select the
+        // whole unpaid group before moving it or publishing its loss batch.
+        if (chosen.Length != state.Remaining) throw new InvalidOperationException("Bijing cannot overpay its original discard group.");
+        var active = GetActiveProgramFrame(frame.Id);
+        ReplaceRuntimeTop(active = active with { BijingPunish = state with { SelectedCardIds = chosen,
+            SelectedLocations = chosen.Select(_cardZones.GetLocation).ToArray(), Paid = true, Before = _movementSequence, After = _movementSequence },
+            PendingMovementContinuation = new(state.TurnOwnerSeat, 0, null) });
+        active = AppendFrameNativeLogicalDiscard(active, state.TurnOwnerSeat, chosen,
+            new($"skill-program.{active.SkillId}.bijing-punish"));
+        MoveProgramCardsFromMultipleSources(chosen, CardLocation.DiscardPile, new($"skill-program.{active.SkillId}.bijing-punish"), disclosure: CardMovementDisclosure.FaceUp);
+        var discarded = state.DiscardedCardIds.Concat(chosen).ToArray();
         active = CompleteFrameNativeLogicalDiscard(GetActiveProgramFrame(frame.Id));
-        ReplaceRuntimeTop(active with { BijingPunish = null });
+        ReplaceRuntimeTop(active = active with { BijingPunish = active.BijingPunish! with { After = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new ProgramBijingPunishEvent(active.Id, active.SkillId,
             state.OwnerSeat, state.TurnOwnerSeat, state.LostCardIds, discarded));
-        if (!TryBeginCardsMovedProgramWindow())
-            AdvanceRuntimeProgram(active.Id);
+        ContinueBijingPaidGroup(active.Id);
     }
 }

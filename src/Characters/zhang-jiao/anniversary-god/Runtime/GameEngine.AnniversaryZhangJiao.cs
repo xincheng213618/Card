@@ -10,7 +10,8 @@ public sealed partial class GameEngine
     private static CardConversionSource AnniversaryZjSource(ProgramSkillFrame f) => new(f.SkillId, GetProgramBindingId(f), f.OwnerSeat, f.SkillInstanceId);
     private bool AnniversaryZjTurnShuffled() => EventsSinceLastBoundary(e => e is TurnStartedEvent).Any(e =>
         e is CardMovedEvent { Reason: var reason } && reason == CardMoveReasons.Reshuffle ||
-        e is AnniversaryZhangJiaoShuffledEvent s && s.TurnNumber == _turnNumber && s.TurnOwnerSeat == _currentSeat);
+        e is AnniversaryZhangJiaoShuffledEvent s && s.TurnNumber == _turnNumber && s.TurnOwnerSeat == _currentSeat ||
+        e is MobileShiHuanJieShuffledEvent);
     private bool HasAnniversaryTianjieDeadOwnerEnding(int actualOwner) => IsValidPlayerSeat(actualOwner) && actualOwner == _currentSeat &&
         !_players[actualOwner].IsAlive && _winner == Winner.None && AnniversaryZjTurnShuffled() &&
         _players.Any(p => p.Seat != actualOwner && p.IsAlive && (HasRuntimeSkill(p, AnniversaryTianjie) || HasRuntimeSkill(p, HappyZhangJiaoTianjie)));

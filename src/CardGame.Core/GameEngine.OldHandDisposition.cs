@@ -56,7 +56,7 @@ public sealed partial class GameEngine
                     return new PromptChoice(c.Id,c.Description,c.Cards,c.Targets,ps); }));
         if (r.Stage is "target" or "foreign")
             choices.Add(new(new($"old-hand.{f.Id}.finish"), "结束弃牌（至多等量）", [], [], OldHandParameters(f,"finish")));
-        return Array.AsReadOnly(choices.ToArray());
+        return r.Stage == "give" ? PresentCardDistribution(f, choices, "old-hand") : Array.AsReadOnly(choices.ToArray());
     }
     private void PublishOldHandDisposition(ProgramSkillFrame f)
     {

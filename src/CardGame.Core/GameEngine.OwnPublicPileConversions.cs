@@ -9,7 +9,7 @@ public sealed partial class GameEngine
     // The native action already froze and validated its exact source before payment.
     // Source-loss cleanup may remove a now-empty pile while paid children are suspended.
     private bool IsOwnPublicPileActionCost(CardActionContext action, CardActionCost cost) =>
-        IsMouGszHuActionCost(action, cost) || IsNativePublicPileOriginalActionCost(action, cost) || action.PhysicalCards is [var only] && only == cost &&
+        IsShiHzOriginalActionCost(action, cost) || IsMouGszHuActionCost(action, cost) || IsNativePublicPileOriginalActionCost(action, cost) || action.PhysicalCards is [var only] && only == cost &&
         cost.From.Zone == CardZoneKind.PublicPersistentPile && cost.From.OwnerSeat == action.ProviderSeat &&
         action.ConversionChain.Any(source => source.OwnerSeat == action.ProviderSeat &&
             ViewAsRule(source) is { SourcePileSkillId: { } skill, InputCount: 1, OutputKind: CardKind.Slash } &&

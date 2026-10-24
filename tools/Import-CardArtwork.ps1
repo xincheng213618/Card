@@ -21,11 +21,13 @@ if ($Kinds) {
     $entries = @($catalog.cards | Where-Object { $_.kind -cin $Kinds })
 }
 
-function Get-VerifiedSource([string]$Name, [string]$Url, [string]$Hash) {
+function Get-VerifiedSource([string]$Name, [string]$Url, [string]$Hash, [string]$SourceKind = '') {
     if ($Name -notmatch '^[A-Za-z0-9_.-]+$') { throw "Invalid source file name: $Name" }
     $uri = [Uri]$Url
-    if ($uri.Scheme -ne 'https' -or $uri.Host -notin @('sanguosha.com', 'www.sanguosha.com', 'web.sanguosha.com')) {
-        throw "Unexpected official artwork host: $Url"
+    $official = $uri.Host -in @('sanguosha.com', 'www.sanguosha.com', 'web.sanguosha.com')
+    $attributedWiki = $SourceKind -ceq 'communityIllustration' -and $uri.Host -ceq 'patchwiki.biligame.com' -and $uri.AbsolutePath.StartsWith('/images/msgs/', [StringComparison]::Ordinal)
+    if ($uri.Scheme -ne 'https' -or -not ($official -or $attributedWiki)) {
+        throw "Unexpected authenticated artwork host: $Url"
     }
     $path = Join-Path $SourceDirectory $Name
     if (-not (Test-Path -LiteralPath $path)) { Invoke-WebRequest -Uri $uri -OutFile $path }
@@ -97,13 +99,13 @@ foreach ($entry in $entries) {
         }
         continue
     }
-    if ($entry.sourceKind -cnotin @('officialCardFace', 'officialIllustration') -or -not $entry.kind -or
+    if ($entry.sourceKind -cnotin @('officialCardFace', 'officialIllustration', 'communityIllustration') -or -not $entry.kind -or
         $entry.source.rankSuitBakedIn -ne $false -or $entry.source.originalSize.Count -ne 2 -or
         $entry.transform.outputSize.Count -ne 2 -or $entry.transform.outputSize[0] -ne 186 -or
         $entry.transform.outputSize[1] -ne 260) { throw "Invalid official source mapping: $($entry.file)" }
     $extension = [IO.Path]::GetExtension(([Uri]$entry.source.imageUrl).AbsolutePath)
     if ($extension -notin @('.png', '.jpg', '.jpeg')) { throw "Unsupported official image format: $extension" }
-    $sourcePath = Get-VerifiedSource "$($entry.kind)-original$extension" $entry.source.imageUrl $entry.source.imageSha256
+    $sourcePath = Get-VerifiedSource "$($entry.kind)-original$extension" $entry.source.imageUrl $entry.source.imageSha256 $entry.sourceKind
     $original = Read-ArtworkBitmap $sourcePath
     if ($original.PixelWidth -ne $entry.source.originalSize[0] -or $original.PixelHeight -ne $entry.source.originalSize[1]) {
         throw "Official source dimensions changed: $($entry.kind)"

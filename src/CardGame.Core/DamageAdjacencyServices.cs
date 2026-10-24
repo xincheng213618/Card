@@ -104,7 +104,7 @@ public sealed partial class GameEngine
         public bool HulaoActivityFrameRidesOn(ResolutionFrame child, ResolutionFrame parent) =>
             engine.HulaoActivityFrameRidesOn(child, parent);
         public bool ShenwuTrickFrameRidesOn(ResolutionFrame child, ResolutionFrame parent) =>
-            engine.ShenwuTrickFrameRidesOn(child, parent);
+            engine.ShenwuTrickFrameRidesOn(child, parent) || engine.MantianGuohaiFrameRidesOn(child, parent);
         public bool HellSoulFrameRidesOn(ResolutionFrame child, ResolutionFrame parent) =>
             engine.HellSoulFrameRidesOn(child, parent);
         public bool WenheChaosFrameRidesOn(ResolutionFrame child, ResolutionFrame parent) =>

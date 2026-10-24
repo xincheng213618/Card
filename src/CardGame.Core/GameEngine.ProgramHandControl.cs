@@ -37,24 +37,7 @@ public sealed partial class GameEngine
         frame = GetActiveProgramFrame(frame.Id);
         var owner = _players[frame.OwnerSeat];
         if (effect.Op == SkillProgramEffectOp.LoseOwnerSkillsAndGrant)
-        {
-            var paidContinuation = frame.WindowContext?.Window == SkillProgramTriggerWindow.DyingEntering
-                ? CaptureDyingOwnerReplacementContinuation(frame, effect)
-                : null;
-            // Replacement is terminal: the initiating grant can legitimately disappear.
-            if (IsDyingOwnerReplacementBinding(frame))
-                AcquireDyingOwnerReplacementSkills(frame, [effect.SourceBind!]);
-            else
-                AcquireRuntimeSkills(owner, frame.SkillId, [effect.SourceBind!]);
-            foreach (var grant in owner.SkillGrants.Grants.Where(item => item.IsEnabled && effect.SkillIds.Contains(item.SkillId)).ToArray())
-                owner.SkillGrants.RemoveGrant(grant.GrantId);
-            AdvanceEventRulesAndQueueFact(new ProgramOwnerSkillsReplacedEvent(frame.Id, frame.SkillId, owner.Seat,
-                effect.SkillIds.ToArray(), effect.SourceBind!));
-            if (paidContinuation is not null)
-                IssueReplacedPaidHpContinuation(paidContinuation);
-            FinishProgramSkill(frame, completed: true);
-            return SkillProgramStepOutcome.AwaitChild;
-        }
+            return ReplaceProgramOwnerSkills(frame, effect);
         if (frame.HandControlDraft is null)
         {
             var stage = effect.Op switch

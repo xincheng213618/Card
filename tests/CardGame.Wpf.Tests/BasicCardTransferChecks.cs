@@ -26,8 +26,6 @@ internal static class BasicCardTransferChecks
             foreach (var zone in new[] { CardZoneKind.Hand, CardZoneKind.Equipment })
                 TargetEffect(output, game, registry, kind, zone);
         }
-        HarvestReveal(output);
-        Harvest(output);
     }
 
     private static void TargetEffect(string output, GameEngine source, ContentRegistry registry, CardKind kind, CardZoneKind zone)
@@ -278,8 +276,9 @@ internal static class BasicCardTransferChecks
         }
     }
 
-    private static void Harvest(string output)
+    public static void Harvest(string output)
     {
+        HarvestReveal(output);
         var (source, registry) = StalePromptChoiceChecks.CreatePublicTargetFixture("standard:five_grains");
         var action = source.GetHumanLegalActions().First(candidate => candidate.Kind == LegalActionKind.FiveGrains);
         Accept(source.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats, source.Revision,
@@ -333,6 +332,63 @@ internal static class BasicCardTransferChecks
         AssertPublicProjection(events, before, game, cue);
         AssertOnlyTrickWasPlayed(model, events, action.CardId!.Value, chosenId);
         SampleEffect(host, hand, output, "Harvest", cue, origins, chosenId);
+        using (var waiting = Restore(game, registry))
+            Assert(waiting.IsHarvestDisplayVisible && !waiting.IsHarvestSelectionPending && waiting.BattleCues.Count == 0 &&
+                waiting.PublicRevealedCards.Select(card => card.Id).SequenceEqual(model.PublicRevealedCards.Select(card => card.Id)),
+                "Cold loading another player's Harvest choice must restore the public pool without replaying completed flights.");
+        var aiPicks = 0;
+        for (var step = 0; step < 40 && game.CreateSnapshot(0).HarvestPickerSeat is not null; step++)
+        {
+            Render(host.Root, 1120, 740, null);
+            var remaining = model.PublicRevealedCards.ToArray();
+            Assert(model.IsHarvestDisplayVisible && !model.IsHarvestSelectionPending && model.HasCenterChoices &&
+                ((FrameworkElement)host.Window.FindName("HarvestSelectionHeader")).IsVisible &&
+                Grid.GetRow((FrameworkElement)host.Window.FindName("FeedbackCenter")) == 0,
+                "The public Harvest panel must stay visible and expanded throughout other players' choices and counterspell windows.");
+            var buttons = remaining.Select(card => BoundButton(host.Root, model.SelectRevealedCardCommand, card)).ToArray();
+            Assert(buttons.All(button => !button.IsEnabled && BattleFeedbackLayer.GetPublicChoiceAnchor(button) > 0 &&
+                Find<Border>(button).Single(border => border.Name == "ChoiceFrame").Opacity == 1),
+                "Other players' Harvest cards must stay fully visible with real flight origins, without allowing an out-of-turn pick.");
+            if (aiPicks == 0) host.Capture(output, "harvest-waiting-for-ai", 1120);
+            var previousCommands = game.AcceptedCommands.Count;
+            model.SelectRevealedCardCommand.Execute(remaining[0]);
+            Assert(game.AcceptedCommands.Count == previousCommands, "Viewing the public Harvest must not allow picking for an AI.");
+            var bounds = buttons.ToDictionary(button => ((CardViewModel)button.CommandParameter).Id,
+                button => button.TransformToVisual(host.Layer).TransformBounds(new Rect(button.RenderSize)));
+            var cursor = game.Events.Count;
+            Assert(model.CanStepAi, "The public Harvest must allow the current AI to continue.");
+            model.StepAiCommand.Execute(null);
+            var picked = game.Events.Skip(cursor).Select(item => item.Payload).OfType<HarvestCardSelectedEvent>().SingleOrDefault();
+            if (picked is null) continue;
+            aiPicks++;
+            var pickedCue = model.BattleCues.Last(item => item.PublicCardId == picked.CardId && item.Kind == BattleCueKind.CardTransfer);
+            Assert(pickedCue.TargetSeats.SequenceEqual([picked.PlayerSeat]) && pickedCue.PublicCard?.Id == picked.CardId &&
+                !model.PublicRevealedCards.Any(card => card.Id == picked.CardId) &&
+                remaining.Length == model.PublicRevealedCards.Count + 1,
+                "Each AI must visibly remove exactly its chosen public face and fly it to that recipient.");
+            var active = ((System.Collections.IEnumerable)typeof(BattleFeedbackLayer).GetField("_active", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(host.Layer)!).Cast<object>().Single(item =>
+                    ((BattleCue)item.GetType().GetProperty("Cue")!.GetValue(item)!).Sequence == pickedCue.Sequence);
+            Assert((Rect)active.GetType().GetProperty("PublicChoiceOrigin")!.GetValue(active)! == bounds[picked.CardId],
+                "An AI pick must launch from the exact card's previous public position, including the last card.");
+            var previousTime = 0d;
+            foreach (var time in new[] { .02, .12, .24, .42 })
+            {
+                host.Clock.Advance(time - previousTime); previousTime = time;
+                host.Layer.InvalidateVisual();
+                Render(host.Root, 1120, 740, null);
+                var flight = TransferVisuals(VisualTreeHelper.GetDrawing(host.Layer), BattleCueKind.CardTransfer, Matrix.Identity, 1, null).Single();
+                if (time == .12) host.Capture(output, $"harvest-ai-{picked.PlayerSeat}-flight", 1120);
+                Assert(flight.Images.Length == 1 && !flight.HasBack && flight.VisibleArea >= flight.FullArea * .99,
+                    $"The AI's Harvest pick must render an unclipped public face: time={time}, images={flight.Images.Length}, back={flight.HasBack}, " +
+                    $"visible={flight.VisibleArea}/{flight.FullArea}, bounds={flight.Bounds}, origin={bounds[picked.CardId]}, target={picked.PlayerSeat}.");
+            }
+            host.Clock.Advance(.7); host.Layer.InvalidateVisual();
+            Render(host.Root, 1120, 740, null);
+        }
+        Assert(aiPicks == 3 && !model.IsHarvestDisplayVisible && model.PublicRevealedCards.Count == 0 &&
+            !((FrameworkElement)host.Window.FindName("HarvestSelectionHeader")).IsVisible,
+            "The public Harvest panel must close only after the final recipient finishes.");
         ReachPlay(model);
         AssertColdRestore(game, registry);
         Console.WriteLine($"Native Harvest: seed31, cold public prompt, event={envelope.Sequence}@{envelope.Revision}, " +

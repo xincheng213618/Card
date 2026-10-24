@@ -15,7 +15,16 @@ internal static class AnniversaryWangChangChecks
         s.Need(!s.G.GetHumanLegalActions().Any(a => a.ProgramSkillId == Kaiji), "Kaiji cannot be used twice in one actual Play phase.");
         s.End(); s.Play(); s.UseKaiji(); s.Menu(AnniversaryWangChangStage.OwnCards);
         var material = s.V(0).Hand.First().Id;
+        var beforeSelection = s.G.CardMovements.Count;
+        s.Need(s.P is { RequiredCardCount: 3, MinimumCardCount: 1 } && s.P.Choices.All(c =>
+            c.Parameters.GetValueOrDefault("owned-selection-role") == "pick"),
+            "Kaiji Yin publishes its complete optional one-to-three HE collection before any native pick is paid.");
         s.Answer(c => c.Cards.SequenceEqual([weapon])); s.Menu(AnniversaryWangChangStage.OwnCards);
+        s.Need(s.P is { RequiredCardCount: 2, MinimumCardCount: 0 } && s.Root!.AnniversaryWangChang!.Cards.SequenceEqual([weapon]) &&
+            s.P.Choices.All(c => c.Parameters.GetValueOrDefault("owned-selection-selected") == weapon.ToString()) &&
+            s.P.Choices.Any(c => c.Parameters.GetValueOrDefault("owned-selection-role") == "finish") && s.G.CardMovements.Count == beforeSelection,
+            "The first native equipment pick remains unpaid, is highlighted after refresh and enables finishing this same variable collection.");
+        s.Cold();
         s.Answer(c => c.Cards.SequenceEqual([material])); s.Menu(AnniversaryWangChangStage.OwnCards); s.Answer(c => Verb(c) == "pay");
         s.Reach(() => s.P?.SkillPrompt?.SkillId == Watch);
         var paid = s.Root!;

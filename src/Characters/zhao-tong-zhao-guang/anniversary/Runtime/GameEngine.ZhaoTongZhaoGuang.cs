@@ -24,7 +24,7 @@ public sealed partial class GameEngine
         var source = AnniversaryZtgSource(f);
         if (op == SkillProgramEffectOp.AwakenAnniversaryZhaoTongZhaoGuangLongyuan)
         {
-            AdvanceEventRulesAndQueueFact(new AnniversaryLongyuanAwakenedEvent(f.Id, source, f.GameplayHash, _turnNumber));
+            CommitProgramSkillChangeFact(f, new AnniversaryLongyuanAwakenedEvent(f.Id, source, f.GameplayHash, _turnNumber));
             AdvanceEventRulesAndQueueFact(new SkillAwakenedEvent(f.OwnerSeat, f.SkillId, _players[f.OwnerSeat].MaxHp, Array.AsReadOnly(Array.Empty<string>())));
             return SkillProgramStepOutcome.Continue;
         }

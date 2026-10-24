@@ -12,7 +12,7 @@ public static class CardArt
 
     public static bool NeedsRuntimeNameOverlay(CardKind? kind) =>
         kind is CardKind.GeneralWeapon or CardKind.ScarletBloodSword or CardKind.Xuanjian or CardKind.ColdSlash or
-            CardKind.AnqiFeiren or CardKind.YaodaoChitong;
+            CardKind.AnqiFeiren or CardKind.YaodaoChitong or CardKind.MantianGuohai;
 
     public static ImageSource? Get(CardKind? kind)
     {

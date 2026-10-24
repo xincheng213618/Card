@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-shanxi", "revision": 1, "viewAs": [
+      { "id": "yingji-duel", "inputKinds": [], "inputSuits": [], "inputCount": 1, "sourceZones": ["hand"],
+        "outputKind": "duel", "forPlay": true, "forResponse": false, "allowSameKind": true, "singleCardTrickUse": true }
+    ] },
+    { "id": "mobile:shi-qizhou", "revision": 1,
+      "states": [{ "id": "next-mark-draw", "initialValue": false, "visibility": "public", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" }],
+      "triggers": [
+        { "id": "field-entry-mark", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand", "equipment", "judgment"],
+          "movementOccurrence": "perOwnerBatch", "optional": true,
+          "effects": [{ "op": "resolveMobileShiHeQiQizhouMark", "target": "owner" }] },
+        { "id": "draw-extra-yingji", "window": "drawPhaseStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "resolveMobileShiHeQiQizhouDraw", "target": "owner" }] },
+        { "id": "global-yingji-cleanup", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false, "isSkillInvocation": false,
+          "effects": [{ "op": "resolveMobileShiHeQiYingjiCleanup", "target": "owner" }] }
+      ]
+    }
+  ]
+}

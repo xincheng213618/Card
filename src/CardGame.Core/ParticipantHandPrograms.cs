@@ -220,7 +220,7 @@ public sealed partial class GameEngine
             ids.Any(id => _cardZones.GetLocation(id).OwnerSeat != frame.OwnerSeat || _cardZones.GetLocation(id).Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
             throw new InvalidOperationException("An awaited bound gift lost its unpaid owned HE cost.");
         var gift = new ProgramBoundParticipantGiftReceipt(frame.InstructionIndex, bind, target.OwnerSeat!.Value);
-        if (frame.WindowContext is null && frame.TriggerId is null && !IsPindianHandReturn(frame))
+        if (frame.WindowContext is null && frame.TriggerId is null && !IsPindianHandReturn(frame) && !IsMantianGuohaiGiftProgram(frame))
             gift = gift with { RankSum = CaptureOwnedHandRankSumGift(frame, ids, reason) };
         ReplaceRuntimeTop(frame with { BoundParticipantGift = gift });
         if (gift.RankSum is null) MoveProgramCardsFromMultipleSources(ids, target, reason, NativeGiveCompletionRecords(frame.Id,frame.OwnerSeat,target.OwnerSeat!.Value,ids,_movementSequence,null));
@@ -230,6 +230,14 @@ public sealed partial class GameEngine
 
     private void ValidateBoundParticipantGiftWindow(ProgramSkillFrame frame)
     {
+        if (frame.MantianGuohaiReturn is not null)
+        {
+            if (!IsMantianGuohaiGiftProgram(frame) || ParticipantHandPaused(frame) is not
+                { Op: SkillProgramEffectOp.MoveBoundCards, SourceBind: "given", AwaitMovementTriggers: true,
+                    Destination: SkillProgramCardDestination.SelectedTargetHand })
+                throw new InvalidOperationException("Mantian Guohai gift lost its exact issued native return.");
+            return;
+        }
         if (HasPaidPindianHandReturn(frame))
         {
             var paid = frame.PindianHandReturn!;

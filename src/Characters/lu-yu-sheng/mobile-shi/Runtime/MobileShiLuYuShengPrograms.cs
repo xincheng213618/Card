@@ -3,19 +3,41 @@ using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
 public sealed record MobileShiRunweiGrantIssuedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    int ActualTurn, int TargetSeat, int RevealedCount, int GainedCount, bool RedGift) : IGameEvent;
+    int ActualTurn, int TargetSeat, int RevealedCount, int GainedCount, bool RedGift) : IGameEvent
+{
+    public ActualDiscardRecoveryPhaseKey? Phase { get; init; }
+    public long SequenceAfter { get; init; }
+}
+public sealed record MobileShiRunweiCardGrantedEvent(long FrameId, int OwnerSeat, int TargetSeat, int CardId, ActualDiscardRecoveryPhaseKey Phase) : IGameEvent;
 
 public sealed record MobileShiRunweiDebtRefundedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    int ActualTurn, int Required, int Counted) : IGameEvent;
+    int ActualTurn, int Required, int Counted) : IGameEvent
+{ public ActualDiscardRecoveryPhaseKey? Phase { get; init; } }
 
 public sealed record MobileShiRunweiPhaseEndDiscardedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
-    int ActualTurn, int DiscardedCount, int LeftHandCount) : IGameEvent;
+    int ActualTurn, int DiscardedCount, int LeftHandCount) : IGameEvent
+{ public ActualDiscardRecoveryPhaseKey? Phase { get; init; } }
+public sealed record MobileShiRunweiPhaseEndConsumedEvent(long FrameId, long GrantId, ActualDiscardRecoveryPhaseKey Phase) : IGameEvent;
+public sealed record MobileShiShuanghuaiDrawReturnedEvent(long FrameId, int Cursor, int RecipientSeat, int ActualCount) : IGameEvent;
+public sealed record MobileShiShuanghuaiHpPaidEvent(long FrameId, int OwnerSeat, int Before, int After) : IGameEvent;
 
 public sealed record MobileShiShuanghuaiGuardIssuedEvent(long FrameId, CardConversionSource Source, string GameplayHash,
     int ActualTurn, int VictimSeat, string Option, bool SameAsLast) : IGameEvent;
 
 public sealed record MobileShiLuYuShengReceipt(string Operation, int ActualTurn, int Stage = 0, int TargetSeat = -1,
-    int RevealedCount = 0, long CardId = 0, int LostCount = 0, int Discarded = 0);
+    int RevealedCount = 0, long CardId = 0, int LostCount = 0, int Discarded = 0)
+{
+    public CardConversionSource? Source { get; init; }
+    public string GameplayHash { get; init; } = "";
+    public ActualDiscardRecoveryPhaseKey? Phase { get; init; }
+    public long GrantId { get; init; }
+    public long Before { get; init; }
+    public long After { get; init; }
+    public bool SameAsLast { get; init; }
+    public bool HpPaid { get; init; }
+    public bool HpAppearance { get; init; }
+    public int DrawCursor { get; init; }
+}
 
 public sealed partial record ProgramSkillFrame
 {
@@ -53,7 +75,7 @@ internal static class MobileShiLuYuShengComposition
                 [
                     { Id: RunweiLossDebtTrigger, Window: SkillProgramTriggerWindow.CardsMoved, Subject: SkillProgramTriggerSubject.Owner,
                         Optional: false, MovementOccurrence: SkillProgramMovementOccurrence.PerOwnerBatch },
-                    { Id: RunweiPhaseEndTrigger, Window: SkillProgramTriggerWindow.PlayEnding, Subject: SkillProgramTriggerSubject.Owner,
+                    { Id: RunweiPhaseEndTrigger, Window: SkillProgramTriggerWindow.ActualPhaseEnded, Subject: SkillProgramTriggerSubject.Owner,
                         Optional: false }
                 ] ||
                 program.Triggers[0].SourceZones is not [CardZoneKind.Hand, CardZoneKind.Equipment] ||
@@ -89,6 +111,7 @@ internal sealed class ResolveMobileShiRunweiGrantDescriptor : ProgramOperationDe
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Gift,
         static (_, context) => context.PublicControlValue(1));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard, Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
 }
@@ -100,6 +123,7 @@ internal sealed class ResolveMobileShiRunweiLossDebtDescriptor : ProgramOperatio
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(1));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard, Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved)];
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Automatic;
@@ -112,8 +136,9 @@ internal sealed class ResolveMobileShiRunweiPhaseEndDescriptor : ProgramOperatio
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(1));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard, Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding)];
+        [new RequireTriggerWindow(SkillProgramTriggerWindow.ActualPhaseEnded)];
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Automatic;
 }
 
@@ -124,6 +149,7 @@ internal sealed class ResolveMobileShiShuanghuaiGuardDescriptor : ProgramOperati
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (_, context) => context.PublicControlValue(1));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwnerAlways(r);
+    public override ProgramFactRequirements FactRequirements => new(Activated: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard, Triggered: ProgramTrackedFact.ActualDiscardRecoveryPhase | ProgramTrackedFact.NativeLogicalDiscard);
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new RequireTriggerWindow(SkillProgramTriggerWindow.BeforeDamageApplied)];
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;

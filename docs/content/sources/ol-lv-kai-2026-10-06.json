@@ -43,7 +43,7 @@
       "notes": [
         "Mark: turnEnding optional trigger; selectOwnedCards 0..2 hand cards; bespoke op bijingMarkHandCards (7169) registers the hand-resident ids in an engine-side registry (reconstructed deterministically from the accepted command prefix on cold replay; nothing extra is serialized).",
         "Recast: turnStartBeforeNormalFlow mandatory trigger fires only at the owner's own preparation phase (turn-start collection is per current seat); bespoke op bijingRecastMarkedCards (7170) discards every marked card still in hand and draws that many, then opens the cards-moved window.",
-        "Punish: discardPhaseStarting mandatory trigger with subject owner and turnOwnerScope otherLiving; bespoke op bijingPunishDiscardPhase (7171) detects marked card ids that left the owner's hand this turn through the movement log, then the current turn character discards up to two hand cards through private per-card prompts; ProgramBijingPunishEvent records owner, turn owner, lost ids and discards."
+        "Punish (rechecked 2026-10-24 against https://www.sanguosha.com/hero/465): discardPhaseStarting with otherLiving detects marked cards actually lost this turn. The current turn character selects up to the required two discardable hand/equipment cards on the original frame, then discards that group together. A single logical discard invoice and ProgramBijingPunishEvent retain the exact payer and entities; SilverLion recovery and movement children complete before returning to the original phase, including cold recovery."
       ]
     }
   ],

@@ -22,7 +22,8 @@ public sealed partial class GameEngine
                               player.RoleRevealed ||
                               player.Seat == viewerSeat);
             var canSeeHand = revealAll || player.Seat == viewerSeat;
-            var hand = canSeeHand
+            var sharedHandAccess = HasShiLsHandView(viewerSeat, player.Seat);
+            var hand = canSeeHand || sharedHandAccess
                 ? playerHand.Select(card => ProjectHandCard(player, card)).ToArray()
                 : [];
             var playerEquipment = GetEquipment(player);
@@ -86,6 +87,7 @@ public sealed partial class GameEngine
                 player.GeneralSelected && player.GeneralRevealed,
                 player.HasAlcoholEffect)
             {
+                ViewerCanUseHand = sharedHandAccess,
                 IdentityConcealed = player.IdentityConcealed,
                 HappyQiaoHealth = player.HasHpValue ? player.HappyQiaoHealth : null,
                 WushuangTacticIds = IsWushuangMode
@@ -212,6 +214,7 @@ public sealed partial class GameEngine
                 MinimumCardCount = owned.AllowEarlyFinish ? Math.Max(0, owned.MinimumCount - owned.SelectedCardIds.Count) : null
             };
         if (visibleDecision is not null) visibleDecision = ProjectCardPaymentCount(visibleDecision);
+        if (visibleDecision is not null) visibleDecision = ProjectNativeCardSelections(visibleDecision);
         ProgramSkillFrame? lastProgram = null;
         for (var index = _resolutionStack.Count - 1; index >= 0; index--)
             if (_resolutionStack[index] is ProgramSkillFrame program) { lastProgram = program; break; }
@@ -269,6 +272,9 @@ public sealed partial class GameEngine
             _revision)
         {
             CardDeclarations = GetCardDeclarationSnapshots(viewerSeat, revealAll),
+            HarvestPickerSeat = ActiveGroupCard is { Effect: GroupCardEffect.PublicDraft } harvest &&
+                harvest.TargetIndex < harvest.TargetSeats.Count && harvest.RevealedCardIds.Count > 0
+                ? harvest.TargetSeats[harvest.TargetIndex] : null,
             TableOrder = CurrentTableOrder(),
             BenevolenceCards = _cardZones.CardsAt(CardLocation.Benevolence) is { Count: > 0 } benevolence
                 ? benevolence.Select(ToSnapshot).ToArray() : null,

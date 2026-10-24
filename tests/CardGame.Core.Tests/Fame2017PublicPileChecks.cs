@@ -4,7 +4,7 @@ using System.Text.Json;
 
 internal static class Fame2017PublicPileChecks
 {
-    public static void StoreExchangeDistributionAndReplay()
+    internal static (GameEngine Game, ContentRegistry Registry) CreateDistributionTableFixture()
     {
         var registry = Registry(); var game = Start(registry);
         UseDriver(game, "supply"); Settle(game);
@@ -47,6 +47,12 @@ internal static class Fame2017PublicPileChecks
         Replay(game, registry); Answer(game, Prompt(game)!.Choices.Single());
         Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("stage") == "distribute"));
         Require(Prompt(game)!.Choices.All(c => c.Targets.Count == 1 && c.Targets[0] != 0 && c.Cards.Count == 1), "Four suits require all books to other living players without decline.");
+        return (game, registry);
+    }
+
+    public static void StoreExchangeDistributionAndReplay()
+    {
+        var (game, registry) = CreateDistributionTableFixture();
         for (var i = 0; i < 4; i++)
         {
             var choice = Prompt(game)!.Choices.First(c => c.Targets.SequenceEqual([1])); Answer(game, choice);

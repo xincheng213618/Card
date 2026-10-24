@@ -23,6 +23,10 @@ public sealed class StandardContentPackage : IGameContentPackage
     public void Register(IContentRegistryBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+        EmbeddedSkillProgramCatalog.RegisterBundle(builder, "mobile-mantian-guohai");
+        builder.AddCard(new ContentCardDefinition("mobile:mantian-guohai", "瞒天过海", "锦囊牌",
+            CardCatalog.Get(CardKind.MantianGuohai).Description, CardKind.MantianGuohai,
+            new Dictionary<string, string> { ["action"] = "targeted-obtain-then-give" }));
         builder.AddCard(new ContentCardDefinition("anniversary:dagong-che-card", "大攻车", "装备牌",
             CardCatalog.Get(CardKind.DagongChe).Description, CardKind.DagongChe,
             new Dictionary<string, string> { ["action"] = "equip-treasure" }));

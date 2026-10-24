@@ -42,7 +42,7 @@ public sealed record ProgramSlashTargetExpansion(CardUseEffectSource Source, str
 internal readonly record struct ProgramSlashQuotaQuery(
     CharacterState Actor, CharacterState Target, CardKind Kind, Card? PhysicalCard,
     int? EffectiveRank, int? ExcludedEquipmentId, IReadOnlyList<int>? PhysicalCardIds,
-    EquipmentSlot? ExcludedEquipmentSlot, bool IgnoreMoQuanyu);
+    EquipmentSlot? ExcludedEquipmentSlot, bool IgnoreMoQuanyu, Suit? EffectiveSuit = null);
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
 internal sealed class ProgramTargetRuleAttribute(ProgramTargetRulePoint point, int order) : Attribute

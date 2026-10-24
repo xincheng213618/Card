@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-gongmou", "revision": 1, "triggers": [
+      { "id": "preparation-exchange", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true,
+        "effects": [{ "op": "resolveMobileShiHuanJieGongmou", "target": "owner" }] }
+    ] },
+    { "id": "mobile:shi-zhengshuo", "revision": 1, "activations": [
+      { "id": "reset-all-hands", "usageGroup": "reset-all-hands", "minCards": 0, "maxCards": 0,
+        "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1,
+        "effects": [{ "op": "resolveMobileShiHuanJieZhengshuo", "target": "owner" }] }
+    ] }
+  ]
+}

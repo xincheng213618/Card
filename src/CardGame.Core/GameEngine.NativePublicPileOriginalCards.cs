@@ -116,6 +116,7 @@ public sealed partial class GameEngine
 
     private bool IsNativePublicPileOriginalChoice(CharacterState owner, Card card, CardKind kind, bool response)
     {
+        if (!response && IsShiHzOriginalUseChoice(owner, card, kind)) return true;
         if ((!HasLiFengCapability && !HasMouGszMobile) || card.Id <= 0 ||
             _cardZones.GetLocation(card.Id) is not { Zone: CardZoneKind.PublicPersistentPile } location ||
             location.OwnerSeat != owner.Seat) return false;
@@ -157,6 +158,7 @@ public sealed partial class GameEngine
     private void PrepareNativePublicPileUse(CardUseFrame use)
     {
         PrepareMouGszHuUse(use);
+        if (IsShiHzOriginalUseParent(use)) return;
         if (use.Action is not { Type: CardActionType.Use, PhysicalCards: [var cost], ConversionChain.Count: 0 } action ||
             cost.From.Zone != CardZoneKind.PublicPersistentPile) return;
         if (IsFriendYangmingOriginalUseParent(use)) return;

@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:mantian-guohai-gift": { "name": "瞒天过海", "description": "所有目标的获得结算完成后，依次交给每名生效目标一张手牌。" }
+  }
+}

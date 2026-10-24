@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:xiao-qiao",
+  "skills": [
+    { "registrationOrder": 50400, "programBundle": "mobile-shi-xiao-qiao", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-heyun", "name": "合韵", "executionForms": "State", "actionForms": "Active", "description": "出牌阶段限两次，你可选择一名与你有相同技能的角色，然后你失去一个技能并令其摸两张牌。" } },
+    { "registrationOrder": 50401, "programBundle": "mobile-shi-xiao-qiao", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-yinhui", "name": "音洄", "executionForms": "State, Trigger", "description": "每轮开始时，你可清除因此获得的技能，然后你选择一名其他角色当前拥有的一个技能获得之。" } }
+  ],
+  "generals": [{ "registrationOrder": 50410, "pools": { "current": 50410 }, "definition": { "id": "mobile:shi-xiao-qiao", "name": "势小乔", "characterId": "character:xiao-qiao", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile", "factionId": "wu", "gender": "Female", "baseHp": 3, "portraitKey": "mobile-shi-xiao-qiao", "skillId": "mobile:shi-heyun", "additionalSkillIds": ["mobile:shi-yinhui"] } }]
+}

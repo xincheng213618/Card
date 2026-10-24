@@ -97,7 +97,8 @@ public sealed partial class MainViewModel
             RaisePropertyChanged(nameof(TargetCardRegions));
         }
         PromptChoice[] grouped = publicPlay ? [] : entries.Select(entry => entry.Choice).ToArray();
-        var ungrouped = HasDockSkillChoices || HasExpandedSelection || IsOwnedCardSelectionPending ? []
+        var ungrouped = HasDockSkillChoices || HasExpandedSelection || IsOwnedCardSelectionPending &&
+            !HasProjectedOwnedSelection(_snapshot.PendingDecision!) ? []
             : skillChoices.Where(choice => !grouped.Contains(choice, ReferenceEqualityComparer.Instance)).ToArray();
         if (!_ungroupedCenterSkillChoices.SequenceEqual(ungrouped, ReferenceEqualityComparer.Instance))
         {

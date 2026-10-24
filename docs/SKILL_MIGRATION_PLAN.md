@@ -12,6 +12,7 @@
 | 材料被领取后的续接 | [使用中实体牌](CARD_USE_MATERIALS.md) |
 | 帧、已支付状态、运行钩子和返回 | [运行状态与调度](RUNTIME_REFACTOR_IMPLEMENTATION.md)、[结算协议](RESOLUTION_PROTOCOLS.md) |
 | 技能授予、牌区和状态可见性 | [区域与状态归属](REGION_STATE_AUDIT.md) |
+| 技能升级、布尔升级状态与技能替换 | [公共技能变更入口](content/skill-composition/RUNTIME.md#技能升级与替换) |
 | 当前未覆盖的具体能力需求 | [Core 能力需求](content/CORE_API_REQUESTS.md) |
 
 能力判断同时核对 `ProgramEntryCapabilities`、操作 descriptor、`ProgramCompositionValidator`、具体宿主和正式消费者。窗口枚举、操作名称或单项加载成功不足以说明任意组合可执行。

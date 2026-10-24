@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-heyun", "revision": 1, "activations": [
+      { "id": "lose-for-draw", "minCards": 0, "maxCards": 0, "sourceZones": ["hand"], "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 2,
+        "effects": [{ "op": "resolveMobileShiXiaoQiaoHeyun", "target": "owner" }] }
+    ] },
+    { "id": "mobile:shi-yinhui", "revision": 1, "triggers": [
+      { "id": "copy-current-skill", "window": "roundStarting", "subject": "owner", "optional": true,
+        "effects": [{ "op": "resolveMobileShiXiaoQiaoYinhui", "target": "owner" }] }
+    ] }
+  ]
+}

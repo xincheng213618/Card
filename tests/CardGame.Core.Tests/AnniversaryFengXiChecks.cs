@@ -9,7 +9,7 @@ internal static class AnniversaryFengXiChecks
 {
     private const string Hero = "anniversary:feng-xi", Yusui = "anniversary:yusui", Boyan = "anniversary:boyan",
         Peer = "fixture:feng-xi-peer", NoDraw = "fixture:feng-xi-no-draw", Quiet = "fixture:feng-xi-quiet",
-        Shield = "fixture:feng-xi-sole-target", Hold = "fixture:feng-xi-draw-hold", Deck = "fixture:feng-xi-deck";
+        Shield = "fixture:feng-xi-sole-target", Hold = "fixture:feng-xi-draw-hold", PaidHold = "fixture:feng-xi-paid-hold", Deck = "fixture:feng-xi-deck";
 
     public static void NativeRefillAndBothBlackTargetBranchesResumeCold()
     {
@@ -41,8 +41,25 @@ internal static class AnniversaryFengXiChecks
             "Yusui pays the real one-HP cost before choosing, while preserving the black Slash and its actual foreign user.");
         s.Cold(); s.Branch("hand"); s.Menu(AnniversaryFengXiStage.DiscardChoice);
         s.Need(s.P!.PlayerSeat == 3 && s.Root!.AnniversaryFengXi is { Target: 3, Amount: 2 } &&
-            s.P.Choices.All(c => c.Cards.Count == 1 && s.Zone(c.Cards[0]) == CardLocation.Hand(3)),
-            "The actual user privately chooses exactly the excess two real Hand cards, rather than letting Feng Xi choose foreign cards.");
+            s.P.RequiredCardCount == 2 && s.P.MinimumCardCount == 2 &&
+            s.P.Choices.All(c => c.Cards.Count == 1 && s.Zone(c.Cards[0]) == CardLocation.Hand(3) &&
+                c.Parameters.GetValueOrDefault("owned-selection-role") == "pick"),
+            "The actual user privately receives the complete two-card owned draft for the excess Hand cards, rather than singleton immediate payment or Feng Xi choosing foreign cards.");
+        var beforeDiscard = s.G.CardMovements.Count;
+        var firstDiscard = s.P.Choices[0].Cards.Single(); var stage = s.P.Choices[0].Parameters["owned-selection-stage"];
+        s.AnswerDiscardParticipant(c => c.Cards.SequenceEqual([firstDiscard]));
+        s.Need(s.P is { PlayerSeat: 3, RequiredCardCount: 1, MinimumCardCount: 1 } && s.Root!.Id == hand.Id &&
+            s.Root.AnniversaryFengXi!.Cards.SequenceEqual([firstDiscard]) && s.G.CardMovements.Count == beforeDiscard &&
+            s.P.Choices.All(c => c.Parameters.GetValueOrDefault("owned-selection-selected") == firstDiscard.ToString() &&
+                c.Parameters.GetValueOrDefault("owned-selection-stage") == stage),
+            "The native first pick stays unpaid on the original Yusui frame, remains highlighted and reduces the same group's remaining bound before cold recovery.");
+        s.Cold(); var secondDiscard = s.P!.Choices[0].Cards.Single(); s.AnswerDiscardParticipant(c => c.Cards.SequenceEqual([secondDiscard]));
+        s.Reach(() => s.P?.SkillPrompt?.SkillId == PaidHold);
+        s.Need(s.Root!.Id == hand.Id && s.Root.AnniversaryFengXi!.Stage == AnniversaryFengXiStage.MovementChildren &&
+            s.G.CardMovements.Skip(beforeDiscard).Where(m => m.Reason.Value == "skill.anniversary.yusui.discard")
+                .Select(m => m.CardId).Order().SequenceEqual(new[] { firstDiscard, secondDiscard }.Order()),
+            "The complete original two-card group pays once before its real discard-observer child.");
+        s.Cold(); s.AnswerDiscardParticipant(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
         s.Reach(() => s.P is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge });
         s.Need(s.V(3).HandCount == s.V(0).HandCount && s.E<AnniversaryFengXiPaidEvent>().Count(e => e.FrameId == hand.Id && e.Target == 3 && e.Count == 2) == 1 &&
             s.E<NativeLogicalDiscardInvocationRecordedEvent>().Count(e => e.ParentFrameId == hand.Id && e.ExecutorSeat == 3 && e.ActualCount == 2 && e.HandCount == 2) == 1,
@@ -74,18 +91,20 @@ internal static class AnniversaryFengXiChecks
         {
             CharacterFixtureContent.Register(b, Hero); var c = SkillProgramCatalog.Load(Rules, Presentation);
             foreach (var (id, p) in c.Programs) b.AddSkill(new(id, c.Presentations[id].Name, c.Presentations[id].Description) { Program = p, ProgramPresentation = c.Presentations[id] });
-            b.AddGeneral(new(Peer, "固定六体力角色", "", NoDraw, "wei", 6));
+            b.AddGeneral(new(Peer, "固定六体力角色", "", NoDraw, "wei", 6, [PaidHold]));
             b.AddDeck(new(Deck, "固定原生杀", 0, 2, []) { PhysicalCards = Enumerable.Range(0, 80).Select(_ => new ContentDeckPhysicalCard("standard:slash", Suit.Club, 7)).ToArray() });
             b.AddMode(new(ShanheBattleSetup.BattleModeId, "冯熙真实补牌与原用牌者选择", 4, 4, new Dictionary<string, int>(), Deck, GeneralPoolIds: [Hero, Peer], ModeKind: ContentModeKind.Team,
                 TeamCounts: new Dictionary<string, int> { [ShanheBattleSetup.PlayerTeamId] = 2, [ShanheBattleSetup.EnemyTeamId] = 2 }));
         }
-        public static string Presentation => JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = new[] { NoDraw, Quiet, Shield, Hold }.ToDictionary(id => id, id => new { name = id, description = "短流程真实原生子窗口" }) });
+        public static string Presentation => JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion, skills = new[] { NoDraw, Quiet, Shield, Hold, PaidHold }.ToDictionary(id => id, id => new { name = id, description = "短流程真实原生子窗口",
+            optionLabels = id == PaidHold ? new Dictionary<string, string> { ["continue"] = "继续" } : new Dictionary<string, string>() }) });
         public static string Rules => $$"""
         {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
           {"id":"{{NoDraw}}","revision":1,"triggers":[{"id":"no-draw","window":"drawPhaseStarting","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"adjustNormalDraw","target":"owner","amount":-2}]}]},
           {"id":"{{Quiet}}","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
           {"id":"{{Shield}}","revision":1,"cardPolicies":[{"id":"only-human-is-a-legal-slash-target","kind":"prohibitTarget","cardKinds":["slash","fireSlash","thunderSlash"]}]},
-          {"id":"{{Hold}}","revision":1,"triggers":[{"id":"hold","window":"nativeDrawStarting","subject":"owner","optional":true,"isSkillInvocation":false,"effects":[{"op":"setChainedState","target":"owner","chained":true}]}]}
+          {"id":"{{Hold}}","revision":1,"triggers":[{"id":"hold","window":"nativeDrawStarting","subject":"owner","optional":true,"isSkillInvocation":false,"effects":[{"op":"setChainedState","target":"owner","chained":true}]}]},
+          {"id":"{{PaidHold}}","revision":1,"triggers":[{"id":"paid-group","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill.anniversary.yusui.discard"],"optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid","options":[{"id":"continue"}]}]}]}
         ]}
         """;
     }
@@ -119,6 +138,15 @@ internal static class AnniversaryFengXiChecks
         {
             var p = P!; Need(V(p.PlayerSeat).IsHuman, "Only the actual human may submit this answer.");
             var choice = p.Choices.FirstOrDefault(pick); Need(choice is not null, "Missing the exact current Feng Xi response.");
+            Accept(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, choice!.Id, G.Revision));
+        }
+        public void AnswerDiscardParticipant(Func<PromptChoice, bool> pick)
+        {
+            var p = P!; Need(Root?.AnniversaryFengXi is { } r && p.PlayerSeat == r.Target &&
+                (r.Stage == AnniversaryFengXiStage.DiscardChoice && p.SkillPrompt?.SkillId == Yusui ||
+                 r.Stage == AnniversaryFengXiStage.MovementChildren && p.SkillPrompt?.SkillId == PaidHold),
+                "Only the exact original user may answer this real unpaid discard or its paid child.");
+            var choice = p.Choices.FirstOrDefault(pick); Need(choice is not null, "Missing the current user's exact discard continuation.");
             Accept(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, choice!.Id, G.Revision));
         }
         public void Reach(Func<bool> ready)

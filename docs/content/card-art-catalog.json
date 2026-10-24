@@ -1197,6 +1197,46 @@
       },
       "sha256": "03753531BC040CCB71BE35D63F3FDA3585FB6E6C986F74A69AF0622B0F63F1D0",
       "notes": "Project-drawn paired standards and current card name, following the existing derived-card style; not official artwork. Suit, rank and rules remain runtime data."
+    },
+    {
+      "kind": "MantianGuohai",
+      "file": "MantianGuohai.png",
+      "sourceKind": "communityIllustration",
+      "source": {
+        "pageUrl": "https://wiki.biligame.com/msgs/瞒天过海",
+        "imageUrl": "https://patchwiki.biligame.com/images/msgs/e/ea/gwc4ih1emfo2moky6r9nf1to1ijs8z1.png",
+        "imageSha256": "CE87B137FE206E922FEC4352F377DF6B4E3543E7B631D3BA33883A1825E4E012",
+        "originalSize": [
+          200,
+          200
+        ],
+        "rankSuitBakedIn": false
+      },
+      "transform": {
+        "mode": "contain",
+        "scaledSize": [
+          186,
+          186
+        ],
+        "outputSize": [
+          186,
+          260
+        ],
+        "padding": [
+          0,
+          37,
+          0,
+          37
+        ],
+        "background": "transparent",
+        "filter": "lanczos",
+        "renderer": {
+          "tool": "ffmpeg",
+          "pixelFormat": "rgba"
+        }
+      },
+      "notes": "Original in-game illustration attributed to the mobile BWIKI; not a complete official atlas face. The complete square illustration is scaled without crop and centered on a transparent 186x260 canvas. Card name, rank and suit use existing runtime overlays. No AI-generated pixels.",
+      "sha256": "CDD59C61C2AFF6A96EEC072D150EDA9FCEFEB763E24C9FCEB75C7A37177BF2BD"
     }
   ],
   "components": [

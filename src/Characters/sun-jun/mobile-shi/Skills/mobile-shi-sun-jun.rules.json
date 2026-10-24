@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-xiongtu", "revision": 1,
+      "states": [{ "id": "armed", "initialValue": false, "visibility": "public", "resetScope": "turn", "reacquirePolicy": "preserveUntilGameEnd" }],
+      "activations": [{ "id": "show-hand", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingWithHand", "usesPerTurn": null, "usesPerPhase": 2,
+        "effects": [{ "op": "resolveMobileShiXiongtu", "target": "owner" }] }],
+      "triggers": [{ "id": "other-damage", "window": "afterDamageApplied", "subject": "damageSource", "damageOccurrence": "perDamage", "optional": false, "priority": 0, "isSkillInvocation": false,
+        "effects": [{ "op": "resolveMobileShiXiongtuDamageBenefit", "target": "owner" }] }]
+    }
+  ]
+}

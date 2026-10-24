@@ -7,7 +7,7 @@ public static class GeneralRosterCatalog
     [
         new("all", "全部"), new("boundary", "界"), new("mou", "谋"),
         new("magic", "魔"), new("god", "神"), new("le", "乐"),
-        new("wumiao", "武庙"), new("friend", "友"), new("sp", "SP"),
+        new("wumiao", "武庙"), new("friend", "友"), new("shi", "势"), new("sp", "SP"),
         new("standard", "标准"), new("myth", "神话再临"), new("fame", "一将成名"),
         new("ol", "OL扩展"), new("mobile", "移动版"), new("national", "国战"), new("other", "其他")
     ]);

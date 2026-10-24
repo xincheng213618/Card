@@ -49,6 +49,7 @@ public sealed partial class GameEngine
             SkillProgramNumberExpression.OwnerLostHp => GetProgramOwnerLostHp(active),
             SkillProgramNumberExpression.AllOwnedZoneCards => candidates.Length,
             SkillProgramNumberExpression.HandHalfFloor => GetHand(_players[cardOwnerSeat]).Count / 2,
+            SkillProgramNumberExpression.HandCountMinusFour => Math.Max(0, GetHand(_players[cardOwnerSeat]).Count - 4),
             SkillProgramNumberExpression.LivingPlayersMinHp => GetLivingPlayersMinHp(),
             SkillProgramNumberExpression.LivingFactionCount => GetLivingFactionCount(),
             SkillProgramNumberExpression.LivingPlayerCount => _players.Count(player => player.IsAlive),

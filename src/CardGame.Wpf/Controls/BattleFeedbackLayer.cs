@@ -1422,9 +1422,10 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
         dc.Pop();
     }
 
-    private IEnumerable<Rect> FlightCommandBounds(DependencyObject? element)
+    private IEnumerable<Rect> FlightCommandBounds(DependencyObject? element, bool excludePublicChoices = false)
     {
         if (element is null || element is UIElement { Visibility: not Visibility.Visible } or UIElement { Opacity: <= 0 }) yield break;
+        if (excludePublicChoices && (GetPublicChoiceAnchor(element) > 0 || GetIsPublicChoiceArea(element))) yield break;
         if (element is System.Windows.Controls.Primitives.ButtonBase button)
         {
             var bounds = Bounds(button); if (!bounds.IsEmpty) { bounds.Inflate(3, 3); yield return bounds; }
@@ -1449,7 +1450,7 @@ public sealed partial class BattleFeedbackLayer : FrameworkElement
             yield break;
         }
         for (var index = 0; index < VisualTreeHelper.GetChildrenCount(element); index++)
-            foreach (var bounds in FlightCommandBounds(VisualTreeHelper.GetChild(element, index))) yield return bounds;
+            foreach (var bounds in FlightCommandBounds(VisualTreeHelper.GetChild(element, index), excludePublicChoices)) yield return bounds;
     }
 
     private IEnumerable<Rect> ReadoutAndCommandBounds(DependencyObject? element, bool includeSeatButtons = true)

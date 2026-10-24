@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "mobile:shi-sifeng", "revision": 1, "triggers": [
+    { "id": "place-forecast", "window": "turnEnding", "subject": "owner", "optional": true,
+      "effects": [{ "op": "resolveMobileShiCaoZhenSifengPlace", "target": "owner" }] },
+    { "id": "issued-use", "window": "cardUseCompleted", "ownerRelation": "observer", "includeResponseUses": true, "optional": false, "isSkillInvocation": false,
+      "effects": [{ "op": "resolveMobileShiCaoZhenSifengUse", "target": "owner" }] },
+    { "id": "issued-end", "window": "afterTurnEnded", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false, "isSkillInvocation": false,
+      "effects": [{ "op": "resolveMobileShiCaoZhenSifengEnd", "target": "owner" }] }
+  ] }]
+}

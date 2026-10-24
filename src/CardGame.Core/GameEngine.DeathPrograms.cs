@@ -708,6 +708,7 @@ public sealed partial class GameEngine
             MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PrivateReserve, victim.Seat)),
                 new CardLocation(CardZoneKind.PrivateReserve, victim.Seat), new CardMoveReason("program.private-reserve.death"));
             deathCleanupCardIds.AddRange(DiscardQushiHolderDeathSeals(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
+            deathCleanupCardIds.AddRange(DiscardShiCaoZHolderDeathPiles(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
             deathCleanupCardIds.AddRange(DiscardAnniversarySunQuanMingOnDeath(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
             UpdateDeathFrame(deathFrameId, frame => frame with { CleanedUpCardIds = deathCleanupCardIds });
 

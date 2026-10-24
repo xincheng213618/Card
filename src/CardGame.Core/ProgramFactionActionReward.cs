@@ -32,6 +32,7 @@ public sealed partial class GameEngine
     private bool TracksFactionActionOrigin => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardOutOfTurnFactionSlash);
     private CardActionContext CaptureFactionAction(CardActionContext action)
     {
+        if (action.Type == CardActionType.Response) action = NormalizeShiLsResponseAction(action);
         action = CaptureWushuangJinzhiAppearance(action);
         if (!TracksFactionActionOrigin || action.FactionOrigin is not null || !IsSlashCard(action.EffectiveKind) || action.ActionId == 0) return action;
         return new(action.ActionId, action.ParentActionId, action.Type, action.ActorSeat, action.ProviderSeat, action.RequesterSeat, action.ResponderSeat, action.OpponentSeat,

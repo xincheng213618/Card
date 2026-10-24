@@ -55,7 +55,21 @@ internal static class MouLuZhiMobileChecks
         Reach(() => P()?.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "target") == true);
         Answer(c => c.Targets.SequenceEqual([3]));
         var costs = g.CreateSnapshot(0).Players[0].Hand.Where(c => c.Kind == CardKind.Dodge && c.Suit is Suit.Spade or Suit.Club).Take(2).Select(c => c.Id).ToArray();
-        foreach (var id in costs) Answer(c => c.Cards.SequenceEqual([id]));
+        Need(P() is { RequiredCardCount: 2, MinimumCardCount: 2 } && P()!.Choices.All(c =>
+                c.Parameters.GetValueOrDefault("owned-selection-role") == "pick"),
+            "The real HP-difference cost publishes one complete two-card same-color owned draft before payment.");
+        var beforeCost = g.CardMovements.Count; var costFrame = g.ResolutionStack.OfType<ProgramSkillFrame>().Last().Id;
+        Answer(c => c.Cards.SequenceEqual([costs[0]]));
+        Need(P() is { RequiredCardCount: 1, MinimumCardCount: 1 } && g.CardMovements.Count == beforeCost &&
+            P()!.Choices.All(c => c.Parameters.GetValueOrDefault("owned-selection-selected") == costs[0].ToString()),
+            "The first genuine native cost remains buffered, highlighted and unpaid on the original frame.");
+        var costViews = Enumerable.Range(0, 4).Select(i => SnapshotJson.Serialize(g.CreateSnapshot(i))).ToArray();
+        g = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(g.CreateCheckpoint())), registry);
+        Need(costViews.SequenceEqual(Enumerable.Range(0, 4).Select(i => SnapshotJson.Serialize(g.CreateSnapshot(i)))) &&
+            g.ResolutionStack.OfType<ProgramSkillFrame>().Last() is { Id: var restoredId, MouLuZhi.Cards: var selected } &&
+            restoredId == costFrame && selected.SequenceEqual([costs[0]]),
+            "Cold recovery retains the original same-color collector, exact selected entity and every safe projection.");
+        Answer(c => c.Cards.SequenceEqual([costs[1]]));
         Play();
         var paid = E<MouLuZhiPaidEvent>().Single();
         Need(paid is { Count: 2, TargetSeat: 3, IsRed: false } && g.CreateSnapshot(0).Players[3].Hp == 5 && E<CardRecastEvent>().Length == 0 &&

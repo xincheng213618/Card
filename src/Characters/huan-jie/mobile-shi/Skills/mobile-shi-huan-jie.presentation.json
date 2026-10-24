@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shi-gongmou": { "name": "共谋", "description": "准备阶段，你可以与一名其他角色交换手牌，然后本回合内，你获得“奇策”且其获得“看破”。" },
+    "mobile:shi-zhengshuo": { "name": "正朔", "description": "限定技，出牌阶段，你可以令所有角色弃置所有手牌并洗牌，然后所有角色各摸四张牌。" }
+  }
+}

@@ -121,11 +121,17 @@ internal static class WuGuanYuJuewuChecks
             else
             {
                 s.Use("contest", [sourceCard.Id], opponents);
-                s.Reach(() => s.P is { PlayerSeat: 0 } && s.P.Choices.Any(c =>
-                    c.Parameters.GetValueOrDefault("action") == "pindian-source-card" && c.Cards.SequenceEqual([sourceCard.Id])));
-                s.Need(s.G.ResolutionStack.OfType<PindianFrame>().Single() is { SourceSeat: 0, OpponentSeat: 1, PindianStep: PindianStep.ChooseSourceCard } source &&
-                    source.SourceCardId == sourceCard.Id,
-                    "Tianbian offers the declared real source entity or a deck top before the opponent commits; this residency check retains its originally declared entity.");
+                s.Reach(() => s.P is { PlayerSeat: 0 } && s.G.ResolutionStack.OfType<PindianFrame>()
+                    .Any(f => f.PindianStep == PindianStep.ChooseSourceCard));
+                var source = s.G.ResolutionStack.OfType<PindianFrame>().Single();
+                s.Need(source.SourceCardId == sourceCard.Id && s.P!.Choices.Count == 2 &&
+                    s.P.Choices.Any(c => c.Parameters.GetValueOrDefault("action") == "pindian-source-card" && c.Cards.SequenceEqual([sourceCard.Id])) &&
+                    s.P.Choices.Any(c => c.Parameters.GetValueOrDefault("action") == "pindian-top" && c.Cards.Count == 0) &&
+                    s.V().Hand.Single(c => c.Id == sourceCard.Id).Rank == 2 &&
+                    !s.G.CardMovements.Any(m => m.CardId == sourceCard.Id && m.Reason == CardMoveReasons.PindianReveal) &&
+                    !s.E<PindianTopSourceChosenEvent>().Any() && !s.E<PindianResultDeterminedEvent>().Any(),
+                    "Tianbian first offers the original selected entity or the deck top without paying or revealing either source.");
+                s.Private(0); s.Cold();
                 s.Answer(c => c.Parameters.GetValueOrDefault("action") == "pindian-source-card" && c.Cards.SequenceEqual([sourceCard.Id]));
             }
             s.Reach(() => s.P is { PlayerSeat: 1 } && (group

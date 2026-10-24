@@ -4097,6 +4097,9 @@ public sealed partial class GameEngine
             case LegalActionKind.TransplantWood:
                 ResolveShenwuTransplantWood(actor, _players[action.TargetSeat!.Value], card);
                 break;
+            case LegalActionKind.MantianGuohai:
+                ResolveMantianGuohai(actor, card, action);
+                break;
             case LegalActionKind.Intoxication:
             case LegalActionKind.StoreGrain:
             case LegalActionKind.Reinforcements:
@@ -4444,6 +4447,7 @@ public sealed partial class GameEngine
         CardKind? requiredCardKind = null,
         CardKind? playedCardKind = null)
     {
+        if (actionKind == LegalActionKind.MantianGuohai) PrepareMantianGuohaiEffectRound(resolutionId);
         targetSeats = FreezeSequentialTrickTarget(resolutionId, targetSeats, actionKind, targetCardId, requiredCardKind);
         if (UsesGroupTargetNullification(actionKind))
         {
@@ -4884,6 +4888,9 @@ public sealed partial class GameEngine
                 break;
             case LegalActionKind.TransplantWood:
                 ResolveShenwuTransplantWoodEffect(pending);
+                break;
+            case LegalActionKind.MantianGuohai:
+                ResolveMantianGuohaiEffect(pending);
                 break;
             case LegalActionKind.StarShift:
             case LegalActionKind.BeamSwap:
@@ -7319,7 +7326,7 @@ public sealed partial class GameEngine
         if (!CanUseZhangbaSerpentSpear(source) ||
             physicalCards.Count != 2 ||
             physicalCards.Select(card => card.Id).Distinct().Count() != 2 ||
-            physicalCards.Any(card => !IsOwnedPlayableLocation(source, _cardZones.GetLocation(card.Id)) && !IsMouGszHuCard(source, card.Id)) ||
+            physicalCards.Any(card => !IsOwnedPlayableLocation(source, _cardZones.GetLocation(card.Id)) && !IsMouGszHuCard(source, card.Id) && !IsShiLsHandAccess(source.Seat, card.Id)) ||
             !CanUseVirtualSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,physicalCards), effectiveColor:PhysicalGroupColor(source,physicalCards), effectiveRank:ZhangbaSpecificSlashRank(source,physicalCards), physicalCardIds:physicalCards.Select(c=>c.Id).ToArray()))
         {
             throw new InvalidOperationException("Zhangba Serpent Spear became illegal before resolution.");
@@ -9288,6 +9295,7 @@ public sealed partial class GameEngine
         }
 
         var provider = _players[pending.CurrentCandidateSeat];
+        succeeded &= ShiHzResponseColorAllowed(provider.Seat, effectiveIsRed: null);
         if (succeeded)
         {
             CompleteFactionDefenseResponse(pending, provider, selectedDodge: null, usedBagua: true);
@@ -11418,6 +11426,7 @@ public sealed partial class GameEngine
 
     private void CompleteBaguaResponse(CardAttackHandle attack, bool succeeded)
     {
+        succeeded &= ShiHzResponseColorAllowed(attack.TargetSeat, effectiveIsRed: null);
         if (!succeeded)
         {
             PublishFailedBaguaResponse(attack);
@@ -14578,6 +14587,11 @@ public sealed partial class GameEngine
         if (TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.CardUse, card.Id, playedCardKind)) return;
         if (TryContinueLeChengyanBorrowed(frameId)) return;
         if (TryContinueOriginalUseLightningPlacement(frameId)) return;
+        if (IsMantianGuohaiUse(frameId))
+        {
+            if (TryContinueSequentialTrick(frameId)) return;
+            if (TryContinueMantianGuohaiGifts(frameId)) return;
+        }
         if (TryBeginExtraCardEffectRound(frameId)) return;
         if (TryContinueSequentialTrick(frameId)) return;
         if (TryContinueAdjustedSimpleCardUse(frameId)) return;
@@ -14602,7 +14616,7 @@ public sealed partial class GameEngine
             }
         }
         QueueCardUseFinishedWithoutPop(frameId, card, playedCardKind);
-        var completedUse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
+        var completedUse = NormalizeImplicitDrawTwoUseTarget(_resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId));
         if (_winner == Winner.None && completedUse.Action is { } action &&
             TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardUseCompleted,
                 action.TargetSeats, ProgramCardContinuation.CompletedCard,
@@ -14691,7 +14705,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        CanSpendSlashUse(source, target, ignoresCount: !countsTowardLimit || HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds) &&
+        CanSpendSlashUse(source, target, ignoresCount: !countsTowardLimit || HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds, effectiveSuit: physicalSuit) &&
         (ignoreDistance || DistanceRules.AllowsSlashDistance(ProgramDistanceStage.VirtualSlash,
             new(source, target, effectiveKind, Conversion: conversionSource, PhysicalCardIds: physicalCardIds,
                 PhysicalSuit: physicalSuit, EffectiveColor: effectiveColor, EffectiveRank: effectiveRank))) &&
@@ -14770,7 +14784,7 @@ public sealed partial class GameEngine
     {
         using var queryScope = BeginActionQuery();
         var actions = new List<LegalAction>();
-        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor) && !(IsMouKrLiwenUseQuery(actor) || IsAnniversaryMaTieSlashQuery(actor)) && !IsMouLuSuUseQuery(actor) && !IsMouZyExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJjExactCardQuery(actor, selectedPhysicalCardId) && !IsMouCaExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJsExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJxExactCardQuery(actor, selectedPhysicalCardId) && !IsHappyWeiYanBoneReturnQuery(actor, selectedPhysicalCardId) && !IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) && !IsAnniversaryBaiLingYunExactCardQuery(actor, selectedPhysicalCardId) && !IsAnniversarySunHuanExactCardQuery(actor, selectedPhysicalCardId) && !IsAnniversaryZhangHuanExactCardQuery(actor, selectedPhysicalCardId))
+        if (!actor.IsAlive || (_phase != TurnPhase.Play || actor.Seat != _currentSeat && !IsJianjiExactCardQuery(actor, selectedPhysicalCardId)) && !IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) && !IsKeBiNengPingduanBasicQuery(actor) && !IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) && !IsQingyaDiscardQuery(actor, selectedPhysicalCardId) && !IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJwSlashQuery(actor) && !(IsMouKrLiwenUseQuery(actor) || IsAnniversaryMaTieSlashQuery(actor)) && !IsMouLuSuUseQuery(actor) && !IsMouZyExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJjExactCardQuery(actor, selectedPhysicalCardId) && !IsMouCaExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJsExactCardQuery(actor, selectedPhysicalCardId) && !IsMouJxExactCardQuery(actor, selectedPhysicalCardId) && !IsHappyWeiYanBoneReturnQuery(actor, selectedPhysicalCardId) && !IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) && !IsAnniversaryBaiLingYunExactCardQuery(actor, selectedPhysicalCardId) && !IsAnniversarySunHuanExactCardQuery(actor, selectedPhysicalCardId) && !IsAnniversaryZhangHuanExactCardQuery(actor, selectedPhysicalCardId) && !IsShiGyHandQuery(actor, selectedPhysicalCardId))
         {
             return actions;
         }
@@ -14806,7 +14820,7 @@ public sealed partial class GameEngine
             .ToArray();
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            (HasWushuangBianyuPotential(actor) || HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || (IsMouKrLiwenUseQuery(actor) || IsAnniversaryMaTieSlashQuery(actor)) || IsMouLuSuUseQuery(actor) || IsMouZyExactCardQuery(actor, selectedPhysicalCardId) || IsMouJxExactCardQuery(actor, selectedPhysicalCardId) || IsHappyWeiYanBoneReturnQuery(actor, selectedPhysicalCardId) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || IsAnniversaryBaiLingYunExactCardQuery(actor, selectedPhysicalCardId) || IsAnniversarySunHuanExactCardQuery(actor, selectedPhysicalCardId) || IsAnniversaryZhangHuanExactCardQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsMouJjExactCardQuery(actor, selectedPhysicalCardId) || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && IsMouJsExactCardQuery(actor, selectedPhysicalCardId) || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && IsMouCaExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
+            (HasWushuangBianyuPotential(actor) || HasWuyouPotentialSlash(actor) || (HasBeifenPreUsePrivilege(actor) || HasMouZhaJiangPreUsePrivilege(actor)) || physicalPlayableCards.Any(card => HasDongxinEntitySlashQuota(actor, CardKind.Slash, [card.Id])) || IsQingyaDiscardQuery(actor, selectedPhysicalCardId) || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsDuanJiongSaoguDiscardQuery(actor, selectedPhysicalCardId) || IsJianjiExactCardQuery(actor, selectedPhysicalCardId) || IsMouGyzExactCardQuery(actor, selectedPhysicalCardId) || IsMouJwSlashQuery(actor) || (IsMouKrLiwenUseQuery(actor) || IsAnniversaryMaTieSlashQuery(actor)) || IsMouLuSuUseQuery(actor) || IsMouZyExactCardQuery(actor, selectedPhysicalCardId) || IsMouJxExactCardQuery(actor, selectedPhysicalCardId) || IsHappyWeiYanBoneReturnQuery(actor, selectedPhysicalCardId) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || IsAnniversaryBaiLingYunExactCardQuery(actor, selectedPhysicalCardId) || IsAnniversarySunHuanExactCardQuery(actor, selectedPhysicalCardId) || IsAnniversaryZhangHuanExactCardQuery(actor, selectedPhysicalCardId) || IsShiGyOffTurnQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsMouJjExactCardQuery(actor, selectedPhysicalCardId) || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && IsMouJsExactCardQuery(actor, selectedPhysicalCardId) || (_phase != TurnPhase.Play || actor.Seat != _currentSeat) && IsMouCaExactCardQuery(actor, selectedPhysicalCardId) || IsHuiyunExactHandQuery(actor, selectedPhysicalCardId) || actor.Seat != _currentSeat && IsKeBiNengPingduanBasicQuery(actor) || _slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor) || HasShiSunJunFirstSuitAllowance(actor) || HasWuHfOrDixianPotential(actor.Seat) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null || physicalPlayableCards.Concat(GetEquipment(actor)).Concat(GetLastZoneJudgmentConversionCards(actor, forResponse: false))
                 .Any(card => HasRoundGainedBasicBonus(actor, CardKind.Slash, [card.Id])) || physicalPlayableCards.Any(card =>
                 GetProgramCardIdentityMatches(actor, card).Any(match => IgnoresProgramSlashLimit(actor, match.Source)))))
         {
@@ -15103,6 +15117,7 @@ public sealed partial class GameEngine
 
         AddHulaoAllianceFeastActions(actions, actor, playableCards);
         AddShenwuTrickActions(actions, actor, playableCards);
+        AddMantianGuohaiActions(actions, actor, playableCards);
         AddHellSoulActions(actions, actor, playableCards);
         AddWenheCardActions(actions, actor, playableCards);
         AddGuanduCardActions(actions, actor, playableCards);
@@ -15316,7 +15331,7 @@ public sealed partial class GameEngine
         if (actor.HasHpValue && (!actor.HasAlcoholEffect || IsFuRongDiscardQuery(actor, selectedPhysicalCardId) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId)))
         {
             foreach (var alcohol in playableCards.Where(card => card.Kind == CardKind.Alcohol &&
-                         (HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || IsFuRongDiscardQuery(actor, card.Id) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
+                         (HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || HasTurnAlcoholSuitAllowance(actor, card) || IsFuRongDiscardQuery(actor, card.Id) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
                           HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id]))))
             {
                 actions.Add(new LegalAction(
@@ -15327,9 +15342,9 @@ public sealed partial class GameEngine
             }
             foreach (var card in playableCards.Concat(GetEquipment(actor)).DistinctBy(card => card.Id)
                          .Where(IncludesPhysicalCard)
-                         .Where(card => HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
+                         .Where(card => HasTurnAlcoholSuitAllowance(actor) || HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id]) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || (HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor)) ||
                              HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id])))
-                foreach (var conversion in GetProgramViewAsConversions(actor, card, CardKind.Alcohol, forResponse: false).Where(conversion => IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id]) || HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id], conversion)))
+                foreach (var conversion in GetProgramViewAsConversions(actor, card, CardKind.Alcohol, forResponse: false).Where(conversion => HasTurnAlcoholSuitAllowance(actor, card, conversion) || IsHappyQiaoShutuCardQuery(actor, selectedPhysicalCardId) || CanUseJianjiOrdinaryAlcohol(actor, selectedPhysicalCardId) || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) || HasMouWujingAllowance(actor) || HasFriendQihuiAllowance(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol) || HasRoundGainedBasicBonus(actor, CardKind.Alcohol, [card.Id]) || HasWuHfOrDixianMaterialPrivilege(actor, CardKind.Alcohol, [card.Id], conversion)))
                     actions.Add(new LegalAction(LegalActionKind.Alcohol, card.Id, null,
                         DescribeConversion(conversion, $"将【{card.DisplayName}】当作【酒】使用"),
                         PlayedCardKind: CardKind.Alcohol)
@@ -15780,7 +15795,8 @@ public sealed partial class GameEngine
                FindDuanJiongSaoguDiscardCard(actor, requestedCardId) ??
                FindShouliFieldCard(actor, requestedCardId) ??
                FindDuKuiFanyinRevealedCard(actor, requestedCardId) ??
-               FindAnniversaryBaiLingYunViewedCard(actor, requestedCardId);
+               FindAnniversaryBaiLingYunViewedCard(actor, requestedCardId) ??
+               FindShiLsPlayableCard(actor, requestedCardId);
     }
 
     private static bool IsOwnedPlayableLocation(CharacterState actor, CardLocation location) =>
@@ -15789,6 +15805,7 @@ public sealed partial class GameEngine
 
     private CardLocation FindOwnedCardLocation(CharacterState actor, Card card)
     {
+        if (TryShiLsHandLocation(actor, card, out var sharedHand)) return sharedHand;
         if (TryShouliFieldLocation(actor, card, out var fieldMount)) return fieldMount;
         if (TryNativePublicPilePaymentLocation(actor, card, out var originalPile)) return originalPile;
         if (IsMouGszHuCard(actor, card.Id)) return _cardZones.GetLocation(card.Id);
@@ -17187,7 +17204,7 @@ public sealed partial class GameEngine
         UsesFormalWoodenOx && KongwuEffectiveEquipment(player).Any(card => card.Kind == CardKind.WoodenOx)
             ? GetHand(player).Concat(GetWoodenOxGrain(player)).ToArray()
             : GetHand(player))))));
-        return AppendAnniversaryBaiLingYunPlayableCards(player, AppendDuKuiFanyinPlayableCards(player, cards));
+        return AppendShiLsPlayableCards(player, AppendAnniversaryBaiLingYunPlayableCards(player, AppendDuKuiFanyinPlayableCards(player, cards)));
     }
 
     private IReadOnlyList<Card> GetEquipment(CharacterState player) =>
@@ -17293,7 +17310,7 @@ public sealed partial class GameEngine
         CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true, bool? effectiveColor = null, int? effectiveRank = null, IReadOnlyList<int>? physicalCardIds = null) =>
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != owner.Seat &&
-              (CanSpendSlashUse(owner, target, ignoresCount: false, kind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds) ||
+              (CanSpendSlashUse(owner, target, ignoresCount: false, kind, effectiveRank: effectiveRank, physicalCardIds: physicalCardIds, effectiveSuit: physicalSuit) ||
                allowAnyPhysicalSuit && effectiveRank is null && (HasPotentialJudgedRankSlashQuota(owner.Seat, kind) || HasWuHfOrDixianPotential(owner.Seat)) ||
                allowAnyPhysicalSuit && physicalCardIds is null && HasPotentialWuyouFactionSlash(owner, kind)) &&
               (DistanceRules.AllowsSlashDistance(ProgramDistanceStage.ProvidedSlash,
@@ -17878,6 +17895,7 @@ public sealed partial class GameEngine
         AssertOlMoRumoStates();
         AssertHulaoCardState();
         AssertShenwuCardState();
+        AssertMantianGuohaiState();
         AssertHellSoulCardState();
         AssertFriendEventFrames();
         AssertRequestedDeckBasicMaterials();
@@ -18011,7 +18029,7 @@ public sealed partial class GameEngine
         AssertQinglongInsertions();
         var processing = ViewContributors.FilterProcessing(ProgramViewContribution.InvariantProcessing,
             _cardZones.CardsAt(CardLocation.Processing));
-        var hasActiveCardResolution = (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt() || HasAnniversaryZhangHengPrompt() || HasAnniversaryLeiBoPrompt() || HasAnniversaryHaoMengPrompt() || HasMobileHeQiPrompt() || HasBoundaryLiuFengPrompt()) || HasLeChengyanBorrowedPrompt() || HasWenhePoisonFireAttackPrompt() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.ColorFireAttack?.PaidCardId is not null) || ActiveCardAttack is not null ||
+        var hasActiveCardResolution = (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || (HasAnniversarySunHuanPrompt() || HasShiGyPrompt() || HasShiLsPrompt()) || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt() || HasAnniversaryZhangHengPrompt() || HasAnniversaryLeiBoPrompt() || HasAnniversaryHaoMengPrompt() || HasMobileHeQiPrompt() || HasBoundaryLiuFengPrompt()) || HasLeChengyanBorrowedPrompt() || HasWenhePoisonFireAttackPrompt() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasMantianGuohaiPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.ColorFireAttack?.PaidCardId is not null) || ActiveCardAttack is not null ||
             ActiveQinglongFollowup is not null || ActiveBorrowedSword is not null ||
             ActiveGroupCard is not null ||
             ActiveFireAttack is not null ||
@@ -19575,7 +19593,7 @@ public sealed partial class GameEngine
         }
 
         var hasCardProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
-            (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || HasColdDamagePrompt() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || HasKemingEchoPrompt() || HasMobileZhitiContestPrompt() || (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt() || HasAnniversaryZhangHengPrompt() || HasAnniversaryLeiBoPrompt() || HasAnniversaryHaoMengPrompt() || HasMobileHeQiPrompt() || HasBoundaryLiuFengPrompt())) || HasLeChengyanBorrowedPrompt() || HasCardActionPindianContinuation() || HasBiguoPindianContinuation();
+            (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || HasColdDamagePrompt() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasMantianGuohaiPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || HasKemingEchoPrompt() || HasMobileZhitiContestPrompt() || (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || (HasAnniversarySunHuanPrompt() || HasShiGyPrompt() || HasShiLsPrompt()) || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt() || HasAnniversaryZhangHengPrompt() || HasAnniversaryLeiBoPrompt() || HasAnniversaryHaoMengPrompt() || HasMobileHeQiPrompt() || HasBoundaryLiuFengPrompt())) || HasLeChengyanBorrowedPrompt() || HasCardActionPindianContinuation() || HasBiguoPindianContinuation();
         var hasBeforeDamageProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
             _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any();
         var awaitingHumanResponse =
@@ -19615,13 +19633,13 @@ public sealed partial class GameEngine
         var awaitingNullificationPayment = ActiveNullificationWindow is { } paymentWindow &&
             (TryGetPolicyCounterspellPaymentRide(paymentWindow, out _) || HasWoLongFengChuUseObserver(paymentWindow.ParentFrameId) ||
                 HasMobileSimaRenjieNativeSubtree(paymentWindow.ParentFrameId));
-        if (!(HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt() || HasAnniversaryZhangHengPrompt() || HasAnniversaryLeiBoPrompt() || HasAnniversaryHaoMengPrompt() || HasMobileHeQiPrompt() || HasBoundaryLiuFengPrompt()) && !HasLeChengyanBorrowedPrompt() && !HasExactWenhePoisonResponseContinuation() && !HasHulaoAllianceFeastPrompt() && !HasShenwuTrickPrompt() && !HasHellSoulPrompt() && !HasWenheChaosPrompt() && !HasWumiaoFloodDiscardPrompt() && !HasQizhengPrompt() && !HasDragonBoatDiscardPrompt() && !_resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() && CurrentDamageAttempt is null &&
+        if (!(HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || (HasAnniversarySunHuanPrompt() || HasShiGyPrompt() || HasShiLsPrompt()) || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt() || HasAnniversaryZhangHengPrompt() || HasAnniversaryLeiBoPrompt() || HasAnniversaryHaoMengPrompt() || HasMobileHeQiPrompt() || HasBoundaryLiuFengPrompt()) && !HasLeChengyanBorrowedPrompt() && !HasExactWenhePoisonResponseContinuation() && !HasHulaoAllianceFeastPrompt() && !HasShenwuTrickPrompt() && !HasMantianGuohaiPrompt() && !HasHellSoulPrompt() && !HasWenheChaosPrompt() && !HasWumiaoFloodDiscardPrompt() && !HasQizhengPrompt() && !HasDragonBoatDiscardPrompt() && !_resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() && CurrentDamageAttempt is null &&
             ActiveNullificationWindow is null &&
             ActiveJudgment is null &&
             !HasKemingEchoPrompt() &&
             !HasMobileZhitiContestPrompt() &&
             _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
-                .All(frame => !HasShenDaSuspendedCompletedParent(frame) && !ValidMouSmPlayedWindow(frame) && !ValidMouLuSuPlayedWindow(frame) && !IsExactFinalizedDelayedPlacementWindow(frame) && !HasMouDanchiSuspendedCompletedParent(frame) &&
+                .All(frame => !HasShiZySuspendedCompletedParent(frame) && !HasShenDaSuspendedCompletedParent(frame) && !ValidMouSmPlayedWindow(frame) && !ValidMouLuSuPlayedWindow(frame) && !IsExactFinalizedDelayedPlacementWindow(frame) && !HasMouDanchiSuspendedCompletedParent(frame) &&
                     !(LifecycleCardUse(frame.ParentFrameId) is { } diouParent && (IsDiouSuspendedCompletedAttack(diouParent, frame.Id) || IsMouLiuChengSuspendedCompletedAttack(diouParent, frame.Id))) && frame.Continuation is not
                     (ProgramCardContinuation.DelayedCard or ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.BeforeSimpleTargetEffects or ProgramCardContinuation.FinalizedTrick or ProgramCardContinuation.FinalizedSimpleCard or
                      ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.CommittedSimpleCard or
@@ -19678,7 +19696,7 @@ public sealed partial class GameEngine
             !HasTargetPenaltyUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasRecoveryPaidCardUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasShanheS5YimieRecoveryContinuation(ActiveCardAttack.ResolutionId) &&
-            !(HasHuiyunCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasChenglieCompletedUseObserver(ActiveCardAttack.ResolutionId)) &&
+            !(HasHuiyunCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasChenglieCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasShiGyCompletedUseObserver(ActiveCardAttack.ResolutionId)) &&
             !(HasChainedStateBasicObserver(ActiveCardAttack.ResolutionId) || HasDrawFundedDistinctBasicObserver(ActiveCardAttack.ResolutionId)) &&
             !HasWeijieNativeRequestContinuation(ActiveCardAttack.ResolutionId) &&
             !HasBoundaryLiuFengNativeRequestContinuation(ActiveCardAttack.ResolutionId) &&

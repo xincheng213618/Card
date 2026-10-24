@@ -70,7 +70,14 @@ public sealed partial class GameEngine
                 m.Reason.Value == "skill-program.bound-discard-slash.cost" && m.To.Zone is CardZoneKind.DiscardPile or CardZoneKind.OutsideGame))
             throw new InvalidOperationException("A paid discard lost its exact instruction, original binding or real movement.");
     }
-    private bool HasTurnSlashSuitAllowance(int owner, Suit? suit) => _turnCardUseEffects.HasSlashSuitAllowance(_turnNumber, _turnProgression.OwnerSeat, owner, suit);
+    private bool HasTurnSlashSuitAllowance(int owner, Suit? suit) =>
+        _turnCardUseEffects.HasSlashSuitAllowance(_turnNumber, _turnProgression.OwnerSeat, owner, suit) ||
+        HasShiXxySuitAllowance(owner, suit);
+
+    private bool HasTurnAlcoholSuitAllowance(CharacterState actor, Card? material = null, CardConversionSource? conversion = null) =>
+        HasShiSunJunFirstSuitAllowance(actor, material, conversion) || (material is null
+            ? new[] { Suit.Spade, Suit.Heart, Suit.Club, Suit.Diamond }.Any(suit => HasShiXxySuitAllowance(actor.Seat, suit))
+            : HasShiXxySuitAllowance(actor.Seat, EffectiveSuit(actor, ApplyProgramUseAppearance(actor, material, conversion))));
     private void ScheduleProgramFirstRoundRefund(ProgramSkillFrame frame)
     {
         ValidateProgramTurnEffectGrant(frame);

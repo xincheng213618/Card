@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-ganggeng", "revision": 1,
+      "activations": [{ "id": "gift-at-least-two", "minCards": 2, "maxCards": null, "sourceZones": ["hand"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "giveSelected", "target": "selectedTarget" }, { "op": "resolveMobileShiTianFeng", "target": "owner" }] }],
+      "triggers": [{ "id": "gift-turn-ending", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": false,
+        "isSkillInvocation": false, "effects": [{ "op": "resolveMobileShiTianFeng", "target": "owner" }] }]
+    },
+    { "id": "mobile:shi-sijian", "revision": 1,
+      "triggers": [
+        { "id": "last-hand", "window": "cardsMoved", "subject": "owner", "sourceZones": ["hand"], "movementOccurrence": "perBatch", "optional": true,
+          "usageScope": "turn", "usageLimit": 2, "namedUsageGroup": "sijian",
+          "condition": { "kind": "all", "children": [
+            { "kind": "compare", "left": { "kind": "sourceZoneCountBefore" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 0 } },
+            { "kind": "compare", "left": { "kind": "sourceZoneCountAfter" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 0 } }
+          ] }, "effects": [{ "op": "resolveMobileShiTianFeng", "target": "owner" }] },
+        { "id": "enter-dying", "window": "dyingEntering", "subject": "owner", "optional": true,
+          "usageScope": "turn", "usageLimit": 2, "namedUsageGroup": "sijian", "effects": [{ "op": "resolveMobileShiTianFeng", "target": "owner" }] },
+        { "id": "next-use-debt", "window": "cardUseCompleted", "ownerRelation": "observer", "includeResponseUses": true,
+          "singleActionInstance": true, "optional": false, "isSkillInvocation": false,
+          "effects": [{ "op": "resolveMobileShiTianFeng", "target": "owner" }] }
+      ]
+    }
+  ]
+}

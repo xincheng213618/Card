@@ -66,7 +66,7 @@ public sealed partial class GameEngine
         _pendingDecision = new(DecisionKind.ProgramTrigger, frame.OwnerSeat, $"还可以交出至多 {gift.MaximumGiftCount - gift.PaidCardIds.Count} 张自己的牌。",
             cards.Select(c => c.Card.Id).ToArray(), targets, SourceSeat: frame.OwnerSeat)
         { PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = frame.OwnerSeat,
-            SkillPrompt = new(frame.SkillId, skill.Name, $"{skill.Name} · 分配卡牌", skill.Description), Choices = Array.AsReadOnly(choices.ToArray()) };
+            SkillPrompt = new(frame.SkillId, skill.Name, $"{skill.Name} · 分配卡牌", skill.Description), Choices = PresentCardDistribution(frame, choices, "lost-hp-gift", gift.MaximumGiftCount - gift.PaidCardIds.Count) };
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanCardSelection : EngineStatus.Running;
         return SkillProgramStepOutcome.AwaitChoice;
     }

@@ -86,11 +86,18 @@ public sealed partial class GameEngine
         {
             var cards = ShenDaAllocationCards(f);
             if (cards.Length == 0) return [];
-            if (f.SkillId == HappyDaTuoYu) return cards.SelectMany(cardId => ShenDaDeveloped(f.OwnerSeat)
-                .Select(d => Choice("assign:" + (int)d + ":" + cardId, "将此手牌分配至“" + ShenDaDomainName(d) + "”", [cardId])))
-                .Append(Choice("skip", "完成分配，保留其余手牌的当前区域")).ToArray();
-            var id = cards[0];
-            return id == 0 ? [] : ShenDaDeveloped(f.OwnerSeat).Select(d => Choice("assign:" + (int)d, "将当前手牌分配至“" + ShenDaDomainName(d) + "”", [id])).ToArray();
+            var choices = cards.SelectMany(cardId => ShenDaDeveloped(f.OwnerSeat)
+                .Select(d => Choice("assign:" + (int)d + (f.SkillId == ShenDaTuoYu && cardId == cards[0] ? "" : ":" + cardId), "分配至“" + ShenDaDomainName(d) + "”", [cardId]))).ToList();
+            if (f.SkillId == HappyDaTuoYu) choices.Add(Choice("skip", "完成分配，保留其余手牌的当前区域"));
+            return PresentCardDistribution(f, choices, "tuoyu",
+                destination: c => "domain:" + c.Parameters["option"].Split(':')[1],
+                label: c =>
+                {
+                    var domain = (ShenDengAiDomain)int.Parse(c.Parameters["option"].Split(':')[1], CultureInfo.InvariantCulture);
+                    var effect = domain switch { ShenDengAiDomain.Qingqu => "无次数与距离限制", ShenDengAiDomain.Fengtian => "伤害与回复值 +1", _ => "无法被响应" };
+                    var count = GetHand(_players[f.OwnerSeat]).Count(card => ShenDaAssignment(f.OwnerSeat, card.Id)?.Domain == domain);
+                    return $"{ShenDaDomainName(domain)} · {count} 张\n{effect}";
+                });
         }
         if (r.Stage == ShenDengAiStage.Develop) return Enum.GetValues<ShenDengAiDomain>().Except(ShenDaDeveloped(f.OwnerSeat))
             .Select(d => Choice("develop:" + (int)d, "开发“" + ShenDaDomainName(d) + "”")).ToArray();
@@ -113,7 +120,7 @@ public sealed partial class GameEngine
     {
         var choices = ShenDaChoices(f); var skill = _contentRegistry.GetSkill(f.SkillId);
         ReplaceRuntimeTop(f = f with { Step = ResolutionFrameStep.AwaitingResponse });
-        _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, skill.Name + "：请选择。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), choices.SelectMany(c => c.Targets).Distinct().ToArray(), f.OwnerSeat)
+        _pendingDecision = new(DecisionKind.ProgramTrigger, f.OwnerSeat, (f.ShenDengAi!.Stage == ShenDengAiStage.Allocate ? "拓域：多选手牌，再选择已开发的副区域。" : skill.Name + "：请选择。"), choices.SelectMany(c => c.Cards).Distinct().ToArray(), choices.SelectMany(c => c.Targets).Distinct().ToArray(), f.OwnerSeat)
         { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices, SkillPrompt = new(f.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[f.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running; AdvanceRulesAndPublishState();
     }

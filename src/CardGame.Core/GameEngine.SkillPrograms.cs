@@ -526,6 +526,7 @@ public sealed partial class GameEngine
         if (TryCompleteKemingProgram(frame, completed)) return;
         frame = CompleteFrameNativeLogicalDiscard(frame);
         CleanupProgramBoundCards(frame, completed);
+        if (TryCompleteMantianGuohaiGift(frame, completed)) return;
         if (TryCompleteShenwuTransplantProgram(frame, completed)) return;
         if (TryCompleteHellSoulProgram(frame, completed)) return;
         if (TryCompleteWenheChaosProgram(frame, completed)) return;
@@ -1136,6 +1137,9 @@ public sealed partial class GameEngine
                 if (IsMouHuaXiongChoiceResult(frame, binding)) continue;
                 if (IsAnniversaryZhuZhiChoiceResult(frame, binding)) continue;
                 if (IsAnniversaryLeiBoFactionChoiceResult(frame, binding)) continue;
+                if (IsMobileShiChenQunFaenChoiceResult(frame, binding)) continue;
+                if (IsMobileShiWangChangChoiceResult(frame, binding)) continue;
+                if (IsMobileShiChenDaoChoiceResult(frame, binding)) continue;
                 if (IsMobileShiChengPuChoiceResult(frame, binding)) continue;
                 if (IsMobileShiLuYuShengChoiceResult(frame, binding)) continue;
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
@@ -1277,7 +1281,7 @@ public sealed partial class GameEngine
                     !HasExactShenwuBoundParticipantSelection(frame) && !HasExactShenwuYanyuParticipant(frame) && !HasExactHellKingParticipantSelection(frame) &&
                     !HasExactHappyGongxinParticipantSelection(frame) && !HasExactHappyHuaTuoParticipantSelection(frame) &&
                     !HasExactHappyDianWeiElaiSelection(frame) && !HasExactAnniversaryYangBiaoParticipantSelection(frame) &&
-                    !HasExactAnniversaryZhangXunFollowupSelection(frame))
+                    !HasExactAnniversaryZhangXunFollowupSelection(frame) && !HasExactMobileShiTanfengParticipantSelection(frame))
                     throw new InvalidOperationException("An active trigger program has an invalid cursor or context.");
                 continue;
             }

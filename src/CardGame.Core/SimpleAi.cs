@@ -1625,6 +1625,23 @@ public sealed partial class SimpleAiBrain
         }
 
         var target = view.Players.Single(player => player.Seat == targetSeat);
+        if (actionKind == LegalActionKind.MantianGuohai)
+        {
+            var selfRole = view.Players.Single(player => player.Seat == Seat).Role ?? Role.Renegade;
+            var hostility = GetHostility(view, selfRole, target);
+            var publicCards = target.Equipment.Concat(target.Judgment).ToDictionary(card => card.Id);
+            var scored = choices.Select((choice, index) =>
+            {
+                var publicCard = choice.Cards.Count == 1 ? publicCards.GetValueOrDefault(choice.Cards[0]) : null;
+                return (Choice: choice, Index: index, Score: MantianGuohaiTakeValue(target, publicCard, hostility));
+            }).OrderByDescending(item => item.Score).ThenBy(item => item.Index).ToArray();
+            var selectedChoice = scored[0].Choice;
+            return (selectedChoice.Id, new AiThoughtRecord(thoughtSequence, view.TurnNumber, Seat,
+                selectedChoice.Description,
+                scored.Select(item => new AiCandidateScore(new LegalAction(actionKind, null, targetSeat, item.Choice.Description),
+                    Math.Round(item.Score, 3), "按公开装备、判定区及未知手牌的估值选择；不读取目标暗牌。")).ToArray(),
+                "瞒天过海：获得公开区域牌或未知手牌，全部取得后再交还手牌。"));
+        }
         var effectName = effectNameOverride ??
             (actionKind == LegalActionKind.Dismantlement ? "过河拆桥" : "顺手牵羊");
         var candidates = choices
@@ -2517,14 +2534,36 @@ public sealed partial class SimpleAiBrain
                 : publicJudgment is not null
                     ? "判定区"
                     : null;
-            var publicTargetValue = publicTarget is null
-                ? 0d
-                : CardCatalog.Get(publicTarget.Kind).AiPlayValue * 0.9d + 15d;
+            var publicTargetValue = SnatchPublicTargetValue(publicTarget);
             return (
                 cardProfile.AiPlayValue + hostility + handPressure + publicTargetValue,
                 publicTarget is null
                     ? $"从距离 1 的目标选择一张不透明牌位；只使用公开手牌数量 {target.HandCount} 和身份敌对值，不读取目标暗牌。"
                     : $"从距离 1 的目标获得公开{publicTargetZone}【{publicTarget.DisplayName}】；只读取公开{publicTargetZone}和身份敌对值，不读取目标暗牌。");
+        }
+
+        if (action.Kind == LegalActionKind.MantianGuohai)
+        {
+            var acquisitions = action.TargetSeats.Select(seat =>
+            {
+                var recipient = view.Players.Single(player => player.Seat == seat);
+                var relation = GetHostility(view, selfRole, recipient);
+                var candidates = recipient.Equipment.Concat(recipient.Judgment)
+                    .Select(publicCard => (Card: (CardSnapshot?)publicCard,
+                        Score: MantianGuohaiTakeValue(recipient, publicCard, relation))).ToList();
+                if (recipient.HandCount > 0) candidates.Add((null, MantianGuohaiTakeValue(recipient, null, relation)));
+                var best = candidates.OrderByDescending(candidate => candidate.Score).First();
+                return (Relation: relation, best.Score, KeepValue: CardCatalog.Get(best.Card?.Kind ?? CardKind.Slash).HandKeepValue);
+            }).ToArray();
+            // Every acquisition precedes every gift, so newly obtained cards can
+            // fund the gifts too. Do not charge the same cheapest hand card twice.
+            var repayments = self.Hand.Where(owned => owned.Id != card.Id)
+                .Select(owned => CardCatalog.Get(owned.Kind).HandKeepValue)
+                .Concat(acquisitions.Select(taken => taken.KeepValue)).Order().Take(acquisitions.Length).ToArray();
+            var giftCost = acquisitions.Select((taken, index) => repayments[index] *
+                (.9d + Math.Clamp(taken.Relation, -100d, 100d) * .003d)).Sum();
+            return (cardProfile.AiPlayValue - cardProfile.HandKeepValue * .9d + acquisitions.Sum(taken => taken.Score) - giftCost,
+                $"向 {acquisitions.Length} 名目标换牌，按公开装备和判定区收益评估，并扣除依次交还的 {acquisitions.Length} 张最低保留价值手牌；不以体力计算伤害收益，不读取暗牌。");
         }
 
         if (action.Kind == LegalActionKind.QizhengXiangsheng)
@@ -2580,6 +2619,19 @@ public sealed partial class SimpleAiBrain
             cardProfile.AiPlayValue + hostility + finishingBonus + pressureBonus + gudingBladeBonus + zhuqueFanBonus - silverLionPenalty,
             $"卡牌策略值 {cardProfile.AiPlayValue:0.#}，目标敌对值 {hostility:0.#}，低体力收益 {finishingBonus:0.#}{conversion}{gudingBlade}{zhuqueFan}{silverLion}。身份判断只使用公开信息。" +
             (usePublicPayment ? PublicDamageExplanation(target, publicPayment) : string.Empty));
+    }
+
+    private static double SnatchPublicTargetValue(CardSnapshot? card) => card is null
+        ? 0d : CardCatalog.Get(card.Kind).AiPlayValue * .9d + 15d;
+
+    private static double MantianGuohaiTakeValue(PlayerSnapshot target, CardSnapshot? card, double hostility)
+    {
+        if (card is null) return CardCatalog.Get(CardKind.Slash).HandKeepValue * .9d;
+        var publicValue = SnatchPublicTargetValue(card);
+        var relation = Math.Clamp(hostility, -100d, 100d);
+        if (target.Equipment.Any(equipment => equipment.Id == card.Id)) return publicValue + relation * .35d;
+        return card.Kind is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning
+            ? publicValue - relation * .5d : publicValue;
     }
 
     private static bool HasGudingBladeDamageBonus(

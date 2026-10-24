@@ -13,8 +13,16 @@ public sealed partial class MainViewModel
 
     private LegalAction? SelectedTieredRoundZeroAction() =>
         _selectedTieredRoundZeroAction is { } selected
-            ? HumanActiveSkillActions.FirstOrDefault(action => SameTieredRoundZeroAction(action, selected))
+            ? HumanActiveSkillActions.FirstOrDefault(action => SameTieredRoundZeroFamily(action, selected) &&
+                action.TargetSeats.Count == _selectedActiveSkillTargetSeats.Count &&
+                action.TargetSeats.ToHashSet().SetEquals(_selectedActiveSkillTargetSeats)) ??
+              HumanActiveSkillActions.FirstOrDefault(action => SameTieredRoundZeroFamily(action, selected))
             : null;
+
+    private static bool SameTieredRoundZeroFamily(LegalAction left, LegalAction right) =>
+        left.TargetSeats.Count == 1 && right.TargetSeats.Count == 1
+            ? SameTieredRoundZeroAction(left with { TargetSeat = right.TargetSeat, TargetSeats = right.TargetSeats }, right)
+            : SameTieredRoundZeroAction(left, right);
 
     private static bool SameTieredRoundZeroAction(LegalAction left, LegalAction right) =>
         IsTieredRoundZeroAction(left) && IsTieredRoundZeroAction(right) &&
@@ -29,8 +37,10 @@ public sealed partial class MainViewModel
     private static int ActiveSkillMaximumTargets(LegalAction action) =>
         IsTieredRoundZeroAction(action) ? action.TargetSeats.Count : action.MaxTargetCount;
 
-    private static IReadOnlyList<int> ActiveSkillSelectableTargets(LegalAction action) =>
-        IsTieredRoundZeroAction(action) ? action.TargetSeats : action.SelectableTargetSeats;
+    private IReadOnlyList<int> ActiveSkillSelectableTargets(LegalAction action) =>
+        IsTieredRoundZeroAction(action) ? HumanActiveSkillActions.Where(candidate => SameTieredRoundZeroFamily(candidate, action))
+            .Where(candidate => _selectedActiveSkillTargetSeats.All(candidate.TargetSeats.Contains))
+            .SelectMany(candidate => candidate.TargetSeats).Distinct().ToArray() : action.SelectableTargetSeats;
 
     private bool CanConfirmTieredRoundZeroAction(LegalAction action) =>
         _selectedTieredRoundZeroAction is not null && _selectedActiveSkillCardIds.Count == 0 &&
@@ -49,7 +59,9 @@ public sealed partial class MainViewModel
     private void UseTieredRoundZeroAction(LegalAction selected, bool beginSelection = false)
     {
         if (_snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } prompt) return;
-        var action = HumanActiveSkillActions.FirstOrDefault(candidate => SameTieredRoundZeroAction(candidate, selected));
+        var action = beginSelection || !_isSelectingActiveSkillCards
+            ? HumanActiveSkillActions.FirstOrDefault(candidate => SameTieredRoundZeroAction(candidate, selected))
+            : SelectedTieredRoundZeroAction();
         if (action is null) return;
 
         if (beginSelection || !_isSelectingActiveSkillCards)

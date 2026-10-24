@@ -123,6 +123,8 @@ public sealed partial class GameEngine
                 GetCurrentTurnDefaultStat(player.Seat, SkillRuleQuery.SlashLimit) ?? 1)
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mobile:shi-kuanggu:slash-limit", MobileShiWeiYanPhaseSlashBonus(player.Seat));
+        if (HasMobileShiZhuangshiQuota(player.Seat)) contributions.Add(new UnlimitedRuleQueryContribution("skill:mobile:shi-zhuangshi:quota"));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:sequential-deck-shortfall:slash-limit", SequentialDeckKindGrowthBonus(player.Seat));
         if (HasMouZhaJiangPreUsePrivilege(player)) contributions.Add(new UnlimitedRuleQueryContribution("skill:mou-mobile:zhajiang:first-lost-hp-uses"));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:yang-feng:qujia:slash-limit", QujiaPermanentSlashBonus(player.Seat));
@@ -176,6 +178,7 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"issued:{player.Seat}:cao-teng:yongzu:hand-limit", CaoTengYongzuHandLimitBonus(player.Seat));
         AddFiniteContribution(contributions, $"issued:{player.Seat}:shunshi:hand-limit", DuFuRenPhaseBonus(player.Seat, SkillRuleQuery.HandLimit));
         AddFiniteContribution(contributions, $"state:{player.Seat}:original-hand:hand-limit", GetOriginalHandHandLimitBonus(player.Seat));
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mobile:shi-xiugeng:hand-limit", ShiGyHandLimitBonus(player.Seat));
         AddFiniteContribution(contributions, $"state:{player.Seat}:mou-mobile:keji:armor-hand-limit", MouLuMengArmorHandLimit(player));
         contributions.AddRange(ProgramDamageHandLimitContributions(player));
         contributions.AddRange(PersistentHandLimitContributions(player));
@@ -305,15 +308,15 @@ public sealed partial class GameEngine
         ConvertRuleValue(EvaluateSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot));
 
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
-        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null, int? excludedEquipmentId = null, IReadOnlyList<int>? physicalCardIds = null, EquipmentSlot? excludedEquipmentSlot = null, bool ignoreMoQuanyu = false) =>
+        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null, int? excludedEquipmentId = null, IReadOnlyList<int>? physicalCardIds = null, EquipmentSlot? excludedEquipmentSlot = null, bool ignoreMoQuanyu = false, Suit? effectiveSuit = null) =>
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
         (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
          IsHappyQiaoShutuCardQuery(player, physicalCard?.Id) ||
          TargetRules.HasSlashQuotaBeforeLimit(new(player, target, effectiveKind, physicalCard, effectiveRank,
-             excludedEquipmentId, physicalCardIds, excludedEquipmentSlot, ignoreMoQuanyu)) ||
+             excludedEquipmentId, physicalCardIds, excludedEquipmentSlot, ignoreMoQuanyu, effectiveSuit)) ||
          _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId, excludedEquipmentSlot) ||
          TargetRules.HasSlashQuotaAfterLimit(new(player, target, effectiveKind, physicalCard, effectiveRank,
-             excludedEquipmentId, physicalCardIds, excludedEquipmentSlot, ignoreMoQuanyu)));
+             excludedEquipmentId, physicalCardIds, excludedEquipmentSlot, ignoreMoQuanyu, effectiveSuit)));
 }

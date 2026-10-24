@@ -22,7 +22,7 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
     internal static bool IsGroupOutput(CardKind? kind) => kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage;
     internal static bool AllowsWindow(CardKind? kind, SkillProgramTriggerWindow window) => IsGroupOutput(kind)
         ? window is SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.AfterTurnEnded or SkillProgramTriggerWindow.GameStarting
-        : kind == CardKind.Duel ? window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow : window == SkillProgramTriggerWindow.PlayEnding;
+        : kind == CardKind.Duel ? window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.TurnEnding : window == SkillProgramTriggerWindow.PlayEnding;
 
     internal static bool HasValidReferences(CardKind? kind, ProgramParticipantRef? actor, ProgramParticipantRef? recipient) =>
         IsGroupOutput(kind) ? actor == ProgramParticipantRef.Owner && recipient == ProgramParticipantRef.Owner :
@@ -60,5 +60,5 @@ internal sealed class UseVirtualOrdinaryTrickProgramOperationDescriptor : Progra
             .Concat(IsChoulueShape(effect) ? new ProgramResourceOperation[] { new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting) } : IsGroupOutput(effect.OutputKind)
                 ? new ProgramResourceOperation[] { new RequireTriggerWindows([SkillProgramTriggerWindow.PlayPhaseStarting,
                     SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SkillProgramTriggerWindow.AfterTurnEnded, SkillProgramTriggerWindow.GameStarting]) }
-                : [new RequireTriggerWindow(effect.OutputKind == CardKind.Duel ? SkillProgramTriggerWindow.TurnStartBeforeNormalFlow : SkillProgramTriggerWindow.PlayEnding)]).ToArray());
+                : effect.OutputKind == CardKind.Duel ? new ProgramResourceOperation[] { new RequireTriggerWindows([SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, SkillProgramTriggerWindow.TurnEnding]) } : [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding)]).ToArray());
 }

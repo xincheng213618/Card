@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-wanglie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "wanglie-select",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveMobileShiWanglie",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "wanglie-response-complete",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiWanglie",
+              "target": "owner"
+            }
+          ],
+          "isSkillInvocation": false
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-hongyi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "hongyi-start",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiHongyi",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "hongyi-damage-taken",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiHongyi",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        },
+        {
+          "id": "hongyi-damage-dealt",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiHongyi",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        },
+        {
+          "id": "hongyi-prepare",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiHongyi",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-1"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-2"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-3"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 4,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-4"
+              }
+            }
+          ]
+        },
+        {
+          "id": "hongyi-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiHongyi",
+              "target": "owner"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-1"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-2"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-3"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 4,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hongyi-draw",
+                "optionId": "draw-4"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

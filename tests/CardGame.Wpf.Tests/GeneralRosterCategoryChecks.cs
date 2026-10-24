@@ -121,8 +121,17 @@ internal static class GeneralRosterCategoryChecks
             GeneralRosterCatalog.Classify("classic:shen-sima-yi") == "god" &&
             GeneralRosterCatalog.Classify("ol:shen-sima-yi") == "god" &&
             GeneralRosterCatalog.Classify("magic:guan-yu") == "magic" &&
-            GeneralRosterCatalog.Classify("le:xiao-qiao") == "le",
+            GeneralRosterCatalog.Classify("le:xiao-qiao") == "le" &&
+            GeneralRosterCatalog.Classify("mobile:shi-zhao-yun") == "shi" &&
+            all.Any(choice => choice.GeneralId == "mobile:shi-zhao-yun" && choice.RosterCategoryId == "shi") &&
+            GeneralArt.GetPortrait("mobile:shi-zhao-yun") is System.Windows.Media.ImageBrush { ImageSource: not null },
             "Broad categories merge both boundary packs and keep formal magic, god and new Le editions distinct.");
+        foreach (var id in new[] { "mobile:shi-wei-yan", "mobile:shi-chen-qun", "mobile:shi-xiahou-shang",
+                     "mobile:shi-wang-chang", "mobile:shi-tian-feng", "mobile:shi-chen-zhi", "mobile:shi-yu-ji", "mobile:shi-cheng-pu" })
+            Program.Assert(GeneralRosterCatalog.Classify(id) == "shi" &&
+                all.Any(choice => choice.GeneralId == id && choice.RosterCategoryId == "shi") &&
+                GeneralArt.GetPortrait(id) is System.Windows.Media.ImageBrush { ImageSource: not null },
+                "The Shi batch is selectable in the Shi category with loaded portrait assets.");
         var window = new MainWindow(model);
         var root = (FrameworkElement)window.Content;
         try

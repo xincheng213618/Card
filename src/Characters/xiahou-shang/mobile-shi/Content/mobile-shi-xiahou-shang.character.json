@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-shang",
+  "skills": [
+    {
+      "registrationOrder": 48600,
+      "programBundle": "mobile-shi-xiahou-shang",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-tanfeng",
+        "name": "探锋",
+        "description": "准备阶段，你可以选择任意项：1.弃置一名角色至多两张牌，然后若其手牌数小于等于你，你跳过摸牌阶段；2.对一名角色造成1点火焰伤害，然后若其体力值小于等于你，你跳过出牌阶段。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 48601,
+      "pools": { "current": 48601 },
+      "definition": {
+        "id": "mobile:shi-xiahou-shang",
+        "name": "势夏侯尚",
+        "portraitKey": "mobile-shi-xiahou-shang",
+        "skillId": "mobile:shi-tanfeng",
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:xiahou-shang",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

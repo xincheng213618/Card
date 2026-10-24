@@ -1,4 +1,4 @@
-﻿{
+{
   "schemaVersion": 1,
   "entries": [
     {
@@ -19464,22 +19464,22 @@
         }
       ]
     },
-  {
-    "key": "mobile-shi-lu-yu-sheng",
-    "characterName": "势陆郁生",
-    "defaultSkinId": "classic",
-    "skins": [
-      {
-        "id": "classic",
-        "name": "经典形象",
-        "sourcePage": "https://wiki.biligame.com/msgs/%E5%8A%BF%E9%99%86%E9%83%81%E7%94%9F",
-        "imageUrl": "https://patchwiki.biligame.com/images/msgs/b/b1/bir0e2hj8ahup5s1kj4ldg0uz1o4l4t.jpg",
-        "sha256": "afeddb4a80fef42ae2eac676ca37be662df058016a31a44feb075ae6e3d5d1ef",
-        "pixelWidth": 530,
-        "pixelHeight": 750,
-        "localPath": "src/CardGame.Wpf/Assets/mobile-shi-lu-yu-sheng.jpg"
-      }
-    ]
+    {
+      "key": "mobile-shi-lu-yu-sheng",
+      "characterName": "势陆郁生",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-619.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/84000.jpg",
+          "sha256": "db6ba2a3d9987fe0e57cdc005c4cc6bfa4f66bf52c4e8a8628626b5ab763d443",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-lu-yu-sheng.jpg"
+        }
+      ]
     },
     {
       "key": "mobile-shi-tai-shi-ci",
@@ -19495,6 +19495,363 @@
           "pixelWidth": 530,
           "pixelHeight": 750,
           "localPath": "src/CardGame.Wpf/Assets/mobile-shi-tai-shi-ci.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-deng-ai",
+      "characterName": "势邓艾",
+      "defaultSkinId": "86100",
+      "skins": [
+        {
+          "id": "86100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-643.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/86100.jpg",
+          "sha256": "7def66b1cf3b2c2ee176237f241940dc1a071dbfbffb06072fc889a8ffc09e90",
+          "pixelWidth": 1080,
+          "pixelHeight": 1920,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-deng-ai.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-xiao-qiao",
+      "characterName": "势小乔",
+      "defaultSkinId": "91500",
+      "skins": [
+        {
+          "id": "91500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-666.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/91500.jpg",
+          "sha256": "d589f9109e5a2893ca1b872c54fb84ebc2cd60062614106167711416282fa93a",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-xiao-qiao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-zhang-yan",
+      "characterName": "势张燕",
+      "defaultSkinId": "84500",
+      "skins": [
+        {
+          "id": "84500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-622.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/84500.jpg",
+          "sha256": "90054dcaa111f578682374952cc69f93d49e5b5e5a7cd8381849e2bfd139805e",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-zhang-yan.jpg"
+        }
+      ]
+    },
+    {
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-660.html",
+          "sha256": "a2570a52163c6474a761544d2fd17b904efa7f4e412ece1870d3434698d6507f",
+          "name": "经典形象",
+          "id": "90100",
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-sun-chen.jpg",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/90100.jpg",
+          "pixelWidth": 530
+        }
+      ],
+      "key": "mobile-shi-sun-chen",
+      "characterName": "势孙綝",
+      "defaultSkinId": "90100"
+    },
+    {
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-661.html",
+          "sha256": "fe39ebe3449c9752f554f710452e46d5c11faa858533006ac79e9d78f18f2d2e",
+          "name": "经典形象",
+          "id": "85300",
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-sun-jun.jpg",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/85300.jpg",
+          "pixelWidth": 530
+        }
+      ],
+      "key": "mobile-shi-sun-jun",
+      "characterName": "势孙峻",
+      "defaultSkinId": "85300"
+    },
+    {
+      "skins": [
+        {
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-665.html",
+          "sha256": "2499b25a3a39287cdd0ac7c5036a3963aeea8a16a7a302f3b5d5fcbc02cac733",
+          "name": "经典形象",
+          "id": "91300",
+          "pixelHeight": 1528,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-cao-zhen.jpg",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/91300.jpg",
+          "pixelWidth": 1080
+        }
+      ],
+      "key": "mobile-shi-cao-zhen",
+      "characterName": "势曹真",
+      "defaultSkinId": "91300"
+    },
+    {
+      "key": "mobile-shi-chen-qun",
+      "characterName": "势陈群",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-673.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/92100.jpg",
+          "sha256": "0e0ad235f9767f85212b356ba75d2a58e38379d1240193bd0e47c3afbb956f4f",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-chen-qun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-wei-yan",
+      "characterName": "势魏延",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-615.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/83500.jpg",
+          "sha256": "a393fc81b1215a8a463110f24be29237ab8c34f96a9af0481bb045fd6da2c522",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-wei-yan.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-xiahou-shang",
+      "characterName": "势夏侯尚",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://wiki.biligame.com/msgs/势夏侯尚",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/9/9e/2x55t52h7yg64kqj5hn01y6z0dci05e.png",
+          "sha256": "8f22b39b4be217da137d477861e636574bade7c77fdbfdf60e56b613c3189ad0",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/mobile-shi-xiahou-shang.png"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-zhao-yun",
+      "characterName": "势赵云",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-672.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/92500.jpg",
+          "sha256": "1ed7f5419f7d243473b5805037abae37d781be8b916adaffaa34c6b840ba8625",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-zhao-yun.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-wang-chang",
+      "characterName": "势王昶",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://wiki.biligame.com/msgs/势王昶",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/d/d1/7ifuw1333hmfaix2756q9hodptp6txm.png",
+          "sha256": "778c18cd6697fa3653b9e1a750b3b8a784ab695b7e36127550a9edc6f30d0a97",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/wiki-mobile-shi-wang-chang.png"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-tian-feng",
+      "characterName": "势田丰",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-623.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/84100.jpg",
+          "sha256": "8dca94cc686bcc8c48d36dfbaf4d02fc8a0598fea0bf1b22707c8b5c77a342e0",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-tian-feng.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-chen-zhi",
+      "characterName": "势陈祗",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-639.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/85700.jpg",
+          "sha256": "6f631a95862e0b2277cf630a83b361da04ad0a1f129922f6ec1de364b981c6fb",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-chen-zhi.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-dong-zhao",
+      "characterName": "势董昭",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-602.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/82100.jpg",
+          "sha256": "c98a15f19cc3b82d5a59129c39afc4afc0ec2bfa8bfe81c0258f55f7d00b628e",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-dong-zhao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-chen-dao",
+      "characterName": "势陈到",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-617.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/83300.jpg",
+          "sha256": "37dd22b64647ebd29e70a0044b29c2c89167c5f164c0fbdb6ea7b4144e1fe6e0",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-chen-dao.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-huang-zu",
+      "characterName": "势黄祖",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-620.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/84200.jpg",
+          "sha256": "e4a9fe4b02a0989919a6bfb7e27a05f6e868425d517fd2a6adb55e70456a259e",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-huang-zu.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-guo-yuan",
+      "characterName": "势国渊",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-631.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/84300.jpg",
+          "sha256": "3801e6311163500480d60a93fa899f454ec99b70c20eafc1b0d4b16e24f5e7ad",
+          "pixelWidth": 1080,
+          "pixelHeight": 1528,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-guo-yuan.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-xin-xian-ying",
+      "characterName": "势辛宪英",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-633.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/85600.jpg",
+          "sha256": "b931e4bf6daf8ced86143600c58e43ab23c83086734910498050b907ce3f2bbd",
+          "pixelWidth": 2480,
+          "pixelHeight": 3508,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-xin-xian-ying.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-huan-jie",
+      "characterName": "势桓阶",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-644.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/85900.jpg",
+          "sha256": "b6b7c5014bf7e76690c15fe89f6cb4e85238956af76ab8f54c6292a8d8342ac5",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-huan-jie.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-lu-su",
+      "characterName": "势鲁肃",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-638.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/85200.jpg",
+          "sha256": "3b614e542a1bd3af315ce0ba7e2336a43dd36c4520aff536e8b8f40a4c8c8838",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-lu-su.jpg"
+        }
+      ]
+    },
+    {
+      "key": "mobile-shi-he-qi",
+      "characterName": "势贺齐",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-670.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/91600.jpg",
+          "sha256": "dbd149e3fb2ab639b8c9b638ae1365c959b27fff00038919f4458dc3134fd99a",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/official-mobile-shi-he-qi.jpg"
         }
       ]
     }

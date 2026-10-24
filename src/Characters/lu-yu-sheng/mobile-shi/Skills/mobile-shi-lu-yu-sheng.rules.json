@@ -14,9 +14,14 @@
           "targetKind": "anyLiving",
           "usesPerTurn": null,
           "usesPerPhase": 1,
-          "condition": { "kind": "always" },
+          "condition": {
+            "kind": "always"
+          },
           "effects": [
-            { "op": "resolveMobileShiRunweiGrant", "target": "owner" }
+            {
+              "op": "resolveMobileShiRunweiGrant",
+              "target": "owner"
+            }
           ]
         }
       ],
@@ -26,20 +31,30 @@
           "window": "cardsMoved",
           "subject": "owner",
           "optional": false,
-          "sourceZones": ["hand", "equipment"],
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
           "movementOccurrence": "perOwnerBatch",
           "effects": [
-            { "op": "resolveMobileShiRunweiLossDebt", "target": "owner" }
+            {
+              "op": "resolveMobileShiRunweiLossDebt",
+              "target": "owner"
+            }
           ]
         },
         {
           "id": "phase-end-return",
-          "window": "playEnding",
+          "window": "actualPhaseEnded",
           "subject": "owner",
           "optional": false,
           "effects": [
-            { "op": "resolveMobileShiRunweiPhaseEnd", "target": "owner" }
-          ]
+            {
+              "op": "resolveMobileShiRunweiPhaseEnd",
+              "target": "owner"
+            }
+          ],
+          "isSkillInvocation": false
         }
       ]
     },
@@ -55,7 +70,10 @@
           "usageScope": "turn",
           "usageLimit": 1,
           "effects": [
-            { "op": "resolveMobileShiShuanghuaiGuard", "target": "owner" }
+            {
+              "op": "resolveMobileShiShuanghuaiGuard",
+              "target": "owner"
+            }
           ]
         }
       ]

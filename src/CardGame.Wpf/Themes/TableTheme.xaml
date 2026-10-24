@@ -389,6 +389,16 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+    <DrawingBrush x:Key="AbolishedEquipmentBrush" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,10,10" ViewboxUnits="Absolute" Viewbox="0,0,10,10">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#F02D1B19" Geometry="M0,0 H10 V10 H0 Z" />
+                <GeometryDrawing Geometry="M-5,10 L5,0 M5,10 L15,0">
+                    <GeometryDrawing.Pen><Pen Brush="#506E4339" Thickness="2" /></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
     <DataTemplate x:Key="EquipmentSlotTemplate">
         <Grid Width="142" Height="27" Margin="0,1" ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding Tooltip}">
             <Grid.Background><ImageBrush ImageSource="pack://application:,,,/CardGame.Wpf;component/Assets/Table/seatbottom__self_seat_bg.png" ViewboxUnits="Absolute" Viewbox="0,0,298,68" Stretch="Fill" /></Grid.Background>
@@ -407,6 +417,13 @@
                 ToolTip="选择此装备" AutomationProperties.Name="{Binding Tooltip}">
                 <Button.Template><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" /></ControlTemplate></Button.Template>
             </Button>
+            <Border x:Name="AbolishedEquipmentOverlay" Background="{StaticResource AbolishedEquipmentBrush}" BorderBrush="#AA72564B" BorderThickness="1" IsHitTestVisible="False"
+                Visibility="{Binding IsAbolished, Converter={StaticResource BoolToVisibility}}">
+                <Grid>
+                    <TextBlock Text="{Binding SlotName}" Foreground="#A88F80" FontFamily="KaiTi" FontSize="11" Margin="9,0,0,0" VerticalAlignment="Center" TextDecorations="Strikethrough" />
+                    <TextBlock Text="已废弃" Foreground="#E5A48B" FontFamily="KaiTi" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,9,0" />
+                </Grid>
+            </Border>
         </Grid>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding IsOccupied}" Value="True"><Setter TargetName="EmptySlotText" Property="Visibility" Value="Collapsed" /></DataTrigger>
@@ -420,6 +437,13 @@
             <Border Background="#A08C704D"><TextBlock Text="{Binding CompactSlotName}" FontSize="9" FontWeight="SemiBold" Foreground="#332719" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
             <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#332719" FontSize="9" FontFamily="KaiTi" Margin="2,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
             <TextBlock Grid.Column="2" Text="{Binding CardMark}" Foreground="{Binding CardMarkBrush}" FontSize="9" HorizontalAlignment="Right" Margin="0,0,2,0" VerticalAlignment="Center" />
+            <Border x:Name="AbolishedPortraitEquipmentOverlay" Grid.ColumnSpan="3" Background="{StaticResource AbolishedEquipmentBrush}" BorderBrush="#AA72564B" BorderThickness="1" IsHitTestVisible="False"
+                Visibility="{Binding IsAbolished, Converter={StaticResource BoolToVisibility}}">
+                <Grid>
+                    <TextBlock Text="{Binding SlotName}" Foreground="#A88F80" FontFamily="KaiTi" FontSize="9" Margin="3,0,0,0" VerticalAlignment="Center" TextDecorations="Strikethrough" />
+                    <TextBlock Text="已废弃" Foreground="#E5A48B" FontFamily="KaiTi" FontSize="9" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0" />
+                </Grid>
+            </Border>
         </Grid>
     </DataTemplate>
     <DataTemplate x:Key="CompactSkillTemplate">
@@ -887,7 +911,7 @@
         </Button>
     </DataTemplate>
     <DataTemplate x:Key="HarvestCardTemplate">
-        <Button controls:BattleFeedbackLayer.PublicChoiceAnchor="{Binding Id}" Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="5" Cursor="Hand" ToolTip="{Binding CardHint}" AutomationProperties.Name="{Binding CardHint}" AutomationProperties.HelpText="点击此牌，获得到手牌中">
+        <Button controls:BattleFeedbackLayer.PublicChoiceAnchor="{Binding Id}" Command="{Binding DataContext.SelectRevealedCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="5" Cursor="Hand" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="{Binding CardHint}" AutomationProperties.HelpText="{Binding PublicCardLabel}">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="ChoiceFrame" Background="#3B443E" BorderBrush="#B99A61" BorderThickness="2" CornerRadius="4" Padding="3">
@@ -897,7 +921,7 @@
                                 <TextBlock Text="{Binding OriginalHandTag}" Foreground="#F9EAC5" Background="#D074562A" FontSize="10" Padding="3,1" MaxWidth="64" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3" Visibility="{Binding HasOriginalHandTag, Converter={StaticResource BoolToVisibility}}" />
                             </controls:PublicRevealSurface>
                             <Border x:Name="ChoiceCaption" Background="#314D43" CornerRadius="2" Margin="0,4,0,0" Padding="0,4">
-                                <TextBlock Text="点击选取" Foreground="#FFF1CB" FontSize="12" TextAlignment="Center" />
+                                <TextBlock Text="{Binding PublicCardLabel}" Foreground="#FFF1CB" FontSize="12" TextAlignment="Center" />
                             </Border>
                         </StackPanel>
                     </Border>
@@ -905,7 +929,7 @@
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ChoiceFrame" Property="BorderBrush" Value="#FFF0BA" /><Setter TargetName="ChoiceCaption" Property="Background" Value="#527663" /></Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ChoiceFrame" Property="BorderBrush" Value="#FFF0BA" /><Setter TargetName="ChoiceCaption" Property="Background" Value="#527663" /></Trigger>
                         <Trigger Property="IsPressed" Value="True"><Setter TargetName="ChoiceFrame" Property="Background" Value="#61775D" /><Setter TargetName="ChoiceCaption" Property="Background" Value="#284337" /></Trigger>
-                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ChoiceFrame" Property="Opacity" Value="0.5" /></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Cursor" Value="Arrow" /></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Button.Template>

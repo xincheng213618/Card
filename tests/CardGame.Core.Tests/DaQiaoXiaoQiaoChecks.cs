@@ -31,7 +31,14 @@ internal static class DaQiaoXiaoQiaoChecks
         foreach(var scene in new[]{"male","female"})
         {
             var(g,r)=Start(scene);var hand=V(g).HandCount;Begin(g);Branch(g,"skip-deposit");Need(Pile(g).Length==0,"Declining deposit does not invent a card or suppress the independent second optional item.");Branch(g,"turnover");Reach(g,()=>Stage(g,DaQiaoXiaoQiaoStage.HandCards));
-            Need(V(g).IsFaceDown&&E<DaQiaoXiaoQiaoTurnedEvent>(g)is[{FaceDown:true}],"The alternate cost is a real native turnover before the two-card private payment.");g=Cold(g,r);var cards=P(g)!.Choices.Where(c=>c.Cards.Count==1).Take(2).Select(c=>c.Cards[0]).ToArray();foreach(var card in cards)Answer(g,c=>c.Cards.SequenceEqual([card]));Target(g,1);Reach(g,()=>E<DaQiaoXiaoQiaoCompletedEvent>(g).Length==1);
+            Need(V(g).IsFaceDown&&E<DaQiaoXiaoQiaoTurnedEvent>(g)is[{FaceDown:true}],"The alternate cost is a real native turnover before the two-card private payment.");
+            Need(P(g)is{RequiredCardCount:2,MinimumCardCount:2}&&P(g)!.Choices.All(c=>c.Parameters.GetValueOrDefault("owned-selection-role")=="pick"),"The actual two-Hand discard is one complete owned selection, while the separate public-pile branch stays outside this discard projection.");
+            var beforeSelection=g.CardMovements.Count;var cards=P(g)!.Choices.Where(c=>c.Cards.Count==1).Take(2).Select(c=>c.Cards[0]).ToArray();
+            Answer(g,c=>c.Cards.SequenceEqual([cards[0]]));
+            Need(P(g)is{RequiredCardCount:1,MinimumCardCount:1}&&Current(g)!.Selected.Select(c=>c.Id).SequenceEqual([cards[0]])&&g.CardMovements.Count==beforeSelection&&P(g)!.Choices.All(c=>c.Parameters.GetValueOrDefault("owned-selection-selected")==cards[0].ToString()),"A native first Hand pick remains unpaid and highlighted on its original Xingwu frame.");
+            g=Cold(g,r);Answer(g,c=>c.Cards.SequenceEqual([cards[1]]));
+            Need(Stage(g,DaQiaoXiaoQiaoStage.Target)&&g.CardMovements.Count==beforeSelection,"Finishing the two-card native collection keeps both materials unpaid until the original target choice.");
+            Target(g,1);Reach(g,()=>E<DaQiaoXiaoQiaoCompletedEvent>(g).Length==1);
             var amount=scene=="female"?1:2;Need(V(g).HandCount==hand-2&&cards.All(id=>g.CardMovements.Count(m=>m.CardId==id&&m.From==CardLocation.Hand(0)&&m.To==CardLocation.DiscardPile&&m.Reason.Value=="skill-program.da-qiao-xiao-qiao.xingwu.hand-discard")==1)&&E<DamageAppliedEvent>(g)is[{SourceSeat:0,TargetSeat:1,Amount:var actual}]&&actual==amount&&E<DaQiaoXiaoQiaoDamageIssuedEvent>(g).Single().Amount==amount,"Two actual hand cards are paid together once; current male and female recipients take native two and one respectively.");_=Cold(g,r);
         }
         {

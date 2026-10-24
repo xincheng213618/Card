@@ -22,7 +22,7 @@ public sealed partial class MainViewModel
     {
         var prompt = _snapshot.PendingDecision;
         _skillTargetChoices = prompt is { SkillPrompt: not null } && prompt.PlayerSeat == _snapshot.HumanSeat &&
-            !IsHandResponsePrompt(_snapshot)
+            !IsHandResponsePrompt(_snapshot) && !IsCardDistributionPending && !IsOwnedCardSelectionPending
             ? prompt.Choices.Where(choice => choice.Cards.Count == 0 && !HasOpaqueRegionSlot(choice) && choice.ContentIds.Count == 0 &&
                   choice.Targets.Count > 0 && choice.Targets.Distinct().Count() == choice.Targets.Count &&
                   choice.Targets.All(seat => _snapshot.Players.Any(player => player.Seat == seat)))
@@ -30,7 +30,7 @@ public sealed partial class MainViewModel
                 .Where(group => group.Count() == 1).Select(group => group.Single()).ToArray()
             : [];
         if (prompt is { SkillPrompt: not null, Choices.Count: > 0 } &&
-            prompt.PlayerSeat == _snapshot.HumanSeat && !IsHandResponsePrompt(_snapshot))
+            prompt.PlayerSeat == _snapshot.HumanSeat && !IsHandResponsePrompt(_snapshot) && !IsCardDistributionPending && !IsOwnedCardSelectionPending)
         {
             var owner = _snapshot.Players.Single(player => player.Seat == prompt.PlayerSeat);
             var ownedCards = owner.Hand.Concat(owner.Equipment).Select(card => card.Id).ToHashSet();
@@ -75,6 +75,10 @@ public sealed partial class MainViewModel
     {
         get
         {
+            if (IsOwnedCardSelectionPending && HasProjectedOwnedSelection(_snapshot.PendingDecision!))
+                return OwnedSelectionExtraChoices;
+            if (IsMobileShiZhuangshiSelectionPending)
+                return SkillChoices.Where(choice => choice.Cards.Count == 0 && choice.Parameters.GetValueOrDefault("branch") != "pay").ToArray();
             if (!IsSkillTargetSelectionPending)
             {
                 _centerSkillChoices = [];

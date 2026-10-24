@@ -1,0 +1,6 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:cao-zhen",
+  "skills": [{ "registrationOrder": 49900, "programBundle": "mobile-shi-cao-zhen", "includeProgramPresentation": true,
+    "definition": { "id": "mobile:shi-sifeng", "name": "伺锋", "executionForms": "State, Trigger", "description": "结束阶段，你可将牌堆顶的三张牌以任意顺序分配并扣置于任意名其他角色的武将牌上，称为“伺锋”。武将牌上有“伺锋”的角色：于其回合内使用牌后，你移去其武将牌上的首张“伺锋”，若其使用的牌与移去“伺锋”颜色不同，其弃置一张手牌；其回合结束时，若有“伺锋”未被移去，你选择一项：1.获得其武将牌上的“伺锋”；2.移去其武将牌上剩余的“伺锋”，然后对其造成1点伤害。" } }],
+  "generals": [{ "registrationOrder": 49910, "pools": { "current": 49910 }, "definition": { "id": "mobile:shi-cao-zhen", "name": "势曹真", "characterId": "character:cao-zhen", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile", "factionId": "wei", "gender": "Male", "baseHp": 4, "portraitKey": "mobile-shi-cao-zhen", "skillId": "mobile:shi-sifeng" } }]
+}

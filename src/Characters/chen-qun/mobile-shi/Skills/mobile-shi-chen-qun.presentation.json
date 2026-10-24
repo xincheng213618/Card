@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shi-dingpin": {
+      "name": "定品",
+      "description": "每轮限一次，每回合结束时，你可令本回合失去牌最多的一名角色摸两张牌。"
+    },
+    "mobile:shi-faen": {
+      "name": "法恩",
+      "description": "每回合限两次，有角色使用牌时，若上一张牌的使用者为你，你可令其摸一张牌或弃置一张牌；然后本回合下一张牌的使用者执行另一项。"
+    }
+  }
+}

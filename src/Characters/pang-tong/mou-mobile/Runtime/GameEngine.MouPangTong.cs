@@ -45,7 +45,7 @@ public sealed partial class GameEngine
         if (op == SkillProgramEffectOp.UpgradeMouPangTongLianhuan)
         {
             if (f.SkillId != MouPangTongComposition.Niepan || f.TriggerId != "rebirth" || f.InstructionIndex != 6) throw new InvalidOperationException("Lianhuan must upgrade after the complete native rebirth sequence.");
-            if (!MouPtUpgraded(f.OwnerSeat)) AdvanceEventRulesAndQueueFact(new MouPangTongUpgradedEvent(f.Id, MouPtSource(f), f.GameplayHash));
+            if (!MouPtUpgraded(f.OwnerSeat)) CommitProgramSkillChangeFact(f, new MouPangTongUpgradedEvent(f.Id, MouPtSource(f), f.GameplayHash));
             return SkillProgramStepOutcome.Continue;
         }
         if (f.WindowContext is not { } c || MouPtUse(c) is not { Action: { Type: CardActionType.Use, EffectiveKind: CardKind.IronChain } a } use || a.ActorSeat != f.OwnerSeat)

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-tuntian", "revision": 1,
+      "activations": [
+        {
+          "id": "spend-charge", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+          "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+          "effects": [{ "op": "resolveMobileShiDengAiTuntian", "target": "owner" }]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "non-damage-loss", "window": "cardsMoved", "subject": "owner",
+          "sourceZones": ["hand", "equipment", "judgment"], "movementOccurrence": "perOwnerBatch",
+          "optional": false, "isSkillInvocation": false,
+          "effects": [{ "op": "resolveMobileShiDengAiGain", "target": "owner" }]
+        },
+        {
+          "id": "full-charge", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+          "turnOwnerScope": "anyLiving", "optional": false, "isSkillInvocation": false,
+          "effects": [{ "op": "resolveMobileShiDengAiFull", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-jixi", "revision": 1,
+      "triggers": [
+        {
+          "id": "record-targets", "window": "cardUseTargetsFinalized", "ownerRelation": "actor",
+          "optional": false, "isSkillInvocation": false,
+          "effects": [{ "op": "resolveMobileShiDengAiTargets", "target": "owner" }]
+        },
+        {
+          "id": "record-completed-targets", "window": "cardUseCompleted", "ownerRelation": "actor",
+          "optional": false, "isSkillInvocation": false, "singleActionInstance": true,
+          "effects": [{ "op": "resolveMobileShiDengAiTargets", "target": "owner" }]
+        },
+        {
+          "id": "ending-jixi", "window": "afterTurnEnded", "subject": "owner",
+          "turnOwnerScope": "anyLiving", "optional": true,
+          "effects": [{ "op": "resolveMobileShiDengAiJixi", "target": "owner" }]
+        }
+      ]
+    }
+  ]
+}

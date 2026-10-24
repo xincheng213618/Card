@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:chen-qun",
+  "skills": [
+    {
+      "registrationOrder": 47300,
+      "programBundle": "mobile-shi-chen-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-dingpin",
+        "name": "定品",
+        "description": "每轮限一次，每回合结束时，你可令本回合失去牌最多的一名角色摸两张牌。",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 47301,
+      "programBundle": "mobile-shi-chen-qun",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-faen",
+        "name": "法恩",
+        "description": "每回合限两次，有角色使用牌时，若上一张牌的使用者为你，你可令其执行一项：1.摸一张牌；2.弃置一张牌。若如此做，本回合下一名使用牌的角色将额外执行另一项。",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 47302,
+      "pools": { "current": 47302 },
+      "definition": {
+        "id": "mobile:shi-chen-qun",
+        "name": "势陈群",
+        "portraitKey": "mobile-shi-chen-qun",
+        "skillId": "mobile:shi-dingpin",
+        "additionalSkillIds": ["mobile:shi-faen"],
+        "factionId": "wei",
+        "baseHp": 3,
+        "gender": "Male",
+        "characterId": "character:chen-qun",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

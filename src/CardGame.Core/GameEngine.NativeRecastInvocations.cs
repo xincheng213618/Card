@@ -3,6 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksNativeRecastInvocations =>
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMobileShiHuangZuRecast) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMouHuangYueyingBingcai) ||
         _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveChanshuangSimultaneousChoices) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveChanshuangEnding);
@@ -19,7 +20,7 @@ public sealed partial class GameEngine
         var materials = originalPrimaryIds.Select(id =>
         {
             var from = _cardZones.GetLocation(id);
-            if (from.OwnerSeat != executorSeat || from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.WoodenOxGrain or CardZoneKind.PublicDeferredPile or CardZoneKind.PublicPersistentPile))
+            if (from.OwnerSeat != executorSeat || from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.PublicDeferredPile or CardZoneKind.PublicPersistentPile))
                 throw new InvalidOperationException("A native recast must capture its participant's actual owned primary materials before payment.");
             var card = _cardZones.CardsAt(from).Single(c => c.Id == id);
             return new NativeRecastMaterial(id, card.Kind, from, card.IsGeneralWeapon);

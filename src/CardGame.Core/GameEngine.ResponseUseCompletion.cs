@@ -43,8 +43,8 @@ public sealed partial class GameEngine
 
     // The existing response action remains a Response for accepted-response observers.
     // Only explicit opt-in completion observers see responses that the game calls uses.
-    private static bool IsCompletedResponseUse(CardActionContext action, ProgramCardContinuation continuation) =>
-        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseUseCompletion.IsCompletedResponseUse(action,continuation);
+    private bool IsCompletedResponseUse(CardActionContext action, ProgramCardContinuation continuation) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseUseCompletion.IsCompletedResponseUse(action, continuation, IsShiLsAutonomousResponse(action));
 
     private bool IsCompletedResponseParentConsistent(ProgramCardTriggerWindowFrame window)
     {
@@ -63,8 +63,8 @@ public sealed partial class GameEngine
         return use?.CardAttack is { } attack && window.Action.ActorSeat == attack.TargetSeat &&
             window.Action.OpponentSeat == attack.SourceSeat && window.Action.ParentActionId == use.Action?.ActionId;
     }
-    private static bool IsCompletedResponseUse(CardActionContext action, ProgramCompletedResponseKind kind) =>
-        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseUseCompletion.IsCompletedResponseUse(action,kind);
+    private bool IsCompletedResponseUse(CardActionContext action, ProgramCompletedResponseKind kind) =>
+        global::CardGame.Core.RuntimeSkills.RuntimeRules_Core_ResponseUseCompletion.IsCompletedResponseUse(action, kind, IsShiLsAutonomousResponse(action));
 
     private bool HasResponseUseCompletionObserver(CardActionContext action, ProgramCardContinuation continuation) =>
         IsCompletedResponseUse(action, continuation) && (_programPipelineHooks.ObservesResponseUseCompletion(action) || HasJiyunResponseCompletion(action, continuation) || _players.Any(owner => owner.IsAlive &&

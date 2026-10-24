@@ -56,22 +56,7 @@ public sealed partial class GameEngine
                 history.OfType<ProgramTurnSkillsGrantedEvent>().Any(issued => issued.GrantSourceId == sourceId))
                 throw new InvalidOperationException("A next actual-turn-start skill grant requires its real creation turn and once-issued instruction.");
         }
-        foreach (var skillId in granted)
-        {
-            // Sources own separate grants, while one effective skill keeps one runtime
-            // instance. In particular, expiry cannot remove the original printed skill.
-            var existing = GetSkillBindingShard(recipient).ActiveGrants.Where(grant => grant.SkillId == skillId)
-                .OrderBy(grant => grant.SourceId.StartsWith("turn:", StringComparison.Ordinal) ? 1 : 0)
-                .ThenBy(grant => grant.SkillInstanceId, StringComparer.Ordinal).FirstOrDefault();
-            var instanceId = existing?.SkillInstanceId ?? $"turn-shared:{recipient.Seat}:{skillId}";
-            var grantId = $"{sourceId}:{skillId}";
-            recipient.SkillGrants.Grant(new SkillGrant(grantId, skillId, instanceId, sourceId,
-                TurnExpiry: turnExpiry) { NextActualTurnStartExpiry = nextStartExpiry });
-        }
-        AdvanceEventRulesAndQueueFact(new ProgramTurnSkillsGrantedEvent(active.Id, active.SkillId,
-            bindingId, active.OwnerSeat, Array.AsReadOnly(granted))
-        { RecipientSeat = recipient.Seat, GrantSourceId = sourceId, TurnExpiry = turnExpiry,
-            NextActualTurnStartExpiry = nextStartExpiry });
+        CommitProgramParticipantSkillGrants(active, targetSeat, granted, sourceId, turnExpiry, nextStartExpiry);
     }
 
     private void ValidateTurnSkillGrantActor(ProgramSkillFrame frame, int targetSeat)

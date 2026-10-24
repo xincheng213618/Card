@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             return new(binding.Source.SkillId, binding.Policy.Id, owner.Seat, binding.Source.SkillInstanceId);
         CardConversionSource? source = null;
         TryFreezeProvenanceCounterspellSource(owner, physicalCardIds, ref source);
-        return source ?? zhaJiangSource ?? MouSimaShiNoResponseSource(owner, physicalCardIds);
+        return source ?? MobileShiWanglieCounterspellSource(owner, physicalCardIds) ?? zhaJiangSource ?? MobileShiZhuangshiCounterspellSource(owner, physicalCardIds) ?? MouSimaShiNoResponseSource(owner, physicalCardIds);
     }
 
     private void IssueUnrespondableCounterspell(NullificationWindowFrame window,

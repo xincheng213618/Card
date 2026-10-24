@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:deng-ai",
+  "skills": [
+    {
+      "registrationOrder": 50310,
+      "programBundle": "mobile-shi-deng-ai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-tuntian", "name": "屯田",
+        "description": "蓄力技（0/0），你每失去一张非伤害牌后，获得1点蓄力点；出牌阶段限一次，你可消耗任意点蓄力点，令至多等量名角色随机获得一张红桃牌；一名角色的回合开始时，若你蓄力点已满，你摸一张牌且蓄力点上限+1。",
+        "actionForms": "Active", "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 50311,
+      "programBundle": null,
+      "includeProgramPresentation": false,
+      "definition": {
+        "id": "mobile:shi-zaoxian", "name": "凿险",
+        "description": "锁定技，你一次性消耗的蓄力点数量大于等于对应值时，你从弃牌堆获得一张对应牌：3，【无中生有】；5，【无懈可击】；7，【五谷丰登】。",
+        "tags": "Locked", "executionForms": "State"
+      }
+    },
+    {
+      "registrationOrder": 50312,
+      "programBundle": "mobile-shi-deng-ai",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-jixi", "name": "急袭",
+        "description": "一名角色的回合结束时，若存在本回合成为过你牌目标的其他角色，你可弃置当前回合角色一张牌，以使用一张指定其中任意名角色为目标的无视距离的【顺手牵羊】。",
+        "executionForms": "State, Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 50320,
+      "pools": { "current": 50320 },
+      "definition": {
+        "id": "mobile:shi-deng-ai", "characterId": "character:deng-ai", "name": "势邓艾",
+        "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile", "factionId": "wei",
+        "gender": "Male", "baseHp": 4, "skillId": "mobile:shi-tuntian",
+        "additionalSkillIds": ["mobile:shi-zaoxian", "mobile:shi-jixi"],
+        "portraitKey": "mobile-shi-deng-ai"
+      }
+    }
+  ]
+}

@@ -17,7 +17,7 @@ public sealed partial class GameEngine
                 .SingleOrDefault(frame => frame.Id == declared.ResolutionId)?.Action,
             CardActionAcceptedEvent accepted when accepted.Action.Type == CardActionType.Response &&
                 accepted.Action.EffectiveKind == CardKind.Nullification &&
-                accepted.Action.ActorSeat == accepted.Action.ProviderSeat &&
+                (accepted.Action.ActorSeat == accepted.Action.ProviderSeat || IsShiLsAutonomousResponse(accepted.Action)) &&
                 accepted.Action.ResponderSeat == accepted.Action.ActorSeat &&
                 accepted.Action.RequesterSeat is null &&
                 _resolutionStack.OfType<NullificationWindowFrame>().Any(window =>

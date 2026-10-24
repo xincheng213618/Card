@@ -11,6 +11,10 @@ public sealed partial class BattleFeedbackLayer
         "PublicChoiceAnchor", typeof(int), typeof(BattleFeedbackLayer), new PropertyMetadata(-1));
     public static int GetPublicChoiceAnchor(DependencyObject element) => (int)element.GetValue(PublicChoiceAnchorProperty);
     public static void SetPublicChoiceAnchor(DependencyObject element, int value) => element.SetValue(PublicChoiceAnchorProperty, value);
+    public static readonly DependencyProperty IsPublicChoiceAreaProperty = DependencyProperty.RegisterAttached(
+        "IsPublicChoiceArea", typeof(bool), typeof(BattleFeedbackLayer), new PropertyMetadata(false));
+    public static bool GetIsPublicChoiceArea(DependencyObject element) => (bool)element.GetValue(IsPublicChoiceAreaProperty);
+    public static void SetIsPublicChoiceArea(DependencyObject element, bool value) => element.SetValue(IsPublicChoiceAreaProperty, value);
     private readonly Dictionary<int, Rect> _publicChoiceOrigins = [];
 
     private void CachePublicChoiceOrigins()
@@ -75,10 +79,10 @@ public sealed partial class BattleFeedbackLayer
         // TextBlock layout boxes can include large areas with no visible ink.
         // Portraits are protected whole; the hand is the arrival destination.
         var obstacles = FlightCommandBounds(ActionBar).Concat(FlightCommandBounds(SupplementalActions))
-            .Concat(FlightCommandBounds(CenterAnchor)).Concat(seats.Values)
+            .Concat(FlightCommandBounds(CenterAnchor, excludePublicChoices: !item.PublicChoiceOrigin.IsEmpty)).Concat(seats.Values)
             .Append(frame.VisibleBounds(Sidebar)).Append(frame.VisibleBounds(PhaseHud))
-            // A selected public card leaves the revealed-card control itself.
-            // Permit its measured origin only; unrelated commands stay protected.
+            // Public picks can fly over the remaining pool as it reflows after
+            // removal. Other commands, response captions and portraits remain protected.
             .Where(bounds => !bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0 &&
                 (item.PublicChoiceOrigin.IsEmpty || !bounds.IntersectsWith(item.PublicChoiceOrigin))).ToArray();
         var path = item.GetTransferPath(launch, destination, obstacles, frame.FlightViewport);

@@ -73,7 +73,7 @@ public sealed partial class GameEngine
                 foreach (var p in _players.Where(p => p.IsAlive)) choices.Add(Choice("give", $"将粮【{CardCatalog.Get(entity.Kind).DisplayName}】交给{p.Name}", [entity.CardId], [p.Seat]));
             choices.Add(Choice("finish", "结束分配（其余粮保留）"));
         }
-        return Array.AsReadOnly(choices.ToArray());
+        return r.Stage == LiFengStage.DistributionChoice ? PresentCardDistribution(f, choices, "shuliang") : Array.AsReadOnly(choices.ToArray());
     }
     private void PublishLiFeng(ProgramSkillFrame f)
     {

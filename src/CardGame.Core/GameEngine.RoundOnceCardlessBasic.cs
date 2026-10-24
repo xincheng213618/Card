@@ -5,7 +5,7 @@ public sealed partial class GameEngine
  private bool CanUseRoundOnceCardlessBasic(CharacterState actor,IndexedSkillProgramInstance instance,SkillProgramViewAs rule,bool forResponse)
  {
   if(rule.RoundOnceCardlessBasic is not {} p)return true;
-  return _winner==Winner.None&&actor.IsAlive&&_roundNumber>=1&&rule.InputCount==0&&(rule.OutputKind is CardKind.Slash or CardKind.Dodge)&&
+  return rule.Condition.Evaluate(CreateSkillContext(actor))&&_winner==Winner.None&&actor.IsAlive&&_roundNumber>=1&&rule.InputCount==0&&(rule.OutputKind is CardKind.Slash or CardKind.Dodge)&&
    (forResponse?rule.ForResponse:rule.ForPlay&&rule.OutputKind==CardKind.Slash)&&instance.SkillInstanceId is not null&&HasRuntimeSkillInstance(actor,instance.SkillId,instance.SkillInstanceId)&&!RoundOnceCardlessBasicUsed(actor.Seat,instance.SkillId,p.UsageGroup)&&!IsCardUseForbidden(actor.Seat,rule.OutputKind,forResponse?CardActionType.Response:CardActionType.Use)&&IsMouGuquCardlessAllowed(actor,rule.OutputKind,forResponse);
  }
  private RoundOnceCardlessBasicPaymentReceipt ConsumeRoundOnceCardlessBasic(CardConversionSource source,bool forResponse)

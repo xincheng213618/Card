@@ -62,12 +62,8 @@ public sealed partial class GameEngine
     private void InitializeEquipmentSlotNamedNativeTier()
     {
         foreach (var actor in _players)
-            if (GetSkillBindingShard(actor).ProgramInstances.Any(i => IsEquipmentSlotNamedSkill(i.SkillId)) &&
-                _configuredConversionTiers.GetValueOrDefault((actor.Seat, EquipmentSlotNamedTier)) != 2)
-            {
-                _configuredConversionTiers[(actor.Seat, EquipmentSlotNamedTier)] = 2;
-                AdvanceEventRulesAndQueueFact(new ConfiguredConversionTierChangedEvent(actor.Seat, EquipmentSlotNamedTier, 2));
-            }
+            if (GetSkillBindingShard(actor).ProgramInstances.Any(i => IsEquipmentSlotNamedSkill(i.SkillId)))
+                CommitConfiguredConversionTier(actor, EquipmentSlotNamedTier, 2);
     }
     [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 26100)]
     private bool HideInternalEquipmentSlotPayment(CharacterState owner, SkillProgramActivation activation) =>

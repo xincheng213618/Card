@@ -26,7 +26,7 @@ public enum SkillRuleOperation { Add, Set, Unlimited }
 public enum SkillRuleRecipientScope { Owner = 0, OtherPublicTeamAllies = 1 }
 public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600, PublicLivingFactionCount = 5200, OwnerMaxHp = 5600, NegatedLivingFemaleCount = 21400, NegatedCurrentRoundActualUseCount = 27260, PublicTeamEnemyCount = 27600, OtherPublicTeamAllyCount = 27602, CurrentTurnDrawPhaseDrawCountHalfFloor = 27900 }
 public enum SkillRuleQueryDependency { MarkerState }
-public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, SelectedTargetIsOther, SelectedTargetHandGreaterThanOwner, PindianWon, PindianNotWon, BooleanState, All, Any, Not, FaceDown, Chained, ChoiceIs, BoundCardsSameColor, BoundCardsMatchCategories, BoundCardsMatchKinds = 20, HasClaimableDamageCards = 21, AttackRangeCoverageDecreased = 22, HasOwnedCardCategory = 23, BoundCardCountAtLeast = 24, ActivationCardCountAtLeast = 25, ClassicIdentityMode = 26, BoundCardSuitMatchesChoice = 27, BoundCardsMatchSuits = 28, BoundCardCategoryMatchesCardAction = 29, EventTargetGenderIs = 30, EventSourceGenderIs = 31, SelectedTargetWounded = 820, RuntimeBooleanState = 450, PublicCounterAtLeast = 451, PublicCounterOdd = 452, HandCountGreaterThanHp = 1020, PositiveHandLimit = 1021, HasUsableHandCard = 1022, RequestedSlashDamagedOwner = 1023, PreviousPlayCardIsBasic = 1024, NoWeapon = 11300, NoArmor = 22501, NoMounts = 22502, NoTreasure = 22503, JudgmentOutcomeMatchesSuits = 14400 }
+public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, SelectedTargetIsOther, SelectedTargetHandGreaterThanOwner, PindianWon, PindianNotWon, BooleanState, All, Any, Not, FaceDown, Chained, ChoiceIs, BoundCardsSameColor, BoundCardsMatchCategories, BoundCardsMatchKinds = 20, HasClaimableDamageCards = 21, AttackRangeCoverageDecreased = 22, HasOwnedCardCategory = 23, BoundCardCountAtLeast = 24, ActivationCardCountAtLeast = 25, ClassicIdentityMode = 26, BoundCardSuitMatchesChoice = 27, BoundCardsMatchSuits = 28, BoundCardCategoryMatchesCardAction = 29, EventTargetGenderIs = 30, EventSourceGenderIs = 31, SelectedTargetWounded = 820, SelectedTargetHpGreaterThanOwner = 47200, RuntimeBooleanState = 450, PublicCounterAtLeast = 451, PublicCounterOdd = 452, HandCountGreaterThanHp = 1020, PositiveHandLimit = 1021, HasUsableHandCard = 1022, RequestedSlashDamagedOwner = 1023, PreviousPlayCardIsBasic = 1024, NoWeapon = 11300, NoArmor = 22501, NoMounts = 22502, NoTreasure = 22503, JudgmentOutcomeMatchesSuits = 14400 }
 public enum SkillProgramTriggerConditionKind
 {
     Always,
@@ -138,6 +138,7 @@ public enum SkillProgramComparisonOperator
 }
 public enum SkillProgramTargetKind
 {
+    MobileShiChenQunMaximumLoss = 47302,
     NianDeadAlly = 27930,
     OtherLivingHpAtLeastOwner = 27500,
     OtherLivingChained = 27501,
@@ -253,6 +254,35 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    SelectMobileShiKaijiTargets = 47400,
+    BindMobileShiKaijiReward = 47401,
+    ChooseMobileShiShepan = 47402,
+    ResolveMobileShiShepan = 47403,
+    ResolveMobileShiTianFeng = 47500,
+    ResolveMobileShiChenZhiQuanchong = 47600,
+    ResolveMobileShiChenZhiRenxing = 47601,
+    ResolveMobileShiDongZhaoMiaolue = 47700,
+    ResolveMobileShiDongZhaoYingjia = 47701,
+    ResolveMobileShiWanglie = 47800,
+    ResolveMobileShiHongyi = 47801,
+    ResolveMobileShiHuangZuChizhang = 47900,
+    ResolveMobileShiHuangZuStore = 47901,
+    ResolveMobileShiHuangZuPhaseUse = 47902,
+    ResolveMobileShiHuangZuRecast = 47903,
+    ResolveMobileShiGuoYuanQingdao = 48100,
+    ResolveMobileShiGuoYuanXiugeng = 48101,
+    ResolveMobileShiGuoYuanChenshe = 48102,
+    ResolveMobileShiXinXianYingJiejie = 48200,
+    ResolveMobileShiXinXianYingQingshi = 48201,
+    ResolveMobileShiHuanJieGongmou = 48300,
+    ResolveMobileShiHuanJieZhengshuo = 48301,
+    ResolveMobileShiZhuangshi = 47100,
+    ResolveMobileShiYinzhan = 47101,
+    ResolveMobileShiZhongao = 47102,
+    ResolveMobileShiKuanggu = 47103,
+    ResolveMobileShiXiahouShangTanfeng = 47200,
+    ClaimMobileShiChenQunFaenDebt = 47300,
+    IssueMobileShiChenQunFaenDebt = 47301,
     ResolveShenGuoJiaHuishi = 38000,
     ResolveShenGuoJiaTianyi = 38001,
     ResolveShenGuoJiaHuishiGrant = 38002,
@@ -500,6 +530,29 @@ public enum SkillProgramEffectOp
     ResolveMobileHeQiShanxiView = 50100,
     ResolveBoundaryLiuFengXiansi = 50200,
     ResolveBoundaryLiuFengQinling = 50201,
+    ResolveMobileShiLuSuHaoshi = 48900,
+    ResolveMobileShiLuSuDimeng = 48901,
+    ResolveMobileShiLuSuHaoshiRefill = 48902,
+    ResolveMobileShiHeQiQizhouMark = 49000,
+    ResolveMobileShiHeQiQizhouDraw = 49001,
+    ResolveMobileShiHeQiYingjiCleanup = 49002,
+    ResolveMobileShiSunChenNigu = 49100,
+    ResolveMobileShiSunChenLulian = 49101,
+    ResolveMobileShiXiongtu = 49200,
+    ResolveMobileShiXiongtuDamageBenefit = 49201,
+    ResolveMobileShiCaoZhenSifengPlace = 49900,
+    ResolveMobileShiCaoZhenSifengUse = 49901,
+    ResolveMobileShiCaoZhenSifengEnd = 49902,
+    ResolveMobileShiDengAiGain = 50300,
+    ResolveMobileShiDengAiFull = 50301,
+    ResolveMobileShiDengAiTuntian = 50302,
+    ResolveMobileShiDengAiJixi = 50303,
+    ResolveMobileShiDengAiTargets = 50304,
+    ResolveMobileShiXiaoQiaoHeyun = 50400,
+    ResolveMobileShiXiaoQiaoYinhui = 50401,
+    ResolveMobileShiZhangYanFeijing = 50500,
+    ResolveMobileShiZhangYanXiaogePrevent = 50501,
+    ResolveMobileShiZhangYanXiaogeDuel = 50502,
     InitializeMouDongChengBaojia = 37400, ResolveMouDongChengBaojia = 37401, ClaimMouDongChengBaojia = 37402, ResolveMouDongChengDouwei = 37403, ResolveMouDongChengDelayedSettlement = 37404,
     StartMouHuLieChuanyu = 37500,
     RegiveMouHuLieChuanyu = 37501,
@@ -610,6 +663,10 @@ public enum SkillProgramEffectOp
     ResolveShiTzZhanlie = 63342,
     ResolveShiTzRespondGate = 63343,
     ResolveShiTzZhenfeng = 63344,
+    ResolveShiZhHuiSizi = 63350,
+    ResolveShiZhHuiSiziEnding = 63351,
+    ResolveShiZhHuiXiezhi = 63352,
+    ResolveShiZhHuiYunan = 63353,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,
@@ -1708,7 +1765,9 @@ public enum SkillProgramNumberExpression
     EquipmentHalfCeilingPlusOne = 9000,
     ActualTurnDeathBenefits = 4721,
     LiveOwnerLostHp = 40800,
-    OwnerMaxHp = 43000
+    OwnerMaxHp = 43000,
+    FourMinusHandCount = 47000,
+    HandCountMinusFour = 47001
 }
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
@@ -1789,8 +1848,8 @@ public sealed class SkillProgramCondition
     public GeneralGender? Gender { get; }
 
     internal bool RequiresHandLimitContext { get; }
-    internal bool ReferencesOwnerHp => Kind is SkillProgramConditionKind.Wounded or SkillProgramConditionKind.HpAtLeast or SkillProgramConditionKind.HandCountGreaterThanHp || Children.Any(child => child.ReferencesOwnerHp);
-    internal bool ReferencesSelectedTargetHp => Kind == SkillProgramConditionKind.SelectedTargetWounded || Children.Any(child => child.ReferencesSelectedTargetHp);
+    internal bool ReferencesOwnerHp => Kind is SkillProgramConditionKind.Wounded or SkillProgramConditionKind.HpAtLeast or SkillProgramConditionKind.HandCountGreaterThanHp or SkillProgramConditionKind.SelectedTargetHpGreaterThanOwner || Children.Any(child => child.ReferencesOwnerHp);
+    internal bool ReferencesSelectedTargetHp => Kind is SkillProgramConditionKind.SelectedTargetWounded or SkillProgramConditionKind.SelectedTargetHpGreaterThanOwner || Children.Any(child => child.ReferencesSelectedTargetHp);
 
     internal bool EvaluateOption(PlayerSkillContext context, Func<bool> hasClaimableDamageCards,
         Func<string, bool>? attackRangeCoverageDecreased = null,
@@ -1967,6 +2026,8 @@ public sealed class SkillProgramCondition
                 selectedTarget is not null && selectedTarget.Seat != context.Seat,
             SkillProgramConditionKind.SelectedTargetHandGreaterThanOwner =>
                 selectedTarget is not null && selectedTarget.HandCount > context.HandCount,
+            SkillProgramConditionKind.SelectedTargetHpGreaterThanOwner =>
+                !context.HpUndefined && selectedTarget is { HpUndefined: false } && selectedTarget.Hp > context.Hp,
             SkillProgramConditionKind.All => Children.All(child => child.Evaluate(context, selectedTarget, pindianWon, booleanState, cardUseIsRed, choiceResult, boundCardsSameColor, boundCardsMatchCategories, boundCardsMatchKinds, attackRangeCoverageDecreased, boundCardCount, activationCardCount, boundCardSuitMatchesChoice, boundCardsMatchSuits, boundCardCategoryMatchesCardAction, eventTargetIsFemale, eventSourceIsFemale, requestedSlashDamagedOwner)),
             SkillProgramConditionKind.Any => Children.Any(child => child.Evaluate(context, selectedTarget, pindianWon, booleanState, cardUseIsRed, choiceResult, boundCardsSameColor, boundCardsMatchCategories, boundCardsMatchKinds, attackRangeCoverageDecreased, boundCardCount, activationCardCount, boundCardSuitMatchesChoice, boundCardsMatchSuits, boundCardCategoryMatchesCardAction, eventTargetIsFemale, eventSourceIsFemale, requestedSlashDamagedOwner)),
             SkillProgramConditionKind.Not => !(context.HpUndefined && ReferencesOwnerHp || selectedTarget?.HpUndefined == true && ReferencesSelectedTargetHp) && !MissingEquipmentPresence(context) && !Children[0].Evaluate(context, selectedTarget, pindianWon, booleanState, cardUseIsRed, choiceResult, boundCardsSameColor, boundCardsMatchCategories, boundCardsMatchKinds, attackRangeCoverageDecreased, boundCardCount, activationCardCount, boundCardSuitMatchesChoice, boundCardsMatchSuits, boundCardCategoryMatchesCardAction, eventTargetIsFemale, eventSourceIsFemale, requestedSlashDamagedOwner),
@@ -4806,7 +4867,13 @@ public sealed class SkillProgramCatalog
             string.Equals(privateChoiceOp.GetString(), "resolveWuZhugeLiangQingshi", StringComparison.OrdinalIgnoreCase) &&
             privateChoiceEffects[0].TryGetProperty("target", out var privateChoiceTarget) && privateChoiceTarget.ValueKind == JsonValueKind.String &&
             string.Equals(privateChoiceTarget.GetString(), "owner", StringComparison.OrdinalIgnoreCase);
-        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted && !contractedCommittedSingleAction && !committedPrivateChoiceSingleAction && !huoxinSingleAction && !bingcaiSingleAction &&
+        var shiHuangZuSingleAction = skillId == "mobile:shi-chizhang" && id == "hand-damage-colors" &&
+            window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
+            node.TryGetProperty("effects", out var shiHzEffects) && shiHzEffects.ValueKind == JsonValueKind.Array && shiHzEffects.GetArrayLength() == 3 &&
+            shiHzEffects[0].TryGetProperty("op", out var shiHzSelect) && shiHzSelect.ValueKind == JsonValueKind.String && shiHzSelect.GetString() == "selectOwnedCards" &&
+            shiHzEffects[1].TryGetProperty("op", out var shiHzBind) && shiHzBind.ValueKind == JsonValueKind.String && shiHzBind.GetString() == "resolveMobileShiHuangZuChizhang" &&
+            shiHzEffects[2].TryGetProperty("op", out var shiHzMove) && shiHzMove.ValueKind == JsonValueKind.String && shiHzMove.GetString() == "moveBoundCards";
+        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted && !contractedCommittedSingleAction && !committedPrivateChoiceSingleAction && !huoxinSingleAction && !bingcaiSingleAction && !shiHuangZuSingleAction &&
             !actorHandLimitInstruction && !friendSingleAction && !paidMeiYingSingleAction && !leiluanPaidSingleAction && !xieweiPaidSingleAction && !zixiUniqueTargetSingleAction &&
             !(window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
                 node.TryGetProperty("effects", out var designatedEffects) && designatedEffects.ValueKind == JsonValueKind.Array &&
@@ -5525,7 +5592,7 @@ public sealed class SkillProgramCatalog
             var valid = window switch
             {
                 SkillProgramTriggerWindow.TurnStartBeforeNormalFlow =>
-                    effect.SkippedPhases.All(phase => phase is SkillProgramTurnPhase.Judgment or SkillProgramTurnPhase.Draw),
+                    effect.SkippedPhases.All(phase => phase is SkillProgramTurnPhase.Judgment or SkillProgramTurnPhase.Draw or SkillProgramTurnPhase.Play),
                 SkillProgramTriggerWindow.JudgmentPhaseStarting =>
                     effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Judgment]),
                 SkillProgramTriggerWindow.DrawPhaseStarting =>
@@ -5606,7 +5673,8 @@ public sealed class SkillProgramCatalog
                 SkillProgramTriggerWindow.JudgmentFinalized or
                 SkillProgramTriggerWindow.DiscardPhaseEnded or
                 SkillProgramTriggerWindow.OtherActualUseTargeted) &&
-            !(window == SkillProgramTriggerWindow.CardsGained && movementOccurrence == SkillProgramMovementOccurrence.PerSourceOwner))
+            !(window == SkillProgramTriggerWindow.CardsGained && movementOccurrence == SkillProgramMovementOccurrence.PerSourceOwner) &&
+            !contractedCommittedSingleAction)
             Fail(path + ".effects", "eventSource requires a damage-applied, judgment or discard-phase-ended trigger");
         if (window == SkillProgramTriggerWindow.JudgmentReplacing &&
             (effects[0].Op is not (SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement or SkillProgramEffectOp.ReplaceJudgmentFromPublicRice) ||
@@ -5883,7 +5951,14 @@ public sealed class SkillProgramCatalog
         PublicPileCashOutContract.ValidateTrigger(path, parsedTrigger);
         GiftedSlashRewardContract.ValidateTrigger(path, parsedTrigger);
         DrawAdviceContract.ValidateTrigger(path, parsedTrigger);
+        var isXiugengRecordedDraw = skillId == "mobile:shi-xiugeng" && id == "compare-record" &&
+            subject == SkillProgramTriggerSubject.Owner && turnOwnerScope == SkillProgramTurnOwnerScope.AnyLiving && !optional &&
+            drawPhaseMode == SkillProgramDrawPhaseMode.Additive && condition.Kind == SkillProgramTriggerConditionKind.Always &&
+            usageScope is null && usageLimit is null && choiceGroup is null &&
+            effects is [{ Op: SkillProgramEffectOp.ResolveMobileShiGuoYuanXiugeng, Target: SkillProgramEffectTarget.Owner,
+                TargetReference: null, ActorReference: null, Condition.Kind: SkillProgramConditionKind.Always }];
         if (window == SkillProgramTriggerWindow.DrawPhaseStarting && turnOwnerScope != SkillProgramTurnOwnerScope.Own &&
+            !isXiugengRecordedDraw &&
             (turnOwnerScope != SkillProgramTurnOwnerScope.OtherLiving || subject != SkillProgramTriggerSubject.Owner || !optional ||
              drawPhaseMode != SkillProgramDrawPhaseMode.Additive || condition.Kind != SkillProgramTriggerConditionKind.Always ||
              usageScope is not null || usageLimit is not null || choiceGroup is not null ||

@@ -58,10 +58,12 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         var chooserRef = r.RequiredParticipantReference("chooserRef");
         var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
         if(destination == SkillProgramCardDestination.DrawPileTop &&
-            (chooserRef.Kind != ProgramParticipantRef.Owner || cardOwnerRef.Kind != ProgramParticipantRef.Owner ||
+            (chooserRef.Kind != ProgramParticipantRef.Owner ||
+             cardOwnerRef.Kind != ProgramParticipantRef.Owner &&
+                 !(cardOwnerRef.Kind == ProgramParticipantRef.Actor && r.Condition().Kind == SkillProgramConditionKind.ChoiceIs) ||
              zones is not [CardZoneKind.Hand] || !r.Has("resultBind") ||
              !r.Has("awaitMovementTriggers") || !r.RequiredBool("awaitMovementTriggers")))
-            throw new InvalidOperationException("A top-deck payment requires one owner hand card, resultBind and awaited movement.");
+            throw new InvalidOperationException("A top-deck move requires an owner chooser, one owner hand card or a choice-gated card actor hand card, resultBind and awaited movement.");
         var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");
         if (cardCategories is { Count: 0 })
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: must not be empty when specified.");
@@ -123,10 +125,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         var optionalEquipmentDiscard = effect.FreezeMovedCardSuit && effect.AwaitMovementTriggers &&
             effect.Destination == SkillProgramCardDestination.DiscardPile && effect.CardCategories is [SkillProgramCardCategory.Equipment] &&
             effect.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget && effect.CardOwnerRef?.Kind == ProgramParticipantRef.SelectedTarget;
+        var foreignHandTop = effect.Destination == SkillProgramCardDestination.DrawPileTop && effect.AwaitMovementTriggers &&
+            effect.ChooserRef?.Kind == ProgramParticipantRef.Owner && effect.CardOwnerRef?.Kind == ProgramParticipantRef.Actor &&
+            effect.Zones is [CardZoneKind.Hand] && effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs;
         if (effect.FreezeMovedCardSuit && (effect.ResultBind is null || effect.SkipIfNoCards && !optionalEquipmentDiscard))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: freezing a moved suit requires a nonempty resultBind selection.");
         if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null &&
-            !(optionalEquipmentDiscard && effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs))
+            !(optionalEquipmentDiscard && effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs) && !foreignHandTop)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");
         if (effect.CoverageResultBind is not null &&

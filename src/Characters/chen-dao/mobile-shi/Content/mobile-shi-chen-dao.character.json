@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:chen-dao",
+  "skills": [
+    {
+      "registrationOrder": 47800,
+      "programBundle": "mobile-shi-chen-dao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-wanglie",
+        "name": "往烈",
+        "description": "出牌阶段开始时，你可以选择一张手牌，你于此阶段内：使用此牌无距离限制且不可被响应；使用此牌结算结束后不能再对其他角色使用牌。",
+        "executionForms": "State, Trigger"
+      }
+    },
+    {
+      "registrationOrder": 47801,
+      "programBundle": "mobile-shi-chen-dao",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-hongyi",
+        "name": "弘毅",
+        "description": "锁定技，游戏开始时，你获得2个“毅”标记；当你造成或受到伤害后，你获得1个“毅”标记；你至多拥有4个“毅”标记。准备阶段（X为你此时拥有的“毅”标记数），你选择执行一项，并于结束阶段执行另一项：1.摸X张牌；2.清空“毅”标记。",
+        "executionForms": "State, Trigger",
+        "tags": "Locked"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 47810,
+      "pools": {
+        "current": 47810
+      },
+      "definition": {
+        "id": "mobile:shi-chen-dao",
+        "name": "势陈到",
+        "portraitKey": "mobile-shi-chen-dao",
+        "skillId": "mobile:shi-wanglie",
+        "additionalSkillIds": [
+          "mobile:shi-hongyi"
+        ],
+        "factionId": "shu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:chen-dao",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

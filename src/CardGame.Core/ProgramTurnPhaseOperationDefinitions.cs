@@ -18,7 +18,6 @@ internal sealed class SkipTurnPhasesProgramOperationDescriptor : ProgramOperatio
             phases.Distinct().Count() != phases.Count)
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}: phase substitution requires an owner and distinct phases.");
         var effect = new SkillProgramEffect(Op, target, 0, reader.Condition(), skippedPhases: phases);
-        RequireAlways(effect, reader.Path);
         return effect;
     }
 

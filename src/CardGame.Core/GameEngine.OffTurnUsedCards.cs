@@ -59,7 +59,7 @@ public sealed partial class GameEngine
 
     private void CaptureOffTurnResponseUseOrigin(long owningUseId, CardActionContext action)
     {
-        if (!TracksOffTurnUsedCards || action.Type != CardActionType.Response || action.ActorSeat != action.ProviderSeat ||
+        if (!TracksOffTurnUsedCards || action.Type != CardActionType.Response || action.ActorSeat != action.ProviderSeat && !IsShiLsAutonomousResponse(action) ||
             action.RequesterSeat is not null || action.ResponderSeat != action.ActorSeat || action.ParentActionId is not null ||
             action.OpponentSeat is not { } opponent || !IsValidPlayerSeat(action.ActorSeat) ||
             _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(u => u.Id == owningUseId) is not { Action: null } parent) return;
@@ -81,7 +81,7 @@ public sealed partial class GameEngine
     private bool TryGetOffTurnResponseUse(CardActionContext action, out long useId, out OffTurnUsedCardKind kind)
     {
         useId = 0; kind = default;
-        if (action.Type != CardActionType.Response || action.ActorSeat != action.ProviderSeat ||
+        if (action.Type != CardActionType.Response || action.ActorSeat != action.ProviderSeat && !IsShiLsAutonomousResponse(action) ||
             action.RequesterSeat is not null || action.ResponderSeat != action.ActorSeat) return false;
         if (action.EffectiveKind == CardKind.Nullification && ActiveNullificationWindow is { DelayedReturn: not null } delayed &&
             HasNullificationEffectOwner(delayed) && action.ParentActionId is null && action.OpponentSeat == delayed.SourceSeat)

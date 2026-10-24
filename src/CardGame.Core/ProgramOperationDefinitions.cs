@@ -433,7 +433,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
                 new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.CardAction |
                     ProgramContextCapability.Damage | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner) },
             ProgramParticipantRef.EventSource =>
-                new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.Damage | ProgramContextCapability.MovementSource | ProgramContextCapability.ActualUseSource) },
+                new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.Damage | ProgramContextCapability.MovementSource | ProgramContextCapability.ActualUseSource | ProgramContextCapability.CardAction) },
             ProgramParticipantRef.SelectedTarget =>
                 new ProgramResourceOperation[] { new ReadSelectedTarget() },
             ProgramParticipantRef.SelectedFirst =>
@@ -475,7 +475,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         if (expression is not null && (r.Has("amount") || expression is not
                 (SkillProgramNumberExpression.LivingFactionCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount or
                  SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
-                 SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
+                 SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or SkillProgramNumberExpression.FourMinusHandCount or
                  SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord or
                  SkillProgramNumberExpression.PhaseSkillUsage or SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount or SkillProgramNumberExpression.ActualTurnDeathBenefits or
                  SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount or SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne or

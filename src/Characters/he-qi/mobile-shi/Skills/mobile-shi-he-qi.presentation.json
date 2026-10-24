@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shi-shanxi": { "name": "闪袭", "description": "出牌阶段每名角色限一次，你可以将一张应机牌当【决斗】对一名其他角色使用。" },
+    "mobile:shi-qizhou": { "name": "绮胄", "description": "有牌进入你的判定区或装备区后，你可以将一名角色的一张手牌标记为应机牌；若此牌为【杀】，你下次以此法发动后摸两张应机牌。摸牌阶段，你额外摸两张应机牌。每名角色的回合结束后，所有角色手牌中的应机牌置入弃牌堆。",
+      "booleanStates": { "next-mark-draw": { "trueText": "下次发动标记后摸两张应机牌", "falseText": "尚未积累下次标记奖励" } } }
+  }
+}

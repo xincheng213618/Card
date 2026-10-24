@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:sun-jun",
+  "skills": [
+    { "registrationOrder": 49200, "programBundle": "mobile-shi-sun-jun", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-xiongtu", "name": "凶图", "description": "出牌阶段限一次，你可展示一名其他角色的一张手牌，并选择一项：1.弃置之；2.弃置X张牌并对其造成1点伤害（X为本回合未进入过弃牌堆的花色数）。若如此做，本回合你不因此技能造成伤害后，你摸一张牌，然后此技能本阶段改为限两次。", "actionForms": "Active", "executionForms": "Trigger" } },
+    { "registrationOrder": 49201, "programBundle": null, "includeProgramPresentation": false,
+      "definition": { "id": "mobile:shi-xianshuai", "name": "先率", "description": "锁定技，你回合内首次使用一种花色的手牌时，不计入次数且无次数限制。", "tags": "Locked", "executionForms": "State" } }
+  ],
+  "generals": [
+    { "registrationOrder": 49202, "pools": { "current": 49202 },
+      "definition": { "id": "mobile:shi-sun-jun", "name": "势孙峻", "portraitKey": "mobile-shi-sun-jun", "skillId": "mobile:shi-xiongtu", "additionalSkillIds": ["mobile:shi-xianshuai"], "factionId": "wu", "baseHp": 3, "gender": "Male", "characterId": "character:sun-jun", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile" } }
+  ]
+}

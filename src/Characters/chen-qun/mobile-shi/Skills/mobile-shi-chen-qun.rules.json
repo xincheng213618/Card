@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-dingpin", "revision": 1,
+      "triggers": [{
+        "id": "maximum-loss-ending", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "anyLiving",
+        "optional": true, "usageScope": "round", "usageLimit": 1,
+        "effects": [
+          {"op": "selectTarget", "target": "owner", "targetKind": "mobileShiChenQunMaximumLoss"},
+          {"op": "draw", "target": "selectedTarget", "amount": 2}
+        ]
+      }]
+    },
+    {
+      "id": "mobile:shi-faen", "revision": 1,
+      "triggers": [
+        {
+          "id": "faen-next-use", "priority": 2, "window": "cardUseCommitted", "ownerRelation": "observer",
+          "includeResponseUses": true, "singleActionInstance": true, "optional": false, "isSkillInvocation": false,
+          "effects": [
+            {"op": "claimMobileShiChenQunFaenDebt", "target": "owner"},
+            {"op": "draw", "target": "owner", "targetRef": {"kind": "eventSource"}, "amount": 1,
+              "condition": {"kind": "choiceIs", "sourceBind": "faen-effect", "optionId": "draw"}},
+            {"op": "selectOwnedCards", "target": "owner", "targetRef": {"kind": "eventSource"}, "zones": ["hand", "equipment"], "amount": 1, "resultBind": "faen-discard",
+              "condition": {"kind": "choiceIs", "sourceBind": "faen-effect", "optionId": "discard"}},
+            {"op": "moveBoundCards", "target": "owner", "sourceBind": "faen-discard", "destination": "discardPile", "awaitMovementTriggers": true,
+              "condition": {"kind": "choiceIs", "sourceBind": "faen-effect", "optionId": "discard"}},
+            {"op": "issueMobileShiChenQunFaenDebt", "target": "owner"}
+          ]
+        },
+        {
+          "id": "faen-use", "priority": 1, "window": "cardUseCommitted", "ownerRelation": "observer",
+          "includeResponseUses": true, "singleActionInstance": true, "optional": true, "usageScope": "turn", "usageLimit": 2,
+          "effects": [
+            {"op": "claimMobileShiChenQunFaenDebt", "target": "owner"},
+            {"op": "draw", "target": "owner", "targetRef": {"kind": "eventSource"}, "amount": 1,
+              "condition": {"kind": "choiceIs", "sourceBind": "faen-effect", "optionId": "draw"}},
+            {"op": "selectOwnedCards", "target": "owner", "targetRef": {"kind": "eventSource"}, "zones": ["hand", "equipment"], "amount": 1, "resultBind": "faen-discard",
+              "condition": {"kind": "choiceIs", "sourceBind": "faen-effect", "optionId": "discard"}},
+            {"op": "moveBoundCards", "target": "owner", "sourceBind": "faen-discard", "destination": "discardPile", "awaitMovementTriggers": true,
+              "condition": {"kind": "choiceIs", "sourceBind": "faen-effect", "optionId": "discard"}},
+            {"op": "issueMobileShiChenQunFaenDebt", "target": "owner"}
+          ]
+        }
+      ]
+    }
+  ]
+}

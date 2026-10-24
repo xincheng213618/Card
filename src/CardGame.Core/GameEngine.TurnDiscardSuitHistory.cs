@@ -5,7 +5,8 @@ public sealed record TurnDiscardSuitMaskChangedEvent(int TurnNumber, int SuitMas
 
 public sealed partial class GameEngine
 {
-    private bool TracksTurnDiscardSuits => _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.TurnDiscardIncludesAllSuits);
+    private bool TracksTurnDiscardSuits => _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.TurnDiscardIncludesAllSuits) ||
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveMobileShiXiongtu);
     private int CurrentTurnDiscardSuitMask => CompleteProgramEventHistory().OfType<TurnDiscardSuitMaskChangedEvent>()
         .LastOrDefault(e => e.TurnNumber == _turnNumber)?.SuitMask ?? 0;
     private void CaptureTurnDiscardSuitFact(int turn, IReadOnlyList<CardMovementRecord> movements)

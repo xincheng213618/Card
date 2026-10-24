@@ -38,36 +38,43 @@ internal static class KongShuUiChecks
             var root = (FrameworkElement)window.Content;
             var moves = game.CardMovements.Count;
             CheckChoices();
-            var first = Pick();
-            Program.Assert(game.CardMovements.Count == moves && Branches().Contains("unpick"),
-                "Picking one card must retain the native undo choice and leave the payment unpaid.");
+            var choice = game.CreateSnapshot(0).PendingDecision!.Choices.First(c => c.Parameters.GetValueOrDefault("branch") == "pick");
+            var first = choice.Cards.Single();
+            Accept(new AnswerPromptCommand(0, game.PendingDecision!.PromptId, choice.Id, game.Revision));
+            Program.Assert(game.CardMovements.Count == moves && game.PendingDecision!.Choices.Any(c => c.Parameters.GetValueOrDefault("branch") == "unpick"),
+                "A native partial selection retains undo without moving the unpaid cards.");
             Save(); model.LoadManualGameCommand.Execute(null); game = Program.Engine(model); CheckChoices();
-            model.SelectSkillChoiceCommand.Execute(model.SkillChoices.Single(c => c.Parameters.GetValueOrDefault("branch") == "unpick"));
+            Program.Assert(model.Hand.Single(card => card.Id == first).IsSelected,
+                "Cold recovery highlights the actual selected entity from its native undo choice.");
+            model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == first));
             Program.Assert(!Branches().Contains("unpick") && game.CardMovements.Count == moves,
                 "Cold recovery must keep the exact selected card undoable without discarding it.");
-            first = Pick(); var second = Pick(); CheckChoices();
+            var ids = game.CreateSnapshot(0).PendingDecision!.Choices.Where(c => c.Parameters.GetValueOrDefault("branch") == "pick")
+                .Select(c => c.Cards.Single()).Take(2).ToArray();
+            var commands = game.AcceptedCommands.Count;
+            foreach (var id in ids) model.SelectCardCommand.Execute(model.Hand.Single(card => card.Id == id));
+            typeof(MainViewModel).GetMethod("RefreshCurrentView", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!.Invoke(model, null);
+            CheckChoices();
+            Program.Assert(model.Hand.Count(card => card.IsSelected) == 2 && model.CanConfirmSelected &&
+                game.AcceptedCommands.Count == commands && game.CardMovements.Count == moves,
+                "Both cards survive refresh in the unpaid local draft; selecting the second never drops or pays the first.");
             Program.Render(root, 1120, 740, Path.Combine(output, "fuchao-two-card-confirm.png"));
-            var finish = model.SkillChoices.Single(c => c.Parameters.GetValueOrDefault("branch") == "discard");
-            model.SelectSkillChoiceCommand.Execute(finish);
+            model.ConfirmSelectedCommand.Execute(null);
             var discarded = game.CardMovements.Skip(moves).Where(m => m.Reason.Value == "skill-program.kong-shu.fuchao.discard").ToArray();
-            Program.Assert(discarded.Length == 2 && discarded.Select(m => m.CardId).ToHashSet().SetEquals([first, second]) &&
+            Program.Assert(discarded.Length == 2 && discarded.Select(m => m.CardId).ToHashSet().SetEquals(ids) &&
                 discarded.All(m => m.From == CardLocation.Hand(0) && m.To == CardLocation.DiscardPile),
                 "The visible Finish must discard the exact two selected entities together once.");
             GameReplay.Restore(game.CreateCheckpoint(), registry);
 
             string[] Branches() => model.SkillChoices.Select(c => c.Parameters.GetValueOrDefault("branch") ?? "").ToArray();
-            int Pick()
-            {
-                var choice = model.SkillChoices.First(c => c.Parameters.GetValueOrDefault("branch") == "pick");
-                var id = choice.Cards.Single(); model.SelectSkillChoiceCommand.Execute(choice); return id;
-            }
             void CheckChoices()
             {
-                Program.Assert(!model.IsHandResponsePending && !model.IsCardPaymentSelectionPending && model.HasCenterChoices,
-                    "Incremental pick/undo commands must remain visible instead of becoming a one-card response/payment confirmation.");
+                Program.Assert(model.IsOwnedCardSelectionPending && !model.IsHandResponsePending && !model.IsCardPaymentSelectionPending,
+                    "Native incremental discards must use the shared hand multi-selection rather than singleton payment.");
                 root.Measure(new Size(1120, 740)); root.Arrange(new Rect(0, 0, 1120, 740)); root.UpdateLayout();
-                Program.Assert(Program.Find<Button>(root).Any(b => b.Visibility == Visibility.Visible && b.IsEnabled && b.Command == model.SelectSkillChoiceCommand),
-                    "The actual table must expose enabled incremental selection controls.");
+                Program.Assert(Program.Find<Button>(root).Any(b => b.Visibility == Visibility.Visible && b.Command == model.ConfirmSelectedCommand),
+                    "The actual table must expose the common explicit confirmation control.");
             }
         }
         finally { window.Content = null; window.Close(); }

@@ -440,7 +440,7 @@
                                 <Style TargetType="Grid">
                                     <Setter Property="Grid.Row" Value="1" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="Grid.Row" Value="0" /><Setter Property="Grid.RowSpan" Value="2" /></DataTrigger>
+                                        <DataTrigger Binding="{Binding IsHarvestDisplayVisible}" Value="True"><Setter Property="Grid.Row" Value="0" /><Setter Property="Grid.RowSpan" Value="2" /></DataTrigger>
                                         <DataTrigger Binding="{Binding HasTargetCardPicker}" Value="True"><Setter Property="Grid.Row" Value="0" /><Setter Property="Grid.RowSpan" Value="2" /></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -540,7 +540,47 @@
                                 </TextBlock>
                             </StackPanel>
                             </Viewbox>
-                            <Border x:Name="DecisionPanel" CornerRadius="4" Visibility="{Binding HasCenterChoices, Converter={StaticResource BoolToVisibility}}">
+                            <Border x:Name="CardDistributionPanel" Grid.Row="2" VerticalAlignment="Center" Background="#F226231D" BorderBrush="#8F7B58" BorderThickness="1" Padding="12" CornerRadius="4" Visibility="{Binding IsCardDistributionPending, Converter={StaticResource BoolToVisibility}}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="330">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,0,0,8">
+                                            <Button DockPanel.Dock="Right" Content="全选可分配牌" Command="{Binding SelectAllDistributionCardsCommand}" Style="{StaticResource ToolbarButton}" Padding="8,4" />
+                                            <TextBlock Text="先多选牌，再选择去向" Foreground="#F4DCA3" FontSize="16" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                        <ItemsControl x:Name="DistributionCardChoices" Visibility="{Binding ShowDistributionCards, Converter={StaticResource BoolToVisibility}}" ItemsSource="{Binding DistributionCards}" ItemsPanel="{StaticResource ChoicePanel}">
+                                            <ItemsControl.ItemTemplate><DataTemplate>
+                                                <Button Command="{Binding DataContext.SelectDistributionCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTip="{Binding CardHint}" AutomationProperties.Name="{Binding Name}" Margin="3" Padding="4">
+                                                    <Button.Style><Style TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+                                                        <Setter Property="BorderBrush" Value="#70674F" /><Setter Property="BorderThickness" Value="2" />
+                                                        <Style.Triggers><DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter Property="BorderBrush" Value="#FFE2A0" /><Setter Property="Background" Value="#766039" /></DataTrigger></Style.Triggers>
+                                                    </Style></Button.Style>
+                                                    <StackPanel>
+                                                        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" Width="70" Height="98" />
+                                                        <TextBlock Text="{Binding OriginalHandTag}" Foreground="#F4DCA3" FontSize="11" TextAlignment="Center" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate></ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <ItemsControl x:Name="DistributionTargetChoices" ItemsSource="{Binding DistributionDestinations}" ItemsPanel="{StaticResource ChoicePanel}" Margin="0,10,0,4">
+                                            <ItemsControl.ItemTemplate><DataTemplate>
+                                                <Button Command="{Binding DataContext.SelectDistributionTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="4" Padding="8,8" MinWidth="110" MaxWidth="170" AutomationProperties.Name="{Binding Label}">
+                                                    <Button.Style><Style TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+                                                        <Setter Property="BorderBrush" Value="#827451" /><Setter Property="BorderThickness" Value="2" />
+                                                        <Style.Triggers><DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter Property="BorderBrush" Value="#FFE2A0" /><Setter Property="Background" Value="#766039" /></DataTrigger></Style.Triggers>
+                                                    </Style></Button.Style>
+                                                    <TextBlock Text="{Binding Label}" TextWrapping="Wrap" TextAlignment="Center" Foreground="#F4DCA3" />
+                                                </Button>
+                                            </DataTemplate></ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <ItemsControl ItemsSource="{Binding DistributionFinishChoices}" ItemsPanel="{StaticResource ChoicePanel}">
+                                            <ItemsControl.ItemTemplate><DataTemplate>
+                                                <Button Content="{Binding Description}" Command="{Binding DataContext.FinishDistributionCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Padding="8,4" Margin="4" />
+                                            </DataTemplate></ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+                            <Border x:Name="DecisionPanel" CornerRadius="4" Visibility="{Binding HasStandardCenterChoices, Converter={StaticResource BoolToVisibility}}">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Grid.Row" Value="2" />
@@ -550,7 +590,7 @@
                                         <Setter Property="Padding" Value="8" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasPublicRevealedCards}" Value="True"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /></DataTrigger>
-                                            <DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True">
+                                            <DataTrigger Binding="{Binding IsHarvestDisplayVisible}" Value="True">
                                                 <Setter Property="Background" Value="#F2232927" />
                                                 <Setter Property="BorderBrush" Value="#D8B778" />
                                                 <Setter Property="BorderThickness" Value="2" />
@@ -573,14 +613,14 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <TextBlock x:Name="DecisionDescriptionText" Text="{Binding CurrentDecisionContext.Description}" TextWrapping="Wrap" FontSize="12" Foreground="#D1DCCB" Margin="6,1,6,8">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasDecisionContext, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsNullificationSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsGeneralLibrarySelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasDecisionContext, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsGodFactionSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsNullificationSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsGeneralLibrarySelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger><DataTrigger Binding="{Binding IsHarvestDisplayVisible}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <StackPanel x:Name="HarvestSelectionHeader" Visibility="{Binding IsHarvestSelectionPending, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,10">
+                                    <StackPanel x:Name="HarvestSelectionHeader" controls:BattleFeedbackLayer.IsPublicChoiceArea="True" Visibility="{Binding IsHarvestDisplayVisible, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,10">
                                         <DockPanel LastChildFill="False">
                                             <TextBlock Text="五谷丰登 · 选牌区" Foreground="{StaticResource GoldBrush}" FontSize="17" FontWeight="SemiBold" />
                                             <TextBlock DockPanel.Dock="Right" Text="{Binding PublicRevealedCards.Count, StringFormat=剩余 {0} 张}" Foreground="#C8D4CD" FontSize="12" VerticalAlignment="Center" />
                                         </DockPanel>
-                                        <TextBlock Text="轮到你选牌：点击一张牌，获得到手牌中" Foreground="#EFF3E7" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                        <TextBlock Text="{Binding HarvestDisplayHint}" Foreground="#EFF3E7" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0" />
                                         <Border Height="1" Background="#6E9F8F72" Margin="0,10,0,0" />
                                     </StackPanel>
                                     <StackPanel x:Name="GodFactionPanel" Grid.RowSpan="3" Background="#ED231E19" Panel.ZIndex="2" Margin="0,0,0,2" HorizontalAlignment="Stretch" Visibility="{Binding IsGodFactionSelectionPending, Converter={StaticResource BoolToVisibility}}" KeyboardNavigation.TabNavigation="Cycle">
@@ -619,13 +659,13 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                             <TextBlock x:Name="PublicRevealTitleText" Text="{Binding PublicRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5">
-                                                <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                                <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" /><Style.Triggers><DataTrigger Binding="{Binding IsHarvestDisplayVisible}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                             </TextBlock>
                                             <ItemsControl x:Name="PublicRevealedCards" ItemsSource="{Binding PublicRevealedCards}" ItemsPanel="{StaticResource ChoicePanel}" controls:PublicRevealSurface.Timeline="{Binding RevealTimeline, ElementName=BattleFeedback}">
                                                 <ItemsControl.Style>
                                                     <Style TargetType="ItemsControl">
                                                         <Setter Property="ItemTemplate" Value="{StaticResource RevealedCardTemplate}" />
-                                                        <Style.Triggers><DataTrigger Binding="{Binding IsHarvestSelectionPending}" Value="True"><Setter Property="ItemTemplate" Value="{StaticResource HarvestCardTemplate}" /></DataTrigger></Style.Triggers>
+                                                        <Style.Triggers><DataTrigger Binding="{Binding IsHarvestDisplayVisible}" Value="True"><Setter Property="ItemTemplate" Value="{StaticResource HarvestCardTemplate}" /></DataTrigger></Style.Triggers>
                                                     </Style>
                                                 </ItemsControl.Style>
                                             </ItemsControl>

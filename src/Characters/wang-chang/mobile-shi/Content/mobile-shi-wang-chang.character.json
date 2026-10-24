@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:wang-chang",
+  "skills": [
+    {
+      "registrationOrder": 47400, "programBundle": "mobile-shi-wang-chang", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-kaiji", "name": "开济", "description": "准备阶段，你可令至多X名角色各摸一张牌，若有角色因此获得非基本牌，你摸一张牌（X为进入过濒死状态的存活角色数且至少为1）。", "executionForms": "Trigger" }
+    },
+    {
+      "registrationOrder": 47401, "programBundle": "mobile-shi-wang-chang", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-shepan", "name": "慑叛", "description": "每轮每种牌名限一次，每回合限一次，成为其他角色使用伤害牌的目标后，你可摸一张牌或将其一张手牌置于牌堆顶，然后若双方手牌数相同，此牌对你无效。", "executionForms": "Trigger" }
+    }
+  ],
+  "generals": [{
+    "registrationOrder": 47402, "pools": { "current": 47402 },
+    "definition": {
+      "id": "mobile:shi-wang-chang", "name": "势王昶", "portraitKey": "mobile-shi-wang-chang",
+      "skillId": "mobile:shi-kaiji", "additionalSkillIds": ["mobile:shi-shepan"],
+      "factionId": "wei", "baseHp": 3, "gender": "Male", "characterId": "character:wang-chang",
+      "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile"
+    }
+  }]
+}

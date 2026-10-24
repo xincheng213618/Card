@@ -13,7 +13,7 @@ internal static class MoSimaYiComposition
         SkillProgramEffectOp.ResolveMoSimaYiMoubian or SkillProgramEffectOp.ResolveMoSimaYiZhouxi or
         SkillProgramEffectOp.ResolveMoSimaYiRetaliation or SkillProgramEffectOp.ResolveMoSimaYiLieshi;
     internal static bool Ordinary(CardKind k) => CardUseCategoryCatalog.Get(k) == CardUseCategories.InstantTrick && k != CardKind.Nullification;
-    internal static IReadOnlyList<CardKind> Names => Array.AsReadOnly(Enum.GetValues<CardKind>().Where(k =>
+    internal static IReadOnlyList<CardKind> Names => Array.AsReadOnly(Enum.GetValues<CardKind>().Where(k => k != CardKind.MantianGuohai &&
         CardUseCategoryCatalog.Get(k) is CardUseCategories.Basic or CardUseCategories.InstantTrick or CardUseCategories.DelayedTrick).ToArray());
 
     [ProgramCatalogValidation(1610)]

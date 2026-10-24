@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-quanchong", "revision": 1,
+      "triggers": [
+        { "id": "quanchong-ending", "window": "turnEnding", "subject": "owner", "optional": false,
+          "usageScope": "round", "usageLimit": 1,
+          "effects": [{ "op": "resolveMobileShiChenZhiQuanchong", "target": "owner" }] },
+        { "id": "quanchong-extra-start", "window": "turnBeforeStart", "subject": "owner", "optional": false,
+          "isSkillInvocation": false, "priority": 100,
+          "effects": [{ "op": "resolveMobileShiChenZhiQuanchong", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "mobile:shi-renxing", "revision": 1,
+      "triggers": [{
+        "id": "renxing-first-discard", "window": "discardPileReceived", "subject": "owner",
+        "optional": true, "movementDiscardOnly": true,
+        "usageScope": "round", "usageLimit": 2,
+        "effects": [{ "op": "resolveMobileShiChenZhiRenxing", "target": "owner" }]
+      }]
+    }
+  ]
+}

@@ -101,7 +101,7 @@ public sealed partial class GameEngine
             draft.Stage == "owned" ? (handOnly ? "选择任意张手牌，与等量公开牌堆牌交换。" : "选择任意张手牌或装备牌，与等量公开牌堆牌交换。") : draft.Stage == "pile" ? "选择等量公开牌堆牌取回手牌。" : "将全部公开牌堆牌分配给其他角色。",
             choices.SelectMany(choice => choice.Cards).Distinct().ToArray(), choices.SelectMany(choice => choice.Targets).Distinct().ToArray(), draft.OwnerSeat)
         { PromptId = CreatePromptId(), IsPrivate = draft.Stage == "owned", TargetSeat = draft.OwnerSeat,
-            Choices = choices.ToArray(), SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
+            Choices = draft.Stage == "distribute" ? PresentCardDistribution(frame, choices, "public-pile") : choices.ToArray(), SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description) };
         _status = _players[draft.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanCardSelection : EngineStatus.Running;
     }
 
@@ -237,7 +237,7 @@ public sealed partial class GameEngine
     [ProgramRuleObserver(ProgramRulePhase.BeforeStatePublish, 70)]
     private void CleanupLostPublicPersistentPiles()
     {
-        foreach (var source in _publicPersistentPiles.Values.Where(source => !(_players[source.OwnerSeat].IsAlive && IsIssuedMouGszHuPile(source)) && !IsIssuedMouGanNingPile(source) && !IsIssuedMouXiahouDunPile(source) && !IsIssuedBaoXinMutaoPile(source) && !IsIssuedMouSsxZhuang(source) && (!_players[source.OwnerSeat].IsAlive ||
+        foreach (var source in _publicPersistentPiles.Values.Where(source => !(_players[source.OwnerSeat].IsAlive && IsIssuedMouGszHuPile(source)) && !IsIssuedShiHzPile(source) && !IsIssuedMouGanNingPile(source) && !IsIssuedMouXiahouDunPile(source) && !IsIssuedBaoXinMutaoPile(source) && !IsIssuedMouSsxZhuang(source) && (!_players[source.OwnerSeat].IsAlive ||
             !_players[source.OwnerSeat].SkillGrants.Grants.Any(grant => grant.SkillId == source.SkillId && grant.SkillInstanceId == source.SkillInstanceId) && !IsDurableZengdaoPublicPile(source))).ToArray())
         {
             var retainMetadata = RetainIssuedJiyunPile(source);

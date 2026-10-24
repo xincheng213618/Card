@@ -337,6 +337,7 @@ public sealed partial class GameEngine
         if (TryReturnQigongDeclaration(frame, success)) return;
         if (TryReturnJianjiDeclaration(frame, success)) return;
         if (TryReturnAnniversarySunHuanDeclaration(frame, success)) return;
+        if (TryReturnShiGyDeclaration(frame, success)) return;
         if (ReturnMouGyzDeclaration(frame, success)) return;
         if (TryReturnKeBiNengPingduanDeclaration(frame, success)) return;
         if (ReturnMouSmPlayedDeclaration(frame, success)) return;

@@ -6,6 +6,49 @@ internal static class SkillChangeOpeningChecks
 {
     private const string Driver = "fixture:skill-change-opening", Rescue = "fixture:skill-change-rescue";
     private const string Owner = "fixture:skill-change-owner", Mode = "identity:classic-skill-change-opening";
+    private const string PaidObserver = "fixture:skill-change-paid", Acquired = "fixture:skill-change-acquired";
+
+    public static void SharedCapStateAndAcquisitionAfterPaidChildCold()
+    {
+        var s = Scene.Start("shared");
+        s.Reach(() => s.P?.SkillPrompt?.SkillId == Driver);
+        s.BeforeRound(); s.Cold();
+        s.Answer(c => c.Parameters.GetValueOrDefault("option-id") == "commit");
+        s.Reach(() => s.P?.SkillPrompt?.SkillId == PaidObserver);
+        Require(s.V.Hp == 3 && s.E<ProgramSkillHpLostEvent>().Count(e => e.SkillId == Driver) == 1 &&
+            s.E<ConfiguredConversionTierChangedEvent>().Length == 0,
+            "The common change waits for its actual once-paid HP child before issuing an upgrade.");
+        s.Cold(); s.Answer(c => c.Parameters.GetValueOrDefault("option-id") == "continue");
+        s.Reach(() => s.E<SkillsAcquiredEvent>().Any(e => e.SkillIds.Contains(Acquired)));
+        s.BeforeRound();
+        Require(s.V.Hp == 3 && s.V.ConfiguredConversionTiers!["declared-card-tier"] == 2 &&
+            s.E<ConfiguredConversionTierChangedEvent>().Select(e => e.Tier).SequenceEqual([1, 2]) &&
+            s.E<ProgramBooleanStateChangedEvent>().Count(e => e.SkillId == Driver && e.StateId == "upgraded" && e.Value) == 1 &&
+            s.E<SkillsAcquiredEvent>().Count(e => e.SourceSkillId == Driver && e.SkillIds.Contains(Acquired)) == 1 &&
+            s.Has(Acquired) && s.Has(Driver),
+            "A third capped upgrade is a no-op; repeated Boolean assignments and permanent grants preserve one actual change.");
+        s.Cold(); s.Play(); s.Cold();
+        Require(!s.G.IsFaulted && s.V.Hp == 3 && s.E<ProgramSkillHpLostEvent>().Count(e => e.SkillId == Driver) == 1 &&
+            s.E<SkillsAcquiredEvent>().Count(e => e.SkillIds.Contains(Acquired)) == 1,
+            "Cold return retains one payment and one acquisition after the original paid child.");
+    }
+
+    public static void SharedChangeRejectsForeignOwnerInstanceAndCursor()
+    {
+        var s = Scene.Start("shared"); s.Reach(() => s.P?.SkillPrompt?.SkillId == Driver);
+        var frame = s.G.ResolutionStack.OfType<ProgramSkillFrame>().Last();
+        var method = typeof(GameEngine).GetMethod("PrepareProgramSkillChange", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var before = SnapshotJson.Serialize(s.G.CreateSnapshot(0)); var revision = s.G.Revision;
+        foreach (var forged in new[] { frame with { OwnerSeat = 1 }, frame with { SkillInstanceId = "foreign-instance" }, frame with { InstructionIndex = frame.InstructionIndex + 1 } })
+        {
+            var rejected = false;
+            try { method.Invoke(s.G, [forged]); }
+            catch (System.Reflection.TargetInvocationException error) when (error.InnerException is InvalidOperationException) { rejected = true; }
+            Require(rejected && !s.G.IsFaulted && s.G.Revision == revision && SnapshotJson.Serialize(s.G.CreateSnapshot(0)) == before,
+                "A foreign owner, replaced instance or stale instruction is rejected before any skill mutation or payment.");
+        }
+        s.Cold();
+    }
 
     public static void DamageAndDyingChangesBeforeFirstRoundCold()
     {
@@ -116,6 +159,7 @@ internal static class SkillChangeOpeningChecks
             var (bundle, skills) = scenario switch
             {
                 "danxin" => ("classic-guo-huanghou", new[] { "classic:jiaozhao", "classic:danxin" }),
+                "shared" => ("classic-guo-huanghou", new[] { "classic:jiaozhao" }),
                 "fengliang" => ("ordinary-sp-jiang-wei", new[] { "ol:kunfen", "ol:fengliang" }),
                 "niepan" => ("mou-pang-tong-mobile", new[] { "mou-mobile:lianhuan", "mou-mobile:niepan" }),
                 "fuzhan" => ("mou-jiang-wei", new[] { "mou:juemou", "mou:fuzhan" }),
@@ -129,17 +173,39 @@ internal static class SkillChangeOpeningChecks
                 builder.AddSkill(new(id, production.Presentations[id].Name, "Production skill change") { Program = program, ProgramPresentation = production.Presentations[id] });
 
             var damage = scenario is "fengliang" or "niepan" or "fuzhan" ? 4 : 1;
+            var driver = scenario == "shared" ? $$"""
+                {"id":"{{Driver}}","revision":1,"states":[{"id":"upgraded","initialValue":false,"visibility":"public","resetScope":"game","reacquirePolicy":"preserveUntilGameEnd"}],
+                 "viewAs":[{"id":"shared-tier","sourceZones":["hand"],"inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false,"conversionStateId":"declared-card-tier","minimumTier":0,"maximumTier":2}],
+                 "triggers":[{"id":"shared-upgrade","window":"gameStarting","subject":"owner","optional":false,"effects":[
+                   {"op":"chooseOption","target":"owner","resultBind":"accepted","options":[{"id":"commit"}]},
+                   {"op":"loseHp","target":"owner","amount":1},
+                   {"op":"upgradeConversionTier","target":"owner","stateId":"declared-card-tier"},
+                   {"op":"upgradeConversionTier","target":"owner","stateId":"declared-card-tier"},
+                   {"op":"upgradeConversionTier","target":"owner","stateId":"declared-card-tier"},
+                   {"op":"setBooleanState","target":"owner","stateId":"upgraded","value":true},
+                   {"op":"setBooleanState","target":"owner","stateId":"upgraded","value":true},
+                   {"op":"grantSkills","target":"owner","skillIds":["{{Acquired}}"]},
+                   {"op":"grantSkills","target":"owner","skillIds":["{{Acquired}}"]}
+                 ]}]}
+                """ : $$"""
+                {"id":"{{Driver}}","revision":1,"triggers":[{"id":"opening-damage","window":"gameStarting","subject":"owner","priority":-1000,"optional":false,"effects":[{"op":"damage","target":"owner","amount":{{damage}}}]}]}
+                """;
             var fixture = SkillProgramCatalog.Load($$"""
                 {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
-                  {"id":"{{Driver}}","revision":1,"triggers":[{"id":"opening-damage","window":"gameStarting","subject":"owner","priority":-1000,"optional":false,"effects":[{"op":"damage","target":"owner","amount":{{damage}}}]}]},
+                  {{driver}},
+                  {"id":"{{PaidObserver}}","revision":1,"triggers":[{"id":"paid-child","window":"afterHpLost","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid","options":[{"id":"continue"}]}]}]},
                   {"id":"{{Rescue}}","revision":1,"triggers":[{"id":"opening-rescue","window":"dyingEntering","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"recoverTo","target":"owner","numberExpression":"integerConstant","minimumValue":1,"clampToMaxHp":true}]}]}
                 ]}
                 """, JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.PresentationSchemaVersion,
-                    skills = new Dictionary<string, object> { [Driver] = new { name = "Opening damage", description = "Native damage before Round 1" }, [Rescue] = new { name = "Opening rescue", description = "Native Dying exit before Round 1" } } }));
+                    skills = new Dictionary<string, object> {
+                        [Driver] = scenario == "shared" ? new { name = "Shared change", description = "Native change before Round 1", optionLabels = new Dictionary<string, string> { ["commit"] = "Commit" } } : (object)new { name = "Opening damage", description = "Native damage before Round 1" },
+                        [Rescue] = new { name = "Opening rescue", description = "Native Dying exit before Round 1" },
+                        [PaidObserver] = new { name = "Paid HP child", description = "Pause after the actual upgrade cost", optionLabels = new Dictionary<string, string> { ["continue"] = "Continue" } } } }));
             foreach (var (id, program) in fixture.Programs) builder.AddSkill(new(id, id, id) { Program = program });
             builder.AddSkill(new("fixture:skill-change-plain", "Plain", "No effects"));
+            builder.AddSkill(new(Acquired, "Acquired", "Permanent source"));
             builder.AddGeneral(new(Owner, "Opening skill owner", "supporter", skills[0], "wei", 3,
-                skills.Skip(1).Concat([Driver]).Concat(scenario == "fuzhan" ? [Rescue] : []).ToArray()));
+                skills.Skip(1).Concat([Driver]).Concat(scenario == "fuzhan" ? [Rescue] : []).Concat(scenario == "shared" ? [PaidObserver] : []).ToArray()));
             for (var i = 1; i < 4; i++) builder.AddGeneral(new($"fixture:skill-change-other-{i}", "Other", "supporter", "fixture:skill-change-plain", "qun", 8));
             builder.AddDeck(new("fixture:skill-change-deck", "Opening fixed deck", 4, 2, [])
             { PhysicalCards = Enumerable.Range(0, 96).Select(i => new ContentDeckPhysicalCard("standard:slash", Suit.Spade, i % 13 + 1)).ToArray() });

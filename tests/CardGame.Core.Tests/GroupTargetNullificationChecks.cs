@@ -50,6 +50,10 @@ internal static class GroupTargetNullificationChecks
                 Require(window.TargetSeats.Count == 1 && window.GroupTargetReturn is not null,
                     "Every group counterspell must own exactly the current target.");
                 var target = window.TargetSeats[0];
+                if (kind == CardKind.FiveGrains)
+                    Require(Enumerable.Range(0, 4).All(viewer => game.CreateSnapshot(viewer).HarvestPickerSeat == target &&
+                        game.CreateSnapshot(viewer).PublicRevealedCards.Count > 0),
+                        "The current Harvest recipient and remaining public pool must stay visible to all viewers during counterspells.");
                 var prompt = game.CreateSnapshot(0).PendingDecision;
                 if (lastWindow != window.Id)
                 {
@@ -83,6 +87,7 @@ internal static class GroupTargetNullificationChecks
         Require(targets.SequenceEqual(kind is CardKind.FiveGrains or CardKind.PeachGarden ? new[] { 0, 1, 2, 3 } : new[] { 1, 2, 3 }),
             "All recipients must receive their own ordered counterspell window.");
         var after = game.CreateSnapshot(0, revealAll: true);
+        Require(after.HarvestPickerSeat is null, "A completed group effect must not leave a public Harvest recipient.");
         if (kind is CardKind.BarbarianAssault or CardKind.ArrowBarrage)
             Require(after.Players[1].Hp == before.Players[1].Hp && after.Players[3].Hp == before.Players[3].Hp &&
                 after.Players[2].Hp == before.Players[2].Hp - 1,

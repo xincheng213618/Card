@@ -1,11 +1,11 @@
-﻿using System.Globalization;
+using System.Globalization;
 namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
     private bool TryBeginExtraForeignSelection(NullificationWindowFrame pending, CharacterState target)
     {
-        if (!(IsExtraCardEffectRound(pending.ParentFrameId) || IsLeChengyanEffectUse(pending.ParentFrameId) || IsWushuangExtraForeignSelection(pending.ParentFrameId)) || pending.ActionKind is not (LegalActionKind.Snatch or LegalActionKind.Dismantlement)) return false;
+        if (!(IsExtraCardEffectRound(pending.ParentFrameId) || IsLeChengyanEffectUse(pending.ParentFrameId) || IsWushuangExtraForeignSelection(pending.ParentFrameId) || IsMantianGuohaiUse(pending.ParentFrameId)) || pending.ActionKind is not (LegalActionKind.Snatch or LegalActionKind.Dismantlement or LegalActionKind.MantianGuohai)) return false;
         var use = LifecycleCardUse(pending.ParentFrameId)!;
         var hand = GetHand(target); var slots = new List<ExtraForeignCardSlot>();
         slots.AddRange(Enumerable.Range(0, hand.Count).Select(slot => new ExtraForeignCardSlot(slot, null, null)));
@@ -35,7 +35,7 @@ public sealed partial class GameEngine
     {
         if (pending.ExtraForeignSelection is not { } r) return false;
         if (_resolutionStack.LastOrDefault()?.Id != pending.Id || LifecycleCardUse(pending.ParentFrameId) is not { Action: { } action } use ||
-            action.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id) || IsWushuangExtraForeignSelection(use.Id)) || GetHand(_players[pending.TargetSeat]).Count != r.HandCount ||
+            action.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id) || IsWushuangExtraForeignSelection(use.Id) || IsMantianGuohaiUse(use.Id)) || GetHand(_players[pending.TargetSeat]).Count != r.HandCount ||
             r.Slots.SingleOrDefault(s => s.Slot == slot) is not { } selected)
             throw new InvalidOperationException("Extra foreign selection lost its current slot or actual use.");
         var target = _players[pending.TargetSeat]; Card chosen; CardLocation from;
@@ -64,8 +64,8 @@ public sealed partial class GameEngine
     {
         if (pending.ExtraForeignSelection is not { } r) return false;
         var use = LifecycleCardUse(pending.ParentFrameId);
-        if (_resolutionStack.LastOrDefault()?.Id != pending.Id || use?.Action?.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id) || IsWushuangExtraForeignSelection(use.Id)) ||
-            pending.ActionKind is not (LegalActionKind.Snatch or LegalActionKind.Dismantlement) ||
+        if (_resolutionStack.LastOrDefault()?.Id != pending.Id || use?.Action?.ActionId != r.ActionId || !(IsExtraCardEffectRound(use.Id) || IsLeChengyanEffectUse(use.Id) || IsWushuangExtraForeignSelection(use.Id) || IsMantianGuohaiUse(use.Id)) ||
+            pending.ActionKind is not (LegalActionKind.Snatch or LegalActionKind.Dismantlement or LegalActionKind.MantianGuohai) ||
             pending.SourceSeat != use.SourceSeat || pending.EffectCardId != use.CardId || pending.EffectCardKind != LeChengyanNativeEffectKind(use) ||
             GetHand(_players[pending.TargetSeat]).Count != r.HandCount ||
             !pending.CandidateSlots.SequenceEqual(r.Slots.Select(s => s.Slot)) || r.Slots.Count == 0 ||

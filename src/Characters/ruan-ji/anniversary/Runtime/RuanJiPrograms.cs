@@ -84,7 +84,7 @@ internal static class AnniversaryRuanJiComposition
                 (CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning or CardKind.AllianceFeast or
                  CardKind.SowBeans or CardKind.TransplantWood or CardKind.ReturnSoul or CardKind.StarShift or CardKind.BeamSwap or
                  CardKind.HandRedistribution or CardKind.WenheChaos or CardKind.StoreGrain or CardKind.Reinforcements or CardKind.UnitedEffort or
-                 CardKind.SameBoat or CardKind.StriveUpstream or CardKind.AgainstCurrent or CardKind.WumiaoFlood)).Select(c => c.Kind).ToHashSet();
+                 CardKind.SameBoat or CardKind.StriveUpstream or CardKind.AgainstCurrent or CardKind.WumiaoFlood or CardKind.MantianGuohai)).Select(c => c.Kind).ToHashSet();
             if (program.ViewAs.Count != ordinary.Count || !program.ViewAs.Select(v => v.OutputKind).ToHashSet().SetEquals(ordinary))
                 throw new InvalidOperationException(path + ": Zhaowen must expose all native ordinary-trick conversion names, including Qizheng.");
         }

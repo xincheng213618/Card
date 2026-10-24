@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "mobile:shi-feijing", "revision": 1,
+      "viewAs": [{ "id": "damage-trick-slash", "sourceZones": ["hand", "equipment"], "inputKinds": ["duel", "fireAttack", "barbarianAssault", "arrowBarrage", "lightning", "qizhengXiangsheng", "wumiaoFlood", "unexpectedAssault"], "inputSuits": [], "outputKind": "slash", "forPlay": true, "forResponse": true }],
+      "triggers": [{ "id": "sole-slash-path", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": true, "priority": 0, "usageScope": "turn", "usageLimit": 2,
+        "effects": [{ "op": "resolveMobileShiZhangYanFeijing", "target": "owner" }] }] },
+    { "id": "mobile:shi-xiaoge", "revision": 1,
+      "triggers": [
+        { "id": "extra-target-prevent", "window": "beforeDamageApplied", "subject": "any", "optional": false, "priority": 0,
+          "effects": [{ "op": "resolveMobileShiZhangYanXiaogePrevent", "target": "owner" }] },
+        { "id": "sole-slash-duel", "window": "cardUseCompleted", "ownerRelation": "actor", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false, "priority": 0,
+          "effects": [{ "op": "resolveMobileShiZhangYanXiaogeDuel", "target": "owner" }] }
+      ] }
+  ]
+}

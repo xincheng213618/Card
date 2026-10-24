@@ -54,7 +54,9 @@ public sealed partial class GameEngine
             !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
                 SkillProgramEffectOp.EditDinghanNames) &&
             !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
-                SkillProgramEffectOp.AwakenJianghuo)) return false;
+                SkillProgramEffectOp.AwakenJianghuo) &&
+            !HasBeiMiHuPreludeBindings(owner, SkillProgramTriggerWindow.TurnBeforeStart,
+                SkillProgramEffectOp.ResolveMobileShiGuoYuanXiugeng) && !HasShiLsHandGrantsToExpire(owner.Seat) && ShiCzPendingExtra(owner.Seat) is null && ShiDzPendingExtra(owner.Seat) is null) return false;
         if (_pendingDecision is not null || _resolutionStack.Count != 0 || owner.Seat != _currentSeat)
             throw new InvalidOperationException("Before-turn work requires a clean actual turn boundary.");
         var oldRound = _roundNumber;
@@ -66,6 +68,7 @@ public sealed partial class GameEngine
         var id = ++_resolutionSequence;
         var proof = new BeiMiHuBeforeTurnProof(id, checked(_turnNumber + 1), _roundNumber, owner.Seat, roundIndex + 1L);
         PushRuntimeFrame(new BeiMiHuTurnPreludeFrame(id, proof, _roundNumber != oldRound));
+        ExpireShiLsHandGrants(owner.Seat, id);
         AdvanceRuntimeFrame(id);
         return true;
     }
@@ -144,6 +147,9 @@ public sealed partial class GameEngine
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ObtainHappyTaishiCiStartSlash) ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.EditDinghanNames) ||
                         !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.AwakenJianghuo) ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveMobileShiChenZhiQuanchong) ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveMobileShiDongZhaoYingjia) ||
+                        !isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveMobileShiGuoYuanXiugeng) ||
                         isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.ResolveLinjieRound) ||
                         isRound && ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.IssueHappyPangTongPlan) ||
                         isRound && candidate.SkillId == "happy:huanshu" && candidate.BindingId == "round-phantoms" &&

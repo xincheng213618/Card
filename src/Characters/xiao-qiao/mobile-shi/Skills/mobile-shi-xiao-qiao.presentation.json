@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "mobile:shi-heyun": { "name": "合韵", "description": "出牌阶段限两次，你可选择一名与你有相同技能的角色，然后你失去一个技能并令其摸两张牌。" },
+    "mobile:shi-yinhui": { "name": "音洄", "description": "每轮开始时，你可清除因此获得的技能，然后你选择一名其他角色当前拥有的一个技能获得之。" }
+  }
+}

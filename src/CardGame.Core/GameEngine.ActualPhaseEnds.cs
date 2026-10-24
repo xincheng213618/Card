@@ -4,7 +4,9 @@ public sealed partial class GameEngine
 {
     private bool TracksActualPhaseEnds => HasLishiCapability || HasMouSimaShi || HasMouHuCheEr || IsGuanduActivity || HasOlLuShi || _contentRegistry.ProgramDependencies
         .HasTriggerOperation(SkillProgramEffectOp.ResolveQingyaNextActualPhaseUse) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveNishouIssuedCurrentPhaseSwap) ||
-        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveAnniversaryWuFuJuekai);
+        _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.ResolveAnniversaryWuFuJuekai) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMobileShiHuangZuPhaseUse) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveMobileShiRunweiPhaseEnd);
 
     private void ConfirmActualDiscardPhaseExecution()
     {
@@ -50,7 +52,7 @@ public sealed partial class GameEngine
         {
             if (TryBeginCardsMovedProgramWindow(frame.Id)) return;
             AdvanceEventRulesAndQueueFact(new ActualPhaseEndingEvent(frame.Id, frame.Phase));
-            var items = Array.AsReadOnly(CollectQingyaPhaseEndCandidates(frame.Phase).Concat(CollectNishouPhaseEndCandidates(frame.Phase)).Concat(CollectMouSimaShiPhaseEndCandidates(frame.Phase)).ToArray());
+            var items = Array.AsReadOnly(CollectQingyaPhaseEndCandidates(frame.Phase).Concat(CollectNishouPhaseEndCandidates(frame.Phase)).Concat(CollectMouSimaShiPhaseEndCandidates(frame.Phase)).Concat(CollectShiHzPhaseEndCandidates(frame.Phase)).Concat(CollectShiLysPhaseEndCandidates(frame.Phase)).ToArray());
             ReplaceRuntimeTop(frame with { Items = items, ItemsCaptured = true });
             frame = (ActualPhaseEndFrame)_resolutionStack.Last();
         }

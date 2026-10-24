@@ -33,7 +33,7 @@ public sealed partial class GameEngine
     private PlayerMarkerKind FriendCategoryMarker(CardKind kind) => EquipmentCatalog.IsEquipment(kind) ? PlayerMarkerKind.QihuiEquipment :
         MatchesProgramCardCategory(kind, [SkillProgramCardCategory.Basic]) ? PlayerMarkerKind.QihuiBasic : PlayerMarkerKind.QihuiTrick;
     private bool IsFriendActualCardUse(CardActionContext? action) => action is not null &&
-        (action.Type == CardActionType.Use || action.Type == CardActionType.Response && action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
+        (action.Type == CardActionType.Use || action.Type == CardActionType.Response && (action.ActorSeat == action.ProviderSeat || IsShiLsAutonomousResponse(action)) && action.RequesterSeat is null &&
          (action.EffectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[action.ActorSeat], action.EffectiveKind)));
     private CardActionContext? FriendCardAction(ProgramSkillWindowContext context) => context.CardUse is { } use
         ? _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(w => w.Id == context.ParentFrameId)?.Action

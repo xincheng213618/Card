@@ -58,11 +58,9 @@ public sealed partial class GameEngine
             ReplaceRuntimeTop(f with { PendingMovementContinuation = null, CappedConversionBenefit = r with { AwaitingMovement = false } });
             f = GetActiveProgramFrame(id); r = f.CappedConversionBenefit!;
         }
-        var current = TieredRoundTier(f.OwnerSeat, r.StateId);
         var qualified = _winner == Winner.None && _players[f.OwnerSeat].IsAlive &&
             HasRuntimeSkillInstance(_players[f.OwnerSeat], f.SkillId, f.SkillInstanceId);
-        var modified = qualified && current == r.FrozenSuccessfulModifications && current < 2;
-        if (modified) UpgradeConfiguredConversionTier(f, r.StateId);
+        var modified = qualified && TryUpgradeConfiguredConversionTier(f, r.StateId, r.FrozenSuccessfulModifications);
         AdvanceEventRulesAndQueueFact(new CappedConversionBenefitCompletedEvent(id, r.Source, r.StateId,
             r.FrozenSuccessfulModifications, r.ActualDrawCount, modified, TieredRoundTier(f.OwnerSeat, r.StateId)));
         ReplaceRuntimeTop(f = GetActiveProgramFrame(id) with { CappedConversionBenefit = null, PendingMovementContinuation = null });

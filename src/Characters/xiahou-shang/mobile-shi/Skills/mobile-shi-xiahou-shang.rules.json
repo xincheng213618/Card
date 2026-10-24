@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-tanfeng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preselect-options",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "tanfeng-mode",
+              "options": [
+                {
+                  "id": "discard"
+                },
+                {
+                  "id": "fire"
+                },
+                {
+                  "id": "both"
+                },
+                {
+                  "id": "cancel"
+                }
+              ]
+            },
+            {
+              "op": "resolveMobileShiXiahouShangTanfeng",
+              "target": "owner",
+              "sourceBind": "tanfeng-mode",
+              "stateId": "initial-target",
+              "condition": {
+                "kind": "any",
+                "children": [
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "discard"
+                  },
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "fire"
+                  },
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "both"
+                  },
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "cancel"
+                  }
+                ]
+              }
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "discard-count",
+              "options": [
+                {
+                  "id": "discard-zero"
+                },
+                {
+                  "id": "discard-one"
+                },
+                {
+                  "id": "discard-two"
+                }
+              ],
+              "condition": {
+                "kind": "any",
+                "children": [
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "discard"
+                  },
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "both"
+                  }
+                ]
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "any",
+                    "children": [
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "discard"
+                      },
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "both"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "children": [
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "discard-count",
+                        "optionId": "discard-one"
+                      },
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "discard-count",
+                        "optionId": "discard-two"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "any",
+                    "children": [
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "discard"
+                      },
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "both"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "discard-count",
+                    "optionId": "discard-two"
+                  }
+                ]
+              }
+            },
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "draw"
+              ],
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "any",
+                    "children": [
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "discard"
+                      },
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "both"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "not",
+                    "children": [
+                      {
+                        "kind": "selectedTargetHandGreaterThanOwner"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "op": "resolveMobileShiXiahouShangTanfeng",
+              "target": "owner",
+              "sourceBind": "tanfeng-mode",
+              "stateId": "fire-target",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "tanfeng-mode",
+                "optionId": "both"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "condition": {
+                "kind": "any",
+                "children": [
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "fire"
+                  },
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "tanfeng-mode",
+                    "optionId": "both"
+                  }
+                ]
+              }
+            },
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "play"
+              ],
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "any",
+                    "children": [
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "fire"
+                      },
+                      {
+                        "kind": "choiceIs",
+                        "sourceBind": "tanfeng-mode",
+                        "optionId": "both"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "not",
+                    "children": [
+                      {
+                        "kind": "selectedTargetHpGreaterThanOwner"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

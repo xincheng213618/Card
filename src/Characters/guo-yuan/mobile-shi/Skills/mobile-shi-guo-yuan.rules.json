@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-qingdao", "revision": 1,
+      "triggers": [
+        { "id": "damage-use-completed", "window": "cardUseCompleted", "ownerRelation": "target", "optional": true,
+          "effects": [{ "op": "resolveMobileShiGuoYuanQingdao", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "mobile:shi-xiugeng", "revision": 1,
+      "triggers": [
+        { "id": "record-hands", "window": "turnBeforeStart", "subject": "owner", "optional": true,
+          "effects": [{ "op": "resolveMobileShiGuoYuanXiugeng", "target": "owner" }] },
+        { "id": "compare-record", "window": "drawPhaseStarting", "subject": "owner", "turnOwnerScope": "anyLiving", "optional": false,
+          "effects": [{ "op": "resolveMobileShiGuoYuanXiugeng", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "mobile:shi-chenshe", "revision": 1,
+      "triggers": [
+        { "id": "other-dying", "window": "dyingEntering", "subject": "any", "optional": true,
+          "effects": [{ "op": "resolveMobileShiGuoYuanChenshe", "target": "owner" }] }
+      ]
+    }
+  ]
+}

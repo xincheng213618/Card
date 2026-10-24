@@ -2,15 +2,18 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private SkillProgramStepOutcome ExchangeProgramSelectedTargetHands(ProgramSkillFrame frame)
+    private SkillProgramStepOutcome ExchangeProgramSelectedTargetHands(ProgramSkillFrame frame) =>
+        ExchangeProgramSelectedTargetHands(frame, GetActiveProgramFrame(frame.Id).SelectedTargetSeats);
+
+    private SkillProgramStepOutcome ExchangeProgramSelectedTargetHands(ProgramSkillFrame frame, IReadOnlyList<int> seats)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.SkillId != frame.SkillId || active.SkillInstanceId != frame.SkillInstanceId ||
-            active.SelectedTargetSeats.Count != 2 ||
-            active.SelectedTargetSeats[0] == active.SelectedTargetSeats[1])
+            active.OwnerSeat != frame.OwnerSeat || active.GameplayHash != frame.GameplayHash ||
+            seats.Count != 2 || seats[0] == seats[1] || !IsValidPlayerSeat(seats[0]) || !IsValidPlayerSeat(seats[1]))
             throw new InvalidOperationException("A hand exchange requires two distinct current program targets.");
-        var first = _players[active.SelectedTargetSeats[0]];
-        var second = _players[active.SelectedTargetSeats[1]];
+        var first = _players[seats[0]];
+        var second = _players[seats[1]];
         if (!IsValidPlayerSeat(first.Seat) || !IsValidPlayerSeat(second.Seat) ||
             !first.IsAlive || !second.IsAlive)
             throw new InvalidOperationException("A hand exchange requires two living program targets.");

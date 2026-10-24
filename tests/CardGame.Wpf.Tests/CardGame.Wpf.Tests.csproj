@@ -11,6 +11,10 @@
     <Compile Include="..\Shared\BaguaResponseScenario.cs" Link="BaguaResponseScenario.cs" />
     <Compile Include="..\Shared\CharacterFixtureContent.cs" Link="CharacterFixtureContent.cs" />
     <Compile Include="..\CardGame.Core.Tests\ShenMaChaoChecks.cs" Link="ShenMaChaoScenario.cs" />
+    <Compile Include="..\CardGame.Core.Tests\ShenDengAiChecks.cs" Link="ShenDengAiScenario.cs" />
+    <Compile Include="..\CardGame.Core.Tests\Fame2017PublicPileChecks.cs" Link="Fame2017PublicPileScenario.cs" />
+    <Compile Include="..\CardGame.Core.Tests\NativeCollectedDiscardProjectionChecks.cs" Link="NativeCollectedDiscardScenario.cs" />
+    <Compile Include="..\CardGame.Core.Tests\NativeAdditionalDiscardChecks.cs" Link="NativeAdditionalDiscardScenario.cs" />
     <Compile Include="..\Shared\ActiveEffectScenario.cs" Link="ActiveEffectScenario.cs" />
     <Compile Include="..\Shared\BorrowedSwordScenario.cs" Link="BorrowedSwordScenario.cs" />
     <Compile Include="..\Shared\StoneAxeScenario.cs" Link="StoneAxeScenario.cs" />

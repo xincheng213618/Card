@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-zhuangshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "phase-start",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiZhuangshi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-yinzhan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "slash-end-discard",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiYinzhan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-zhongao",
+      "revision": 1,
+      "states": [
+        {
+          "id": "succeeded",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "failed",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "initialize",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "mobile:shi-kuanggu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "success",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiZhongao",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "failure",
+          "window": "dyingEntering",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveMobileShiZhongao",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-kuanggu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "nearby-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "sourceToTargetDistanceAtDamage"
+            },
+            "operator": "lessThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
+          },
+          "priority": 100,
+          "effects": [
+            {
+              "op": "resolveMobileShiKuanggu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-kuanggu-upgraded",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "nearby-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "sourceToTargetDistanceAtDamage"
+            },
+            "operator": "lessThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
+          },
+          "priority": 100,
+          "effects": [
+            {
+              "op": "resolveMobileShiKuanggu",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-kunfen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-loss-draw",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

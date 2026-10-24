@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1, "packageId": "standard-classic-generals", "characterId": "character:sun-chen",
+  "skills": [
+    { "registrationOrder": 49100, "programBundle": "mobile-shi-sun-chen", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-nigu", "name": "逆固", "description": "出牌阶段限一次，你可弃置任意张不同花色的牌，令攻击范围内的其他角色同时选择是否交给你一张牌，然后你本回合造成的下X次伤害+1（X为不交给你牌的角色数）。", "actionForms": "Active", "executionForms": "State" } },
+    { "registrationOrder": 49101, "programBundle": "mobile-shi-sun-chen", "includeProgramPresentation": true,
+      "definition": { "id": "mobile:shi-lulian", "name": "戮连", "description": "锁定技，你使用手牌结算后，若你没有此类别的手牌，且有目标角色：体力值小于等于你，此牌所有目标进入连环状态；装备区牌数小于等于你，你摸一张牌。乘势：你对一名体力值不为最小的角色造成1点火焰伤害。", "executionForms": "Trigger" } }
+  ],
+  "generals": [{ "registrationOrder": 49110, "pools": { "current": 49110 }, "definition": {
+    "id": "mobile:shi-sun-chen", "characterId": "character:sun-chen", "name": "势孙綝", "variantId": "mobile-shi", "rulesetId": "sanguosha-mobile",
+    "factionId": "wu", "gender": "Male", "baseHp": 4, "skillId": "mobile:shi-nigu", "additionalSkillIds": ["mobile:shi-lulian"], "portraitKey": "mobile-shi-sun-chen"
+  } }]
+}

@@ -283,6 +283,7 @@ internal static class RuntimeRules_Core_CommonRules
             (LegalActionKind.Snatch, CardZoneKind.Hand) => CardMoveReasons.Snatch,
             (LegalActionKind.Snatch, CardZoneKind.Equipment) => CardMoveReasons.Snatch,
             (LegalActionKind.Snatch, CardZoneKind.Judgment) => CardMoveReasons.SnatchJudgment,
+            (LegalActionKind.MantianGuohai, CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment) => new("card.mantian-guohai.obtain"),
             _ => throw new InvalidOperationException(
                 $"{actionKind} cannot move a target card from {sourceZone}.")
         };
@@ -298,6 +299,7 @@ internal static class RuntimeRules_Core_CommonRules
             (LegalActionKind.Snatch, CardZoneKind.Hand) => CardMoveReasons.SnatchFinished,
             (LegalActionKind.Snatch, CardZoneKind.Equipment) => CardMoveReasons.SnatchFinished,
             (LegalActionKind.Snatch, CardZoneKind.Judgment) => CardMoveReasons.SnatchJudgmentFinished,
+            (LegalActionKind.MantianGuohai, CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment) => new("card.mantian-guohai.obtain-finished"),
             _ => throw new InvalidOperationException(
                 $"{actionKind} cannot finish a target card from {sourceZone}.")
         };
@@ -435,6 +437,7 @@ internal static class RuntimeRules_Core_CommonRules
                 LegalActionKind.AllianceFeast => "alliance-feast",
                 LegalActionKind.SowBeans => "sow-beans",
                 LegalActionKind.TransplantWood => "transplant-wood",
+                LegalActionKind.MantianGuohai => "mantian-guohai",
                 LegalActionKind.ReturnSoul => "return-soul",
                 LegalActionKind.StarShift => "star-shift",
                 LegalActionKind.BeamSwap => "beam-swap",

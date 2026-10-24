@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62, "skills": [
+    { "id": "mobile:shi-nigu", "revision": 1, "activations": [
+      { "id": "distinct-suits-private-gifts", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "resolveMobileShiSunChenNigu", "target": "owner" }] }
+    ] },
+    { "id": "mobile:shi-lulian", "revision": 1, "triggers": [
+      { "id": "completed-hand-category", "window": "cardUseCompleted", "ownerRelation": "actor", "includeResponseUses": true, "singleActionInstance": true, "optional": false,
+        "effects": [{ "op": "resolveMobileShiSunChenLulian", "target": "owner" }] }
+    ] }
+  ]
+}

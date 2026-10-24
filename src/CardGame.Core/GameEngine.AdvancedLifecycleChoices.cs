@@ -131,12 +131,8 @@ public sealed partial class GameEngine
                 }
                 break;
             case SkillProgramEffectOp.ReplaceSkillsOnAwakening:
-                foreach (var id in draft.Selected)
-                    foreach (var grant in _players[frame.OwnerSeat].SkillGrants.Grants.Where(grant => grant.SkillId == id && !grant.IsModeRule).ToArray())
-                        if (grant.LordProjection is not null || grant.GeneralLibraryProjection is not null)
-                            _players[frame.OwnerSeat].SkillGrants.SetEnabled(grant.GrantId, false);
-                        else _players[frame.OwnerSeat].SkillGrants.RemoveGrant(grant.GrantId);
-                AcquireRuntimeSkills(_players[frame.OwnerSeat], frame.SkillId, effect.SkillIds.Take(draft.Selected.Count).ToArray());
+                ReplaceProgramSkills(frame, draft.Selected, effect.SkillIds.Take(draft.Selected.Count).ToArray(),
+                    ProgramSkillSourceRemoval.NonModePreserveProjections, acquireFirst: false);
                 break;
             case SkillProgramEffectOp.ObtainDeckRankSum:
                 var cards = draft.Selected.Select(id => GetAdvancedCard(int.Parse(id))).ToArray();

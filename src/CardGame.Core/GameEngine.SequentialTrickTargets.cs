@@ -27,6 +27,7 @@ public sealed partial class GameEngine
     private void MoveFinishedTrickCard(long frameId, Card card)
     {
         if (KeepLeChengyanBorrowedMaterial(frameId)) return;
+        if (KeepMantianGuohaiMaterial(frameId)) return;
         if (HasUnstartedExtraCardEffect(frameId)) return;
         if (SkipTieredRoundZeroFinishedMovement(frameId, card)) return;
         if (card.Id == 0 && (IsOriginalUseLightning(frameId) || IsZeroEntityUse(frameId) || IsProgramVirtualOrdinaryTrickUse(frameId) || IsJueshengDuelUse(frameId))) return;

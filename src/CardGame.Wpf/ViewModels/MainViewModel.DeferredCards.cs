@@ -10,6 +10,12 @@ public sealed partial class MainViewModel
     private IReadOnlyList<(CardSnapshot Card, bool IsChoice)> _publicCardViewSource = [];
 
     public ObservableCollection<CardViewModel> PrivatelyViewedCards { get; } = [];
+    public bool IsHarvestDisplayVisible => _snapshot.HarvestPickerSeat is not null && HasPublicRevealedCards;
+    public string HarvestDisplayHint => IsHarvestSelectionPending
+        ? "轮到你选牌：点击一张牌，获得到手牌中"
+        : _snapshot.HarvestPickerSeat is { } seat
+            ? $"正在结算{_snapshot.Players.Single(player => player.Seat == seat).Name}的五谷效果 · 轮到你时可选牌"
+            : string.Empty;
     public bool HasPrivatelyViewedCards => PrivatelyViewedCards.Count > 0;
     public string PrivateRevealTitle => $"{_snapshot.PendingDecision?.SkillPrompt?.Name ?? "观看的牌"} · 仅你可见";
 
