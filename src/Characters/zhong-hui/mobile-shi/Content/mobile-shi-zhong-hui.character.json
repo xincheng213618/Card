@@ -4,7 +4,7 @@
   "characterId": "character:zhong-hui",
   "skills": [
     {
-      "registrationOrder": 49200,
+      "registrationOrder": 50600,
       "programBundle": "mobile-shi-zhong-hui",
       "includeProgramPresentation": true,
       "definition": {
@@ -16,7 +16,7 @@
       }
     },
     {
-      "registrationOrder": 49201,
+      "registrationOrder": 50601,
       "programBundle": "mobile-shi-zhong-hui",
       "includeProgramPresentation": true,
       "definition": {
@@ -29,7 +29,7 @@
       }
     },
     {
-      "registrationOrder": 49202,
+      "registrationOrder": 50602,
       "programBundle": "mobile-shi-zhong-hui",
       "includeProgramPresentation": true,
       "definition": {
@@ -42,7 +42,7 @@
       }
     },
     {
-      "registrationOrder": 49203,
+      "registrationOrder": 50603,
       "programBundle": "mobile-shi-zhong-hui",
       "includeProgramPresentation": true,
       "definition": {
@@ -57,7 +57,7 @@
   ],
   "generals": [
     {
-      "registrationOrder": 49204,
+      "registrationOrder": 50604,
       "pools": {
         "current": 49204
       },

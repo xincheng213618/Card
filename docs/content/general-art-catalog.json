@@ -19499,6 +19499,23 @@
       ]
     },
     {
+      "key": "mobile-shi-zhong-hui",
+      "characterName": "势钟会",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://wiki.biligame.com/msgs/%E5%8A%BF%E9%92%9F%E4%BC%9A",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/0/09/grp7bjp0zdjzc7197ily414ge9estej.jpg",
+          "sha256": "e4e265d23391763521a0d6546b223f13d2e378ea9dc31513228da71c608d8eae",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/mobile-shi-zhong-hui.jpg"
+        }
+      ]
+    },
+    {
       "key": "mobile-shi-deng-ai",
       "characterName": "势邓艾",
       "defaultSkinId": "86100",

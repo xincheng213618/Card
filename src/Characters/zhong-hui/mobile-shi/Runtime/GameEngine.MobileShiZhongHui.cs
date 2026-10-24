@@ -43,6 +43,10 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome ResolveYunan(ProgramSkillFrame frame) => engine.BeginShiZhHui(frame);
     }
 
+    [ProgramActivationLegality(ProgramActivationLegalityPhase.BeforeCondition, 67700, SkillProgramEffectOp.ResolveShiZhHuiSizi)]
+    private bool CanStartShiZhHuiSizi(CharacterState owner, string skill) =>
+        skill != ShiZhHuiSizi || ShiZhHuiCharge(owner.Seat) > 0;
+
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 67700)]
     private bool CanOfferShiZhHui(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
@@ -320,12 +324,12 @@ public sealed partial class GameEngine
     [ProgramAiChoice(SkillProgramEffectOp.ResolveShiZhHuiSizi)]
     private PromptChoice ChooseShiZhHuiAi(PendingDecision decision, ProgramSkillFrame f)
     {
-        // Consume the most charge the owner can afford while staying above one HP
-        // of headroom so the effect-3 qualification stays reachable.
-        var owner = _players[f.OwnerSeat];
-        return decision.Choices
-            .Where(choice => choice.Parameters["branch"] == "consume")
+        // Prefer the largest consumption that stays at or below the owner's HP so
+        // the effect-3 qualification keeps targeting foreign turn players.
+        var hp = _players[f.OwnerSeat].Hp;
+        return decision.Choices.Where(choice => choice.Parameters["branch"] == "consume")
             .OrderByDescending(choice => int.Parse(choice.Parameters["count"], CultureInfo.InvariantCulture))
-            .FirstOrDefault(choice => owner.Hp > 1) ?? decision.Choices.First();
+            .FirstOrDefault(choice => int.Parse(choice.Parameters["count"], CultureInfo.InvariantCulture) <= hp) ??
+            decision.Choices.First();
     }
 }
