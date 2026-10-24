@@ -954,6 +954,9 @@ public enum SkillProgramEffectOp
     BeginYaodaoChitong = 5791,
     ResolveYaodaoChitong = 5792,
     ResolveShanheS5Yimie = 5795,
+    GrantShanheS5Baiyin = 59000,
+    ResolveShanheS5Qiangxi = 59100,
+    PrepareShanheS5Shensu = 59200,
     DiscardBoundCardForRoundScaledTurnDuel = 5720,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
@@ -5851,6 +5854,7 @@ public sealed class SkillProgramCatalog
         OwnTurnEnemyHandGainComposition.ValidateTrigger(path, parsedTrigger);
         ZhuLingZhanyiEquipmentPunishDescriptor.ValidateTrigger(path, parsedTrigger);
         SharedPhaseSkillContract.ValidateTrigger(path, parsedTrigger);
+        ShanheS5ShensuContract.ValidateTrigger(path, parsedTrigger);
         LiushiEffectContract.ValidateTrigger(path, skillId, parsedTrigger);
         AcquireRandomDamageTargetSkillDescriptor.ValidateTrigger(path, parsedTrigger);
         RepeatIncomingSoleCardEffectAndDrawByRangeDescriptor.ValidateTrigger(path, parsedTrigger);

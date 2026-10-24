@@ -3403,7 +3403,10 @@ public sealed partial class GameEngine
         if (RuntimeHooks.TryAdvance(ProgramRuntimePhase.BeforeJudgmentPhase)) return;
         if (TryBeginActualPhaseEnd(ActualDiscardRecoveryPhaseKind.Preparation, ActualPhaseEndContinuation.Preparation)) return;
         if (_pendingTurnDelayedEffects.HasFlag(DelayedTurnEffects.SkipJudgmentPhase))
+        {
+            RecordShanheS5ActualPhaseSkip(current.Seat, SkillProgramTurnPhase.Judgment);
             CompleteTurnStart(current, _pendingTurnDelayedEffects);
+        }
         else
         {
             StartActualDiscardRecoveryPhase(ActualDiscardRecoveryPhaseKind.Judgment, current.Seat);

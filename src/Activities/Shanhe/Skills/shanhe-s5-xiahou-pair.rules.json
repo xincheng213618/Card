@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-ganglie-14143", "revision": 1,
+      "triggers": [{
+        "id": "each-actual-damage-point", "window": "afterDamageApplied", "subject": "owner",
+        "damageOccurrence": "perDamagePoint", "requireDamageSource": true, "optional": true,
+        "effects": [
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "shanhe.s5.ganglie", "resultBind": "judgment-card", "outcomeBind": "judgment-result", "visibility": "public" },
+          { "op": "damage", "target": "owner", "targetRef": { "kind": "eventSource" }, "sourceRef": { "kind": "owner" }, "amount": 2, "nature": "normal",
+            "condition": { "kind": "judgmentOutcomeMatchesSuits", "sourceBind": "judgment-result", "suits": ["heart", "diamond"] } },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventSource" }, "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "skipIfNoCards": true, "awaitMovementTriggers": true,
+            "condition": { "kind": "judgmentOutcomeMatchesSuits", "sourceBind": "judgment-result", "suits": ["spade", "club"] } },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventSource" }, "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "skipIfNoCards": true, "awaitMovementTriggers": true,
+            "condition": { "kind": "judgmentOutcomeMatchesSuits", "sourceBind": "judgment-result", "suits": ["spade", "club"] } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "judgment-card", "destination": "discardPile", "awaitMovementTriggers": true }
+        ]
+      }]
+    },
+    {
+      "id": "shanhe:s5-shensu-14144", "revision": 1,
+      "triggers": [
+        {
+          "id": "skip-judgment-and-draw", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true, "priority": 10,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["judgment", "draw"] },
+            { "op": "prepareShanheS5Shensu", "target": "owner" },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "targetRestriction": "distanceUnlimitedAgainstTarget", "useCardActionWindows": true }
+          ]
+        },
+        {
+          "id": "skip-play", "window": "afterNormalDraw", "subject": "owner", "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["play"] },
+            { "op": "prepareShanheS5Shensu", "target": "owner" },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "targetRestriction": "distanceUnlimitedAgainstTarget", "useCardActionWindows": true }
+          ]
+        },
+        {
+          "id": "skip-discard-and-turn-over", "window": "discardPhaseStarting", "subject": "owner", "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["discard"] },
+            { "op": "turnOver", "target": "owner" },
+            { "op": "prepareShanheS5Shensu", "target": "owner" },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "targetRestriction": "distanceUnlimitedAgainstTarget", "useCardActionWindows": true }
+          ]
+        }
+      ]
+    }
+  ]
+}

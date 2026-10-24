@@ -291,6 +291,10 @@ var tests = new (string Name, Action Body)[]
     ("Shanhe Liru: actual single enemy recipe conditional registry and recovery", ShanheLiruEncounterChecks.ActualSingleEnemyRecipeAndConditionalRegistryRecover),
     ("Shanhe encounters: immediate previous expeditions preserve routes and pending recipes cold", ShanheEncounterChecks.PreviousExpeditionsKeepExactRoutesAndPendingRecipesCold),
     ("Shanhe encounters: source recipes conditional packages and battle recovery", ShanheEncounterChecks.ActualEncounterRecipesAndConditionalPackagesRecoverCold),
+    ("Shanhe S5 Sima Yi: four Ren actual damage and phase discards original Jilue cold", CardGame.Core.Tests.ShanheS5SimayiChecks.FourRenPerActualPointAndPhaseDiscardPayOriginalJilueColdWithoutAwakeningCost),
+    ("Shanhe S5 Qiangxi: actual round scaling native costs Ninge and cold", ShanheS5QiangxiChecks.ActualRoundScalingTwoPhaseCostsNingeAndCold),
+    ("Shanhe S5 Xiahou: Ganglie each real point native judgments and paid discard cold", ShanheS5XiahouPairChecks.GanglieEachRealPointJudgesRedTwoOrDiscardsTwoAndPaidChildrenCold),
+    ("Shanhe S5 Xiahou: Shensu actual phase costs frozen count other source and cold", ShanheS5XiahouPairChecks.ShensuThreeNativeCostsFrozenActualSkipsAndOtherSourceDedupCold),
     ("Shanhe NPC opening: random four plus fixed equipment native cold", ShanheNpcStartingCardChecks.RandomFourPlusFixedEquipmentOrdinaryLifecycleAndRecipeCold),
     ("Shanhe S5 Li Jue: every actual prepare positive random damage and paid child cold", ShanheS5LiJueChecks.EveryActualPreparePositiveRandomDamageAndPaidChildCold),
     ("Shanhe Zhanhun Dao: real equipped native and cardless damage with cold health child", ShanheZhanhunDaoChecks.RealEquippedWeaponPreventsNativeAndCardlessDamageWithColdHealthChild),
@@ -2048,6 +2052,15 @@ static void StandardContentRegistryBuilds()
 
 static void ContentRegistryValidation()
 {
+    var skillless = new ContentGeneralDefinition("test:skillless", "无技能角色", "supporter", null);
+    var skilllessRegistry = ContentRegistry.Build(new SyntheticPackage("skillless", builder => builder.AddGeneral(skillless)));
+    TrueWithMessage(skilllessRegistry.Generals[skillless.Id].SkillIds.Count == 0 && skilllessRegistry.Skills.Count == 0,
+        "A null primary represents zero printed skills without a synthetic skill definition.");
+    Throws<ArgumentException>(() => ContentRegistry.Build(new SyntheticPackage("empty-primary",
+        builder => builder.AddGeneral(skillless with { SkillId = " " }))));
+    Throws<ArgumentException>(() => ContentRegistry.Build(new SyntheticPackage("orphaned-extra",
+        builder => builder.AddGeneral(skillless with { AdditionalSkillIds = ["missing:skill"] }))));
+
     var duplicateId = new ContentCardDefinition(
         "test:duplicate", "重复", "测试", "测试");
     Throws<InvalidOperationException>(() => ContentRegistry.Build(

@@ -242,6 +242,13 @@ public static partial class StandardShanheCampaignCatalog
         var s5XiliangDark = RequiresThreeBossRegistry(setup, StandardShanheS5XiliangDarkPackage.QinyiId,
             StandardShanheS5XiliangDarkPackage.YimieId) ||
             ids.Any(id => id is StandardShanheS5XiliangDarkPackage.ChenweiId or StandardShanheS5XiliangDarkPackage.LiheiId);
+        var s5Simayi = RequiresThreeBossRegistry(setup, StandardShanheS5SimayiPackage.SimayiId,
+            StandardShanheS5SimayiPackage.RenjieId, StandardShanheS5SimayiPackage.BaiyinId);
+        var s5Dianwei = RequiresThreeBossRegistry(setup, StandardShanheS5DianweiWeiziPackage.DianweiId,
+            StandardShanheS5DianweiWeiziPackage.QiangxiId) || ids.Contains(StandardShanheS5DianweiWeiziPackage.WeiziId, StringComparer.Ordinal);
+        var s5Xiahou = RequiresThreeBossRegistry(setup, StandardShanheS5XiahouPairPackage.XiahoudunId,
+            StandardShanheS5XiahouPairPackage.GanglieId, StandardShanheS5XiahouPairPackage.ShensuId) ||
+            ids.Contains(StandardShanheS5XiahouPairPackage.XiahouyuanId, StringComparer.Ordinal);
         var s5MaSiblings = s5MaPair || RequiresThreeBossRegistry(setup, StandardShanheS5MaSiblingsPackage.MachaoId,
             StandardShanheS5MaSiblingsPackage.MashuId, StandardShanheS5MaSiblingsPackage.TieqiId) ||
             ids.Contains(StandardShanheS5MaSiblingsPackage.MayunluId, StringComparer.Ordinal);
@@ -292,6 +299,9 @@ public static partial class StandardShanheCampaignCatalog
             (s5Moushi ? "/s5-moushi-2674" : "") +
             (s5HanEmperors ? "/s5-han-emperors-2643" : "") +
             (s5Xuncan ? "/s5-xuncan-caoshi-2657" : "") +
+            (s5Simayi ? "/s5-simayi-2677" : "") +
+            (s5Dianwei ? "/s5-dianwei-weizi-2650" : "") +
+            (s5Xiahou ? "/s5-xiahou-pair-2651" : "") +
             (s5Zaiqi ? "/s5-zaiqi-887" : "") +
             (setup.RebirthAvailable ? "/rank-five-rebirth" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
@@ -334,6 +344,11 @@ public static partial class StandardShanheCampaignCatalog
             if (s5MaPair) packages.Add(new StandardShanheS5MaPairPackage());
             if (s5XuRong) packages.Add(new StandardShanheS5XuRongPackage());
             if (s5XiliangDark) packages.Add(new StandardShanheS5XiliangDarkPackage());
+            if (s5Simayi) packages.Add(new StandardShanheS5SimayiPackage());
+            if (s5Dianwei) packages.Add(new StandardShanheS5DianweiWeiziPackage());
+            if (s5Xiahou) packages.Add(new StandardShanheS5XiahouPairPackage());
+            if (ids.Contains(StandardShanheS5ZhangniujiaoPackage.ZhangniujiaoId, StringComparer.Ordinal))
+                packages.Add(new StandardShanheS5ZhangniujiaoPackage());
             if (ids.Any(id => id is StandardShanheS5LvBuBasePackage.LvBuFiveId or StandardShanheS5LvBuBasePackage.LvBuFourId))
                 packages.Add(new StandardShanheS5LvBuBasePackage());
             if (s5Dongwu) packages.Add(new StandardShanheS5DongwuVeteransPackage());

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-renjie-14192": {
+      "name": "忍戒",
+      "description": "锁定技，当你受到1点伤害或于弃牌阶段弃置一张手牌后，你获得4枚“忍”标记。"
+    },
+    "shanhe:s5-baiyin-14193": {
+      "name": "拜印",
+      "description": "觉醒技，准备阶段，若你“忍”的数量大于等于4，你获得“极略”。"
+    }
+  }
+}

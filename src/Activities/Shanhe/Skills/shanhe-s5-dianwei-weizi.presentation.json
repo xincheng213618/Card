@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-qiangxi-14139": {
+      "name": "强袭",
+      "description": "出牌阶段限两次，你可以失去1点体力或弃置一张武器牌，对一名其他角色造成X+1点伤害。（X为本轮次技能发动次数）",
+      "activationLabels": { "lose-hp": "失去1点体力", "discard-weapon": "弃置一张武器牌" }
+    }
+  }
+}

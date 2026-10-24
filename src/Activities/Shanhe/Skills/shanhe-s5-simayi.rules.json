@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-renjie-14192",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage-ren",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "effects": [
+            { "op": "changeAttributedMarker", "target": "owner", "targetRef": { "kind": "owner" }, "marker": "ren", "amount": 4 }
+          ]
+        },
+        {
+          "id": "discard-ren",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["hand"],
+          "movementOccurrence": "perCard",
+          "movementDiscardOnly": true,
+          "optional": false,
+          "effects": [
+            { "op": "changeAttributedMarker", "target": "owner", "targetRef": { "kind": "owner" }, "marker": "ren", "amount": 4 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:s5-baiyin-14193",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "ownerAttributedMarkerCount", "marker": "ren" },
+            "operator": "greaterThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 4 }
+          },
+          "effects": [
+            { "op": "grantShanheS5Baiyin", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

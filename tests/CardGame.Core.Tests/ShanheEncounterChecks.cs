@@ -18,6 +18,7 @@ internal static class ShanheEncounterChecks
         var liGuo = catalog.GetMethod("WithS5LiGuoBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var regional = catalog.GetMethod("WithS5RegionalGroupEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var court = catalog.GetMethod("WithS5CourtGroupEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var armed = catalog.GetMethod("WithS5ArmedSourceEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var codex = catalog.GetMethod("WithCodexRewards", BindingFlags.Static | BindingFlags.NonPublic)!;
         var resources = catalog.GetMethod("WithStartingResourcesContract", BindingFlags.Static | BindingFlags.NonPublic)!;
         foreach (var tier in new[] { 1, 2, 3 })
@@ -38,6 +39,10 @@ internal static class ShanheEncounterChecks
             regionalEarlier = (ShanheCampaignDefinition)resources.Invoke(null, [regionalEarlier])!;
             var unsupportedRegionalHash = ShanheCampaignContent.GetContentHash(regionalEarlier);
             old = (ShanheCampaignDefinition)court.Invoke(null, [old])!;
+            var courtEarlier = useCodex ? (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])! : old;
+            courtEarlier = (ShanheCampaignDefinition)resources.Invoke(null, [courtEarlier])!;
+            var unsupportedCourtHash = ShanheCampaignContent.GetContentHash(courtEarlier);
+            old = (ShanheCampaignDefinition)armed.Invoke(null, [old])!;
             if (useCodex) old = (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])!;
             var unsupportedOlderHash = ShanheCampaignContent.GetContentHash(old);
             old = (ShanheCampaignDefinition)resources.Invoke(null, [old])!;
@@ -69,7 +74,7 @@ internal static class ShanheEncounterChecks
             try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint with { CampaignHash = new string('0', 64) }, tier); }
             catch (ArgumentException) { rejected = true; }
             Need(rejected && ShanheCampaignJson.Serialize(checkpoint) == encoded, "Fallbacks still require the full original fingerprint.");
-            foreach (var unsupported in new[] { unsupportedOlderHash, unsupportedEarlierHash, unsupportedRegionalHash })
+            foreach (var unsupported in new[] { unsupportedOlderHash, unsupportedEarlierHash, unsupportedRegionalHash, unsupportedCourtHash })
             {
                 rejected = false;
                 try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint with { CampaignHash = unsupported }, tier); }
@@ -84,7 +89,7 @@ internal static class ShanheEncounterChecks
         const string edition = StandardShanheCampaignCatalog.Returning2026EditionId;
         var current = StandardShanheCampaignCatalog.CreateDefinition(1, edition);
         var encounters = current.Nodes.SelectMany(n => n.Encounters ?? []).Where(IsSourceEncounter).ToArray();
-        Need(encounters.Length == 33 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
+        Need(encounters.Length == 37 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
             .Nodes.SelectMany(n => n.Encounters ?? []).All(e => !IsSourceEncounter(e)), "Only the 2026 edition includes these verified source forms.");
         foreach (var encounter in encounters)
         {
@@ -94,7 +99,8 @@ internal static class ShanheEncounterChecks
                 "dagu:xuyou-jushou-s5" or "huanyuan:caoren-zhaoyun-s5" or
                 "dagu:gongsun-zan-yue-s5" or "huanyuan:gongsun-zan-zhaoyun-s5" or "dagu:xujing-xuqiu-s5" or
                 "dagu:ma-siblings-s5" or "huanyuan:dongwu-veterans-s5" or "dagu:han-emperors-s5" or
-                "huanyuan:sunjian-wuguotai-s5" or "huanyuan:xuncan-caoshi-s5" => 2,
+                "huanyuan:sunjian-wuguotai-s5" or "huanyuan:xuncan-caoshi-s5" or
+                "dagu:dianwei-weizi-s5" or "hulao:xiahou-pair-s5" => 2,
                 _ => 1
             };
             Need(encounter.Enemies.Count == expectedEnemies && (encounter.Allies?.Count ?? 0) == 0,
@@ -113,6 +119,13 @@ internal static class ShanheEncounterChecks
             Need(game.Submit(new StartGameCommand()).Accepted && game.PlayerCount == expectedEnemies + 1 &&
                 encounter.Enemies.All(enemy => registry.Generals.ContainsKey(enemy.GeneralId)),
                 "Each conditionally composed content package starts its actual native battle.");
+            foreach (var enemy in encounter.Enemies.Where(enemy => registry.Generals[enemy.GeneralId].SkillId is null))
+            {
+                var seat = encounter.Enemies.ToList().FindIndex(member => member.GeneralId == enemy.GeneralId) + 1;
+                Need(registry.Generals[enemy.GeneralId].SkillIds.Count == 0 &&
+                    game.CreateSnapshot(0).Players[seat].Skills is { Count: 0 },
+                    "A source skillless body starts with zero actual skill grants, including the published opponent view.");
+            }
             var saved = GameCheckpointJson.Serialize(game.CreateCheckpoint());
             var recovered = GameReplay.Restore(GameCheckpointJson.Deserialize(saved), registry);
             Need(GameCheckpointJson.Serialize(recovered.CreateCheckpoint()) == saved &&
@@ -135,10 +148,13 @@ internal static class ShanheEncounterChecks
     }
 
     private static bool IsCurrentAddition(ShanheEncounterDefinition encounter) => encounter.Id is
+        "dagu:dianwei-weizi-s5" or "hulao:xiahou-pair-s5" or "huanyuan:zhangniujiao-s5" or "luoyang:simayi-s5";
+
+    private static bool IsArmedAddition(ShanheEncounterDefinition encounter) => encounter.Id is
         "dagu:ma-pair-s5" or "dagu:xurong-s5" or "hulao:lvbu-2644-s5" or
         "hulao:lvbu-2645-s5" or "huanyuan:xiliang-dark-s5";
 
-    private static bool IsSourceEncounter(ShanheEncounterDefinition encounter) => IsCurrentAddition(encounter) || encounter.Id is
+    private static bool IsSourceEncounter(ShanheEncounterDefinition encounter) => IsCurrentAddition(encounter) || IsArmedAddition(encounter) || encounter.Id is
         "dagu:han-emperors-s5" or "huanyuan:sunjian-wuguotai-s5" or "huanyuan:xuncan-caoshi-s5" or
         "luoyang:dongzhuo-2670-s5" or "luoyang:dongzhuo-2671-s5" or
         "dagu:ma-siblings-s5" or "huanyuan:dongwu-veterans-s5" or "huanyuan:moushi-s5" or "hulao:huaxiong-base-s5" or
