@@ -54,6 +54,7 @@ public sealed partial class GameEngine
         if (MouCaoPiCannotRespondTo(responderSeat, sourceSeat)) return true;
         if (MouLzCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
         if (ShiZhHuiKeChangCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
+        if (ShiXbPoxiCannotRespond(sourceSeat, responderSeat, incomingKind, targetSeats)) return true;
         if ((!IsSlashCard(incomingKind) && !IsOrdinaryTrick(incomingKind)) ||
             sourceSeat == responderSeat || !targetSeats.Contains(responderSeat) ||
             !_players[sourceSeat].IsAlive || !_players[responderSeat].IsAlive)

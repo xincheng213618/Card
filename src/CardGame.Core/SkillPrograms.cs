@@ -669,6 +669,8 @@ public enum SkillProgramEffectOp
     ResolveShiZhHuiSiziEnding = 63351,
     ResolveShiZhHuiXiezhi = 63352,
     ResolveShiZhHuiYunan = 63353,
+    ResolveShiXbLibbing = 63440,
+    ResolveShiXbPoxi = 63441,
     ResolveGuanduShicai = 44000,
     ResolveGuanduZezhu = 44001,
     ResolveGuanduJieliang = 44002,

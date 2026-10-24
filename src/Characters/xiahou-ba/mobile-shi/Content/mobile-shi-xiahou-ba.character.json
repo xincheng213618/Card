@@ -1,0 +1,56 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:xiahou-ba",
+  "skills": [
+    {
+      "registrationOrder": 51300,
+      "programBundle": "mobile-shi-xiahou-ba",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-libing",
+        "name": "厉兵",
+        "description": "锁定技，当你使用非伤害类卡牌结算完毕后，你执行上次执行的选项的下一项：【1】攻击范围+1；【2】摸X张牌（X为执行过此选项的次数+1）；【3】使用的下一张伤害牌伤害+1。当你使用伤害类卡牌结算后，重置此技能。",
+        "tags": "Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 51301,
+      "programBundle": "mobile-shi-xiahou-ba",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-poxi",
+        "name": "迫袭",
+        "description": "锁定技，当你的牌因弃置而进入弃牌堆时，若此牌为【杀】，则你改为使用之（此牌不计入次数且无距离次数限制）。你以此法使用的【杀】不能被手牌数不大于你的角色响应。",
+        "tags": "Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 51304,
+      "pools": {
+        "current": 51304
+      },
+      "definition": {
+        "id": "mobile:shi-xiahou-ba",
+        "name": "势夏侯霸",
+        "portraitKey": "mobile-shi-xiahou-ba",
+        "skillId": "mobile:shi-libing",
+        "additionalSkillIds": [
+          "mobile:shi-poxi"
+        ],
+        "factionId": "wei",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:xiahou-ba",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-libing",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "libbing-completed-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveShiXbLibbing",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-poxi",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "poxi-discarded-slash",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementDiscardOnly": true,
+          "discardOwnerScope": "own",
+          "sourceZones": ["hand", "equipment"],
+          "cardKinds": ["slash", "fireSlash", "thunderSlash", "coldSlash"],
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            {
+              "op": "resolveShiXbPoxi",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -70,6 +70,7 @@ public sealed partial class GameEngine
                 Math.Max(0, assignedRange - baseTerms[0].Value)));
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
+        AddFiniteContribution(contributions, $"issued:{player.Seat}:mobile:shi-libing:attack-range", ShiXbLibbingRangeBonus(player.Seat));
         DistanceRules.AddAttackRangeContributions(player, contributions);
         contributions.AddRange(_turnCardUseEffects
             .GetRuleModifiers(_turnNumber, _currentSeat, player.Seat, SkillRuleQuery.AttackRange)
