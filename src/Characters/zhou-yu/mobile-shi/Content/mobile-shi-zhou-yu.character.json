@@ -1,0 +1,82 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-yu",
+  "skills": [
+    {
+      "registrationOrder": 51102,
+      "programBundle": "mobile-shi-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-chiyun",
+        "name": "炽沄",
+        "description": "当你于每个阶段首次获得牌后，你可以将任意张手牌交给一名其他角色。若如此做，你令其选择一项：【1】展示所有与这些牌颜色相同的手牌，然后你对其造成1点火焰伤害；【2】你摸两张牌，然后令其横置。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 51103,
+      "programBundle": "mobile-shi-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-yanhui",
+        "name": "焰洄",
+        "description": "当你使用牌指定其他角色为目标后，你可以展示目标角色的一张手牌，然后若此牌不为本回合第一次展示，则你弃置之。出牌阶段结束时，你选择一项：【1】对一名因此技能弃置过牌的角色造成1点火焰伤害；【2】摸X张牌（X为本回合展示过牌的角色数）。",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 51104,
+      "programBundle": "mobile-shi-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-fentao",
+        "name": "焚涛",
+        "description": "锁定技，当一名角色受到火焰伤害时，若该角色不为你且其处于横置状态，则其选择一项：【1】令本次传导的伤害值+1；【2】弃置一半的牌（向上取整），然后此伤害结算完毕后，令其横置。",
+        "tags": "Locked",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    },
+    {
+      "registrationOrder": 51105,
+      "programBundle": "mobile-shi-zhou-yu",
+      "includeProgramPresentation": true,
+      "definition": {
+        "id": "mobile:shi-xiongzi",
+        "name": "雄姿",
+        "description": "限定技，准备阶段，你可以令本局游戏的“炽沄”、“焰洄”、“焚涛”均只能于你的回合内发动，且仅保留其中全部的选项一或者选项二（仅存在两个选项的技能方可执行），然后你摸两张牌。",
+        "tags": "Limited",
+        "actionForms": "None",
+        "executionForms": "Trigger"
+      }
+    }
+  ],
+  "generals": [
+    {
+      "registrationOrder": 51106,
+      "pools": {
+        "current": 51106
+      },
+      "definition": {
+        "id": "mobile:shi-zhou-yu",
+        "name": "势周瑜",
+        "portraitKey": "mobile-shi-zhou-yu",
+        "skillId": "mobile:shi-chiyun",
+        "additionalSkillIds": [
+          "mobile:shi-yanhui",
+          "mobile:shi-fentao",
+          "mobile:shi-xiongzi"
+        ],
+        "factionId": "wu",
+        "baseHp": 4,
+        "gender": "Male",
+        "characterId": "character:zhou-yu",
+        "variantId": "mobile-shi",
+        "rulesetId": "sanguosha-mobile"
+      }
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "mobile:shi-chiyun",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "chiyun-gained",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "ignoreOwnSkillMovements": true,
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiZhouYuChiyun", "target": "owner" },
+            { "op": "resolveShiZhouYuChiyunOption", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-yanhui",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "yanhui-targeted",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiZhouYuYanhuiShow", "target": "owner" }
+          ]
+        },
+        {
+          "id": "yanhui-ending",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiZhouYuYanhuiEnding", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-fentao",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "fentao-fire",
+          "window": "beforeDamageApplied",
+          "subject": "any",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiZhouYuFentao", "target": "owner" }
+          ]
+        },
+        {
+          "id": "fentao-rechain",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiZhouYuFentaoRechain", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobile:shi-xiongzi",
+      "revision": 1,
+      "activations": [],
+      "triggers": [
+        {
+          "id": "xiongzi-prepare",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "isSkillInvocation": false,
+          "effects": [
+            { "op": "resolveShiZhouYuXiongzi", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
