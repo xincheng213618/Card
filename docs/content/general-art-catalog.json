@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 1,
   "entries": [
     {
@@ -19429,6 +19429,23 @@
         "localPath": "src/CardGame.Wpf/Assets/mobile-shi-lu-yu-sheng.jpg"
       }
     ]
-  }
+    },
+    {
+      "key": "mobile-shi-tai-shi-ci",
+      "characterName": "势太史慈",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "经典形象",
+          "sourcePage": "https://wiki.biligame.com/msgs/%E5%8A%BF%E5%A4%AA%E5%8F%B2%E6%85%88",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/9/93/fvf5tctjeasnvia4vk6xvo9nv03q3ws.png",
+          "sha256": "01991e8d74dfd09c90486470dbcf13b949cd5907c1938e109c3be8b2730245d4",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/mobile-shi-tai-shi-ci.jpg"
+        }
+      ]
+    }
   ]
 }
