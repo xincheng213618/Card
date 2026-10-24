@@ -30,6 +30,15 @@ internal static class BoundaryLiuFengChecks
         var paidFrame = s.Root!.Id;
         s.Need(s.Zone(cost) == CardLocation.DiscardPile && s.E<NativeLogicalDiscardMaterialCompletedEvent>().Count(e => e.CardId == cost && e.From == CardLocation.Hand(0)) == 1 && s.E<BoundaryLiuFengUseIssuedEvent>().Length == 0,
             "The original frame really pays one native logical discard before any zero-material Slash is issued.");
+        s.Cold(); s.Continue(); s.Watch();
+        var rewardAttempt = s.G.ResolutionStack.OfType<NativeDrawAttemptFrame>().Single(f => f.Context.ParentFrameId == paidFrame);
+        s.Need(s.Root!.BoundaryLiuFeng is { Stage:BoundaryLiuFengStage.RewardDraw, Returned:true, ConsequencePaid:true, RewardDraw:null } && s.Root.NativeDraw is { RequestedCount:1, ReturnKind:NativeDrawAttemptReturnKind.ProgramOperation, Operation:SkillProgramEffectOp.ResolveBoundaryLiuFengQinling } &&
+            rewardAttempt.Context.RecipientSeat == 0 && rewardAttempt.Context.RequestedCount == 1 && rewardAttempt.Context.Reason.Value == "skill-program.boundary:qinling.reward" && s.V(0).HandCount == hand-1,
+            "The reward first opens the genuine NativeDrawStarting replacement window on the original paid frame, after the whole real Slash returns and before drawing any reward material.");
+        s.Continue(); s.Watch();
+        var reward = s.Root!.BoundaryLiuFeng!.RewardDraw!;
+        s.Need(reward.AttemptFrameId == rewardAttempt.Id && reward.ActualDrawIds.Count == 1 && reward.Replacement is null && reward.ActualDrawIds.All(id => s.Zone(id) == CardLocation.Hand(0)) && s.E<BoundaryLiuFengRewardDrawReturnedEvent>().Count(e => e.FrameId == paidFrame) == 1 && s.E<NativeDrawAttemptDecidedEvent>().Count(e => e.AttemptFrameId == rewardAttempt.Id && e.ParentFrameId == paidFrame && !e.Replaced) == 1,
+            "One native draw returns its exact typed outcome and actual reward entity to the same paid frame; its movement observer still suspends final completion.");
         s.Cold(); s.Continue(); s.Play();
         var hit = s.E<BoundaryLiuFengUseIssuedEvent>().Single().Origin;
         s.Need(hit.FrameId == paidFrame && s.V(3).Hp == hp - 1 && s.V(0).HandCount == hand && s.Zone(cost) == CardLocation.DiscardPile && s.E<BoundaryLiuFengCostPaidEvent>().Count(e => e.FrameId == paidFrame) == 1 && s.E<BoundaryLiuFengConsequenceEvent>().Single().Damaged &&
@@ -137,7 +146,11 @@ internal static class BoundaryLiuFengChecks
               {"id":"{{Quiet}}","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
               {"id":"{{NoDraw}}","revision":1,"triggers":[{"id":"none","window":"drawPhaseStarting","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"adjustNormalDraw","target":"owner","amount":-2}]}]},
               {"id":"{{Ask}}","revision":1,"triggers":[{"id":"native-foreign-turn","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingLeastHandCount"},{"op":"requestSlashByTarget","target":"selectedTarget","resultBind":"request"}]}]},
-              {"id":"{{Watch}}","revision":1,"triggers":[{"id":"paid-original","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:qinling.cost"],"optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid","options":[{"id":"continue"}]}]}]}
+              {"id":"{{Watch}}","revision":1,"triggers":[
+                {"id":"paid-original","window":"cardsMoved","subject":"owner","sourceZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:qinling.cost"],"optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"paid","options":[{"id":"continue"}]}]},
+                {"id":"native-reward-request","window":"nativeDrawStarting","subject":"owner","optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"reward-request","options":[{"id":"continue"}]}]},
+                {"id":"reward-gained","window":"cardsMoved","subject":"owner","sourceZones":["drawPile"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:qinling.reward"],"optional":false,"isSkillInvocation":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"reward-gained","options":[{"id":"continue"}]}]}
+              ]}
             ]}
             """;
             var names = new Dictionary<string,object>();

@@ -32,7 +32,7 @@ internal static class BoundaryLiuFengComposition
         if (!clean || !valid) throw new InvalidOperationException(path + ": OL Liu Feng requires the two-card public-pile collection and original actual-turn discard before a wholly native zero-material Slash.");
     }
 }
-public enum BoundaryLiuFengStage { Collect, Targets, Cost, MovementChildren, Issuing, NativeUse, NativeTail, Completed }
+public enum BoundaryLiuFengStage { Collect, Targets, Cost, MovementChildren, Issuing, NativeUse, NativeTail, Completed, RewardDraw }
 public sealed record BoundaryLiuFengReceipt(CardConversionSource Source, string Hash, SkillProgramEffectOp Op, long ParentId, int Turn, int TurnOwner, BoundaryLiuFengStage Stage)
 {
     private IReadOnlyList<int> _cards = [], _targets = [];
@@ -53,6 +53,7 @@ public sealed record BoundaryLiuFengReceipt(CardConversionSource Source, string 
     public bool Returned { get; init; }
     public bool Damaged { get; init; }
     public bool ConsequencePaid { get; init; }
+    public NativeDrawOutcome? RewardDraw { get; init; }
     public int BaseDamage { get; init; }
     public BoundaryLiuFengNeed? Need { get; init; }
     private PendingDecision? _originalDecision;
@@ -69,6 +70,7 @@ public sealed record BoundaryLiuFengUseIssuedEvent(BoundaryLiuFengUseOrigin Orig
 public sealed record BoundaryLiuFengUseReturnedEvent(long FrameId, long UseId, long ActionId, bool Damaged) : IGameEvent;
 public sealed record BoundaryLiuFengNativeBatchEvent(long FrameId, long UseId, long BatchId) : IGameEvent;
 public sealed record BoundaryLiuFengConsequenceEvent(long FrameId, long UseId, bool Damaged, bool MovedCost) : IGameEvent;
+public sealed record BoundaryLiuFengRewardDrawReturnedEvent(long FrameId, long UseId, long? AttemptFrameId, int ActualDrawCount, int ReplacementGainCount, long Before, long After) : IGameEvent;
 public sealed record BoundaryLiuFengCompletedEvent(long FrameId) : IGameEvent;
 public enum BoundaryLiuFengIntent { BorrowedSword, Qinglong, ProgramSlash, ProgramNearestSlash, AssistedSlash, NearestLegalSlash, FixedSlash, GenericBasic }
 public sealed record BoundaryLiuFengNeed(BoundaryLiuFengIntent Intent, long OwnerFrameId, long RequestFrameId, long? ParentActionId, int ActorSeat, int InstructionIndex, SkillProgramEffectOp? RequestOp, IReadOnlyList<int> Targets)

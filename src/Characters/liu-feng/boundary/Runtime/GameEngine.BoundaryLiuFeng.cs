@@ -118,7 +118,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { BoundaryLiuFeng: { } r } f || f.Id != id) return;
         if (!ValidBoundaryLiuFeng(f)) throw new InvalidOperationException("Liu Feng lost its once-paid native continuation.");
         if (r.Stage is BoundaryLiuFengStage.Collect or BoundaryLiuFengStage.Targets or BoundaryLiuFengStage.Cost) { if (_pendingDecision is null) PublishBoundaryLiuFeng(f); return; }
-        if (r.Stage == BoundaryLiuFengStage.NativeUse) return;
+        if (r.Stage is BoundaryLiuFengStage.NativeUse or BoundaryLiuFengStage.RewardDraw) return;
         if (r.Stage is BoundaryLiuFengStage.MovementChildren or BoundaryLiuFengStage.NativeTail)
         {
             if (DrainBoundaryLiuFeng(f)) return;

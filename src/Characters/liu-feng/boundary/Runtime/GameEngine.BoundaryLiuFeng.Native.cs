@@ -81,7 +81,21 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { BoundaryLiuFeng = r with { ConsequencePaid = true, Movement = "reward", Before = _movementSequence, After = _movementSequence } });
         AdvanceEventRulesAndQueueFact(new BoundaryLiuFengConsequenceEvent(f.Id, r.UseId, r.Damaged, move));
         if (move) { BeginBoundaryLiuFengMovement(f, [r.Cards[0]], CardLocation.Authority(f.OwnerSeat), "inverse"); return; }
-        if (r.Damaged && _players[f.OwnerSeat].IsAlive) { DrawCards(_players[f.OwnerSeat], 1, log: true, reason: new("skill-program.boundary:qinling.reward")); f = GetActiveProgramFrame(f.Id); ReplaceRuntimeTop(f = f with { BoundaryLiuFeng = f.BoundaryLiuFeng! with { After = _movementSequence } }); }
+        if (r.Damaged && _players[f.OwnerSeat].IsAlive)
+        {
+            ReplaceRuntimeTop(f = f with { BoundaryLiuFeng = f.BoundaryLiuFeng! with { Stage = BoundaryLiuFengStage.RewardDraw }, PendingMovementContinuation = null });
+            BeginOperationProgramDraw(f, f.OwnerSeat, 1, new("skill-program.boundary:qinling.reward")); return;
+        }
+        ContinueBoundaryLiuFeng(f.Id);
+    }
+    [ProgramNativeDrawReturn(SkillProgramEffectOp.ResolveBoundaryLiuFengQinling)]
+    private void ReturnBoundaryLiuFengRewardDraw(ProgramSkillFrame supplied, NativeDrawOutcome outcome)
+    {
+        var f = GetActiveProgramFrame(supplied.Id);
+        if (!ValidBoundaryLiuFeng(f) || f.BoundaryLiuFeng is not { Stage: BoundaryLiuFengStage.RewardDraw, ConsequencePaid: true, Returned: true, Damaged: true, RewardDraw: null } r || f.NativeDraw is not null || outcome.RecipientSeat != f.OwnerSeat || outcome.RequestedCount != 1 || outcome.SequenceAfter != _movementSequence || ProgramEventHistory<BoundaryLiuFengRewardDrawReturnedEvent>().Any(e => e.FrameId == f.Id))
+            throw new InvalidOperationException("Qinling reward lost its original once-issued native draw and typed return.");
+        ReplaceRuntimeTop(f = f with { BoundaryLiuFeng = r with { Stage = BoundaryLiuFengStage.NativeTail, RewardDraw = outcome, Before = outcome.SequenceBefore, After = outcome.SequenceAfter }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
+        AdvanceEventRulesAndQueueFact(new BoundaryLiuFengRewardDrawReturnedEvent(f.Id, r.UseId, outcome.AttemptFrameId, outcome.ActualDrawIds.Count, outcome.ReplacementGainedIds.Count, outcome.SequenceBefore, outcome.SequenceAfter));
         ContinueBoundaryLiuFeng(f.Id);
     }
 }
