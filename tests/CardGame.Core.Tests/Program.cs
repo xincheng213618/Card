@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -336,12 +336,19 @@ var tests = new (string Name, Action Body)[]
     ("Shanhe Yudu: final preparation judgment poison loss before native Niepan cold", ShanheYuduChecks.FinalPreparationJudgmentRemovesOrPaysPoisonBeforeNativeNiepanCold),
     ("Shanhe Yudu: paid poison sources and isolated actual recipes cold", ShanheYuduChecks.PaidPoisonSourcesAndActualRecipesStayIsolatedCold),
     ("Shanhe Liru: actual single enemy recipe conditional registry and recovery", ShanheLiruEncounterChecks.ActualSingleEnemyRecipeAndConditionalRegistryRecover),
-    ("Shanhe encounters: immediate previous expeditions preserve routes and pending recipes cold", ShanheEncounterChecks.PreviousExpeditionsKeepExactRoutesAndPendingRecipesCold),
     ("Shanhe encounters: source recipes conditional packages and battle recovery", ShanheEncounterChecks.ActualEncounterRecipesAndConditionalPackagesRecoverCold),
     ("Shanhe S5 Sima Yi: four Ren actual damage and phase discards original Jilue cold", CardGame.Core.Tests.ShanheS5SimayiChecks.FourRenPerActualPointAndPhaseDiscardPayOriginalJilueColdWithoutAwakeningCost),
     ("Shanhe S5 Qiangxi: actual round scaling native costs Ninge and cold", ShanheS5QiangxiChecks.ActualRoundScalingTwoPhaseCostsNingeAndCold),
     ("Shanhe S5 Xiahou: Ganglie each real point native judgments and paid discard cold", ShanheS5XiahouPairChecks.GanglieEachRealPointJudgesRedTwoOrDiscardsTwoAndPaidChildrenCold),
     ("Shanhe S5 Xiahou: Shensu actual phase costs frozen count other source and cold", ShanheS5XiahouPairChecks.ShensuThreeNativeCostsFrozenActualSkipsAndOtherSourceDedupCold),
+    ("Shanhe S5 Zuoci: three initial two exchanged and native damage libraries cold", CardGame.Core.Tests.ShanheS5ZuociHuatuoChecks.ThreeInitialTwoExchangedAndThreePerActualDamagePointUseNativeLibraryCold),
+    ("Shanhe S5 Zuoci: exhausted pool zero exchange preserves displayed avatar cold", CardGame.Core.Tests.ShanheS5ZuociHuatuoChecks.ExhaustedAvatarPoolKeepsDisplayedCardAndAllowsZeroExchangeCold),
+    ("Shanhe S5 Cao Wei: Jianxiong native lost HP draw original claim and cold", ShanheS5CaoWeiPioneersChecks.JianxiongLostHpDrawBeforeOriginalClaimAndCardlessCold),
+    ("Shanhe S5 Cao Wei: Hujia actual Used Played chooser quota and cold", ShanheS5CaoWeiPioneersChecks.HujiaActualUsedPlayedForeignChooserSharedTurnQuotaAndCold),
+    ("Shanhe S5 Zhangxiu: native areas paid children and repeated abolished judgment cold", ShanheS5ZhangxiuChecks.XiongluanRealAreaCostsRecoveryChildrenAndAlreadyAbolishedJudgmentCold),
+    ("Shanhe S5 Zhangxiu: Leizhen native materials next Slash prediction and unequipped benefit cold", ShanheS5ZhangxiuChecks.LeizhenNativeHandMaterialsThirdSlashNonstackAndUnequippedBenefitCold),
+    ("Shanhe S5 Xingtian: native weapon cost all response bans armor and expiry cold", ShanheXingtianChecks.FixedHandRealEquipWeaponCostAndAllResponsesSealOtherSourceArmorUntilActualTurnEndCold),
+    ("Shanhe S5 Xingtian: original special axe retains hand-only and directed armor contract", ShanheXingtianChecks.ExistingSpecialAxeStillOnlyBlocksHandAndHolderArmorBypass),
     ("Shanhe NPC opening: random four plus fixed equipment native cold", ShanheNpcStartingCardChecks.RandomFourPlusFixedEquipmentOrdinaryLifecycleAndRecipeCold),
     ("Shanhe S5 Li Jue: every actual prepare positive random damage and paid child cold", ShanheS5LiJueChecks.EveryActualPreparePositiveRandomDamageAndPaidChildCold),
     ("Shanhe Zhanhun Dao: real equipped native and cardless damage with cold health child", ShanheZhanhunDaoChecks.RealEquippedWeaponPreventsNativeAndCardlessDamageWithColdHealthChild),

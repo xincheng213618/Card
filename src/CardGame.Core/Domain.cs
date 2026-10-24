@@ -123,6 +123,8 @@ public enum CardKind
     ColdSlash = 5770,
     AnqiFeiren = 5780,
     YaodaoChitong = 5790,
+    ShanheXingtianAxe = 59300,
+    Leizhen = 59400,
     DagongChe = 43500,
     MantianGuohai = 47700
 }

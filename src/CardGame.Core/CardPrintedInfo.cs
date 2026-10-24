@@ -28,7 +28,7 @@ public static class CardPrintedInfo
             CardKind.GhostDragonCrescentBlade, CardKind.ScarletBloodSword,
             CardKind.RedBloodBlade, CardKind.Xuanjian, CardKind.WushuangHalberd, CardKind.QimenEightTrigrams,
             CardKind.ShuraInfernoHalberd, CardKind.TransplantWood, CardKind.WenheChaos, CardKind.RealgarWine,
-            CardKind.QizhengXiangsheng, CardKind.QiBaoDao, CardKind.BaiBiDao, CardKind.YaodaoChitong);
+            CardKind.QizhengXiangsheng, CardKind.QiBaoDao, CardKind.BaiBiDao, CardKind.YaodaoChitong, CardKind.Leizhen);
         Add(PrintedCardTerms.Hp, CardKind.Peach, CardKind.Alcohol, CardKind.PeachGarden, CardKind.SilverLion,
             CardKind.Zong, CardKind.Reinforcements, CardKind.StarShift, CardKind.WenheChaos, CardKind.Poison,
             CardKind.SowBeans, CardKind.ShuraInfernoHalberd, CardKind.AllianceFeast, CardKind.ZhanhunDao);
@@ -39,10 +39,10 @@ public static class CardPrintedInfo
             CardKind.ScarletBloodSword, CardKind.XingtianAxe, CardKind.RedBloodBlade, CardKind.GeneralWeapon,
             CardKind.Xuanjian, CardKind.WushuangHalberd, CardKind.CrimsonSoulZither,
             CardKind.ShuraInfernoHalberd, CardKind.ThunderChariot, CardKind.QiBaoDao, CardKind.BaiBiDao, CardKind.ZhanhunDao,
-            CardKind.AnqiFeiren, CardKind.YaodaoChitong);
+            CardKind.AnqiFeiren, CardKind.YaodaoChitong, CardKind.ShanheXingtianAxe, CardKind.Leizhen);
         Add(PrintedCardTerms.Play, CardKind.BarbarianAssault, CardKind.ArrowBarrage, CardKind.Duel,
             CardKind.BaguaFormation, CardKind.ZhangbaSerpentSpear, CardKind.QizhengXiangsheng,
-            CardKind.ScarletBloodSword, CardKind.XingtianAxe, CardKind.WoodenOx);
+            CardKind.ScarletBloodSword, CardKind.XingtianAxe, CardKind.ShanheXingtianAxe, CardKind.WoodenOx);
         Add(PrintedCardTerms.Distance, CardKind.OffensiveHorse, CardKind.DefensiveHorse,
             CardKind.Dawan, CardKind.Zixing, CardKind.Dilu, CardKind.Zhaohuangfeidian, CardKind.Hualiu,
             CardKind.Snatch, CardKind.SupplyShortage, CardKind.DustlessGoldenSpear, CardKind.WenheChaos);

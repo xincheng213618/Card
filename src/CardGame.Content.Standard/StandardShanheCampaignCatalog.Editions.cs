@@ -55,9 +55,12 @@ public static partial class StandardShanheCampaignCatalog
     private static ShanheCampaignDefinition CreateCurrentBaseDefinition(int difficulty, string editionId) => editionId switch
     {
         LocalEditionId => CreateLegacyLocalDefinition(difficulty),
-        Returning2026EditionId => WithS5VanguardGroupEncounters(CreateS5ArmedDefinition(difficulty)),
+        Returning2026EditionId => WithS5SpecialistGroupEncounters(CreateS5VanguardDefinition(difficulty)),
         _ => throw new ArgumentException("Unknown Shanhe campaign edition.", nameof(editionId))
     };
+
+    private static ShanheCampaignDefinition CreateS5VanguardDefinition(int difficulty) =>
+        WithS5VanguardGroupEncounters(CreateS5ArmedDefinition(difficulty));
 
     private static ShanheCampaignDefinition CreateS5ArmedDefinition(int difficulty) =>
         WithS5ArmedSourceEncounters(CreateS5CourtDefinition(difficulty));
@@ -89,16 +92,7 @@ public static partial class StandardShanheCampaignCatalog
         definition = WithSavedRoster(definition);
         if (string.Equals(ShanheCampaignContent.GetContentHash(definition), checkpoint.CampaignHash, StringComparison.Ordinal))
             return definition;
-        // Only the immediately preceding expedition content remains supported.
-        if (editionId == Returning2026EditionId)
-        {
-            var previous = CreateS5ArmedDefinition(difficulty);
-            if (checkpoint.Options.UseCodexRewardPool) previous = WithCodexRewards(previous, editionId);
-            previous = WithSavedRoster(WithStartingResourcesContract(previous));
-            if (string.Equals(ShanheCampaignContent.GetContentHash(previous), checkpoint.CampaignHash, StringComparison.Ordinal))
-                return previous;
-        }
-        throw new ArgumentException("Campaign checkpoint content fingerprint does not match a supported definition.", nameof(checkpoint));
+        throw new ArgumentException("Campaign checkpoint content fingerprint does not match the current definition.", nameof(checkpoint));
     }
 
     public static string EditionIdForCampaign(string campaignId, int difficulty)

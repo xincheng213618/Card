@@ -125,12 +125,14 @@ public sealed partial class GameEngine
             .Concat(_privateGeneralLibraries.Values.SelectMany(l=>l.GeneralIds)).ToHashSet(StringComparer.Ordinal);
         return _generalPool.Select(g=>g.Id).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).Where(id=>!excluded.Contains(id));
     }
-    private PrivateGeneralLibrary DrawPrivateGeneralAvatars(PrivateGeneralLibrary library,int amount)
+    private PrivateGeneralLibrary DrawPrivateGeneralAvatars(PrivateGeneralLibrary library,int amount,
+        IReadOnlyCollection<string>? excludedIds = null)
     {
         var ids=library.GeneralIds.ToList();
         for(var i=0;i<amount;i++)
         {
-            var candidates=PrivateGeneralCandidates().Where(id=>!ids.Contains(id,StringComparer.Ordinal)).ToArray();if(candidates.Length==0)break;
+            var candidates=PrivateGeneralCandidates().Where(id=>!ids.Contains(id,StringComparer.Ordinal) &&
+                (excludedIds is null || !excludedIds.Contains(id,StringComparer.Ordinal))).ToArray();if(candidates.Length==0)break;
             ids.Add(candidates[_random.Next(candidates.Length)]);
         }
         library=library with{GeneralIds=Array.AsReadOnly(ids.ToArray()),Initialized=true,Revision=library.Revision+1};

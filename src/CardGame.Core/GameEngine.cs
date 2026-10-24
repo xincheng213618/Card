@@ -17936,6 +17936,7 @@ public sealed partial class GameEngine
         AssertUnexpectedAssaultReceipts();
         foreach (var floodUse in _resolutionStack.OfType<CardUseFrame>()) AssertWumiaoFlood(floodUse);
         foreach (var qizhengUse in _resolutionStack.OfType<CardUseFrame>()) AssertQizheng(qizhengUse);
+        foreach (var leizhenUse in _resolutionStack.OfType<CardUseFrame>()) AssertShanheLeizhenUse(leizhenUse);
         AssertExtraCardEffectReceipts();
         AssertMouBingcaiExtraEffectRounds();
         AssertMoQuanyuSlashUses();

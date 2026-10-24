@@ -87,7 +87,7 @@ public sealed partial class GameEngine
             if (item.AffectedSeat == player.Seat && Current(item.TurnNumber, item.TurnSeat))
                 Add(item.Source.SkillId, item.Source.OwnerSeat, $"不能使用或打出{(item.IsRed ? "红色" : "黑色")}手牌。");
         foreach (var item in _turnCardUseEffects.TargetRestrictions)
-            if ((item.Restriction == SkillProgramCardTargetRestriction.ArmorIneffectiveForTurn
+            if ((item.Restriction is SkillProgramCardTargetRestriction.ArmorIneffectiveForTurn or SkillProgramCardTargetRestriction.CannotUseOrPlayForTurn
                     ? item.TargetSeat : item.SubjectSeat ?? item.Source.OwnerSeat) == player.Seat && Current(item.TurnNumber, item.TurnSeat))
             {
                 var target = item.TargetSeat is { } seat ? SeatName(seat) : "指定角色";
@@ -98,6 +98,7 @@ public sealed partial class GameEngine
                     SkillProgramCardTargetRestriction.SlashCountUnlimitedAgainstTarget => $"对{target}使用【杀】无次数限制。",
                     SkillProgramCardTargetRestriction.IgnoreArmorAgainstTarget => $"对{target}使用牌时无视其防具。",
                     SkillProgramCardTargetRestriction.ArmorIneffectiveForTurn => "防具失效。",
+                    SkillProgramCardTargetRestriction.CannotUseOrPlayForTurn => "本回合不能使用或打出牌。",
                     _ => $"【杀】的指定目标限制：{target}。"
                 };
                 Add(item.Source.SkillId, item.Source.OwnerSeat, text);

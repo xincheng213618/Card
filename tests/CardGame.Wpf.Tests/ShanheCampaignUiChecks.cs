@@ -589,12 +589,15 @@ internal static class ShanheCampaignUiChecks
     {
         var published = StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.Returning2026EditionId);
         var guangcheng = published.Nodes.Single(node => node.Id == "guangcheng");
-        var fixedEnemies = new[] { StandardShanheS5LiJuePackage.LijueId, StandardShanheS5GuosiPackage.GuosiId }
+        var fixedEnemies = new[] { StandardShanheS5LiJuePackage.LijueId, StandardShanheS5GuosiPackage.GuosiId, StandardShanheS5ZhangxiuPackage.ZhangxiuId }
             .Select(id => guangcheng.Encounters!.SelectMany(encounter => encounter.Enemies).Single(enemy => enemy.GeneralId == id)).ToArray();
         Program.Assert(fixedEnemies.SelectMany(enemy => enemy.StartingCards ?? []).Select(card => card.Kind)
-                .SequenceEqual([CardKind.ScarletBloodSword, CardKind.ZhanhunDao]) &&
+                .SequenceEqual([CardKind.ScarletBloodSword, CardKind.ZhanhunDao, CardKind.Leizhen]) &&
             fixedEnemies.All(enemy => enemy.StartingHand is null),
-            "The actual published Guangcheng candidates retain random opening hands and expose only their two additional fixed weapons.");
+            "The actual published Guangcheng candidates retain random opening hands and expose their three additional fixed weapons.");
+        foreach (var kind in new[] { CardKind.Leizhen, CardKind.ShanheXingtianAxe })
+            Program.Assert(CardArt.Get(kind) is not null && CardArt.GetEquipment(kind) is not null && CardArt.NeedsRuntimeNameOverlay(kind),
+                "Both new fixed weapons have readable card faces, equipment icons and runtime name overlays.");
         // Retain the entire published graph and both original departures.
         // Expose the route choice instead of randomly selecting one entrance;
         // the real southern preparation commands still unlock Guangcheng.
@@ -628,8 +631,9 @@ internal static class ShanheCampaignUiChecks
             Program.Assert(model.IsShanheEncounterPreviewOpen && scroll.Content is TextBlock detail &&
                 detail.Text == model.ShanheEncounterEnemyDetail && detail.Visibility == Visibility.Visible && detail.ActualHeight > 0 &&
                 detail.Text.Contains("李傕", StringComparison.Ordinal) && detail.Text.Contains("郭汜", StringComparison.Ordinal) &&
+                detail.Text.Contains("张绣", StringComparison.Ordinal) &&
                 detail.Text.Contains("额外起手牌（随机起手之外）", StringComparison.Ordinal) &&
-                new[] { CardKind.ScarletBloodSword, CardKind.ZhanhunDao }.All(kind =>
+                new[] { CardKind.ScarletBloodSword, CardKind.ZhanhunDao, CardKind.Leizhen }.All(kind =>
                     detail.Text.Contains("【" + CardCatalog.Get(kind).DisplayName + "】", StringComparison.Ordinal) &&
                     detail.Text.Contains(CardCatalog.Get(kind).Description, StringComparison.Ordinal)),
                 "The real preview control shows Scarlet Blood Sword and Soul Cleaver with their complete CardCatalog rules as additional hand cards, alongside the published Li Jue and Guo Si.");

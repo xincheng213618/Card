@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:xingtian-axe-20766-effect", "revision": 1,
+    "triggers": [{
+      "id": "single-target-card", "window": "cardUseBeforeTargetEffects", "ownerRelation": "actor",
+      "optional": true, "condition": { "kind": "all", "children": [
+        { "kind": "cardActionPhaseIsPlay" },
+        { "kind": "compare", "left": { "kind": "cardUseDesignatedTargetCount" }, "operator": "equal",
+          "right": { "kind": "integerConstant", "value": 1 } }
+      ] },
+      "effects": [
+        { "op": "selectTarget", "target": "owner", "targetKind": "eventTarget" },
+        { "op": "selectOwnedCards", "target": "owner", "minimumCards": 2, "maximumCards": 2,
+          "zones": ["hand", "equipment"], "resultBind": "axe-cost" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "axe-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+        { "op": "applyShanheXingtianSeal", "target": "owner" }
+      ]
+    }]
+  }]
+}

@@ -28,7 +28,7 @@ public sealed partial class GameEngine
             ? ProgramInstructionResolver.Default.FindTrigger(program, claim.BindingId) : null;
         if (claim.CardUseFrameId != use.Id || claim.ActionId != action.ActionId || extra.ActionId != action.ActionId ||
             !action.PhysicalCards.Any(c => c.CardId == claim.CardId) || !IsValidPlayerSeat(claim.RecipientSeat) ||
-            trigger is null || claim.EffectIndex < 0 || claim.EffectIndex >= trigger.Effects.Count || trigger.Effects[claim.EffectIndex].Op != SkillProgramEffectOp.ClaimDamageCards ||
+            trigger is null || claim.EffectIndex < 0 || claim.EffectIndex >= trigger.Effects.Count || trigger.Effects[claim.EffectIndex].Op is not (SkillProgramEffectOp.ClaimDamageCards or SkillProgramEffectOp.ClaimShanheS5JianxiongCards) ||
             !_cardMovements.Any(m => m.Sequence == claim.MovementSequence && m.CardId == claim.CardId &&
                 m.From == CardLocation.Processing && m.To == CardLocation.Hand(claim.RecipientSeat) && m.Reason.Value == claim.MovementReason) ||
             CompleteProgramEventHistory().OfType<DamageTriggerWindowOpenedEvent>().Count(e => e.ResolutionId == claim.DamageWindowFrameId &&

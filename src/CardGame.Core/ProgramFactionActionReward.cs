@@ -29,12 +29,17 @@ public sealed class RewardOutOfTurnFactionSlashHandler : ISkillProgramEffectHand
 
 public sealed partial class GameEngine
 {
-    private bool TracksFactionActionOrigin => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardOutOfTurnFactionSlash);
+    private static bool IsFactionActionReward(SkillProgramEffect effect) => effect.Op is
+        SkillProgramEffectOp.RewardOutOfTurnFactionSlash or SkillProgramEffectOp.RewardOutOfTurnFactionDodge;
+    private bool TracksFactionActionOrigin => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardOutOfTurnFactionSlash) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardOutOfTurnFactionDodge);
     private CardActionContext CaptureFactionAction(CardActionContext action)
     {
         if (action.Type == CardActionType.Response) action = NormalizeShiLsResponseAction(action);
         action = CaptureWushuangJinzhiAppearance(action);
-        if (!TracksFactionActionOrigin || action.FactionOrigin is not null || !IsSlashCard(action.EffectiveKind) || action.ActionId == 0) return action;
+        if (!TracksFactionActionOrigin || action.FactionOrigin is not null ||
+            !(IsSlashCard(action.EffectiveKind) || action.EffectiveKind == CardKind.Dodge &&
+                _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardOutOfTurnFactionDodge)) || action.ActionId == 0) return action;
         return new(action.ActionId, action.ParentActionId, action.Type, action.ActorSeat, action.ProviderSeat, action.RequesterSeat, action.ResponderSeat, action.OpponentSeat,
             action.EffectiveKind, action.TargetSeats, action.PhysicalCards, action.ConversionChain, action.DesignatedTargetSeats, action.EffectiveSuit, action.EffectiveRank, action.EffectiveIsRed,
             new(_turnNumber, _currentSeat, GetEffectiveFactionId(_players[action.ActorSeat]), GetEffectiveFactionId(_players[action.ProviderSeat])));
@@ -51,8 +56,10 @@ public sealed partial class GameEngine
 
     private int? FactionActionRewardChooser(int owner, SkillProgramTrigger trigger, CardActionContext action)
     {
-        var effect = trigger.Effects.SingleOrDefault(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash);
-        if (effect is null || action.FactionOrigin is not { } origin || origin.ActualTurnNumber != _turnNumber || !IsSlashCard(action.EffectiveKind)) return null;
+        var effect = trigger.Effects.SingleOrDefault(IsFactionActionReward);
+        if (effect is null || action.FactionOrigin is not { } origin || origin.ActualTurnNumber != _turnNumber ||
+            (effect.Op == SkillProgramEffectOp.RewardOutOfTurnFactionDodge
+                ? action.EffectiveKind != CardKind.Dodge : !IsSlashCard(action.EffectiveKind))) return null;
         var actualSeat = action.ActorSeat == owner ? action.ProviderSeat : action.ActorSeat;
         var faction = action.ActorSeat == owner ? origin.ProviderFactionId : origin.ActorFactionId;
         if (actualSeat == owner || actualSeat == origin.ActualTurnOwnerSeat || faction != effect.ProviderFactionId || !_players[actualSeat].IsAlive) return null;
@@ -66,7 +73,7 @@ public sealed partial class GameEngine
     {
         if (action.Type != CardActionType.Use || !TracksFactionActionOrigin) return;
         var offers = candidates.Where(candidate => _contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers
-            .Single(trigger => trigger.Id == candidate.TriggerId).Effects.Any(effect => effect.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash))
+            .Single(trigger => trigger.Id == candidate.TriggerId).Effects.Any(IsFactionActionReward))
             .Select(candidate => new ProgramFactionRewardOffer(candidate.OwnerSeat, candidate.SkillId)).Distinct().ToArray();
         if (offers.Length == 0) return;
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Action?.ActionId == action.ActionId);
@@ -76,7 +83,7 @@ public sealed partial class GameEngine
     [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeCondition, 10)]
     private bool CanRunFactionActionReward(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext context)
     {
-        if (!trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash)) return true;
+        if (!trigger.Effects.Any(IsFactionActionReward)) return true;
         var window = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().SingleOrDefault(f => f.Id == context.ParentFrameId);
         return window is not null && context.OptionalChooserSeat is { } chooser && FactionActionRewardChooser(candidate.OwnerSeat, trigger, window.Action) == chooser &&
             HasSkillRoleQualification(_players[candidate.OwnerSeat], candidate.SkillId, candidate.SkillInstanceId, Role.Lord);

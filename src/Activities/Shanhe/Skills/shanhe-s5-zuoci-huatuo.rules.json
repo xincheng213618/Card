@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "shanhe:s5-huashen-881",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial", "window": "gameStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "initializePrivateGeneralLibrary", "target": "owner", "amount": 3, "excludedSkillTags": ["limited", "awakening", "lord"] }]
+        },
+        {
+          "id": "start", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true,
+          "effects": [{ "op": "chooseOrExchangeShanheS5Avatar", "target": "owner", "excludedSkillTags": ["limited", "awakening", "lord"] }]
+        },
+        {
+          "id": "ended", "window": "afterTurnEnded", "subject": "owner", "optional": true,
+          "effects": [{ "op": "chooseOrExchangeShanheS5Avatar", "target": "owner", "excludedSkillTags": ["limited", "awakening", "lord"] }]
+        }
+      ]
+    },
+    {
+      "id": "shanhe:s5-xinsheng-14200",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamagePoint", "optional": true,
+          "effects": [{ "op": "acquirePrivateGeneralAvatar", "target": "owner", "amount": 3, "skillIds": ["shanhe:s5-huashen-881"], "excludedSkillTags": ["limited", "awakening", "lord"] }]
+        }
+      ]
+    }
+  ]
+}

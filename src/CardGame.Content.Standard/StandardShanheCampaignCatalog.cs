@@ -249,6 +249,21 @@ public static partial class StandardShanheCampaignCatalog
         var s5Xiahou = RequiresThreeBossRegistry(setup, StandardShanheS5XiahouPairPackage.XiahoudunId,
             StandardShanheS5XiahouPairPackage.GanglieId, StandardShanheS5XiahouPairPackage.ShensuId) ||
             ids.Contains(StandardShanheS5XiahouPairPackage.XiahouyuanId, StringComparer.Ordinal);
+        var s5Zhangxiu = RequiresThreeBossRegistry(setup, StandardShanheS5ZhangxiuPackage.ZhangxiuId,
+            StandardShanheS5ZhangxiuPackage.XiongluanId, StandardShanheS5ZhangxiuPackage.LeizhenSkillId) ||
+            ShanheRecipeCards(setup).Any(c => c.Kind == CardKind.Leizhen);
+        var s5Zuoci = RequiresThreeBossRegistry(setup, StandardShanheS5ZuociHuatuoPackage.ZuociId,
+            StandardShanheS5ZuociHuatuoPackage.HuashenId, StandardShanheS5ZuociHuatuoPackage.XinshengId) ||
+            ids.Contains(StandardShanheS5ZuociHuatuoPackage.HuatuoId, StringComparer.Ordinal);
+        var s5CaoWei = RequiresThreeBossRegistry(setup, StandardShanheS5CaoWeiPioneersPackage.CaocaoId,
+            StandardShanheS5CaoWeiPioneersPackage.JianxiongId, StandardShanheS5CaoWeiPioneersPackage.HujiaId) ||
+            ids.Any(id => id is StandardShanheS5CaoWeiPioneersPackage.CaozhenId or StandardShanheS5CaoWeiPioneersPackage.CaohongId);
+        var s5Xingtian = ShanheRecipeCards(setup).Any(c => c.Kind == CardKind.ShanheXingtianAxe) ||
+            setup.TacticSkillIds.Concat(setup.ExtraSkillIds)
+                .Concat(setup.AllyRoster.Concat(setup.EnemyRoster).SelectMany(member => member.ExtraSkillIds ?? []))
+                .Contains(StandardShanheXingtianPackage.SkillId, StringComparer.Ordinal);
+        var s5Zhangliao = RequiresThreeBossRegistry(setup, StandardShanheS5BossPackage.ZhangliaoBaseId,
+            StandardShanheS5BossPackage.TuxiId);
         var s5MaSiblings = s5MaPair || RequiresThreeBossRegistry(setup, StandardShanheS5MaSiblingsPackage.MachaoId,
             StandardShanheS5MaSiblingsPackage.MashuId, StandardShanheS5MaSiblingsPackage.TieqiId) ||
             ids.Contains(StandardShanheS5MaSiblingsPackage.MayunluId, StringComparer.Ordinal);
@@ -302,12 +317,17 @@ public static partial class StandardShanheCampaignCatalog
             (s5Simayi ? "/s5-simayi-2677" : "") +
             (s5Dianwei ? "/s5-dianwei-weizi-2650" : "") +
             (s5Xiahou ? "/s5-xiahou-pair-2651" : "") +
+            (s5Zhangxiu ? "/s5-zhangxiu-2638" : "") +
+            (s5Zuoci ? "/s5-zuoci-huatuo-2682" : "") +
+            (s5CaoWei ? "/s5-cao-wei-2679" : "") +
+            (s5Xingtian ? "/s5-xingtian-20766" : "") +
+            (s5Zhangliao ? "/s5-zhangliao-722" : "") +
             (s5Zaiqi ? "/s5-zaiqi-887" : "") +
             (setup.RebirthAvailable ? "/rank-five-rebirth" : "");
         return BattleRegistries.GetOrAdd(key, _ => new Lazy<ContentRegistry>(() =>
         {
             var packages = new List<IGameContentPackage> { new StandardShanheBossPackage() };
-            if (ids.Any(id => id == StandardShanheS5BossPackage.ZhangliaoBaseId ||
+            if (s5Zhangliao || ids.Any(id => id == StandardShanheS5BossPackage.ZhangliaoBaseId ||
                 id == StandardShanheS5BossPackage.ZhangliaoLingdongId || id == StandardShanheS5BossPackage.ZhangliaoHuangkongId ||
                 id == StandardShanheS5BossPackage.DongZhuoLuoyangId || id == StandardShanheS5BossPackage.DongMinBaseId ||
                 id == StandardShanheS5BossPackage.DongMinCuanchaoId || id == StandardShanheS5BossPackage.LvbuBajiId ||
@@ -347,6 +367,10 @@ public static partial class StandardShanheCampaignCatalog
             if (s5Simayi) packages.Add(new StandardShanheS5SimayiPackage());
             if (s5Dianwei) packages.Add(new StandardShanheS5DianweiWeiziPackage());
             if (s5Xiahou) packages.Add(new StandardShanheS5XiahouPairPackage());
+            if (s5Zhangxiu) packages.Add(new StandardShanheS5ZhangxiuPackage());
+            if (s5Zuoci) packages.Add(new StandardShanheS5ZuociHuatuoPackage());
+            if (s5CaoWei) packages.Add(new StandardShanheS5CaoWeiPioneersPackage());
+            if (s5Xingtian) packages.Add(new StandardShanheXingtianPackage());
             if (ids.Contains(StandardShanheS5ZhangniujiaoPackage.ZhangniujiaoId, StringComparer.Ordinal))
                 packages.Add(new StandardShanheS5ZhangniujiaoPackage());
             if (ids.Any(id => id is StandardShanheS5LvBuBasePackage.LvBuFiveId or StandardShanheS5LvBuBasePackage.LvBuFourId))

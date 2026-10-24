@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 3,
+  "skills": { "shanhe:xingtian-axe-20766-effect": {
+    "name": "刑天破军斧", "description": "出牌阶段，当你使用牌指定唯一目标后，你可以弃置两张牌，令其本回合内不能使用或打出牌且防具失效。"
+  } }
+}

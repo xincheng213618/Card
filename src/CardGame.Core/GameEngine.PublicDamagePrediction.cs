@@ -68,6 +68,7 @@ public sealed partial class GameEngine
         var paidHand = action.CardId is { } id && ownHand.Any(card => card.Id == id) ? 1 : 0;
         var amount = kind is { } card && IsSlashCard(card)
             ? checked(1 + (_players[viewerSeat].HasAlcoholEffect ? Math.Max(1, _players[viewerSeat].AlcoholDamageBonus) : 0)) : 1;
+        amount = checked(amount + ShanheLeizhenPublicActionBonus(viewerSeat, kind));
         if (damageKind == CardKind.Duel && TryGetShanheS5ShuangxiongPublicDuelBaseDamage(viewerSeat, action, out var scaled))
             amount = scaled;
         return PredictVisibleDamage(view, viewerSeat, targetSeat, kind is null ? 0 : amount,

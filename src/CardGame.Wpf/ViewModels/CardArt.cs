@@ -12,12 +12,12 @@ public static class CardArt
 
     public static bool NeedsRuntimeNameOverlay(CardKind? kind) =>
         kind is CardKind.GeneralWeapon or CardKind.ScarletBloodSword or CardKind.Xuanjian or CardKind.ColdSlash or
-            CardKind.AnqiFeiren or CardKind.YaodaoChitong or CardKind.MantianGuohai;
+            CardKind.AnqiFeiren or CardKind.YaodaoChitong or CardKind.ShanheXingtianAxe or CardKind.Leizhen or CardKind.MantianGuohai;
 
     public static ImageSource? Get(CardKind? kind)
     {
         if (kind is not { } key || !Enum.IsDefined(key)) return null;
-        return Load($"{(key is CardKind.Xuanjian or CardKind.AnqiFeiren or CardKind.YaodaoChitong ? CardKind.GeneralWeapon : key == CardKind.ColdSlash ? CardKind.Slash : key)}.png");
+        return Load($"{(key is CardKind.Xuanjian or CardKind.AnqiFeiren or CardKind.YaodaoChitong or CardKind.ShanheXingtianAxe or CardKind.Leizhen ? CardKind.GeneralWeapon : key == CardKind.ColdSlash ? CardKind.Slash : key)}.png");
     }
 
     public static ImageSource? GetRank(string rank, string suit) =>
@@ -31,7 +31,7 @@ public static class CardArt
     };
 
     public static ImageSource? GetEquipment(CardKind kind) =>
-        EquipmentCatalog.IsEquipment(kind) ? Load($"equip-{(kind == CardKind.Xuanjian ? CardKind.GeneralWeapon : kind)}.png") : null;
+        EquipmentCatalog.IsEquipment(kind) ? Load($"equip-{(kind is CardKind.Xuanjian or CardKind.ShanheXingtianAxe or CardKind.Leizhen ? CardKind.GeneralWeapon : kind)}.png") : null;
 
     private static ImageSource? Load(string key)
     {

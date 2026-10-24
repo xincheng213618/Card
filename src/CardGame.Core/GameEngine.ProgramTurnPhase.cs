@@ -60,7 +60,7 @@ public sealed partial class GameEngine
         var target = _players[targetSeat];
         var activeUse = active.TriggerId is null && instruction.Op == SkillProgramEffectOp.UseVirtualCard;
         var phaseControlParticipant = HasPhaseStartCardUseParticipant(source.Seat);
-        if ((phaseControlParticipant || activeUse || IsShanheS5ShensuFrame(active)) && (IsCardUseForbidden(source.Seat, cardKind, CardActionType.Use) ||
+        if ((phaseControlParticipant || activeUse || IsShanheS5ShensuFrame(active) || HasShanheXingtianSeal(source.Seat)) && (IsCardUseForbidden(source.Seat, cardKind, CardActionType.Use) ||
             HasTurnCardTargetRestriction(source.Seat, SkillProgramCardTargetRestriction.SelfOnly)))
             return SkillProgramStepOutcome.Continue;
         if (active.WindowContext is { Window: SkillProgramTriggerWindow.RoundStarting } round &&

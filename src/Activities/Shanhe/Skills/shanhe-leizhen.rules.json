@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:leizhen", "revision": 1,
+    "triggers": [{
+      "id": "native-hand-use-counter", "window": "cardUseCommitted", "ownerRelation": "actor",
+      "cardCategories": ["basic", "trick", "equipment"], "includeResponseUses": true,
+      "optional": false, "isSkillInvocation": false,
+      "effects": [{ "op": "resolveShanheLeizhenUse", "target": "owner" }]
+    }]
+  }]
+}

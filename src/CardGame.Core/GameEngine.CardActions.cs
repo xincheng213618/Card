@@ -242,6 +242,7 @@ public sealed partial class GameEngine
             RecordAlternateActualUseColor(action);
         if (window is SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted &&
             action.ConversionChain.Count != 0) { CardUsePayments.PayAcceptedConversionCosts(action); }
+        if (window == SkillProgramTriggerWindow.CardUseCommitted) RecordShanheLeizhenCommittedUse(action);
         if ((HasWangYunPlanCapability || HasWangYunTrickCapability) &&
             window is SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardUseCommitted)
         {
@@ -407,7 +408,7 @@ public sealed partial class GameEngine
                 trigger.Effects.Any(effect => effect.Op is SkillProgramEffectOp.ResolveBingjieIssuedTargetDiscards or SkillProgramEffectOp.RewardHejiUnconvertedUse)) continue;
             if (!CanCollectFirstSlashDuelCandidate(owner.Seat, trigger, action)) continue;
             if (trigger.RequireNoCardConversion == true && !IsUnconvertedActualCardUse(action, window, continuation)) continue;
-            var reward = trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash);
+            var reward = trigger.Effects.Any(IsFactionActionReward);
             var rewardChooser = reward ? FactionActionRewardChooser(owner.Seat, trigger, action) : null;
             if (reward && (rewardChooser is null || WasFactionRewardOffered(owner.Seat, binding.SkillId, action) || !HasSkillRoleQualification(owner, binding.SkillId, binding.SkillInstanceId, Role.Lord))) continue;
             if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw) &&
@@ -502,7 +503,7 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.JoinUniqueLargestHpTrickTargetAndDrawAfterDamage or SkillProgramEffectOp.DrawAfterJoinedTrickDamage or
                     SkillProgramEffectOp.AdjustOneRoundGainedOrdinaryTrickTarget or SkillProgramEffectOp.DrawForRoundGainedEquipmentUse)
                 || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GrantActorHandLimitPenalty)
-                || trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash) ? "" : candidate.SkillInstanceId;
+                || trigger.Effects.Any(IsFactionActionReward) ? "" : candidate.SkillInstanceId;
         }
         if (window == SkillProgramTriggerWindow.CardUseCompleted)
             result.AddRange(CollectJiyunCompletedUseCandidates(action, continuation));

@@ -61,7 +61,10 @@ internal static class ShanheBossPortraitChecks
             StandardShanheS5MaSiblingsPackage.MachaoId, StandardShanheS5MaSiblingsPackage.MayunluId,
             StandardShanheS5DongwuVeteransPackage.ChengpuId, StandardShanheS5DongwuVeteransPackage.HandangId,
             StandardShanheS5MoushiPackage.XunchenId, StandardShanheS5MoushiPackage.GuotuId,
-            StandardShanheS5MoushiPackage.ShenpeiId, StandardShanheS5HuaxiongBasePackage.HuaxiongId
+            StandardShanheS5MoushiPackage.ShenpeiId, StandardShanheS5HuaxiongBasePackage.HuaxiongId,
+            StandardShanheS5ZhangxiuPackage.ZhangxiuId, StandardShanheS5CaoWeiPioneersPackage.CaozhenId,
+            StandardShanheS5CaoWeiPioneersPackage.CaocaoId, StandardShanheS5CaoWeiPioneersPackage.CaohongId,
+            StandardShanheS5ZuociHuatuoPackage.ZuociId, StandardShanheS5ZuociHuatuoPackage.HuatuoId
         }.All(checkedIds.Contains),
             "The representative source generals have real portraits; only explicit supporter mappings and declared no-asset forms are excluded.");
 

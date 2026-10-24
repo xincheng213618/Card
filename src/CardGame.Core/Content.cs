@@ -404,6 +404,14 @@ public static class CardCatalog
                 CardKind.YaodaoChitong, "妖刀赤瞳", "装备牌",
                 "攻击范围 3。锁定技，你使用黑色杀造成的伤害+1；当你使用杀指定目标后判定，若为黑色，则随机转移为其他合法目标。",
                 AiPlayValue: 40, AiResponseValue: 0, HandKeepValue: 43),
+            [CardKind.ShanheXingtianAxe] = new(
+                CardKind.ShanheXingtianAxe, "刑天破军斧", "装备牌",
+                "出牌阶段，使用牌指定唯一目标后，可弃置两张牌，令其本回合不能使用或打出牌且防具失效。攻击范围4为本地约定。",
+                AiPlayValue: 42, AiResponseValue: 0, HandKeepValue: 45),
+            [CardKind.Leizhen] = new(
+                CardKind.Leizhen, "雷震", "装备牌",
+                "攻击范围2。锁定技，每使用三张手牌后，下一张杀造成的伤害+1（无法叠加）。",
+                AiPlayValue: 40, AiResponseValue: 0, HandKeepValue: 43),
             [CardKind.XingtianAxe] = new(
                 CardKind.XingtianAxe, "刑天破军斧", "装备牌",
                 "攻击范围 4，单一目标用牌后可弃两张牌，令其本回合不能使用或打出手牌且防具失效。",

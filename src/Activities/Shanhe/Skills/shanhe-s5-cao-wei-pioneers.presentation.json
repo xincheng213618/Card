@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:s5-jianxiong-14198": {
+      "name": "奸雄", "description": "当你受到伤害后，你可以摸X张牌，并获得造成此伤害的牌。（X为你已损失的体力值）",
+      "triggerChoices": { "lost-hp-draw-then-claim": "先摸已损失体力值张牌，再获得造成此伤害的牌" }
+    },
+    "shanhe:s5-hujia-995": {
+      "name": "护驾", "description": "主公技，其他魏势力角色可以在你需要时代替你使用或打出【闪】（然后视为由你使用或打出）。每回合限一次，当其他魏势力角色于其回合外使用或打出【闪】时，其可以令你摸一张牌。",
+      "triggerChoices": { "outside-used-or-played": "令护驾主公摸一张牌" }
+    }
+  }
+}

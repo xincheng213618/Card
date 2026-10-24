@@ -1024,6 +1024,12 @@ public enum SkillProgramEffectOp
     GrantShanheS5Baiyin = 59000,
     ResolveShanheS5Qiangxi = 59100,
     PrepareShanheS5Shensu = 59200,
+    ApplyShanheXingtianSeal = 59301,
+    PayShanheS5Xiongluan = 59401,
+    ResolveShanheLeizhenUse = 59402,
+    ChooseOrExchangeShanheS5Avatar = 59500,
+    RewardOutOfTurnFactionDodge = 59600,
+    ClaimShanheS5JianxiongCards = 59601,
     DiscardBoundCardForRoundScaledTurnDuel = 5720,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
@@ -1781,7 +1787,7 @@ public enum SkillProgramCardSource { DamageSource, Owner, EventTarget = 2 }
 public enum SkillProgramSubsetAiOrder { MostCardsThenRankSum }
 public enum SkillProgramTargetAiOrder { Stable, HostileThenHandCount, SupportFirstThenOpposeSecond, SupportDraw, CardEffectIntervention = 4, SupportRecovery = 5 }
 public enum SkillProgramPhaseContinuation { BeforeNormalPreparation, AfterActualTurnEnd = 26400 }
-public enum SkillProgramCardTargetRestriction { SelfOnly, DistanceUnlimitedAgainstTarget, SlashCountUnlimitedAgainstTarget, IgnoreArmorAgainstTarget, ArmorIneffectiveForTurn = 400, NormalSlashTarget = 500 }
+public enum SkillProgramCardTargetRestriction { SelfOnly, DistanceUnlimitedAgainstTarget, SlashCountUnlimitedAgainstTarget, IgnoreArmorAgainstTarget, ArmorIneffectiveForTurn = 400, NormalSlashTarget = 500, CannotUseOrPlayForTurn = 59300 }
 public enum SkillProgramCardColorRelation { OppositeBoundCard }
 public enum SkillProgramStateVisibility { Public, Private }
 public enum SkillProgramStateResetScope { Game, PlayPhase = 450, Turn = 1081 }

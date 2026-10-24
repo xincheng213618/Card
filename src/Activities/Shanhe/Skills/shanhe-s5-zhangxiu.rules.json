@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:s5-xiongluan-14116", "revision": 1,
+    "activations": [{
+      "id": "abolish-random-slot-and-designate", "minCards": 0, "maxCards": 0,
+      "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+      "effects": [
+        { "op": "payShanheS5Xiongluan", "target": "owner" },
+        { "op": "grantDirectedTurnCardPolicy", "target": "owner", "actorRef": { "kind": "owner" }, "targetRef": { "kind": "selectedTarget" }, "effects": ["ignoreDistance", "bypassSlashLimit"] },
+        { "op": "grantTurnHandCardProhibition", "target": "selectedTarget" }
+      ]
+    }]
+  }]
+}
