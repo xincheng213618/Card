@@ -395,6 +395,14 @@ public static class CardCatalog
                 CardKind.ZhanhunDao, "斩魂刀", "装备牌",
                 "攻击范围 3。你对一名角色造成伤害时，若其已受伤，你可以防止此伤害并令其体力值上限-1。",
                 AiPlayValue: 40, AiResponseValue: 0, HandKeepValue: 43),
+            [CardKind.AnqiFeiren] = new(
+                CardKind.AnqiFeiren, "暗器飞刃", "装备牌",
+                "攻击范围 5。锁定技，每回合每名角色限一次，你对其他角色造成伤害时，令其随机一个非锁定技失效直到其回合结束。",
+                AiPlayValue: 40, AiResponseValue: 0, HandKeepValue: 43),
+            [CardKind.YaodaoChitong] = new(
+                CardKind.YaodaoChitong, "妖刀赤瞳", "装备牌",
+                "攻击范围 3。锁定技，你使用黑色杀造成的伤害+1；当你使用杀指定目标后判定，若为黑色，则随机转移为其他合法目标。",
+                AiPlayValue: 40, AiResponseValue: 0, HandKeepValue: 43),
             [CardKind.XingtianAxe] = new(
                 CardKind.XingtianAxe, "刑天破军斧", "装备牌",
                 "攻击范围 4，单一目标用牌后可弃两张牌，令其本回合不能使用或打出手牌且防具失效。",

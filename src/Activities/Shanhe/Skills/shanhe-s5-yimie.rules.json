@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:s5-yimie-7005", "revision": 1,
+    "triggers": [{
+      "id": "pay-hp-increase-and-recover", "window": "beforeDamageApplied", "subject": "damageSource", "optional": true,
+      "usageScope": "turn", "usageLimit": 1,
+      "effects": [
+        { "op": "resolveShanheS5Yimie", "target": "owner", "stage": "prepare" },
+        { "op": "loseHp", "target": "owner", "amount": 1 },
+        { "op": "resolveShanheS5Yimie", "target": "owner", "stage": "increase" }
+      ]
+    }]
+  }]
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "shanhe:yaodao-chitong", "revision": 1,
+    "triggers": [{
+      "id": "judge-and-randomly-redirect", "window": "slashTargetRedirecting", "ownerRelation": "actor",
+      "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false, "isSkillInvocation": false,
+      "priority": -1000,
+      "effects": [
+        { "op": "beginYaodaoChitong", "target": "owner" },
+        { "op": "startJudgment", "target": "owner", "judgmentReason": "shanhe.yaodao-chitong", "resultBind": "yaodao-cleanup", "outcomeBind": "yaodao-outcome", "visibility": "public" },
+        { "op": "resolveYaodaoChitong", "target": "owner", "sourceBind": "yaodao-outcome" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "yaodao-cleanup", "destination": "discardPile", "awaitMovementTriggers": true }
+      ]
+    }]
+  }]
+}

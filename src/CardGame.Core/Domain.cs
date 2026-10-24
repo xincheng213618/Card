@@ -121,6 +121,8 @@ public enum CardKind
     BaiBiDao = 33801,
     ZhanhunDao = 5754,
     ColdSlash = 5770,
+    AnqiFeiren = 5780,
+    YaodaoChitong = 5790,
     DagongChe = 43500
 }
 

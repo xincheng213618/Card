@@ -17860,6 +17860,7 @@ public sealed partial class GameEngine
     private void AssertCoreInvariants()
     {
         AssertColdDamageReplacementFrames();
+        AssertShanheS5YimieRecoveryFrames();
         AssertSkillInvocations();
         AssertKemingEchoFrames();
         AssertNativeEquipmentInvocations();
@@ -18881,6 +18882,7 @@ public sealed partial class GameEngine
                     _ => false
                 };
                 judgmentIsActive |= HasExactJudgmentOutcomeSubtree(judgmentContinuation.Id);
+                judgmentIsActive |= HasExactYaodaoChitongJudgmentSubtree(judgmentContinuation.Id);
                 if (!SameAttackOwner(GetJudgmentAttack(judgmentContinuation),
                         pendingAttack) ||
                     judgmentFrame is null ||
@@ -18906,14 +18908,14 @@ public sealed partial class GameEngine
                         "An active Yingbo gift must retain its Slash frame as the stack top.");
                 }
             }
-            else if (HasColdDamageReplacement(pendingAttack.ResolutionId))
+            else if (HasColdDamageReplacement(pendingAttack.ResolutionId) || HasShanheS5YimieRecovery(pendingAttack.ResolutionId))
             {
                 // The exact direct-damage parent and every paid child are checked
                 // by AssertColdDamageReplacementFrames.
             }
             else if (ActiveDying is null &&
                 ActiveDamageTrigger is null &&
-                !_resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any() && !HasColdDamageReplacement(pendingAttack.ResolutionId))
+                !_resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any() && !HasColdDamageReplacement(pendingAttack.ResolutionId) && !HasShanheS5YimieRecovery(pendingAttack.ResolutionId))
             {
                 if ((coreTop is not ResponseWindowFrame response ||
                     response.ParentFrameId != pendingAttack.ResolutionId) &&
@@ -19664,6 +19666,7 @@ public sealed partial class GameEngine
             !HasWoLongFengChuUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasTargetPenaltyUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasRecoveryPaidCardUseObserver(ActiveCardAttack.ResolutionId) &&
+            !HasShanheS5YimieRecoveryContinuation(ActiveCardAttack.ResolutionId) &&
             !(HasHuiyunCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasChenglieCompletedUseObserver(ActiveCardAttack.ResolutionId)) &&
             !(HasChainedStateBasicObserver(ActiveCardAttack.ResolutionId) || HasDrawFundedDistinctBasicObserver(ActiveCardAttack.ResolutionId)) &&
             !HasWeijieNativeRequestContinuation(ActiveCardAttack.ResolutionId) &&

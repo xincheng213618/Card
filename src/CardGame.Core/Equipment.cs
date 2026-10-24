@@ -157,6 +157,14 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 3。对已受伤角色造成伤害时，可防止此伤害并令其体力值上限-1。",
                 WeaponAttackRange: 3),
+            [CardKind.AnqiFeiren] = new(
+                CardKind.AnqiFeiren, "暗器飞刃", EquipmentSlot.Weapon,
+                "锁定技，每回合每名角色限一次，你对其他角色造成伤害时，令其随机一个非锁定技失效直到其回合结束。",
+                WeaponAttackRange: 5),
+            [CardKind.YaodaoChitong] = new(
+                CardKind.YaodaoChitong, "妖刀赤瞳", EquipmentSlot.Weapon,
+                "锁定技，你使用黑色杀造成的伤害+1；当你使用杀指定目标后判定，若为黑色，则随机转移为其他合法目标。",
+                WeaponAttackRange: 3),
             [CardKind.XingtianAxe] = new(
                 CardKind.XingtianAxe,
                 "刑天破军斧",

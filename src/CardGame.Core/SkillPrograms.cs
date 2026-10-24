@@ -950,6 +950,10 @@ public enum SkillProgramEffectOp
     ResolveShanheZhanhunDao = 5754,
     SuppressCurrentSlashTargetAndJudgeColorAllDiscard = 5760,
     ResolveShanheS5Xuncan = 5771,
+    ResolveAnqiFeiren = 5781,
+    BeginYaodaoChitong = 5791,
+    ResolveYaodaoChitong = 5792,
+    ResolveShanheS5Yimie = 5795,
     DiscardBoundCardForRoundScaledTurnDuel = 5720,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
@@ -5912,6 +5916,8 @@ public sealed class SkillProgramCatalog
         OldHandDispositionComposition.ValidateTrigger(path, parsedTrigger);
         ParticipantPreventionComposition.ValidateTrigger(path, parsedTrigger);
         ShanheZhanhunDaoComposition.ValidateTrigger(path, parsedTrigger);
+        AnqiFeirenComposition.ValidateTrigger(path, parsedTrigger);
+        YaodaoChitongContract.ValidateTrigger(path, parsedTrigger);
         CaoYingContract.ValidateTrigger(path, parsedTrigger);
         FrozenHandRosterComposition.ValidateTrigger(path, parsedTrigger);
         PrivateWhirlContract.ValidateTrigger(path, parsedTrigger);

@@ -17,6 +17,7 @@ internal static class ShanheEncounterChecks
         var lords = catalog.GetMethod("WithS5LordGroupEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var liGuo = catalog.GetMethod("WithS5LiGuoBossEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var regional = catalog.GetMethod("WithS5RegionalGroupEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var court = catalog.GetMethod("WithS5CourtGroupEncounters", BindingFlags.Static | BindingFlags.NonPublic)!;
         var codex = catalog.GetMethod("WithCodexRewards", BindingFlags.Static | BindingFlags.NonPublic)!;
         var resources = catalog.GetMethod("WithStartingResourcesContract", BindingFlags.Static | BindingFlags.NonPublic)!;
         foreach (var tier in new[] { 1, 2, 3 })
@@ -33,6 +34,10 @@ internal static class ShanheEncounterChecks
             earlier = (ShanheCampaignDefinition)resources.Invoke(null, [earlier])!;
             var unsupportedEarlierHash = ShanheCampaignContent.GetContentHash(earlier);
             old = (ShanheCampaignDefinition)regional.Invoke(null, [old])!;
+            var regionalEarlier = useCodex ? (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])! : old;
+            regionalEarlier = (ShanheCampaignDefinition)resources.Invoke(null, [regionalEarlier])!;
+            var unsupportedRegionalHash = ShanheCampaignContent.GetContentHash(regionalEarlier);
+            old = (ShanheCampaignDefinition)court.Invoke(null, [old])!;
             if (useCodex) old = (ShanheCampaignDefinition)codex.Invoke(null, [old, edition])!;
             var unsupportedOlderHash = ShanheCampaignContent.GetContentHash(old);
             old = (ShanheCampaignDefinition)resources.Invoke(null, [old])!;
@@ -64,7 +69,7 @@ internal static class ShanheEncounterChecks
             try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint with { CampaignHash = new string('0', 64) }, tier); }
             catch (ArgumentException) { rejected = true; }
             Need(rejected && ShanheCampaignJson.Serialize(checkpoint) == encoded, "Fallbacks still require the full original fingerprint.");
-            foreach (var unsupported in new[] { unsupportedOlderHash, unsupportedEarlierHash })
+            foreach (var unsupported in new[] { unsupportedOlderHash, unsupportedEarlierHash, unsupportedRegionalHash })
             {
                 rejected = false;
                 try { StandardShanheCampaignCatalog.CreateDefinitionForCheckpoint(checkpoint with { CampaignHash = unsupported }, tier); }
@@ -79,13 +84,13 @@ internal static class ShanheEncounterChecks
         const string edition = StandardShanheCampaignCatalog.Returning2026EditionId;
         var current = StandardShanheCampaignCatalog.CreateDefinition(1, edition);
         var encounters = current.Nodes.SelectMany(n => n.Encounters ?? []).Where(IsSourceEncounter).ToArray();
-        Need(encounters.Length == 28 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
+        Need(encounters.Length == 33 && StandardShanheCampaignCatalog.CreateDefinition(1, StandardShanheCampaignCatalog.LocalEditionId)
             .Nodes.SelectMany(n => n.Encounters ?? []).All(e => !IsSourceEncounter(e)), "Only the 2026 edition includes these verified source forms.");
         foreach (var encounter in encounters)
         {
             var expectedEnemies = encounter.Id switch
             {
-                "guangcheng:yuanshu-s5" or "huanyuan:taoyuan-s5" or "huanyuan:moushi-s5" => 3,
+                "guangcheng:yuanshu-s5" or "huanyuan:taoyuan-s5" or "huanyuan:moushi-s5" or "huanyuan:xiliang-dark-s5" => 3,
                 "dagu:xuyou-jushou-s5" or "huanyuan:caoren-zhaoyun-s5" or
                 "dagu:gongsun-zan-yue-s5" or "huanyuan:gongsun-zan-zhaoyun-s5" or "dagu:xujing-xuqiu-s5" or
                 "dagu:ma-siblings-s5" or "huanyuan:dongwu-veterans-s5" or "dagu:han-emperors-s5" or
@@ -130,10 +135,12 @@ internal static class ShanheEncounterChecks
     }
 
     private static bool IsCurrentAddition(ShanheEncounterDefinition encounter) => encounter.Id is
-        "dagu:han-emperors-s5" or "huanyuan:sunjian-wuguotai-s5" or "huanyuan:xuncan-caoshi-s5" or
-        "luoyang:dongzhuo-2670-s5" or "luoyang:dongzhuo-2671-s5";
+        "dagu:ma-pair-s5" or "dagu:xurong-s5" or "hulao:lvbu-2644-s5" or
+        "hulao:lvbu-2645-s5" or "huanyuan:xiliang-dark-s5";
 
     private static bool IsSourceEncounter(ShanheEncounterDefinition encounter) => IsCurrentAddition(encounter) || encounter.Id is
+        "dagu:han-emperors-s5" or "huanyuan:sunjian-wuguotai-s5" or "huanyuan:xuncan-caoshi-s5" or
+        "luoyang:dongzhuo-2670-s5" or "luoyang:dongzhuo-2671-s5" or
         "dagu:ma-siblings-s5" or "huanyuan:dongwu-veterans-s5" or "huanyuan:moushi-s5" or "hulao:huaxiong-base-s5" or
         "guangcheng:lijue-s5" or "guangcheng:guosi-s5" or "dagu:xujing-xuqiu-s5" or
         "guangcheng:yuanshu-s5" or "dagu:gongsun-zan-yue-s5" or "huanyuan:gongsun-zan-zhaoyun-s5" or "huanyuan:taoyuan-s5" or

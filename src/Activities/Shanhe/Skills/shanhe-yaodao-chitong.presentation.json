@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "shanhe:yaodao-chitong": {
+      "name": "妖刀赤瞳",
+      "description": "锁定技，你使用黑色【杀】造成的伤害+1；当你使用【杀】指定目标后判定，若为黑色，则随机转移为其他合法目标。"
+    }
+  }
+}

@@ -158,6 +158,7 @@ public sealed partial class GameEngine
                 FinishVirtualBasicUse(frame.ResumeFrameId!.Value);
                 break;
             case PostEventContinuation.ColdDamageReplacement:
+            case PostEventContinuation.ShanheS5YimieRecovery:
                 AdvanceRuntimeFrame(frame.ResumeFrameId!.Value); break;
             case PostEventContinuation.RecoveryReplacement:
                 AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
@@ -292,6 +293,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.ColdDamageReplacement => parent is ColdDamageReplacementFrame cold && cold.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == cold.Id,
+                PostEventContinuation.ShanheS5YimieRecovery => parent is ShanheS5YimieRecoveryFrame yimie && yimie.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == yimie.Id,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
                 PostEventContinuation.SkillInvocation => parent is SkillInvocationFrame invocation && IsSkillInvocationHealthChild(invocation, hp),
                 PostEventContinuation.KemingEcho => parent is KemingSkillEchoFrame echo && KemingSkillEchoFrameRidesOn(hp, echo),
