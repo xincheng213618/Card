@@ -19618,6 +19618,23 @@
       ]
     },
     {
+      "key": "mobile-shi-xiahou-ba",
+      "characterName": "势夏侯霸",
+      "defaultSkinId": "classic",
+      "skins": [
+        {
+          "id": "classic",
+          "name": "爆料版形象（临时占位）",
+          "sourcePage": "https://wiki.biligame.com/msgs/%E5%8A%BF%E5%A4%8F%E4%BE%AF%E9%9C%B8",
+          "imageUrl": "https://patchwiki.biligame.com/images/msgs/6/6a/irswi4ywz6nor0vke3nfp2n8sk4le46.png",
+          "sha256": "643ab156791e245932d73629dfec976bf68d283365734a966b8f13aaf16b67df",
+          "pixelWidth": 530,
+          "pixelHeight": 750,
+          "localPath": "src/CardGame.Wpf/Assets/mobile-shi-xiahou-ba.jpg"
+        }
+      ]
+    },
+    {
       "key": "mobile-shi-deng-ai",
       "characterName": "势邓艾",
       "defaultSkinId": "86100",
