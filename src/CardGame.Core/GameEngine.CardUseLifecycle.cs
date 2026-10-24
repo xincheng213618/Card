@@ -115,6 +115,7 @@ public sealed partial class GameEngine
     {
         if (ContinueHappyWeiYanIneffectiveSimple(frameId, continuation)) return;
         if (ContinueMouCyIneffectiveSimple(frameId, continuation)) return;
+        if (ContinueBoundarySidiIneffectiveSimple(frameId, continuation)) return;
         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
         if (TryBeginCaoChunSimpleDebt(frameId, continuation)) return;
         if (TryBeginSimpleBeforeTargetPrograms(frameId, continuation)) return;

@@ -295,6 +295,7 @@ public sealed partial class GameEngine
             PrivateRevealedCards = ViewContributors.Cards(ProgramViewContribution.PrivateCards, viewerSeat)
                 .DistinctBy(card => card.Id).ToArray() is { Length: > 0 } privateCards ? privateCards : null,
             FriendPredictions = GetFriendPredictionViews(viewerSeat),
+            BoundarySidiPredictions = GetBoundarySidiPredictionViews(viewerSeat),
             ProgramResponseExchangeStates = GetResponseExchangeStateSnapshots(),
             TurnProhibitedPhysicalCards = GetResponseEntityRestrictionSnapshots()
         });
@@ -339,6 +340,7 @@ public sealed partial class GameEngine
         FriendPredictions = snapshot.FriendPredictions is { } forecasts
             ? Array.AsReadOnly(forecasts.Select(forecast => forecast with { Values = FreezeViewList(forecast.Values)! }).ToArray()) : null,
         ProgramResponseExchangeStates = FreezeViewList(snapshot.ProgramResponseExchangeStates),
+        BoundarySidiPredictions = FreezeViewList(snapshot.BoundarySidiPredictions),
         TurnProhibitedPhysicalCards = snapshot.TurnProhibitedPhysicalCards is { } restrictions
             ? Array.AsReadOnly(restrictions.Select(item => item with { CardIds = FreezeViewList(item.CardIds)! }).ToArray()) : null
     };

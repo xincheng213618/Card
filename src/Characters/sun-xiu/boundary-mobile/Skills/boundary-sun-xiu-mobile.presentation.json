@@ -1,0 +1,7 @@
+{
+  "schemaVersion":3,"skills":{
+    "boundary:yanzhu-mobile":{"name":"宴诛","description":"出牌阶段限一次，你可以令一名其他角色选择一项：1.令你获得其装备区里的所有牌，你失去“宴诛”并升级“兴学”；2.令你获得其区域内的一张牌。","optionLabels":{"equipment":"交出全部装备，令孙休失去宴诛并升级兴学","obtain":"令孙休获得区域内的一张牌"}},
+    "boundary:xingxue-mobile":{"name":"兴学","description":"1级：结束阶段，你可以选择至多X名角色（X为你的体力值），令这些角色依次摸一张牌并将一张牌置于牌堆顶。"},
+    "boundary:xingxue-mobile-upgraded":{"name":"兴学","description":"2级：结束阶段，你可以选择至多X名角色（X为你的体力值上限），令这些角色依次摸一张牌并将一张牌交给一名被“兴学”选择的角色或置于牌堆顶。"}
+  }
+}

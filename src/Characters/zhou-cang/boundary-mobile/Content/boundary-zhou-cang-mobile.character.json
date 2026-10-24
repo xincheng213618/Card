@@ -1,0 +1,9 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:zhou-cang",
+  "skills": [{ "registrationOrder": 53300, "programBundle": "boundary-zhou-cang-mobile", "includeProgramPresentation": true,
+    "definition": { "id": "boundary:zhongyong-mobile", "name": "忠勇", "description": "当你于出牌阶段内使用【杀】结算结束后，若没有角色使用【闪】响应过此【杀】，你可以获得此【杀】；否则，你可以选择：获得响应的【闪】，然后可以将此【杀】交给另一名其他角色；或将响应的【闪】交给另一名其他角色，然后本回合使用【杀】的次数上限+1，下一张使用的【杀】伤害+1。你通过忠勇获得的牌，本回合不能使用。", "executionForms": "Trigger" } }],
+  "generals": [{ "registrationOrder": 53301, "pools": { "current": 53301 },
+    "definition": { "id": "boundary:zhou-cang-mobile", "name": "界周仓·移动版", "portraitKey": "boundary-zhou-cang-mobile", "skillId": "boundary:zhongyong-mobile", "factionId": "shu", "baseHp": 4, "gender": "Male", "characterId": "character:zhou-cang", "variantId": "boundary-mobile", "rulesetId": "sanguosha-mobile" } }]
+}

@@ -44,6 +44,7 @@ public sealed partial class GameEngine
     private bool IsClaimedUseCardEntity(long frameId, int cardId) => IsAnniversaryCuiLieClaimedUseMaterial(frameId, cardId) || IsAnniversaryHuCheErClaimedUseMaterial(frameId, cardId) || IsMouDcClaimedEntity(frameId, cardId) || IsXumingClaimedProcessingMaterial(frameId, cardId) || IsXinPiPhysicalClaim(frameId, cardId) || IsHuaManClaimedEntity(frameId, cardId) || IsXuRongCausalEntityClaim(frameId, cardId) || IsExchangedUseCardClaim(frameId, cardId) || IsCurrentUsePhysicalCardClaim(frameId, cardId) || HasExtraEffectMaterialClaim(frameId, cardId);
 
     private bool IsCurrentUsePhysicalCardClaim(long frameId, int cardId) =>
+        IsBoundaryZhouCangPhysicalClaim(frameId, cardId) ||
         IsXiangChongClaimedUseMaterial(frameId, cardId) || IsOverflowTargetCancellationPhysicalClaim(frameId, cardId) ||
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == frameId) is
             { Action: { } action, CurrentUsePhysicalClaims: { } claims } &&

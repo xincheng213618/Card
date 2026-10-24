@@ -60,6 +60,7 @@ public sealed partial class GameEngine
 
     private bool IsGameFactionAttackRangeTarget(int actorSeat, int targetSeat) => actorSeat != targetSeat &&
         IsValidPlayerSeat(actorSeat) && IsValidPlayerSeat(targetSeat) && _players[actorSeat].IsAlive && _players[targetSeat].IsAlive &&
-        _programGameFactionRangeTargets.Any(state => actorSeat != state.OwnerSeat && state.TargetSeats.Contains(targetSeat) &&
-            string.Equals(GetEffectiveFactionId(_players[actorSeat]), state.FactionId, StringComparison.Ordinal));
+        (IsBoundarySunXiuFactionRangeTarget(actorSeat, targetSeat) ||
+            _programGameFactionRangeTargets.Any(state => actorSeat != state.OwnerSeat && state.TargetSeats.Contains(targetSeat) &&
+                string.Equals(GetEffectiveFactionId(_players[actorSeat]), state.FactionId, StringComparison.Ordinal)));
 }

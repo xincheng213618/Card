@@ -1,0 +1,5 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:cao-zhen",
+  "skills":[{"registrationOrder":53400,"programBundle":"boundary-cao-zhen-mobile","includeProgramPresentation":true,"definition":{"id":"boundary:sidi-mobile","name":"司敌","description":"你使用除延时锦囊以外的牌结算结束后，可以选择一名还未指定“司敌”目标的其他角色，并为其指定一名“司敌”目标角色（仅你可见）。其使用的第一张除延时锦囊以外的牌仅指定“司敌”目标为唯一目标时（否则清除你为其指定的“司敌”目标角色。），你根据以下情况执行效果：若目标为你，你摸一张牌；若目标不为你，你选择一项，1.取消之，然后若此时场上没有任何角色处于濒死状态，你对其造成1点伤害；2.你摸两张牌。然后清除你为其指定的“司敌”目标角色。","executionForms":"Trigger"}}],
+  "generals":[{"registrationOrder":53401,"pools":{"current":53401},"definition":{"id":"boundary:cao-zhen-mobile","name":"界曹真·移动版","portraitKey":"boundary-cao-zhen-mobile","skillId":"boundary:sidi-mobile","factionId":"wei","baseHp":4,"gender":"Male","characterId":"character:cao-zhen","variantId":"boundary-mobile","rulesetId":"sanguosha-mobile"}}]
+}

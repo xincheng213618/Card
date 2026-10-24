@@ -9,6 +9,8 @@ public sealed partial class MainViewModel
             .Select(skill => skill with { ProgressText = SkillActivationProgressText(skill.ContentId) })
             .Select(ApplyBoundaryQuanCongProgress)
             .Select(ApplyBoundaryZhuZhiProgress)
+            .Select(ApplyBoundaryCaoZhenSidiProgress)
+            .Select(ApplyBoundarySunXiuProgress)
             .Select(ApplyMobileShiZhaoYunProgress)
             .Select(ApplyMobileShiWeiYanProgress)
             .Select(ApplyMobileShiChenQunProgress)

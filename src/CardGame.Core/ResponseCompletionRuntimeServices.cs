@@ -45,6 +45,7 @@ internal interface IResponseCompletionNativeProtocols : IProgramRuntimeOperation
     bool IsJueshengDuelUse(long useId);
     bool HasGuanduChariotResponsePayment(CardActionContext action, ProgramCardContinuation continuation);
     bool HasChenglieResponseObserver(CardActionContext action, ProgramCardContinuation continuation);
+    bool HasBoundaryZhouCangResponseObserver(CardActionContext action, ProgramCardContinuation continuation);
     bool TryGetXieweiResponseCostMovement(CardActionContext action, int cardId, out CardMovementRecord movement);
     bool TryGetSiruiDestroyedResponseCost(CardActionContext action, int cardId, out CardMovementRecord movement);
     bool TryGetWushuangJinzhiResponseMovements(CardActionContext action, int cardId, out IReadOnlyList<CardMovementRecord> movements);
@@ -151,6 +152,7 @@ public sealed partial class GameEngine
         public bool IsJueshengDuelUse(long useId) => engine.IsJueshengDuelUse(useId);
         public bool HasGuanduChariotResponsePayment(CardActionContext action, ProgramCardContinuation continuation) => engine.HasGuanduChariotResponsePayment(action, continuation);
         public bool HasChenglieResponseObserver(CardActionContext action, ProgramCardContinuation continuation) => engine.HasChenglieResponseObserver(action, continuation);
+        public bool HasBoundaryZhouCangResponseObserver(CardActionContext action, ProgramCardContinuation continuation) => engine.HasBoundaryZhouCangResponseObserver(action, continuation);
         public bool TryGetXieweiResponseCostMovement(CardActionContext action, int cardId, out CardMovementRecord movement) => engine.TryGetXieweiResponseCostMovement(action, cardId, out movement);
         public bool TryGetSiruiDestroyedResponseCost(CardActionContext action, int cardId, out CardMovementRecord movement) => engine.TryGetSiruiDestroyedResponseCost(action, cardId, out movement);
         public bool TryGetWushuangJinzhiResponseMovements(CardActionContext action, int cardId, out IReadOnlyList<CardMovementRecord> movements) => engine.TryGetWushuangJinzhiResponseMovements(action, cardId, out movements);

@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"boundary:sidi-mobile":{"name":"司敌","description":"非延时牌结算后，秘密预测其他角色下一张非延时牌的唯一目标；预测自己摸1，预测他人可摸2或取消该牌并在无人濒死时对使用者造成1点伤害。其首张非延时牌使用后清除该记录。","triggerChoices":{"prepare-forecast":"秘密指定一名角色及其司敌目标"}}}}

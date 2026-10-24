@@ -1,0 +1,13 @@
+{
+  "schemaVersion":62,"skills":[
+    {"id":"boundary:yanzhu-mobile","revision":1,"activations":[{"id":"equipment-or-obtain","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"usesPerPhase":1,"effects":[
+      {"op":"chooseOption","target":"selectedTarget","resultBind":"yanzhu-choice","options":[{"id":"equipment","condition":{"kind":"hasOwnedCardCategory","zones":["equipment"],"cardCategories":["equipment"]}},{"id":"obtain"}]},
+      {"op":"selectOwnedCards","target":"selectedTarget","zones":["equipment"],"numberExpression":"allOwnedZoneCards","resultBind":"all-equipment","condition":{"kind":"choiceIs","sourceBind":"yanzhu-choice","optionId":"equipment"}},
+      {"op":"moveBoundCards","target":"owner","sourceBind":"all-equipment","destination":"ownerHand","awaitMovementTriggers":true,"condition":{"kind":"choiceIs","sourceBind":"yanzhu-choice","optionId":"equipment"}},
+      {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"zones":["hand","equipment","judgment"],"count":1,"destination":"ownerHand","skipIfNoCards":true,"awaitMovementTriggers":true,"condition":{"kind":"choiceIs","sourceBind":"yanzhu-choice","optionId":"obtain"}},
+      {"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:yanzhu-mobile","boundary:xingxue-mobile"],"sourceBind":"boundary:xingxue-mobile-upgraded","condition":{"kind":"choiceIs","sourceBind":"yanzhu-choice","optionId":"equipment"}}
+    ]}]},
+    {"id":"boundary:xingxue-mobile","revision":1,"triggers":[{"id":"ending-draw-and-top","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"drawThenPutOwnedCardOnTopParticipants","target":"owner"}]}]},
+    {"id":"boundary:xingxue-mobile-upgraded","revision":1,"triggers":[{"id":"ending-draw-and-give-or-top","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"resolveBoundarySunXiuXingxue","target":"owner"}]}]}
+  ]
+}

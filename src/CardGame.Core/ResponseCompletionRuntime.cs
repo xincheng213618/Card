@@ -14,6 +14,7 @@ internal sealed partial class ResponseCompletionRuntime
          _native.HasJiyunResponseCompletion(action, continuation) ||
          action.PhysicalCards.Any(cost => _native.IsNativePublicPileOriginalActionCost(action, cost)) ||
          IsJueshengPaidDuelResponse(action, continuation) || _native.HasGuanduChariotResponsePayment(action, continuation) || _native.HasChenglieResponseObserver(action, continuation) ||
+         _native.HasBoundaryZhouCangResponseObserver(action, continuation) ||
          action.PhysicalCards.Any(cost => _native.TryGetXieweiResponseCostMovement(action, cost.CardId, out _) || _native.TryGetSiruiDestroyedResponseCost(action,cost.CardId,out _)));
 
     // The Duel's then-clause must wait for its actual response-payment children,

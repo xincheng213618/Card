@@ -1,0 +1,10 @@
+{
+  "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:sun-xiu",
+  "skills":[
+    {"registrationOrder":53500,"programBundle":"boundary-sun-xiu-mobile","includeProgramPresentation":true,"definition":{"id":"boundary:yanzhu-mobile","name":"宴诛","description":"出牌阶段限一次，你可以令一名其他角色选择一项：1.令你获得其装备区里的所有牌，你失去“宴诛”并升级“兴学”；2.令你获得其区域内的一张牌。","actionForms":"Active"}},
+    {"registrationOrder":53501,"programBundle":"boundary-sun-xiu-mobile","includeProgramPresentation":true,"definition":{"id":"boundary:xingxue-mobile","name":"兴学","description":"1级：结束阶段，你可以选择至多X名角色（X为你的体力值），令这些角色依次摸一张牌并将一张牌置于牌堆顶。","executionForms":"Trigger"}},
+    {"registrationOrder":53502,"programBundle":"boundary-sun-xiu-mobile","includeProgramPresentation":true,"definition":{"id":"boundary:xingxue-mobile-upgraded","name":"兴学","description":"2级：结束阶段，你可以选择至多X名角色（X为你的体力值上限），令这些角色依次摸一张牌并将一张牌交给一名被“兴学”选择的角色或置于牌堆顶。","executionForms":"Trigger"}},
+    {"registrationOrder":53503,"programBundle":null,"includeProgramPresentation":false,"definition":{"id":"boundary:zhaofu-mobile","name":"诏缚","description":"主公技，锁定技，你距离为1的角色视为在其他吴势力角色的攻击范围内。","tags":"Lord, Locked","executionForms":"State"}}
+  ],
+  "generals":[{"registrationOrder":53504,"pools":{"current":53504},"definition":{"id":"boundary:sun-xiu-mobile","name":"界孙休·移动版","portraitKey":"boundary-sun-xiu-mobile","skillId":"boundary:yanzhu-mobile","additionalSkillIds":["boundary:xingxue-mobile","boundary:zhaofu-mobile"],"factionId":"wu","baseHp":3,"gender":"Male","characterId":"character:sun-xiu","variantId":"boundary-mobile","rulesetId":"sanguosha-mobile"}}]
+}

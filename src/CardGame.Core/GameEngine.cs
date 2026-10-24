@@ -19697,7 +19697,7 @@ public sealed partial class GameEngine
             !HasTargetPenaltyUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasRecoveryPaidCardUseObserver(ActiveCardAttack.ResolutionId) &&
             !HasShanheS5YimieRecoveryContinuation(ActiveCardAttack.ResolutionId) &&
-            !(HasHuiyunCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasChenglieCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasShiGyCompletedUseObserver(ActiveCardAttack.ResolutionId)) &&
+            !(HasHuiyunCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasChenglieCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasBoundaryZhouCangCompletedUseObserver(ActiveCardAttack.ResolutionId) || HasShiGyCompletedUseObserver(ActiveCardAttack.ResolutionId)) &&
             !(HasChainedStateBasicObserver(ActiveCardAttack.ResolutionId) || HasDrawFundedDistinctBasicObserver(ActiveCardAttack.ResolutionId)) &&
             !HasWeijieNativeRequestContinuation(ActiveCardAttack.ResolutionId) &&
             !HasBoundaryLiuFengNativeRequestContinuation(ActiveCardAttack.ResolutionId) &&

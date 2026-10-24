@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 62,
+  "skills": [{ "id": "boundary:zhongyong-mobile", "revision": 1,
+    "triggers": [{ "id": "completed-play-slash", "window": "cardUseCompleted", "ownerRelation": "actor", "optional": true,
+      "singleActionInstance": true, "effects": [{ "op": "resolveBoundaryZhouCangZhongyong", "target": "owner" }] }] }]
+}

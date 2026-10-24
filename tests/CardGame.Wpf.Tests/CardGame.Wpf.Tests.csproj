@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\BoundaryCaoZhenScenario.cs" Link="BoundaryCaoZhenScenario.cs" />
     <Compile Include="..\CardGame.Core.Tests\BoundaryZhuZhiChecks.cs" Link="BoundaryZhuZhiChecks.cs" />
     <Compile Include="..\Shared\BoundaryYiJiScenario.cs" Link="BoundaryYiJiScenario.cs" />
     <Compile Include="..\CardGame.Core.Tests\BoundaryCaoXiuMobileChecks.cs" Link="BoundaryCaoXiuMobileChecks.cs" />

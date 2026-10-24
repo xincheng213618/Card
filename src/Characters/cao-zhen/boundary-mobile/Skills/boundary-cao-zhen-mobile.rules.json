@@ -1,0 +1,11 @@
+{
+  "schemaVersion":62,"skills":[{"id":"boundary:sidi-mobile","revision":1,"triggers":[
+    {"id":"prepare-forecast","window":"cardUseCompleted","ownerRelation":"observer","includeResponseUses":true,"singleActionInstance":true,"optional":true,"effects":[{"op":"prepareBoundaryCaoZhenSidi","target":"owner"}]},
+    {"id":"consume-first-use","window":"cardUseCommitted","ownerRelation":"observer","includeResponseUses":true,"singleActionInstance":true,"optional":false,"effects":[
+      {"op":"resolveBoundaryCaoZhenSidi","target":"owner","resultBind":"sidi-result"},
+      {"op":"draw","target":"owner","amount":1,"condition":{"kind":"choiceIs","sourceBind":"sidi-result","optionId":"self"}},
+      {"op":"draw","target":"owner","amount":2,"condition":{"kind":"choiceIs","sourceBind":"sidi-result","optionId":"draw"}},
+      {"op":"damage","target":"owner","targetRef":{"kind":"actor"},"amount":1,"condition":{"kind":"choiceIs","sourceBind":"sidi-result","optionId":"cancel-damage"}}
+    ]}
+  ]}]
+}

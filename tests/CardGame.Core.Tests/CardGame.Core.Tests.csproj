@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\BoundaryCaoZhenScenario.cs" Link="BoundaryCaoZhenScenario.cs" />
     <Compile Include="..\Shared\BoundaryManChongScenario.cs" Link="BoundaryManChongScenario.cs" />
     <Compile Include="..\Shared\BoundaryYiJiScenario.cs" Link="BoundaryYiJiScenario.cs" />
     <Compile Include="..\Shared\MouSimaYiGiveScenario.cs" Link="MouSimaYiGiveScenario.cs" />

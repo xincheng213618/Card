@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "boundary-zhou-cang-mobile",
+      "characterName": "界周仓",
+      "defaultSkinId": "56400",
+      "skins": [
+        {
+          "id": "56400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-410.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/56400.jpg",
+          "sha256": "00650d2ef2627eca330f949c95cbb0c8f0d09aede28f247591f096cdc1cf136f",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhou-cang-mobile.jpg",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "boundary-cao-zhen-mobile",
+      "characterName": "界曹真",
+      "defaultSkinId": "60300",
+      "skins": [
+        {
+          "id": "60300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-435.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/60300.jpg",
+          "sha256": "c4f9801b5f27bcf94a327af7171f5158a2d343e996784603d0e1e57bd69e2fb1",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-cao-zhen-mobile.jpg",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "boundary-sun-xiu-mobile",
+      "characterName": "界孙休",
+      "defaultSkinId": "68000",
+      "skins": [
+        {
+          "id": "68000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-445.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/68000.jpg",
+          "sha256": "f3e5271dafb2c90051a42bf687a5d2356ea97b49ff8a2108143acf85fec3bb16",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-sun-xiu-mobile.jpg",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
       "key": "boundary-man-chong-mobile",
       "characterName": "界满宠",
       "defaultSkinId": "53200",

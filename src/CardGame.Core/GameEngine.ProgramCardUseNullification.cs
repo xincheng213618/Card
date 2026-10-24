@@ -45,7 +45,7 @@ public sealed partial class GameEngine
 
     private bool IsProgramUseIneffective(CardUseFrame use)
     {
-        if (IsMouHqUseIneffective(use) || IsWushuangCiweiIneffective(use)) return true;
+        if (IsBoundarySidiUseIneffective(use) || IsMouHqUseIneffective(use) || IsWushuangCiweiIneffective(use)) return true;
         if (use.ProgramUseNullification is null) return false;
         AssertProgramUseNullification(use);
         return true;

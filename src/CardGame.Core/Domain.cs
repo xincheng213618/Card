@@ -1169,7 +1169,7 @@ public sealed record LegalAction
     public SkillProgramAiHint? ProgramAiHint { get; init; }
 }
 
-public sealed record GameSnapshot(
+public sealed partial record GameSnapshot(
     int? Seed,
     int HumanSeat,
     EngineStatus Status,
