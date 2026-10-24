@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "anniversary:daoji": { "name": "盗戟", "description": "当其他角色本局游戏第一次使用武器牌时，你可以选择一项：1.立即获得此武器牌；2.其本回合不能使用或打出【杀】。", "triggerLabels": { "first-foreign-weapon": "首次使用武器时盗戟" } },
+    "anniversary:fuzhong": { "name": "负重", "description": "锁定技，你每次回合外获得手牌时，获得1枚“重”标记，根据“重”标记数，你获得以下效果：大于等于1，摸牌阶段多摸1张牌；大于等于2，你计算与其他角色的距离减2；大于等于3，你的手牌上限加3；大于等于4，结束阶段对一名其他角色造成1点伤害然后移去4个“重”。", "triggerLabels": { "foreign-turn-gain": "回合外获得手牌积重", "ending-four": "负重造成伤害后移去四重" } }
+  }
+}

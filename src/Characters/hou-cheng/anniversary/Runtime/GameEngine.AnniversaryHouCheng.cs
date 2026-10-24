@@ -15,7 +15,7 @@ public sealed partial class GameEngine
             ProgramEventHistory<NativeLogicalDiscardMaterialCompletedEvent>().Any(m => m.CardId == move.CardId && m.CompletionSequence == move.Sequence && m.From.OwnerSeat == owner && m.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment &&
                 ProgramEventHistory<NativeLogicalDiscardInvocationRecordedEvent>().Any(i => i.InvocationId == m.InvocationId && i.ExecutorSeat != owner && i.TurnNumber == batch.TurnNumber && m.CompletionSequence > i.SequenceBefore && m.CompletionSequence <= i.SequenceAfter)));
     }
-    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 47100)]
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 48700)]
     private bool CanOfferHouCheng(ProgramTriggerCandidate candidate, SkillProgramTrigger t, ProgramSkillWindowContext c) => candidate.SkillId != AnniversaryHouChengComposition.Skill ||
         t.Id == "foreign-discard" && HouChengForeignDiscard(candidate.OwnerSeat, c) || t.Id == "after-damage" && c is { Window: SkillProgramTriggerWindow.AfterDamageApplied, Amount: > 0, TargetSeat: { } target, DamageFrameId: { } id } && target == candidate.OwnerSeat &&
         _resolutionStack.OfType<DamageFrame>().Any(d => d.Id == id && d.TargetSeat == target && d.Amount == c.Amount);
@@ -136,8 +136,8 @@ public sealed partial class GameEngine
         f = GetActiveProgramFrame(id); AdvanceEventRulesAndQueueFact(new AnniversaryHouChengCompletedEvent(id));
         ReplaceRuntimeTop(f = f with { AnniversaryHouCheng = null, PendingMovementContinuation = null }); FinishProgramSkill(f, true);
     }
-    [ProgramContinuation(ProgramContinuationKind.Resume, 47100)] private bool ResumeHouCheng(long id)
+    [ProgramContinuation(ProgramContinuationKind.Resume, 48700)] private bool ResumeHouCheng(long id)
     { if (_pendingDecision is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame { AnniversaryHouCheng: not null } f || f.Id != id) return false; ContinueHouCheng(id); return true; }
-    [ProgramContinuation(ProgramContinuationKind.Movement, 47100)] private bool ReturnHouChengMovement(ProgramSkillFrame f) => f.AnniversaryHouCheng is not null && ResumeHouCheng(f.Id);
-    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 47100)] [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 47100)] private bool RetainHouCheng(ProgramSkillFrame f) => f.AnniversaryHouCheng is not null && ValidHouCheng(f);
+    [ProgramContinuation(ProgramContinuationKind.Movement, 48700)] private bool ReturnHouChengMovement(ProgramSkillFrame f) => f.AnniversaryHouCheng is not null && ResumeHouCheng(f.Id);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 48700)] [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 48700)] private bool RetainHouCheng(ProgramSkillFrame f) => f.AnniversaryHouCheng is not null && ValidHouCheng(f);
 }

@@ -51,21 +51,21 @@ public sealed partial class GameEngine
     private bool HasAnniversaryMaMiaoPrompt() => _pendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } p &&
         _resolutionStack.LastOrDefault() is ProgramSkillFrame { AnniversaryMaMiao.Stage: "discard" or "obtain-choice" or "extra-choice", Step: ResolutionFrameStep.AwaitingResponse } f &&
         ValidMaMiao(f) && p.PlayerSeat == MaMiaoChooser(f) && p.TargetSeat == MaMiaoChooser(f) && AssistedChoicesEqual(p.Choices, MaMiaoChoices(f));
-    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 47200)] private void AssertMaMiao(ProgramSkillFrame f)
+    [ProgramFrameInvariant(ProgramFrameInvariantPhase.AfterSelectionState, 48800)] private void AssertMaMiao(ProgramSkillFrame f)
     {
         if (f.AnniversaryMaMiao is null) return;
         if (!ValidMaMiao(f)) throw new InvalidOperationException("Ma Miao lost his original turn/gain parent, private native payment, deterministic random choice or recovery-before-obtain sequence.");
         if (_resolutionStack.LastOrDefault()?.Id == f.Id && _pendingDecision is not null && f.AnniversaryMaMiao.Stage is "discard" or "obtain-choice" or "extra-choice" && !HasAnniversaryMaMiaoPrompt())
             throw new InvalidOperationException("Ma Miao's exact current recipient choice or hidden owned-card slot changed.");
     }
-    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 47200)]
-    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 47200)]
-    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 47200)]
-    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 47200)]
+    [ProgramMovementProof(ProgramMovementProofPhase.NativeCost, 48800)]
+    [ProgramMovementProof(ProgramMovementProofPhase.BoundEquipment, 48800)]
+    [ProgramMovementProof(ProgramMovementProofPhase.PrivatePayments, 48800)]
+    [ProgramMovementProof(ProgramMovementProofPhase.EffectPayments, 48800)]
     private bool MaMiaoMovement(ProgramSkillFrame f, SkillProgramEffect? e, ProgramMovementContinuation p) => f.AnniversaryMaMiao is { Stage: "adjust-children" or "gain-children" } &&
         e?.Op is SkillProgramEffectOp.ResolveAnniversaryMaMiaoZhangguan or SkillProgramEffectOp.ResolveAnniversaryMaMiaoCongfeng && p == f.PendingMovementContinuation && ValidMaMiao(f);
-    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 47200)]
-    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 47200)] private bool RetainMaMiao(ProgramSkillFrame f) => f.AnniversaryMaMiao is { Stage: "adjust-children" or "gain-children" or "recovery-children" } && ValidMaMiao(f);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterOwnerDeath, 48800)]
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterSkillLoss, 48800)] private bool RetainMaMiao(ProgramSkillFrame f) => f.AnniversaryMaMiao is { Stage: "adjust-children" or "gain-children" or "recovery-children" } && ValidMaMiao(f);
     private bool MaMiaoFirstChild(ProgramSkillFrame f, ResolutionFrame child)
     {
         if (f.AnniversaryMaMiao is not { } r || !ValidMaMiao(f)) return false;
@@ -84,23 +84,23 @@ public sealed partial class GameEngine
         _resolutionStack[i - 1] is ProgramSkillFrame f && MaMiaoFirstChild(f, _resolutionStack[i]) || NativeDrawAttemptRidesOn(_resolutionStack[i], _resolutionStack[i - 1]) || RecoveryReplacementFrameRidesOn(_resolutionStack[i], _resolutionStack[i - 1]);
     private ProgramSkillFrame? MaMiaoObserverRoot() => FindProgramObserverRoot(static (e, f, c) => e.MaMiaoFirstChild(f, c),
         static (e, i) => e.HasObserverSuffix(i, static (g, n) => g.MaMiaoObserverEdge(n), static (g, n, d) => g.IsSuspendedOrPaidRescueObserverSuffix(n, d)));
-    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 47200)]
-    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 47200)] private bool MaMiaoDamageObserver(long id) => MaMiaoObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
-    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 47200)] private bool MaMiaoBeforeDamageObserver(long id) => MaMiaoObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
-    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 47200)]
-    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 47200)] private bool MaMiaoDying() => ActiveDying is { } d && MaMiaoObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
-    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 47200)]
-    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 47200)] private bool MaMiaoRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
+    [ProgramObserverProof(ProgramObserverProofPhase.PaidDamage, 48800)]
+    [ProgramObserverProof(ProgramObserverProofPhase.NestedDamage, 48800)] private bool MaMiaoDamageObserver(long id) => MaMiaoObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is DamageTriggerWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramObserverProof(ProgramObserverProofPhase.BeforeDamage, 48800)] private bool MaMiaoBeforeDamageObserver(long id) => MaMiaoObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == id && f is BeforeDamageProgramWindowFrame) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramDyingProof(ProgramDyingProofPhase.Invariant, 48800)]
+    [ProgramDyingProof(ProgramDyingProofPhase.Runtime, 48800)] private bool MaMiaoDying() => ActiveDying is { } d && MaMiaoObserverRoot() is { } root && _resolutionStack.FindIndex(f => f.Id == d.Id) > _resolutionStack.FindIndex(f => f.Id == root.Id);
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.RecoveryCursor, 48800)]
+    [ProgramRecoveryParent(ProgramRecoveryParentPhase.DamageCursor, 48800)] private bool MaMiaoRecoveryParent(ProgramSkillFrame f, RecoveryReplacementFrame recovery)
     {
         if (f.AnniversaryMaMiao is null) return false;
         var i = _resolutionStack.FindIndex(x => x.Id == f.Id); var j = _resolutionStack.FindIndex(x => x.Id == recovery.Id);
         return i >= 0 && j > i && MaMiaoFirstChild(f, _resolutionStack[i + 1]) && (j == i + 1 || SameNameHandObserverSuffix(i)) && RecoveryReplacementFrameRidesOn(recovery, _resolutionStack[j - 1]);
     }
-    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 47200)]
-    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 47200)] private bool MaMiaoNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.BeforeFactionDebts, 48800)]
+    [ProgramNestedDamageProof(ProgramNestedDamageProofPhase.AfterFactionDebts, 48800)] private bool MaMiaoNestedDamage(ProgramSkillFrame f, int target, int amount, ProgramParticipantReference? source, DamageNature? nature, bool sourceLess)
     {
         if (f.AttackAttempt is not null || _resolutionStack.LastOrDefault()?.Id != f.Id || MaMiaoObserverRoot() is not { } root || root.Id == f.Id) return false;
         var e = GetPausedPrivateOfferEffect(f); return e is { Op: SkillProgramEffectOp.Damage } && e.Amount == amount && e.ActorReference == source && e.DamageNature == nature && target == (e.TargetReference is { } p ? ResolveProgramParticipant(f, p) : ResolveProgramEffectTarget(f, e.Target));
     }
-    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 47200)] private bool AdvanceMaMiaoChildren() => _pendingDecision is null && MaMiaoObserverRoot() is not null && TryAdvanceObserverSubtree(true);
+    [ProgramRuntimeHook(ProgramRuntimePhase.AfterResponseHealth, 48800)] private bool AdvanceMaMiaoChildren() => _pendingDecision is null && MaMiaoObserverRoot() is not null && TryAdvanceObserverSubtree(true);
 }

@@ -468,7 +468,10 @@ public sealed record ProgramKillTriggerWindowFrame(
     IReadOnlyList<ProgramSkillWindowContext> Contexts,
     int CandidateIndex = 0,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
-    : ResolutionFrame(Id, ResolutionFrameKind.ProgramDeathTriggerWindow, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.ProgramDeathTriggerWindow, Step)
+{
+    public bool BeforeDeathCleanup { get; init; }
+}
 
 public sealed record ProgramBindingStartedEvent(
     long FrameId,

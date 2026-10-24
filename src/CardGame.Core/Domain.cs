@@ -145,6 +145,7 @@ public enum DamageNature
 /// </summary>
 public enum PlayerMarkerKind
 {
+    AnniversaryHuCheErZhong = 49500,
     Pingding = 38100,
     ShenTaishiCiWei = 38200,
     Tianren = 38400,
@@ -298,6 +299,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.MouFaZhengXuan => "眩",
         PlayerMarkerKind.LuanZhan => "乱战",
         PlayerMarkerKind.RaoShe => "饶舌",
+        PlayerMarkerKind.AnniversaryHuCheErZhong => "重",
         PlayerMarkerKind.MeiYing => "梅影",
         PlayerMarkerKind.Kui => "傀",
         PlayerMarkerKind.DragonSeal => "龙印",

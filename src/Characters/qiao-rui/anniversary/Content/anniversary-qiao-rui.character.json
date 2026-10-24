@@ -1,0 +1,8 @@
+{
+ "formatVersion":1,"packageId":"standard-classic-generals","characterId":"character:qiao-rui",
+ "skills":[
+  {"registrationOrder":49400,"programBundle":"anniversary-qiao-rui","includeProgramPresentation":true,"definition":{"id":"anniversary:aishou","name":"隘守","description":"结束阶段，你可以摸X张牌（X为你的体力上限），这些牌标记为“隘”。准备阶段，弃置你手中的“隘”，若你以此法弃置的“隘”大于体力值，你加1体力上限。你的回合外，当你失去最后一张“隘”时，你减1体力上限。","executionForms":"Trigger, State"}},
+  {"registrationOrder":49401,"programBundle":"anniversary-qiao-rui","includeProgramPresentation":true,"definition":{"id":"anniversary:saowei","name":"扫围","description":"一名其他角色使用的【杀】结算完毕后，若目标不是你且在你攻击范围内，你可以将一张“隘”当【杀】对目标使用。若此【杀】造成伤害，你获得此牌。","executionForms":"Trigger, State"}}
+ ],
+ "generals":[{"registrationOrder":49402,"pools":{"current":49402},"definition":{"id":"anniversary:qiao-rui","name":"桥蕤","portraitKey":"anniversary-qiao-rui","skillId":"anniversary:aishou","additionalSkillIds":["anniversary:saowei"],"factionId":"qun","baseHp":4,"gender":"Male","characterId":"character:qiao-rui","variantId":"anniversary","rulesetId":"sanguosha-anniversary"}}]
+}

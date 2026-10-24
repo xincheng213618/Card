@@ -290,7 +290,8 @@ public sealed partial class GameEngine
             };
             foreach (var candidate in CollectEligibleProgramTriggerCandidates(
                 player, SkillProgramTriggerWindow.CharacterDied, facts))
-                collected.Add((candidate, facts));
+                if (!GetProgramTrigger(candidate).Effects.Any(effect => effect.Op == SkillProgramEffectOp.ResolveAnniversaryYuanYinYunjiu))
+                    collected.Add((candidate, facts));
         }
 
         if (collected.Count == 0)
@@ -333,6 +334,13 @@ public sealed partial class GameEngine
 
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
+                if (frame.BeforeDeathCleanup)
+                {
+                    CompleteAnniversaryYuanYinDeathBeforeCleanupWindow(frame, death);
+                    PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramDeathTriggerWindow);
+                    ContinuePlayerDeathCleanup(death.Id);
+                    return;
+                }
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramDeathTriggerWindow);
                 UpdateDeathFrame(death.Id, current => current with { KillerProgramsResolved = true });
                 ContinueDeathResolution(death.Id);
@@ -639,6 +647,87 @@ public sealed partial class GameEngine
                     SkillOwnerSeat: owner.Seat,
                     Reason: "program.attributed-marker.death-clear"));
             }
+        }
+    }
+
+    private void ContinuePlayerDeathCleanup(long deathFrameId)
+    {
+        var death = GetCurrentDeathFrame(deathFrameId);
+        var victim = _players[death.VictimSeat];
+        var killer = death.KillerSeat is { } killerSeat ? _players[killerSeat] : null;
+        try
+        {
+            var deathCleanupCardIds = new List<int>();
+            void MoveDiedCards(IEnumerable<Card> cards, CardLocation from, CardMoveReason reason)
+            {
+                var materialized = cards.ToArray();
+                deathCleanupCardIds.AddRange(materialized.Select(item => item.Id));
+                MoveCards(materialized, from, CardLocation.DiscardPile, reason);
+            }
+            MoveDiedCards(
+                GetHand(victim),
+                CardLocation.Hand(victim.Seat),
+                CardMoveReasons.DeathDiscard);
+            MoveDiedCards(
+                GetEquipment(victim),
+                CardLocation.Equipment(victim.Seat),
+                CardMoveReasons.DeathEquipmentDiscard);
+            MoveDiedCards(
+                GetJudgment(victim),
+                CardLocation.Judgment(victim.Seat),
+                CardMoveReasons.DeathDiscard);
+            MoveDiedCards(
+                GetBuquWounds(victim),
+                CardLocation.BuquWound(victim.Seat),
+                CardMoveReasons.BuquDeathDiscard);
+            MoveDiedCards(
+                GetAuthority(victim),
+                CardLocation.Authority(victim.Seat),
+                CardMoveReasons.AuthorityDeathDiscard);
+            MoveDiedCards(
+                _cardZones.CardsAt(CardLocation.Chunlao(victim.Seat)),
+                CardLocation.Chunlao(victim.Seat),
+                CardMoveReasons.ChunlaoDeathDiscard);
+            foreach (var curse in _sourceCurses.Where(c => c.TargetSeat == victim.Seat).ToArray())
+                MoveDiedCards(_cardZones.CardsAt(curse.Location), curse.Location, new("program.source-curse.target-death"));
+            var publicPileSources = PublicPileSources(victim.Seat).ToArray();
+            if (publicPileSources.Length == 0)
+                MoveDiedCards(_cardZones.CardsAt(PublicPileLocation(victim.Seat)), PublicPileLocation(victim.Seat), new("skill-program.public-pile.owner-death"));
+            else foreach (var source in publicPileSources)
+                MoveDiedCards(PublicPileCards(source), source.Location, new("skill-program.public-pile.owner-death"));
+            MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat)),
+                new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat), new CardMoveReason("skill-program.deferred-pile.owner-death"));
+            _deferredPublicPileDeposits.RemoveAll(item => item.OwnerSeat == victim.Seat);
+            foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.OwnerSeat == victim.Seat || l.PrivateTurnHold?.DeferredOffer?.TargetSeat == victim.Seat))
+                MoveDiedCards(_cardZones.CardsAt(location),location,new("skill.private-turn-hold.death"));
+            MoveDiedCards(_cardZones.CardsAt(CardLocation.RoundHold(victim.Seat)), CardLocation.RoundHold(victim.Seat), new("skill-program.hanguo.death-discard"));
+            MoveDiedCards(
+                _cardZones.CardsAt(CardLocation.PojunHold(victim.Seat)),
+                CardLocation.PojunHold(victim.Seat),
+                CardMoveReasons.PojunHoldDeathDiscard);
+            MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PrivateReserve, victim.Seat)),
+                new CardLocation(CardZoneKind.PrivateReserve, victim.Seat), new CardMoveReason("program.private-reserve.death"));
+            deathCleanupCardIds.AddRange(DiscardQushiHolderDeathSeals(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
+            deathCleanupCardIds.AddRange(DiscardAnniversarySunQuanMingOnDeath(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
+            UpdateDeathFrame(deathFrameId, frame => frame with { CleanedUpCardIds = deathCleanupCardIds });
+
+            AddLog(
+                "PlayerDied",
+                IsNationalWarMode
+                    ? $"{victim.Name} 阵亡，属于{GetFactionName(victim.NationalFactionId!)}势力。"
+                    : $"{victim.Name} 阵亡，身份是【{GetRoleName(victim.Role)}】。",
+                killer?.Seat,
+                victim.Seat);
+            MarkConvertingGiftExactDeath(deathFrameId, victim.Seat);
+            AdvanceEventRulesAndQueueFact(new PlayerDiedEvent(victim.Seat, killer?.Seat));
+            if (TryBeginShenPangTongKunyuDeath(GetCurrentDeathFrame(deathFrameId))) return;
+            ContinueDeathOutcome(deathFrameId);
+        }
+        catch
+        {
+            if (_resolutionStack.LastOrDefault() is DeathFrame { Id: var currentId } && currentId == deathFrameId)
+                PopResolutionFrame(deathFrameId, ResolutionFrameKind.Death);
+            throw;
         }
     }
 

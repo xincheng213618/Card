@@ -11,7 +11,7 @@ public sealed partial class GameEngine
         GetHand(_players[holder]).Concat(GetEquipment(_players[holder])).Select(c => new AnniversaryMaMiaoEntity(c.Id, _cardZones.GetLocation(c.Id)))
             .Where(e => e.From != CardLocation.Hand(recipient) && !IsForeignEquipmentDiscardPrevented(recipient, GetAdvancedCard(e.CardId), e.From, OwnedCardMoveIntent.Obtain))
             .OrderBy(e => e.From.Zone).ThenBy(e => e.CardId).ToArray();
-    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 47200, SkillProgramEffectOp.ResolveAnniversaryMaMiaoZhangguan, SkillProgramEffectOp.ResolveAnniversaryMaMiaoCongfeng)]
+    [ProgramTriggerLegality(ProgramTriggerLegalityPhase.BeforeGainQualification, 48800, SkillProgramEffectOp.ResolveAnniversaryMaMiaoZhangguan, SkillProgramEffectOp.ResolveAnniversaryMaMiaoCongfeng)]
     private bool CanOfferMaMiao(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext w)
     {
         if (t.Effects is [{ Op: SkillProgramEffectOp.ResolveAnniversaryMaMiaoCongfeng }]) return MaMiaoGainQualification(c, w) is { } e && MaMiaoObtainPool(e.Recipient, e.Holder).Length > 0;
@@ -145,9 +145,9 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(f = f with { AnniversaryMaMiao = r with { Stage = "adjust-children", Draw = outcome, Before = outcome.SequenceBefore, After = outcome.SequenceAfter }, PendingMovementContinuation = new(f.OwnerSeat, 0, null) });
         AdvanceEventRulesAndQueueFact(new AnniversaryMaMiaoMovementEvent(f.Id, "draw", r.Count, outcome.SequenceBefore, outcome.SequenceAfter)); ContinueMaMiao(f.Id);
     }
-    [ProgramContinuation(ProgramContinuationKind.Resume, 47200)] private bool ResumeMaMiao(long id)
+    [ProgramContinuation(ProgramContinuationKind.Resume, 48800)] private bool ResumeMaMiao(long id)
     { if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { AnniversaryMaMiao: not null } f || f.Id != id) return false; ContinueMaMiao(id); return true; }
-    [ProgramContinuation(ProgramContinuationKind.Movement, 47200)] private bool ReturnMaMiaoMovement(ProgramSkillFrame f)
+    [ProgramContinuation(ProgramContinuationKind.Movement, 48800)] private bool ReturnMaMiaoMovement(ProgramSkillFrame f)
     { if (f.AnniversaryMaMiao is null) return false; ContinueMaMiao(f.Id); return true; }
     [ProgramAiChoice(SkillProgramEffectOp.ResolveAnniversaryMaMiaoZhangguan, SkillProgramEffectOp.ResolveAnniversaryMaMiaoCongfeng)] private PromptChoice ChooseMaMiao(PendingDecision p) => p.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("branch") == "accept") ?? p.Choices.First();
 }

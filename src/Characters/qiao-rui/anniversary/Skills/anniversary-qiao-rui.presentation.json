@@ -1,0 +1,4 @@
+{"schemaVersion":3,"skills":{
+ "anniversary:aishou":{"name":"隘守","description":"结束阶段摸体力上限张牌并标记为隘；准备阶段弃手中隘，实际弃置数超过体力则加体力上限；回合外失去最后隘则减体力上限。","triggerLabels":{"ending-marked-draw":"隘守：摸牌并标记为隘","prepare-marked-discard":"隘守：弃置手中的隘","outside-last-mark-loss":"隘守：失去最后一张隘"}},
+ "anniversary:saowei":{"name":"扫围","description":"其他角色的杀结算后，可将隘当杀对原合法目标使用；此杀造成伤害后获得原牌。","triggerLabels":{"completed-other-slash":"扫围：将隘当杀使用"}}
+}}

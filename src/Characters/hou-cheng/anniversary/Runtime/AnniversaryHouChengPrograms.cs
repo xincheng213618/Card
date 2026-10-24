@@ -21,7 +21,7 @@ internal sealed class AnniversaryHouChengHandler : ISkillProgramEffectHandler
 internal static class AnniversaryHouChengComposition
 {
     internal const string Skill = "anniversary:xianniang";
-    [ProgramCatalogValidation(47100)] internal static void Validate(string path, SkillProgram p)
+    [ProgramCatalogValidation(48700)] internal static void Validate(string path, SkillProgram p)
     {
         if (!p.Triggers.SelectMany(t => t.Effects).Any(e => e.Op == SkillProgramEffectOp.ResolveAnniversaryHouChengXianniang)) return;
         if (p.Id != Skill || p.Triggers is not [var discard, var damage] || discard.Id != "foreign-discard" || discard.Window != SkillProgramTriggerWindow.CardsMoved || discard.Subject != SkillProgramTriggerSubject.Owner || discard.MovementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch || !discard.MovementDiscardOnly || !discard.SourceZones.SequenceEqual(new[] { CardZoneKind.Hand, CardZoneKind.Equipment }) || damage.Id != "after-damage" || damage.Window != SkillProgramTriggerWindow.AfterDamageApplied || damage.Subject != SkillProgramTriggerSubject.Owner || damage.DamageOccurrence != SkillProgramDamageOccurrence.PerDamage ||

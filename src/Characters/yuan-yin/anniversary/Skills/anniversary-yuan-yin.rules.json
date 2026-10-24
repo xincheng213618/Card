@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"anniversary:moshou","revision":1,"triggers":[{"id":"black-target-cycle","window":"cardUseTargetsFinalized","ownerRelation":"target","optional":true,"condition":{"kind":"cardActionCardIsBlack"},"effects":[{"op":"resolveAnniversaryYuanYinMoshou","target":"owner"}]}]},
+ {"id":"anniversary:yunjiu","revision":1,"triggers":[{"id":"dead-owned-card-gift","window":"characterDied","subject":"owner","optional":true,"effects":[{"op":"resolveAnniversaryYuanYinYunjiu","target":"owner"}]}]}
+]}

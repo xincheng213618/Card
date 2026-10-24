@@ -4318,7 +4318,7 @@ public sealed partial class GameEngine
     private void CompleteEquipmentUse(CharacterState source, Card equipment, long resolutionId)
     {
         if (TryHappyWeiYanEquipmentCommitted(resolutionId, equipment)) return;
-        if (IsXiangChongClaimedUseMaterial(resolutionId, equipment.Id))
+        if (IsXiangChongClaimedUseMaterial(resolutionId, equipment.Id) || IsAnniversaryHuCheErClaimedUseMaterial(resolutionId, equipment.Id))
         {
             BeginSimpleCardUse(resolutionId, new(equipment.Id, SimpleCardUseEffect.Equipment));
             return;
@@ -16888,71 +16888,8 @@ public sealed partial class GameEngine
                 AdvanceEventRulesAndQueueFact(new RoleRevealedEvent(victim.Seat, victim.Role));
             }
             ApplyGuanduDeathReward(victim, killer);
-            var deathCleanupCardIds = new List<int>();
-            void MoveDiedCards(IEnumerable<Card> cards, CardLocation from, CardMoveReason reason)
-            {
-                var materialized = cards.ToArray();
-                deathCleanupCardIds.AddRange(materialized.Select(item => item.Id));
-                MoveCards(materialized, from, CardLocation.DiscardPile, reason);
-            }
-            MoveDiedCards(
-                GetHand(victim),
-                CardLocation.Hand(victim.Seat),
-                CardMoveReasons.DeathDiscard);
-            MoveDiedCards(
-                GetEquipment(victim),
-                CardLocation.Equipment(victim.Seat),
-                CardMoveReasons.DeathEquipmentDiscard);
-            MoveDiedCards(
-                GetJudgment(victim),
-                CardLocation.Judgment(victim.Seat),
-                CardMoveReasons.DeathDiscard);
-            MoveDiedCards(
-                GetBuquWounds(victim),
-                CardLocation.BuquWound(victim.Seat),
-                CardMoveReasons.BuquDeathDiscard);
-            MoveDiedCards(
-                GetAuthority(victim),
-                CardLocation.Authority(victim.Seat),
-                CardMoveReasons.AuthorityDeathDiscard);
-            MoveDiedCards(
-                _cardZones.CardsAt(CardLocation.Chunlao(victim.Seat)),
-                CardLocation.Chunlao(victim.Seat),
-                CardMoveReasons.ChunlaoDeathDiscard);
-            foreach (var curse in _sourceCurses.Where(c => c.TargetSeat == victim.Seat).ToArray())
-                MoveDiedCards(_cardZones.CardsAt(curse.Location), curse.Location, new("program.source-curse.target-death"));
-            var publicPileSources = PublicPileSources(victim.Seat).ToArray();
-            if (publicPileSources.Length == 0)
-                MoveDiedCards(_cardZones.CardsAt(PublicPileLocation(victim.Seat)), PublicPileLocation(victim.Seat), new("skill-program.public-pile.owner-death"));
-            else foreach (var source in publicPileSources)
-                MoveDiedCards(PublicPileCards(source), source.Location, new("skill-program.public-pile.owner-death"));
-            MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat)),
-                new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat), new CardMoveReason("skill-program.deferred-pile.owner-death"));
-            _deferredPublicPileDeposits.RemoveAll(item => item.OwnerSeat == victim.Seat);
-            foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.OwnerSeat == victim.Seat || l.PrivateTurnHold?.DeferredOffer?.TargetSeat == victim.Seat))
-                MoveDiedCards(_cardZones.CardsAt(location),location,new("skill.private-turn-hold.death"));
-            MoveDiedCards(_cardZones.CardsAt(CardLocation.RoundHold(victim.Seat)), CardLocation.RoundHold(victim.Seat), new("skill-program.hanguo.death-discard"));
-            MoveDiedCards(
-                _cardZones.CardsAt(CardLocation.PojunHold(victim.Seat)),
-                CardLocation.PojunHold(victim.Seat),
-                CardMoveReasons.PojunHoldDeathDiscard);
-            MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PrivateReserve, victim.Seat)),
-                new CardLocation(CardZoneKind.PrivateReserve, victim.Seat), new CardMoveReason("program.private-reserve.death"));
-            deathCleanupCardIds.AddRange(DiscardQushiHolderDeathSeals(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
-            deathCleanupCardIds.AddRange(DiscardAnniversarySunQuanMingOnDeath(_resolutionStack.OfType<DeathFrame>().Single(frame => frame.Id == deathFrameId)));
-            UpdateDeathFrame(deathFrameId, frame => frame with { CleanedUpCardIds = deathCleanupCardIds });
-
-            AddLog(
-                "PlayerDied",
-                IsNationalWarMode
-                    ? $"{victim.Name} 阵亡，属于{GetFactionName(victim.NationalFactionId!)}势力。"
-                    : $"{victim.Name} 阵亡，身份是【{GetRoleName(victim.Role)}】。",
-                killer?.Seat,
-                victim.Seat);
-            MarkConvertingGiftExactDeath(deathFrameId, victim.Seat);
-            AdvanceEventRulesAndQueueFact(new PlayerDiedEvent(victim.Seat, killer?.Seat));
-            if (TryBeginShenPangTongKunyuDeath(GetCurrentDeathFrame(deathFrameId))) return;
-            ContinueDeathOutcome(deathFrameId);
+            if (TryBeginAnniversaryYuanYinDeathBeforeCleanup(deathFrameId)) return;
+            ContinuePlayerDeathCleanup(deathFrameId);
         }
         catch
         {
@@ -18060,7 +17997,7 @@ public sealed partial class GameEngine
         AssertQinglongInsertions();
         var processing = ViewContributors.FilterProcessing(ProgramViewContribution.InvariantProcessing,
             _cardZones.CardsAt(CardLocation.Processing));
-        var hasActiveCardResolution = (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt()) || HasLeChengyanBorrowedPrompt() || HasWenhePoisonFireAttackPrompt() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.ColorFireAttack?.PaidCardId is not null) || ActiveCardAttack is not null ||
+        var hasActiveCardResolution = (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt()) || HasLeChengyanBorrowedPrompt() || HasWenhePoisonFireAttackPrompt() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.ColorFireAttack?.PaidCardId is not null) || ActiveCardAttack is not null ||
             ActiveQinglongFollowup is not null || ActiveBorrowedSword is not null ||
             ActiveGroupCard is not null ||
             ActiveFireAttack is not null ||
@@ -19615,7 +19552,7 @@ public sealed partial class GameEngine
         }
 
         var hasCardProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
-            (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || HasKemingEchoPrompt() || HasMobileZhitiContestPrompt() || (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt())) || HasLeChengyanBorrowedPrompt() || HasCardActionPindianContinuation() || HasBiguoPindianContinuation();
+            (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() || HasHulaoAllianceFeastPrompt() || HasShenwuTrickPrompt() || HasHellSoulPrompt() || HasWenheChaosPrompt() || HasWumiaoFloodDiscardPrompt() || HasQizhengPrompt() || HasDragonBoatDiscardPrompt() || HasKemingEchoPrompt() || HasMobileZhitiContestPrompt() || (HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt())) || HasLeChengyanBorrowedPrompt() || HasCardActionPindianContinuation() || HasBiguoPindianContinuation();
         var hasBeforeDamageProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
             _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any();
         var awaitingHumanResponse =
@@ -19655,7 +19592,7 @@ public sealed partial class GameEngine
         var awaitingNullificationPayment = ActiveNullificationWindow is { } paymentWindow &&
             (TryGetPolicyCounterspellPaymentRide(paymentWindow, out _) || HasWoLongFengChuUseObserver(paymentWindow.ParentFrameId) ||
                 HasMobileSimaRenjieNativeSubtree(paymentWindow.ParentFrameId));
-        if (!(HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt()) && !HasLeChengyanBorrowedPrompt() && !HasExactWenhePoisonResponseContinuation() && !HasHulaoAllianceFeastPrompt() && !HasShenwuTrickPrompt() && !HasHellSoulPrompt() && !HasWenheChaosPrompt() && !HasWumiaoFloodDiscardPrompt() && !HasQizhengPrompt() && !HasDragonBoatDiscardPrompt() && !_resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() && CurrentDamageAttempt is null &&
+        if (!(HasHappyDianWeiGuardPrompt() || HasHappyPangTongPrompt() || HasHappyDiaoChanPrompt() || HasHappyQiaoHealthPrompt() || HasHappyZuoCiPrompt() || HasAnniversaryHuZhaoPrompt() || HasAnniversaryXuJingPrompt() || HasDuKuiPrompt() || HasAnniversaryLiuYongPrompt() || HasAnniversaryLiuLiPrompt() || HasAnniversaryBaiLingYunPrompt() || HasZhangFenPrompt() || HasAnniversaryYangBiaoPrompt() || HasAnniversaryHeYanPrompt() || HasAnniversaryGuoZhaoPrompt() || HasAnniversaryFengXiPrompt() || HasAnniversaryJiedaoPrompt() || HasAnniversaryFuRongFuQianPrompt() || HasAnniversaryGaoXiangPrompt() || HasAnniversaryZhangWenPrompt() || HasAnniversaryZhangXunPrompt() || HasAnniversarySunHuanPrompt() || HasAnniversaryMuShunPrompt() || HasAnniversaryXingDaoRongPrompt() || HasAnniversaryHanSongPrompt() || HasAnniversaryXiahouHuiPrompt() || HasAnniversaryXunXuPrompt() || HasAnniversaryZhangHuanPrompt() || HasAnniversaryCheZhouPrompt() || HasAnniversaryWangChangPrompt() || HasAnniversaryWuFuPrompt() || HasAnniversaryMaTiePrompt() || HasAnniversaryYanXiangPrompt() || HasAnniversaryCuiLiePrompt() || HasAnniversaryHouChengPrompt() || HasAnniversaryMaMiaoPrompt() || HasAnniversaryYuanYinPrompt() || HasAnniversaryQiaoRuiPrompt() || HasAnniversaryHuCheErPrompt()) && !HasLeChengyanBorrowedPrompt() && !HasExactWenhePoisonResponseContinuation() && !HasHulaoAllianceFeastPrompt() && !HasShenwuTrickPrompt() && !HasHellSoulPrompt() && !HasWenheChaosPrompt() && !HasWumiaoFloodDiscardPrompt() && !HasQizhengPrompt() && !HasDragonBoatDiscardPrompt() && !_resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() && CurrentDamageAttempt is null &&
             ActiveNullificationWindow is null &&
             ActiveJudgment is null &&
             !HasKemingEchoPrompt() &&

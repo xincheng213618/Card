@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "packageId": "standard-classic-generals",
+  "characterId": "character:hu-che-er",
+  "skills": [
+    { "registrationOrder": 49500, "programBundle": "anniversary-hu-che-er", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:daoji", "name": "盗戟", "description": "当其他角色本局游戏第一次使用武器牌时，你可以选择一项：1.立即获得此武器牌；2.其本回合不能使用或打出【杀】。", "executionForms": "Trigger, State" } },
+    { "registrationOrder": 49501, "programBundle": "anniversary-hu-che-er", "includeProgramPresentation": true,
+      "definition": { "id": "anniversary:fuzhong", "name": "负重", "description": "锁定技，你每次回合外获得手牌时，获得1枚“重”标记，根据“重”标记数，你获得以下效果：大于等于1，摸牌阶段多摸1张牌；大于等于2，你计算与其他角色的距离减2；大于等于3，你的手牌上限加3；大于等于4，结束阶段对一名其他角色造成1点伤害然后移去4个“重”。", "executionForms": "Trigger, State", "tags": "Locked" } }
+  ],
+  "generals": [
+    { "registrationOrder": 49502, "pools": { "current": 49502 }, "definition": { "id": "anniversary:hu-che-er", "name": "胡车儿", "portraitKey": "anniversary-hu-che-er", "skillId": "anniversary:daoji", "additionalSkillIds": ["anniversary:fuzhong"], "factionId": "qun", "baseHp": 4, "gender": "Male", "characterId": "character:hu-che-er", "variantId": "anniversary", "rulesetId": "sanguosha-anniversary" } }
+  ]
+}

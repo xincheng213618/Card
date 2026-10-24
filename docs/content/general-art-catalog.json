@@ -2,6 +2,57 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "anniversary-yuan-yin",
+      "characterName": "袁胤",
+      "defaultSkinId": "1190701",
+      "skins": [
+        {
+          "id": "1190701",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1907.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1190701.png",
+          "sha256": "8855d2762d1612b164df085b0355bd60cff9e295da4ed2d7a271619e5b8eef39",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-yuan-yin.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-qiao-rui",
+      "characterName": "桥蕤",
+      "defaultSkinId": "1190501",
+      "skins": [
+        {
+          "id": "1190501",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1905.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1190501.png",
+          "sha256": "a6b799deaaab0f6deafcfd21115fa2132aa51d7dcab5089d9392251cf58ee173",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-qiao-rui.png"
+        }
+      ]
+    },
+    {
+      "key": "anniversary-hu-che-er",
+      "characterName": "胡车儿",
+      "defaultSkinId": "1106101",
+      "skins": [
+        {
+          "id": "1106101",
+          "name": "经典形象",
+          "sourcePage": "https://x.sanguosha.com/hero/1061.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/1106101.png",
+          "sha256": "aad89dc9edadf5bc3338231250156b73a9c3529deedcc09dead46060ad388661",
+          "pixelWidth": 574,
+          "pixelHeight": 761,
+          "localPath": "src/CardGame.Wpf/Assets/official-anniversary-hu-che-er.png"
+        }
+      ]
+    },
+    {
       "key": "anniversary-hou-cheng",
       "characterName": "侯成",
       "defaultSkinId": "1120901",
